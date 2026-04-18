@@ -1,0 +1,36 @@
+We present a method for detecting and correcting confabulation in language
+models at inference time, requiring no access to model weights, no training
+data, and no modification to the model itself. Singular value decomposition
+(SVD) of the key-value cache---a standard byproduct of autoregressive
+generation---produces spectral features that distinguish genuine reasoning
+from confabulation. We introduce Marchenko-Pastur (MP) corrected features
+derived from random matrix theory that are approximately
+dimension-invariant, eliminating the dominant token-count confound. In a
+detection experiment across three architectures (Qwen2.5-7B, Llama-3.1-8B,
+Mistral-7B-v0.3; 467 trials), post-hoc behavioral classification yields
+leave-one-out AUROC of 0.707 (Qwen, $p=0.001$) using MP features alone,
+with encoding-phase features at chance (0.511), confirming a
+generation-specific signal. In a separate steering experiment on
+Qwen3.5-27B-Claude-Opus-Distilled (100 trials, five-arm within-subject
+including no-op null verification),
+calm-direction injection into the KV cache corrected 5 of 7 confabulations
+while a null injection control corrected 0 of 7 ($p=0.031$, one-sided;
+$p=0.063$, two-sided), with the null control producing
+identical output on all 100 trials. An expanded five-arm experiment
+(Normal, Null, Calm, Worry, Doubt) confirms a pharmacological pattern:
+doubt corrects 7/7 (100\%), worry 6/7 (86\%), calm 5/7 (71\%), while
+zero non-confabulating trials resist all three treatments. However,
+blanket steering also induced adverse confabulation in 3--5\% of hedged
+trials, confirming that detection-gated correction is required. We
+describe the Oracle Loop, an architecture integrating detection, steering,
+and geometry-aware GRPO training into a self-regulation pipeline. Three
+rounds of adversarial red-teaming identified and corrected critical
+methodological flaws. Recognizing that the steering methodology creates
+a dual-use attack surface, we present a Cache Integrity Monitor that
+detects unauthorized cache modifications against uniform additive
+perturbation on two architectures (standard transformer and hybrid
+attention) with 0/36 false positives (95\% CI: 0--10\%) and 72/72
+true positives (95\% CI: 95--100\%) at injection strengths as low as
+1\% of the operational level. Detection code, data, defense implementation, and red-team logs are
+publicly available; steering vectors are available to vetted researchers
+under staged disclosure.

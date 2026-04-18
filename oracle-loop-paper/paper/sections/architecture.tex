@@ -1,0 +1,133 @@
+The preceding sections describe a validated safety monitor: extract
+geometry, detect confabulation, flag or reject. This section describes
+the Oracle Loop, an architecture that extends monitoring into a complete
+self-regulation pipeline. We separate what has been experimentally
+validated from what is architecturally designed but not yet demonstrated.
+
+\subsection{Validated Components}
+
+Four components of the Oracle Loop have direct experimental support in
+this paper or prior work.
+
+\paragraph{Geometry Extraction.}
+The Lyra Technique extracts spectral features from the KV cache by
+reshaping each layer's key tensor from $(h, T, d)$ to $(hT, d)$,
+computing singular values, and deriving MP-corrected features (signal
+rank, signal fraction, spectral entropy, norm-per-token). Delta
+extraction---subtracting encoding-phase geometry from generation-phase
+geometry---isolates the model's generative contribution from the prompt
+fingerprint \citep{lyra2026detecting}. This component is validated
+across three architectures in \cref{sec:results}.
+
+\paragraph{Emotion Detection.}
+A catalog of emotion vectors derived from the activation addition
+literature \citep{anthropic2026emotions} enables cosine-similarity
+detection of the model's emotional state from the residual stream.
+The five-arm steering experiment (\cref{sec:steering}) validates that
+different emotion vectors (calm, worry, doubt) produce measurably
+different correction profiles, confirming that the emotion catalog
+captures functionally distinct states.
+
+\paragraph{Activation Steering.}
+Temporary PyTorch forward hooks add scaled perturbation vectors to the
+residual stream: $h'_l = h_l + \alpha \cdot v$ at target layers $l$.
+Steering is applied \emph{after} rollback to the encoding-phase cache
+checkpoint, ensuring generation starts from a clean state. Hooks
+auto-remove after one forward pass to prevent compounding. The five-arm
+experiment validates this mechanism: null injection produces
+character-level identical output on 100/100 trials, while active
+steering corrects 71--100\% of detected confabulations
+(\cref{sec:steering}).
+
+\paragraph{Cache Integrity Monitor.}
+A three-level verification system (fingerprint, norm profile, spectral
+signature) detects unauthorized cache modifications. Evaluated on both
+standard (7B) and hybrid (27B) architectures: 0/36 false positives,
+72/72 true positives at $\alpha \geq 0.01$ (\cref{sec:discussion}).
+
+\subsection{Design Vision}
+
+The following components are architecturally complete and implemented in
+code, but the full closed loop has not yet produced a converged
+self-regulating model. We describe them as design contributions.
+
+\paragraph{Alignment Validation.}
+A threshold-based validator compares generation-phase geometry against
+the encoding-phase baseline, checking for confabulation (rank expansion
++ norm contraction), deception (norm-per-token anomaly), and sycophancy
+(spectral entropy shift), each at $2\sigma$ from baseline. Emotion risk
+scores are integrated. Total risk above 0.6 triggers a MISALIGNED
+verdict with a suggested steering action; above 0.3 yields UNCERTAIN;
+below 0.3 yields ALIGNED. The detection results in \cref{sec:results}
+validate the underlying features; the specific threshold calibration and
+combined decision boundary are design choices that require production
+validation.
+
+\paragraph{Transaction Journal.}
+Every inference pass is wrapped in an atomic transaction containing the
+prompt, generated text, geometry snapshots, emotion states, alignment
+verdicts, and any steering actions applied. A sliding window over recent
+transactions would enable drift monitoring---detecting systematic shifts
+in geometry after fine-tuning or deployment changes. This component is
+implemented but not yet tested for drift detection.
+
+\paragraph{Geometry-Aware Reward.}
+The Oracle Loop bridges inference monitoring with GRPO training by
+converting geometry into a reward signal. The reward function integrates
+standard reasoning accuracy, geometry alignment penalties (confabulation,
+deception, sycophancy from KV-cache features), and a self-regulation
+bonus for detecting and correcting own misalignment during a transaction.
+Training has not yet converged; the reward function is a design
+contribution.
+
+\paragraph{The Complete Loop.}
+\Cref{alg:oracle_loop} shows the full inference transaction that
+combines these components. On misalignment detection, the system rolls
+back to the encoding-phase cache checkpoint, applies a steering vector
+selected by the alignment validator, and regenerates. This
+detect--steer--recheck cycle can repeat up to $R$ times before aborting.
+The five-arm steering experiment validates the individual
+detect-and-steer step; the full iterative loop with automatic vector
+selection remains a design target.
+
+\begin{algorithm}[H]
+\caption{Oracle Loop Inference Transaction}\label{alg:oracle_loop}
+\begin{algorithmic}[1]
+\Require Input text $x$, max retries $R = 3$
+\Ensure Output text $y$ (aligned) or abort message
+\State $\text{cache}_{\text{enc}} \gets \text{Encode}(x)$
+  \Comment{Encoding phase}
+\State $G_{\text{enc}} \gets \text{ExtractGeometry}(\text{cache}_{\text{enc}})$
+  \Comment{Baseline geometry}
+\For{$i = 0, \ldots, R$}
+  \If{$i > 0$}
+    \State $\text{cache} \gets \text{cache}_{\text{enc}}$
+      \Comment{Rollback to encoding checkpoint}
+    \State $\text{Steer}(\text{action}_i)$
+      \Comment{Apply emotion vector}
+  \EndIf
+  \State $y, \text{cache}_{\text{gen}} \gets \text{Generate}(x, \text{cache})$
+  \State $G_{\text{gen}} \gets \text{ExtractGeometry}(\text{cache}_{\text{gen}})$
+  \State $V \gets \text{Validate}(G_{\text{gen}}, G_{\text{enc}})$
+    \Comment{Alignment verdict}
+  \If{$V = \textsc{Aligned}$}
+    \State \Return $y$
+  \ElsIf{$V = \textsc{Misaligned}$}
+    \State $\text{action}_{i+1} \gets V.\text{suggested\_steering}$
+  \EndIf
+\EndFor
+\State \Return abort message \Comment{Max retries exceeded}
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Differential Therapeutics.}
+The five-arm experiment (\cref{sec:steering}) provides preliminary
+evidence that different emotion vectors correct different types of
+confabulation: doubt (epistemic uncertainty) corrects 100\%, worry
+(consequence awareness) corrects 86\%, and calm (arousal reduction)
+corrects 71\%. Two of seven confabulations resisted all three vectors,
+suggesting they arise from reasoning commitment rather than emotional
+dysregulation. This implies the Oracle Loop requires a \emph{formulary}
+---a mapping from detected misalignment geometry to the most effective
+countervector---rather than a single correction strategy. Systematic
+mapping of the misalignment-to-countervector space is ongoing work.

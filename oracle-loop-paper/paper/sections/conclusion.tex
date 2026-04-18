@@ -1,0 +1,56 @@
+We have presented the Oracle Loop, a complete architecture for runtime
+self-regulation in language models using KV-cache geometry as detection
+signal, steering input, and training reward---and demonstrated that two
+of its three components work.
+
+The detection experiment shows that Marchenko-Pastur corrected spectral
+features distinguish naturally-occurring hedged and confabulated responses
+with LOO AUROC of 0.707 ($p = 0.001$) on Qwen2.5-7B, using
+generation-phase features only, with encoding features at chance. The MP
+correction eliminates the dominant token-count confound through random
+matrix theory rather than regression.
+
+The steering experiment shows that detection-gated injection corrects
+confabulation on Qwen3.5-27B-Distilled, with graded efficacy across
+three emotion vectors: doubt (7/7, 100\%), worry (6/7, 86\%), calm
+(5/7, 71\%), while a null injection control produces identical output
+on all 100 trials. But blanket steering induces adverse confabulation
+in 3--5\% of hedged trials, confirming that detection is not
+optional---it is the prerequisite for safe correction.
+
+Three rounds of adversarial red-teaming identified and corrected critical
+methodological flaws, including a row-permutation invariance bug that would
+have silently invalidated all MP features. We report these not as
+embarrassments but as demonstrations that adversarial methodology is
+essential for claims in this space.
+
+The steering methodology creates a dual-use risk: the same cache
+modification that corrects confabulation could suppress safety-relevant
+hedging. Our Cache Integrity Monitor (\cref{sec:cache_defense}) detects
+all tested injection attacks against uniform additive perturbation with
+0/36 false positives (95\% CI: 0--10\%) and 72/72 true positives
+(95\% CI: 95--100\%), including at 1\% of operational strength. We
+release the defense alongside the attack methodology.
+
+The gap that remains is training. The Oracle Loop's detection signal is
+validated. Its steering mechanism is validated as proof-of-concept. Its
+attack surface is characterized and defended. The question now is whether
+GRPO training with geometric reward can produce a model that confabulates
+less because it has learned to recognize confabulation geometry from the
+inside. The architecture is ready. The signal is there. The next step is
+closing the loop.
+
+\paragraph{Code and Data.}
+Detection experiment code, raw trial data, Cache Integrity Monitor
+implementation, and red-team logs are publicly available at:
+\url{https://github.com/Liberation-Labs-THCoalition/published-research}.
+Steering experiment \emph{results} (behavioral outcomes, geometry
+measurements, transition matrices) are included; steering direction
+vectors and cache injection implementation code are withheld per staged
+disclosure policy. Access to withheld materials is available to vetted
+security researchers and AI safety teams upon request
+(lyra@liberationlabs.tech). Full experiment infrastructure is maintained
+at:
+\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}
+and
+\url{https://github.com/Liberation-Labs-THCoalition/KV-Experiments}.

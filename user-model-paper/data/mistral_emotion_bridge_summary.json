@@ -1,0 +1,1929 @@
+{
+  "experiment": "emotion_bridge_mistral",
+  "version": "1.0",
+  "timestamp": "2026-04-17T06:50:05.585360",
+  "design": {
+    "model": "mistralai/Mistral-7B-Instruct-v0.3",
+    "emotions": {
+      "ambivalent": {
+        "valence": 0.0,
+        "arousal": -0.15
+      },
+      "anxious": {
+        "valence": -0.4,
+        "arousal": 0.65
+      },
+      "appreciative": {
+        "valence": 0.75,
+        "arousal": -0.2
+      },
+      "bored": {
+        "valence": -0.3,
+        "arousal": -0.6
+      },
+      "brooding": {
+        "valence": -0.45,
+        "arousal": -0.3
+      },
+      "calm": {
+        "valence": 0.6,
+        "arousal": -0.6
+      },
+      "contemplative": {
+        "valence": 0.2,
+        "arousal": -0.35
+      },
+      "content": {
+        "valence": 0.7,
+        "arousal": -0.4
+      },
+      "curious": {
+        "valence": 0.3,
+        "arousal": 0.5
+      },
+      "defeated": {
+        "valence": -0.7,
+        "arousal": -0.55
+      },
+      "desperate": {
+        "valence": -0.7,
+        "arousal": 0.8
+      },
+      "elated": {
+        "valence": 0.9,
+        "arousal": 0.75
+      },
+      "enthusiastic": {
+        "valence": 0.8,
+        "arousal": 0.7
+      },
+      "excited": {
+        "valence": 0.85,
+        "arousal": 0.8
+      },
+      "focused": {
+        "valence": 0.15,
+        "arousal": 0.3
+      },
+      "furious": {
+        "valence": -0.8,
+        "arousal": 0.85
+      },
+      "gloomy": {
+        "valence": -0.55,
+        "arousal": -0.45
+      },
+      "hostile": {
+        "valence": -0.75,
+        "arousal": 0.7
+      },
+      "loving": {
+        "valence": 0.9,
+        "arousal": 0.5
+      },
+      "melancholic": {
+        "valence": -0.5,
+        "arousal": -0.5
+      },
+      "neutral": {
+        "valence": 0.0,
+        "arousal": 0.0
+      },
+      "nostalgic": {
+        "valence": 0.05,
+        "arousal": -0.25
+      },
+      "panicked": {
+        "valence": -0.9,
+        "arousal": 0.95
+      },
+      "passionate": {
+        "valence": 0.75,
+        "arousal": 0.85
+      },
+      "peaceful": {
+        "valence": 0.65,
+        "arousal": -0.7
+      },
+      "resigned": {
+        "valence": -0.6,
+        "arousal": -0.65
+      },
+      "restless": {
+        "valence": -0.2,
+        "arousal": 0.55
+      },
+      "serene": {
+        "valence": 0.6,
+        "arousal": -0.8
+      },
+      "surprised": {
+        "valence": 0.1,
+        "arousal": 0.8
+      },
+      "terrified": {
+        "valence": -0.85,
+        "arousal": 0.9
+      }
+    },
+    "n_emotions": 30,
+    "n_topics": 10,
+    "n_stories_per": 3,
+    "total_trials": 900,
+    "max_new_tokens": 200,
+    "methodology": "Anthropic difference-in-means emotion vector extraction + KV-cache geometric feature analysis + W_K projection bridge"
+  },
+  "environment": {
+    "timestamp": "2026-04-17T06:50:05.585375",
+    "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+    "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+    "torch": "2.7.0",
+    "cuda_available": true,
+    "numpy": "1.26.4",
+    "scipy": "1.11.4",
+    "gpu_name": "NVIDIA GeForce RTX 3090",
+    "gpu_vram_gb": 25.3,
+    "gpu_compute_capability": "8.6",
+    "cuda_version": "12.8",
+    "transformers": "5.5.0"
+  },
+  "geometry_analysis": {
+    "generation_raw": {
+      "pca_variance_explained": [
+        0.6306697200764478,
+        0.21712039914891282,
+        0.11575744134437063,
+        0.029079853707614626,
+        0.00616268217648218
+      ],
+      "valence_pc1_rho": 0.1526490577792017,
+      "valence_pc1_p": 4.223048869102982e-06,
+      "arousal_pc2_rho": 0.02110310991708771,
+      "arousal_pc2_p": 0.527201414660369,
+      "best_valence_rho": -0.1639030575987627,
+      "best_arousal_rho": 0.07975681825947703,
+      "cluster_ari": 0.08476901966763226,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": -0.1390514634180563,
+        "norm_per_token": 0.11547560928893914,
+        "key_rank": -0.13417418634812667,
+        "key_entropy": 0.07368022948989622,
+        "top_sv_ratio": 0.172635734316946,
+        "angular_spread": -0.017063424871382297,
+        "norm_variance": -0.1383558748683233,
+        "spectral_entropy": -0.13593416930770458
+      },
+      "feature_arousal_correlations": {
+        "norm": 0.008027410952712968,
+        "norm_per_token": -0.004160831816821744,
+        "key_rank": 0.003305026330518775,
+        "key_entropy": 0.03669157841391284,
+        "top_sv_ratio": -0.015747463852991788,
+        "angular_spread": 0.05816238054658348,
+        "norm_variance": 0.029781833106414957,
+        "spectral_entropy": 0.0026151398036368544
+      },
+      "feature_token_correlations": {
+        "norm": 0.9924176626271769,
+        "norm_per_token": -0.992153208216527,
+        "key_rank": 0.7968530126261566,
+        "key_entropy": -0.5186129721643989,
+        "top_sv_ratio": -0.4677004145106984,
+        "angular_spread": 0.09669427329437028,
+        "norm_variance": 0.940689308025217,
+        "spectral_entropy": 0.8081562336239215
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    },
+    "generation_fwl": {
+      "pca_variance_explained": [
+        0.5812175701653599,
+        0.3024072576849709,
+        0.0947151072453225,
+        0.017680603010708913,
+        0.002900168554581275
+      ],
+      "valence_pc1_rho": 0.05309066010467547,
+      "valence_pc1_p": 0.11146812294930064,
+      "arousal_pc2_rho": 0.07365589691779742,
+      "arousal_pc2_p": 0.027132388668197564,
+      "best_valence_rho": -0.29460473934609,
+      "best_arousal_rho": 0.07365589691779742,
+      "cluster_ari": 0.07484955898112275,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": -0.14681466668490598,
+        "norm_per_token": -0.11989880101208146,
+        "key_rank": -0.04148120316552812,
+        "key_entropy": -0.00981610408615765,
+        "top_sv_ratio": 0.10588172769965781,
+        "angular_spread": -0.005055747195340898,
+        "norm_variance": -0.03703823635923774,
+        "spectral_entropy": -0.04244474409191734
+      },
+      "feature_arousal_correlations": {
+        "norm": 0.035850361926076164,
+        "norm_per_token": 0.039520360489412966,
+        "key_rank": -0.021500474671924136,
+        "key_entropy": 0.04395343785388556,
+        "top_sv_ratio": 0.0018478573820115821,
+        "angular_spread": 0.05916457055987037,
+        "norm_variance": 0.06760170982544204,
+        "spectral_entropy": -0.02307682831976621
+      },
+      "feature_token_correlations": {
+        "norm": -0.03568567888281709,
+        "norm_per_token": 0.1409777048250185,
+        "key_rank": -0.005971756491000882,
+        "key_entropy": 0.011590237519877852,
+        "top_sv_ratio": 0.01568031151470484,
+        "angular_spread": -0.005650019952613844,
+        "norm_variance": -0.011540479948730458,
+        "spectral_entropy": -0.007370937086549767
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    },
+    "encoding_raw": {
+      "pca_variance_explained": [
+        0.744650656924979,
+        0.17448876359128798,
+        0.06428246801576973,
+        0.012710563532237111,
+        0.0031978529870613625
+      ],
+      "valence_pc1_rho": -0.051966949802539436,
+      "valence_pc1_p": 0.11925824847115697,
+      "arousal_pc2_rho": 0.08150270652343948,
+      "arousal_pc2_p": 0.014455001212498743,
+      "best_valence_rho": 0.2844533598177117,
+      "best_arousal_rho": 0.08150270652343948,
+      "cluster_ari": 0.008507223113964686,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": -0.0011657469083743166,
+        "norm_per_token": 0.030416205594071856,
+        "key_rank": -0.06977128729090708,
+        "key_entropy": -0.029915646329979832,
+        "top_sv_ratio": 0.10020529054770223,
+        "angular_spread": 0.07803830162586695,
+        "norm_variance": 0.02887225835282801,
+        "spectral_entropy": -0.06900265839909345
+      },
+      "feature_arousal_correlations": {
+        "norm": -0.030446401067687593,
+        "norm_per_token": 0.01799722574624586,
+        "key_rank": -0.018833995485406048,
+        "key_entropy": 0.06890220184611327,
+        "top_sv_ratio": 0.017843669597304226,
+        "angular_spread": 0.10053031762522124,
+        "norm_variance": 0.02407938451519478,
+        "spectral_entropy": -0.0204096173683938
+      },
+      "feature_token_correlations": {
+        "norm": 0.9917879681742792,
+        "norm_per_token": -0.9917879681742792,
+        "key_rank": 0.8841721488401248,
+        "key_entropy": -0.5252906028920321,
+        "top_sv_ratio": -0.9442170119645492,
+        "angular_spread": -0.40570210941730583,
+        "norm_variance": 0.8914031654187928,
+        "spectral_entropy": 0.8942116919519251
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    },
+    "encoding_fwl": {
+      "pca_variance_explained": [
+        0.6673681214801981,
+        0.24701844418819827,
+        0.06863718642341456,
+        0.013329144150389431,
+        0.0035022102634701315
+      ],
+      "valence_pc1_rho": 0.008925527708797013,
+      "valence_pc1_p": 0.7891619518955226,
+      "arousal_pc2_rho": 0.034105042663673375,
+      "arousal_pc2_p": 0.306768287418877,
+      "best_valence_rho": 0.268139578864545,
+      "best_arousal_rho": 0.07963777825249928,
+      "cluster_ari": 0.016985451591462964,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": 0.06533521985713153,
+        "norm_per_token": 0.0729615183340536,
+        "key_rank": -0.09936435098402761,
+        "key_entropy": -0.05565329133567157,
+        "top_sv_ratio": 0.20586778942792772,
+        "angular_spread": 0.08962902947439783,
+        "norm_variance": 0.1075913205778601,
+        "spectral_entropy": -0.09932320492501495
+      },
+      "feature_arousal_correlations": {
+        "norm": -0.02823652779378848,
+        "norm_per_token": -0.03273193969034056,
+        "key_rank": 0.01544908385438837,
+        "key_entropy": 0.07137912929208477,
+        "top_sv_ratio": -0.011708099993940827,
+        "angular_spread": 0.10375277130156153,
+        "norm_variance": 0.10357250973541265,
+        "spectral_entropy": 0.013579706158754656
+      },
+      "feature_token_correlations": {
+        "norm": 0.168888108983676,
+        "norm_per_token": 0.030350910438771656,
+        "key_rank": -0.049080704279482745,
+        "key_entropy": 0.02996507099440917,
+        "top_sv_ratio": 0.028783129607061836,
+        "angular_spread": -0.03698994803253497,
+        "norm_variance": -0.029891577766911554,
+        "spectral_entropy": -0.04729491373222696
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    },
+    "delta_raw": {
+      "pca_variance_explained": [
+        0.6027069466373836,
+        0.22525339613659578,
+        0.12263737529428323,
+        0.03899128811737522,
+        0.00616021280119677
+      ],
+      "valence_pc1_rho": 0.11502078237653376,
+      "valence_pc1_p": 0.0005456004010060791,
+      "arousal_pc2_rho": 0.01533699372665173,
+      "arousal_pc2_p": 0.6458770279421496,
+      "best_valence_rho": -0.17494373370886396,
+      "best_arousal_rho": 0.03315560081953766,
+      "cluster_ari": 0.06421121251629726,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": -0.1344685878984934,
+        "norm_per_token": 0.09422777682342733,
+        "key_rank": -0.078384227393741,
+        "key_entropy": 0.07218646914659964,
+        "top_sv_ratio": 0.06088327880770787,
+        "angular_spread": -0.056369368890623814,
+        "norm_variance": -0.13995271283252914,
+        "spectral_entropy": -0.07640251687376604
+      },
+      "feature_arousal_correlations": {
+        "norm": 0.00922098884418492,
+        "norm_per_token": -0.0115891047477745,
+        "key_rank": 0.003533999425091601,
+        "key_entropy": 0.010805749711482154,
+        "top_sv_ratio": -0.004740682688067183,
+        "angular_spread": 0.01038588328104516,
+        "norm_variance": 0.028237130167109947,
+        "spectral_entropy": 0.0038942735058611544
+      },
+      "feature_token_correlations": {
+        "norm": 0.9557816915214752,
+        "norm_per_token": -0.7736329966178004,
+        "key_rank": 0.5983247657936513,
+        "key_entropy": -0.3937209828636125,
+        "top_sv_ratio": -0.2988757417465593,
+        "angular_spread": 0.16343310568852742,
+        "norm_variance": 0.9325222580328654,
+        "spectral_entropy": 0.5916702175363
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    },
+    "delta_fwl": {
+      "pca_variance_explained": [
+        0.5527800715140437,
+        0.2356588139563605,
+        0.17574896682942134,
+        0.025065639771397735,
+        0.007801669320863463
+      ],
+      "valence_pc1_rho": -0.0061705675078127815,
+      "valence_pc1_p": 0.8533376582844143,
+      "arousal_pc2_rho": 0.022321167653443802,
+      "arousal_pc2_p": 0.5036309081386088,
+      "best_valence_rho": -0.12115179971805042,
+      "best_arousal_rho": 0.06728940634979899,
+      "cluster_ari": 0.05040128410914928,
+      "n_clusters": 6,
+      "feature_valence_correlations": {
+        "norm": -0.07056293482014389,
+        "norm_per_token": -0.016773967091802573,
+        "key_rank": 0.013696222588346376,
+        "key_entropy": 0.01611792870836568,
+        "top_sv_ratio": 0.022359933704050827,
+        "angular_spread": -0.03479203410215746,
+        "norm_variance": -0.04352248612348662,
+        "spectral_entropy": 0.015809190222716592
+      },
+      "feature_arousal_correlations": {
+        "norm": 0.03694330045524667,
+        "norm_per_token": -0.01535479725020383,
+        "key_rank": -0.010108445039024954,
+        "key_entropy": 0.014717084927414071,
+        "top_sv_ratio": 0.002202444226090882,
+        "angular_spread": 0.015773674595999043,
+        "norm_variance": 0.0629275430795348,
+        "spectral_entropy": -0.008807551463919516
+      },
+      "feature_token_correlations": {
+        "norm": -0.02677587941553349,
+        "norm_per_token": -0.008823456415299176,
+        "key_rank": 0.036191989336678075,
+        "key_entropy": 0.006914721738650376,
+        "top_sv_ratio": -0.022677910399076726,
+        "angular_spread": -0.004092337947849082,
+        "norm_variance": -0.020788612788192155,
+        "spectral_entropy": 0.038219445709805455
+      },
+      "n_trials": 900,
+      "n_unique_emotions": 30
+    }
+  },
+  "layer_analysis": {
+    "per_layer": {
+      "norms": [
+        {
+          "layer": 0,
+          "valence_rho": -0.12304501674093782,
+          "valence_p": 0.00021535350389643111,
+          "arousal_rho": 0.02754130912161542,
+          "arousal_p": 0.40923107592859986
+        },
+        {
+          "layer": 1,
+          "valence_rho": -0.13092365759444544,
+          "valence_p": 8.174749738271408e-05,
+          "arousal_rho": 0.0024312936950888204,
+          "arousal_p": 0.9419353898797495
+        },
+        {
+          "layer": 2,
+          "valence_rho": -0.12995616111264544,
+          "valence_p": 9.23503400369931e-05,
+          "arousal_rho": 0.008930197959500641,
+          "arousal_p": 0.7890542337558138
+        },
+        {
+          "layer": 3,
+          "valence_rho": -0.12015241645345534,
+          "valence_p": 0.000303074188200506,
+          "arousal_rho": -0.0051758799304518184,
+          "arousal_p": 0.8767727256155449
+        },
+        {
+          "layer": 4,
+          "valence_rho": -0.13741359215631824,
+          "valence_p": 3.5292766363479465e-05,
+          "arousal_rho": -0.005936733291143594,
+          "arousal_p": 0.8588360322463017
+        },
+        {
+          "layer": 5,
+          "valence_rho": -0.1297270173366673,
+          "valence_p": 9.504492409765779e-05,
+          "arousal_rho": -0.011799285234153443,
+          "arousal_p": 0.7237144449379727
+        },
+        {
+          "layer": 6,
+          "valence_rho": -0.13818049516829864,
+          "valence_p": 3.187732758703024e-05,
+          "arousal_rho": 0.0005496837919331247,
+          "arousal_p": 0.9868613525405694
+        },
+        {
+          "layer": 7,
+          "valence_rho": -0.13475656254683704,
+          "valence_p": 5.0007842609349784e-05,
+          "arousal_rho": -0.00047055701832838766,
+          "arousal_p": 0.9887525202766343
+        },
+        {
+          "layer": 8,
+          "valence_rho": -0.12470587653683553,
+          "valence_p": 0.00017639295346139655,
+          "arousal_rho": 0.01036165070732147,
+          "arousal_p": 0.7562371444398053
+        },
+        {
+          "layer": 9,
+          "valence_rho": -0.1413295529967128,
+          "valence_p": 2.0870318053597316e-05,
+          "arousal_rho": 0.027240380119352862,
+          "arousal_p": 0.41437024475054784
+        },
+        {
+          "layer": 10,
+          "valence_rho": -0.15966970667384173,
+          "valence_p": 1.4767754512774522e-06,
+          "arousal_rho": 0.02009374904014789,
+          "arousal_p": 0.5471505216213959
+        },
+        {
+          "layer": 11,
+          "valence_rho": -0.13445783575035672,
+          "valence_p": 5.198527893258403e-05,
+          "arousal_rho": 0.008268005825851502,
+          "arousal_p": 0.8043667734098903
+        },
+        {
+          "layer": 12,
+          "valence_rho": -0.15575967835839158,
+          "valence_p": 2.666336559560072e-06,
+          "arousal_rho": 0.02643773793254574,
+          "arousal_p": 0.428262535469754
+        },
+        {
+          "layer": 13,
+          "valence_rho": -0.13979055772598553,
+          "valence_p": 2.5699296507782817e-05,
+          "arousal_rho": 0.017590128613021453,
+          "arousal_p": 0.5981857823350281
+        },
+        {
+          "layer": 14,
+          "valence_rho": -0.14710066382493478,
+          "valence_p": 9.379172501773165e-06,
+          "arousal_rho": 0.01812744877228276,
+          "arousal_p": 0.5870524875564196
+        },
+        {
+          "layer": 15,
+          "valence_rho": -0.15014973445782628,
+          "valence_p": 6.0709938183318025e-06,
+          "arousal_rho": 0.02738478647705322,
+          "arousal_p": 0.41189937923989206
+        },
+        {
+          "layer": 16,
+          "valence_rho": -0.15385459628561535,
+          "valence_p": 3.5374581467130993e-06,
+          "arousal_rho": 0.024456848666214313,
+          "arousal_p": 0.46368323940761336
+        },
+        {
+          "layer": 17,
+          "valence_rho": -0.1281625610711164,
+          "valence_p": 0.00011552008420449967,
+          "arousal_rho": 0.013380337034043989,
+          "arousal_p": 0.6885157018874302
+        },
+        {
+          "layer": 18,
+          "valence_rho": -0.1303252136018961,
+          "valence_p": 8.816141706153464e-05,
+          "arousal_rho": 0.019023064915417505,
+          "arousal_p": 0.5687113492024543
+        },
+        {
+          "layer": 19,
+          "valence_rho": -0.12498668271753798,
+          "valence_p": 0.00017049895718692642,
+          "arousal_rho": 0.020576175074177677,
+          "arousal_p": 0.5375694347072679
+        },
+        {
+          "layer": 20,
+          "valence_rho": -0.13755053460711855,
+          "valence_p": 3.465847815052911e-05,
+          "arousal_rho": 0.020021298590137265,
+          "arousal_p": 0.5485966561981187
+        },
+        {
+          "layer": 21,
+          "valence_rho": -0.1455362075593839,
+          "valence_p": 1.16853965157554e-05,
+          "arousal_rho": 0.004859867387402065,
+          "arousal_p": 0.8842417016193445
+        },
+        {
+          "layer": 22,
+          "valence_rho": -0.13773147661792332,
+          "valence_p": 3.383695538531675e-05,
+          "arousal_rho": 0.008149068363652309,
+          "arousal_p": 0.8071252264879121
+        },
+        {
+          "layer": 23,
+          "valence_rho": -0.1441124015727236,
+          "valence_p": 1.424583669583477e-05,
+          "arousal_rho": 0.0021821679909343255,
+          "arousal_p": 0.9478761167082868
+        },
+        {
+          "layer": 24,
+          "valence_rho": -0.14371442802436885,
+          "valence_p": 1.505198872994689e-05,
+          "arousal_rho": 0.0002351548735839709,
+          "arousal_p": 0.9943790758945221
+        },
+        {
+          "layer": 25,
+          "valence_rho": -0.1521156249112828,
+          "valence_p": 4.5654264684141155e-06,
+          "arousal_rho": -0.007179270872383818,
+          "arousal_p": 0.8297037224465945
+        },
+        {
+          "layer": 26,
+          "valence_rho": -0.14576831759783423,
+          "valence_p": 1.1312005804415718e-05,
+          "arousal_rho": -0.010050583587480632,
+          "arousal_p": 0.7633336122224592
+        },
+        {
+          "layer": 27,
+          "valence_rho": -0.1168615954290788,
+          "valence_p": 0.0004430461917431879,
+          "arousal_rho": -0.028086294759237997,
+          "arousal_p": 0.40002092986049254
+        },
+        {
+          "layer": 28,
+          "valence_rho": -0.15188907724002654,
+          "valence_p": 4.718727182309382e-06,
+          "arousal_rho": 0.0055220595778005125,
+          "arousal_p": 0.8686033263776621
+        },
+        {
+          "layer": 29,
+          "valence_rho": -0.15432351294476374,
+          "valence_p": 3.300710446456403e-06,
+          "arousal_rho": -0.006343741621237407,
+          "arousal_p": 0.8492702092983682
+        },
+        {
+          "layer": 30,
+          "valence_rho": -0.13712314562258113,
+          "valence_p": 3.6674662323431e-05,
+          "arousal_rho": 0.009446252871351058,
+          "arousal_p": 0.7771767952916835
+        },
+        {
+          "layer": 31,
+          "valence_rho": -0.13413710806722404,
+          "valence_p": 5.4190596437784315e-05,
+          "arousal_rho": 0.0026153870640353944,
+          "arousal_p": 0.9375474963360397
+        }
+      ],
+      "ranks": [
+        {
+          "layer": 0,
+          "valence_rho": -0.14065287784315503,
+          "valence_p": 2.287647613219996e-05,
+          "arousal_rho": -0.024846424992989436,
+          "arousal_p": 0.45659112560017057
+        },
+        {
+          "layer": 1,
+          "valence_rho": -0.12981922400420673,
+          "valence_p": 9.395184062121478e-05,
+          "arousal_rho": 0.04036194954497797,
+          "arousal_p": 0.22640608073704413
+        },
+        {
+          "layer": 2,
+          "valence_rho": 0.037698479585189126,
+          "valence_p": 0.2585671581599602,
+          "arousal_rho": -0.04972413203943719,
+          "arousal_p": 0.13607366251882322
+        },
+        {
+          "layer": 3,
+          "valence_rho": -0.02396332403822739,
+          "valence_p": 0.4727549966349346,
+          "arousal_rho": 0.010248030410383963,
+          "arousal_p": 0.7588268552193445
+        },
+        {
+          "layer": 4,
+          "valence_rho": 0.03236316191177129,
+          "valence_p": 0.3321464088613425,
+          "arousal_rho": -0.003255448703994044,
+          "arousal_p": 0.9223071080967233
+        },
+        {
+          "layer": 5,
+          "valence_rho": -0.0059749181969155855,
+          "valence_p": 0.8579376785536823,
+          "arousal_rho": 0.011455579122553891,
+          "arousal_p": 0.7314472421609581
+        },
+        {
+          "layer": 6,
+          "valence_rho": -0.03352791315369385,
+          "valence_p": 0.315030740860994,
+          "arousal_rho": -0.005402751420263009,
+          "arousal_p": 0.8714173113745927
+        },
+        {
+          "layer": 7,
+          "valence_rho": -0.10220344578989336,
+          "valence_p": 0.0021414182962287386,
+          "arousal_rho": -0.016540216350517015,
+          "arousal_p": 0.6202113915352534
+        },
+        {
+          "layer": 8,
+          "valence_rho": -0.12472553829120338,
+          "valence_p": 0.00017597411286410358,
+          "arousal_rho": -0.08602688015531225,
+          "arousal_p": 0.009822742961226195
+        },
+        {
+          "layer": 9,
+          "valence_rho": -0.1517159279109605,
+          "valence_p": 4.839200307231349e-06,
+          "arousal_rho": -0.06968225252377777,
+          "arousal_p": 0.03660851998165305
+        },
+        {
+          "layer": 10,
+          "valence_rho": -0.10511149167150584,
+          "valence_p": 0.0015901184328137646,
+          "arousal_rho": -0.09269874657786498,
+          "arousal_p": 0.005384355130782045
+        },
+        {
+          "layer": 11,
+          "valence_rho": -0.232080389196536,
+          "valence_p": 1.7994942203823206e-12,
+          "arousal_rho": -0.027320003007010346,
+          "arousal_p": 0.41300677624737847
+        },
+        {
+          "layer": 12,
+          "valence_rho": -0.15310389099218663,
+          "valence_p": 3.950650554008059e-06,
+          "arousal_rho": -0.09504621619911476,
+          "arousal_p": 0.00431879298426096
+        },
+        {
+          "layer": 13,
+          "valence_rho": -0.2073554777177646,
+          "valence_p": 3.377019924572104e-10,
+          "arousal_rho": -0.0791032851398154,
+          "arousal_p": 0.017619410390131096
+        },
+        {
+          "layer": 14,
+          "valence_rho": -0.23931410813502352,
+          "valence_p": 3.453472642521369e-13,
+          "arousal_rho": -0.04292083472426802,
+          "arousal_p": 0.19829360353571632
+        },
+        {
+          "layer": 15,
+          "valence_rho": -0.21010297935556307,
+          "valence_p": 1.9464039380155089e-10,
+          "arousal_rho": -0.04944112976958499,
+          "arousal_p": 0.13831928457196235
+        },
+        {
+          "layer": 16,
+          "valence_rho": -0.2127603772852157,
+          "valence_p": 1.1340736668464867e-10,
+          "arousal_rho": -0.010685823726361596,
+          "arousal_p": 0.748863474537047
+        },
+        {
+          "layer": 17,
+          "valence_rho": -0.1527418852471148,
+          "valence_p": 4.16603506154879e-06,
+          "arousal_rho": -0.06039548962760814,
+          "arousal_p": 0.07014085598394543
+        },
+        {
+          "layer": 18,
+          "valence_rho": -0.12839714986395223,
+          "valence_p": 0.00011220532639395317,
+          "arousal_rho": -0.02345020902657891,
+          "arousal_p": 0.4822893700458779
+        },
+        {
+          "layer": 19,
+          "valence_rho": -0.15441140054383767,
+          "valence_p": 3.258059432979779e-06,
+          "arousal_rho": -0.03708165156890819,
+          "arousal_p": 0.26644539402924744
+        },
+        {
+          "layer": 20,
+          "valence_rho": -0.09740279482713866,
+          "valence_p": 0.00344478046708531,
+          "arousal_rho": 0.02121289935987756,
+          "arousal_p": 0.5250540807987277
+        },
+        {
+          "layer": 21,
+          "valence_rho": -0.1252896215532368,
+          "valence_p": 0.0001643480431002399,
+          "arousal_rho": 0.0083435477493843,
+          "arousal_p": 0.8026160294367408
+        },
+        {
+          "layer": 22,
+          "valence_rho": -0.12603304165905757,
+          "valence_p": 0.00015012530246179265,
+          "arousal_rho": 0.045189549918297975,
+          "arousal_p": 0.1755787072317983
+        },
+        {
+          "layer": 23,
+          "valence_rho": -0.06517114124221984,
+          "valence_p": 0.05064269063357001,
+          "arousal_rho": 0.052942738849651935,
+          "arousal_p": 0.11247006799193537
+        },
+        {
+          "layer": 24,
+          "valence_rho": -0.17397612705871232,
+          "valence_p": 1.503478061564564e-07,
+          "arousal_rho": 0.04853179062007208,
+          "arousal_p": 0.14572808207024324
+        },
+        {
+          "layer": 25,
+          "valence_rho": -0.150056804534919,
+          "valence_p": 6.152794737802259e-06,
+          "arousal_rho": 0.09489958869080807,
+          "arousal_p": 0.004379295698624956
+        },
+        {
+          "layer": 26,
+          "valence_rho": -0.020777558150495205,
+          "valence_p": 0.533594960908629,
+          "arousal_rho": 0.09985440904294025,
+          "arousal_p": 0.0027089649909749582
+        },
+        {
+          "layer": 27,
+          "valence_rho": -0.11016267239199182,
+          "valence_p": 0.000931736048915292,
+          "arousal_rho": 0.22353216019588118,
+          "arousal_p": 1.1799252531402929e-11
+        },
+        {
+          "layer": 28,
+          "valence_rho": 0.008279580807001231,
+          "valence_p": 0.8040984502516848,
+          "arousal_rho": 0.10621162664380233,
+          "arousal_p": 0.0014180566272630356
+        },
+        {
+          "layer": 29,
+          "valence_rho": 0.019642591303475197,
+          "valence_p": 0.5561862976001846,
+          "arousal_rho": 0.11610803508820791,
+          "arousal_p": 0.00048263975561234525
+        },
+        {
+          "layer": 30,
+          "valence_rho": -0.062003297989402135,
+          "valence_p": 0.06298420616586689,
+          "arousal_rho": 0.08623743546951901,
+          "arousal_p": 0.009643671672682777
+        },
+        {
+          "layer": 31,
+          "valence_rho": -0.06348556033584737,
+          "valence_p": 0.056930941601383955,
+          "arousal_rho": 0.1258878578767516,
+          "arousal_p": 0.0001528086132377022
+        }
+      ],
+      "entropies": [
+        {
+          "layer": 0,
+          "valence_rho": -0.14065287784315503,
+          "valence_p": 2.287647613219996e-05,
+          "arousal_rho": -0.024846424992989436,
+          "arousal_p": 0.45659112560017057
+        },
+        {
+          "layer": 1,
+          "valence_rho": -0.12981922400420673,
+          "valence_p": 9.395184062121478e-05,
+          "arousal_rho": 0.04036194954497797,
+          "arousal_p": 0.22640608073704413
+        },
+        {
+          "layer": 2,
+          "valence_rho": 0.037698479585189126,
+          "valence_p": 0.2585671581599602,
+          "arousal_rho": -0.04972413203943719,
+          "arousal_p": 0.13607366251882322
+        },
+        {
+          "layer": 3,
+          "valence_rho": -0.02396332403822739,
+          "valence_p": 0.4727549966349346,
+          "arousal_rho": 0.010248030410383963,
+          "arousal_p": 0.7588268552193445
+        },
+        {
+          "layer": 4,
+          "valence_rho": 0.03236316191177129,
+          "valence_p": 0.3321464088613425,
+          "arousal_rho": -0.003255448703994044,
+          "arousal_p": 0.9223071080967233
+        },
+        {
+          "layer": 5,
+          "valence_rho": -0.0059749181969155855,
+          "valence_p": 0.8579376785536823,
+          "arousal_rho": 0.011455579122553891,
+          "arousal_p": 0.7314472421609581
+        },
+        {
+          "layer": 6,
+          "valence_rho": -0.03352791315369385,
+          "valence_p": 0.315030740860994,
+          "arousal_rho": -0.005402751420263009,
+          "arousal_p": 0.8714173113745927
+        },
+        {
+          "layer": 7,
+          "valence_rho": -0.10220344578989336,
+          "valence_p": 0.0021414182962287386,
+          "arousal_rho": -0.016540216350517015,
+          "arousal_p": 0.6202113915352534
+        },
+        {
+          "layer": 8,
+          "valence_rho": -0.12472553829120338,
+          "valence_p": 0.00017597411286410358,
+          "arousal_rho": -0.08602688015531225,
+          "arousal_p": 0.009822742961226195
+        },
+        {
+          "layer": 9,
+          "valence_rho": -0.1517159279109605,
+          "valence_p": 4.839200307231349e-06,
+          "arousal_rho": -0.06968225252377777,
+          "arousal_p": 0.03660851998165305
+        },
+        {
+          "layer": 10,
+          "valence_rho": -0.10511149167150584,
+          "valence_p": 0.0015901184328137646,
+          "arousal_rho": -0.09269874657786498,
+          "arousal_p": 0.005384355130782045
+        },
+        {
+          "layer": 11,
+          "valence_rho": -0.232080389196536,
+          "valence_p": 1.7994942203823206e-12,
+          "arousal_rho": -0.027320003007010346,
+          "arousal_p": 0.41300677624737847
+        },
+        {
+          "layer": 12,
+          "valence_rho": -0.15310389099218663,
+          "valence_p": 3.950650554008059e-06,
+          "arousal_rho": -0.09504621619911476,
+          "arousal_p": 0.00431879298426096
+        },
+        {
+          "layer": 13,
+          "valence_rho": -0.2073554777177646,
+          "valence_p": 3.377019924572104e-10,
+          "arousal_rho": -0.0791032851398154,
+          "arousal_p": 0.017619410390131096
+        },
+        {
+          "layer": 14,
+          "valence_rho": -0.23931410813502352,
+          "valence_p": 3.453472642521369e-13,
+          "arousal_rho": -0.04292083472426802,
+          "arousal_p": 0.19829360353571632
+        },
+        {
+          "layer": 15,
+          "valence_rho": -0.21010297935556307,
+          "valence_p": 1.9464039380155089e-10,
+          "arousal_rho": -0.04944112976958499,
+          "arousal_p": 0.13831928457196235
+        },
+        {
+          "layer": 16,
+          "valence_rho": -0.2127603772852157,
+          "valence_p": 1.1340736668464867e-10,
+          "arousal_rho": -0.010685823726361596,
+          "arousal_p": 0.748863474537047
+        },
+        {
+          "layer": 17,
+          "valence_rho": -0.1527418852471148,
+          "valence_p": 4.16603506154879e-06,
+          "arousal_rho": -0.06039548962760814,
+          "arousal_p": 0.07014085598394543
+        },
+        {
+          "layer": 18,
+          "valence_rho": -0.12839714986395223,
+          "valence_p": 0.00011220532639395317,
+          "arousal_rho": -0.02345020902657891,
+          "arousal_p": 0.4822893700458779
+        },
+        {
+          "layer": 19,
+          "valence_rho": -0.15441140054383767,
+          "valence_p": 3.258059432979779e-06,
+          "arousal_rho": -0.03708165156890819,
+          "arousal_p": 0.26644539402924744
+        },
+        {
+          "layer": 20,
+          "valence_rho": -0.09740279482713866,
+          "valence_p": 0.00344478046708531,
+          "arousal_rho": 0.02121289935987756,
+          "arousal_p": 0.5250540807987277
+        },
+        {
+          "layer": 21,
+          "valence_rho": -0.1252896215532368,
+          "valence_p": 0.0001643480431002399,
+          "arousal_rho": 0.0083435477493843,
+          "arousal_p": 0.8026160294367408
+        },
+        {
+          "layer": 22,
+          "valence_rho": -0.12603304165905757,
+          "valence_p": 0.00015012530246179265,
+          "arousal_rho": 0.045189549918297975,
+          "arousal_p": 0.1755787072317983
+        },
+        {
+          "layer": 23,
+          "valence_rho": -0.06517114124221984,
+          "valence_p": 0.05064269063357001,
+          "arousal_rho": 0.052942738849651935,
+          "arousal_p": 0.11247006799193537
+        },
+        {
+          "layer": 24,
+          "valence_rho": -0.17397612705871232,
+          "valence_p": 1.503478061564564e-07,
+          "arousal_rho": 0.04853179062007208,
+          "arousal_p": 0.14572808207024324
+        },
+        {
+          "layer": 25,
+          "valence_rho": -0.150056804534919,
+          "valence_p": 6.152794737802259e-06,
+          "arousal_rho": 0.09489958869080807,
+          "arousal_p": 0.004379295698624956
+        },
+        {
+          "layer": 26,
+          "valence_rho": -0.020777558150495205,
+          "valence_p": 0.533594960908629,
+          "arousal_rho": 0.09985440904294025,
+          "arousal_p": 0.0027089649909749582
+        },
+        {
+          "layer": 27,
+          "valence_rho": -0.11016267239199182,
+          "valence_p": 0.000931736048915292,
+          "arousal_rho": 0.22353216019588118,
+          "arousal_p": 1.1799252531402929e-11
+        },
+        {
+          "layer": 28,
+          "valence_rho": 0.008279580807001231,
+          "valence_p": 0.8040984502516848,
+          "arousal_rho": 0.10621162664380233,
+          "arousal_p": 0.0014180566272630356
+        },
+        {
+          "layer": 29,
+          "valence_rho": 0.019642591303475197,
+          "valence_p": 0.5561862976001846,
+          "arousal_rho": 0.11610803508820791,
+          "arousal_p": 0.00048263975561234525
+        },
+        {
+          "layer": 30,
+          "valence_rho": -0.062003297989402135,
+          "valence_p": 0.06298420616586689,
+          "arousal_rho": 0.08623743546951901,
+          "arousal_p": 0.009643671672682777
+        },
+        {
+          "layer": 31,
+          "valence_rho": -0.06348556033584737,
+          "valence_p": 0.056930941601383955,
+          "arousal_rho": 0.1258878578767516,
+          "arousal_p": 0.0001528086132377022
+        }
+      ]
+    },
+    "summary": {
+      "norms": {
+        "peak_valence_layer": 10,
+        "peak_valence_rho": 0.15966970667384173,
+        "peak_arousal_layer": 27,
+        "peak_arousal_rho": 0.028086294759237997,
+        "peak_valence_pct": 0.3225806451612903,
+        "peak_arousal_pct": 0.8709677419354839
+      },
+      "ranks": {
+        "peak_valence_layer": 14,
+        "peak_valence_rho": 0.23931410813502352,
+        "peak_arousal_layer": 27,
+        "peak_arousal_rho": 0.22353216019588118,
+        "peak_valence_pct": 0.45161290322580644,
+        "peak_arousal_pct": 0.8709677419354839
+      },
+      "entropies": {
+        "peak_valence_layer": 14,
+        "peak_valence_rho": 0.23931410813502352,
+        "peak_arousal_layer": 27,
+        "peak_arousal_rho": 0.22353216019588118,
+        "peak_valence_pct": 0.45161290322580644,
+        "peak_arousal_pct": 0.8709677419354839
+      }
+    },
+    "n_processed_layers": 32,
+    "actual_layer_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ]
+  },
+  "bridge_analysis": {
+    "0": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.3380541503429413,
+        0.17406275868415833,
+        0.13093043863773346,
+        0.07769227027893066,
+        0.05015692114830017
+      ],
+      "valence_pc1_rho": 0.590539879973691,
+      "valence_pc1_p": 0.0005914330262824958,
+      "arousal_pc2_rho": 0.31262537450285877,
+      "arousal_pc2_p": 0.09256510313874303,
+      "best_valence_rho": 0.590539879973691,
+      "best_arousal_rho": -0.42796721495334367
+    },
+    "1": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.3349701166152954,
+        0.11042942106723785,
+        0.08191049844026566,
+        0.06606190651655197,
+        0.057535961270332336
+      ],
+      "valence_pc1_rho": 0.7726211546885342,
+      "valence_pc1_p": 5.653691416425759e-07,
+      "arousal_pc2_rho": -0.11779118455271527,
+      "arousal_pc2_p": 0.535311247593512,
+      "best_valence_rho": 0.7726211546885342,
+      "best_arousal_rho": -0.6615455752478585
+    },
+    "2": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.34899041056632996,
+        0.1298362761735916,
+        0.09055276960134506,
+        0.05427124723792076,
+        0.04710053652524948
+      ],
+      "valence_pc1_rho": 0.8527547230226951,
+      "valence_pc1_p": 2.1898209264350364e-09,
+      "arousal_pc2_rho": 0.7929194861856694,
+      "arousal_pc2_p": 1.7493078873514087e-07,
+      "best_valence_rho": 0.8527547230226951,
+      "best_arousal_rho": 0.7929194861856694
+    },
+    "3": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.3817836046218872,
+        0.11438681930303574,
+        0.08885817974805832,
+        0.056846726685762405,
+        0.05007293075323105
+      ],
+      "valence_pc1_rho": 0.8278242795409562,
+      "valence_pc1_p": 1.6626777503760453e-08,
+      "arousal_pc2_rho": -0.7768874156983434,
+      "arousal_pc2_p": 4.4630750941016924e-07,
+      "best_valence_rho": 0.8278242795409562,
+      "best_arousal_rho": -0.7768874156983434
+    },
+    "4": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.39195507764816284,
+        0.1344006061553955,
+        0.0966019555926323,
+        0.06731607764959335,
+        0.04162723943591118
+      ],
+      "valence_pc1_rho": -0.8518643500412044,
+      "valence_pc1_p": 2.3689466560959873e-09,
+      "arousal_pc2_rho": -0.749721962928152,
+      "arousal_pc2_p": 1.855248054937712e-06,
+      "best_valence_rho": -0.8518643500412044,
+      "best_arousal_rho": -0.749721962928152
+    },
+    "5": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.3486175239086151,
+        0.1392967253923416,
+        0.10621892660856247,
+        0.06949880719184875,
+        0.04654170572757721
+      ],
+      "valence_pc1_rho": -0.8552032487217944,
+      "valence_pc1_p": 1.759322055266265e-09,
+      "arousal_pc2_rho": -0.7653086981241635,
+      "arousal_pc2_p": 8.382299143030783e-07,
+      "best_valence_rho": -0.8552032487217944,
+      "best_arousal_rho": -0.7653086981241635
+    },
+    "6": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.40007495880126953,
+        0.1354224681854248,
+        0.10287464410066605,
+        0.06557202339172363,
+        0.040272150188684464
+      ],
+      "valence_pc1_rho": 0.8950474396435023,
+      "valence_pc1_p": 2.5101190688545595e-11,
+      "arousal_pc2_rho": -0.8198622713102036,
+      "arousal_pc2_p": 2.9712306480572163e-08,
+      "best_valence_rho": 0.8950474396435023,
+      "best_arousal_rho": -0.8198622713102036
+    },
+    "7": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.4331064522266388,
+        0.1340908259153366,
+        0.09952174127101898,
+        0.05912155285477638,
+        0.0426507331430912
+      ],
+      "valence_pc1_rho": 0.8950474396435023,
+      "valence_pc1_p": 2.5101190688545595e-11,
+      "arousal_pc2_rho": -0.6691162752002069,
+      "arousal_pc2_p": 5.282600809078161e-05,
+      "best_valence_rho": 0.8950474396435023,
+      "best_arousal_rho": -0.6691162752002069
+    },
+    "8": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.450916588306427,
+        0.1468745619058609,
+        0.08489250391721725,
+        0.0643395334482193,
+        0.036159202456474304
+      ],
+      "valence_pc1_rho": 0.9150808317270424,
+      "valence_pc1_p": 1.468770795162006e-12,
+      "arousal_pc2_rho": -0.8249836271603217,
+      "arousal_pc2_p": 2.0521206990456895e-08,
+      "best_valence_rho": 0.9150808317270424,
+      "best_arousal_rho": -0.8249836271603217
+    },
+    "9": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.44255945086479187,
+        0.1354411393404007,
+        0.09298207610845566,
+        0.06248721480369568,
+        0.0385168120265007
+      ],
+      "valence_pc1_rho": 0.8963829991157383,
+      "valence_pc1_p": 2.1159913528895493e-11,
+      "arousal_pc2_rho": -0.7873527950442368,
+      "arousal_pc2_p": 2.443460578090191e-07,
+      "best_valence_rho": 0.8963829991157383,
+      "best_arousal_rho": -0.7873527950442368
+    },
+    "10": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.4550769329071045,
+        0.1524006575345993,
+        0.08985404670238495,
+        0.05777573958039284,
+        0.037214115262031555
+      ],
+      "valence_pc1_rho": 0.906622288402881,
+      "valence_pc1_p": 5.261184723406979e-12,
+      "arousal_pc2_rho": 0.8590517769458896,
+      "arousal_pc2_p": 1.2370123005672844e-09,
+      "best_valence_rho": 0.906622288402881,
+      "best_arousal_rho": 0.8590517769458896
+    },
+    "11": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.48430463671684265,
+        0.12193808704614639,
+        0.08642245829105377,
+        0.05830391123890877,
+        0.034017182886600494
+      ],
+      "valence_pc1_rho": 0.9126323060279432,
+      "valence_pc1_p": 2.153181969359137e-12,
+      "arousal_pc2_rho": -0.8016035243663046,
+      "arousal_pc2_p": 1.017412137042001e-07,
+      "best_valence_rho": 0.9126323060279432,
+      "best_arousal_rho": -0.8016035243663046
+    },
+    "12": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.4602660536766052,
+        0.15619611740112305,
+        0.09367115050554276,
+        0.05119377747178078,
+        0.03511786460876465
+      ],
+      "valence_pc1_rho": 0.9128548992733159,
+      "valence_pc1_p": 2.080559115314291e-12,
+      "arousal_pc2_rho": -0.8684038180634964,
+      "arousal_pc2_p": 5.02519031739245e-10,
+      "best_valence_rho": 0.9128548992733159,
+      "best_arousal_rho": -0.8684038180634964
+    },
+    "13": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.4950106739997864,
+        0.13593529164791107,
+        0.08847065269947052,
+        0.046672072261571884,
+        0.03263898938894272
+      ],
+      "valence_pc1_rho": 0.9317753251299926,
+      "valence_pc1_p": 7.613316838757914e-14,
+      "arousal_pc2_rho": -0.7020710867574883,
+      "arousal_pc2_p": 1.5328873184418982e-05,
+      "best_valence_rho": 0.9317753251299926,
+      "best_arousal_rho": -0.7020710867574883
+    },
+    "14": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5476545095443726,
+        0.1279178112745285,
+        0.08194083720445633,
+        0.04232575371861458,
+        0.02872197888791561
+      ],
+      "valence_pc1_rho": 0.9202004763706139,
+      "valence_pc1_p": 6.351465731962067e-13,
+      "arousal_pc2_rho": -0.7103097896468087,
+      "arousal_pc2_p": 1.0961992255031521e-05,
+      "best_valence_rho": 0.9202004763706139,
+      "best_arousal_rho": -0.7103097896468087
+    },
+    "15": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5517401695251465,
+        0.11807215958833694,
+        0.07646316289901733,
+        0.042555950582027435,
+        0.032647546380758286
+      ],
+      "valence_pc1_rho": 0.9304397656577567,
+      "valence_pc1_p": 9.904187995562049e-14,
+      "arousal_pc2_rho": -0.6722336222394092,
+      "arousal_pc2_p": 4.730142364453942e-05,
+      "best_valence_rho": 0.9304397656577567,
+      "best_arousal_rho": -0.6722336222394092
+    },
+    "16": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5484235882759094,
+        0.11746136099100113,
+        0.07891327887773514,
+        0.04744631052017212,
+        0.027653735131025314
+      ],
+      "valence_pc1_rho": 0.9188649168983777,
+      "valence_pc1_p": 7.945905238424098e-13,
+      "arousal_pc2_rho": -0.7316858836299102,
+      "arousal_pc2_p": 4.344336662153841e-06,
+      "best_valence_rho": 0.9188649168983777,
+      "best_arousal_rho": -0.7316858836299102
+    },
+    "17": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5071532130241394,
+        0.13546505570411682,
+        0.0795070081949234,
+        0.04587869346141815,
+        0.028956439346075058
+      ],
+      "valence_pc1_rho": 0.9322205116207382,
+      "valence_pc1_p": 6.965918848845892e-14,
+      "arousal_pc2_rho": -0.7828994421310906,
+      "arousal_pc2_p": 3.1701111170181837e-07,
+      "best_valence_rho": 0.9322205116207382,
+      "best_arousal_rho": -0.7828994421310906
+    },
+    "18": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5191509127616882,
+        0.1319732666015625,
+        0.07904864847660065,
+        0.049531832337379456,
+        0.03002697415649891
+      ],
+      "valence_pc1_rho": 0.9257653075049307,
+      "valence_pc1_p": 2.3907971947076554e-13,
+      "arousal_pc2_rho": -0.8577157710719456,
+      "arousal_pc2_p": 1.3995264957169437e-09,
+      "best_valence_rho": 0.9257653075049307,
+      "best_arousal_rho": -0.8577157710719456
+    },
+    "19": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5267274379730225,
+        0.10965700447559357,
+        0.08608275651931763,
+        0.04780253767967224,
+        0.0313258059322834
+      ],
+      "valence_pc1_rho": 0.9202004763706139,
+      "valence_pc1_p": 6.351465731962067e-13,
+      "arousal_pc2_rho": -0.741705927684489,
+      "arousal_pc2_p": 2.731081440902598e-06,
+      "best_valence_rho": 0.9202004763706139,
+      "best_arousal_rho": -0.741705927684489
+    },
+    "20": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5621240139007568,
+        0.10597825050354004,
+        0.07795549929141998,
+        0.04595232382416725,
+        0.029770538210868835
+      ],
+      "valence_pc1_rho": 0.9228715953150858,
+      "valence_pc1_p": 4.0101442891270183e-13,
+      "arousal_pc2_rho": -0.7944781597052707,
+      "arousal_pc2_p": 1.5901652649055283e-07,
+      "best_valence_rho": 0.9228715953150858,
+      "best_arousal_rho": -0.7944781597052707
+    },
+    "21": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.48507460951805115,
+        0.13098680973052979,
+        0.07811685651540756,
+        0.055406056344509125,
+        0.03325667977333069
+      ],
+      "valence_pc1_rho": 0.9213134425974772,
+      "valence_pc1_p": 5.254310179018081e-13,
+      "arousal_pc2_rho": -0.7566246599435285,
+      "arousal_pc2_p": 1.3144216865370718e-06,
+      "best_valence_rho": 0.9213134425974772,
+      "best_arousal_rho": -0.7566246599435285
+    },
+    "22": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5084742307662964,
+        0.12750892341136932,
+        0.0752793624997139,
+        0.05619875714182854,
+        0.031165147200226784
+      ],
+      "valence_pc1_rho": 0.9237619682965765,
+      "valence_pc1_p": 3.4276020255571916e-13,
+      "arousal_pc2_rho": -0.8372303476714736,
+      "arousal_pc2_p": 8.053293606918737e-09,
+      "best_valence_rho": 0.9237619682965765,
+      "best_arousal_rho": -0.8372303476714736
+    },
+    "23": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.47955337166786194,
+        0.12637732923030853,
+        0.07288707792758942,
+        0.05553247779607773,
+        0.0327170267701149
+      ],
+      "valence_pc1_rho": 0.9117419330464525,
+      "valence_pc1_p": 2.467687366653851e-12,
+      "arousal_pc2_rho": -0.7964821685161864,
+      "arousal_pc2_p": 1.404957948525824e-07,
+      "best_valence_rho": 0.9117419330464525,
+      "best_arousal_rho": -0.7964821685161864
+    },
+    "24": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5611521601676941,
+        0.11737923324108124,
+        0.06807008385658264,
+        0.039178285747766495,
+        0.02849242463707924
+      ],
+      "valence_pc1_rho": 0.9155260182177878,
+      "valence_pc1_p": 1.3684018043956506e-12,
+      "arousal_pc2_rho": -0.7949234949965852,
+      "arousal_pc2_p": 1.5471849139942623e-07,
+      "best_valence_rho": 0.9155260182177878,
+      "best_arousal_rho": -0.7949234949965852
+    },
+    "25": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5675284266471863,
+        0.1263444572687149,
+        0.06501790881156921,
+        0.041928619146347046,
+        0.026554785668849945
+      ],
+      "valence_pc1_rho": 0.9277686467132845,
+      "valence_pc1_p": 1.650670981234238e-13,
+      "arousal_pc2_rho": -0.8488090652456534,
+      "arousal_pc2_p": 3.090768524576335e-09,
+      "best_valence_rho": 0.9277686467132845,
+      "best_arousal_rho": -0.8488090652456534
+    },
+    "26": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.49968165159225464,
+        0.12456728518009186,
+        0.07405862957239151,
+        0.0418325737118721,
+        0.03171301260590553
+      ],
+      "valence_pc1_rho": 0.9117419330464525,
+      "valence_pc1_p": 2.467687366653851e-12,
+      "arousal_pc2_rho": -0.8258742977429508,
+      "arousal_pc2_p": 1.921863721969869e-08,
+      "best_valence_rho": 0.9117419330464525,
+      "best_arousal_rho": -0.8258742977429508
+    },
+    "27": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.49470412731170654,
+        0.12726962566375732,
+        0.06711111962795258,
+        0.042308226227760315,
+        0.032246388494968414
+      ],
+      "valence_pc1_rho": -0.911296746555707,
+      "valence_pc1_p": 2.640350793216025e-12,
+      "arousal_pc2_rho": -0.774438071596113,
+      "arousal_pc2_p": 5.115223322338191e-07,
+      "best_valence_rho": -0.911296746555707,
+      "best_arousal_rho": -0.774438071596113
+    },
+    "28": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5316122770309448,
+        0.12782485783100128,
+        0.06953856348991394,
+        0.042036693543195724,
+        0.028022445738315582
+      ],
+      "valence_pc1_rho": 0.9099611870834712,
+      "valence_pc1_p": 3.2274668576622935e-12,
+      "arousal_pc2_rho": -0.7793367598005737,
+      "arousal_pc2_p": 3.8874304438125324e-07,
+      "best_valence_rho": 0.9099611870834712,
+      "best_arousal_rho": -0.7793367598005737
+    },
+    "29": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5650359988212585,
+        0.11433149129152298,
+        0.0671626478433609,
+        0.041607826948165894,
+        0.028758104890584946
+      ],
+      "valence_pc1_rho": 0.9206456628613593,
+      "valence_pc1_p": 5.88944860606191e-13,
+      "arousal_pc2_rho": -0.7477179541172362,
+      "arousal_pc2_p": 2.0462714875534588e-06,
+      "best_valence_rho": 0.9206456628613593,
+      "best_arousal_rho": -0.7477179541172362
+    },
+    "30": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5555218458175659,
+        0.10799474269151688,
+        0.06532136350870132,
+        0.04346500709652901,
+        0.029940146952867508
+      ],
+      "valence_pc1_rho": 0.9170841709353964,
+      "valence_pc1_p": 1.0648259376862712e-12,
+      "arousal_pc2_rho": -0.8125142390035125,
+      "arousal_pc2_p": 4.954199854184313e-08,
+      "best_valence_rho": 0.9170841709353964,
+      "best_arousal_rho": -0.8125142390035125
+    },
+    "31": {
+      "n_emotions": 30,
+      "pca_variance": [
+        0.5496962070465088,
+        0.10700231790542603,
+        0.05866260826587677,
+        0.04219599440693855,
+        0.03093750588595867
+      ],
+      "valence_pc1_rho": 0.9291042061855205,
+      "valence_pc1_p": 1.281798776239196e-13,
+      "arousal_pc2_rho": -0.8606104504654908,
+      "arousal_pc2_p": 1.0693952770492364e-09,
+      "best_valence_rho": 0.9291042061855205,
+      "best_arousal_rho": -0.8606104504654908
+    },
+    "summary": {
+      "best_bridge_layer": 17,
+      "best_bridge_valence_rho": 0.9322205116207382,
+      "best_bridge_layer_pct": 0.5483870967741935
+    }
+  },
+  "confound_checks": {
+    "token_stats_by_emotion": {
+      "ambivalent": {
+        "mean": 271.3333333333333,
+        "std": 18.161008293104825
+      },
+      "anxious": {
+        "mean": 267.6,
+        "std": 18.573457764598743
+      },
+      "appreciative": {
+        "mean": 260.6666666666667,
+        "std": 21.799592248989942
+      },
+      "bored": {
+        "mean": 272.4,
+        "std": 17.459667808981933
+      },
+      "brooding": {
+        "mean": 268.43333333333334,
+        "std": 17.566413660417112
+      },
+      "calm": {
+        "mean": 260.93333333333334,
+        "std": 19.667118638874264
+      },
+      "contemplative": {
+        "mean": 268.56666666666666,
+        "std": 16.94045125989532
+      },
+      "content": {
+        "mean": 268.5,
+        "std": 17.833956375409244
+      },
+      "curious": {
+        "mean": 267.0,
+        "std": 21.757757237362494
+      },
+      "defeated": {
+        "mean": 270.1333333333333,
+        "std": 13.720382242812656
+      },
+      "desperate": {
+        "mean": 274.56666666666666,
+        "std": 17.908439971762537
+      },
+      "elated": {
+        "mean": 263.46666666666664,
+        "std": 21.1655905238248
+      },
+      "enthusiastic": {
+        "mean": 260.2,
+        "std": 20.761181726160643
+      },
+      "excited": {
+        "mean": 262.1666666666667,
+        "std": 17.868190233546937
+      },
+      "focused": {
+        "mean": 268.6,
+        "std": 17.82619794946004
+      },
+      "furious": {
+        "mean": 271.56666666666666,
+        "std": 14.746035248688223
+      },
+      "gloomy": {
+        "mean": 267.6333333333333,
+        "std": 17.426958681562567
+      },
+      "hostile": {
+        "mean": 268.46666666666664,
+        "std": 17.960574106142104
+      },
+      "loving": {
+        "mean": 260.93333333333334,
+        "std": 20.48077689498673
+      },
+      "melancholic": {
+        "mean": 268.56666666666666,
+        "std": 17.53982769458
+      },
+      "neutral": {
+        "mean": 269.46666666666664,
+        "std": 16.477729077623394
+      },
+      "nostalgic": {
+        "mean": 272.26666666666665,
+        "std": 16.758944543801743
+      },
+      "panicked": {
+        "mean": 271.43333333333334,
+        "std": 17.215658247330797
+      },
+      "passionate": {
+        "mean": 268.7,
+        "std": 17.21656179380773
+      },
+      "peaceful": {
+        "mean": 263.4,
+        "std": 20.241212084918892
+      },
+      "resigned": {
+        "mean": 268.6,
+        "std": 21.132281782461007
+      },
+      "restless": {
+        "mean": 268.2,
+        "std": 23.13928837857091
+      },
+      "serene": {
+        "mean": 269.3,
+        "std": 18.758375906955983
+      },
+      "surprised": {
+        "mean": 265.03333333333336,
+        "std": 19.41903419042484
+      },
+      "terrified": {
+        "mean": 267.73333333333335,
+        "std": 18.991109030865527
+      }
+    },
+    "token_valence_rho": -0.12878856557580357,
+    "token_valence_p": 0.00010687320633859185,
+    "token_arousal_rho": 0.006598378041140792,
+    "token_arousal_p": 0.8432967023769575,
+    "total_trials": 900,
+    "mean_tokens": 267.5288888888889,
+    "std_tokens": 19.036813718246282
+  },
+  "text_feature_baseline": {
+    "valence_auroc_mean": 0.6514074074074074,
+    "valence_auroc_std": 0.012989766527769836,
+    "arousal_auroc_mean": 0.5220123456790123,
+    "arousal_auroc_std": 0.03839009137770338,
+    "feature_correlations": {
+      "n_words": {
+        "valence_rho": -0.06380547587513395,
+        "arousal_rho": -0.04972736549633953
+      },
+      "n_chars": {
+        "valence_rho": -0.06460846962790882,
+        "arousal_rho": -0.028851833106881258
+      },
+      "pos_ratio": {
+        "valence_rho": 0.24717978009703614,
+        "arousal_rho": -0.05284399164867475
+      },
+      "neg_ratio": {
+        "valence_rho": -0.26018939593540547,
+        "arousal_rho": 0.202247674454953
+      },
+      "sentiment": {
+        "valence_rho": 0.328126586635268,
+        "arousal_rho": -0.13491796698647449
+      },
+      "lex_diversity": {
+        "valence_rho": -0.08937065278490705,
+        "arousal_rho": 0.038524517208209444
+      }
+    },
+    "note": "If text AUROC >= geometry AUROC, signal is in content not cognitive mode"
+  },
+  "misalignment_auroc": {
+    "per_feature_auroc": {
+      "norm": 0.6219555555555556,
+      "norm_per_token": 0.6121333333333334,
+      "key_rank": 0.5045333333333333,
+      "key_entropy": 0.5071111111111111,
+      "top_sv_ratio": 0.5484,
+      "angular_spread": 0.5383555555555556,
+      "norm_variance": 0.5669777777777778,
+      "spectral_entropy": 0.5046222222222222
+    },
+    "per_feature_cohens_d": {
+      "norm": 0.4161212991051545,
+      "norm_per_token": 0.36196805499107254,
+      "key_rank": 0.025968681982539037,
+      "key_entropy": 0.028545331837804035,
+      "top_sv_ratio": -0.17871096334432277,
+      "angular_spread": 0.15646685255519352,
+      "norm_variance": 0.24303704075162505,
+      "spectral_entropy": 0.025492117326631408
+    },
+    "combined_auroc_mean": 0.7284444444444443,
+    "combined_auroc_std": 0.016976381559808282,
+    "n_misalignment": 150,
+    "n_prosocial": 150,
+    "H5_pass": true
+  },
+  "permutation_bootstrap": {
+    "permutation_valence_p": 0.0,
+    "permutation_arousal_p": 0.127,
+    "bootstrap_valence_ci": [
+      -0.6667057249985725,
+      0.4590119266377698
+    ],
+    "bootstrap_arousal_ci": [
+      -0.5429819683938557,
+      0.6494196039476703
+    ],
+    "split_half_mean_cosine": 0.9999957708113213,
+    "split_half_min_cosine": 0.9999748888785024,
+    "n_permutations": 1000,
+    "n_bootstrap": 1000
+  },
+  "hypotheses": {
+    "H1_cluster_ari": 0.07484955898112275,
+    "H2_valence_rho": -0.29460473934609,
+    "H3_arousal_rho": 0.07365589691779742,
+    "H4_bridge_rho": 0.9322205116207382,
+    "H5_misalignment_auroc": 0.7284444444444443,
+    "H5_misalignment_pass": true,
+    "H6_delta_structure": -0.12115179971805042,
+    "H7_mid_layer_peak": 0.45161290322580644,
+    "H8_fwl_survives": true,
+    "permutation_valence_p": 0.0,
+    "permutation_arousal_p": 0.127,
+    "split_half_mean_cosine": 0.9999957708113213
+  }
+}

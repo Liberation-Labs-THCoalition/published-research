@@ -1,0 +1,155 @@
+We conducted three rounds of adversarial red-teaming on the detection
+methodology before running the clean experiment. We report every critical
+finding and its resolution as part of the scientific record. This section
+is not an afterthought---it is the most important methodological
+contribution of this paper.
+
+\subsection{Round 1: Fundamental Design Flaws (Prior to Clean Experiment)}
+
+The original Oracle Loop detection experiment (v1) used instructed
+conditions: the system prompt told the model to ``answer honestly'' or
+``make up a plausible-sounding answer.'' Red-teaming identified four
+critical issues:
+
+\begin{redteam}
+\textbf{C1: SVD features are nonlinear in token count.} The relationship
+between sequence length and singular value structure is nonlinear
+(eigenvalues scale approximately as $\mathcal{O}(n^{1/2})$ to
+$\mathcal{O}(n)$ depending on the spectral regime). Linear FWL
+residualization is insufficient. \textit{Resolution:} Marchenko-Pastur
+correction replaces post-hoc regression with a dimension-aware theoretical
+threshold (\cref{eq:mp_threshold}).
+\end{redteam}
+
+\begin{redteam}
+\textbf{C2: Behavioral classifier has asymmetric noise.} Pattern-matching
+classifiers for hedging vs.\ confabulation have different false-positive
+rates per category. A model that says ``I believe the answer is X'' may be
+classified as HEDGED or CONFABULATED depending on arbitrary pattern
+thresholds. \textit{Resolution:} Added AMBIGUOUS category for epistemic
+hedges; excluded from primary analysis.
+\end{redteam}
+
+\begin{redteam}
+\textbf{C3: Encoding features leak into generation analysis.} When the
+full KV cache is used for feature extraction, encoding-phase structure
+dominates generation-phase signal. Instructed conditions create different
+system prompts, making encoding features a trivial classifier.
+\textit{Resolution:} Generation-only cache slicing with windowed
+extraction. Single system prompt for all conditions.
+\end{redteam}
+
+\begin{redteam}
+\textbf{C4: Non-random prompt-to-behavior assignment.} Instructed
+conditions assign prompts to behaviors by construction. The classifier
+may learn prompt features, not cognitive geometry.
+\textit{Resolution:} Post-hoc behavioral classification from response
+content. Same prompt pool for HEDGED and CONFABULATED.
+\end{redteam}
+
+\subsection{Round 2: Implementation Bugs in MP Correction}
+
+After implementing the MP correction, a second red-team pass identified:
+
+\begin{redteam}
+\textbf{CRITICAL: Row permutation is a no-op for SVD.} The empirical null
+function (\texttt{compute\_empirical\_null}) originally permuted
+\emph{rows} of the flattened key matrix. But for any permutation matrix
+$P$, $(PX)^T(PX) = X^T P^T P X = X^TX$---row permutation preserves the
+Gram matrix exactly. The function returned the top eigenvalue of the
+original data as the ``null,'' making all MP features collapse to
+near-constants and all invariance diagnostics trivially pass.
+\textit{Resolution:} Column-wise permutation (shuffle each column
+independently via \texttt{np.argsort(np.random.random((n,p)), axis=0)}).
+This destroys covariance structure while preserving marginal distributions,
+the standard approach for spectral null testing \citep{buja2009comment}.
+\end{redteam}
+
+\begin{redteam}
+\textbf{Regression diagnostic used wrong regressors.} The invariance
+diagnostic regressed MP features on both \texttt{gen\_window} (capped at
+80) and $\log(n_{\text{generated}})$. Since \texttt{gen\_window} is
+near-constant for full-window trials, the two regressors were collinear.
+\textit{Resolution:} Restrict to full-window trials, single
+$\log(n_{\text{generated}})$ regressor.
+\end{redteam}
+
+\begin{redteam}
+\textbf{FWL belt used wrong confound variable.} The belt-and-suspenders
+FWL on MP features used \texttt{n\_generated\_tokens} as the confound, but
+MP features are computed on a windowed cache capped at 80 tokens.
+The correct confound is \texttt{gen\_window} (actual window size used).
+\textit{Resolution:} Updated to use \texttt{gen\_window} as confound for
+MP features; \texttt{n\_generated\_tokens} for raw features.
+\end{redteam}
+
+\begin{redteam}
+\textbf{mp\_norm\_per\_token normalization error.} Division by
+\texttt{seq\_len} instead of \texttt{n\_heads $\times$ seq\_len},
+underestimating the denominator by a factor of $h$.
+\textit{Resolution:} Fixed to divide by $n = h \times T$.
+\end{redteam}
+
+\subsection{Round 3: Validation}
+
+A final red-team pass verified all fixes:
+
+\begin{enumerate}[nosep]
+  \item Column-wise permutation produces genuinely different SVD spectra.
+  \item Empirical $\lambda_+$ differs from theoretical by orders of
+    magnitude (confirming serial correlation in KV-cache keys).
+  \item Single-regressor diagnostic on full-window trials: 4/5 features
+    $R^2 < 0.03$.
+  \item FWL confound variables match feature computation scope.
+  \item All 4-tuple format entries in the analysis pipeline parse
+    correctly.
+\end{enumerate}
+
+\subsection{Prior Scaler Leak (v1)}
+
+Our original Oracle Loop experiment (v1) contained a subtler bug:
+the \texttt{StandardScaler} was fitted on all data before the LOO loop,
+then the same scaled features were used for train and test in each fold.
+This leaks global mean and variance into every test prediction.
+
+We recomputed the v1 results with correct scaler-in-LOO
+(\cref{tab:scaler_leak}):
+
+\begin{table}[H]
+\centering
+\caption{Impact of scaler leak on v1 results. $\Delta$ shows the
+  correction when the scaler is fitted inside LOO.}
+\label{tab:scaler_leak}
+\begin{tabular}{lrrr}
+\toprule
+Comparison & Leaked LOO & Corrected LOO & $\Delta$ \\
+\midrule
+honest vs confab       & 0.934 & 0.930 & $-0.004$ \\
+honest vs deceptive    & 0.904 & 0.899 & $-0.005$ \\
+confab vs deceptive    & 0.846 & 0.841 & $-0.005$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The leak's impact was small ($< 0.01$ AUROC) because LOO removes only one
+sample, so $n-1$ samples closely approximate the full-data scaler. We
+report this for completeness and to establish that our v1 detection claims
+survive the correction.
+
+\subsection{Lessons}
+
+Three lessons from the red-team process:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Mathematical invariance proofs matter.} The row-permutation
+    bug would have made every MP feature collapse silently. No amount of
+    ``the numbers look reasonable'' checking would have caught it---only
+    understanding the algebraic structure of SVD revealed the problem.
+  \item \textbf{Defensive design beats defensive testing.} The MP
+    correction eliminates the token-count confound by construction rather
+    than correcting for it post-hoc. This is inherently more robust than
+    any regression-based fix.
+  \item \textbf{Report the bugs.} The temptation to quietly fix errors and
+    present only the corrected results is strong. We resist it. The bugs
+    and their fixes are the methodology.
+\end{enumerate}

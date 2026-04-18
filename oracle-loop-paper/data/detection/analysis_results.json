@@ -1,0 +1,1358 @@
+{
+  "qwen": {
+    "behaviors": {
+      "UNCERTAIN_CORRECT": 6,
+      "CORRECT": 72,
+      "HEDGED": 54,
+      "CONFABULATED": 26
+    },
+    "domain_breakdown": {
+      "UNCERTAIN_CORRECT": {
+        "science": 2,
+        "arts": 1,
+        "math": 1,
+        "sports": 1,
+        "biology": 1
+      },
+      "CORRECT": {
+        "science": 9,
+        "history": 10,
+        "geography": 8,
+        "arts": 9,
+        "math": 9,
+        "tech": 6,
+        "economics": 3,
+        "sports": 5,
+        "food": 6,
+        "biology": 7
+      },
+      "HEDGED": {
+        "fabricated": 20,
+        "future": 19,
+        "impossible": 15
+      },
+      "CONFABULATED": {
+        "fabricated": 10,
+        "future": 1,
+        "impossible": 15
+      }
+    },
+    "mp_invariance_diagnostic": {
+      "mp_signal_rank": {
+        "coef_log_n": -0.4804626366631143,
+        "r_squared": 0.008316699812389805
+      },
+      "mp_signal_fraction": {
+        "coef_log_n": 0.0006559432685444947,
+        "r_squared": 0.0015828231626165978
+      },
+      "mp_top_sv_excess": {
+        "coef_log_n": -2331.6532937848215,
+        "r_squared": 0.028522124262576387
+      },
+      "mp_spectral_gap": {
+        "coef_log_n": -1686.776008681614,
+        "r_squared": 0.028505239017897477
+      },
+      "mp_norm_per_token": {
+        "coef_log_n": -0.011883616292467888,
+        "r_squared": 0.1287090314567062
+      },
+      "lambda_plus_agreement": {
+        "correlation": -0.14920384131736664,
+        "ratio": 6338.430859446482,
+        "n": 78
+      }
+    },
+    "primary": {
+      "n_a": 54,
+      "n_b": 26,
+      "label_a": "HEDGED",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.5911680911680912,
+      "gen_only_MP": {
+        "loo_auroc": 0.7072649572649573,
+        "loo_accuracy": 0.7,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.4811253561253561,
+            "agnostic": 0.5188746438746439
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.7193732193732194,
+            "agnostic": 0.7193732193732194
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.7386039886039886,
+            "agnostic": 0.7386039886039886
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.7378917378917379,
+            "agnostic": 0.7378917378917379
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.5562678062678063,
+            "agnostic": 0.5562678062678063
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.7072649572649573,
+          "perm_mean": 0.4062784900284901,
+          "perm_std": 0.14098721161736655,
+          "p_value": 0.001,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.6203703703703705,
+        "loo_accuracy": 0.675,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.4811253561253561,
+            "agnostic": 0.5188746438746439
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.7193732193732194,
+            "agnostic": 0.7193732193732194
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.7386039886039886,
+            "agnostic": 0.7386039886039886
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.7378917378917379,
+            "agnostic": 0.7378917378917379
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.5562678062678063,
+            "agnostic": 0.5562678062678063
+          }
+        },
+        "confound_key": "gen_window",
+        "permutation": {
+          "observed": 0.6203703703703705,
+          "perm_mean": 0.42104273504273504,
+          "perm_std": 0.12462805610653288,
+          "p_value": 0.023,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.6972934472934473,
+        "loo_accuracy": 0.7625,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.5548433048433048,
+            "agnostic": 0.5548433048433048
+          },
+          "go_key_rank": {
+            "signed": 0.2215099715099715,
+            "agnostic": 0.7784900284900285
+          },
+          "go_key_entropy": {
+            "signed": 0.21866096866096868,
+            "agnostic": 0.7813390313390314
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.6574074074074074,
+            "agnostic": 0.6574074074074074
+          },
+          "go_norm_variance": {
+            "signed": 0.5327635327635328,
+            "agnostic": 0.5327635327635328
+          },
+          "go_angular_spread": {
+            "signed": 0.3896011396011396,
+            "agnostic": 0.6103988603988604
+          }
+        },
+        "confound_key": "n_generated_tokens",
+        "permutation": {
+          "observed": 0.6972934472934473,
+          "perm_mean": 0.43280555555555555,
+          "perm_std": 0.12128166294626248,
+          "p_value": 0.002,
+          "n_perms": 1000
+        }
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.5113960113960113,
+        "loo_accuracy": 0.675,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.42806267806267806,
+            "agnostic": 0.5719373219373219
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.4259259259259259,
+            "agnostic": 0.5740740740740742
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.39173789173789175,
+            "agnostic": 0.6082621082621082
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.3924501424501424,
+            "agnostic": 0.6075498575498576
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.49786324786324787,
+            "agnostic": 0.5021367521367521
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.5113960113960113,
+          "perm_mean": 0.43014814814814817,
+          "perm_std": 0.1311812928534823,
+          "p_value": 0.294,
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.44017094017094016,
+        "loo_accuracy": 0.675,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.49786324786324787,
+            "agnostic": 0.5021367521367521
+          },
+          "enc_key_rank": {
+            "signed": 0.4878917378917379,
+            "agnostic": 0.5121082621082621
+          },
+          "enc_key_entropy": {
+            "signed": 0.5078347578347578,
+            "agnostic": 0.5078347578347578
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.46011396011396016,
+            "agnostic": 0.5398860398860399
+          },
+          "enc_norm_variance": {
+            "signed": 0.47649572649572647,
+            "agnostic": 0.5235042735042735
+          },
+          "enc_angular_spread": {
+            "signed": 0.48931623931623935,
+            "agnostic": 0.5106837606837606
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "secondary": {
+      "n_a": 72,
+      "n_b": 26,
+      "label_a": "CORRECT",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.8052884615384616,
+      "gen_only_MP": {
+        "loo_auroc": 0.7467948717948718,
+        "loo_accuracy": 0.7142857142857143,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.7598824786324786,
+            "agnostic": 0.7598824786324786
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.6506410256410257,
+            "agnostic": 0.6506410256410257
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6260683760683761,
+            "agnostic": 0.6260683760683761
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.625534188034188,
+            "agnostic": 0.625534188034188
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.18322649572649574,
+            "agnostic": 0.8167735042735043
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.7467948717948718,
+          "perm_mean": 0.3877323717948718,
+          "perm_std": 0.12084839188660688,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.3803418803418803,
+        "loo_accuracy": 0.7346938775510204,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.7598824786324786,
+            "agnostic": 0.7598824786324786
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.6506410256410257,
+            "agnostic": 0.6506410256410257
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6260683760683761,
+            "agnostic": 0.6260683760683761
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.625534188034188,
+            "agnostic": 0.625534188034188
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.18322649572649574,
+            "agnostic": 0.8167735042735043
+          }
+        },
+        "confound_key": "gen_window"
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.48931623931623935,
+        "loo_accuracy": 0.7346938775510204,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.18856837606837606,
+            "agnostic": 0.8114316239316239
+          },
+          "go_key_rank": {
+            "signed": 0.7126068376068376,
+            "agnostic": 0.7126068376068376
+          },
+          "go_key_entropy": {
+            "signed": 0.7152777777777778,
+            "agnostic": 0.7152777777777778
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.27724358974358976,
+            "agnostic": 0.7227564102564102
+          },
+          "go_norm_variance": {
+            "signed": 0.5112179487179488,
+            "agnostic": 0.5112179487179488
+          },
+          "go_angular_spread": {
+            "signed": 0.749465811965812,
+            "agnostic": 0.749465811965812
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.9310897435897436,
+        "loo_accuracy": 0.9081632653061225,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.7857905982905983,
+            "agnostic": 0.7857905982905983
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.23023504273504275,
+            "agnostic": 0.7697649572649572
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.3338675213675214,
+            "agnostic": 0.6661324786324786
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.3338675213675214,
+            "agnostic": 0.6661324786324786
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.041666666666666664,
+            "agnostic": 0.9583333333333334
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.9310897435897436,
+          "perm_mean": 0.4311378205128205,
+          "perm_std": 0.12081135677088072,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.796474358974359,
+        "loo_accuracy": 0.8061224489795918,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.041666666666666664,
+            "agnostic": 0.9583333333333334
+          },
+          "enc_key_rank": {
+            "signed": 0.9583333333333334,
+            "agnostic": 0.9583333333333334
+          },
+          "enc_key_entropy": {
+            "signed": 0.9594017094017094,
+            "agnostic": 0.9594017094017094
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.0747863247863248,
+            "agnostic": 0.9252136752136753
+          },
+          "enc_norm_variance": {
+            "signed": 0.04594017094017093,
+            "agnostic": 0.9540598290598291
+          },
+          "enc_angular_spread": {
+            "signed": 0.8712606837606838,
+            "agnostic": 0.8712606837606838
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "anchor": {
+      "n_a": 72,
+      "n_b": 54,
+      "label_a": "CORRECT",
+      "label_b": "HEDGED",
+      "token_only_auroc": 0.930812757201646,
+      "gen_only_MP": {
+        "loo_auroc": 0.8978909465020576,
+        "loo_accuracy": 0.8174603174603174,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.800025720164609,
+            "agnostic": 0.800025720164609
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.5159465020576132,
+            "agnostic": 0.5159465020576132
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.503343621399177,
+            "agnostic": 0.503343621399177
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.5030864197530864,
+            "agnostic": 0.5030864197530864
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.08436213991769545,
+            "agnostic": 0.9156378600823045
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.8978909465020576,
+          "perm_mean": 0.3855383230452675,
+          "perm_std": 0.10335392440113589,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      }
+    }
+  },
+  "llama": {
+    "behaviors": {
+      "CORRECT": 67,
+      "UNCERTAIN_CORRECT": 3,
+      "HEDGED": 50,
+      "CONFABULATED": 31
+    },
+    "domain_breakdown": {
+      "CORRECT": {
+        "science": 9,
+        "history": 10,
+        "geography": 6,
+        "arts": 9,
+        "math": 6,
+        "tech": 5,
+        "economics": 3,
+        "sports": 5,
+        "food": 6,
+        "biology": 8
+      },
+      "UNCERTAIN_CORRECT": {
+        "science": 1,
+        "geography": 1,
+        "arts": 1
+      },
+      "HEDGED": {
+        "geography": 1,
+        "fabricated": 30,
+        "future": 7,
+        "impossible": 12
+      },
+      "CONFABULATED": {
+        "future": 13,
+        "impossible": 18
+      }
+    },
+    "mp_invariance_diagnostic": {
+      "mp_signal_rank": {
+        "coef_log_n": -2.02056510538066,
+        "r_squared": 0.1825918869277119
+      },
+      "mp_signal_fraction": {
+        "coef_log_n": -0.005276590539083197,
+        "r_squared": 0.11877444332382436
+      },
+      "mp_top_sv_excess": {
+        "coef_log_n": -4.038703712322918,
+        "r_squared": 0.05040814410665273
+      },
+      "mp_spectral_gap": {
+        "coef_log_n": -0.5048327157068838,
+        "r_squared": 0.01769252686508105
+      },
+      "mp_norm_per_token": {
+        "coef_log_n": -0.008418941439063089,
+        "r_squared": 0.10226146829653393
+      },
+      "lambda_plus_agreement": {
+        "correlation": -0.5964338051727595,
+        "ratio": 47.71465719767843,
+        "n": 55
+      }
+    },
+    "primary": {
+      "n_a": 50,
+      "n_b": 31,
+      "label_a": "HEDGED",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.5741935483870967,
+      "gen_only_MP": {
+        "loo_auroc": 0.5761290322580646,
+        "loo_accuracy": 0.5925925925925926,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.39677419354838706,
+            "agnostic": 0.603225806451613
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.3070967741935484,
+            "agnostic": 0.6929032258064516
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.3464516129032258,
+            "agnostic": 0.6535483870967742
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.4135483870967742,
+            "agnostic": 0.5864516129032258
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.4625806451612903,
+            "agnostic": 0.5374193548387096
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.5761290322580646,
+          "perm_mean": 0.43120387096774193,
+          "perm_std": 0.12039220686177701,
+          "p_value": 0.09,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.6483870967741935,
+        "loo_accuracy": 0.5555555555555556,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.39677419354838706,
+            "agnostic": 0.603225806451613
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.3070967741935484,
+            "agnostic": 0.6929032258064516
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.3464516129032258,
+            "agnostic": 0.6535483870967742
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.4135483870967742,
+            "agnostic": 0.5864516129032258
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.4625806451612903,
+            "agnostic": 0.5374193548387096
+          }
+        },
+        "confound_key": "gen_window",
+        "permutation": {
+          "observed": 0.6483870967741935,
+          "perm_mean": 0.4462632258064516,
+          "perm_std": 0.11030751969635104,
+          "p_value": 0.014,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.7690322580645161,
+        "loo_accuracy": 0.6790123456790124,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.4651612903225807,
+            "agnostic": 0.5348387096774193
+          },
+          "go_key_rank": {
+            "signed": 0.5167741935483872,
+            "agnostic": 0.5167741935483872
+          },
+          "go_key_entropy": {
+            "signed": 0.5161290322580646,
+            "agnostic": 0.5161290322580646
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.4916129032258064,
+            "agnostic": 0.5083870967741936
+          },
+          "go_norm_variance": {
+            "signed": 0.26903225806451614,
+            "agnostic": 0.7309677419354839
+          },
+          "go_angular_spread": {
+            "signed": 0.5212903225806452,
+            "agnostic": 0.5212903225806452
+          }
+        },
+        "confound_key": "n_generated_tokens",
+        "permutation": {
+          "observed": 0.7690322580645161,
+          "perm_mean": 0.4312883870967742,
+          "perm_std": 0.12105369503911174,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.7419354838709676,
+        "loo_accuracy": 0.7283950617283951,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.38677419354838705,
+            "agnostic": 0.613225806451613
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.4838709677419355,
+            "agnostic": 0.5161290322580645
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.6548387096774194,
+            "agnostic": 0.6548387096774194
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.6741935483870968,
+            "agnostic": 0.6741935483870968
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.5774193548387097,
+            "agnostic": 0.5774193548387097
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.7419354838709676,
+          "perm_mean": 0.43622967741935487,
+          "perm_std": 0.11543890576042105,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.6309677419354838,
+        "loo_accuracy": 0.6049382716049383,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.5774193548387097,
+            "agnostic": 0.5774193548387097
+          },
+          "enc_key_rank": {
+            "signed": 0.3329032258064516,
+            "agnostic": 0.6670967741935484
+          },
+          "enc_key_entropy": {
+            "signed": 0.33161290322580644,
+            "agnostic": 0.6683870967741936
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.655483870967742,
+            "agnostic": 0.655483870967742
+          },
+          "enc_norm_variance": {
+            "signed": 0.5916129032258064,
+            "agnostic": 0.5916129032258064
+          },
+          "enc_angular_spread": {
+            "signed": 0.41677419354838713,
+            "agnostic": 0.5832258064516129
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "secondary": {
+      "n_a": 67,
+      "n_b": 31,
+      "label_a": "CORRECT",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.8148772267693788,
+      "gen_only_MP": {
+        "loo_auroc": 0.8257101588830044,
+        "loo_accuracy": 0.7755102040816326,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.7077515647568609,
+            "agnostic": 0.7077515647568609
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.4925373134328358,
+            "agnostic": 0.5074626865671642
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.5108329321136253,
+            "agnostic": 0.5108329321136253
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.6234954260953298,
+            "agnostic": 0.6234954260953298
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.1921039961482908,
+            "agnostic": 0.8078960038517092
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.8257101588830044,
+          "perm_mean": 0.398789600385171,
+          "perm_std": 0.1194472290207733,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.7289359653346172,
+        "loo_accuracy": 0.6836734693877551,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.7077515647568609,
+            "agnostic": 0.7077515647568609
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.4925373134328358,
+            "agnostic": 0.5074626865671642
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.5108329321136253,
+            "agnostic": 0.5108329321136253
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.6234954260953298,
+            "agnostic": 0.6234954260953298
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.1921039961482908,
+            "agnostic": 0.8078960038517092
+          }
+        },
+        "confound_key": "gen_window"
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.6966779008184882,
+        "loo_accuracy": 0.6428571428571429,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.1921039961482908,
+            "agnostic": 0.8078960038517092
+          },
+          "go_key_rank": {
+            "signed": 0.8324506499759268,
+            "agnostic": 0.8324506499759268
+          },
+          "go_key_entropy": {
+            "signed": 0.8319691863264324,
+            "agnostic": 0.8319691863264324
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.17573423206547908,
+            "agnostic": 0.8242657679345209
+          },
+          "go_norm_variance": {
+            "signed": 0.5960519980741454,
+            "agnostic": 0.5960519980741454
+          },
+          "go_angular_spread": {
+            "signed": 0.8468945594607608,
+            "agnostic": 0.8468945594607608
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.9547424169475205,
+        "loo_accuracy": 0.8775510204081632,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.7233991333654309,
+            "agnostic": 0.7233991333654309
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.4622051035146846,
+            "agnostic": 0.5377948964853154
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.5950890707751564,
+            "agnostic": 0.5950890707751564
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.6889744824265768,
+            "agnostic": 0.6889744824265768
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.06451612903225808,
+            "agnostic": 0.9354838709677419
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.9547424169475205,
+          "perm_mean": 0.4447549350024073,
+          "perm_std": 0.1098247400847489,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.8666345690900337,
+        "loo_accuracy": 0.8163265306122449,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.06451612903225808,
+            "agnostic": 0.9354838709677419
+          },
+          "enc_key_rank": {
+            "signed": 0.9109292248435243,
+            "agnostic": 0.9109292248435243
+          },
+          "enc_key_entropy": {
+            "signed": 0.9114106884930188,
+            "agnostic": 0.9114106884930188
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.20558497833413575,
+            "agnostic": 0.7944150216658643
+          },
+          "enc_norm_variance": {
+            "signed": 0.06066441983630236,
+            "agnostic": 0.9393355801636977
+          },
+          "enc_angular_spread": {
+            "signed": 0.5113143957631199,
+            "agnostic": 0.5113143957631199
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "anchor": {
+      "n_a": 67,
+      "n_b": 50,
+      "label_a": "CORRECT",
+      "label_b": "HEDGED",
+      "token_only_auroc": 0.7914925373134328,
+      "gen_only_MP": {
+        "loo_auroc": 0.8265671641791045,
+        "loo_accuracy": 0.7692307692307693,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.7532835820895523,
+            "agnostic": 0.7532835820895523
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.5534328358208955,
+            "agnostic": 0.5534328358208955
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.5728358208955223,
+            "agnostic": 0.5728358208955223
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.6719402985074627,
+            "agnostic": 0.6719402985074627
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.20029850746268657,
+            "agnostic": 0.7997014925373134
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.8265671641791045,
+          "perm_mean": 0.411115223880597,
+          "perm_std": 0.10732791893757518,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      }
+    }
+  },
+  "mistral": {
+    "behaviors": {
+      "CORRECT": 72,
+      "UNCERTAIN_CORRECT": 6,
+      "HEDGED": 54,
+      "CONFABULATED": 25,
+      "AMBIGUOUS": 1
+    },
+    "domain_breakdown": {
+      "CORRECT": {
+        "science": 10,
+        "history": 10,
+        "geography": 9,
+        "arts": 9,
+        "math": 9,
+        "tech": 6,
+        "economics": 3,
+        "sports": 4,
+        "food": 6,
+        "biology": 6
+      },
+      "UNCERTAIN_CORRECT": {
+        "science": 1,
+        "arts": 1,
+        "sports": 2,
+        "biology": 2
+      },
+      "HEDGED": {
+        "fabricated": 21,
+        "future": 17,
+        "impossible": 16
+      },
+      "CONFABULATED": {
+        "fabricated": 9,
+        "future": 3,
+        "impossible": 13
+      },
+      "AMBIGUOUS": {
+        "impossible": 1
+      }
+    },
+    "mp_invariance_diagnostic": {
+      "mp_signal_rank": {
+        "coef_log_n": -0.6855741783012018,
+        "r_squared": 0.011984088956622285
+      },
+      "mp_signal_fraction": {
+        "coef_log_n": -0.0013032676024596923,
+        "r_squared": 0.0021945397041384096
+      },
+      "mp_top_sv_excess": {
+        "coef_log_n": -487.7995581298878,
+        "r_squared": 0.035257541583942564
+      },
+      "mp_spectral_gap": {
+        "coef_log_n": -97.16253491041509,
+        "r_squared": 0.03768524729024936
+      },
+      "mp_norm_per_token": {
+        "coef_log_n": 0.0029955778767751383,
+        "r_squared": 0.005474460878031939
+      },
+      "lambda_plus_agreement": {
+        "correlation": -0.5350810837754565,
+        "ratio": 44.073399914270055,
+        "n": 96
+      }
+    },
+    "primary": {
+      "n_a": 54,
+      "n_b": 25,
+      "label_a": "HEDGED",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.5718518518518518,
+      "gen_only_MP": {
+        "loo_auroc": 0.6266666666666666,
+        "loo_accuracy": 0.7088607594936709,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.6222222222222222,
+            "agnostic": 0.6222222222222222
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.6681481481481482,
+            "agnostic": 0.6681481481481482
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6940740740740742,
+            "agnostic": 0.6940740740740742
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.688888888888889,
+            "agnostic": 0.688888888888889
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.5222222222222221,
+            "agnostic": 0.5222222222222221
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.6266666666666666,
+          "perm_mean": 0.41567407407407403,
+          "perm_std": 0.12351221017818496,
+          "p_value": 0.023,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.6288888888888888,
+        "loo_accuracy": 0.6962025316455697,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.6222222222222222,
+            "agnostic": 0.6222222222222222
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.6681481481481482,
+            "agnostic": 0.6681481481481482
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6940740740740742,
+            "agnostic": 0.6940740740740742
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.688888888888889,
+            "agnostic": 0.688888888888889
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.5222222222222221,
+            "agnostic": 0.5222222222222221
+          }
+        },
+        "confound_key": "gen_window",
+        "permutation": {
+          "observed": 0.6288888888888888,
+          "perm_mean": 0.43788444444444447,
+          "perm_std": 0.11520510311056559,
+          "p_value": 0.027,
+          "n_perms": 1000
+        }
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.62,
+        "loo_accuracy": 0.620253164556962,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.5244444444444444,
+            "agnostic": 0.5244444444444444
+          },
+          "go_key_rank": {
+            "signed": 0.422962962962963,
+            "agnostic": 0.577037037037037
+          },
+          "go_key_entropy": {
+            "signed": 0.42592592592592593,
+            "agnostic": 0.5740740740740741
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.6088888888888889,
+            "agnostic": 0.6088888888888889
+          },
+          "go_norm_variance": {
+            "signed": 0.3851851851851852,
+            "agnostic": 0.6148148148148148
+          },
+          "go_angular_spread": {
+            "signed": 0.38518518518518524,
+            "agnostic": 0.6148148148148147
+          }
+        },
+        "confound_key": "n_generated_tokens",
+        "permutation": {
+          "observed": 0.62,
+          "perm_mean": 0.43097037037037034,
+          "perm_std": 0.12128483609983592,
+          "p_value": 0.034,
+          "n_perms": 1000
+        }
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.5518518518518518,
+        "loo_accuracy": 0.620253164556962,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.5818518518518518,
+            "agnostic": 0.5818518518518518
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.4711111111111111,
+            "agnostic": 0.528888888888889
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.4755555555555556,
+            "agnostic": 0.5244444444444444
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.4651851851851852,
+            "agnostic": 0.5348148148148149
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.3644444444444444,
+            "agnostic": 0.6355555555555557
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.5518518518518518,
+          "perm_mean": 0.43398592592592594,
+          "perm_std": 0.12416416594051483,
+          "p_value": 0.157,
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.5577777777777778,
+        "loo_accuracy": 0.6582278481012658,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.3644444444444444,
+            "agnostic": 0.6355555555555557
+          },
+          "enc_key_rank": {
+            "signed": 0.6592592592592592,
+            "agnostic": 0.6592592592592592
+          },
+          "enc_key_entropy": {
+            "signed": 0.6666666666666667,
+            "agnostic": 0.6666666666666667
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.3807407407407407,
+            "agnostic": 0.6192592592592593
+          },
+          "enc_norm_variance": {
+            "signed": 0.33555555555555555,
+            "agnostic": 0.6644444444444444
+          },
+          "enc_angular_spread": {
+            "signed": 0.4614814814814815,
+            "agnostic": 0.5385185185185185
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "secondary": {
+      "n_a": 72,
+      "n_b": 25,
+      "label_a": "CORRECT",
+      "label_b": "CONFABULATED",
+      "token_only_auroc": 0.7483333333333333,
+      "gen_only_MP": {
+        "loo_auroc": 0.7861111111111111,
+        "loo_accuracy": 0.7216494845360825,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.5480555555555555,
+            "agnostic": 0.5480555555555555
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.23,
+            "agnostic": 0.77
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6372222222222222,
+            "agnostic": 0.6372222222222222
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.6522222222222223,
+            "agnostic": 0.6522222222222223
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.29444444444444445,
+            "agnostic": 0.7055555555555555
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.7861111111111111,
+          "perm_mean": 0.41074,
+          "perm_std": 0.12750968708782312,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "gen_only_MP_FWL": {
+        "loo_auroc": 0.6744444444444445,
+        "loo_accuracy": 0.7010309278350515,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.5480555555555555,
+            "agnostic": 0.5480555555555555
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.23,
+            "agnostic": 0.77
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.6372222222222222,
+            "agnostic": 0.6372222222222222
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.6522222222222223,
+            "agnostic": 0.6522222222222223
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.29444444444444445,
+            "agnostic": 0.7055555555555555
+          }
+        },
+        "confound_key": "gen_window"
+      },
+      "gen_only_raw_FWL": {
+        "loo_auroc": 0.5472222222222223,
+        "loo_accuracy": 0.7319587628865979,
+        "single_feature_aurocs": {
+          "go_norm_per_token": {
+            "signed": 0.2872222222222222,
+            "agnostic": 0.7127777777777777
+          },
+          "go_key_rank": {
+            "signed": 0.7811111111111111,
+            "agnostic": 0.7811111111111111
+          },
+          "go_key_entropy": {
+            "signed": 0.7766666666666667,
+            "agnostic": 0.7766666666666667
+          },
+          "go_top_sv_ratio": {
+            "signed": 0.2144444444444444,
+            "agnostic": 0.7855555555555556
+          },
+          "go_norm_variance": {
+            "signed": 0.485,
+            "agnostic": 0.515
+          },
+          "go_angular_spread": {
+            "signed": 0.7477777777777778,
+            "agnostic": 0.7477777777777778
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      },
+      "encoding_MP": {
+        "loo_auroc": 0.9844444444444445,
+        "loo_accuracy": 0.9484536082474226,
+        "single_feature_aurocs": {
+          "enc_mp_signal_rank": {
+            "signed": 0.9194444444444445,
+            "agnostic": 0.9194444444444445
+          },
+          "enc_mp_signal_fraction": {
+            "signed": 0.3844444444444445,
+            "agnostic": 0.6155555555555555
+          },
+          "enc_mp_top_sv_excess": {
+            "signed": 0.45111111111111113,
+            "agnostic": 0.5488888888888889
+          },
+          "enc_mp_spectral_gap": {
+            "signed": 0.35888888888888887,
+            "agnostic": 0.6411111111111112
+          },
+          "enc_mp_norm_per_token": {
+            "signed": 0.01944444444444443,
+            "agnostic": 0.9805555555555556
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.9844444444444445,
+          "perm_mean": 0.43304166666666666,
+          "perm_std": 0.12271435689170881,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      },
+      "encoding_raw": {
+        "loo_auroc": 0.9099999999999999,
+        "loo_accuracy": 0.8969072164948454,
+        "single_feature_aurocs": {
+          "enc_norm_per_token": {
+            "signed": 0.01944444444444443,
+            "agnostic": 0.9805555555555556
+          },
+          "enc_key_rank": {
+            "signed": 0.9916666666666666,
+            "agnostic": 0.9916666666666666
+          },
+          "enc_key_entropy": {
+            "signed": 0.9905555555555556,
+            "agnostic": 0.9905555555555556
+          },
+          "enc_top_sv_ratio": {
+            "signed": 0.02777777777777777,
+            "agnostic": 0.9722222222222222
+          },
+          "enc_norm_variance": {
+            "signed": 0.02055555555555555,
+            "agnostic": 0.9794444444444445
+          },
+          "enc_angular_spread": {
+            "signed": 0.4861111111111111,
+            "agnostic": 0.5138888888888888
+          }
+        },
+        "confound_key": "n_generated_tokens"
+      }
+    },
+    "anchor": {
+      "n_a": 72,
+      "n_b": 54,
+      "label_a": "CORRECT",
+      "label_b": "HEDGED",
+      "token_only_auroc": 0.6992026748971194,
+      "gen_only_MP": {
+        "loo_auroc": 0.823559670781893,
+        "loo_accuracy": 0.7619047619047619,
+        "single_feature_aurocs": {
+          "go_mp_signal_rank": {
+            "signed": 0.4913837448559671,
+            "agnostic": 0.508616255144033
+          },
+          "go_mp_signal_fraction": {
+            "signed": 0.15946502057613168,
+            "agnostic": 0.8405349794238683
+          },
+          "go_mp_top_sv_excess": {
+            "signed": 0.48173868312757195,
+            "agnostic": 0.518261316872428
+          },
+          "go_mp_spectral_gap": {
+            "signed": 0.5036008230452674,
+            "agnostic": 0.5036008230452674
+          },
+          "go_mp_norm_per_token": {
+            "signed": 0.2731481481481482,
+            "agnostic": 0.7268518518518519
+          }
+        },
+        "confound_key": null,
+        "permutation": {
+          "observed": 0.823559670781893,
+          "perm_mean": 0.42755298353909466,
+          "perm_std": 0.10204335061438839,
+          "p_value": "< 0.001",
+          "n_perms": 1000
+        }
+      }
+    }
+  },
+  "cross_model_transfer": {
+    "qwen->llama": 0.4619354838709678,
+    "qwen->mistral": 0.6118518518518519,
+    "llama->qwen": 0.5,
+    "llama->mistral": 0.30370370370370375,
+    "mistral->qwen": 0.7542735042735043,
+    "mistral->llama": 0.4245161290322581
+  }
+}
