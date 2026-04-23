@@ -24,13 +24,18 @@ have silently invalidated all MP features. We report these not as
 embarrassments but as demonstrations that adversarial methodology is
 essential for claims in this space.
 
-The steering methodology creates a dual-use risk: the same cache
-modification that corrects confabulation could suppress safety-relevant
-hedging. Our Cache Integrity Monitor (\cref{sec:cache_defense}) detects
-all tested injection attacks against uniform additive perturbation with
-0/36 false positives (95\% CI: 0--10\%) and 72/72 true positives
-(95\% CI: 95--100\%), including at 1\% of operational strength. We
-release the defense alongside the attack methodology.
+The Oracle Loop creates dual-use risks at two levels. Cache injection
+could suppress safety-relevant hedging; our Cache Integrity Monitor
+(\cref{sec:cache_defense}) detects all tested injection attacks with
+0/36 false positives and 72/72 true positives, including at 1\% of
+operational strength. More broadly, the same geometric features that
+detect confabulation could enable surveillance or persona
+identification if applied to intercepted caches. KV-cache obfuscation
+\citep{luo2026shadow} addresses this by rendering geometric features
+unrecoverable to external parties while preserving detection accuracy
+inside the trust boundary (\cref{sec:kv_cloak}). We advocate that any
+deployment of cache-geometric monitoring include obfuscation as a
+mandatory companion: the pharmacy must be locked.
 
 The gap that remains is training. The Oracle Loop's detection signal is
 validated. Its steering mechanism is validated as proof-of-concept. Its

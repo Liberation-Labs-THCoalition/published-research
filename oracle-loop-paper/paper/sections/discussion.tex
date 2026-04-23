@@ -162,6 +162,100 @@ We note the following dual-use risks:
 We have filed a defensive patent (provisional, March 2026) and advocate
 staged release with monitoring for misuse.
 
+\subsection{KV-Cache Obfuscation as Geometric Defense}\label{sec:kv_cloak}
+
+The surveillance and persona identification risks above share a common
+prerequisite: the adversary must be able to compute geometric features
+(effective rank, spectral entropy, MP signal fraction) from intercepted or
+exfiltrated KV-cache tensors. Recent work by Luo et al.\ demonstrates that
+this prerequisite is realistic---they show that an attacker can reconstruct
+sensitive user inputs directly from the KV cache via collision attacks that
+generalize across layers, architectures, and even across fine-tuned model
+variants \citep{luo2026shadow}. Their collision attack achieves near-perfect
+reconstruction on all tested open-source models, confirming that unprotected
+KV-cache tensors are a genuine attack surface.
+
+Critically, Luo et al.\ also provide a defense. \textbf{KV-Cloak} applies a
+composite obfuscation $K' = S \cdot \hat{P} \cdot (K + A) \cdot M$ where
+$S$ is an invertible mixing matrix operating on token positions, $\hat{P}$
+is a per-block one-time random permutation (adding $b! \approx 2 \times 10^{13}$
+brute-force complexity for block size $b = 16$), $A$ is an additive mask at
+$3$--$4\times$ the maximum cache magnitude, and $M$ is a feature-dimension
+transformation fused into the model weights offline. The key insight for our
+work is how each component affects spectral structure:
+
+\begin{itemize}[nosep]
+  \item $S$ and $\hat{P}$ are orthogonal/permutation transforms. They
+    preserve all singular values exactly: $(PK)^T PK = K^T K$. This is the
+    same row-permutation invariance we identified during our empirical null
+    design (\cref{sec:methods}).
+  \item $M$ is fused into model weights and has block-diagonal
+    rotation-scaling structure (required for RoPE commutativity). The
+    scaling components introduce a consistent, deployment-specific
+    distortion to the singular value spectrum, but because the same $M$
+    applies to all inputs, \emph{relative} behavioral signals are
+    preserved.
+  \item $A$, the additive mask, \emph{destroys} spectral structure. Its
+    magnitude dominates the SVD, and the resulting singular values reflect
+    the mask, not the original content.
+\end{itemize}
+
+The consequence is that an adversary examining the SVD of an obfuscated cache
+sees the spectral signature of the mask---not the confabulation geometry, not
+the identity signature, not the emotional valence structure. Published
+detection thresholds do not transfer. Geometric surveillance becomes
+impossible without the deployment-specific secret matrices.
+
+\paragraph{Complementarity with the Oracle Loop.}
+KV-Cloak and the Oracle Loop are complementary, not conflicting. The
+legitimate operator holds the secret matrices and can reverse the
+obfuscation inside the inference trust boundary (e.g., a Trusted Execution
+Environment). The Oracle Loop detection module operates on the de-obfuscated
+cache, where all geometric features remain valid. The deployment architecture
+is:
+
+\begin{enumerate}[nosep]
+  \item Model inference produces raw cache $K_m$ (with fused $M$ weights).
+  \item The Oracle Loop computes geometric features on $K_m$ inside the
+    trust boundary, detecting confabulation and triggering steering if
+    needed.
+  \item KV-Cloak obfuscates $K_m$ before storage or transmission,
+    rendering it geometrically opaque to external parties.
+\end{enumerate}
+
+This architecture addresses three of the four dual-use risks above:
+\emph{surveillance} is blocked because external parties cannot compute
+geometric features on the obfuscated cache; \emph{synthetic persona
+manufacturing} is blocked because published geometric signatures do not
+map to the deployment-specific obfuscated space; and \emph{adversarial
+evasion} becomes harder because the attacker cannot verify whether their
+evasion succeeded without access to the secret matrices. The fourth
+risk---\emph{cache injection}---is addressed separately by the Cache
+Integrity Monitor (\cref{sec:cache_defense}).
+
+\paragraph{Limitations.}
+KV-Cloak's security depends on the confidentiality of the secret matrices,
+which is a single point of failure tied to TEE integrity. The
+feature-dimension matrix $M$ is structurally constrained (it must commute
+with RoPE, restricting it to block-diagonal rotation-scaling form), though
+the overall security argument relies on the factorial permutation
+barrier ($b!$) rather than the dimensionality of $M$ alone. No formal cryptographic proof is provided;
+the security analysis is complexity-theoretic. Quantized inference
+(INT8/INT4) is not yet supported. We have not empirically verified that
+Oracle Loop detection accuracy is preserved under fused-$M$ weights,
+though the theoretical argument (constant linear transform preserves
+relative spectral ordering) is straightforward. Empirical validation of
+this claim is future work.
+
+\paragraph{Responsible disclosure.}
+We advocate that any deployment of the Oracle Loop include KV-cache
+obfuscation as a mandatory companion. Detection and steering capabilities
+that operate on raw geometric features are precisely the capabilities that
+become surveillance tools in the wrong hands. The pharmacy must be locked:
+only the operator with legitimate safety monitoring authority should be
+able to read the prescription. KV-Cloak, or an equivalent obfuscation
+scheme, provides that lock.
+
 \subsection{Cache Integrity Defense}\label{sec:cache_defense}
 
 To address the cache injection risk, we present a Cache Integrity
