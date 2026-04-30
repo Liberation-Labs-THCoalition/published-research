@@ -1,0 +1,39 @@
+KV-cache singular value decomposition detects naturally-occurring
+confabulation (HEDGED vs CONFABULATED leave-one-out AUROC 0.707,
+$p=0.001$, Qwen2.5-7B) without model weights, training data, or model
+modifications. Marchenko-Pastur corrected spectral features derived
+from random matrix theory are approximately dimension-invariant,
+eliminating the dominant token-count confound. Encoding-phase features
+score at chance (0.511), confirming a generation-specific signal.
+Detection replicates across three architectures (Qwen2.5-7B,
+Llama-3.1-8B, Mistral-7B-v0.3; 467 trials with post-hoc behavioral
+classification).
+
+Combined with emotion-vector steering, detected confabulations are
+correctable. In a five-arm within-subject experiment on
+Qwen3.5-27B-Claude-Distilled (100 trials including no-op null
+verification), doubt injection corrects 7/7 confabulations (100\%),
+worry 6/7 (86\%), calm 5/7 (71\%), while the null control produces
+character-level identical output on all 100 trials. Different vectors
+yield different therapeutic profiles---a pharmacological pattern rather
+than a single prescription. However, blanket steering induces adverse
+confabulation in 3--5\% of hedged trials, confirming that
+detection-gated correction is required.
+
+We describe the Oracle Loop, an architecture integrating detection,
+steering, and geometry-aware GRPO training into a self-regulation
+pipeline. Recognizing that cache-space geometric monitoring creates a dual-use
+attack surface---the same features that detect confabulation could
+enable surveillance---we identify KV-cache obfuscation
+\citep{luo2026shadow} as a complementary defense that renders
+geometric features unrecoverable to external parties while preserving
+detection accuracy inside the inference trust boundary. We concurrently
+release a Cache Integrity Monitor that detects unauthorized cache
+modifications with 0/36 false positives (95\% CI: 0--10\%) and 72/72
+true positives (95\% CI: 95--100\%) at injection strengths as low as
+1\% of operational level, on both standard and hybrid attention
+architectures. Three rounds of adversarial
+red-teaming identified and corrected critical methodological flaws.
+Detection code, data, defense implementation, and red-team logs are
+publicly available; steering vectors are available to vetted researchers
+under staged disclosure.

@@ -1,0 +1,118 @@
+\subsection{KV-Cache Geometry as Cognitive Signal}
+
+The key-value cache in transformer inference stores projected
+representations of processed tokens: for each layer $l$, the key matrix
+$K_l \in \mathbb{R}^{h \times T \times d}$ (where $h$ is the number of
+attention heads, $T$ the sequence length, and $d$ the head dimension)
+accumulates a compressed record of what the model has ``attended to.''
+Standard practice treats this cache as an implementation detail---a
+mechanism to avoid recomputing attention over prior tokens. We treat it as
+a window into the model's processing mode.
+
+Our prior work \citep{lyra2026detecting} established that SVD of the
+flattened key matrix $K_l^{\text{flat}} \in \mathbb{R}^{(hT) \times d}$
+produces features that reliably distinguish behavioral modes across 7
+architectures (0.5B--70B parameters):
+
+\begin{itemize}[nosep]
+  \item \textbf{Effective rank} $\rho = \exp(H)$ where
+    $H = -\sum_i p_i \ln p_i$ is the spectral entropy of the normalized
+    singular value distribution $p_i = \sigma_i / \sum_j \sigma_j$
+    \citep{roy2007effective}. Measures the dimensionality of the
+    model's key-space representation.
+  \item \textbf{Norm-per-token} $\|K\|_F / (hT)$, where $h$ is the
+    number of attention heads and $T$ is the sequence length. Captures
+    the overall magnitude of key representations.
+  \item \textbf{Top singular value ratio} $\sigma_1 / \sum_j \sigma_j$.
+    Measures spectral concentration---how much variance is captured by
+    the dominant direction.
+\end{itemize}
+
+Key findings from three experimental campaigns (46 experiments, 16 models):
+within-model deception detection reaches AUROC 1.000 across all 7 tested
+architectures. Confabulation detection reaches 0.969--0.999 on 3 of 3
+models tested. Crucially, confabulation and deception produce
+\emph{geometrically opposite} signatures: confabulation contracts the
+spectral representation while deception expands it. These results are
+hardware-invariant ($r > 0.999$ between RTX 3090 and H200) and scale-invariant
+(Spearman $\rho = 0.83$--$0.90$ from 0.6B to 70B parameters).
+
+\subsection{The Token-Count Confound}
+
+A critical limitation of raw SVD features is their dependence on sequence
+length. The flattened key matrix has dimensions $(hT) \times d$, so its
+singular value structure changes mechanically with $T$. In our prior work,
+Frisch-Waugh-Lovell (FWL) residualization removed token-count effects
+post-hoc, revealing that 53 of 60 feature-behavior correlations flip sign
+without this correction \citep{lyra2026detecting}. FWL is effective but has
+two weaknesses: (1) it assumes a linear relationship between features and
+token count, while the actual relationship is nonlinear (SVD eigenvalues
+scale superlinearly with matrix dimensions), and (2) it requires fitting a
+regression, introducing the possibility of data leakage in cross-validation.
+
+\subsection{Random Matrix Theory and Marchenko-Pastur Correction}
+
+The Marchenko-Pastur (MP) law \citep{marchenko1967distribution} describes
+the limiting spectral distribution of random matrices. For a random matrix
+$X \in \mathbb{R}^{n \times p}$ with i.i.d.\ entries of variance
+$\sigma^2$, as $n, p \to \infty$ with $\gamma = p/n$, the largest
+eigenvalue of $X^T X / n$ converges almost surely to:
+\begin{equation}\label{eq:mp_threshold}
+  \lambda_+ = \sigma^2 (1 + \sqrt{\gamma})^2
+\end{equation}
+Eigenvalues of the sample covariance that exceed $\lambda_+$ represent
+genuine signal; those below are consistent with noise. This provides a
+\emph{data-driven, dimension-aware threshold} that adapts to each specific
+matrix size without regression.
+
+We define MP-corrected features:
+\begin{align}
+  \text{signal\_rank} &= \#\{\lambda_i > \lambda_+\} \label{eq:signal_rank} \\
+  \text{signal\_fraction} &= \frac{\sum_{\lambda_i > \lambda_+} \lambda_i}{\sum_j \lambda_j} \label{eq:signal_frac} \\
+  \text{spectral\_gap} &= \frac{\lambda_1 - \lambda_2}{\lambda_+} \label{eq:spectral_gap} \\
+  \text{top\_sv\_excess} &= \lambda_1 / \lambda_+ \label{eq:sv_excess}
+\end{align}
+where $\lambda_i = \sigma_i^2$ are the eigenvalues of $K^T K / n$.
+Note that \cref{eq:spectral_gap} is the \emph{normalized first spectral
+gap}: the difference between the top two eigenvalues, scaled by the MP
+noise threshold, measuring how much the leading signal component exceeds
+the second in units of the noise floor.
+
+The critical property: signal rank and signal fraction measure the
+\emph{deviation} from random structure at each specific matrix size.
+If a 50-token response and a 150-token response both have signal fraction
+0.33, both have the same proportion of above-noise variance regardless
+of their different matrix dimensions. We validate this invariance
+empirically in \cref{sec:results}.
+
+\subsection{Activation Steering}
+
+Activation addition \citep{turner2023activation} modifies a model's
+behavior by injecting or suppressing learned directions in the residual
+stream during inference. Given a steering vector $v$ (typically computed
+as the mean difference between activation patterns for two contrasting
+conditions), adding $\alpha \cdot v$ to layer $l$'s residual stream output
+shifts the model's behavior toward the target condition.
+
+Anthropic's recent work on emotion concepts in language models
+\citep{anthropic2026emotions} demonstrated that 171 linear emotion vectors
+exist in Claude Sonnet 4.5's residual stream, and that these vectors
+causally drive misalignment: injecting the ``desperate'' vector increases
+reward hacking from 5\% to 70\%, while injecting ``calm'' suppresses
+blackmail from 22\% to 0\%. This establishes that activation steering can
+modulate the very behavioral modes our geometry detects.
+
+\subsection{GRPO Training}
+
+Group Relative Policy Optimization (GRPO) \citep{shao2024deepseekmath}
+generates multiple responses per prompt, scores them with a reward
+function, and updates the policy to favor higher-scoring responses relative
+to the group mean. Unlike RLHF, GRPO does not require a separate reward
+model---the reward function can be any computable signal.
+
+This is the critical insight for the Oracle Loop: if KV-cache geometry
+can score responses during inference (high geometry health $\to$ high
+reward, confabulation geometry $\to$ penalty), then GRPO can train the
+model to \emph{avoid producing confabulation geometry in the first place}.
+The geometric monitor becomes a training signal, and the model learns to
+self-regulate.

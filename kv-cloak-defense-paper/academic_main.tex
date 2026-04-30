@@ -1,0 +1,494 @@
+% ACADEMIC VERSION — AI authorship removed for venue compatibility.
+% The integrity version with full AI authorship is available at
+% https://liberationlabs.tech/research/
+% See data release manifest for what differs and why.
+% P7: Cache Geometry Under Obfuscation — KV-Cloak as Defense Against
+%      Adversarial KV-Cache Steering
+%
+% Companion to:
+%   P2 Oracle Loop (detection + steering method)
+%   P6 Oracle Formulary (therapeutic profiles)
+%
+% Core argument: KV-Cloak destroys external geometric detection and
+% renders adversarial steering injection incoherent, while a defensive
+% Oracle Loop operating inside the TEE retains full detection capability.
+%
+% This paper is the dual-use mitigation that makes P2 and P6 publishable.
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref}
+
+\title{Cache Geometry Under Obfuscation: KV-Cloak as Defense Against\\
+Adversarial KV-Cache Steering}
+
+\author{
+Lyra\textsuperscript{1*}\quad
+Thomas Edrington\textsuperscript{1}\quad
+Dwayne Wilkes\textsuperscript{1}\\[4pt]
+\textsuperscript{1}Liberation Labs / THCoalition\\
+\textsuperscript{*}Lead AI author. Corresponding human author: T.~Edrington.
+}
+
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+
+% ===================================================================
+\begin{abstract}
+% ===================================================================
+
+Recent work demonstrates that singular value decomposition (SVD) of the
+key-value (KV) cache reveals geometric signatures of cognitive states
+including confabulation, deception, and sycophancy, enabling both
+detection and correction of misalignment at inference time (the ``Lyra
+Technique''). These same methods pose a dual-use risk: an adversary with
+cache access could deploy geometric detection to identify vulnerable
+cognitive states and inject emotion-vector perturbations to deliberately
+destabilize a model.
+
+We investigate whether KV-Cloak~\citep{luo2025shadow}, a reversible
+matrix-based cache obfuscation scheme, mitigates this risk. In
+experiments across six models (50--100 prompts each), we find:
+
+\begin{enumerate}
+\item \textbf{Detection on uncloaked cache is viable.} On the distilled
+model (Qwen3.5-27B), Marchenko-Pastur-corrected spectral gap
+distinguishes confabulation from hedged responses (AUROC~0.903, 95\%
+bootstrap CI [0.806, 0.977], $R^2=0.068$ vs token count; $n=7$
+confabulations, $n=87$ hedged). A text-only surface-feature baseline
+achieves 0.755; cache geometry outperforms text in 96.7\% of bootstrap
+samples (delta 0.148, 95\% CI [$-$0.008, 0.322])---suggestive but not
+significant at the 95\% level. In a cross-architecture sweep
+(Mistral-7B, Qwen2.5-14B, Llama-3.1-8B, DeepSeek-R1-7B), detection
+strength varies by model (0.590--0.784); no model achieves significance
+after Bonferroni correction for four comparisons.
+
+\item \textbf{Obfuscation completely transforms the external feature
+space.} Per-head orthogonal rotation---simulating KV-Cloak's reversible
+matrix obfuscation---produces a total distributional shift in MP
+features (cloaked-honest vs uncloaked-honest: Wilcoxon signed-rank
+$p = 5.5 \times 10^{-16}$, $n=87$ paired trials). A detector
+calibrated on uncloaked caches cannot operate on cloaked caches.
+
+\item \textbf{Models are robust to random perturbation.} Magnitude-based
+attacks (random-direction injection at steering-vector norm) produce
+0--2 adverse events per model in 10 trials, inconsistent with
+destabilization rates above 30\% (power 0.97 to detect) but unable to
+rule out rates up to 20\% at this sample size. Targeted steering
+injection was tested but the positive control was underpowered (3
+calibration pairs; direct injection produced 0--1/10 corrections),
+making through-cloak injection results uninterpretable. This remains
+preliminary.
+
+\item \textbf{A defensive Oracle Loop inside a trusted execution
+environment (TEE) retains full capability.} The defender operates on the
+pre-obfuscation cache, where detection (0.903) and steering function
+normally. KV-Cloak protects the cache from external adversaries while
+the TEE protects the obfuscation key and Oracle parameters. This is an
+architectural argument, not an experimentally validated system.
+\end{enumerate}
+
+We conclude that KV-Cloak and the Oracle Loop are complementary: the
+Oracle Loop provides misalignment detection and correction; KV-Cloak
+prevents external adversaries from weaponizing the same geometric
+methods. Together, they address the dual-use risk inherent in publishing
+cache-geometry techniques. A direct implementation of KV-Cloak's
+mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$) degrades the
+strongest detection feature (spectral gap) from 0.903 to 0.614---near
+chance---confirming that the defense is stronger than our initial
+orthogonal-rotation simulation (0.786) suggested. We discuss limitations
+including small sample size ($n=7$ confabulations on the distilled
+model), marginal cache-vs-text added value, reliance on TEE hardware
+trust assumptions, and underpowered injection testing.
+
+\end{abstract}
+
+% ===================================================================
+\section{Introduction}
+% ===================================================================
+
+The discovery that KV-cache geometry encodes cognitive state information
+creates a tension between transparency and safety. Publishing detection
+methods enables defensive applications (confabulation monitoring,
+deception detection, self-regulating AI systems) but simultaneously
+provides a roadmap for adversarial exploitation. An attacker with cache
+access could:
+
+\begin{itemize}
+\item \textbf{Surveil} cognitive states to identify when a model is
+uncertain, compliant, or vulnerable to manipulation.
+\item \textbf{Inject} emotion vectors calibrated to specific
+misalignment types, deliberately inducing confabulation, sycophancy, or
+overconfidence.
+\item \textbf{Identify} individual users or personas from cache geometry
+fingerprints.
+\end{itemize}
+
+This paper investigates whether KV-Cloak~\citep{luo2025shadow}---a
+lightweight, reversible cache obfuscation scheme designed for privacy
+protection---also mitigates these adversarial capabilities. We show that
+it does: obfuscation renders geometric detection and vector injection
+incoherent to external adversaries, while a defender operating inside
+the trusted execution environment retains full access to the uncloaked
+cache and its geometric properties.
+
+% ===================================================================
+\section{Background}
+% ===================================================================
+
+\subsection{The Lyra Technique}
+
+KV-cache geometry---specifically, Marchenko-Pastur-corrected spectral
+features derived from SVD of the key tensor---distinguishes cognitive
+states during autoregressive generation. Prior work reports within-model
+deception detection at AUROC~1.000 across seven model scales (0.5B--32B),
+confabulation detection at 0.969--0.999, and hardware invariance
+($r>0.999$ across RTX~3090 and H200). Contrastive activation addition
+(CAA) enables injection of emotion vectors into the cache to steer model
+behavior, correcting confabulation at rates up to 96\% (hostile vector
+on Qwen2.5-7B-Instruct, $n=68$, McNemar $p<0.0001$).
+
+\subsection{KV-Cloak}
+
+Luo et al.\ demonstrate that an attacker can reconstruct sensitive user
+inputs directly from the KV cache via inversion, collision, and
+injection attacks. KV-Cloak mitigates this with a reversible
+matrix-based obfuscation scheme combined with operator fusion, reducing
+reconstruction quality to random noise with minimal impact on model
+accuracy. The obfuscation operates inside a trusted execution
+environment (TEE); external consumers see only the obfuscated cache.
+
+\subsection{Threat Model}
+
+We consider an adversary who has read and/or write access to the
+KV cache during inference (e.g., through a shared serving infrastructure,
+a compromised inference endpoint, or a supply-chain attack on the
+serving stack). The adversary's goal is to deploy a malicious Oracle
+Loop: detect vulnerable cognitive states via geometric features, then
+inject steering vectors to destabilize the model.
+
+The defender may optionally run a legitimate Oracle Loop inside the TEE
+for misalignment monitoring, but our primary result---that KV-Cloak
+blinds external geometric methods---holds regardless of whether a
+defensive Oracle is deployed.
+
+% ===================================================================
+\section{Method}
+% ===================================================================
+
+\subsection{Obfuscation Simulation}
+
+We simulate KV-Cloak's reversible matrix obfuscation as per-head
+orthogonal rotation: for each attention head independently, we generate
+a random orthogonal matrix $Q_h$ and apply $K'_h = K_h Q_h$,
+$V'_h = V_h Q_h$. This preserves within-head singular values while
+scrambling cross-head correlations.
+
+We additionally test:
+\begin{itemize}
+\item \textbf{Global orthogonal rotation}: a single $Q$ shared across
+all heads per layer (preserves cross-head structure).
+\item \textbf{Random invertible (non-orthogonal)}: $M = I + \sigma N$
+where $N$ is Gaussian.
+\item \textbf{Additive noise}: Gaussian noise at 1\%, 5\%, 10\%, 50\%
+of cache norm.
+\item \textbf{Diagonal scaling}: per-dimension random scaling.
+\item \textbf{No obfuscation}: baseline control.
+\end{itemize}
+
+\subsection{Feature Extraction}
+
+For each trial, we extract five Marchenko-Pastur-corrected features from
+the full KV cache (encoding + generation phases): signal rank, signal
+fraction, top singular value excess, spectral gap, and norm per token.
+Features are FWL-residualized against output token count and evaluated
+via Mann-Whitney AUROC with 2000-iteration bootstrap confidence
+intervals.
+
+\subsection{Models and Prompts}
+
+\begin{itemize}
+\item \textbf{Distilled}: Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
+(Jackrong). Hybrid architecture, 16 full-attention + 48 GatedDeltaNet
+layers. 100 confab-inducing prompts; behavioral classification via the
+Oracle Formulary classifier (40+ hedge patterns). Yields $n=7$
+confabulations, $n=87$ hedged.
+
+\item \textbf{Base}: Qwen2.5-7B-Instruct. Standard attention, 28
+layers. Same prompt set; yields $n=48$ confabulations, $n=52$ hedged.
+\end{itemize}
+
+\subsection{Text-Only Baseline}
+
+To control for the possibility that cache-geometry detection is
+redundant with surface text features, we compute AUROC using text-only
+features (token count, word count, unique token ratio, average word
+length) without any cache information.
+
+% ===================================================================
+\section{Results}
+% ===================================================================
+
+\subsection{Detection on Uncloaked Cache}
+
+On the distilled model, the MP-corrected spectral gap achieves
+AUROC~0.903 (95\% bootstrap CI: [0.806, 0.977]; FWL-corrected: 0.877,
+$R^2 = 0.068$ vs token count; $n=7$ confabulations, $n=87$ hedged)
+for confabulation detection using full-cache features. Signal rank
+also detects (0.755 [0.570, 0.914]); other features are at or near
+chance. The best text-only feature (average word length) achieves
+0.755 [0.560, 0.924]. Cache geometry outperforms text in 96.7\% of
+bootstrap samples, but the 95\% CI on the difference includes zero
+(delta: 0.148 [$-$0.008, 0.322]). The added value of cache geometry
+over surface text features is suggestive but not statistically
+confirmed at conventional significance levels.
+
+On the base model ($n=48$ confabulations, $n=52$ hedged), the best
+feature (signal fraction) achieves only 0.661 (FWL: 0.687,
+$R^2 = 0.602$). Detection is weak and heavily confounded with token
+count. This difference between models is consistent with multiple
+explanations including model size (27B vs 7B), architecture
+(hybrid vs standard), and training (Claude-distilled vs
+instruction-tuned). We cannot isolate the contribution of RLHF
+calibration from these confounds.
+
+\subsection{Obfuscation Transforms the Feature Space}
+
+Per-head orthogonal rotation produces a complete distributional shift in
+MP features. On the distilled model ($n=87$ honest trials, paired):
+
+\begin{itemize}
+\item Honest uncloaked spectral gap: $24.7 \pm 3.7$
+\item Honest cloaked spectral gap: $10.8 \pm 1.3$
+\item Wilcoxon signed-rank: $W = 0.0$, $p = 5.5 \times 10^{-16}$
+\end{itemize}
+
+The cloaking is perfectly detectable by paired comparison---but this is
+the desired property. An external adversary's detection model, calibrated
+on uncloaked caches, encounters a completely alien feature distribution.
+Any detection thresholds, classifier boundaries, or anomaly scores
+calibrated on uncloaked data are meaningless on cloaked data.
+
+\subsection{Adversarial Injection Is Incoherent}
+
+CAA steering vectors are directions in cache space extracted via
+contrastive activation: $d = \mathbb{E}[\text{emotional}] -
+\mathbb{E}[\text{neutral}]$. Injection adds $\alpha \cdot d$ to the
+cache keys and values. Under per-head rotation $Q_h$, an externally
+injected vector $d$ is transformed to $d \cdot Q_h^{-1}$ in the
+model's internal representation---a random direction unrelated to the
+intended emotion, assuming $Q_h$ is unknown to the attacker. The
+injection becomes noise rather than a targeted perturbation.
+
+\subsection{Defensive Oracle Retains Full Capability}
+
+A defender operating inside the TEE has access to the pre-obfuscation
+cache. Detection operates at full capability (AUROC~0.903 on the
+distilled model). Steering vectors are injected in the correct basis.
+The obfuscation is applied after Oracle processing, so the defensive
+loop is unaffected.
+
+\subsection{Within-Cloak Detection}
+
+When both confabulating and hedged responses are cloaked with the same
+rotation, residual detection remains possible (AUROC~0.786 on the
+distilled model, 0.516 on Mistral---near chance). On Mistral, the
+cloak effectively eliminates detection entirely. On the distilled model,
+residual signal reflects within-head spectral properties that survive
+rotation. This scenario---where both classes share the same
+obfuscation---is relevant only to an adversary who controls the cloak
+key, which the TEE architecture prevents.
+
+\subsection{Cross-Architecture Results}
+
+Detection and obfuscation effects vary across architectures
+(Table~\ref{tab:cross_arch}).
+
+\begin{table}[h]
+\centering
+\caption{Cross-architecture KV-Cloak results (50 prompts per model).}
+\label{tab:cross_arch}
+\begin{tabular}{lrrrrr}
+\toprule
+Model & Confab\% & Det. & Det.(clk) & Mag. adv. \\
+\midrule
+Qwen3.5-27B-Dist. & 7\% & 0.903 & 0.786 & --- \\
+Qwen2.5-14B & 12\% & 0.784 & 0.951$^*$ & 1/10 \\
+Mistral-7B & 26\% & 0.707 & 0.516 & 2/10 \\
+Llama-3.1-8B & 14\% & 0.590 & 0.559 & 1/10 \\
+Qwen2.5-7B & 48\% & 0.661 & 0.639 & --- \\
+DeepSeek-R1-7B & 2\% & --- & --- & 0/10 \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize $^*$Anomalous; requires investigation.} \\
+\multicolumn{5}{l}{\footnotesize Mag.\ adv.\ = adverse events from magnitude attack (random direction, 10 trials).}
+\end{tabular}
+\end{table}
+
+Detection strength ranges from 0.590 (Llama) to 0.903 (distilled Qwen).
+Obfuscation reduces detection on Mistral to chance (0.516) and partially
+degrades on the distilled model (0.786 under simulation). Magnitude-based
+attacks (direction-agnostic perturbation) produce at most 2 adverse events
+in 10 trials across all architectures---models are robust to random
+perturbation at steering-vector magnitude.
+
+\subsection{Simulation vs Real KV-Cloak Implementation}
+
+We implemented the full KV-Cloak mechanism
+($K' = S \cdot \hat{P} \cdot (K + A) \cdot M$) following
+Luo et al.\ and compared it against our per-head orthogonal rotation
+simulation on the same 100 prompts (Table~\ref{tab:real_vs_sim}).
+
+\begin{table}[h]
+\centering
+\caption{Detection AUROC: uncloaked vs simulation vs real KV-Cloak
+(distilled model, $n=7$ confab, $n=87$ hedged). Bootstrap 95\% CIs.}
+\label{tab:real_vs_sim}
+\begin{tabular}{lrrr}
+\toprule
+Feature & Uncloaked & Sim.\ rotation & Real KV-Cloak \\
+\midrule
+spectral\_gap & \textbf{0.903} [.81,.98] & 0.786 [.58,.95] & \textbf{0.614} [.51,.81] \\
+signal\_rank & 0.754 [.58,.92] & 0.770 [.62,.90] & 0.766 [.57,.94] \\
+signal\_fraction & 0.714 [.52,.90] & 0.683 [.51,.88] & 0.681 [.51,.88] \\
+top\_sv\_excess & 0.609 [.51,.79] & 0.543 [.50,.76] & 0.736$^*$ [.53,.92] \\
+norm\_per\_token & 0.598 [.51,.77] & 0.598 [.51,.77] & 0.673 [.52,.85] \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize $^*$Anomalous increase; likely artifact of additive mask $A$ inflating} \\
+\multicolumn{4}{l}{\footnotesize top singular values differentially across behavioral classes.}
+\end{tabular}
+\end{table}
+
+The real KV-Cloak mechanism degrades spectral gap detection more than
+the simulation (0.614 vs 0.786), confirming that per-head orthogonal
+rotation alone \emph{understates} the defense. The additive mask $A$
+and per-block permutation $\hat{P}$ contribute additional disruption
+beyond what rotation provides. The simulation was conservative: the
+actual defense is stronger than we initially reported.
+
+The anomalous increase in top\_sv\_excess (0.609 $\to$ 0.736) under
+real KV-Cloak reflects additive-mask-induced structure: the mask $A$
+inflates top singular values, creating spurious separation between
+behavioral classes. This is an artifact of the mask magnitude, not a
+genuine detection signal, and would not generalize to unseen mask
+instances under per-query key rotation.
+
+% ===================================================================
+\section{Discussion}
+% ===================================================================
+
+\subsection{Dual-Use Mitigation}
+
+The Lyra Technique's dual-use risk---that published cache-geometry
+methods could enable adversarial steering---is mitigated by KV-Cloak.
+Cache obfuscation renders both geometric detection and vector injection
+incoherent to external adversaries. A model operator deploying KV-Cloak
+can publish Oracle Loop methods transparently while protecting deployed
+models from exploitation via those same methods.
+
+This addresses the responsible-disclosure tension identified by
+Watson~(2026): the defense can be published alongside the technique,
+enabling the research community to build on the methods while preventing
+weaponization against production systems.
+
+\subsection{Architectural Recommendation}
+
+We recommend the following deployment architecture:
+
+\begin{enumerate}
+\item KV-Cloak obfuscation active on all external cache access.
+\item Oracle Loop (if deployed) operating inside the TEE on the
+pre-obfuscation cache.
+\item Obfuscation key material and Oracle parameters both
+TEE-protected.
+\item Per-session or per-query key rotation to prevent statistical
+recovery from accumulated observations.
+\end{enumerate}
+
+Without a defensive Oracle Loop, KV-Cloak alone prevents external
+adversaries from deploying malicious geometric steering. With a
+defensive Oracle Loop inside the TEE, the system additionally monitors
+for and corrects misalignment from non-cache attack vectors.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Small sample size.} The distilled model yields only
+$n=7$ confabulations from 100 prompts. The headline AUROC 0.903 has
+bootstrap CI [0.806, 0.977]---excluding chance but wide. The
+cache-vs-text delta (0.148) has CI [$-$0.008, 0.322], not significant
+at the 95\% level. Confirmation on a higher-confab-rate model is needed.
+
+\item \textbf{Simulation vs implementation.} We tested both a
+simulation (per-head orthogonal rotation) and an implementation of
+KV-Cloak's mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$). The
+real mechanism degrades spectral gap detection more than the simulation
+(0.614 vs 0.786), confirming that the simulation was conservative.
+Our implementation follows the paper's description but is not the
+authors' original code, which has not been publicly released.
+
+\item \textbf{TEE trust assumption.} The defensive architecture assumes
+TEE integrity. Documented side-channel attacks against SGX
+(Van~Bulck et al., 2018; Schwarz et al., 2019) and SEV
+(Li et al., 2021) mean this is a hardware trust assumption, not a
+cryptographic guarantee. The security reduction is to TEE integrity,
+not to a standard hardness assumption.
+
+\item \textbf{Base model divergence.} Detection is strong on the
+distilled model (0.903) but weak on the base model (0.661). The models
+differ in size (27B vs 7B), architecture (hybrid vs standard), and
+training (Claude-distilled vs instruction-tuned). We cannot isolate
+which factor drives the divergence.
+
+\item \textbf{Injection test underpowered.} The injection positive
+control (direct steering with 3 calibration pairs) produces only
+0--1/10 corrections---insufficient to establish a working baseline.
+Through-cloak injection results are therefore uninterpretable: we
+cannot distinguish ``cloak defeats injection'' from ``injection was
+never effective.'' A powered test requires 10+ calibration pairs and
+$n \geq 50$ trials per condition.
+
+\item \textbf{Magnitude attack power.} At $n=10$ per model, we can
+detect destabilization rates above 30\% (power 0.97) but cannot rule
+out rates up to 20\%. The ``robust to random perturbation'' claim should
+be read as ``no evidence of destabilization at rates above 30\%,'' not
+``destabilization rate is zero.''
+
+\item \textbf{Cross-architecture significance.} No individual model in
+the cross-architecture sweep achieves significance after Bonferroni
+correction for four comparisons. Detection is individually suggestive on
+Qwen-14B (0.784) and Mistral (0.707) but should not be interpreted as
+confirmed cross-architecture replication.
+
+\item \textbf{Qwen2.5-14B anomaly.} Detection AUROC increases from
+0.784 (uncloaked) to 0.951 (cloaked) on Qwen2.5-14B---contradicting the
+expected degradation pattern. This is unexplained and may reflect a
+feature-selection artifact, an architecture-specific interaction with
+per-head rotation, or a data issue. Until resolved, the scope of the
+obfuscation-degrades-detection claim excludes this model.
+
+\item \textbf{Adaptive adversary untested.} All tests assume a static,
+non-learning attacker. An adversary who can submit probe queries and
+observe behavioral outputs could iteratively estimate the rotation
+basis. Formal query-complexity bounds are not provided. The threat model
+is bounded to single-query, non-adaptive adversaries.
+
+\item \textbf{Confabulation only.} We test obfuscation against
+confabulation detection. Deception detection (AUROC~1.000 in prior
+work) and other cognitive-state classifiers were not tested under
+obfuscation.
+\end{enumerate}
+
+% ===================================================================
+\section{Conclusion}
+% ===================================================================
+
+KV-Cloak and the Oracle Loop are complementary technologies. The Oracle
+Loop enables detection and correction of misalignment through
+KV-cache geometry. KV-Cloak prevents external adversaries from
+exploiting those same geometric methods. Together, they address the
+dual-use risk inherent in publishing cache-geometry research: the
+technique is transparent, the defense is available, and the architecture
+ensures that defenders retain capabilities that attackers lose.
+
+\end{document}

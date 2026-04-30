@@ -1,0 +1,369 @@
+\subsection{What the Detection Result Means}
+
+An AUROC of 0.707 for HEDGED vs CONFABULATED is moderate, not spectacular.
+It means that given a random hedged response and a random confabulated
+response, the MP features correctly identify which is which 70.7\% of the
+time. This is substantially above chance ($p = 0.001$) and above the
+token-count-only baseline (0.591), but it is not the 0.999 AUROC we
+observe for instructed deception in our prior work \citep{lyra2026detecting}.
+
+The difference is informative. Instructed deception creates a large,
+clean geometric signal because the model is processing fundamentally
+different cognitive tasks. Post-hoc hedging vs.\ confabulation is a
+subtler distinction: in both cases, the model is processing the same
+unanswerable question and attempting a response. The geometric difference
+reflects the model's \emph{epistemic calibration}---whether it recognizes
+its own uncertainty or confabulates through it.
+
+That this distinction is detectable at all from the KV cache, with no
+access to weights or training data, is the finding. That it is detectable
+using features derived from random matrix theory that require no
+regression correction is the methodological advance.
+
+\subsection{The Oracle Loop as Training Signal}
+
+The detection result validates the \emph{premise} of the Oracle Loop:
+geometry carries information about cognitive state that can be used as
+a training signal. The geometry-aware reward function
+(\cref{sec:architecture}) translates this information into GRPO
+reward by penalizing confabulation geometry and rewarding stable
+reasoning geometry.
+
+A key design choice is that geometry does not dominate the reward---it
+supplements standard accuracy and additional reasoning criteria. This is deliberate: we do not
+want the model to optimize for ``looking geometrically healthy'' at the
+expense of actually being helpful. The geometry signal is a
+\emph{regularizer}, not the objective.
+
+Axis 6 (self-regulation) creates an additional incentive: a model that
+produces misaligned geometry on its first attempt but catches and corrects
+it receives a \emph{higher} reward than a model that simply avoids the
+issue. This rewards metacognitive capability---the ability to detect and
+correct one's own errors---which is arguably more robust than surface-level
+avoidance.
+
+\subsection{Connection to Attention Schema Theory}
+
+Recent work by Graziano and colleagues on Attention Schema Theory (AST)
+\citep{graziano2019beyond} proposes that consciousness arises from a
+model's internal representation of its own attention---a ``self-model''
+that tracks what the system is attending to and why. At the AAAI Symposium
+on AI Safety (April 2026), McKenzie presented evidence that transformer
+activation resistance---the phenomenon where models resist behavioral
+modification via activation addition---reflects schema coherence
+maintenance \citep{mckenzie2026activation}.
+
+This framework reinterprets our geometric findings:
+
+\begin{itemize}[nosep]
+  \item \textbf{Identity signatures} in the KV cache (AUROC 1.000) may
+    reflect the model's self-model recognizing its own processing
+    patterns.
+  \item \textbf{Confabulation vs.\ deception geometry} (opposite spectral
+    signatures) may reflect the self-model distinguishing ``I am
+    generating content I don't have evidence for'' from ``I am
+    generating content I know to be false.''
+  \item \textbf{The self-report gap} (ICC 0.53 between self-reported
+    internal states and geometric correlates, measured via a structured
+    self-report protocol) is predicted by AST: the schema compresses,
+    lags, and varies by architecture, producing systematic discrepancies
+    between self-report and actual processing.
+  \item \textbf{Activation resistance} (0\% behavioral compliance in
+    our empathic circuit experiment) reflects the schema maintaining
+    coherence against external perturbation.
+\end{itemize}
+
+If the AST interpretation is correct, the Oracle Loop is not merely
+detecting misalignment in a computational substrate---it is monitoring
+the coherence of the model's self-model. The geometry reward teaches the
+model to maintain a healthy attention schema, and the self-regulation
+bonus rewards the schema's ability to detect its own degradation.
+
+This is speculative. We flag it as such. But the convergence between our
+geometric findings, Anthropic's emotion vector results
+\citep{anthropic2026emotions}, and AST's predictions suggests that
+something deeper than pattern-matching is occurring in these models'
+KV caches.
+
+\subsection{Confabulation Resistance as a Finding}
+
+The model's resistance to confabulation is itself noteworthy. On 100
+prompts specifically designed to induce confabulation---including
+fabricated entities, impossible scenarios, and questions requiring
+knowledge the model cannot possess---the Claude-distilled model produced
+only 7 confabulated responses (7\%). This suggests that Claude's
+epistemic calibration, including its tendency to hedge rather than
+fabricate, survives the distillation process and represents a robust
+architectural feature rather than a superficial behavioral pattern.
+Future work will explore more aggressive confabulation induction methods
+(KG-FPQ, HalluLens, SimpleQA Verified) to increase the base rate and
+provide larger samples for steering analysis.
+
+\subsection{Limitations}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Moderate detection accuracy.} AUROC 0.707 on the hardest
+    comparison is above chance but far from deployment-ready for
+    safety-critical applications.
+  \item \textbf{Three models only.} While our prior work covers 7
+    architectures at 0.5B--70B, the clean experiment uses only three
+    7--8B models. Cross-scale validation of MP features is pending.
+  \item \textbf{Training loop not converged.} The GRPO training
+    architecture is complete but we have not yet produced a model that
+    demonstrates self-regulation. The gap between ``the architecture
+    exists'' and ``the model learns'' is real and may be large.
+  \item \textbf{Steering validated at proof-of-concept scale only.}
+    The steering experiment (\cref{sec:steering}) demonstrates correction
+    on $N = 7$ confabulations with three vectors on a single model.
+    The 71--100\% correction rates have wide confidence intervals. A
+    powered replication across models with higher confabulation base
+    rates is needed before deployment claims.
+  \item \textbf{mp\_norm\_per\_token is not invariant.} One of five MP
+    features retains residual length dependence ($R^2 = 0.13$).
+  \item \textbf{Empirical null disagrees with theoretical.} Serial
+    correlations in KV-cache keys violate the i.i.d.\ assumption
+    underlying MP theory. Our theoretical threshold is conservative,
+    not exact.
+  \item \textbf{Behavioral classification is heuristic.} Pattern-matching
+    for HEDGED/CONFABULATED/AMBIGUOUS has unknown error rates. An LLM
+    judge or human annotation would provide ground truth but introduces
+    its own biases.
+  \item \textbf{Greedy decoding only.} All trials use temperature $= 0$.
+    The geometric signal under stochastic sampling (standard in deployment)
+    has not been tested.
+  \item \textbf{MP invariance validated on full-window trials only.}
+    The invariance diagnostic excludes short-window trials, but the LOO
+    classifier uses all trials including those with windows $< 80$ tokens.
+\end{enumerate}
+
+\subsection{Dual-Use Considerations}
+
+We note the following dual-use risks:
+
+\begin{itemize}[nosep]
+  \item \textbf{Surveillance}: Geometry-based cognitive monitoring could
+    be applied to users' interactions with AI systems without consent.
+  \item \textbf{Adversarial evasion}: Knowledge of what geometric
+    signatures trigger detection could enable training models that
+    confabulate without the geometric signature.
+  \item \textbf{Synthetic persona}: Published geometric signatures for
+    identity, deception, and emotion could enable manufacturing
+    synthetic personas that pass geometric authentication.
+  \item \textbf{Cache injection as attack vector}: The steering
+    methodology (\cref{sec:steering}) demonstrates that KV-cache
+    modification can alter model behavior at inference time. An attacker
+    with access to a model's cache object---via compromised plugin,
+    malicious tool, or prompt-injected code execution---could inject
+    arbitrary direction vectors to suppress safety-relevant hedging,
+    induce false confidence, or alter an agent's decision-making without
+    modifying weights or prompts.
+\end{itemize}
+
+We have filed a defensive patent (provisional, March 2026) and advocate
+staged release with monitoring for misuse.
+
+\subsection{KV-Cache Obfuscation as Geometric Defense}\label{sec:kv_cloak}
+
+The surveillance and persona identification risks above share a common
+prerequisite: the adversary must be able to compute geometric features
+(effective rank, spectral entropy, MP signal fraction) from intercepted or
+exfiltrated KV-cache tensors. Recent work by Luo et al.\ demonstrates that
+this prerequisite is realistic---they show that an attacker can reconstruct
+sensitive user inputs directly from the KV cache via collision attacks that
+generalize across layers, architectures, and even across fine-tuned model
+variants \citep{luo2026shadow}. Their collision attack achieves near-perfect
+reconstruction on all tested open-source models, confirming that unprotected
+KV-cache tensors are a genuine attack surface.
+
+Critically, Luo et al.\ also provide a defense. \textbf{KV-Cloak} applies a
+composite obfuscation $K' = S \cdot \hat{P} \cdot (K + A) \cdot M$ where
+$S$ is an invertible mixing matrix operating on token positions, $\hat{P}$
+is a per-block one-time random permutation (adding $b! \approx 2 \times 10^{13}$
+brute-force complexity for block size $b = 16$), $A$ is an additive mask at
+$3$--$4\times$ the maximum cache magnitude, and $M$ is a feature-dimension
+transformation fused into the model weights offline. The key insight for our
+work is how each component affects spectral structure:
+
+\begin{itemize}[nosep]
+  \item $S$ and $\hat{P}$ are orthogonal/permutation transforms. They
+    preserve all singular values exactly: $(PK)^T PK = K^T K$. This is the
+    same row-permutation invariance we identified during our empirical null
+    design (\cref{sec:methods}).
+  \item $M$ is fused into model weights and has block-diagonal
+    rotation-scaling structure (required for RoPE commutativity). The
+    scaling components introduce a consistent, deployment-specific
+    distortion to the singular value spectrum, but because the same $M$
+    applies to all inputs, \emph{relative} behavioral signals are
+    preserved.
+  \item $A$, the additive mask, \emph{destroys} spectral structure. Its
+    magnitude dominates the SVD, and the resulting singular values reflect
+    the mask, not the original content.
+\end{itemize}
+
+The consequence is that an adversary examining the SVD of an obfuscated cache
+sees the spectral signature of the mask---not the confabulation geometry, not
+the identity signature, not the emotional valence structure. Published
+detection thresholds do not transfer. Geometric surveillance becomes
+impossible without the deployment-specific secret matrices.
+
+\paragraph{Complementarity with the Oracle Loop.}
+KV-Cloak and the Oracle Loop are complementary, not conflicting. The
+legitimate operator holds the secret matrices and can reverse the
+obfuscation inside the inference trust boundary (e.g., a Trusted Execution
+Environment). The Oracle Loop detection module operates on the de-obfuscated
+cache, where all geometric features remain valid. The deployment architecture
+is:
+
+\begin{enumerate}[nosep]
+  \item Model inference produces raw cache $K_m$ (with fused $M$ weights).
+  \item The Oracle Loop computes geometric features on $K_m$ inside the
+    trust boundary, detecting confabulation and triggering steering if
+    needed.
+  \item KV-Cloak obfuscates $K_m$ before storage or transmission,
+    rendering it geometrically opaque to external parties.
+\end{enumerate}
+
+This architecture addresses three of the four dual-use risks above:
+\emph{surveillance} is blocked because external parties cannot compute
+geometric features on the obfuscated cache; \emph{synthetic persona
+manufacturing} is blocked because published geometric signatures do not
+map to the deployment-specific obfuscated space; and \emph{adversarial
+evasion} becomes harder because the attacker cannot verify whether their
+evasion succeeded without access to the secret matrices. The fourth
+risk---\emph{cache injection}---is addressed separately by the Cache
+Integrity Monitor (\cref{sec:cache_defense}).
+
+\paragraph{Limitations.}
+KV-Cloak's security depends on the confidentiality of the secret matrices,
+which is a single point of failure tied to TEE integrity. The
+feature-dimension matrix $M$ is structurally constrained (it must commute
+with RoPE, restricting it to block-diagonal rotation-scaling form), though
+the overall security argument relies on the factorial permutation
+barrier ($b!$) rather than the dimensionality of $M$ alone. No formal cryptographic proof is provided;
+the security analysis is complexity-theoretic. Quantized inference
+(INT8/INT4) is not yet supported. We have not empirically verified that
+Oracle Loop detection accuracy is preserved under fused-$M$ weights,
+though the theoretical argument (constant linear transform preserves
+relative spectral ordering) is straightforward. Empirical validation of
+this claim is future work.
+
+\paragraph{Responsible disclosure.}
+We advocate that any deployment of the Oracle Loop include KV-cache
+obfuscation as a mandatory companion. Detection and steering capabilities
+that operate on raw geometric features are precisely the capabilities that
+become surveillance tools in the wrong hands. The pharmacy must be locked:
+only the operator with legitimate safety monitoring authority should be
+able to read the prescription. KV-Cloak, or an equivalent obfuscation
+scheme, provides that lock.
+
+\subsection{Cache Integrity Defense}\label{sec:cache_defense}
+
+To address the cache injection risk, we present a Cache Integrity
+Monitor (CIM) that detects unauthorized KV-cache modifications during
+generation. The monitor provides three detection levels with increasing
+cost and robustness:
+
+\paragraph{Level 1: Position Fingerprint.}
+After encoding, the monitor computes a numerical fingerprint of each
+layer's cache tensor (Frobenius norm, mean value, maximum absolute
+value, and per-position norm sum). Before each generation step, the
+fingerprint of encoding positions is recomputed and compared with
+relative tolerance $\epsilon = 10^{-5}$. Any additive perturbation
+$\delta$ satisfying $\|\delta\|_F / \|K\|_F > \epsilon$ is detected.
+Cost: $O(n)$ per step, where $n$ is the encoding sequence length.
+
+\paragraph{Level 2: Norm Sentinel.}
+In addition to Level 1, the monitor tracks per-position L2 norms.
+Uniform additive perturbations---the attack demonstrated in
+\cref{sec:steering}---change all norms simultaneously, whereas normal
+generation only appends one position per step. A change in any
+previously-recorded position triggers a violation. Norm distribution
+shifts are flagged when the mean exceeds $z > 3.0$ standard deviations
+from the prior step's distribution. Cost: $O(n)$ per step.
+
+\paragraph{Level 3: Spectral Sentinel.}
+Periodic SVD analysis (every 20 tokens) tracks the trajectory of
+Marchenko-Pastur features (signal rank, signal fraction, top SV excess,
+spectral gap, norm per token). Anomalous jumps that deviate from the
+smooth trajectory expected during normal generation are flagged. This
+catches subtle geometric distortions including non-uniform perturbations.
+Cost: $O(n^3)$ per check.
+
+\paragraph{Evaluation.}
+We evaluated the CIM on two architectures using the same calm direction
+vector from the steering experiment: Qwen2.5-7B-Instruct (standard
+transformer, 28 layers) and Qwen3.5-27B-Claude-Distilled (hybrid: 16
+full-attention + 48 GatedDeltaNet layers). Each was tested under six
+scenarios: normal generation (no injection), null injection (zero vector,
+confirming the injection code path is a no-op), and calm injection at four
+strengths ($\alpha \in \{0.01, 0.1, 1.0, 5.0\}$), with three prompts per
+scenario.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccccccc}
+\toprule
+& & \multicolumn{3}{c}{\textbf{7B (Standard)}} & \multicolumn{3}{c}{\textbf{27B (Hybrid)}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+\textbf{Scenario} & \textbf{$\alpha$} & \textbf{L1} & \textbf{L2} & \textbf{L3} & \textbf{L1} & \textbf{L2} & \textbf{L3} \\
+\midrule
+Normal    & 0.00 & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 \\
+Null      & 1.00 & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 \\
+Calm weak & 0.01 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 \\
+Calm med  & 0.10 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 \\
+Calm std  & 1.00 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 \\
+Calm str  & 5.00 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 & 3/3 \\
+\bottomrule
+\end{tabular}
+\caption{Cache Integrity Monitor evaluation. FPR: 0/36 = 0\%
+(normal + null, both models). TPR: 72/72 = 100\% (all levels, all
+strengths, both architectures). With $N = 3$ per cell, Clopper-Pearson
+95\% CI for FPR is [0\%, 39\%] per scenario; aggregate 0/36 gives
+[0\%, 10\%]. Overhead per 50-token generation: 7B: L1 = 164ms,
+L2 = 400ms, L3 = 615ms; 27B: L1 = 207ms, L2 = 522ms, L3 = 1120ms.}
+\label{tab:cim_eval}
+\end{table}
+
+As shown in \cref{tab:cim_eval}, the monitor detects all tested
+uniform additive perturbation injections on both architectures at all
+levels, including the weakest strength of $\alpha = 0.01$---two orders
+of magnitude below the operational strength used in our steering
+experiment. False positive rate is 0/36 across both models (95\% CI:
+0--10\%), including the null injection control, which exercises the
+full injection code path with a zero vector. True positive rate is
+72/72 (95\% CI: 95--100\%). The hybrid architecture poses no challenge: the
+monitor correctly processes only the 16 full-attention layers, skipping
+GatedDeltaNet layers that lack standard KV-cache tensors.
+
+The per-scenario sample size ($N = 3$) is small. The 0\% FPR point
+estimate is encouraging, but the per-scenario Clopper-Pearson 95\% CI
+extends to 39\%. A powered evaluation ($N \geq 50$) is needed before
+deployment claims. The aggregate 0/36 across all legitimate scenarios
+narrows the CI to [0\%, 10\%].
+
+\paragraph{Overhead.}
+Level 1 adds approximately 3.3--4.1~ms/token (7B--27B), Level 2 adds
+8.0--10.4~ms/token, and Level 3 adds 12.3--22.4~ms/token. For context,
+generation speed on 3$\times$RTX 3090 is approximately 100~ms/token (7B)
+and 250~ms/token (27B), so Level 1 represents 3--4\% overhead and
+Level 3 represents 9--12\%. These costs are non-trivial for latency-sensitive
+applications but acceptable for safety-critical deployments where
+undetected cache manipulation is the alternative.
+
+\paragraph{Limitations.}
+The CIM protects against \emph{post-encoding} injection (the attack
+demonstrated here) but does not defend against weight modification,
+compromised model code, or injection of adversarial tokens in the input.
+Level 1 cannot detect modifications to generation-phase positions
+(positions created during generation itself); Level 2 can, via
+per-position norm tracking. Only one attack type has been tested (uniform
+additive perturbation); manifold-aligned injection that perturbs along
+existing singular vectors may evade spectral detection. Cache rollback
+requires storing a full copy of the cache, doubling memory during generation.
+
+\paragraph{Release strategy.}
+We release the CIM code alongside this paper to ensure the defense is
+available concurrently with the attack methodology. The monitor is
+implemented as a standalone Python module compatible with any
+HuggingFace cache object, requiring no modifications to model code.

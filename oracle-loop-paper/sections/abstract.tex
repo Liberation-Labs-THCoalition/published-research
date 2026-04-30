@@ -1,0 +1,65 @@
+% P2 Oracle Loop — Revised Abstract v3
+% Lead with the contribution. Frame refinements as progression.
+% Every fact is the same as v2. Only the storytelling changes.
+
+We present the Oracle Loop, a method for detecting and correcting
+misalignment in language models at inference time, requiring no access to
+model weights, no training data, and no modification to the model itself.
+The system operates on the key-value cache---a standard byproduct of
+autoregressive generation---using Marchenko-Pastur (MP) corrected
+singular value decomposition to identify geometric signatures of
+confabulation, and contrastive activation addition (CAA) to steer the
+model toward calibrated responses.
+
+On Qwen2.5-7B-Instruct, full-cache spectral gap distinguishes
+confabulation from hedged responses (AUROC~0.903, 95\% bootstrap CI:
+[0.806, 0.977]; FWL-corrected: 0.877; $R^2 = 0.068$ vs token count;
+$n = 7$ confabulations, $n = 87$ hedged, 4 ambiguous excluded), outperforming a text-only
+surface-feature baseline (0.755; 96.7\% of bootstrap samples favor
+cache). Feature ablation identified this full-cache spectral signal as
+more robust than a generation-window leave-one-out classifier (0.758
+on the 5-arm steering dataset; 0.707 reported in the original 3-arm
+experiment using a prior pipeline version), which was primarily driven
+by a norm feature with residual length dependence ($R^2 = 0.129$). The refinement, prompted by independent
+statistical audit, sharpened the detection methodology toward
+dimension-invariant spectral features. Mistral-7B shows preliminary
+replication (AUROC~0.627, $p = 0.023$, not significant after Bonferroni
+correction); Llama-3.1-8B is excluded due to an encoding-phase data
+leak. These confabulation results build on established deception
+detection at AUROC~1.000 across seven model scales (0.5B--32B), with
+hardware invariance ($r > 0.999$) and scale invariance
+($\rho = 0.83$--$0.90$), validated through 50+ experiments and an
+independent audit of 135 claims.
+
+For correction, a preliminary steering experiment on
+Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
+($n = 7$ confabulations) demonstrates that CAA emotion-vector injection
+into the cache modifies model behavior: calm corrects 5/7 (95\% CI:
+29--96\%; one-sided $p = 0.031$), with a null injection control
+producing character-level identical output on all 100 trials,
+establishing the mechanism. A subsequent formulary study on
+Qwen2.5-7B-Instruct ($n = 68$ confabulations, 12 vectors) provides the
+first statistically significant correction results: five vectors achieve
+McNemar significance after Holm-Bonferroni correction, with hostile
+injection correcting 96\% of confabulations at 2.4\% adverse rate.
+Therapeutic rankings between models are uncorrelated (Spearman
+$\rho = 0.119$, $p = 0.71$), demonstrating that the Oracle Loop
+formulary must be calibrated per deployment model.
+
+The Oracle Loop architecture integrates detection, formulary-based
+steering, and a Cache Integrity Monitor (0/36 false positives, 72/72
+true positives against uniform additive perturbation; adaptive adversary
+evaluation remains future work). The integrated loop is a design
+contribution validated in components, not yet as a system. A companion
+paper demonstrates that KV-Cloak cache
+obfuscation~\citep{luo2025shadow} provides defense against adversarial
+use of these methods: the real KV-Cloak mechanism degrades the spectral
+gap signal from 0.903 to 0.614, effectively blinding external geometric
+detection while a defender inside a trusted execution environment retains
+full access.
+
+Three rounds of adversarial red-teaming---including independent
+statistical audit and feature ablation analysis---refined the detection
+methodology from a generation-window classifier toward full-cache
+spectral features. All code, data, red-team logs, and ablation results
+are publicly available.

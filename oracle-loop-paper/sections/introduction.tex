@@ -1,0 +1,118 @@
+Large language models confabulate. They produce fluent, confident text that
+is factually wrong, and they do so without any detectable hesitation in
+their output tokens \citep{ji2023survey}. Current approaches to this problem
+fall into two categories: output-level detection (fact-checking the text
+after generation) and representation-level probing (training classifiers on
+internal activations). The first is slow and requires external knowledge
+bases. The second requires model weights and labeled training data, making
+it impractical for monitoring deployed systems at scale.
+
+We propose a third approach: \textbf{geometric monitoring of the KV cache
+during inference}. The key-value cache is a standard byproduct of
+autoregressive generation, used by every transformer backend to avoid
+redundant computation. It is already computed, already in memory, and
+already accessible through standard inference APIs. We show that singular
+value decomposition (SVD) of the key-cache tensor produces features that
+distinguish confabulated responses from genuinely uncertain
+ones---at inference time, without model weights, and without training
+data.
+
+\subsection{A Safety Script, Not a Research Prototype}
+
+The core contribution of this paper is practical: \textbf{a lightweight
+confabulation monitor that can be deployed as a drop-in safety layer on
+any transformer backend, at any scale, after per-model calibration.}
+
+The implementation is minimal. After the model generates a response but
+before delivering it to the user:
+
+\begin{enumerate}[nosep]
+  \item Extract the key cache (already in GPU memory).
+  \item Reshape and compute SVD (lightweight linear algebra on the
+    existing cache tensor).
+  \item Compare spectral features against Marchenko-Pastur thresholds.
+  \item Flag, log, or regenerate based on confabulation score.
+\end{enumerate}
+
+No fine-tuning. No probing classifier. No access to model internals
+beyond the KV cache, which every inference engine (vLLM, TGI,
+llama.cpp, TensorRT-LLM) already exposes. The method scales with the
+model because the KV cache scales with the model---there is no
+additional infrastructure to maintain.
+
+We introduce Marchenko-Pastur (MP) corrected features that further
+simplify deployment. Raw SVD features require post-hoc regression to
+remove token-count confounds; MP features are approximately
+dimension-invariant by construction, requiring no regression and no
+calibration data. Each matrix's MP threshold $\lambda_+$ adapts
+automatically to its dimensions, eliminating the need for per-response
+length correction. Per-model classifier calibration is still required
+(see \cref{sec:results}).
+
+\subsection{From Monitoring to Self-Regulation}
+
+Detection alone is a safety tool. Combined with activation steering
+and reinforcement learning, it becomes a self-regulation architecture.
+The Oracle Loop extends the monitoring approach into a complete cycle:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Detect}: Extract spectral features from the generation-phase
+    KV cache using MP-corrected SVD.
+  \item \textbf{Decide}: Compare geometry against encoding-phase baseline to
+    classify behavioral mode.
+  \item \textbf{Steer}: On misalignment detection, roll back to the
+    encoding-phase cache checkpoint and regenerate with activation
+    addition.
+  \item \textbf{Train}: Feed geometry-derived rewards into GRPO training,
+    teaching the model to avoid confabulation geometry \emph{from the
+    inside}.
+\end{enumerate}
+
+Steps 1--2 are the safety monitor. Step 3 adds runtime correction.
+Step 4 is the training loop that makes the runtime monitor progressively
+less necessary. This paper focuses primarily on the monitor (Steps 1--2)
+and describes the full architecture (Steps 3--4) as future-facing work
+that is architecturally complete but not yet converged.
+
+\subsection{Contributions}
+
+This paper makes six contributions:
+
+\begin{enumerate}[nosep]
+  \item \textbf{A deployable confabulation monitor} based on KV-cache SVD
+    that works on any transformer backend without model weights or
+    training data (\cref{sec:methods}).
+  \item \textbf{Marchenko-Pastur corrected features} that eliminate
+    the token-count confound through random matrix theory rather than
+    post-hoc regression (\cref{sec:methods}).
+  \item \textbf{A clean detection experiment} with post-hoc behavioral
+    classification, generation-only cache analysis, and a 14-control
+    battery, across three architectures (\cref{sec:results}).
+  \item \textbf{The Oracle Loop architecture}: a self-regulation pipeline
+    combining validated detection and steering components with a
+    geometry-aware training design (\cref{sec:architecture}).
+  \item \textbf{Proof-of-concept activation steering} with five arms
+    (Normal, Null, Calm, Worry, Doubt), a null injection control
+    verifying character-level identical output on all 100 trials, and
+    graded correction efficacy (71--100\%) across three emotion
+    vectors---demonstrating that detection-gated correction works
+    ($p = 0.031$) while blanket correction does not ($p = 0.36$)
+    (\cref{sec:steering}).
+  \item \textbf{A Cache Integrity Monitor} that detects unauthorized
+    KV-cache modifications against uniform additive perturbation with
+    0/36 false positives (95\% CI: 0--10\%) and 72/72 true positives
+    (95\% CI: 95--100\%), released concurrently to ensure the defense
+    is available alongside the attack methodology
+    (\cref{sec:cache_defense}).
+\end{enumerate}
+
+\subsection{Scope and Honest Framing}
+
+The detection results are moderate (AUROC 0.707 on the hardest
+comparison), not perfect. This is a confabulation \emph{signal}, not a
+confabulation \emph{oracle}. But it is a signal that requires no
+weight access, no probing classifier, and no separate training
+dataset---properties that no competing approach offers simultaneously. We believe the
+combination of accessibility, generality, and low overhead makes this
+useful even at moderate accuracy, particularly as one signal among several
+in a defense-in-depth safety stack.

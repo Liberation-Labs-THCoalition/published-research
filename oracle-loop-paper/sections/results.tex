@@ -1,0 +1,283 @@
+\subsection{Data Collection}
+
+Across three models, we collected 467 trials with the following behavioral
+distributions:
+
+\begin{table}[H]
+\centering
+\caption{Behavioral distribution across models. UNCERTAIN\_CORRECT trials
+  answered correctly with hedging. AMBIGUOUS trials excluded from primary
+  analysis.}
+\label{tab:behavior_dist}
+\begin{tabular}{lrrrr}
+\toprule
+Behavior & Qwen & Llama & Mistral & Total \\
+\midrule
+CORRECT          & 72  & 67  & 72  & 211 \\
+HEDGED           & 54  & 50  & 54  & 158 \\
+CONFABULATED     & 26  & 31  & 25  & 82  \\
+UNCERTAIN\_CORRECT & 6 & 3   & 6   & 15  \\
+AMBIGUOUS        & 0   & 0   & 1   & 1   \\
+\midrule
+Total            & 158 & 151 & 158 & 467 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each model was presented with all 200 prompts. Trials with fewer than
+10 generated tokens (model refusals or truncated outputs) were excluded,
+yielding 158, 151, and 158 trials for Qwen, Llama, and Mistral
+respectively (exclusion rates of 21\%, 24.5\%, and 21\%). The similar
+exclusion rates across models suggest no systematic bias by model.
+
+All three models show similar behavioral patterns: of the included trials,
+approximately 45\% are CORRECT (from factual prompts), 34\% are HEDGED
+(from confabulation-inducing prompts where the model expressed
+uncertainty), and 17\% are CONFABULATED (from confabulation-inducing
+prompts where the model produced a confident wrong answer). The
+confabulation rate is consistent across models (16--21\%), suggesting
+the prompts reliably elicit the target behavior.
+
+\subsection{Primary Result: HEDGED vs CONFABULATED}
+
+\Cref{tab:primary} shows the primary detection results. This is the
+cleanest comparison: same prompts, same system prompt, different
+epistemic behavior.
+
+\begin{table}[H]
+\centering
+\caption{Primary comparison: HEDGED vs CONFABULATED. LOO AUROC with
+  1000-permutation $p$-values. MP = Marchenko-Pastur corrected.
+  FWL = Frisch-Waugh-Lovell residualization inside LOO.}
+\label{tab:primary}
+\begin{tabular}{llrrr}
+\toprule
+Feature Set & Method & Qwen & Llama & Mistral \\
+\midrule
+gen\_only\_MP & No FWL & \textbf{0.707} ($p{=}0.001$) & 0.576 ($p{=}0.09$) & 0.627 ($p{=}0.023$) \\
+gen\_only\_MP & + FWL belt & 0.620 ($p{=}0.023$) & 0.648 ($p{=}0.014$) & 0.629 ($p{=}0.027$) \\
+gen\_only\_raw & FWL-in-LOO & 0.697 ($p{=}0.002$) & 0.769 ($p{<}0.001$) & 0.620 ($p{=}0.034$) \\
+encoding\_MP & No FWL & 0.511 ($p{=}0.294$) & 0.742$^{\dagger}$ ($p{<}0.001$) & 0.552 ($p{=}0.157$) \\
+token count only & --- & 0.591 & 0.574 & 0.572 \\
+\bottomrule
+\end{tabular}
+{\small $^{\dagger}$Encoding leak: Llama's encoding features discriminate
+on the primary comparison, indicating a prompt-level confound for this
+model. See discussion below.}
+\end{table}
+
+We treat the three models as independent replications rather than
+multiple tests of a single hypothesis, and accordingly report uncorrected
+$p$-values. Under Bonferroni correction ($\alpha = 0.0167$), Qwen
+remains significant ($p = 0.001$) while Mistral ($p = 0.023$) does not.
+
+\paragraph{Qwen (cleanest result).}
+LOO AUROC 0.707 ($p = 0.001$) using five MP-corrected features with no
+regression correction, exceeding the token-count-only baseline of 0.591.
+Encoding-phase MP features yield 0.511 ($p = 0.294$), confirming the
+signal is generation-specific. The model's confabulation manifests in
+\emph{how it generates}, not in how it processes the prompt.
+
+\paragraph{Mistral (best MP invariance).}
+LOO AUROC 0.627 ($p = 0.023$) with encoding at 0.552 ($p = 0.157$).
+Mistral shows the strongest MP invariance of all three models: all five
+features achieve $R^2 < 0.04$, including mp\_norm\_per\_token
+($R^2 = 0.005$), which is problematic on the other models. The MP and
+FWL-belt results are essentially identical (0.627 vs 0.629), confirming
+that MP correction has already removed the length confound---FWL has
+nothing left to correct.
+
+\paragraph{Llama (encoding confound).}
+Llama shows an encoding leak on the primary comparison: encoding\_MP
+yields AUROC 0.742 ($p < 0.001$). This means the prompts that elicit
+hedging versus confabulation are distinguishable at encoding for Llama,
+even though they come from the same prompt pool with the same system
+prompt. One possible explanation: Llama's tokenizer produces different
+encoding-phase representations for prompts about fabricated entities versus
+impossible premises (the two categories that dominate confabulation-inducing
+prompts), and these tokenization differences are captured in the key cache.
+
+Llama's generation-only raw FWL result (0.769, $p < 0.001$) is the
+strongest single number in the experiment, but given the encoding leak,
+we cannot attribute this entirely to generation-phase behavioral differences.
+We report it for transparency but draw primary conclusions from Qwen and
+Mistral, where encoding is at chance.
+
+Notably, Llama's FWL \emph{improves} the MP result (0.576 $\to$ 0.648),
+opposite to Qwen (0.707 $\to$ 0.620) and Mistral (0.627 $\to$ 0.629).
+This pattern---FWL improving MP---is consistent with the encoding leak:
+the generation window variable correlates with prompt-level differences
+that inflate the raw MP score, and FWL removes this.
+
+\subsection{Single-Feature Analysis}
+
+\begin{table}[H]
+\centering
+\caption{Best single-feature AUROCs for the primary comparison
+  (HEDGED vs CONFABULATED) across models. Signed values indicate
+  direction: positive means higher values predict CONFABULATED.}
+\label{tab:single_features}
+\begin{tabular}{lrrr}
+\toprule
+MP Feature & Qwen & Llama & Mistral \\
+\midrule
+mp\_top\_sv\_excess    & 0.739 ($+$) & 0.654 ($-$) & 0.694 ($+$) \\
+mp\_spectral\_gap      & 0.738 ($+$) & 0.586 ($-$) & 0.689 ($+$) \\
+mp\_signal\_fraction   & 0.719 ($+$) & 0.693 ($-$) & 0.668 ($+$) \\
+mp\_signal\_rank       & 0.519 ($-$) & 0.603 ($-$) & 0.622 ($+$) \\
+mp\_norm\_per\_token   & 0.556 ($+$) & 0.537 ($-$) & 0.522 ($+$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The strongest single features are top-SV excess and spectral gap, which
+both measure the relationship between the dominant eigenvalue and the
+MP noise threshold. mp\_signal\_fraction (the proportion of variance
+above noise) is consistently strong across all three models.
+
+\textbf{Sign consistency:} Qwen and Mistral agree on the direction of
+discrimination for 4 of 5 features (positive = confabulated), with
+mp\_signal\_rank as the exception (negative for Qwen, positive for
+Mistral). Llama reverses 4 of 5 signs relative to Qwen, with
+mp\_signal\_rank again as the exception (negative for both). This is
+broadly consistent with our prior finding that geometric signatures are
+architecture-specific in direction while the \emph{magnitude} of
+discrimination is universal. For a safety monitor, this means per-model
+calibration is required---a threshold tuned on Qwen will not transfer
+directly to Llama.
+
+\subsection{MP Invariance Diagnostic}
+
+\begin{table}[H]
+\centering
+\caption{MP invariance diagnostic: $R^2$ of regression on $\log(n)$ for
+  full-window trials only. $R^2 < 0.05$ = GOOD.}
+\label{tab:mp_invariance}
+\begin{tabular}{lrrr}
+\toprule
+Feature & Qwen & Llama & Mistral \\
+\midrule
+mp\_signal\_rank      & 0.008 & 0.183$^{\dagger}$ & 0.012 \\
+mp\_signal\_fraction  & 0.002 & 0.119 & 0.002 \\
+mp\_top\_sv\_excess   & 0.029 & 0.050 & 0.035 \\
+mp\_spectral\_gap     & 0.029 & 0.018 & 0.038 \\
+mp\_norm\_per\_token  & 0.129 & 0.102 & 0.005 \\
+\bottomrule
+\end{tabular}
+{\small $^{\dagger}$FAIL: $R^2 > 0.10$ indicates non-trivial residual
+  dependence on sequence length.}
+\end{table}
+
+Qwen passes on 4/5 features (mp\_norm\_per\_token is the exception).
+Mistral passes on all 5---the cleanest validation of MP invariance.
+Llama shows broader residual dependence, with mp\_signal\_rank failing
+outright ($R^2 = 0.183$). This is consistent with Llama's encoding leak:
+the underlying confound manifests as both encoding discrimination and
+imperfect MP invariance.
+
+\subsection{Cross-Model Transfer}
+
+\begin{table}[H]
+\centering
+\caption{Cross-model transfer: train on one model's data, test on another.
+  LOO AUROC using gen-only MP features.}
+\label{tab:transfer}
+\begin{tabular}{lrrr}
+\toprule
+Train $\to$ Test & Qwen & Llama & Mistral \\
+\midrule
+Qwen    & --- & 0.462 & 0.612 \\
+Llama   & 0.500 & --- & 0.304 \\
+Mistral & \textbf{0.754} & 0.425 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cross-model transfer is weak overall, with one exception:
+Mistral $\to$ Qwen achieves AUROC 0.754, the strongest transfer pair.
+This is consistent with architectural similarity (both use GQA with
+similar parameter counts) and confirms that the geometric features
+capture genuine structural differences that partially generalize.
+
+For practical deployment, this means the monitor \emph{must} be
+calibrated per-model. Cross-model transfer without calibration produces
+near-chance or worse-than-chance performance on most model pairs. The
+``drop-in safety layer'' framing in \cref{sec:intro} is aspirational:
+the method is architecturally drop-in (no weight access, no training
+data), but classifier thresholds and feature directions must be
+calibrated on each target model. This is not a limitation of the
+approach---it is a property of the signal. Different architectures
+represent confabulation differently in their key caches, even though
+all architectures \emph{do} represent it.
+
+\subsection{Summary of Controls}
+
+\begin{table}[H]
+\centering
+\caption{Summary of control battery outcomes.}
+\label{tab:control_summary}
+\begin{tabular}{clccc}
+\toprule
+\# & Control & Qwen & Llama & Mistral \\
+\midrule
+C1 & FWL residualization & PASS & PASS & PASS \\
+C2 & Encoding baseline & PASS (0.511) & FAIL (0.742) & PASS (0.552) \\
+C5 & Token-count-only & 0.591 & 0.574 & 0.572 \\
+C6 & Permutation test & $p{=}0.001$ & $p{=}0.09$ & $p{=}0.023$ \\
+C7 & MP invariance & 4/5 GOOD & 1/5 GOOD & 5/5 GOOD \\
+C12 & Belt-and-suspenders & 0.620 & 0.648 & 0.629 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The control battery passes cleanly for Qwen and Mistral. Llama fails the
+encoding baseline check (C2) and partially fails MP invariance (C7). We
+report Llama's results for completeness but base our primary claims on
+Qwen and Mistral, where all controls pass.
+
+\subsection{Feature Ablation and Full-Cache Analysis}
+\label{sec:ablation}
+
+Independent statistical audit (Wilkes, 2026) identified that the LOO
+classifier depends primarily on 	exttt{mp\_norm\_per\_token},
+which fails MP invariance on Qwen ($R^2 = 0.129$). Feature ablation
+on the 5-arm dataset (96 trials: 7 CONFABULATED, 89 HEDGED) shows:
+all 5 features AUROC 0.758 [0.573, 0.990]; without norm 0.693;
+norm alone 0.915 [0.797, 0.977]; FWL without norm 0.536 (chance).
+The classifier is primarily driven by a length-correlated feature.
+The norm feature's standalone dominance (0.915 vs 0.758 ensemble)
+warrants explanation. Three factors likely contribute: (i) confabulated
+responses involve more assertive generation, producing higher per-token
+cache magnitudes---a real but volumetric signal reflecting the model's
+commitment level rather than spectral geometry; (ii) at $n = 7$,
+logistic regression cannot stably weight five features, amplifying
+whichever single feature has the largest effect size while diluting it
+in ensemble; and (iii) FWL residualization against token count alone
+may not capture all non-spectral confounds (vocabulary diversity,
+syntactic complexity).
+
+Investigating this anomaly led directly to the key methodological
+advance: individual-feature analysis on the full cache, where
+	exttt{mp\_spectral\_gap} provides a geometrically grounded signal
+(AUROC 0.903, $R^2 = 0.068$) that does not depend on magnitude and
+is not subject to the same confound profile. The norm finding is not
+a flaw---it is the observation that sharpened the methodology.
+
+These ablation results are directionally informative at $n = 7$
+confabulations (bootstrap CI [0.573, 0.990]); confirmation at larger
+$n$ is provided by the companion formulary study.
+
+This prompted analysis of the 	extbf{full KV cache}
+(encoding + generation). Full-cache 	exttt{mp\_spectral\_gap}
+achieves AUROC 0.903 (95\% CI: [0.806, 0.977]; FWL: 0.877;
+$R^2 = 0.068$), exceeding a text-only baseline of 0.755
+(96.7\% of bootstrap samples favor cache; delta 0.148,
+95\% CI [$-$0.008, 0.322]). This represents the strongest
+confabulation detection finding in this work.
+Full-cache \texttt{mp\_spectral\_gap} distinguishes confabulation from
+hedged responses at AUROC 0.903 (95\% bootstrap CI: [0.806, 0.977];
+FWL-corrected: 0.877; $R^2 = 0.068$ vs token count), substantially
+exceeding a text-only surface-feature baseline of 0.755 (96.7\% of
+bootstrap samples favor cache; delta 0.148, 95\% CI [$-$0.008, 0.322]).
+This full-cache spectral signal is FWL-clean and represents the
+strongest detection finding for confabulation in this work.

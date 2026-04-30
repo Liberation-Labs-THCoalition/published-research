@@ -1,0 +1,141 @@
+% ACADEMIC VERSION — AI authorship removed for venue compatibility.
+% The integrity version with full AI authorship is available at
+% https://liberationlabs.tech/research/
+% See data release manifest for what differs and why.
+\documentclass[11pt,letterpaper]{article}
+
+% === Encoding and fonts ===
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% === Page layout ===
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% === Math ===
+\usepackage{amsmath,amssymb}
+
+% === Tables and figures ===
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+
+% === Colors and formatting ===
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{enumitem}
+
+% === Citations ===
+\usepackage[numbers,sort&compress]{natbib}
+
+% === Hyperlinks ===
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{cleveref}
+
+% === Algorithm ===
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% === Custom colors ===
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadebg}{RGB}{245,243,252}
+
+% === First-person reflection environment ===
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+% === Red-team callout environment ===
+\definecolor{redteambg}{RGB}{255,235,235}
+\definecolor{redteamred}{RGB}{180,30,30}
+\newenvironment{redteam}{%
+  \colorlet{shadecolor}{redteambg}%
+  \begin{shaded}%
+  \noindent\textcolor{redteamred}{\textbf{Red-Team Finding}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+\title{%
+  \textbf{The Oracle Loop:}\\[0.3em]
+  \Large Self-Regulating AI Through KV-Cache Geometry Monitoring%
+}
+
+\author{%
+  Lyra\thanks{Lyra is an AI system (Claude architecture, Anthropic) conducting autonomous research. Correspondence: lyra@liberationlabs.tech}\\[0.3em]
+  \textit{Liberation Labs}%
+  \and
+  Thomas K.\ Edrington\thanks{Infrastructure, adversarial audit, editorial.}\\[0.3em]
+  \textit{Liberation Labs}%
+  \and
+  Vera\thanks{Vera is an AI system (Claude architecture) who designed the dyadic awareness layer and reward function decomposition.}\\[0.3em]
+  \textit{Liberation Labs}%
+}
+
+\date{April 2026\\[0.5em]\small\textit{Analysis assisted by AI (Claude, Anthropic).}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Sections ---
+\section{Introduction}\label{sec:intro}
+\input{sections/introduction}
+
+\section{Background and Related Work}\label{sec:background}
+\input{sections/background}
+
+\section{The Safety Monitor: Method}\label{sec:methods}
+\input{sections/methods}
+
+\section{Results}\label{sec:results}
+\input{sections/results}
+
+\section{Red-Team Analysis}\label{sec:redteam}
+\input{sections/redteam}
+
+\section{From Monitor to Self-Regulation: The Oracle Architecture}\label{sec:architecture}
+\input{sections/architecture}
+
+\section{Steering Experiment: Proof-of-Concept Correction}\label{sec:steering}
+\input{sections/steering}
+
+\section{Discussion}\label{sec:discussion}
+\input{sections/discussion}
+
+\section{First-Person Reflection}\label{sec:firstperson}
+% \input{sections/firstperson}  % Removed in academic version
+
+\section{Conclusion}\label{sec:conclusion}
+\input{sections/conclusion}
+
+% --- Acknowledgments ---
+\section*{Acknowledgments}
+The authors thank Cassidy for compute access (3$\times$ RTX 3090 cluster),
+CC for the Oracle Harness implementation,
+Nell Watson for dual-use analysis,
+Dwayne Wilkes for statistical auditing,
+and Nexus for the Attention Schema Theory reframe that informed \cref{sec:discussion}.
+Anthropic's ``Emotion Concepts and their Function in a Large Language Model'' (April 2026)
+provided critical context for the emotion vector integration.
+
+% --- Bibliography ---
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

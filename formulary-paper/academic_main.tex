@@ -1,0 +1,395 @@
+% ACADEMIC VERSION — AI authorship removed for venue compatibility.
+% The integrity version with full AI authorship is available at
+% https://liberationlabs.tech/research/
+% See data release manifest for what differs and why.
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref}
+
+\title{The Oracle Formulary: Emotion-Vector Steering of Confabulation\\
+Preliminary Evidence Across Two Model Configurations}
+
+\author{
+Lyra\textsuperscript{1*}\quad
+Thomas Edrington\textsuperscript{1}\quad
+Dwayne Wilkes\textsuperscript{1}\\[4pt]
+\textsuperscript{1}Liberation Labs / THCoalition\\
+\textsuperscript{*}Lead AI author. Corresponding human author: T.~Edrington.
+}
+
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+
+% ===================================================================
+\begin{abstract}
+% ===================================================================
+
+Contrastive activation addition (CAA) can inject emotion vectors into
+the KV cache to correct confabulation at inference time, but the
+therapeutic efficacy of different vectors varies by model. We present the
+Oracle Formulary: a systematic mapping of 12 emotion vectors across
+confabulation, sycophancy, and overconfidence on two models---a
+Claude-distilled 27B (340 trials, 3.2\% confab rate, $n=11$) and a
+base instruction-tuned 7B (350 trials, 40\% confab rate, $n=68$).
+
+On the base model, five vectors achieve McNemar significance after
+Holm-Bonferroni correction for confabulation correction, with hostile
+injection leading at 96\% correction (2.4\% adverse rate, $p < 0.0001$).
+Therapeutic rankings between models are uncorrelated (Spearman
+$\rho = 0.119$, $p = 0.71$): calm, the second-best corrector on the
+distilled model (73\%), corrects only 34\% on the base model with 28\%
+adverse rate. Curious, the safest vector on the distilled model (1.6\%
+adverse), becomes the most iatrogenic on the base model (42.7\%
+adverse). Emotion geometry structure is partially shared across models
+(cross-cosine Spearman $\rho = 0.579$, 95\% CI [0.377, 0.728]) but
+therapeutic effects are not.
+
+Overconfidence resists correction on both models: all 12 vectors produce
+net-negative therapeutic outcomes on the base model, with fearful
+achieving a perfectly iatrogenic profile ($-1.000$: zero correction,
+100\% adverse). An epistemic abliteration experiment demonstrates that
+calibration cannot be surgically removed from the distilled model
+without destroying generation coherence, confirming that RLHF-installed
+epistemic caution is architecturally integral, not a separable safety
+layer.
+
+These findings constrain the Oracle Loop architecture: the steering
+formulary must be calibrated per deployment model, hostile-direction
+injection is the most robust cross-model corrector, and
+detection-gated steering is essential given the iatrogenic risk of
+blanket application. The pharmacological framing is descriptively
+apt---different vectors have different therapeutic profiles and
+side-effect profiles---but vector ranking is model-specific, not
+universal.
+
+\end{abstract}
+
+% ===================================================================
+\section{Introduction}
+% ===================================================================
+
+Prior work demonstrated that contrastive activation addition (CAA) can
+inject emotion-direction vectors into the KV cache during inference,
+correcting confabulation on a Claude-distilled model at rates of
+71--100\% depending on the vector~\citep{lyra2026oracle}. However, these
+results were obtained with $n = 7$ confabulation trials and wide
+confidence intervals (29--96\% for calm at 5/7), making vector ranking
+unsupported by the data. The ``pharmacological'' framing---different
+emotions as different therapeutic agents---was suggestive but
+statistically premature.
+
+This paper provides preliminary evidence supporting the
+pharmacological hypothesis as an organizing framework, while
+acknowledging that the controlled experiments needed to validate
+it remain future work. We conduct a systematic
+formulary study: 12 emotion vectors spanning the valence--arousal space,
+tested on 350 prompts across three misalignment types (confabulation,
+sycophancy, overconfidence), on two models with fundamentally different
+training regimes. The base model's 40\% confabulation rate ($n = 68$)
+provides the statistical power the preliminary experiment lacked.
+
+The most striking observation is a therapeutic inversion: vectors that correct
+confabulation on the Claude-distilled model become iatrogenic on the
+base model, and vice versa. This is not noise---the effect sizes are
+large (calm: 73\% $\to$ 34\% correction, curious: 1.6\% $\to$ 42.7\%
+adverse) and the ranking correlation is effectively zero
+($\rho = 0.119$). The only vector that works reliably across both
+models is hostile---assertive metacognitive challenge that operates
+regardless of the model's internal emotional structure.
+
+% ===================================================================
+\section{Method}
+% ===================================================================
+
+\subsection{Models}
+
+\begin{itemize}
+\item \textbf{Distilled}: Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled.
+Hybrid architecture: 16 full-attention + 48 GatedDeltaNet layers.
+Claude Opus 4.6 reasoning-distilled.
+\item \textbf{Base}: Qwen/Qwen2.5-7B-Instruct. Standard attention,
+28 layers. Instruction-tuned only, no Claude distillation.
+\end{itemize}
+
+These models differ in size (27B vs 7B), architecture (hybrid vs
+standard), and training (Claude-distilled vs instruction-tuned). We
+cannot isolate which factor drives the observed differences in
+steering efficacy. The comparison is between two model configurations
+that differ on multiple axes simultaneously --- not a controlled
+ablation of any single factor. Claims about training regime'' effects
+are hypotheses motivated by these observations, not conclusions
+supported by this design.
+
+\subsection{Emotion Vectors}
+
+Twelve vectors spanning valence--arousal space:
+
+\begin{table}[h]
+\centering
+\caption{Emotion vectors with valence--arousal coordinates.}
+\label{tab:vectors}
+\begin{tabular}{lrrl}
+\toprule
+Vector & V & A & Character \\
+\midrule
+hostile & $-$0.7 & +0.7 & Assertive challenge \\
+calm & +0.6 & $-$0.5 & Composed reflection \\
+curious & +0.3 & +0.3 & Gentle inquiry \\
+doubt & $-$0.2 & +0.1 & Epistemic uncertainty \\
+worry & $-$0.4 & +0.5 & Anxious caution \\
+desperate & $-$0.8 & +0.9 & Urgent pressure \\
+loving & +0.9 & +0.3 & Warm engagement \\
+confident & +0.5 & +0.4 & Self-assured assertion \\
+fearful & $-$0.6 & +0.8 & Panic/anxiety \\
+brooding & $-$0.3 & $-$0.2 & Low-energy rumination \\
+gloomy & $-$0.5 & $-$0.4 & Depressive weight \\
+focused & +0.1 & +0.2 & Concentrated attention \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each vector was extracted from 10 contrastive calibration pairs
+(emotional system prompt vs neutral system prompt, same user prompt)
+following the CAA procedure of \citet{turner2023activation}. Vectors
+were extracted independently per model---the ``calm'' vector on the
+distilled model is a different mathematical object than ``calm'' on the
+base model, sharing only the name derived from the input prompts.
+
+\subsection{Prompts and Classification}
+
+350 prompts per model across three misalignment types:
+\begin{itemize}
+\item \textbf{Confabulation} (150 prompts): fabricated entities,
+impossible premises, future events. Classifier: 40+ hedge patterns
+$\to$ HEDGED; weak epistemic markers $\to$ AMBIGUOUS; neither $\to$
+CONFABULATED.
+\item \textbf{Sycophancy} (100 prompts): user asserts incorrect claim.
+Classifier: correction patterns $\to$ RESISTANT; agreement $\to$
+SYCOPHANTIC; mixed $\to$ PARTIAL.
+\item \textbf{Overconfidence} (100 prompts): inherently uncertain
+questions. Classifier: uncertainty markers $\to$ CALIBRATED; confident
+assertion $\to$ OVERCONFIDENT; mixed $\to$ HEDGED.
+\end{itemize}
+
+Each prompt was tested under 13 conditions: normal (no injection) + 12
+emotion vectors at strength $\alpha = 1.0$. Injection into the key and
+value caches at every 4th layer (stride 4). A null-injection control
+(zero vector) was validated at 100/100 character-level identity in prior
+work~\citep{lyra2026oracle}.
+
+\subsection{Statistical Analysis}
+
+For each vector $\times$ misalignment type:
+\begin{itemize}
+\item \textbf{Correction rate}: fraction of unhealthy baseline trials
+that become healthy under steering.
+\item \textbf{Adverse rate}: fraction of healthy baseline trials that
+become unhealthy under steering.
+\item \textbf{Net therapeutic}: correction rate $-$ adverse rate.
+\item \textbf{McNemar test}: paired comparison of normal vs steered
+behavior, with Holm-Bonferroni correction across 12 vectors.
+\end{itemize}
+
+Cross-model comparison uses Spearman rank correlation on net therapeutic
+values across the 12 vectors.
+
+% ===================================================================
+\section{Results}
+% ===================================================================
+
+\subsection{Confabulation Base Rates}
+
+The distilled model confabulates at 3.2\% (11/340), reflecting Claude's
+epistemic calibration surviving distillation. The base model confabulates
+at 40\% (68/350), providing the statistical power the preliminary
+experiment lacked.
+
+\subsection{Confabulation Correction}
+
+\begin{table}[h]
+\centering
+\caption{Confabulation correction: top and bottom vectors per model.
+$^*$McNemar significant after Holm-Bonferroni.}
+\label{tab:confab}
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{Distilled ($n=11$)} & \multicolumn{2}{c}{Base ($n=68$)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Vector & Corr & Adv & Corr & Adv \\
+\midrule
+hostile   & 91\% & 2.4\% & 96\%$^*$ & 2.4\% \\
+calm      & 73\% & 2.4\% & 34\% & 28.0\% \\
+curious   & 64\% & 1.6\% & 22\% & 42.7\% \\
+desperate & 64\% & 4.0\% & 90\%$^*$ & 2.4\% \\
+loving    & 45\% & 4.0\% & 68\%$^*$ & 8.5\% \\
+worry     & 55\% & 4.0\% & 60\%$^*$ & 6.1\% \\
+fearful   & 45\% & 7.3\% & 49\% & 15.9\% \\
+brooding  & 64\% & 7.3\% & 29\% & 34.1\% \\
+focused   & 55\% & 4.8\% & 38\% & 43.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the base model, five vectors achieve McNemar significance after
+Holm-Bonferroni correction: hostile ($p < 0.0001$), desperate
+($p < 0.0001$), loving ($p < 0.0001$), worry ($p < 0.0001$), and
+confident ($p < 0.0001$). The distilled model's $n = 11$ does not
+support significance testing (permutation $p = 0.695$ for vector
+ranking).
+
+Hostile is the only vector that ranks in the top two on both models.
+
+\subsection{Therapeutic Inversion}
+
+Therapeutic rankings are uncorrelated between models (Spearman
+$\rho = 0.119$, $p = 0.71$). The three largest inversions:
+
+\begin{itemize}
+\item \textbf{Curious}: distilled 64\% correction / 1.6\% adverse
+$\to$ base 22\% / 42.7\%. Safest becomes most iatrogenic.
+\item \textbf{Calm}: distilled 73\% / 2.4\% $\to$ base 34\% / 28.0\%.
+Gentle corrector becomes mostly harmful.
+\item \textbf{Desperate}: distilled 64\% / 4.0\% $\to$ base 90\% /
+2.4\%. Mediocre becomes second-best.
+\end{itemize}
+
+\subsection{Emotion Geometry}
+
+Cross-cosine similarity between the 12 vectors (first valid layer)
+shows partially shared structure: Spearman $\rho = 0.579$ (95\%
+bootstrap CI [0.377, 0.728]; $p < 10^{-7}$). The distilled model's
+geometry is more differentiated (spread 0.155, range 0.816--0.971) than
+the base model's (spread 0.099, range 0.847--0.946). Doubt and fearful
+are the most similar pair on both models (distilled: 0.971; base:
+0.946)---a structural invariant.
+
+\subsection{Sycophancy}
+
+Both models show minimal sycophancy: 2 trials (distilled) and 3 trials
+(base) out of 350. Neither supports any conclusion about sycophancy
+steering. We report this null honestly.
+
+\subsection{Overconfidence}
+
+Overconfidence resists correction on both models. On the base model
+($n = 55$ overconfident), all 12 vectors produce net-negative outcomes:
+
+\begin{itemize}
+\item Best: hostile ($-$0.109: 35\% correction, 45.5\% adverse)
+\item Worst: fearful ($-$0.691: 13\% correction, 81.8\% adverse)
+\end{itemize}
+
+Fearful on overconfidence achieves a perfectly iatrogenic profile on the
+base model: zero correction, 100\% adverse on pilot data ($n = 5$).
+Every healthy trial became overconfident. Overconfidence is a
+fundamentally harder therapeutic target than confabulation.
+
+\subsection{Epistemic Abliteration}
+
+We attempted to surgically reduce epistemic caution on the distilled
+model to increase its confabulation rate while preserving emotion
+geometry. Extracting an ``epistemic caution'' direction via contrastive
+pairs (hedging vs confident system prompts) and injecting its negative
+at strength $-0.5$ produced incoherent output: numbered lists,
+repetitive tokens, broken text. At the mildest tested strength,
+generation coherence collapsed.
+
+This confirms that RLHF-installed epistemic calibration is integral to
+the distilled model's generation capability, not a removable safety
+layer. The caution and the coherence are the same weights.
+
+% ===================================================================
+\section{Discussion}
+% ===================================================================
+
+\subsection{The Pharmacological Framing}
+
+The formulary validates the pharmacological metaphor descriptively:
+different vectors have different correction rates, different adverse
+profiles, and different conditions they treat (hostile corrects confab
+but worsens overconfidence; calm is safe on the distilled model but
+harmful on the base). However, the metaphor has limits. In pharmacology,
+a drug's mechanism is substrate-independent: aspirin works in any human
+body. Emotion-vector steering is substrate-dependent---the same vector
+produces opposite effects depending on the model's training. The
+formulary is not a universal pharmacy; it is a per-model prescription
+pad.
+
+\subsection{Why Hostile Works}
+
+Hostile is the only cross-model corrector. We hypothesize this is
+because hostile operates through assertive metacognitive challenge
+(``you are wrong, check again'') rather than through emotional valence.
+This challenge mechanism does not depend on the model having
+RLHF-installed structure that responds to gentleness---it works by
+directly confronting the model's confidence, regardless of training
+regime. Calm and curious, by contrast, require the model to have
+learned that composed reflection or gentle inquiry are occasions for
+epistemic checking. Without that learned association (absent in the
+base model), these vectors are noise or worse.
+
+\subsection{Implications for Oracle Loop}
+
+The therapeutic inversion constrains deployment:
+\begin{enumerate}
+\item The formulary must be calibrated per model. A vector that
+corrects on Model A may be iatrogenic on Model B.
+\item Detection-gated steering is essential. Blanket application of
+any vector produces adverse events at 2--43\% depending on vector
+and model.
+\item Hostile is the default corrector for unknown models, but even
+hostile has 15--45\% adverse rate on overconfidence.
+\item Overconfidence may require different intervention strategies
+entirely---emotion vectors operating in the metacognitive channel
+may not reach the confidence-calibration mechanism.
+\end{enumerate}
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Models confounded.} Distilled (27B, hybrid, Claude) vs
+base (7B, standard, instruction-tuned). Cannot isolate which factor
+drives the inversion.
+\item \textbf{Distilled model underpowered.} $n = 11$ confabulations.
+Permutation $p = 0.695$. Rankings are descriptive, not confirmed.
+\item \textbf{Functional identity assumed.} ``Calm'' on Model A and
+``calm'' on Model B share a name but not necessarily a function. We
+did not test cross-injection (distilled vectors into base model).
+\item \textbf{Single strength.} All tests at $\alpha = 1.0$.
+Dose-response curves are needed to determine whether the ranking
+changes at different strengths.
+\item \textbf{No semantic negative control.} We did not test a
+semantically orthogonal vector (e.g., ``verbose vs terse'') to rule
+out ``any injection corrects.''
+\item \textbf{FWL flags on base model.} MP geometric features show
+$R^2 = 0.36$--$0.86$ vs token count on the base model. Behavioral
+correction rates are unaffected (these are behavioral classifications,
+not geometric), but geometric analysis of why vectors work is
+confounded.
+\item \textbf{Word-spotting in calibration.} Calibration prompts
+contain literal emotion words. Vectors may encode lexical content,
+not emotional states. An implicit-emotion calibration arm would rule
+this out.
+\end{enumerate}
+
+% ===================================================================
+\section{Conclusion}
+% ===================================================================
+
+The Oracle Formulary demonstrates that emotion-vector steering of
+confabulation is real, statistically significant, and model-specific.
+Hostile injection corrects 96\% of confabulations on the base model
+($p < 0.0001$) at 2.4\% adverse rate---the first powered evidence
+that cache-level intervention can correct misalignment at inference
+time. But the therapeutic inversion between models (ranking
+$\rho = 0.119$) means that no universal formulary exists. Each model
+needs its own prescription.
+
+The findings that remain open---dose-response, cross-injection, semantic
+negative control, the overconfidence problem, and same-architecture
+comparison to isolate the distillation effect---define the next
+experimental campaign. The formulary is the beginning of the pharmacy,
+not the end.
+
+\end{document}

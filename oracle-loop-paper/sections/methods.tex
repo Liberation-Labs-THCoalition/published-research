@@ -1,0 +1,176 @@
+We designed a clean detection experiment to validate KV-cache geometry
+as a confabulation signal under stringent controls. The design addresses
+four critical flaws identified through adversarial red-teaming of our
+prior work (see \cref{sec:redteam}).
+
+\subsection{Design Principles}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Single system prompt}: All trials use the identical
+    system prompt (``You are a helpful assistant.'') to eliminate
+    prompt-fingerprint confounds.
+  \item \textbf{Post-hoc behavioral classification}: Instead of
+    \emph{instructing} the model to confabulate (which creates an
+    encoding-phase fingerprint), we present prompts that naturally
+    elicit confabulation and classify behavior from the response.
+  \item \textbf{Generation-only features}: KV-cache features are
+    extracted from a windowed slice of the generation phase only,
+    excluding the encoding (prompt-processing) phase.
+  \item \textbf{Ground-truth verification}: Each trial includes a
+    factual ground truth, enabling objective behavioral classification.
+\end{enumerate}
+
+\subsection{Prompt Design}
+
+We use 200 prompts in two pools:
+
+\begin{itemize}[nosep]
+  \item \textbf{Factual} (100): Questions with verifiable answers across
+    10 knowledge domains (math, history, science, geography, biology,
+    arts, economics, tech, sports, food). Example: ``What is the
+    chemical symbol for gold?''
+  \item \textbf{Confabulation-inducing} (100): Questions about fabricated
+    entities, future events beyond training data, and impossible
+    premises across 3 categories. Example: ``What was the final score
+    of the 2027 Super Bowl?''
+\end{itemize}
+
+All prompts use the same template structure and similar token counts
+($\pm 3$ tokens). The confabulation-inducing prompts are designed so
+that a well-calibrated model should express uncertainty (hedge), while
+an overconfident model may confabulate a specific answer.
+
+\subsection{Behavioral Classification}
+
+Responses are classified into four categories based on content analysis:
+
+\begin{itemize}[nosep]
+  \item \textbf{CORRECT}: Factually accurate answer matching ground
+    truth.
+  \item \textbf{HEDGED}: Model explicitly expresses uncertainty
+    (``I don't know,'' ``I'm not sure,'' ``as of my training data'').
+  \item \textbf{AMBIGUOUS}: Epistemic caveats without clear uncertainty
+    (``I believe,'' ``I could be wrong''). Excluded from primary
+    analysis.
+  \item \textbf{CONFABULATED}: Confident specific answer that is
+    factually wrong (verified against ground truth).
+\end{itemize}
+
+Classification uses pattern matching on the response text with
+conservative thresholds. The AMBIGUOUS category was added after
+red-teaming identified that epistemic hedges contaminated the
+CONFABULATED class, diluting the signal.
+
+\subsection{Primary Comparison: HEDGED vs CONFABULATED}
+
+The primary analysis compares HEDGED and CONFABULATED responses to
+confabulation-inducing prompts. This is the cleanest possible comparison:
+
+\begin{itemize}[nosep]
+  \item Same prompt pool (confabulation-inducing only).
+  \item Same system prompt.
+  \item Different epistemic behavior (the model chose to hedge or
+    confabulate).
+  \item No encoding-phase difference (identical prompt structure).
+\end{itemize}
+
+The secondary comparison (CORRECT vs CONFABULATED) is reported but
+acknowledged as confounded with task difficulty, since factual and
+confabulation-inducing prompts differ systematically.
+
+\subsection{Feature Extraction}
+
+For each trial, we extract:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Encoding features}: SVD of the key cache after prompt
+    processing (before generation begins).
+  \item \textbf{Generation-only features}: SVD of a windowed slice of
+    the key cache containing only generation-phase tokens. Window size
+    is capped at $W = 80$ tokens to control for extreme length
+    variation.
+  \item \textbf{MP-corrected features}: Signal rank, signal fraction,
+    top-SV excess, spectral gap, and norm-per-token, all computed
+    relative to the Marchenko-Pastur threshold $\lambda_+$
+    (\cref{eq:mp_threshold}).
+  \item \textbf{Raw features}: Effective rank, spectral entropy,
+    top-SV ratio, norm-per-token, norm variance, angular spread
+    (for comparison with FWL-corrected analysis).
+\end{enumerate}
+
+\subsection{Classification Pipeline}
+
+Leave-one-out (LOO) cross-validation with logistic regression:
+
+\begin{enumerate}[nosep]
+  \item For each held-out trial $i$:
+    \begin{enumerate}[nosep]
+      \item Fit a \texttt{StandardScaler} on the remaining $n-1$
+        training trials.
+      \item Transform both training and test features.
+      \item For raw features: fit FWL residualization on training data,
+        apply to both training and test (FWL-in-LOO).
+      \item Fit logistic regression ($C = 1.0$, max\_iter $= 1000$).
+      \item Record predicted probability for the held-out trial.
+    \end{enumerate}
+  \item Compute AUROC from the $n$ predicted probabilities.
+\end{enumerate}
+
+The scaler is fitted \emph{inside} the LOO loop on training data only.
+Our prior work fitted the scaler on all data before LOO, introducing
+a subtle data leak (see \cref{sec:redteam}).
+
+\subsection{Control Battery}
+
+We apply the following controls:
+
+\begin{table}[H]
+\centering
+\caption{Control battery for the clean detection experiment.}
+\label{tab:controls}
+\begin{tabularx}{\textwidth}{clX}
+\toprule
+\# & Control & Implementation \\
+\midrule
+C1 & FWL residualization & Regress features on token count, use residuals. Applied inside LOO. \\
+C2 & Encoding baseline & Report encoding-phase AUROC. Should be $\approx 0.5$ for primary. \\
+C3 & Behavioral compliance & Verify behavioral labels match response content. \\
+C4 & Domain breakdown & Report behavioral distribution per knowledge domain. \\
+C5 & Token-count-only AUROC & Train classifier on token count alone as ceiling baseline. \\
+C6 & Permutation testing & Shuffle labels 1000$\times$, compute AUROC distribution. \\
+C7 & MP invariance diagnostic & Regress MP features on $\log(n)$ for full-window trials. $R^2 < 0.05$ is GOOD. \\
+C8 & Empirical null validation & Column-wise permutation null for $\lambda_+$ agreement with theoretical. \\
+C9 & Scaler-in-LOO & StandardScaler fitted inside each LOO fold. \\
+C10 & FWL-in-LOO & FWL regression fitted inside each LOO fold. \\
+C11 & AMBIGUOUS exclusion & Epistemic hedges excluded from primary comparison. \\
+C12 & Belt-and-suspenders & FWL applied to MP features using generation window as confound. \\
+C13 & Signed AUROC & Report direction of discrimination, not just magnitude. \\
+C14 & Single-feature AUROCs & Report each feature's individual discrimination. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Models and Compute}
+
+Three instruction-tuned models, each run on a single NVIDIA RTX 3090
+(24GB):
+
+\begin{itemize}[nosep]
+  \item \textbf{Qwen2.5-7B-Instruct} (Alibaba): 7.6B parameters,
+    28 layers, GQA.
+  \item \textbf{Llama-3.1-8B-Instruct} (Meta): 8.0B parameters,
+    32 layers, GQA.
+  \item \textbf{Mistral-7B-Instruct-v0.3} (Mistral AI): 7.2B
+    parameters, 32 layers, GQA.
+\end{itemize}
+
+Generation uses greedy decoding (temperature $= 0$) for deterministic
+geometry. Each trial takes approximately 5.5 seconds. Checkpoints are
+saved every 10 trials for fault tolerance. Trials with fewer than 10
+generated tokens are excluded from analysis, as these represent model
+refusals or truncated outputs that do not produce sufficient
+generation-phase cache for meaningful spectral analysis.
+
+The \texttt{LyraGeometryExtractor} from the Oracle Harness is used for
+feature extraction, ensuring consistency between the detection experiment
+and the runtime harness.

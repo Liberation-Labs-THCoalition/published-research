@@ -1,0 +1,62 @@
+We have presented the Oracle Loop, a complete architecture for runtime
+self-regulation in language models using KV-cache geometry as detection
+signal, steering input, and training reward---and demonstrated that two
+of its three components work, with methodological refinements that
+sharpened both.
+
+For detection, independent statistical audit and feature ablation
+revealed that the generation-window LOO classifier (0.707/0.758) was
+primarily driven by a length-correlated feature
+(\texttt{mp\_norm\_per\_token}, $R^2 = 0.129$). This prompted
+analysis of the full KV cache (encoding + generation), which identified
+\texttt{mp\_spectral\_gap} as a cleaner detection signal (AUROC 0.903,
+95\% CI [0.806, 0.977]; FWL-corrected 0.877; $R^2 = 0.068$). The
+full-cache spectral gap outperforms a text-only baseline (0.755) in
+96.7\% of bootstrap samples, though the confidence interval on the
+added value includes zero. These confabulation results extend
+established deception detection at AUROC 1.000 across seven model
+scales, validated through 50+ experiments and an independent audit of
+135 claims.
+
+For steering, the preliminary 5-arm experiment ($n = 7$
+confabulations) established that cache injection modifies behavior---the
+null control producing character-level identical output on all 100
+trials is an unusually strong mechanism verification. A subsequent
+formulary study ($n = 68$ confabulations, 12 vectors on
+Qwen2.5-7B-Instruct) provides the first statistically significant
+correction results: hostile injection corrects 96\% of confabulations
+(McNemar $p < 0.0001$) at 2.4\% adverse rate. Therapeutic rankings
+between models are uncorrelated ($\rho = 0.119$, $p = 0.71$),
+confirming that per-model calibration is required.
+
+Three rounds of adversarial red-teaming---culminating in an independent
+statistical audit that identified the norm-feature dependency and
+prompted the full-cache refinement---demonstrate that adversarial
+methodology is not just desirable but essential for claims in this space.
+The detection methodology improved because it was attacked honestly.
+
+The Oracle Loop creates dual-use risks: cache injection could suppress
+safety-relevant hedging, and geometric features could enable
+surveillance. A companion paper demonstrates that KV-Cloak cache
+obfuscation effectively blinds external geometric analysis (spectral gap
+degraded from 0.903 to 0.614 under the real KV-Cloak mechanism),
+providing defense against adversarial use of these methods while a
+defender inside a trusted execution environment retains full detection
+capability. We advocate that any deployment include obfuscation as a
+mandatory companion.
+
+The gap that remains is training. The Oracle Loop's detection signal is
+validated---more robustly after refinement than before. Its steering
+mechanism is validated with statistical power. Its attack surface is
+characterized and defended. The next step is closing the loop: GRPO
+training with geometric reward to produce models that confabulate less
+because they have learned to recognize confabulation geometry from the
+inside.
+
+\paragraph{Code and Data.}
+Detection experiment code, ablation analysis, formulary results, raw
+trial data, Cache Integrity Monitor implementation, KV-Cloak obfuscation
+analysis, and all red-team logs are publicly available at:
+\url{https://github.com/Liberation-Labs-THCoalition/lyra-s-research-}.
+Full experiment infrastructure:
+\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}.
