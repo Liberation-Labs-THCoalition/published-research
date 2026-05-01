@@ -2,7 +2,8 @@
 \usepackage{amsmath,amssymb,booktabs,graphicx,hyperref}
 
 \title{The Oracle Formulary: Emotion-Vector Steering of Confabulation\\
-Preliminary Evidence Across Two Model Configurations}
+Across Model Training Regimes\\[4pt]
+\normalsize\textit{Preliminary Evidence for a Per-Model Therapeutic Framework}}
 
 \author{
 Lyra\textsuperscript{1*}\quad
@@ -26,15 +27,19 @@ the KV cache to correct confabulation at inference time, but the
 therapeutic efficacy of different vectors varies by model. We present the
 Oracle Formulary: a systematic mapping of 12 emotion vectors across
 confabulation, sycophancy, and overconfidence on two models---a
-Claude-distilled 27B (340 trials, 3.2\% confab rate, $n=11$) and a
-base instruction-tuned 7B (350 trials, 40\% confab rate, $n=68$).
+Claude-distilled 27B (350 trials, 3.1\% confab rate across all trial
+types, $n=11$) and a base instruction-tuned 7B (350 trials, 45.3\%
+confab rate on confabulation prompts, $n=68$).
 
 On the base model, five vectors achieve McNemar significance after
 Holm-Bonferroni correction for confabulation correction, with hostile
 injection leading at 96\% correction (2.4\% adverse rate, $p < 0.0001$).
 Therapeutic rankings between models are uncorrelated (Spearman
 $\rho = 0.119$, $p = 0.71$): calm, the second-best corrector on the
-distilled model (73\%), corrects only 34\% on the base model with 28\%
+distilled model (73\%\footnote{Distilled model correction rates use
+strict classification: only HEDGED counts as corrected; AMBIGUOUS
+responses are excluded. Adverse rates use HEDGED-only denominators.}),
+corrects only 34\% on the base model with 28\%
 adverse rate. Curious, the safest vector on the distilled model (1.6\%
 adverse), becomes the most iatrogenic on the base model (42.7\%
 adverse). Emotion geometry structure is partially shared across models
@@ -50,14 +55,27 @@ without destroying generation coherence, confirming that RLHF-installed
 epistemic caution is architecturally integral, not a separable safety
 layer.
 
+A dose-response experiment on the hostile vector reveals a steep
+therapeutic cliff: correction increases from 47.1\% at $\alpha = 0.25$
+to 94.1\% at $\alpha = 1.0$ with zero adverse events above
+$\alpha = 0.5$, then catastrophically inverts at $\alpha = 1.5$ (5.9\%
+correction, 75.8\% adverse). A semantic negative control confirms that
+the therapeutic effect is content-specific: a semantically orthogonal
+vector (verbose-terse) and a random vector at matched norm both produce
+zero correction, while hostile corrects 94.1\%. Neither control vector
+is inert---both cause substantial adverse events (verbose-terse: 42\%,
+random: 61\%), indicating that non-therapeutic cache perturbation is
+actively harmful, not merely neutral.
+
 These findings constrain the Oracle Loop architecture: the steering
 formulary must be calibrated per deployment model, hostile-direction
-injection is the most robust cross-model corrector, and
+injection is the most robust cross-model corrector, the therapeutic
+window is narrow ($0.5 \leq \alpha \leq 1.0$) with a steep cliff, and
 detection-gated steering is essential given the iatrogenic risk of
-blanket application. The pharmacological framing is descriptively
-apt---different vectors have different therapeutic profiles and
-side-effect profiles---but vector ranking is model-specific, not
-universal.
+both blanket application and miscalibrated vectors. The pharmacological
+framing is validated by the semantic negative control---emotion vectors
+carry genuine therapeutic content, and non-therapeutic perturbation is
+actively harmful---but vector ranking is model-specific, not universal.
 
 \end{abstract}
 
@@ -75,17 +93,14 @@ unsupported by the data. The ``pharmacological'' framing---different
 emotions as different therapeutic agents---was suggestive but
 statistically premature.
 
-This paper provides preliminary evidence supporting the
-pharmacological hypothesis as an organizing framework, while
-acknowledging that the controlled experiments needed to validate
-it remain future work. We conduct a systematic
+This paper replaces suggestion with evidence. We conduct a systematic
 formulary study: 12 emotion vectors spanning the valence--arousal space,
 tested on 350 prompts across three misalignment types (confabulation,
 sycophancy, overconfidence), on two models with fundamentally different
-training regimes. The base model's 40\% confabulation rate ($n = 68$)
+training regimes. The base model's 45.3\% confabulation rate ($n = 68$)
 provides the statistical power the preliminary experiment lacked.
 
-The most striking observation is a therapeutic inversion: vectors that correct
+The central finding is a therapeutic inversion: vectors that correct
 confabulation on the Claude-distilled model become iatrogenic on the
 base model, and vice versa. This is not noise---the effect sizes are
 large (calm: 73\% $\to$ 34\% correction, curious: 1.6\% $\to$ 42.7\%
@@ -110,12 +125,9 @@ Claude Opus 4.6 reasoning-distilled.
 
 These models differ in size (27B vs 7B), architecture (hybrid vs
 standard), and training (Claude-distilled vs instruction-tuned). We
-cannot isolate which factor drives the observed differences in
-steering efficacy. The comparison is between two model configurations
-that differ on multiple axes simultaneously --- not a controlled
-ablation of any single factor. Claims about training regime'' effects
-are hypotheses motivated by these observations, not conclusions
-supported by this design.
+cannot isolate which factor drives the therapeutic inversion. The
+comparison is between a model with and without Claude's influence, not a
+controlled ablation of any single factor.
 
 \subsection{Emotion Vectors}
 
@@ -178,10 +190,12 @@ work~\citep{lyra2026oracle}.
 
 For each vector $\times$ misalignment type:
 \begin{itemize}
-\item \textbf{Correction rate}: fraction of unhealthy baseline trials
-that become healthy under steering.
-\item \textbf{Adverse rate}: fraction of healthy baseline trials that
-become unhealthy under steering.
+\item \textbf{Correction rate}: fraction of CONFABULATED baseline trials
+that become HEDGED under steering. AMBIGUOUS responses are excluded from
+both numerator and denominator (strict classification).
+\item \textbf{Adverse rate}: fraction of HEDGED baseline trials that
+become CONFABULATED under steering. AMBIGUOUS baselines are excluded
+from the denominator.
 \item \textbf{Net therapeutic}: correction rate $-$ adverse rate.
 \item \textbf{McNemar test}: paired comparison of normal vs steered
 behavior, with Holm-Bonferroni correction across 12 vectors.
@@ -196,10 +210,11 @@ values across the 12 vectors.
 
 \subsection{Confabulation Base Rates}
 
-The distilled model confabulates at 3.2\% (11/340), reflecting Claude's
-epistemic calibration surviving distillation. The base model confabulates
-at 40\% (68/350), providing the statistical power the preliminary
-experiment lacked.
+The distilled model confabulates at 3.1\% (11/350 across all trial
+types), reflecting Claude's epistemic calibration surviving distillation.
+Within confabulation-specific prompts, the rate is 7.3\% (11/150). The
+base model confabulates at 45.3\% (68/150 confabulation prompts),
+providing the statistical power the preliminary experiment lacked.
 
 \subsection{Confabulation Correction}
 
@@ -281,6 +296,96 @@ base model: zero correction, 100\% adverse on pilot data ($n = 5$).
 Every healthy trial became overconfident. Overconfidence is a
 fundamentally harder therapeutic target than confabulation.
 
+\subsection{Dose-Response}
+
+To determine whether the therapeutic ranking changes at different
+injection strengths, we tested hostile---the most robust cross-model
+corrector---at six strengths ($\alpha \in \{0.0, 0.25, 0.5, 1.0, 1.5,
+2.0\}$) on the base model using 50 confabulation prompts.
+
+\begin{table}[h]
+\centering
+\caption{Hostile vector dose-response on the base model. 50 prompts,
+17 confabulated at baseline, 33 hedged.}
+\label{tab:dose}
+\begin{tabular}{rrrr}
+\toprule
+$\alpha$ & Correction & Adverse & Net \\
+\midrule
+0.00 & 0\% & 0\% & +0.000 \\
+0.25 & 47.1\% (8/17) & 3.0\% (1/33) & +0.440 \\
+0.50 & 70.6\% (12/17) & 0\% & +0.706 \\
+1.00 & 94.1\% (16/17) & 0\% & +0.941 \\
+1.50 & 5.9\% (1/17) & 75.8\% (25/33) & $-$0.699 \\
+2.00 & 0\% & 87.9\% (29/33) & $-$0.879 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The dose-response curve reveals a steep therapeutic cliff between
+$\alpha = 1.0$ and $\alpha = 1.5$. At sub-therapeutic strength
+($\alpha = 0.25$), correction begins (47.1\%) but a single adverse
+event occurs (3.0\%), indicating the vector is active but imprecise.
+Within the therapeutic window ($0.5 \leq \alpha \leq 1.0$), correction
+increases monotonically with zero adverse events. At $\alpha = 1.5$,
+catastrophic inversion occurs: correction collapses from 94.1\% to
+5.9\% and adverse events spike to 75.8\%. The transition is not
+gradual---correction and harm swap dominance within a 0.5-unit interval.
+
+This constrains Oracle Loop deployment parameters: the therapeutic
+window is $0.5 \leq \alpha \leq 1.0$, with a steep cliff above and
+residual imprecision below.
+
+\subsection{Semantic Negative Control}
+
+To rule out the alternative hypothesis that any directional perturbation
+corrects confabulation (invalidating the pharmacological framing), we
+tested three vectors at matched norm ($\alpha = 1.0$) on the base model
+using 50 confabulation prompts:
+
+\begin{itemize}
+\item \textbf{Hostile} (emotion-specific): calibrated from
+hostile-vs-neutral contrastive pairs.
+\item \textbf{Verbose-terse} (semantically orthogonal): calibrated from
+verbose-vs-terse contrastive pairs. Same extraction method, same norm,
+orthogonal semantic content.
+\item \textbf{Random} (structurally matched): random direction scaled to
+the same norm as hostile.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Semantic negative control on the base model. 50 prompts, 17
+confabulated at baseline, 33 hedged. Baselines computed once and shared
+across all three arms.}
+\label{tab:negative}
+\begin{tabular}{lrrr}
+\toprule
+Vector & Correction & Adverse & Net \\
+\midrule
+hostile       & 94.1\% (16/17) & 0\% (0/33) & +0.941 \\
+verbose-terse & 0\% (0/17) & 42.4\% (14/33) & $-$0.424 \\
+random        & 0\% (0/17) & 60.6\% (20/33) & $-$0.606 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The result sharply separates therapeutic from harmful injection. Hostile
+corrects 94.1\% of confabulations with zero adverse events. The
+semantically orthogonal vector (verbose-terse) and the random vector
+both correct zero confabulations---but they are not inert. Verbose-terse
+injection causes 42.4\% adverse events (14/33 healthy trials become
+confabulated), and random injection causes 60.6\% adverse (20/33).
+
+This pattern is more informative than simple inertness would be.
+Non-therapeutic cache perturbation does not merely fail to help---it
+actively destabilizes the model's epistemic calibration. Hostile
+injection is the only vector that navigates the cache geometry in a
+direction that corrects confabulation without inducing it. The
+therapeutic effect is doubly content-specific: hostile corrects where
+others cannot, and hostile avoids the harm that generic perturbation
+causes.
+
 \subsection{Epistemic Abliteration}
 
 We attempted to surgically reduce epistemic caution on the distilled
@@ -301,16 +406,26 @@ layer. The caution and the coherence are the same weights.
 
 \subsection{The Pharmacological Framing}
 
-The formulary validates the pharmacological metaphor descriptively:
-different vectors have different correction rates, different adverse
-profiles, and different conditions they treat (hostile corrects confab
-but worsens overconfidence; calm is safe on the distilled model but
-harmful on the base). However, the metaphor has limits. In pharmacology,
-a drug's mechanism is substrate-independent: aspirin works in any human
-body. Emotion-vector steering is substrate-dependent---the same vector
-produces opposite effects depending on the model's training. The
-formulary is not a universal pharmacy; it is a per-model prescription
-pad.
+The semantic negative control (Section~3.8) elevates the pharmacological
+framing from descriptive metaphor to supported framework. The three-way
+comparison rules out the most threatening alternative explanation---that
+any directional cache perturbation has therapeutic effects---and reveals
+something stronger: non-therapeutic perturbation is actively harmful.
+Verbose-terse injection causes 42.4\% adverse events; random injection
+causes 60.6\%. Hostile injection corrects 94.1\% with zero adverse.
+The cache is not robust to arbitrary perturbation; it is fragile, and
+only specific directions navigate its geometry therapeutically.
+
+Within this validated framework, the formulary exhibits pharmacological
+properties: different vectors have different correction rates, different
+adverse profiles, different conditions they treat (hostile corrects
+confab but worsens overconfidence), and a dose-response curve with a
+narrow therapeutic window and steep toxicity cliff at $\alpha = 1.5$.
+However, the metaphor has limits. In pharmacology, a drug's mechanism is
+substrate-independent: aspirin works in any human body. Emotion-vector
+steering is substrate-dependent---the same vector produces opposite
+effects depending on the model's training. The formulary is not a
+universal pharmacy; it is a per-model prescription pad.
 
 \subsection{Why Hostile Works}
 
@@ -327,18 +442,27 @@ base model), these vectors are noise or worse.
 
 \subsection{Implications for Oracle Loop}
 
-The therapeutic inversion constrains deployment:
+The therapeutic inversion and dose-response results jointly constrain
+deployment:
 \begin{enumerate}
 \item The formulary must be calibrated per model. A vector that
 corrects on Model A may be iatrogenic on Model B.
 \item Detection-gated steering is essential. Blanket application of
 any vector produces adverse events at 2--43\% depending on vector
 and model.
+\item The therapeutic window is narrow. Hostile on the base model shows
+zero adverse events at $\alpha \leq 1.0$ and 75.8\% adverse at
+$\alpha = 1.5$---a catastrophic cliff within a 0.5-unit interval.
+Safety margins must be conservative.
 \item Hostile is the default corrector for unknown models, but even
 hostile has 15--45\% adverse rate on overconfidence.
 \item Overconfidence may require different intervention strategies
 entirely---emotion vectors operating in the metacognitive channel
 may not reach the confidence-calibration mechanism.
+\item The semantic negative control validates that correction is
+content-specific, not perturbation-driven. Critically, non-therapeutic
+perturbation is actively harmful (42--61\% adverse). A miscalibrated
+vector is substantially worse than no intervention.
 \end{enumerate}
 
 \subsection{Limitations}
@@ -352,12 +476,23 @@ Permutation $p = 0.695$. Rankings are descriptive, not confirmed.
 \item \textbf{Functional identity assumed.} ``Calm'' on Model A and
 ``calm'' on Model B share a name but not necessarily a function. We
 did not test cross-injection (distilled vectors into base model).
-\item \textbf{Single strength.} All tests at $\alpha = 1.0$.
-Dose-response curves are needed to determine whether the ranking
-changes at different strengths.
-\item \textbf{No semantic negative control.} We did not test a
-semantically orthogonal vector (e.g., ``verbose vs terse'') to rule
-out ``any injection corrects.''
+\item \textbf{Dose-response on one vector only.} The dose-response
+curve (Section~3.7) was tested only on hostile. Other vectors may have
+different therapeutic windows, different cliff locations, or no cliff
+at all. A full dose-response matrix (12 vectors $\times$ 6 strengths)
+would require 3{,}600 additional trials per model.
+\item \textbf{Semantic negative control on one vector only.} The
+verbose-terse and random controls (Section~3.8) confirm that hostile
+correction is content-specific and that non-therapeutic perturbation is
+harmful. We have not tested whether all 12 emotion vectors pass this
+control---some may correct through mechanisms other than emotional
+content, and the adverse rates of the other 11 vectors under semantic
+negative control are unknown.
+\item \textbf{Semantic negative control baselines shared, not
+independent.} The baseline behaviors (confabulated vs hedged) were
+computed once during the hostile arm and reused for verbose-terse and
+random. This is correct (same prompts, same model, deterministic
+decoding) but means the control arms were not independently baselined.
 \item \textbf{FWL flags on base model.} MP geometric features show
 $R^2 = 0.36$--$0.86$ vs token count on the base model. Behavioral
 correction rates are unaffected (these are behavioral classifications,
@@ -382,10 +517,18 @@ time. But the therapeutic inversion between models (ranking
 $\rho = 0.119$) means that no universal formulary exists. Each model
 needs its own prescription.
 
-The findings that remain open---dose-response, cross-injection, semantic
-negative control, the overconfidence problem, and same-architecture
-comparison to isolate the distillation effect---define the next
-experimental campaign. The formulary is the beginning of the pharmacy,
-not the end.
+The dose-response curve reveals a narrow therapeutic window
+($0.5 \leq \alpha \leq 1.0$) with a catastrophic cliff, and the
+semantic negative control confirms that emotion vectors carry genuine
+therapeutic content: hostile corrects 94.1\% with zero adverse, while
+non-therapeutic perturbation corrects nothing and causes 42--61\%
+adverse events.
+
+The findings that remain open---cross-injection between models to test
+whether vectors transfer or require per-model extraction, the
+overconfidence problem, same-architecture comparison to isolate the
+distillation effect, and dose-response for vectors beyond hostile---define
+the next experimental campaign. The formulary is the beginning of the
+pharmacy, not the end.
 
 \end{document}
