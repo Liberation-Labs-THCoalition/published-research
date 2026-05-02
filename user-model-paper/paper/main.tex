@@ -365,8 +365,8 @@ Qwen2.5-7B-Instruct with greedy decoding, extracting delta features
 
 \subsubsection{Results}
 
-\textbf{Emotion-specific geometry survives implicit prompts.} K-means
-clustering ($k=30$) on delta features achieves ARI $= 1.000$ in both
+\textbf{Emotion-specific geometry survives implicit prompts.} Single-exemplar
+classification ($k=30$) on delta features achieves ARI $= 1.000$ in both
 implicit and explicit arms (permutation $p < 0.001$, 1000 shuffles).
 Each emotion produces a geometrically distinct state even when the
 emotion word is absent from the prompt.
@@ -389,13 +389,13 @@ label.
 
 \textbf{Implicit features are compressed.} The implicit arm produces
 approximately half the geometric variance of the explicit arm (variance
-ratio $\approx 0.5$ across all features), suggesting a more constrained
+ratio $\approx 0.5$ across all features), suggesting a more attenuated
 representational space for inferred versus labeled emotions.
 
 \subsubsection{Interpretation: Mode-Dependent Emotion Processing}
 
 The zero correlation between implicit and explicit geometry is not
-evidence against emotion recognition---it is evidence for
+evidence against emotion recognition---it is consistent with the hypothesis of
 \textbf{mode-dependent emotion processing}. The model arrives at
 emotion-relevant representations through two distinct pathways: lexical
 recognition (explicit label $\to$ concept) and empathic inference
@@ -413,7 +413,7 @@ context versus direct label recognition.
 The 63\% rate at which the model spontaneously generates the target
 emotion word during implicit trials is itself evidence of emotion
 inference: the model reads a narrative about embodied experience and
-independently arrives at the correct emotion label. Whether this
+arrives at the correct emotion label in the majority of trials. Whether this
 inference occurs during encoding or emerges during generation---and
 whether the geometric trajectory toward the emotion word is consistent
 across narratives---is the subject of a forthcoming companion study
