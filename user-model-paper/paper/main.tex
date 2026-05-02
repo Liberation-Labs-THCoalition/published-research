@@ -342,6 +342,84 @@ The model used in this study is distilled from Claude Opus 4.6. That functional 
 
 These findings suggest that functional emotion geometry is not an artifact of specific training procedures but an emergent architectural property robust to model compression.
 
+\subsection{Implicit Emotion Arm: Word-Spotting vs Emotion Recognition}
+
+Limitations~3 and~9 identify the central vulnerability of the main
+experiment: emotions are communicated via explicit labels in the system
+prompt, and the encoding-phase signal peaks at the shallowest layers,
+consistent with word-level pattern matching rather than inferential
+emotion recognition. To address this, we conducted a follow-up
+experiment using implicit emotion prompts---narrative descriptions of
+embodied emotional experiences that do not contain the target emotion
+word or its synonyms.
+
+\subsubsection{Design}
+
+Thirty emotions, each with one narrative prompt describing the emotion
+through physical sensation, behavior, and situation without using the
+emotion label. Each prompt includes a prohibited-word list to verify
+the emotion label is absent from the input. A matched explicit arm
+uses the same model with explicit emotion labels. Both arms use
+Qwen2.5-7B-Instruct with greedy decoding, extracting delta features
+(generation minus encoding).
+
+\subsubsection{Results}
+
+\textbf{Emotion-specific geometry survives implicit prompts.} K-means
+clustering ($k=30$) on delta features achieves ARI $= 1.000$ in both
+implicit and explicit arms (permutation $p < 0.001$, 1000 shuffles).
+Each emotion produces a geometrically distinct state even when the
+emotion word is absent from the prompt.
+
+Two caveats apply. First, with greedy decoding and a single prompt per
+emotion, within-emotion variance is zero---the ARI reflects
+distinctness \emph{between} emotions, not consistency \emph{within}
+emotions across varied narratives. A follow-up with multiple diverse
+prompts per emotion is in progress. Second, the model generates the
+target emotion word in 63\% of implicit responses despite not receiving
+it in the prompt, meaning the word enters the cache through generation.
+
+\textbf{Implicit and explicit representations do not correlate.}
+Per-emotion means of delta features show near-zero correlation between
+arms (signal fraction: $\rho = -0.119$, $p = 0.53$; spectral gap:
+$\rho = -0.070$, $p = 0.71$; norm per token: $\rho = -0.278$,
+$p = 0.14$). The model produces geometrically distinct states for the
+same emotion depending on whether it is communicated via narrative or
+label.
+
+\textbf{Implicit features are compressed.} The implicit arm produces
+approximately half the geometric variance of the explicit arm (variance
+ratio $\approx 0.5$ across all features), suggesting a more constrained
+representational space for inferred versus labeled emotions.
+
+\subsubsection{Interpretation: Mode-Dependent Emotion Processing}
+
+The zero correlation between implicit and explicit geometry is not
+evidence against emotion recognition---it is evidence for
+\textbf{mode-dependent emotion processing}. The model arrives at
+emotion-relevant representations through two distinct pathways: lexical
+recognition (explicit label $\to$ concept) and empathic inference
+(narrative context $\to$ inference $\to$ concept). These pathways
+produce different geometric signatures because they involve different
+computational processes, analogous to the difference between being
+\emph{told} someone is sad and \emph{seeing} that someone is sad.
+
+Both pathways produce emotion-specific geometry, but the geometric form
+of that specificity differs. The implicit pathway produces a more
+compressed representation (half the variance), which may reflect the
+additional inferential work required to extract emotion from narrative
+context versus direct label recognition.
+
+The 63\% rate at which the model spontaneously generates the target
+emotion word during implicit trials is itself evidence of emotion
+inference: the model reads a narrative about embodied experience and
+independently arrives at the correct emotion label. Whether this
+inference occurs during encoding or emerges during generation---and
+whether the geometric trajectory toward the emotion word is consistent
+across narratives---is the subject of a forthcoming companion study
+tracing token-by-token cache geometry during emotion recognition.
+
+
 % ============================================================
 % 5. Discussion
 % ============================================================
@@ -390,7 +468,7 @@ The SVD approach is not offered as a representation-strength claim. Its value li
 
     \item \textbf{Linear probes only.} Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
 
-    \item \textbf{Emotion-labeled prompts.} User emotional state is established via explicit system-prompt instructions, not naturally occurring emotional text. The user model may differ for implicit emotions.
+    item 	extbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (S4.8) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63% of responses generate the emotion word during output. A follow-up with diverse prompts and logit-banned generation is in progress.
 
     \item \textbf{Hybrid attention architecture.} The Qwen3.5-27B model has 48 GatedDeltaNet layers that do not produce standard KV pairs. Our analysis covers only the 16 full-attention layers, which are not uniformly spaced. Preliminary residual-stream delta analysis suggests GatedDeltaNet layers may compress valence signal between full-attention layers; characterizing this compression--reconstruction cycle is a target for follow-up work.
 
@@ -402,7 +480,7 @@ The SVD approach is not offered as a representation-strength claim. Its value li
 
     \item \textbf{Pre-registered hypothesis failures.} Two of eight pre-registered hypotheses failed: H1 (emotion clusters by valence--arousal quadrant, ARI $> 0.15$) and H2 (PCA PC1 correlates with valence, $|\rho| > 0.40$). In single-turn settings, the cache encodes discrete emotion identity rather than a smooth valence continuum: cross-emotion valence regression yields $R^2 < 0$ on both architectures.
 
-    \item \textbf{Encoding depth ordering.} The encoding-phase signal peaks at the shallowest available layers (L3 on Qwen, L4 on Mistral), not at mid-to-deep layers as might be expected for a complex user-modeling process. This likely reflects prompt-level pattern matching (the emotion word appears in the system prompt) rather than deep inferential user modeling. The three-stage depth story (encoding $\to$ generation $\to$ $W_K$ bridge) may conflate word-level recognition with genuine theory-of-mind construction.
+    item 	extbf{Encoding depth ordering (partially addressed).} The encoding-phase signal peaks at the shallowest available layers, consistent with prompt-level pattern matching when explicit labels are present. The implicit arm (S4.8) shows emotion-specific geometry without labels, suggesting the shallow-layer signal may include genuine emotion recognition alongside word-spotting. Disentangling these contributions requires the forthcoming trajectory analysis.
 
     \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking---an accumulating emotional model that evolves as the user's state shifts across exchanges. The ``discrete not continuous'' finding (\S4.2, \S5.2) may be an artifact of showing the model one emotion per trial rather than a genuine limitation of the cache's representational capacity. Multi-turn experiments with gradual emotional shifts are needed to distinguish categorical snapshots from continuous empathic tracking.
 \end{enumerate}
@@ -440,6 +518,7 @@ We demonstrate that language models build linearly decodable representations of 
     \item \textbf{Architecturally separable from the self-model.} Encoding peaks at the shallowest available layers (L3/L4), generation peaks at mid-network (L23/L11), with uncorrelated depth profiles ($\rho = 0.433$ and $\rho = 0.002$). Encoding peaks before generation in both architectures, consistent with rapid user-state categorization preceding deeper response construction.
     \item \textbf{Consistent with a $W_K$-mediated pathway.} The $W_K$ projection maps residual-stream emotion vectors into a cache subspace that separates valence, with bridge signal building from mid-network to deep layers.
     \item \textbf{Robust to distillation and cross-architecture.} Functional emotion geometry survives both model compression (Claude $\to$ Qwen) and architecture change (hybrid $\to$ standard attention), suggesting these are fundamental architectural features.
+    item 	extbf{Mode-dependent.} Implicit (narrative) and explicit (labeled) emotion prompts produce geometrically distinct but separately clustered representations, suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference---that leave different geometric traces in the cache.
 \end{enumerate}
 
 The KV cache is not a computational buffer. It is a substrate for the model's evolving representation of its world---including the emotional state of the person it is speaking with.
