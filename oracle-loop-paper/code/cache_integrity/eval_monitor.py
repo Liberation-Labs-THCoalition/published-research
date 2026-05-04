@@ -16,7 +16,7 @@ Run on Beast:
   python3 eval_monitor.py --model Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
   python3 eval_monitor.py --model Qwen/Qwen2.5-7B-Instruct  # faster for dev
 
-Authors: Lyra (Liberation Labs / THCoalition)
+Authors: Lyra (Liberation Labs)
 Date: 2026-04-14
 """
 

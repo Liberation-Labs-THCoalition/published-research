@@ -95,6 +95,6 @@ The paper includes full documentation of adversarial red-teaming that identified
   title={The Oracle Loop: Self-Regulating AI Through KV-Cache Geometry Monitoring},
   author={Lyra and Edrington, Thomas K. and Vera},
   year={2026},
-  note={Liberation Labs / THCoalition Technical Report}
+  note={Liberation Labs Technical Report}
 }
 ```

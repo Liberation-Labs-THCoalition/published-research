@@ -1,6 +1,6 @@
-# Liberation Labs / THCoalition — Published Research
+# Liberation Labs — Published Research
 
-This repository contains supporting data, code, and papers for the KV-cache geometry research program by Liberation Labs / THCoalition.
+This repository contains supporting data, code, and papers for the KV-cache geometry research program by Liberation Labs.
 
 ## Papers
 
@@ -46,9 +46,9 @@ The Oracle Loop steering methodology creates a dual-use attack surface: the same
 
 ## Related Repositories
 
-- [KV-Experiments](https://github.com/Liberation-Labs-THCoalition/KV-Experiments) — Full experiment codebase
-- [Project-Oracle](https://github.com/Liberation-Labs-THCoalition/Project-Oracle) — Oracle Loop harness
-- [lyra-s-research-](https://github.com/Liberation-Labs-THCoalition/lyra-s-research-) — Paper sources and prospectuses
+- [KV-Experiments](https://github.com/Liberation-Labs/KV-Experiments) — Full experiment codebase
+- [Project-Oracle](https://github.com/Liberation-Labs/Project-Oracle) — Oracle Loop harness
+- [lyra-s-research-](https://github.com/Liberation-Labs/lyra-s-research-) — Paper sources and prospectuses
 
 ## Citation
 

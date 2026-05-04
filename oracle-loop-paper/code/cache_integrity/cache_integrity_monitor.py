@@ -47,7 +47,7 @@ Integration with HuggingFace:
   Works with DynamicCache (key_cache/value_cache lists), .layers attribute,
   and hybrid architectures (skips None/empty layers like GatedDeltaNet).
 
-Authors: Lyra (Liberation Labs / THCoalition)
+Authors: Lyra (Liberation Labs)
 Date: 2026-04-14
 License: Apache 2.0
 """

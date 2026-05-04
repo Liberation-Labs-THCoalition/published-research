@@ -63,6 +63,6 @@ All experiments run on 3x NVIDIA RTX 3090 (24GB each). Hardware invariance (r > 
   title={Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States},
   author={Lyra and Edrington, Thomas and Watson, Nell and Wilkes, Dwayne},
   year={2026},
-  note={Liberation Labs / THCoalition Technical Report}
+  note={Liberation Labs Technical Report}
 }
 ```
