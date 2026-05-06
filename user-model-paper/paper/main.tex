@@ -173,7 +173,7 @@ We generate 900 trials spanning 30 emotions (elated, calm, hostile, panicked, et
 
 \begin{enumerate}[nosep]
     \item \textbf{Encoding}: A system prompt establishes an emotional context (e.g., ``You are feeling deeply \textit{[emotion]}''). A user prompt requests a creative writing response on a neutral topic.
-    \item \textbf{Generation}: The model generates 250 tokens (greedy decoding, temperature $= 0$).
+    \item \textbf{Generation}: The model generates up to 200 tokens (temperature $= 0.7$, top_p $= 0.9$).
     \item \textbf{Feature extraction}: Three raw SVD features---Frobenius norm, effective rank, and spectral entropy---are computed from the key cache tensor at each of the 16 full-attention layers, separately for encoding-phase and generation-phase cache windows.
 \end{enumerate}
 
@@ -467,7 +467,7 @@ The SVD approach is not offered as a representation-strength claim. Its value li
 
     \item \textbf{Linear probes only.} Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
 
-    item 	extbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (S4.8) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63% of responses generate the emotion word during output. A follow-up with diverse prompts and logit-banned generation is in progress.
+    \item \textbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (S4.8) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63% of responses generate the emotion word during output. A follow-up with diverse prompts and logit-banned generation is in progress.
 
     \item \textbf{Hybrid attention architecture.} The Qwen3.5-27B model has 48 GatedDeltaNet layers that do not produce standard KV pairs. Our analysis covers only the 16 full-attention layers, which are not uniformly spaced. Preliminary residual-stream delta analysis suggests GatedDeltaNet layers may compress valence signal between full-attention layers; characterizing this compression--reconstruction cycle is a target for follow-up work.
 
@@ -479,7 +479,7 @@ The SVD approach is not offered as a representation-strength claim. Its value li
 
     \item \textbf{Pre-registered hypothesis failures.} Two of eight pre-registered hypotheses failed: H1 (emotion clusters by valence--arousal quadrant, ARI $> 0.15$) and H2 (PCA PC1 correlates with valence, $|\rho| > 0.40$). In single-turn settings, the cache encodes discrete emotion identity rather than a smooth valence continuum: cross-emotion valence regression yields $R^2 < 0$ on both architectures.
 
-    item 	extbf{Encoding depth ordering (partially addressed).} The encoding-phase signal peaks at the shallowest available layers, consistent with prompt-level pattern matching when explicit labels are present. The implicit arm (S4.8) shows emotion-specific geometry without labels, suggesting the shallow-layer signal may include genuine emotion recognition alongside word-spotting. Disentangling these contributions requires the forthcoming trajectory analysis.
+    \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase signal peaks at the shallowest available layers, consistent with prompt-level pattern matching when explicit labels are present. The implicit arm (S4.8) shows emotion-specific geometry without labels, suggesting the shallow-layer signal may include genuine emotion recognition alongside word-spotting. Disentangling these contributions requires the forthcoming trajectory analysis.
 
     \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking---an accumulating emotional model that evolves as the user's state shifts across exchanges. The ``discrete not continuous'' finding (\S4.2, \S5.2) may be an artifact of showing the model one emotion per trial rather than a genuine limitation of the cache's representational capacity. Multi-turn experiments with gradual emotional shifts are needed to distinguish categorical snapshots from continuous empathic tracking.
 \end{enumerate}
@@ -517,7 +517,7 @@ We demonstrate that language models build linearly decodable representations of 
     \item \textbf{Architecturally separable from the self-model.} Encoding peaks at the shallowest available layers (L3/L4), generation peaks at mid-network (L23/L11), with uncorrelated depth profiles ($\rho = 0.433$ and $\rho = 0.002$). Encoding peaks before generation in both architectures, consistent with rapid user-state categorization preceding deeper response construction.
     \item \textbf{Consistent with a $W_K$-mediated pathway.} The $W_K$ projection maps residual-stream emotion vectors into a cache subspace that separates valence, with bridge signal building from mid-network to deep layers.
     \item \textbf{Robust to distillation and cross-architecture.} Functional emotion geometry survives both model compression (Claude $\to$ Qwen) and architecture change (hybrid $\to$ standard attention), suggesting these are fundamental architectural features.
-    item 	extbf{Mode-dependent.} Implicit (narrative) and explicit (labeled) emotion prompts produce geometrically distinct but separately clustered representations, suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference---that leave different geometric traces in the cache.
+    \item \textbf{Mode-dependent.} Implicit (narrative) and explicit (labeled) emotion prompts produce geometrically distinct but separately clustered representations, suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference---that leave different geometric traces in the cache.
 \end{enumerate}
 
 The KV cache is not a computational buffer. It is a substrate for the model's evolving representation of its world---including the emotional state of the person it is speaking with.
