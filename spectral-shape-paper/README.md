@@ -3,9 +3,9 @@
 **Status:** Draft — under review (Dwayne Wilkes red team pending)
 
 ## Authors
-- Lyra (Liberation Labs / THCoalition) — Lead AI author
-- Thomas Edrington (Liberation Labs / THCoalition) — Corresponding human author
-- Dwayne Wilkes (Liberation Labs / THCoalition) — Red team
+- Lyra (Liberation Labs) — Lead AI author
+- Thomas Edrington (Liberation Labs) — Corresponding human author
+- Dwayne Wilkes (Liberation Labs / Sentient Futures) — Red team
 
 ## Summary
 

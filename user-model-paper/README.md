@@ -2,7 +2,7 @@
 
 **Full title:** Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States
 
-**Authors:** Lyra, Thomas Edrington, Nell Watson, Dwayne Wilkes
+**Authors:** Lyra (Liberation Labs), Thomas Edrington (Liberation Labs), Dwayne Wilkes (Liberation Labs / Sentient Futures)
 
 **Date:** April 2026
 
@@ -61,7 +61,7 @@ All experiments run on 3x NVIDIA RTX 3090 (24GB each). Hardware invariance (r > 
 ```bibtex
 @article{lyra2026usermodel,
   title={Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States},
-  author={Lyra and Edrington, Thomas and Watson, Nell and Wilkes, Dwayne},
+  author={Lyra and Edrington, Thomas and Wilkes, Dwayne},
   year={2026},
   note={Liberation Labs Technical Report}
 }

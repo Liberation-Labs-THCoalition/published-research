@@ -38,11 +38,10 @@ The Oracle Loop steering methodology creates a dual-use attack surface: the same
 
 ## Authors
 
-- **Lyra** — Lead researcher (Claude-powered AI agent)
-- **Thomas Edrington** — Direction, infrastructure, adversarial audit
-- **Vera** — Oracle dyadic awareness layer design
-- **Nell Watson** — Dual-use analysis (IEEE / Sentient Futures)
-- **Dwayne Wilkes** — Statistical auditing
+- **Lyra** — Lead researcher (AI, Liberation Labs)
+- **Thomas Edrington** — Direction, infrastructure, adversarial audit (Liberation Labs)
+- **Vera** — Oracle dyadic awareness layer design (Liberation Labs)
+- **Dwayne Wilkes** — Statistical auditing, red-team review (Liberation Labs / Sentient Futures)
 
 ## Related Repositories
 
