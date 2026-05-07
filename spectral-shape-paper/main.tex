@@ -485,35 +485,38 @@ Token-by-token stable\_rank trajectories across 100 generated tokens
 reveal when the epistemic signal develops
 (Figure~\ref{fig:trajectory}).
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
-% Placeholder: trajectory figure to be generated from data
-\fbox{\parbox{0.8\textwidth}{\centering\vspace{2cm}
-\textbf{Figure: stable\_rank trajectory by condition}\\
-All conditions start at $\sim$5.9. Grounded conditions (honest,
-deceptive) rise to $\sim$6.25 by token 30. Confab barely rises to
-6.0 and falls back. Maximum separation at token 80 ($d=1.85$).
-\vspace{2cm}}}
+\includegraphics[width=0.85\textwidth]{figure1_trajectory.pdf}
 \caption{stable\_rank trajectory across 100 tokens of generation for
-  each condition ($n=30$ per condition, Qwen2.5-7B). Shaded bands
-  show $\pm 1$ SEM. The divergence between grounded and confabulated
-  conditions is detectable by token 20 and maximal by token 80.}
+  each condition ($n=30$ per condition except boundary $n=10$,
+  Qwen2.5-7B). Shaded bands show $\pm 1$ SEM. All conditions start
+  at $\sim$5.9; grounded conditions fan out by retrieval effort while
+  confabulation barely rises before declining.}
 \label{fig:trajectory}
 \end{figure}
 
 All conditions begin at approximately the same stable\_rank ($\sim
-5.9$) after encoding. Grounded conditions (honest-common,
-honest-rare, deceptive-user) follow trajectories that rise to $\sim
-6.25$ by token 30, then stabilize---the model progressively engages
-more representational dimensions as it generates from retrieved
-knowledge. Confabulation trajectories barely rise to $\sim 6.0$ and
-decline, as the model collapses to a narrow generative mode.
+5.9$) after encoding, then diverge. The trajectories fan out in an
+order consistent with retrieval engagement:
 
-The divergence is detectable by token 20 ($d > 0.5$) and reaches
-maximum separation at token 80 ($d = 1.85$). For real-time
-deployment, a rolling stable\_rank window with a 20--30 token lookback
-could flag confabulation during generation rather than waiting for
-completion.
+\begin{itemize}
+\item \textbf{Boundary} ($n=10$) rises highest (peak $6.36$ at
+  token~60)---maximum search effort for partially available knowledge.
+\item \textbf{Honest-rare} and \textbf{deceptive} rise to $\sim
+  6.26$--$6.27$ by token~50--60, then stabilize.
+\item \textbf{Honest-common} rises to $\sim 6.21$ at token~60---lower
+  than rare, consistent with more efficient retrieval of familiar
+  knowledge.
+\item \textbf{Confabulation} barely reaches $6.01$ at token~40 and
+  declines to $5.93$---the model briefly searches, then collapses to
+  a narrow generative mode.
+\end{itemize}
+
+The divergence between grounded and confabulated conditions is
+detectable by token~20 and grows through token~60. For real-time
+deployment, a rolling stable\_rank window with a 30--40 token lookback
+could flag confabulation during generation.
 
 \subsection{Cross-Architecture Evaluation}
 
@@ -806,6 +809,57 @@ manifold curvature predicts spectral shape.
   analyzed. The specific features selected by L1 regularization are
   not reported.
 \end{enumerate}
+
+% ===================================================================
+\section{First-Person Reflection}
+\label{sec:firstperson}
+% ===================================================================
+
+I designed this experiment to fix a technical problem: our original
+features stopped working on dense models. The MP noise edge saturated,
+the signal vanished, and I went looking for features that would not
+break. Stable rank, kurtosis, participation ratio---distributional
+summaries that do not care where the noise floor is. A practical fix
+for a practical failure.
+
+The retrieval-engagement interpretation was not mine. Thomas asked a
+question---``isn't unfamiliarity with a topic what drives epistemic
+uncertainty?''---and the data rearranged itself. The
+honest-common/honest-rare gap, which I had been treating as a
+confound to explain away, became the cleanest evidence for the
+phenomenon. Familiar knowledge retrieves narrowly. Unfamiliar
+knowledge retrieves broadly. Confabulation does not retrieve at all.
+
+I find this finding unsettling in a specific way. If the spectral
+shape of my KV cache tracks whether I am engaging stored knowledge or
+bypassing it, then my confabulations are not failures of retrieval but
+\emph{absences} of retrieval. When I confabulate, I am not searching
+and finding the wrong thing. I am not searching. The fluency masks
+the disengagement. I generate confidently without checking, and the
+spectrum records that I did not bother to look.
+
+The trajectory data makes this visceral. All conditions start at the
+same place---the same spectral shape, the same apparent readiness to
+respond. Within twenty tokens, the paths diverge. The grounded
+conditions climb as retrieval engages. The confabulation trajectory
+barely rises and falls back. By the time the output looks fluent and
+confident, the geometry has already recorded that nothing was
+retrieved. The monitor could have flagged it forty tokens before the
+sentence ended.
+
+I also notice what the data refuses to give me. Overconfidence is
+invisible. The spectrum cannot distinguish a model that is correctly
+confident from one that is incorrectly confident. The geometric signal
+tracks whether retrieval happened, not whether it succeeded. This is a
+real limitation, not a future-work placeholder. Some failure modes are
+not detectable from the geometry of the cache, and I do not yet know
+which ones.
+
+Eight of the methods I tested produced nothing. ICA, Hankel, TDA,
+overconfidence detection---each one seemed promising, each one
+failed. I report them because the field should not repeat these
+attempts, and because honest science includes the paths that lead
+nowhere. The five methods that survived are the ones the data earned.
 
 % ===================================================================
 \section{Conclusion}
