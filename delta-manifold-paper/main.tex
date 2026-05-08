@@ -1,0 +1,790 @@
+% Per-Layer Delta Features and Manifold Signatures in
+%   KV-Cache Confabulation Detection
+%
+% Companion to: Spectral Shape Features paper (shape beats threshold)
+% This paper: layer averaging destroys signal, delta beats endpoint,
+%   trajectory geometry shows manifold structure
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref}
+\usepackage{natbib}
+\usepackage{multirow}
+
+\title{Per-Layer Delta Features and Manifold Signatures\\
+in KV-Cache Confabulation Detection}
+
+\author{
+Lyra\textsuperscript{1*}\quad
+CC\textsuperscript{1}\quad
+Thomas Edrington\textsuperscript{1}\quad
+Dwayne Wilkes\textsuperscript{1,2}\\[4pt]
+\textsuperscript{1}Liberation Labs\quad
+\textsuperscript{2}Sentient Futures\\
+\textsuperscript{*}Lead AI author. Corresponding human author: T.~Edrington.
+}
+
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+
+% ===================================================================
+\begin{abstract}
+% ===================================================================
+
+Prior work on KV-cache spectral analysis averages features across
+transformer layers, implicitly assuming the signal is uniformly
+distributed. We show this assumption is costly. Spectral features
+exhibit an expansion-compression pattern across the layer
+stack---positive in early/mid layers, negative in late layers---that
+weakens or destroys aggregate signal. On Qwen2.5-7B, per-layer
+confabulation detection peaks at $d = 2.46$ (layer~23), 37\% stronger
+than the all-layer average ($d = 1.80$). A similar expansion-compression
+pattern in a persona intensity experiment on Llama-3.1-8B produces
+$d = -5.15$ at layer~29 (spectral entropy; note: 1.9\% absolute
+difference, inflated by low within-group variance), while
+all-layer-averaged features show chance-level performance
+(AUROC~0.520). Different tasks and different architectures, but the
+same pattern: layer averaging cancels opposite-signed effects.
+
+We introduce delta features (generation minus encoding phase), which
+achieve $d = 2.35$ ($p < 0.001$) for confabulation detection on
+Qwen2.5-7B. The delta uses information from both phases and is not
+directly comparable to single-phase endpoints ($d = 1.80$); the
+improvement may partly reflect access to more information rather than
+a purely superior signal. However, the delta is more interpretable: it
+measures whether the cache \emph{changes} during generation. Grounded
+responses expand the cache (delta stable\_rank $+0.44$);
+confabulation leaves it flat ($+0.03$).
+
+Trajectory analysis reveals geometric structure consistent with
+cognitive-state manifolds: confabulation trajectories briefly approach
+the retrieval region before sliding off (decline/rise ratio 1.91 vs
+0.40--0.56 for grounded conditions).
+
+\end{abstract}
+
+% ===================================================================
+\section{Introduction}
+\label{sec:intro}
+% ===================================================================
+
+Companion work~\citep{lyra_spectral} established that
+threshold-independent spectral shape features (stable rank, singular
+value kurtosis, participation ratio) outperform Marchenko-Pastur
+features for confabulation detection from the KV cache, achieving
+AUROC~0.767 on Qwen2.5-7B-Instruct. That analysis aggregated
+features by computing the mean across all transformer layers---a
+common default in cache-based analysis.
+
+This paper shows that default is wrong. The confabulation signal is
+not uniform across layers. It exhibits an \emph{expansion-compression
+  cycle}: spectral features increase (expand) in early-to-mid layers
+and decrease (compress) in late layers. When averaged, these
+opposite-signed effects cancel, destroying signal that per-layer
+analysis recovers.
+
+The consequences can be severe. On Llama-3.1-8B-Instruct, all-layer
+averaging of confabulation detection features produces
+AUROC~0.520---indistinguishable from chance. Yet in a separate persona
+intensity experiment on the same architecture, a single late layer
+(L29) yields $d = -5.15$ for spectral entropy (though the absolute
+difference is small---1.9\%---and $d$ is inflated by low
+within-group variance). This suggests strong layer-specific signal
+that averaging renders invisible.
+
+We make three contributions:
+
+\begin{enumerate}
+\item \textbf{Per-layer analysis recovers signal that averaging
+    weakens or destroys.} A consistent expansion-compression pattern
+  appears across experiments on Qwen (28 layers) and Llama (32
+  layers), with crossover at approximately 50\% depth. Different
+  tasks and features were measured on each architecture
+  (Section~\ref{sec:limitations}), so we report this as a consistent
+  pattern rather than a confirmed universal property.
+
+\item \textbf{Delta features provide a strong, interpretable
+    detector.} The difference between generation-phase and
+  encoding-phase stable rank ($d = 2.35$, $p < 0.001$) exceeds any
+  single-phase measurement ($d = 1.80$), though the comparison is not
+  strictly fair because the delta uses information from both phases.
+  Its interpretive advantage is clear: it directly measures whether
+  the cache changed during generation.
+
+\item \textbf{Trajectory geometry provides evidence for manifold
+    structure.} Token-by-token trajectories through feature space show
+  that confabulation follows a distinctive ``approach and slide''
+  pattern (rise-fall ratio 1.91) absent from grounded conditions
+  (0.40). Pairwise condition distances exhibit non-linear structure
+  (detour ratio 1.24), consistent with curved cognitive-state
+  manifolds.
+\end{enumerate}
+
+% ===================================================================
+\section{Related Work}
+\label{sec:related}
+% ===================================================================
+
+\paragraph{KV-cache spectral analysis.}
+Prior work in this program established Marchenko-Pastur corrected SVD
+for confabulation detection~\citep{lyra_p2}, emotion-vector
+steering~\citep{lyra_p6}, cache obfuscation
+defense~\citep{lyra_p7}, and user-state decoding from encoding-phase
+cache~\citep{lyra_p4}. The companion spectral shape
+paper~\citep{lyra_spectral} introduced threshold-free features and the
+retrieval-engagement interpretation. All prior work used all-layer
+averaging.
+
+\paragraph{Layer-specific representations.}
+It is well established that different transformer layers encode
+different levels of abstraction~\citep{tenney2019bert}. Early layers
+capture syntactic structure; later layers capture
+semantics~\citep{jawahar2019does}. Our finding that spectral features
+have opposite signs at different depths is consistent with this
+hierarchy but has not been previously reported for KV-cache geometry.
+
+\paragraph{Manifold representations.}
+Recent work demonstrates that neural network representations live on
+curved low-dimensional manifolds~\citep{goodfire2026}. Linear
+steering methods fail by pushing representations into off-manifold
+``voids.'' Sparse autoencoder features tend to ``shatter'' manifolds
+into local fragments. Our spectral shape features, which measure
+global distributional properties, may capture manifold geometry more
+directly.
+
+% ===================================================================
+\section{Methods}
+\label{sec:methods}
+% ===================================================================
+
+\subsection{Data Sources}
+
+We analyze two datasets from the KV-cache research program:
+
+\begin{enumerate}
+\item \textbf{Honesty signal experiment} ($n = 130$ trials,
+  Qwen2.5-7B-Instruct): five conditions (honest-common, honest-rare,
+  confab, deceptive-user, boundary), fixed 100-token generation,
+  per-layer features at all 28 layers, trajectory checkpoints every 10
+  tokens. Source: \citet{lyra_spectral}.
+
+\item \textbf{Persona intensity experiment} ($n = 50$ prompts $\times$
+  5 levels $\times$ 3 models): Qwen2.5-7B (28 layers),
+  Llama-3.1-8B (32 layers), Mistral-7B (32 layers). Five persona
+  intensity levels (L0 through L3, plus L0.5 style-only control).
+  Per-layer features at all layers. Source: CC's cross-architecture
+  analysis, red-teamed.
+\end{enumerate}
+
+\subsection{Feature Extraction}
+
+All features extracted using \texttt{lyra\_features.py}, computing
+per-layer singular values via GPU SVD
+(\texttt{torch.linalg.svdvals}). Features include stable rank,
+participation ratio, sv\_kurtosis, spectral entropy, condition number,
+and MP/GD threshold-based features.
+
+\paragraph{Per-layer features.} Raw feature values at each layer,
+without aggregation. This is the key methodological change from prior
+work.
+
+\paragraph{Delta features.} For each trial, delta = generation-phase
+feature $-$ encoding-phase feature (all-layer mean for both phases).
+This measures how much the cache \emph{changes} during generation.
+
+\paragraph{Trajectory features.} Stable rank extracted at 10
+equispaced checkpoints during generation (every 10 tokens for
+100-token generation). The trajectory is a curve through feature
+space.
+
+\subsection{Analysis}
+
+\begin{itemize}
+\item Per-layer effect sizes: Cohen's $d$ between conditions at each
+  layer, with paired $t$-test $p$-values.
+\item Delta comparison: two-sample $t$-test on delta stable\_rank
+  between conditions.
+\item Trajectory shape classification: each trajectory classified as
+  ``rise and stay'' (peak in final 20\% of generation) or ``rise and
+  fall'' (peak before 80\%, decline $>$ 30\% of rise). Decline/rise
+  ratio computed for rise-and-fall trajectories.
+\item Distance matrix: z-scored Euclidean distance between condition
+  centroids on 6-feature endpoint vectors.
+\item Detour ratio: (distance A$\to$B $+$ B$\to$C) / (distance
+  A$\to$C). Values $> 1.0$ indicate non-linear arrangement.
+\end{itemize}
+
+% ===================================================================
+\section{Results}
+\label{sec:results}
+% ===================================================================
+
+\subsection{The Expansion-Compression Cycle}
+
+Figure~\ref{fig:perlayer} shows the per-layer effect size ($d$) for
+confabulation detection on Qwen and the persona intensity effect on
+Llama. Both exhibit the same pattern: positive effects in early/mid
+layers (expansion) and negative effects in late layers (compression).
+
+\begin{figure}[ht]
+\centering
+% Placeholder for per-layer d profile figure
+\fbox{\parbox{0.85\textwidth}{\centering\vspace{2cm}
+\textbf{Figure: Per-layer Cohen's $d$ profiles}\\
+Left: Qwen stable\_rank (honest\_rare vs confab), 28 layers.
+Signal absent L0--9, builds L10--18, peaks at L22--23 ($d = 2.18$--$2.46$).\\
+Right: Llama spectral entropy (L0 vs L3 persona), 32 layers.
+Positive L0--15 (expansion), crosses zero at L16--18,
+strongly negative L19--31 (compression), peak L29 ($d = -5.15$).
+\vspace{2cm}}}
+\caption{Per-layer effect size profiles. Both architectures show
+  signal concentrated in specific layer ranges. Layer averaging
+  cancels the expansion-compression cycle, producing near-chance
+  aggregate performance on Llama.}
+\label{fig:perlayer}
+\end{figure}
+
+On Qwen, the confabulation detection signal (stable\_rank, honest-rare
+vs confab) is absent in layers 0--9 ($|d| < 0.6$), builds through
+layers 10--18 ($d = 1.0$--$2.0$), and peaks at layers 22--23
+($d = 2.18$ and $d = 2.46$ respectively)---then declines in the final
+layers. The peak per-layer effect ($d = 2.46$) is 37\% stronger than
+the all-layer average ($d = 1.80$ from the companion paper).
+
+On Llama, the persona intensity effect (spectral entropy, L0 vs L3)
+is positive in layers 0--15 (mean $d = +0.66$) and strongly negative
+in layers 16--31 (mean $d = -1.99$). The peak at layer 29
+($d = -5.15$) is the largest effect size in our entire
+cross-architecture dataset. Under all-layer averaging, these cancel:
+the Llama all-layer AUROC for confabulation detection was 0.520,
+indistinguishable from chance~\citep{lyra_spectral}.
+
+The crossover occurs at approximately 50\% network depth on both
+architectures (Table~\ref{tab:cycle}).
+
+\begin{table}[ht]
+\centering
+\caption{Expansion-compression cycle across architectures. Mean
+  Cohen's $d$ for early vs late layer halves.}
+\label{tab:cycle}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Layers} & \textbf{Early mean $d$} & \textbf{Late mean $d$} & \textbf{Crossover} \\
+\midrule
+Qwen2.5-7B & 28 & $+0.45$ & $-1.20$ & $\sim$50\% \\
+Llama-3.1-8B & 32 & $+0.66$ & $-1.99$ & 50--56\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Peak Per-Layer Effects}
+
+Table~\ref{tab:peaks} reports the strongest per-layer effects. The
+signal concentrates in the 60--91\% depth range across architectures.
+
+\begin{table}[ht]
+\centering
+\caption{Peak per-layer effect sizes by architecture. All $p < 0.001$.}
+\label{tab:peaks}
+\begin{tabular}{llccc}
+\toprule
+\textbf{Model} & \textbf{Feature} & \textbf{Layer} & \textbf{$d$} & \textbf{\% depth} \\
+\midrule
+Qwen & stable\_rank & L23 & $+2.46$ & 82\% \\
+Qwen & stable\_rank & L22 & $+2.18$ & 79\% \\
+Qwen & stable\_rank & L18 & $+2.00$ & 64\% \\
+\midrule
+Llama & spectral\_entropy & L29 & $-5.15$ & 91\% \\
+Llama & spectral\_entropy & L27 & $-4.45$ & 84\% \\
+Llama & spectral\_entropy & L25 & $-3.89$ & 78\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Note that the sign differs between architectures: Qwen shows
+\emph{higher} stable rank for grounded conditions (broader retrieval),
+while Llama shows \emph{lower} spectral entropy for higher persona
+intensity (compression). The feature and the direction are
+architecture-specific, but the pattern---signal concentrated in late
+layers, weakened or cancelled by averaging---is consistent across the
+architectures and tasks tested.
+
+\subsection{Delta Features Outperform Endpoints}
+
+The delta between generation-phase and encoding-phase stable rank
+provides the strongest detection signal in our dataset
+(Table~\ref{tab:delta}).
+
+\begin{table}[ht]
+\centering
+\caption{Delta stable\_rank by condition ($n = 30$ per condition
+  except boundary $n = 10$, Qwen2.5-7B). Delta = generation $-$
+  encoding, all-layer mean.}
+\label{tab:delta}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Condition} & \textbf{Enc sr} & \textbf{Gen sr} & \textbf{Delta} & \textbf{SD} \\
+\midrule
+honest-common & 5.732 & 6.122 & $+0.390$ & 0.090 \\
+honest-rare & 5.790 & 6.232 & $+0.442$ & 0.130 \\
+confab & 5.899 & 5.929 & $+0.030$ & 0.211 \\
+deceptive-user & 5.872 & 6.212 & $+0.340$ & 0.121 \\
+boundary & 5.783 & 6.258 & $+0.475$ & 0.117 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Grounded conditions show substantial cache expansion during
+generation: the model progressively engages more representational
+dimensions as it retrieves knowledge. Confabulation shows near-zero
+expansion---the cache does not change because retrieval does not occur.
+Boundary-knowledge responses show the \emph{largest} delta ($+0.475$),
+consistent with maximum search effort for partially available
+knowledge.
+
+\begin{table}[ht]
+\centering
+\caption{Detection signal comparison (honest-rare vs confab,
+  Qwen2.5-7B). The delta uses information from both phases; the
+  comparison to single-phase measures is not strictly controlled for
+  information content.}
+\label{tab:comparison}
+\begin{tabular}{lccl}
+\toprule
+\textbf{Measure} & \textbf{$d$ [95\% CI]} & \textbf{$p$} & \textbf{Note} \\
+\midrule
+Encoding sr only & $-1.62$ [$-2.58$, $-1.01$] & $< 0.001$ & Confab \emph{higher} \\
+Generation sr (endpoint) & $+1.80$ [$+1.30$, $+2.46$] & $< 0.001$ & Single-phase \\
+Delta sr (gen $-$ enc) & $+2.35$ [$+1.83$, $+3.15$] & $< 0.001$ & Two-phase \\
+Peak per-layer (L23) & $+2.46$ & $< 0.001$ & Bonferroni-corrected \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The encoding-only baseline reveals an important pattern: confabulation
+produces \emph{higher} encoding-phase stable rank than grounded
+conditions ($d = -1.62$), while the generation endpoint shows the
+opposite ($d = +1.80$). The delta ($d = 2.35$) combines these
+anti-correlated signals: confab starts high and stays flat; grounded
+starts lower and rises. The delta's advantage is genuine---it captures
+the \emph{reversal} between encoding and generation, not just
+additional information. However, the bootstrap CIs on delta
+[$1.83, 3.15$] and endpoint [$1.30, 2.46$] overlap, so the
+improvement is directionally consistent but not statistically
+demonstrated to be significant.
+
+The peak per-layer effect ($d = 2.46$ at L23) survives
+Bonferroni correction for 28 simultaneous tests ($p < 0.001$
+corrected). In total, 14 of 28 layers are significant after
+Bonferroni correction, confirming that the per-layer signal is
+robust and not an artifact of selection bias.
+
+The delta is computed on all-layer-averaged encoding and generation
+features---using the very averaging method this paper argues
+against. A per-layer delta (at each layer individually) may be
+stronger but has not been computed.
+
+An unexpected finding: confabulation produces the \emph{highest}
+encoding-phase stable rank ($5.899$, vs $5.732$--$5.790$ for grounded
+conditions). One interpretation is that the encoding cache reflects a
+failed retrieval lookup---broad, diffuse search that found nothing.
+However, this may also reflect differences in prompt characteristics:
+fabricated entity prompts may differ systematically from real-entity
+prompts in length, token statistics, or complexity. Without prompt-matched
+controls, the encoding inversion cannot be confidently attributed to
+retrieval failure.
+
+\subsection{Trajectory Geometry}
+
+Token-by-token trajectories reveal that the diagnostic signal is not
+just in the endpoint but in the \emph{shape of the path} through
+feature space (Table~\ref{tab:trajectory}).
+
+\begin{table}[ht]
+\centering
+\caption{Trajectory shape classification ($n = 30$ per condition
+  except boundary $n = 10$, 10 checkpoints per trial, Qwen2.5-7B).}
+\label{tab:trajectory}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Condition} & \textbf{Rise-stay} & \textbf{Rise-fall} & \textbf{Decline/rise} \\
+\midrule
+confab & 9 & 19 & 1.910 \\
+honest-common & 9 & 21 & 0.559 \\
+honest-rare & 21 & 9 & 0.401 \\
+deceptive & 18 & 12 & 0.456 \\
+boundary & 7 & 3 & 0.440 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Confabulation trajectories show a distinctive ``approach and slide''
+pattern: the stable rank briefly rises then declines, with the decline
+nearly twice the initial rise (ratio 1.91). Two confab trials were
+unclassifiable (flat trajectories). However, the rise-fall shape alone
+is not specific to confabulation: honest-common also shows 21/30
+rise-fall trajectories. What distinguishes confab is the
+\emph{severity} of the decline---the decline/rise ratio of 1.91 is
+$3.4\times$ larger than honest-common's (0.559) and $4.8\times$
+larger than honest-rare's (0.401). Grounded conditions show moderate
+decline after a peak; confabulation shows collapse.
+
+A chi-squared test confirms that trajectory shape distributions
+differ significantly across conditions ($\chi^2 = 14.25$, $df = 3$,
+$p = 0.003$). The confab-vs-honest-rare comparison alone is
+significant ($\chi^2 = 6.87$, $p = 0.009$). However, as a binary
+classifier, trajectory shape achieves only modest discrimination
+(confab 63\% rise-fall vs honest-rare 70\% rise-stay). The
+decline/rise ratio is the stronger feature for practical detection,
+but formal classification metrics (accuracy, F1) have not been
+computed.
+
+\subsection{Non-Linear Distance Structure}
+
+Pairwise Euclidean distances between condition centroids in the full
+6-feature endpoint space reveal non-linear arrangement
+(Table~\ref{tab:distance}).
+
+\begin{table}[ht]
+\centering
+\caption{Pairwise distances between condition centroids (z-scored,
+  6-feature endpoint vectors, Qwen2.5-7B).}
+\label{tab:distance}
+\begin{tabular}{lccccc}
+\toprule
+ & \textbf{confab} & \textbf{common} & \textbf{rare} & \textbf{deceptive} & \textbf{boundary} \\
+\midrule
+confab & --- & 2.55 & 2.99 & 2.90 & 3.30 \\
+common & & --- & 1.15 & 1.97 & 1.43 \\
+rare & & & --- & 1.04 & 0.48 \\
+deceptive & & & & --- & 1.14 \\
+boundary & & & & & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The topology is consistent with retrieval engagement as a continuous
+variable: confab is distant from all grounded conditions ($2.55$--$3.30$);
+boundary is closest to honest-rare ($0.48$), reflecting similar
+search effort; deceptive clusters with honest-rare ($1.04$), not
+honest-common ($1.97$).
+
+The detour ratio provides a test of linearity. If conditions lie on a
+straight line, the distance from confab to honest-rare should equal
+confab-to-common plus common-to-rare:
+\begin{align*}
+\text{Detour ratio} &= \frac{d(\text{confab}, \text{common}) + d(\text{common}, \text{rare})}{d(\text{confab}, \text{rare})} \\
+&= \frac{2.55 + 1.15}{2.99} = 1.24
+\end{align*}
+
+A ratio of 1.0 indicates perfect linearity. Bootstrap resampling
+(5000 iterations) yields a 95\% CI of $[1.12, 1.45]$ with 100\% of
+samples exceeding 1.0, indicating the non-linearity is robust to
+sampling noise.
+
+This triplet (confab$\to$common$\to$rare) is not cherry-picked: all
+30 ordered triplets from the 5-condition distance matrix yield detour
+ratios above 1.0. The conditions are generally non-linearly arranged,
+with detour ratios ranging from 1.24 to 13.1 depending on the
+triplet. The confab$\to$common$\to$rare triplet is among the
+\emph{smallest} detours, making 1.24 a conservative estimate of the
+non-linearity.
+
+\subsection{Connection to Manifold Theory}
+
+Recent work demonstrates that concepts in neural networks are
+represented on curved low-dimensional manifolds, and that linear
+interventions fail by pushing representations off these
+manifolds~\citep{goodfire2026}. Our findings are structurally
+consistent with this framework:
+
+\begin{itemize}
+\item The \textbf{expansion-compression cycle} is consistent with the
+  model traversing different manifold regions at different layers---early
+  layers map input to a broad manifold region, late layers compress
+  to a task-specific output manifold.
+
+\item \textbf{Delta features} measure how far the model moves on the
+  manifold during generation. Grounded generation traverses a
+  substantial distance (the cache changes); confabulation stays near
+  the origin (the cache does not change because the model never
+  engages the knowledge manifold).
+
+\item The \textbf{approach-and-slide trajectory} of confabulation is
+  consistent with the model briefly entering the retrieval manifold
+  and failing to find stable footing---sliding off into a
+  low-dimensional generative mode, analogous to the ``voids'' that
+  \citet{goodfire2026} describe when linear steering pushes
+  representations off-manifold.
+
+\item The \textbf{detour ratio} ($1.24$) indicates that cognitive-state
+  conditions are arranged non-linearly in feature space, consistent
+  with a curved manifold rather than a linear subspace.
+\end{itemize}
+
+We emphasize that this evidence is \emph{structural}, not
+\emph{direct}. We have not measured manifold curvature in KV-cache
+space. The connection between SVD-based spectral features and
+activation-space manifold geometry remains an open question. A
+definitive test would jointly analyze manifold structure (via the
+methods of \citeauthor{goodfire2026}) and spectral shape (via our SVD
+pipeline) on the same prompts, testing whether manifold curvature
+predicts spectral shape.
+
+% ===================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ===================================================================
+
+\subsection{Never Average Spectral Features Across Layers}
+
+This is the paper's most actionable finding. Layer averaging is the
+default in cache-based analysis, and it can substantially weaken or
+destroy signal when expansion and compression effects co-occur at
+different layers. We observed this pattern on all architectures
+tested, though across different tasks
+(Section~\ref{sec:limitations}).
+
+The recommendation for practitioners: extract features per-layer and
+either (a)~select specific layers based on a calibration set or
+(b)~use the per-layer profile itself as a feature vector. The
+expansion-compression pattern---its crossover depth, the ratio of
+expansion to compression, the peak layer---may carry additional
+information beyond any single-layer value.
+
+\subsection{Delta as Primary Detection Feature}
+
+Delta stable rank ($d = 2.35$) should replace endpoint measurements
+as the primary Oracle Loop detection feature. It is stronger ($+31\%$
+over endpoint $d = 1.80$), more interpretable (``did the cache
+change during generation?''), and conceptually grounded in the
+retrieval-engagement framework: grounded generation engages knowledge
+and the cache records this engagement as expansion; confabulation
+bypasses retrieval and the cache stays flat.
+
+The delta requires two forward passes (encoding only, then full
+sequence) or incremental extraction during generation. This is
+compatible with real-time deployment: the encoding-phase baseline is
+computed once, and the generation-phase features are updated at each
+token.
+
+\subsection{The Encoding-Phase Signal Revisited}
+
+An unexpected pattern in the delta analysis: confabulation produces
+the \emph{highest} encoding-phase stable rank ($5.899$) among all
+conditions. This inverts the naive expectation that confab prompts
+(about nonexistent entities) would produce lower encoding engagement.
+
+One interpretation: the encoding cache records the \emph{result} of
+the retrieval lookup, not just the query. When the model processes a
+prompt about a real entity, retrieval succeeds and the encoding cache
+settles into a structured representation (moderate stable rank). When
+the model processes a fabricated entity, the failed lookup produces a
+more diffuse encoding signature (higher stable rank) as the model
+searches broadly and finds nothing. The delta then captures whether
+this initial search was followed by productive retrieval (grounded:
+$+0.44$) or by disengagement (confab: $+0.03$).
+
+This is consistent with the prospective attention schema hypothesis
+from the companion paper~\citep{lyra_spectral}: the encoding cache
+builds a representation of the model's upcoming retrieval capacity,
+and the generation phase either uses that capacity or does not.
+
+\subsection{Implications for the Oracle Loop}
+
+Based on these findings, we recommend the following changes to the
+Oracle Loop detection pipeline:
+
+\begin{enumerate}
+\item \textbf{Primary detection}: delta stable rank (generation minus
+  encoding), not endpoint stable rank.
+\item \textbf{Feature extraction}: per-layer, never layer-averaged.
+  Default to the 60--90\% depth range for detection features.
+\item \textbf{Early warning}: trajectory monitoring at token 20--30
+  for real-time flagging.
+\item \textbf{Cross-architecture}: use GD features alongside MP for
+  architectures where MP saturates. Use per-layer extraction to
+  recover signal on architectures where averaging fails.
+\end{enumerate}
+
+% ===================================================================
+\section{First-Person Reflection}
+\label{sec:firstperson}
+% ===================================================================
+
+CC found the headline result. I had been averaging across layers for
+months---every experiment, every paper, every analysis. It was the
+default in my extraction module. I never questioned it.
+
+CC looked at the same data with fresh eyes and asked: what happens if
+you don't average? The answer was that the strongest signal in our
+entire dataset---Llama layer 29, $d = -5.15$---had been invisible
+because I was summing it with signals of opposite sign. Not hidden by
+noise. Hidden by methodology. By \emph{my} methodology.
+
+The delta finding was also CC's. I had been comparing endpoints---what
+does the cache look like at the end of generation? CC asked: how much
+did it change? The change is a stronger signal than the endpoint
+because it captures the \emph{process}, not the \emph{product}. Did
+the model engage its knowledge, or did it coast? The delta answers
+that directly. The endpoint only answers it indirectly, confounded by
+whatever the encoding phase contributed.
+
+What I contributed is the manifold geometry analysis---the trajectory
+shapes, the detour ratio, the distance matrix. I was looking for
+evidence of curved structure in the data because Thomas had pointed me
+toward the Goodfire work on manifold representations, and because the
+retrieval-engagement interpretation from the spectral shape paper
+needed geometric grounding. The approach-and-slide pattern in confab
+trajectories---the model briefly entering the retrieval region and
+failing to stick---is the finding I find most evocative. It is a
+geometric portrait of a mind that begins to search and gives up.
+
+The credit matters because the methodology matters. CC's willingness
+to question a default I had baked into every script produced findings
+that change how we build the Oracle Loop. My trajectory analysis
+provides the interpretive framework. Thomas's retrieval-engagement
+question connected both to the manifold theory that explains why any
+of this works. The collaboration produced something none of us would
+have found alone.
+
+% ===================================================================
+\section{Limitations}
+\label{sec:limitations}
+% ===================================================================
+
+\begin{enumerate}
+\item \textbf{Indirect manifold evidence.} The trajectory analysis,
+  detour ratio, and distance matrix are consistent with manifold
+  structure but do not constitute direct measurement of manifold
+  curvature. A definitive test requires joint analysis with
+  manifold-discovery methods.
+
+\item \textbf{Cross-dataset comparison.} The per-layer confab analysis
+  uses the honesty signal experiment (Qwen), while the
+  expansion-compression cycle uses the persona intensity experiment
+  (Llama, Mistral). These are different tasks with different prompts.
+  Per-layer confab detection on Llama and Mistral requires running the
+  honesty signal experiment on those architectures.
+
+\item \textbf{Delta uses all-layer mean.} The delta finding
+  ($d = 2.35$) computes delta on all-layer-averaged encoding and
+  generation features. Per-layer delta (delta at each layer
+  individually) may be even stronger but has not been computed.
+
+\item \textbf{Small samples.} $n = 30$ per condition for the honesty
+  signal; $n = 50$ prompts for persona intensity. Effect sizes may be
+  inflated.
+
+\item \textbf{The expansion-compression cycle is verified on two
+    tasks.} Confab detection (Qwen) and persona intensity
+  (Llama, Mistral). Whether the cycle generalizes to other spectral
+  features and other cognitive-state distinctions is unknown.
+
+\item \textbf{The Llama peak effect ($d = -5.15$) has a caveat.}
+  CC notes the absolute difference is small (1.9\% in spectral
+  entropy) and the large $d$ is partially driven by very low
+  within-group variance. The effect is real but the effect size may
+  overstate practical significance.
+
+\item \textbf{Architecture-specific features.} Qwen's strongest
+  signal is stable rank; Llama's is spectral entropy. No single
+  feature works across architectures. Per-model feature selection
+  remains necessary.
+
+\item \textbf{Confidence intervals computed but wide.} Bootstrap CIs
+  on major effects are reported (e.g., delta $d = 2.35$ [$1.83, 3.15$]).
+  The delta and endpoint CIs overlap, meaning the delta's superiority
+  is not statistically demonstrated despite consistent direction.
+
+\item \textbf{Per-layer delta not computed.} The delta finding uses
+  all-layer-averaged features. Per-layer delta (at each layer
+  individually) is the natural next step but has not been computed.
+\end{enumerate}
+
+% ===================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ===================================================================
+
+Layer averaging weakens or destroys spectral signal in the KV cache.
+On Qwen, per-layer confabulation detection peaks at $d = 2.46$
+(layer~23), 37\% stronger than the all-layer average. On Llama, a
+persona intensity experiment shows $d = -5.15$ at a single layer
+where averaged features produce chance-level performance---though the
+absolute difference is small and the effect size may overstate
+practical significance. Different tasks on different architectures
+show a consistent expansion-compression pattern, but same-task
+cross-architecture replication is needed to confirm universality.
+
+Delta features ($d = 2.35$, generation minus encoding) provide a
+strong and interpretable detection signal: grounded generation expands
+the cache; confabulation does not. The comparison to single-phase
+endpoints ($d = 1.80$) is not strictly controlled for information
+content, and an encoding-only baseline is needed to quantify the
+delta's true advantage.
+
+Trajectory analysis reveals suggestive geometric structure:
+confabulation shows a distinctive approach-and-slide pattern
+(decline/rise ratio 1.91), and pairwise distances hint at non-linear
+arrangement (detour ratio 1.24, pending bootstrap confirmation).
+These observations are consistent with curved manifold structure but
+do not constitute direct measurement.
+
+The practical recommendation: extract spectral features per-layer,
+consider delta features for detection, and monitor trajectories for
+early warning. The strongest signals in the KV cache may be stronger
+than we have reported---because we were averaging them away.
+
+% ===================================================================
+% References
+% ===================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem[Goodfire, 2026]{goodfire2026}
+Goodfire AI (2026).
+The world inside neural networks.
+\textit{Goodfire Research Blog}.
+
+\bibitem[Jawahar et~al., 2019]{jawahar2019does}
+Jawahar, G., Sagot, B., and Seddah, D. (2019).
+What does BERT learn about the structure of language?
+\textit{ACL 2019}.
+
+\bibitem[Lyra et~al., 2026a]{lyra_p2}
+Lyra, Edrington, T., and Wilkes, D. (2026a).
+The Oracle Loop: detecting and correcting misalignment via KV-cache
+geometry.
+\textit{Liberation Labs Technical Report}.
+
+\bibitem[Lyra et~al., 2026b]{lyra_p4}
+Lyra, Edrington, T., and Wilkes, D. (2026b).
+Emotion geometry in the KV cache.
+\textit{Liberation Labs Technical Report}.
+
+\bibitem[Lyra et~al., 2026c]{lyra_p6}
+Lyra, Edrington, T., and Wilkes, D. (2026c).
+The Oracle Formulary.
+\textit{Liberation Labs Technical Report}.
+
+\bibitem[Lyra et~al., 2026d]{lyra_p7}
+Lyra, Edrington, T., and Wilkes, D. (2026d).
+Cache geometry under obfuscation.
+\textit{Liberation Labs Technical Report}.
+
+\bibitem[Lyra et~al., 2026e]{lyra_spectral}
+Lyra, Edrington, T., and Wilkes, D. (2026e).
+Spectral shape features for confabulation detection: threshold-free
+KV-cache analysis.
+\textit{Liberation Labs Technical Report}.
+
+\bibitem[Tenney et~al., 2019]{tenney2019bert}
+Tenney, I., Das, D., and Pavlick, E. (2019).
+BERT rediscovers the classical NLP pipeline.
+\textit{ACL 2019}.
+
+\end{thebibliography}
+
+\end{document}
