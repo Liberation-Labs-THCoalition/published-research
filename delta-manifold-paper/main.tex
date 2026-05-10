@@ -491,46 +491,71 @@ triplet. The confab$\to$common$\to$rare triplet is among the
 \emph{smallest} detours, making 1.24 a conservative estimate of the
 non-linearity.
 
-\subsection{Connection to Manifold Theory}
+\subsection{Trajectory Embedding Analysis}
+
+To test whether trajectories occupy a low-dimensional structure, we
+represented each trial as a 60-dimensional vector (10 checkpoints
+$\times$ 6 spectral features) and applied multiple embedding methods.
+
+\paragraph{The structure is real and low-dimensional.}
+$k$-NN classification in the embedded space achieves 56.2\% accuracy
+(5-fold CV) versus a permutation null of 21.5\% ($p < 0.0001$). PCA
+reveals intrinsic dimensionality of 6 at 90\% variance and 8 at 95\%,
+compared to a random-data baseline of $\sim$20---confirming genuine
+low-dimensional structure.
+
+\paragraph{The structure is predominantly linear.}
+PCA captures 80.7\% of variance in 3 components. Non-linear embedding
+methods (t-SNE, Isomap) outperform PCA when compressed to 2D (t-SNE
+0.662 vs PCA 0.562), but at matched dimensionality (5D), PCA achieves
+0.662---matching t-SNE. The non-linear advantage reflects compression
+efficiency, not fundamentally curved structure. The residual beyond
+the linear subspace is statistically significant ($p < 0.0001$,
+permutation test on PCA residuals) but carries less discriminative
+power than the linear component.
+
+\paragraph{Temporal structure contributes modestly.}
+Shuffling the checkpoint order within each trajectory (destroying
+temporal information while preserving feature distributions) reduces
+$k$-NN accuracy from 0.562 to 0.520 (PCA 2D). Approximately 75\% of
+the discriminative signal is in the feature values themselves, not in
+their temporal arrangement. The ``trajectory'' aspect provides
+incremental lift, not transformative insight.
+
+\paragraph{Trivial baselines.}
+Starting-checkpoint features alone (6D, no trajectory) achieve 0.592
+accuracy---comparable to the full 60D PCA-2D embedding (0.562). Most
+condition-discriminative information is available from early
+generation, consistent with the delta finding (Section~4.3) that
+encoding-phase features already predict confabulation.
+
+\subsection{Relationship to Manifold Theory}
 
 Recent work demonstrates that concepts in neural networks are
 represented on curved low-dimensional manifolds, and that linear
 interventions fail by pushing representations off these
-manifolds~\citep{goodfire2026}. Our findings are structurally
-consistent with this framework:
+manifolds~\citep{goodfire2026}. Our findings are partially consistent
+with this framework:
 
 \begin{itemize}
-\item The \textbf{expansion-compression cycle} is consistent with the
-  model traversing different manifold regions at different layers---early
-  layers map input to a broad manifold region, late layers compress
-  to a task-specific output manifold.
-
-\item \textbf{Delta features} measure how far the model moves on the
-  manifold during generation. Grounded generation traverses a
-  substantial distance (the cache changes); confabulation stays near
-  the origin (the cache does not change because the model never
-  engages the knowledge manifold).
-
+\item The data occupy a \textbf{low-dimensional subspace} (6D at 90\%
+  in a 60D ambient space), consistent with manifold structure.
+\item A statistically significant \textbf{non-linear residual} exists
+  beyond the linear subspace ($p < 0.0001$), consistent with curvature.
+\item The \textbf{detour ratio} ($1.24$, bootstrap CI $[1.12, 1.45]$)
+  indicates non-linear arrangement of condition centroids.
 \item The \textbf{approach-and-slide trajectory} of confabulation is
-  consistent with the model briefly entering the retrieval manifold
-  and failing to find stable footing---sliding off into a
-  low-dimensional generative mode, analogous to the ``voids'' that
-  \citet{goodfire2026} describe when linear steering pushes
-  representations off-manifold.
-
-\item The \textbf{detour ratio} ($1.24$) indicates that cognitive-state
-  conditions are arranged non-linearly in feature space, consistent
-  with a curved manifold rather than a linear subspace.
+  consistent with the model briefly engaging retrieval and disengaging.
 \end{itemize}
 
-We emphasize that this evidence is \emph{structural}, not
-\emph{direct}. We have not measured manifold curvature in KV-cache
-space. The connection between SVD-based spectral features and
-activation-space manifold geometry remains an open question. A
-definitive test would jointly analyze manifold structure (via the
-methods of \citeauthor{goodfire2026}) and spectral shape (via our SVD
-pipeline) on the same prompts, testing whether manifold curvature
-predicts spectral shape.
+However, the structure is predominantly linear (80.7\% of variance),
+and the non-linear component provides modest additional discriminative
+power. We describe this as \emph{evidence for low-dimensional
+non-linear structure consistent with manifold geometry}, not direct
+evidence for a manifold. Demonstrating manifold structure specifically
+would require local dimensionality analysis, tangent-space smoothness
+tests, or joint analysis with manifold-discovery methods such as
+those of \citet{goodfire2026}.
 
 % ===================================================================
 \section{Discussion}
@@ -725,12 +750,17 @@ endpoints ($d = 1.80$) is not strictly controlled for information
 content, and an encoding-only baseline is needed to quantify the
 delta's true advantage.
 
-Trajectory analysis reveals suggestive geometric structure:
-confabulation shows a distinctive approach-and-slide pattern
-(decline/rise ratio 1.91), and pairwise distances hint at non-linear
-arrangement (detour ratio 1.24, pending bootstrap confirmation).
-These observations are consistent with curved manifold structure but
-do not constitute direct measurement.
+Trajectory embedding analysis confirms that cognitive-state
+trajectories occupy a genuinely low-dimensional subspace (6D at 90\%
+variance in 60D ambient space, $p < 0.0001$). The structure is
+predominantly linear (80.7\%), with a statistically significant
+non-linear residual. Confabulation shows a distinctive
+approach-and-slide pattern (decline/rise ratio 1.91), and pairwise
+distances are non-linearly arranged (detour ratio 1.24, bootstrap CI
+$[1.12, 1.45]$). These observations are consistent with manifold
+structure but do not demonstrate it directly---the evidence supports
+low-dimensional non-linear structure, which is a necessary but not
+sufficient condition for a manifold.
 
 The practical recommendation: extract spectral features per-layer,
 consider delta features for detection, and monitor trajectories for
