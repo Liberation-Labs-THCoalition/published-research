@@ -12,7 +12,7 @@ a window into the model's processing mode.
 Our prior work \citep{lyra2026detecting} established that SVD of the
 flattened key matrix $K_l^{\text{flat}} \in \mathbb{R}^{(hT) \times d}$
 produces features that reliably distinguish behavioral modes across 7
-architectures (0.5B--70B parameters):
+architectures (0.6B--70B parameters):
 
 \begin{itemize}[nosep]
   \item \textbf{Effective rank} $\rho = \exp(H)$ where
@@ -87,7 +87,7 @@ empirically in \cref{sec:results}.
 
 \subsection{Activation Steering}
 
-Activation addition \citep{turner2023activation} modifies a model's
+Activation addition \citep{panickssery2023caa} modifies a model's
 behavior by injecting or suppressing learned directions in the residual
 stream during inference. Given a steering vector $v$ (typically computed
 as the mean difference between activation patterns for two contrasting

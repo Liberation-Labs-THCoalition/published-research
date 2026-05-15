@@ -163,7 +163,7 @@ Knowledge distillation \citep{hinton2015distilling} transfers capabilities from 
 
 \subsection{Model and Motivation}
 
-We use Qwen3.5-27B-Claude-Distilled,\footnote{Community distillation by ``Jackrong'' on HuggingFace, based on the Qwen3.5 architecture \citep{qwen2025distill}.} a 27B-parameter model distilled from Claude Opus 4.6. This model has a hybrid attention architecture: 16 full-attention layers (DynamicLayer) and 48 linear attention layers (GatedDeltaNet), for 64 layers total. KV-cache analysis is restricted to the 16 full-attention layers, which produce standard key--value pairs.
+We use Qwen3.5-27B-Claude-Distilled,\footnote{Community distillation by ``Jackrong'' on HuggingFace, ``Qwen3.5'' is the distiller's designation, not an official Alibaba release; the model is built on the Qwen3 architecture \citep{qwen2025distill}.} a 27B-parameter model distilled from Claude Opus 4.6. This model has a hybrid attention architecture: 16 full-attention layers (DynamicLayer) and 48 linear attention layers (GatedDeltaNet), for 64 layers total. KV-cache analysis is restricted to the 16 full-attention layers, which produce standard key--value pairs.
 
 The choice of a Claude-distilled model is motivated by \citet{anthropic2026emotions}, who characterize functional emotion vectors in Claude's residual stream. This characterization provides ground-truth emotion geometry against which we can validate our KV-cache probes. No comparable published emotion vector characterization exists for other model families.
 

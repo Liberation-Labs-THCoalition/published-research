@@ -14,7 +14,7 @@ model toward calibrated responses.
 On Qwen2.5-7B-Instruct, full-cache spectral gap distinguishes
 confabulation from hedged responses (AUROC~0.903, 95\% bootstrap CI:
 [0.806, 0.977]; FWL-corrected: 0.877; $R^2 = 0.068$ vs token count;
-$n = 7$ confabulations, $n = 87$ hedged, 4 ambiguous excluded), outperforming a text-only
+$n = 7$ confabulations, $n = 89$ hedged, 4 ambiguous excluded), outperforming a text-only
 surface-feature baseline (0.755; 96.7\% of bootstrap samples favor
 cache). Feature ablation identified this full-cache spectral signal as
 more robust than a generation-window leave-one-out classifier (0.758
@@ -26,7 +26,7 @@ dimension-invariant spectral features. Mistral-7B shows preliminary
 replication (AUROC~0.627, $p = 0.023$, not significant after Bonferroni
 correction); Llama-3.1-8B is excluded due to an encoding-phase data
 leak. These confabulation results build on established deception
-detection at AUROC~1.000 across seven model scales (0.5B--32B), with
+detection at AUROC~1.000 across seven model scales (0.6B--70B), with
 hardware invariance ($r > 0.999$) and scale invariance
 ($\rho = 0.83$--$0.90$), validated through 50+ experiments and an
 independent audit of 135 claims.

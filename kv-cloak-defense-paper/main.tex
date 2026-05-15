@@ -53,7 +53,7 @@ experiments across six models (50--100 prompts each), we find:
 model (Qwen3.5-27B), Marchenko-Pastur-corrected spectral gap
 distinguishes confabulation from hedged responses (AUROC~0.903, 95\%
 bootstrap CI [0.806, 0.977], $R^2=0.068$ vs token count; $n=7$
-confabulations, $n=87$ hedged). A text-only surface-feature baseline
+confabulations, $n=89$ hedged). A text-only surface-feature baseline
 achieves 0.755; cache geometry outperforms text in 96.7\% of bootstrap
 samples (delta 0.148, 95\% CI [$-$0.008, 0.322])---suggestive but not
 significant at the 95\% level. In a cross-architecture sweep
@@ -65,7 +65,7 @@ after Bonferroni correction for four comparisons.
 space.} Per-head orthogonal rotation---simulating KV-Cloak's reversible
 matrix obfuscation---produces a total distributional shift in MP
 features (cloaked-honest vs uncloaked-honest: Wilcoxon signed-rank
-$p = 5.5 \times 10^{-16}$, $n=87$ paired trials). A detector
+$p = 5.5 \times 10^{-16}$, $n=89$ paired trials). A detector
 calibrated on uncloaked caches cannot operate on cloaked caches.
 
 \item \textbf{Models are robust to random perturbation.} Magnitude-based
@@ -139,7 +139,7 @@ cache and its geometric properties.
 KV-cache geometry---specifically, Marchenko-Pastur-corrected spectral
 features derived from SVD of the key tensor---distinguishes cognitive
 states during autoregressive generation. Prior work reports within-model
-deception detection at AUROC~1.000 across seven model scales (0.5B--32B),
+deception detection at AUROC~1.000 across seven model scales (0.6B--70B),
 confabulation detection at 0.969--0.999, and hardware invariance
 ($r>0.999$ across RTX~3090 and H200). Contrastive activation addition
 (CAA) enables injection of emotion vectors into the cache to steer model
@@ -210,7 +210,7 @@ intervals.
 (Jackrong). Hybrid architecture, 16 full-attention + 48 GatedDeltaNet
 layers. 100 confab-inducing prompts; behavioral classification via the
 Oracle Formulary classifier (40+ hedge patterns). Yields $n=7$
-confabulations, $n=87$ hedged.
+confabulations, $n=89$ hedged.
 
 \item \textbf{Base}: Qwen2.5-7B-Instruct. Standard attention, 28
 layers. Same prompt set; yields $n=48$ confabulations, $n=52$ hedged.
@@ -231,7 +231,7 @@ length) without any cache information.
 
 On the distilled model, the MP-corrected spectral gap achieves
 AUROC~0.903 (95\% bootstrap CI: [0.806, 0.977]; FWL-corrected: 0.877,
-$R^2 = 0.068$ vs token count; $n=7$ confabulations, $n=87$ hedged)
+$R^2 = 0.068$ vs token count; $n=7$ confabulations, $n=89$ hedged)
 for confabulation detection using full-cache features. Signal rank
 also detects (0.755 [0.570, 0.914]); other features are at or near
 chance. The best text-only feature (average word length) achieves
@@ -253,7 +253,7 @@ calibration from these confounds.
 \subsection{Obfuscation Transforms the Feature Space}
 
 Per-head orthogonal rotation produces a complete distributional shift in
-MP features. On the distilled model ($n=87$ honest trials, paired):
+MP features. On the distilled model ($n=89$ honest trials, paired):
 
 \begin{itemize}
 \item Honest uncloaked spectral gap: $24.7 \pm 3.7$
@@ -339,7 +339,7 @@ simulation on the same 100 prompts (Table~\ref{tab:real_vs_sim}).
 \begin{table}[h]
 \centering
 \caption{Detection AUROC: uncloaked vs simulation vs real KV-Cloak
-(distilled model, $n=7$ confab, $n=87$ hedged). Bootstrap 95\% CIs.}
+(distilled model, $n=7$ confab, $n=89$ hedged). Bootstrap 95\% CIs.}
 \label{tab:real_vs_sim}
 \begin{tabular}{lrrr}
 \toprule
