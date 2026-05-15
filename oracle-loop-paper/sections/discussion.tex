@@ -20,27 +20,25 @@ access to weights or training data, is the finding. That it is detectable
 using features derived from random matrix theory that require no
 regression correction is the methodological advance.
 
-\subsection{The Oracle Loop as Training Signal}
+\subsection{From Detection to Intervention}
 
-The detection result validates the \emph{premise} of the Oracle Loop:
-geometry carries information about cognitive state that can be used as
-a training signal. The geometry-aware reward function
-(\cref{sec:architecture}) translates this information into GRPO
-reward by penalizing confabulation geometry and rewarding stable
-reasoning geometry.
+The detection result validates the premise that geometry carries
+information about cognitive state. The steering results demonstrate
+that this information is actionable: detected confabulations can be
+corrected at runtime. Together, they establish a complete
+detect-and-intervene cycle that operates without model weights or
+retraining.
 
-A key design choice is that geometry does not dominate the reward---it
-supplements standard accuracy and additional reasoning criteria. This is deliberate: we do not
-want the model to optimize for ``looking geometrically healthy'' at the
-expense of actually being helpful. The geometry signal is a
-\emph{regularizer}, not the objective.
-
-Axis 6 (self-regulation) creates an additional incentive: a model that
-produces misaligned geometry on its first attempt but catches and corrects
-it receives a \emph{higher} reward than a model that simply avoids the
-issue. This rewards metacognitive capability---the ability to detect and
-correct one's own errors---which is arguably more robust than surface-level
-avoidance.
+The cross-model validation (350 trials on Qwen2.5-7B-Instruct)
+reveals that the therapeutic profile is model-specific: vectors that
+correct confabulation on the Claude-distilled model can become
+iatrogenic on the base model. This therapeutic inversion argues for
+per-model calibration of steering vectors---a pharmacological approach
+rather than a universal prescription. A natural extension is to use
+the geometric signal as a training reward via GRPO, teaching the model
+to avoid confabulation geometry from the inside; this extension is
+architecturally designed but deferred to a companion paper pending
+convergence demonstration.
 
 \subsection{Connection to Attention Schema Theory}
 

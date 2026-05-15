@@ -102,17 +102,6 @@ reward hacking from 5\% to 70\%, while injecting ``calm'' suppresses
 blackmail from 22\% to 0\%. This establishes that activation steering can
 modulate the very behavioral modes our geometry detects.
 
-\subsection{GRPO Training}
-
-Group Relative Policy Optimization (GRPO) \citep{shao2024deepseekmath}
-generates multiple responses per prompt, scores them with a reward
-function, and updates the policy to favor higher-scoring responses relative
-to the group mean. Unlike RLHF, GRPO does not require a separate reward
-model---the reward function can be any computable signal.
-
-This is the critical insight for the Oracle Loop: if KV-cache geometry
-can score responses during inference (high geometry health $\to$ high
-reward, confabulation geometry $\to$ penalty), then GRPO can train the
-model to \emph{avoid producing confabulation geometry in the first place}.
-The geometric monitor becomes a training signal, and the model learns to
-self-regulate.
+% GRPO Training section deferred to companion paper on self-regulation training.
+% The geometric monitor as a training signal is architecturally designed
+% but not yet converged; see §Future Work.

@@ -49,11 +49,11 @@ automatically to its dimensions, eliminating the need for per-response
 length correction. Per-model classifier calibration is still required
 (see \cref{sec:results}).
 
-\subsection{From Monitoring to Self-Regulation}
+\subsection{From Monitoring to Intervention}
 
-Detection alone is a safety tool. Combined with activation steering
-and reinforcement learning, it becomes a self-regulation architecture.
-The Oracle Loop extends the monitoring approach into a complete cycle:
+Detection alone is a safety tool. Combined with activation steering,
+it becomes an intervention architecture.
+The Oracle Loop integrates detection and correction into a runtime cycle:
 
 \begin{enumerate}[nosep]
   \item \textbf{Detect}: Extract spectral features from the generation-phase
@@ -63,16 +63,16 @@ The Oracle Loop extends the monitoring approach into a complete cycle:
   \item \textbf{Steer}: On misalignment detection, roll back to the
     encoding-phase cache checkpoint and regenerate with activation
     addition.
-  \item \textbf{Train}: Feed geometry-derived rewards into GRPO training,
-    teaching the model to avoid confabulation geometry \emph{from the
-    inside}.
 \end{enumerate}
 
 Steps 1--2 are the safety monitor. Step 3 adds runtime correction.
-Step 4 is the training loop that makes the runtime monitor progressively
-less necessary. This paper focuses primarily on the monitor (Steps 1--2)
-and describes the full architecture (Steps 3--4) as future-facing work
-that is architecturally complete but not yet converged.
+This paper validates Steps 1--2 with a clean detection experiment
+across three architectures, and demonstrates Step 3 with proof-of-concept
+steering validated on two models (distilled and base) totaling 450 trials.
+A future extension incorporating geometry-aware GRPO training---teaching
+the model to avoid confabulation geometry from the inside---is
+architecturally designed but not yet converged, and is deferred to
+a companion paper.
 
 \subsection{Contributions}
 
@@ -88,9 +88,6 @@ This paper makes six contributions:
   \item \textbf{A clean detection experiment} with post-hoc behavioral
     classification, generation-only cache analysis, and a 14-control
     battery, across three architectures (\cref{sec:results}).
-  \item \textbf{The Oracle Loop architecture}: a self-regulation pipeline
-    combining validated detection and steering components with a
-    geometry-aware training design (\cref{sec:architecture}).
   \item \textbf{Proof-of-concept activation steering} with five arms
     (Normal, Null, Calm, Worry, Doubt), a null injection control
     verifying character-level identical output on all 100 trials, and
@@ -98,6 +95,10 @@ This paper makes six contributions:
     vectors---demonstrating that detection-gated correction works
     ($p = 0.031$) while blanket correction does not ($p = 0.36$)
     (\cref{sec:steering}).
+  \item \textbf{Cross-model steering validation} on Qwen2.5-7B-Instruct
+    (350 trials, 68 baseline confabulations), confirming hostile as a
+    near-universal corrector (95.6\%, McNemar $p < 0.001$) and revealing
+    therapeutic inversion across architectures (\cref{sec:steering}).
   \item \textbf{A Cache Integrity Monitor} that detects unauthorized
     KV-cache modifications against uniform additive perturbation with
     0/36 false positives (95\% CI: 0--10\%) and 72/72 true positives
