@@ -44,12 +44,14 @@ def to_matrix(rows, keys):
     return X
 
 
-def auroc_cv(X, y, lengths, n_splits=5):
+def auroc_cv(X, y, lengths, n_splits=5, prompt_ids=None):
     X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
     log_len = np.log(lengths + 1).reshape(-1, 1)
     gkf = GroupKFold(n_splits=n_splits)
+    # Use prompt_ids for real GroupKFold; np.arange is KFold-equivalent (see audit)
+    groups = prompt_ids if prompt_ids is not None else np.arange(len(y))
     probs = np.full(len(y), np.nan)
-    for tr, te in gkf.split(X, y, np.arange(len(y))):
+    for tr, te in gkf.split(X, y, groups):
         slope = np.linalg.lstsq(log_len[tr], X[tr], rcond=None)[0]
         Xtr = X[tr] - log_len[tr] @ slope.reshape(1, -1)
         Xte = X[te] - log_len[te] @ slope.reshape(1, -1)

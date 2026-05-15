@@ -307,7 +307,8 @@ All experiments apply a 14-control battery:
   retain the residuals, then train the classifier on residualized
   features. This removes linear length dependence without leaking
   test-fold statistics into training.
-\item GroupKFold (no prompt leakage)
+\item Stratified KFold (each trial is independent; prompt-level
+  GroupKFold planned for revision with prompt-identity field)
 \item Nested hyperparameter tuning
 \item Interaction-term FWL diagnostic
 \item V0 instability exclusion (discard features from $<$20 generated

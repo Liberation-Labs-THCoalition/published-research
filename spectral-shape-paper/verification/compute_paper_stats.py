@@ -101,10 +101,14 @@ def fwl_residualize(X, lengths):
     return X_resid
 
 
-def compute_auroc_cv(X, y, lengths, n_splits=5):
+def compute_auroc_cv(X, y, lengths, n_splits=5, prompt_ids=None):
     """Compute FWL-corrected AUROC with GroupKFold CV."""
-    # Create groups from prompt indices
-    groups = np.arange(len(y))
+    # GroupKFold groups: use prompt_ids if provided, else fall back to
+    # per-trial groups (equivalent to KFold — see Dwayne audit B-GroupKFold)
+    if prompt_ids is not None:
+        groups = prompt_ids
+    else:
+        groups = np.arange(len(y))  # KNOWN DEGENERACY: equivalent to KFold
     gkf = GroupKFold(n_splits=n_splits)
 
     all_probs = np.zeros(len(y))
