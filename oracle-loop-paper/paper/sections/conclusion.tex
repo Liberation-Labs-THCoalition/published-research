@@ -1,7 +1,6 @@
-We have presented the Oracle Loop, a complete architecture for runtime
-self-regulation in language models using KV-cache geometry as detection
-signal, steering input, and training reward---and demonstrated that two
-of its three components work.
+We have presented a detection-and-intervention architecture for runtime
+confabulation monitoring in language models, using KV-cache geometry as
+both detection signal and steering input.
 
 The detection experiment shows that Marchenko-Pastur corrected spectral
 features distinguish naturally-occurring hedged and confabulated responses
@@ -14,9 +13,13 @@ The steering experiment shows that detection-gated injection corrects
 confabulation on Qwen3.5-27B-Distilled, with graded efficacy across
 three emotion vectors: doubt (7/7, 100\%), worry (6/7, 86\%), calm
 (5/7, 71\%), while a null injection control produces identical output
-on all 100 trials. But blanket steering induces adverse confabulation
-in 3--5\% of hedged trials, confirming that detection is not
-optional---it is the prerequisite for safe correction.
+on all 100 trials. Cross-model validation on Qwen2.5-7B-Instruct
+(350 trials, 68 baseline confabulations) confirms hostile as a
+near-universal corrector (95.6\%, McNemar $p < 0.001$) and reveals
+therapeutic inversion: vectors therapeutic on the distilled model become
+iatrogenic on the base model. But blanket steering induces adverse
+confabulation in 3--5\% of hedged trials, confirming that detection is
+not optional---it is the prerequisite for safe correction.
 
 Three rounds of adversarial red-teaming identified and corrected critical
 methodological flaws, including a row-permutation invariance bug that would
@@ -37,13 +40,15 @@ inside the trust boundary (\cref{sec:kv_cloak}). We advocate that any
 deployment of cache-geometric monitoring include obfuscation as a
 mandatory companion: the pharmacy must be locked.
 
-The gap that remains is training. The Oracle Loop's detection signal is
-validated. Its steering mechanism is validated as proof-of-concept. Its
-attack surface is characterized and defended. The question now is whether
-GRPO training with geometric reward can produce a model that confabulates
-less because it has learned to recognize confabulation geometry from the
-inside. The architecture is ready. The signal is there. The next step is
-closing the loop.
+A natural extension is to use the geometric detection signal as a
+training reward via GRPO, teaching the model to avoid confabulation
+geometry from the inside. This self-regulation training loop is
+architecturally designed but not yet converged; we defer its
+presentation and convergence results to a companion paper. The
+detection signal is validated. The steering mechanism is validated.
+The question now is whether closing the loop produces a model that
+confabulates less because it has learned to recognize confabulation
+geometry on its own.
 
 \paragraph{Code and Data.}
 Detection experiment code, raw trial data, Cache Integrity Monitor

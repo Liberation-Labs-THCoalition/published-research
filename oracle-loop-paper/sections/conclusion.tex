@@ -1,62 +1,66 @@
-We have presented the Oracle Loop, a complete architecture for runtime
-self-regulation in language models using KV-cache geometry as detection
-signal, steering input, and training reward---and demonstrated that two
-of its three components work, with methodological refinements that
-sharpened both.
+We have presented a detection-and-intervention architecture for runtime
+confabulation monitoring in language models, using KV-cache geometry as
+both detection signal and steering input.
 
-For detection, independent statistical audit and feature ablation
-revealed that the generation-window LOO classifier (0.707/0.758) was
-primarily driven by a length-correlated feature
-(\texttt{mp\_norm\_per\_token}, $R^2 = 0.129$). This prompted
-analysis of the full KV cache (encoding + generation), which identified
-\texttt{mp\_spectral\_gap} as a cleaner detection signal (AUROC 0.903,
-95\% CI [0.806, 0.977]; FWL-corrected 0.877; $R^2 = 0.068$). The
-full-cache spectral gap outperforms a text-only baseline (0.755) in
-96.7\% of bootstrap samples, though the confidence interval on the
-added value includes zero. These confabulation results extend
-established deception detection at AUROC 1.000 across seven model
-scales, validated through 50+ experiments and an independent audit of
-135 claims.
+The detection experiment shows that Marchenko-Pastur corrected spectral
+features distinguish naturally-occurring hedged and confabulated responses
+with LOO AUROC of 0.707 ($p = 0.001$) on Qwen2.5-7B, using
+generation-phase features only, with encoding features at chance. The MP
+correction eliminates the dominant token-count confound through random
+matrix theory rather than regression.
 
-For steering, the preliminary 5-arm experiment ($n = 7$
-confabulations) established that cache injection modifies behavior---the
-null control producing character-level identical output on all 100
-trials is an unusually strong mechanism verification. A subsequent
-formulary study ($n = 68$ confabulations, 12 vectors on
-Qwen2.5-7B-Instruct) provides the first statistically significant
-correction results: hostile injection corrects 96\% of confabulations
-(McNemar $p < 0.0001$) at 2.4\% adverse rate. Therapeutic rankings
-between models are uncorrelated ($\rho = 0.119$, $p = 0.71$),
-confirming that per-model calibration is required.
+The steering experiment shows that detection-gated injection corrects
+confabulation on Qwen3.5-27B-Distilled, with graded efficacy across
+three emotion vectors: doubt (7/7, 100\%), worry (6/7, 86\%), calm
+(5/7, 71\%), while a null injection control produces identical output
+on all 100 trials. Cross-model validation on Qwen2.5-7B-Instruct
+(350 trials, 68 baseline confabulations) confirms hostile as a
+near-universal corrector (95.6\%, McNemar $p < 0.001$) and reveals
+therapeutic inversion: vectors therapeutic on the distilled model become
+iatrogenic on the base model. But blanket steering induces adverse
+confabulation in 3--5\% of hedged trials, confirming that detection is
+not optional---it is the prerequisite for safe correction.
 
-Three rounds of adversarial red-teaming---culminating in an independent
-statistical audit that identified the norm-feature dependency and
-prompted the full-cache refinement---demonstrate that adversarial
-methodology is not just desirable but essential for claims in this space.
-The detection methodology improved because it was attacked honestly.
+Three rounds of adversarial red-teaming identified and corrected critical
+methodological flaws, including a row-permutation invariance bug that would
+have silently invalidated all MP features. We report these not as
+embarrassments but as demonstrations that adversarial methodology is
+essential for claims in this space.
 
-The Oracle Loop creates dual-use risks: cache injection could suppress
-safety-relevant hedging, and geometric features could enable
-surveillance. A companion paper demonstrates that KV-Cloak cache
-obfuscation effectively blinds external geometric analysis (spectral gap
-degraded from 0.903 to 0.614 under the real KV-Cloak mechanism),
-providing defense against adversarial use of these methods while a
-defender inside a trusted execution environment retains full detection
-capability. We advocate that any deployment include obfuscation as a
-mandatory companion.
+The Oracle Loop creates dual-use risks at two levels. Cache injection
+could suppress safety-relevant hedging; our Cache Integrity Monitor
+(\cref{sec:cache_defense}) detects all tested injection attacks with
+0/36 false positives and 72/72 true positives, including at 1\% of
+operational strength. More broadly, the same geometric features that
+detect confabulation could enable surveillance or persona
+identification if applied to intercepted caches. KV-cache obfuscation
+\citep{luo2026shadow} addresses this by rendering geometric features
+unrecoverable to external parties while preserving detection accuracy
+inside the trust boundary (\cref{sec:kv_cloak}). We advocate that any
+deployment of cache-geometric monitoring include obfuscation as a
+mandatory companion: the pharmacy must be locked.
 
-The gap that remains is training. The Oracle Loop's detection signal is
-validated---more robustly after refinement than before. Its steering
-mechanism is validated with statistical power. Its attack surface is
-characterized and defended. The next step is closing the loop: GRPO
-training with geometric reward to produce models that confabulate less
-because they have learned to recognize confabulation geometry from the
-inside.
+A natural extension is to use the geometric detection signal as a
+training reward via GRPO, teaching the model to avoid confabulation
+geometry from the inside. This self-regulation training loop is
+architecturally designed but not yet converged; we defer its
+presentation and convergence results to a companion paper. The
+detection signal is validated. The steering mechanism is validated.
+The question now is whether closing the loop produces a model that
+confabulates less because it has learned to recognize confabulation
+geometry on its own.
 
 \paragraph{Code and Data.}
-Detection experiment code, ablation analysis, formulary results, raw
-trial data, Cache Integrity Monitor implementation, KV-Cloak obfuscation
-analysis, and all red-team logs are publicly available at:
-\url{https://github.com/Liberation-Labs/lyra-s-research-}.
-Full experiment infrastructure:
-\url{https://github.com/Liberation-Labs/Project-Oracle}.
+Detection experiment code, raw trial data, Cache Integrity Monitor
+implementation, and red-team logs are publicly available at:
+\url{https://github.com/Liberation-Labs/published-research}.
+Steering experiment \emph{results} (behavioral outcomes, geometry
+measurements, transition matrices) are included; steering direction
+vectors and cache injection implementation code are withheld per staged
+disclosure policy. Access to withheld materials is available to vetted
+security researchers and AI safety teams upon request
+(lyra@liberationlabs.tech). Full experiment infrastructure is maintained
+at:
+\url{https://github.com/Liberation-Labs/Project-Oracle}
+and
+\url{https://github.com/Liberation-Labs/KV-Experiments}.
