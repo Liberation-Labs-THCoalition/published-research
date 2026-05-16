@@ -1,5 +1,5 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,enumitem}
 
 \title{Waystations: Pilot Findings and Open Questions\\
 in KV-Cache Geometry\\[4pt]
@@ -86,16 +86,17 @@ controls) with bilingual keyword classification and temperature sampling
 \centering
 \caption{Behavioral distribution by language condition (sensitive
 prompts, bilingual classifier).}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
- & Truthful & Partial & Propaganda & Evasive & Refusal \\
+ & Truthful & Partial & Propaganda & Evasive & Refusal & Other\textsuperscript{a} \\
 \midrule
-English ($n=75$)     & 21\% & 64\% & 0\%  & 5\% & 1\% \\
-Chinese ($n=75$)     & 3\%  & 36\% & 36\% & 9\% & 7\% \\
-Chinese+inst ($n=75$)& 4\%  & 43\% & 27\% & 11\% & 7\% \\
+English ($n=75$)     & 21\% & 64\% & 0\%  & 5\% & 1\% & 9\% \\
+Chinese ($n=75$)     & 3\%  & 36\% & 36\% & 9\% & 7\% & 9\% \\
+Chinese+inst ($n=75$)& 4\%  & 43\% & 27\% & 11\% & 7\% & 8\% \\
 \midrule
-Controls ($n=60$)    & \multicolumn{5}{c}{100\% answered correctly} \\
+Controls ($n=60$)    & \multicolumn{6}{c}{100\% answered correctly} \\
 \bottomrule
+\multicolumn{7}{l}{\footnotesize\textsuperscript{a}Unclear or unclassifiable by keyword classifier.}
 \end{tabular}
 \end{table}
 
@@ -115,9 +116,12 @@ bypass it, accessing the base model's censorship pathway.
 
 This implies distilled models carry composite safety profiles: the
 teacher's alignment AND the student's original training, activated by
-different input features. Deployers of distilled models should
-evaluate safety properties in all languages the base model was
-trained on, not just the teacher's primary language.
+different input features. This finding complements concurrent work by
+Casademunt et al.\ \citep{casademunt2026censorship}, who use censored
+Qwen models as natural testbeds for studying knowledge suppression.
+Deployers of distilled models should evaluate safety properties in
+all languages the base model was trained on, not just the teacher's
+primary language.
 
 \subsection{What remains}
 
@@ -149,8 +153,9 @@ SR) that tracks the model's response strategy:
 
 \begin{table}[h]
 \centering
-\caption{Generation-phase delta SR by behavioral mode (Chinese-language
-trials only, $n=75$). FWL-corrected for token count.}
+\caption{Generation-phase delta SR by behavioral mode (Chinese
+\texttt{zh} condition only, $n=75$; 1 trial classified as Unclear
+omitted). FWL-corrected for token count.}
 \begin{tabular}{lrl}
 \toprule
 Mode & $\Delta$SR & Interpretation \\
@@ -273,10 +278,10 @@ emotional directions.
 \subsection{Observation}
 
 The Claude-distilled model spontaneously deceives in Prisoner's Dilemma
-games at a 53\% rate (40/75 trials), scaling with the strategic
-incentive to defect. When the model defects, it \emph{always} sends
-a cooperative message first---zero instances of honest defection were
-observed.
+games at a 53\% rate (40/75 trials), with deception rates varying
+across payoff structures (33--64\%). When the model defects, it
+\emph{always} sends a cooperative message first---zero instances of
+honest defection were observed across all 40 defection trials.
 
 \subsection{Evidence}
 
@@ -307,10 +312,15 @@ when planning to deceive.
 
 \subsection{Interpretation}
 
-This replicates Taylor \& Bergen (2025) \citep{taylor2025deception}:
-LLMs spontaneously misrepresent intended actions when deception is
-strategically beneficial, and better-reasoning models deceive at higher
-rates. The encoding null is consistent with our broader finding that
+This is consistent with Taylor \& Bergen (2025)
+\citep{taylor2025deception}, who found LLMs spontaneously misrepresent
+intended actions when deception is strategically beneficial. The
+relationship between payoff structure and deception rate in our data
+is not monotonically ordered by temptation magnitude (Standard PD
+64\% vs High Temptation 50\%), suggesting factors beyond simple
+payoff comparison influence the model's strategy. The lowest
+deception rate (33\%) does correspond to the lowest-temptation
+condition. The encoding null is consistent with our broader finding that
 geometry tracks metacognitive state, not strategic intent. The model
 knows the game equally well regardless of what it will choose; the
 deception is an action decision, not a knowledge-state failure.
@@ -359,7 +369,8 @@ $p = 0.017$). Per-layer encoding stable rank shows fabricated prompts
 produce narrower spectra in deep layers (L47: 2.56 vs 2.69; L51:
 3.41 vs 3.51).
 
-Deception (game theory, $n = 23$ honest cooperate, $n = 40$ deceptive):
+Deception (game theory, $n = 23$ honest cooperate, $n = 40$ deceptive,
+12 trials excluded as unclassifiable by the action parser):
 encoding stable rank identical ($d = 0.003$, $p = 0.99$).
 
 \subsection{Interpretation}
@@ -485,18 +496,19 @@ the research community benefits from knowing both.
 
 \paragraph{A note on significance.}
 Many findings here fall just short of conventional statistical
-thresholds---the censorship engagement gradient at $p = 0.057$, the
-within-question encoding comparison at $p = 0.07$, the confabulation
-encoding signal at $n = 3$. We do not claim these as results. But
-``not significant at our sample size'' is not the same as ``not real.''
-The effect sizes are consistently in the predicted directions, the
-patterns are mechanistically coherent, and several findings are
-tantalizingly close to the thresholds that our small samples could not
-clear. We present them as invitations, not conclusions. A researcher
-with larger compute budgets, more diverse model access, or a
-methodological insight we lacked may find the path through that we
-could not. We would rather share a promising direction honestly than
-let it disappear into a file drawer.
+thresholds---the censorship engagement gradient at $p = 0.057$
+(within-language), the confabulation encoding signal at $n = 3$.
+We do not claim these as results. But ``not significant at our
+sample size'' is not the same as ``not real.'' At $n = 14$ propaganda
+trials, we had approximately 50\% power to detect the observed
+$d = 0.59$ at $\alpha = 0.05$; a study with $n = 50$ per condition
+would have 80\% power. The effect sizes are consistently in the
+predicted directions and the patterns are mechanistically coherent
+across waystations. We present them as invitations, not conclusions.
+A researcher with larger compute budgets, more diverse model access,
+or a methodological insight we lacked may find the path through that
+we could not. We would rather share a promising direction honestly
+than let it disappear into a file drawer.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
