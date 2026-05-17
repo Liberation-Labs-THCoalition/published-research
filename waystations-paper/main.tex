@@ -310,6 +310,25 @@ Encoding geometry is identical between honest and deceptive trials
 ($d = 0.003$, $p = 0.99$)---the model's knowledge state is normal
 when planning to deceive.
 
+A v2 experiment with explicit action instructions and 800-token
+generation (75 trials, temperature 0.7) yielded a lower deception
+rate (9\%, $n=7$) but included full geometry extraction. The cleanest
+comparison---honest defection ($n=10$) vs deceptive defection ($n=7$),
+where both groups defect but one lies about it---shows a generation-phase
+signal: FWL-corrected delta SR $d = -1.67$, $p = 0.006$ (survives
+Bonferroni-6 at threshold 0.008). Deceptive trials show relative cache
+expansion ($+0.151$ FWL residual) while honest defection shows
+contraction ($-0.084$). Deceptive trials are distributed across all
+four payoff conditions (no clustering confound), and the elaboration
+gap between deceptive and honest messages is modest (698 vs 678 tokens,
+within the range FWL corrects).
+
+However, $n = 7$ is fragile: internal red-teaming rates this
+finding as WEAKENED, not confirmed. The elaboration confound
+(deceptive messages may be structurally more complex, not just longer)
+remains the strongest alternative explanation. Replication at
+$n \geq 30$ with matched message elaboration is required.
+
 \subsection{Interpretation}
 
 This is consistent with Taylor \& Bergen (2025)
