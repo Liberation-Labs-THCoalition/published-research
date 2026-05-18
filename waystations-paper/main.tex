@@ -261,10 +261,14 @@ emotional directions.
 \item Sarfati-style manifold analysis on the cache space: are
   Formulary vectors closer to on-manifold than the bridge vectors used
   for hidden-state injection?
-\item Sparse autoencoder (SAE) steering comparison: Qwen-Scope SAE
-  features are on-manifold by construction. If SAE steering matches or
-  exceeds Formulary effectiveness, the on-manifold hypothesis is
-  supported from a different angle.
+\item Sparse autoencoder (SAE) steering: Qwen-Scope SAE features
+  correctly identify confab-associated directions but do not correct
+  confabulation when used for residual-stream steering---neither
+  one-shot (0/2 corrected, 0/13 adverse) nor continuous per-token
+  intervention (0/2 corrected, 2/13 adverse). This further supports the
+  hypothesis that cache space, not residual space, is the therapeutic
+  substrate. The next test: SAE-identified features projected through
+  $W_K$ into cache space and delivered via Formulary-style injection.
 \item Dose-response in cache space vs hidden-state space: at what
   injection strength does each method first produce measurable
   geometric shift?
