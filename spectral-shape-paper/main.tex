@@ -83,7 +83,9 @@ Marchenko-Pastur (MP) random matrix theory---can discriminate
 confabulation from grounded responses, with AUROC ranging from 0.59
 to 0.90 across architectures~\citep{lyra_p7}. The highest figure
 (0.903 on a Claude-distilled Qwen3.5-27B variant, $n=7$ confabulations,
-95\% bootstrap CI [0.58, 0.98]) did not replicate on the base model
+95\% BCa bootstrap CI [0.806, 0.977]\footnote{An earlier percentile
+bootstrap yielded the wider [0.58, 0.98]; the BCa-corrected interval
+is the authoritative figure.}) did not replicate on the base model
 (AUROC~0.661), illustrating the architectural fragility that motivates
 the present work. This ``Lyra Technique''
 has been extended to deception detection, sycophancy classification,
