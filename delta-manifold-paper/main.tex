@@ -38,8 +38,8 @@ distributed. We show this assumption is costly. Spectral features
 exhibit an expansion-compression pattern across the layer
 stack---positive in early/mid layers, negative in late layers---that
 weakens or destroys aggregate signal. On Qwen2.5-7B, per-layer
-confabulation detection peaks at $d = 2.46$ (layer~23), 37\% stronger
-than the all-layer average ($d = 1.80$). A similar expansion-compression
+confabulation detection peaks at $g = 2.43$ (layer~23), 37\% stronger
+than the all-layer average ($g = 1.78$). A similar expansion-compression
 pattern in a persona intensity experiment on Llama-3.1-8B produces
 $d = -5.15$ at layer~29 (spectral entropy; note: 1.9\% absolute
 difference, inflated by low within-group variance), while
@@ -201,8 +201,10 @@ space.
 \subsection{Analysis}
 
 \begin{itemize}
-\item Per-layer effect sizes: Cohen's $d$ between conditions at each
-  layer, with paired $t$-test $p$-values.
+\item Per-layer effect sizes: Hedges' $g$ (bias-corrected Cohen's $d$;
+  correction factor $1 - 3/(4N-9)$, yielding $\approx$1.3\% reduction
+  at $n = 30$ per group) between conditions at each layer, with
+  Welch's $t$-test $p$-values (unequal-variance correction).
 \item Delta comparison: two-sample $t$-test on delta stable\_rank
   between conditions.
 \item Trajectory shape classification: each trajectory classified as
