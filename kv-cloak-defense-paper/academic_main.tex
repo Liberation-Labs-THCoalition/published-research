@@ -144,10 +144,10 @@ features derived from SVD of the key tensor---distinguishes cognitive
 states during autoregressive generation. Prior work reports within-model
 deception detection at AUROC~1.000 across seven model scales (0.6B--70B),
 confabulation detection at 0.969--0.999, and hardware invariance
-($r>0.999$ across RTX~3090 and H200). Contrastive activation addition
-(CAA) enables injection of emotion vectors into the cache to steer model
+($r>0.999$ across RTX~3090 and H200)~\citep{lyra2026oracle}. Contrastive activation addition
+(CAA)~\citep{panickssery2023caa} enables injection of emotion vectors into the cache to steer model
 behavior, correcting confabulation at rates up to 96\% (hostile vector
-on Qwen2.5-7B-Instruct, $n=68$, McNemar $p<0.0001$).
+on Qwen2.5-7B-Instruct, $n=68$, McNemar $p<0.0001$)~\citep{lyra2026formulary}.
 
 \subsection{KV-Cloak}
 
@@ -272,7 +272,7 @@ calibrated on uncloaked data are meaningless on cloaked data.
 
 \subsection{Adversarial Injection Is Incoherent}
 
-CAA steering vectors are directions in cache space extracted via
+CAA~\citep{panickssery2023caa} steering vectors are directions in cache space extracted via
 contrastive activation: $d = \mathbb{E}[\text{emotional}] -
 \mathbb{E}[\text{neutral}]$. Injection adds $\alpha \cdot d$ to the
 cache keys and values. Under per-head rotation $Q_h$, an externally
@@ -492,6 +492,6 @@ technique is transparent, the defense is available, and the architecture
 ensures that defenders retain capabilities that attackers lose.
 
 \bibliographystyle{plainnat}
-bibliography{references}
+\bibliography{references}
 
-end{document}
+\end{document}
