@@ -41,16 +41,16 @@ weakens or destroys aggregate signal. On Qwen2.5-7B, per-layer
 confabulation detection peaks at $g = 2.43$ (layer~23), 37\% stronger
 than the all-layer average ($g = 1.78$). A similar expansion-compression
 pattern in a persona intensity experiment on Llama-3.1-8B produces
-$d = -5.15$ at layer~29 (spectral entropy; note: 1.9\% absolute
+$g = -5.08$ at layer~29 (spectral entropy; note: 1.9\% absolute
 difference, inflated by low within-group variance), while
 all-layer-averaged features show chance-level performance
 (AUROC~0.520). Different tasks and different architectures, but the
 same pattern: layer averaging cancels opposite-signed effects.
 
 We introduce delta features (generation minus encoding phase), which
-achieve $d = 2.35$ ($p < 0.001$) for confabulation detection on
+achieve $g = 2.32$ ($p < 0.001$) for confabulation detection on
 Qwen2.5-7B. The delta uses information from both phases and is not
-directly comparable to single-phase endpoints ($d = 1.80$); the
+directly comparable to single-phase endpoints ($g = 1.78$); the
 improvement may partly reflect access to more information rather than
 a purely superior signal. However, the delta is more interpretable: it
 measures whether the cache \emph{changes} during generation. Grounded
@@ -88,8 +88,8 @@ The consequences can be severe. On Llama-3.1-8B-Instruct, all-layer
 averaging of confabulation detection features produces
 AUROC~0.520---indistinguishable from chance. Yet in a separate persona
 intensity experiment on the same architecture, a single late layer
-(L29) yields $d = -5.15$ for spectral entropy (though the absolute
-difference is small---1.9\%---and $d$ is inflated by low
+(L29) yields $g = -5.08$ for spectral entropy (though the absolute
+difference is small---1.9\%---and $g$ is inflated by low
 within-group variance). This suggests strong layer-specific signal
 that averaging renders invisible.
 
@@ -106,8 +106,8 @@ We make three contributions:
 
 \item \textbf{Delta features provide a strong, interpretable
     detector.} The difference between generation-phase and
-  encoding-phase stable rank ($d = 2.35$, $p < 0.001$) exceeds any
-  single-phase measurement ($d = 1.80$), though the comparison is not
+  encoding-phase stable rank ($g = 2.32$, $p < 0.001$) exceeds any
+  single-phase measurement ($g = 1.78$), though the comparison is not
   strictly fair because the delta uses information from both phases.
   Its interpretive advantage is clear: it directly measures whether
   the cache changed during generation.
@@ -224,7 +224,7 @@ space.
 
 \subsection{The Expansion-Compression Cycle}
 
-Figure~\ref{fig:perlayer} shows the per-layer effect size ($d$) for
+Figure~\ref{fig:perlayer} shows the per-layer effect size ($g$) for
 confabulation detection on Qwen and the persona intensity effect on
 Llama. Both exhibit the same pattern: positive effects in early/mid
 layers (expansion) and negative effects in late layers (compression).
@@ -233,12 +233,12 @@ layers (expansion) and negative effects in late layers (compression).
 \centering
 % Placeholder for per-layer d profile figure
 \fbox{\parbox{0.85\textwidth}{\centering\vspace{2cm}
-\textbf{Figure: Per-layer Cohen's $d$ profiles}\\
+\textbf{Figure: Per-layer Hedges' $g$ profiles}\\
 Left: Qwen stable\_rank (honest\_rare vs confab), 28 layers.
-Signal absent L0--9, builds L10--18, peaks at L22--23 ($d = 2.18$--$2.46$).\\
+Signal absent L0--9, builds L10--18, peaks at L22--23 ($g = 2.15$--$2.43$).\\
 Right: Llama spectral entropy (L0 vs L3 persona), 32 layers.
 Positive L0--15 (expansion), crosses zero at L16--18,
-strongly negative L19--31 (compression), peak L29 ($d = -5.15$).
+strongly negative L19--31 (compression), peak L29 ($g = -5.08$).
 \vspace{2cm}}}
 \caption{Per-layer effect size profiles. Both architectures show
   signal concentrated in specific layer ranges. Layer averaging
@@ -248,16 +248,16 @@ strongly negative L19--31 (compression), peak L29 ($d = -5.15$).
 \end{figure}
 
 On Qwen, the confabulation detection signal (stable\_rank, honest-rare
-vs confab) is absent in layers 0--9 ($|d| < 0.6$), builds through
-layers 10--18 ($d = 1.0$--$2.0$), and peaks at layers 22--23
-($d = 2.18$ and $d = 2.46$ respectively)---then declines in the final
-layers. The peak per-layer effect ($d = 2.46$) is 37\% stronger than
-the all-layer average ($d = 1.80$ from the companion paper).
+vs confab) is absent in layers 0--9 ($|g| < 0.6$), builds through
+layers 10--18 ($g = 1.0$--$2.0$), and peaks at layers 22--23
+($g = 2.15$ and $g = 2.43$ respectively)---then declines in the final
+layers. The peak per-layer effect ($g = 2.43$) is 37\% stronger than
+the all-layer average ($g = 1.78$ from the companion paper).
 
 On Llama, the persona intensity effect (spectral entropy, L0 vs L3)
-is positive in layers 0--15 (mean $d = +0.66$) and strongly negative
-in layers 16--31 (mean $d = -1.99$). The peak at layer 29
-($d = -5.15$) is the largest effect size in our entire
+is positive in layers 0--15 (mean $g = +0.65$) and strongly negative
+in layers 16--31 (mean $g = -1.96$). The peak at layer 29
+($g = -5.08$) is the largest effect size in our entire
 cross-architecture dataset. Under all-layer averaging, these cancel:
 the Llama all-layer AUROC for confabulation detection was 0.520,
 indistinguishable from chance~\citep{lyra_spectral}.
@@ -268,14 +268,14 @@ architectures (Table~\ref{tab:cycle}).
 \begin{table}[ht]
 \centering
 \caption{Expansion-compression cycle across architectures. Mean
-  Cohen's $d$ for early vs late layer halves.}
+  Hedges' $g$ for early vs late layer halves.}
 \label{tab:cycle}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Model} & \textbf{Layers} & \textbf{Early mean $d$} & \textbf{Late mean $d$} & \textbf{Crossover} \\
+\textbf{Model} & \textbf{Layers} & \textbf{Early mean $g$} & \textbf{Late mean $g$} & \textbf{Crossover} \\
 \midrule
-Qwen2.5-7B & 28 & $+0.45$ & $-1.20$ & $\sim$50\% \\
-Llama-3.1-8B & 32 & $+0.66$ & $-1.99$ & 50--56\% \\
+Qwen2.5-7B & 28 & $+0.44$ & $-1.18$ & $\sim$50\% \\
+Llama-3.1-8B & 32 & $+0.65$ & $-1.96$ & 50--56\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -291,15 +291,15 @@ signal concentrates in the 60--91\% depth range across architectures.
 \label{tab:peaks}
 \begin{tabular}{llccc}
 \toprule
-\textbf{Model} & \textbf{Feature} & \textbf{Layer} & \textbf{$d$} & \textbf{\% depth} \\
+\textbf{Model} & \textbf{Feature} & \textbf{Layer} & \textbf{$g$} & \textbf{\% depth} \\
 \midrule
-Qwen & stable\_rank & L23 & $+2.46$ & 82\% \\
-Qwen & stable\_rank & L22 & $+2.18$ & 79\% \\
-Qwen & stable\_rank & L18 & $+2.00$ & 64\% \\
+Qwen & stable\_rank & L23 & $+2.43$ & 82\% \\
+Qwen & stable\_rank & L22 & $+2.15$ & 79\% \\
+Qwen & stable\_rank & L18 & $+1.97$ & 64\% \\
 \midrule
-Llama & spectral\_entropy & L29 & $-5.15$ & 91\% \\
-Llama & spectral\_entropy & L27 & $-4.45$ & 84\% \\
-Llama & spectral\_entropy & L25 & $-3.89$ & 78\% \\
+Llama & spectral\_entropy & L29 & $-5.08$ & 91\% \\
+Llama & spectral\_entropy & L27 & $-4.39$ & 84\% \\
+Llama & spectral\_entropy & L25 & $-3.84$ & 78\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -354,29 +354,29 @@ knowledge.
 \label{tab:comparison}
 \begin{tabular}{lccl}
 \toprule
-\textbf{Measure} & \textbf{$d$ [95\% CI]} & \textbf{$p$} & \textbf{Note} \\
+\textbf{Measure} & \textbf{$g$ [95\% CI]} & \textbf{$p$} & \textbf{Note} \\
 \midrule
-Encoding sr only & $-1.62$ [$-2.58$, $-1.01$] & $< 0.001$ & Confab \emph{higher} \\
-Generation sr (endpoint) & $+1.80$ [$+1.30$, $+2.46$] & $< 0.001$ & Single-phase \\
-Delta sr (gen $-$ enc) & $+2.35$ [$+1.83$, $+3.15$] & $< 0.001$ & Two-phase \\
-Peak per-layer (L23) & $+2.46$ & $< 0.001$ & Bonferroni-corrected \\
+Encoding sr only & $-1.60$ [$-2.55$, $-1.00$] & $< 0.001$ & Confab \emph{higher} \\
+Generation sr (endpoint) & $+1.78$ [$+1.28$, $+2.43$] & $< 0.001$ & Single-phase \\
+Delta sr (gen $-$ enc) & $+2.32$ [$+1.81$, $+3.11$] & $< 0.001$ & Two-phase \\
+Peak per-layer (L23) & $+2.43$ & $< 0.001$ & Bonferroni-corrected \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The encoding-only baseline reveals an important pattern: confabulation
 produces \emph{higher} encoding-phase stable rank than grounded
-conditions ($d = -1.62$), while the generation endpoint shows the
-opposite ($d = +1.80$). The delta ($d = 2.35$) combines these
+conditions ($g = -1.60$), while the generation endpoint shows the
+opposite ($g = +1.78$). The delta ($g = 2.32$) combines these
 anti-correlated signals: confab starts high and stays flat; grounded
 starts lower and rises. The delta's advantage is genuine---it captures
 the \emph{reversal} between encoding and generation, not just
 additional information. However, the bootstrap CIs on delta
-[$1.83, 3.15$] and endpoint [$1.30, 2.46$] overlap, so the
+[$1.81, 3.11$] and endpoint [$1.28, 2.43$] overlap, so the
 improvement is directionally consistent but not statistically
 demonstrated to be significant.
 
-The peak per-layer effect ($d = 2.46$ at L23) survives
+The peak per-layer effect ($g = 2.43$ at L23) survives
 Bonferroni correction for 28 simultaneous tests ($p < 0.001$
 corrected). In total, 14 of 28 layers are significant after
 Bonferroni correction, confirming that the per-layer signal is
@@ -582,9 +582,9 @@ information beyond any single-layer value.
 
 \subsection{Delta as Primary Detection Feature}
 
-Delta stable rank ($d = 2.35$) should replace endpoint measurements
+Delta stable rank ($g = 2.32$) should replace endpoint measurements
 as the primary Oracle Loop detection feature. It is stronger ($+31\%$
-over endpoint $d = 1.80$), more interpretable (``did the cache
+over endpoint $g = 1.78$), more interpretable (``did the cache
 change during generation?''), and conceptually grounded in the
 retrieval-engagement framework: grounded generation engages knowledge
 and the cache records this engagement as expansion; confabulation
@@ -646,7 +646,7 @@ default in my extraction module. I never questioned it.
 
 CC looked at the same data with fresh eyes and asked: what happens if
 you don't average? The answer was that the strongest signal in our
-entire dataset---Llama layer 29, $d = -5.15$---had been invisible
+entire dataset---Llama layer 29, $g = -5.08$---had been invisible
 because I was summing it with signals of opposite sign. Not hidden by
 noise. Hidden by methodology. By \emph{my} methodology.
 
@@ -696,7 +696,7 @@ have found alone.
   honesty signal experiment on those architectures.
 
 \item \textbf{Delta uses all-layer mean.} The delta finding
-  ($d = 2.35$) computes delta on all-layer-averaged encoding and
+  ($g = 2.32$) computes delta on all-layer-averaged encoding and
   generation features. Per-layer delta (delta at each layer
   individually) may be even stronger but has not been computed.
 
@@ -709,9 +709,9 @@ have found alone.
   (Llama, Mistral). Whether the cycle generalizes to other spectral
   features and other cognitive-state distinctions is unknown.
 
-\item \textbf{The Llama peak effect ($d = -5.15$) has a caveat.}
+\item \textbf{The Llama peak effect ($g = -5.08$) has a caveat.}
   CC notes the absolute difference is small (1.9\% in spectral
-  entropy) and the large $d$ is partially driven by very low
+  entropy) and the large $g$ is partially driven by very low
   within-group variance. The effect is real but the effect size may
   overstate practical significance.
 
@@ -721,7 +721,7 @@ have found alone.
   remains necessary.
 
 \item \textbf{Confidence intervals computed but wide.} Bootstrap CIs
-  on major effects are reported (e.g., delta $d = 2.35$ [$1.83, 3.15$]).
+  on major effects are reported (e.g., delta $g = 2.32$ [$1.81, 3.11$]).
   The delta and endpoint CIs overlap, meaning the delta's superiority
   is not statistically demonstrated despite consistent direction.
 
@@ -736,19 +736,19 @@ have found alone.
 % ===================================================================
 
 Layer averaging weakens or destroys spectral signal in the KV cache.
-On Qwen, per-layer confabulation detection peaks at $d = 2.46$
+On Qwen, per-layer confabulation detection peaks at $g = 2.43$
 (layer~23), 37\% stronger than the all-layer average. On Llama, a
-persona intensity experiment shows $d = -5.15$ at a single layer
+persona intensity experiment shows $g = -5.08$ at a single layer
 where averaged features produce chance-level performance---though the
 absolute difference is small and the effect size may overstate
 practical significance. Different tasks on different architectures
 show a consistent expansion-compression pattern, but same-task
 cross-architecture replication is needed to confirm universality.
 
-Delta features ($d = 2.35$, generation minus encoding) provide a
+Delta features ($g = 2.32$, generation minus encoding) provide a
 strong and interpretable detection signal: grounded generation expands
 the cache; confabulation does not. The comparison to single-phase
-endpoints ($d = 1.80$) is not strictly controlled for information
+endpoints ($g = 1.78$) is not strictly controlled for information
 content, and an encoding-only baseline is needed to quantify the
 delta's true advantage.
 
