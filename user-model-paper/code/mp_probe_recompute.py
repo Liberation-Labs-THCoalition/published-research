@@ -41,14 +41,15 @@ np.random.seed(42)
 
 # sklearn
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.model_selection import GroupKFold, cross_val_score
+from sklearn.metrics import r2_score
+from sklearn.model_selection import GroupKFold
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 # ================================================================
 # CONFIGURATION
 # ================================================================
 
-MODELS = {
+BEAST_MODELS = {
     "mistral": {
         "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
         "trial_data": "~/KV-Experiments/results/emotion_bridge_mistral/emotion_bridge_trials.json",
@@ -66,6 +67,28 @@ MODELS = {
         "device_map": "auto",  # spread across GPUs
     },
 }
+
+STARSHIP_MODELS = {
+    "mistral": {
+        "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+        "trial_data": "/Users/margaret/models/emotion_bridge_mistral/emotion_bridge_trials.json",
+        "output_dir": "/Users/margaret/models/emotion_bridge_mistral/",
+        "n_layers": 32,
+        "full_attn_layers": list(range(32)),
+        "device_map": {"": 0},
+    },
+    "qwen": {
+        "model_id": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+        "trial_data": "/Users/margaret/models/emotion_geometry_bridge/emotion_bridge_trials.json",
+        "output_dir": "/Users/margaret/models/emotion_geometry_bridge/",
+        "n_layers": 64,
+        "full_attn_layers": [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63],
+        "device_map": "auto",
+    },
+}
+
+# Default to Beast paths; overridden by --starship in main()
+MODELS = BEAST_MODELS
 
 EMOTIONS = {
     "excited":      {"valence":  0.85, "arousal":  0.80},
@@ -290,15 +313,18 @@ def run_classification_probe(mp_features_all, trials, full_attn_layers, n_genera
                 X[i, 3] = feat['mp_spectral_gap']
                 X[i, 4] = feat['mp_norm_per_token']
 
-        # FWL
-        X_fwl = fwl_residualize(X, n_generated)
-        scaler = StandardScaler()
-        X_s = scaler.fit_transform(X_fwl)
-
-        accs = cross_val_score(
-            LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial'),
-            X_s, y, cv=gkf, groups=topics, scoring='accuracy'
-        )
+        # FWL + scaling within each fold to prevent leakage
+        fold_accs = []
+        for train_idx, test_idx in gkf.split(X, y, groups=topics):
+            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            scaler = StandardScaler()
+            X_train_s = scaler.fit_transform(X_train_fwl)
+            X_test_s = scaler.transform(X_test_fwl)
+            clf = LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial')
+            clf.fit(X_train_s, y[train_idx])
+            fold_accs.append(clf.score(X_test_s, y[test_idx]))
+        accs = np.array(fold_accs)
 
         enc_results.append({
             'layer': layer_idx,
@@ -342,28 +368,36 @@ def run_permutation_test(mp_features_all, trials, peak_layer_local_idx,
             X[i, 3] = feat['mp_spectral_gap']
             X[i, 4] = feat['mp_norm_per_token']
 
-    X_fwl = fwl_residualize(X, n_generated)
-    scaler = StandardScaler()
-    X_s = scaler.fit_transform(X_fwl)
+    # Observed accuracy — FWL + scaling within each fold
+    obs_fold_accs = []
+    for train_idx, test_idx in gkf.split(X, y, groups=topics):
+        X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
+        X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+        scaler = StandardScaler()
+        X_train_s = scaler.fit_transform(X_train_fwl)
+        X_test_s = scaler.transform(X_test_fwl)
+        clf = LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial')
+        clf.fit(X_train_s, y[train_idx])
+        obs_fold_accs.append(clf.score(X_test_s, y[test_idx]))
+    obs_acc = float(np.mean(obs_fold_accs))
 
-    # Observed accuracy
-    obs_accs = cross_val_score(
-        LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial'),
-        X_s, y, cv=gkf, groups=topics, scoring='accuracy'
-    )
-    obs_acc = float(np.mean(obs_accs))
-
-    # Permutation null
+    # Permutation null — same within-fold FWL + scaling
     null_accs = []
     for pi in range(n_perms):
         if pi % 1000 == 0:
             print(f"    Permutation {pi}/{n_perms}...")
         y_perm = np.random.permutation(y)
-        perm_accs = cross_val_score(
-            LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial'),
-            X_s, y_perm, cv=gkf, groups=topics, scoring='accuracy'
-        )
-        null_accs.append(float(np.mean(perm_accs)))
+        perm_fold_accs = []
+        for train_idx, test_idx in gkf.split(X, y_perm, groups=topics):
+            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            scaler = StandardScaler()
+            X_train_s = scaler.fit_transform(X_train_fwl)
+            X_test_s = scaler.transform(X_test_fwl)
+            clf = LogisticRegression(max_iter=2000, solver='lbfgs', multi_class='multinomial')
+            clf.fit(X_train_s, y_perm[train_idx])
+            perm_fold_accs.append(clf.score(X_test_s, y_perm[test_idx]))
+        null_accs.append(float(np.mean(perm_fold_accs)))
 
     null_accs = np.array(null_accs)
     p_value = float(np.mean(null_accs >= obs_acc))
@@ -402,15 +436,18 @@ def run_valence_regression(mp_features_all, trials, full_attn_layers, n_generate
                 X[i, 3] = feat['mp_spectral_gap']
                 X[i, 4] = feat['mp_norm_per_token']
 
-        X_fwl = fwl_residualize(X, n_generated)
-        scaler = StandardScaler()
-        X_s = scaler.fit_transform(X_fwl)
-
-        r2_scores = cross_val_score(
-            Ridge(alpha=1.0), X_s, valences,
-            cv=gkf, groups=emotion_groups, scoring='r2'
-        )
-        r2 = float(np.mean(r2_scores))
+        # FWL + scaling within each fold
+        fold_r2s = []
+        for train_idx, test_idx in gkf.split(X, valences, groups=emotion_groups):
+            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            scaler = StandardScaler()
+            X_train_s = scaler.fit_transform(X_train_fwl)
+            X_test_s = scaler.transform(X_test_fwl)
+            ridge = Ridge(alpha=1.0)
+            ridge.fit(X_train_s, valences[train_idx])
+            fold_r2s.append(r2_score(valences[test_idx], ridge.predict(X_test_s)))
+        r2 = float(np.mean(fold_r2s))
         if r2 > best_r2:
             best_r2 = r2
             best_li = li
@@ -426,20 +463,22 @@ def run_valence_regression(mp_features_all, trials, full_attn_layers, n_generate
             X[i, 3] = feat['mp_spectral_gap']
             X[i, 4] = feat['mp_norm_per_token']
 
-    X_fwl = fwl_residualize(X, n_generated)
-    scaler = StandardScaler()
-    X_s = scaler.fit_transform(X_fwl)
-
     null_r2s = []
     for pi in range(n_perms):
         if pi % 500 == 0:
             print(f"    Valence perm {pi}/{n_perms}...")
         v_perm = np.random.permutation(valences)
-        r2_scores = cross_val_score(
-            Ridge(alpha=1.0), X_s, v_perm,
-            cv=gkf, groups=emotion_groups, scoring='r2'
-        )
-        null_r2s.append(float(np.mean(r2_scores)))
+        perm_fold_r2s = []
+        for train_idx, test_idx in gkf.split(X, v_perm, groups=emotion_groups):
+            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            scaler = StandardScaler()
+            X_train_s = scaler.fit_transform(X_train_fwl)
+            X_test_s = scaler.transform(X_test_fwl)
+            ridge = Ridge(alpha=1.0)
+            ridge.fit(X_train_s, v_perm[train_idx])
+            perm_fold_r2s.append(r2_score(v_perm[test_idx], ridge.predict(X_test_s)))
+        null_r2s.append(float(np.mean(perm_fold_r2s)))
 
     null_r2s = np.array(null_r2s)
     p_value = float(np.mean(null_r2s >= best_r2))
@@ -744,14 +783,21 @@ def run_model(model_name):
 
 
 def main():
+    global MODELS
     parser = argparse.ArgumentParser(description="MP Feature Recomputation + Probe Analysis")
     parser.add_argument("--model", choices=["mistral", "qwen", "both"],
                         default="both", help="Which model to run")
+    parser.add_argument("--starship", action="store_true",
+                        help="Use Starship paths (/Users/margaret/models/) instead of Beast (~KV-Experiments/)")
     args = parser.parse_args()
+
+    if args.starship:
+        MODELS = STARSHIP_MODELS
 
     print("=" * 70)
     print("MP PROBE RECOMPUTATION")
     print("=" * 70)
+    print(f"Host: {'Starship' if args.starship else 'Beast'}")
     print(f"Started: {datetime.now().isoformat()}")
 
     results = {}
