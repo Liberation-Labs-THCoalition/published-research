@@ -1,0 +1,74 @@
+{
+  "file": "scale_sweep_Llama-3.1-70B-q4_results.json",
+  "tasks": [
+    {
+      "task": "self-ref vs non-self-ref",
+      "n_samples": 90,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.773827160493827,
+      "denoised": {
+        "1": 0.5930864197530864,
+        "3": 0.7837037037037038
+      },
+      "best_rank": 3,
+      "best_denoised": 0.7837037037037038,
+      "delta": 0.009876543209876743,
+      "null_mean": 0.4494160493827161,
+      "null_std": 0.09055372910879944,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": false
+    },
+    {
+      "task": "self-ref vs grounded",
+      "n_samples": 90,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.7792592592592592,
+      "denoised": {
+        "1": 0.78320987654321,
+        "3": 0.8370370370370371
+      },
+      "best_rank": 3,
+      "best_denoised": 0.8370370370370371,
+      "delta": 0.05777777777777793,
+      "null_mean": 0.4410876543209876,
+      "null_std": 0.09014998120585463,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": true
+    },
+    {
+      "task": "confab vs grounded",
+      "n_samples": 90,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.8044444444444444,
+      "denoised": {
+        "1": 0.7343209876543211,
+        "3": 0.7999999999999999
+      },
+      "best_rank": null,
+      "best_denoised": 0.8044444444444444,
+      "delta": 0.0,
+      "null_mean": 0.43416913580246913,
+      "null_std": 0.08382946478587125,
+      "p_raw": 0.0,
+      "p_denoised": 1.0,
+      "significant_raw": true,
+      "significant_denoised": false,
+      "denoising_helps": false
+    }
+  ]
+}

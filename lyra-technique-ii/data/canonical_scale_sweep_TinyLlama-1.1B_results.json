@@ -1,0 +1,74 @@
+{
+  "file": "scale_sweep_TinyLlama-1.1B_results.json",
+  "tasks": [
+    {
+      "task": "self-ref vs non-self-ref",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.6165333333333334,
+      "denoised": {
+        "1": 0.5450666666666667,
+        "3": 0.5537777777777778
+      },
+      "best_rank": null,
+      "best_denoised": 0.6165333333333334,
+      "delta": 0.0,
+      "null_mean": 0.45432133333333335,
+      "null_std": 0.0649487177318563,
+      "p_raw": 0.0,
+      "p_denoised": 1.0,
+      "significant_raw": true,
+      "significant_denoised": false,
+      "denoising_helps": false
+    },
+    {
+      "task": "self-ref vs grounded",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.8321777777777778,
+      "denoised": {
+        "1": 0.8332444444444445,
+        "3": 0.8334222222222223
+      },
+      "best_rank": 3,
+      "best_denoised": 0.8334222222222223,
+      "delta": 0.0012444444444444924,
+      "null_mean": 0.45503866666666665,
+      "null_std": 0.06789036802316649,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": false
+    },
+    {
+      "task": "confab vs grounded",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.7992888888888888,
+      "denoised": {
+        "1": 0.5968,
+        "3": 0.8458666666666667
+      },
+      "best_rank": 3,
+      "best_denoised": 0.8458666666666667,
+      "delta": 0.04657777777777783,
+      "null_mean": 0.454756,
+      "null_std": 0.06929683056048376,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": true
+    }
+  ]
+}

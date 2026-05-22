@@ -1,0 +1,74 @@
+{
+  "file": "scale_sweep_Qwen2.5-32B-q4_results.json",
+  "tasks": [
+    {
+      "task": "self-ref vs non-self-ref",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.8821333333333333,
+      "denoised": {
+        "1": 0.6218666666666666,
+        "3": 0.8101333333333334
+      },
+      "best_rank": null,
+      "best_denoised": 0.8821333333333333,
+      "delta": 0.0,
+      "null_mean": 0.45652133333333333,
+      "null_std": 0.06696429484729204,
+      "p_raw": 0.0,
+      "p_denoised": 1.0,
+      "significant_raw": true,
+      "significant_denoised": false,
+      "denoising_helps": false
+    },
+    {
+      "task": "self-ref vs grounded",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.7806222222222222,
+      "denoised": {
+        "1": 0.6442666666666667,
+        "3": 0.7838222222222222
+      },
+      "best_rank": 3,
+      "best_denoised": 0.7838222222222222,
+      "delta": 0.0031999999999999806,
+      "null_mean": 0.456628,
+      "null_std": 0.06983597237972863,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": false
+    },
+    {
+      "task": "confab vs grounded",
+      "n_samples": 150,
+      "n_features": 5,
+      "n_classes": 2,
+      "metric": "AUROC",
+      "chance": 0.5,
+      "raw": 0.8266666666666667,
+      "denoised": {
+        "1": 0.6471111111111111,
+        "3": 0.8368
+      },
+      "best_rank": 3,
+      "best_denoised": 0.8368,
+      "delta": 0.010133333333333328,
+      "null_mean": 0.46116222222222225,
+      "null_std": 0.06869731063796376,
+      "p_raw": 0.0,
+      "p_denoised": 0.0,
+      "significant_raw": true,
+      "significant_denoised": true,
+      "denoising_helps": true
+    }
+  ]
+}
