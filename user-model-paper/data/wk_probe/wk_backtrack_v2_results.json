@@ -1,0 +1,46 @@
+{
+  "experiment": "wk_backtrack_v2_circularity_fixed",
+  "timestamp": "2026-05-21T22:29:48.741922+00:00",
+  "fixes": [
+    "within-fold direction estimation",
+    "per-head projection",
+    "mean vs last-token",
+    "FWL on token count"
+  ],
+  "probes": [
+    {
+      "name": "W_K mean-pos \u2192 30-class (circularity-fixed)",
+      "accuracy": 0.4088888888888889,
+      "chance": 0.03333333333333333,
+      "times_chance": 12.266666666666667
+    },
+    {
+      "name": "W_K mean-pos \u2192 binary valence (circularity-fixed)",
+      "auroc": 0.9917777777777778,
+      "n_samples": 300
+    },
+    {
+      "name": "CCS mean-pos \u2192 valence (circularity-fixed)",
+      "auroc": 0.9215555555555556
+    },
+    {
+      "name": "W_K last-tok \u2192 30-class (circularity-fixed)",
+      "accuracy": 0.14222222222222222,
+      "chance": 0.03333333333333333,
+      "times_chance": 4.266666666666667
+    },
+    {
+      "name": "W_K last-tok \u2192 binary valence (circularity-fixed)",
+      "auroc": 0.9220444444444444,
+      "n_samples": 300
+    },
+    {
+      "name": "CCS last-tok \u2192 valence (circularity-fixed)",
+      "auroc": 0.7755555555555554
+    },
+    {
+      "name": "Text-length baseline \u2192 valence",
+      "auroc": 0.4751111111111111
+    }
+  ]
+}
