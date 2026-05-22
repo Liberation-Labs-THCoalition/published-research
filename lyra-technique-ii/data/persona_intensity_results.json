@@ -1,0 +1,28 @@
+{
+  "experiment": "persona_intensity_denoising",
+  "methodology": "within-fold SVD, FWL-first, GroupKFold(prompt)",
+  "models": {
+    "Qwen2.5-7B": {
+      "L0_vs_L3_raw": 0.749,
+      "L0_vs_L3_denoised_r3": 0.945,
+      "delta": 0.196,
+      "L0_vs_L05": 0.811,
+      "five_level_acc": 0.412,
+      "skip1_plus_3": 0.996
+    },
+    "Llama-3.1-8B": {
+      "L0_vs_L3_raw": 0.751,
+      "L0_vs_L3_denoised_r3": 0.992,
+      "delta": 0.241,
+      "L0_vs_L05": 0.688,
+      "five_level_acc": 0.456
+    },
+    "Mistral-7B": {
+      "L0_vs_L3_raw": 0.611,
+      "L0_vs_L3_denoised_r3": 0.899,
+      "delta": 0.288,
+      "L0_vs_L05": 0.698,
+      "five_level_acc": 0.452
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "experiment": "skip_first_sv_mechanism",
+  "finding": "SV1 carries different information depending on signal strength",
+  "strong_signal": {
+    "task": "confab vs honest_rare (168D per-layer)",
+    "raw": 0.981,
+    "top_20": 0.998,
+    "skip1_plus_20": 0.966,
+    "interpretation": "SV1 carries real confab signal \u2014 keeping it helps"
+  },
+  "weak_signal": {
+    "task": "emotion valence (52D)",
+    "raw": 0.7,
+    "top_5": 0.958,
+    "skip1_plus_5": 0.969,
+    "interpretation": "SV1 is scale noise \u2014 removing it helps"
+  },
+  "persona": {
+    "task": "L0 vs L3 persona (6D Qwen)",
+    "raw": 0.749,
+    "top_3": 0.945,
+    "skip1_plus_3": 0.996,
+    "interpretation": "SV1 is scale noise \u2014 removing it dramatically helps"
+  }
+}

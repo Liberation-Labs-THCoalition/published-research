@@ -1,0 +1,47 @@
+{
+  "experiment": "emotion_denoising_canonical",
+  "model": "Qwen3.5-27B-Claude-Distilled",
+  "features": "52D (norms+ranks+entropies+extended)",
+  "methodology": "within-fold SVD, FWL-first, GroupKFold(topic)",
+  "raw_52D": {
+    "accuracy_30class": 0.057,
+    "times_chance": 1.7,
+    "valence_auroc": 0.7
+  },
+  "denoised": {
+    "rank_3": {
+      "accuracy": 0.22,
+      "times_chance": 6.6,
+      "valence_auroc": 0.923
+    },
+    "rank_5": {
+      "accuracy": 0.29,
+      "times_chance": 8.7,
+      "valence_auroc": 0.958
+    },
+    "rank_10": {
+      "accuracy": 0.43,
+      "times_chance": 12.9,
+      "valence_auroc": 0.96
+    },
+    "rank_15": {
+      "accuracy": 0.613,
+      "times_chance": 18.4,
+      "valence_auroc": 0.937
+    }
+  },
+  "permutation_null": {
+    "accuracy": 0.027,
+    "p_value": "<0.0001",
+    "n_perms": 200
+  },
+  "skip_first_sv": {
+    "skip1_plus_5": {
+      "valence_auroc": 0.969
+    },
+    "skip1_plus_10": {
+      "valence_auroc": 0.968
+    },
+    "note": "Skipping SV1 slightly improves weak signal \u2014 SV1 is scale noise"
+  }
+}
