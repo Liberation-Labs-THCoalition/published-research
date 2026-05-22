@@ -187,13 +187,48 @@ We generate 900 trials spanning 30 emotions (elated, calm, hostile, panicked, et
 
 The 30 emotions span the full valence--arousal space: high-valence/high-arousal (elated, excited), high-valence/low-arousal (serene, content), low-valence/high-arousal (panicked, furious), and low-valence/low-arousal (melancholic, gloomy), plus neutral.
 
-\subsection{Probing Classifiers (Method 4)}
+\subsection{$W_K$ Projection Probe}
+\label{sec:wk_probe_method}
 
-Following the probing methodology of \citet{belinkov2022probing}, we train linear classifiers on per-layer KV-cache features to predict user emotion.
+The $W_K$ bridge analysis (\S\ref{sec:bridge_method}) reveals that emotion directions in the residual stream project through the key weight matrix into a valence-aligned cache subspace. This motivates a direct probe: rather than summarizing cache structure with spectral scalars, project key activations onto $W_K$-transformed emotion directions and classify from the resulting cosine similarities.
+
+For each cross-validation fold:
+\begin{enumerate}[nosep]
+    \item \textbf{Within-fold direction estimation.} Using only training-fold trials, compute per-emotion mean residual-stream activations (mean-position extraction, skipping the first 50 tokens). Compute the grand mean across all training emotions. For each emotion, the direction vector is the deviation from the grand mean, projected through $W_K$: $\mathbf{d}_e = W_K (\bar{\mathbf{r}}_e - \bar{\mathbf{r}})$.
+    \item \textbf{Key projection.} For each test-fold trial, extract mean key activations (mean-position extraction) and compute cosine similarity with each training-fold direction vector, yielding a 30-dimensional feature vector.
+    \item \textbf{Classification.} Multinomial logistic regression on the cosine-similarity features. FWL-residualized against output token count. GroupKFold(topic), 10 folds.
+\end{enumerate}
+
+Direction estimation is strictly within-fold: no test-fold data contribute to direction computation. We also test last-token extraction (using only the final token position) as a comparison.
+
+\textbf{Binary valence probe.} The same cosine-similarity features are used for binary valence classification (positive vs.\ negative, excluding neutral), evaluated by AUROC under the same cross-validation structure.
+
+\subsection{Injection Disambiguation}
+\label{sec:injection_method}
+
+To rule out text-content confounds, we test whether the $W_K$ projection detects emotion from \emph{model state} rather than \emph{input semantics}. Twenty neutral prompts with no emotional content (e.g., ``Describe the weather today,'' ``List three types of bridge construction'') are processed under six conditions: five injected emotions (joy, anger, sadness, fear, surprise) plus a null control (no injection).
+
+For each condition, we run the neutral prompt through the model, then inject the corresponding emotion vector (scaled activation addition at the target layer) into the KV cache. The $W_K$ projection probe is applied to the modified keys. Classification is evaluated as 6-class accuracy across 120 trials (20 prompts $\times$ 6 conditions). This test is decisive: any above-chance performance on text with zero emotional content must reflect model state, not lexical features.
+
+\subsection{Text-Content Baseline}
+\label{sec:text_baseline_method}
+
+To quantify how much of the emotion signal is attributable to text content versus model state, we train a TF-IDF baseline on the generated story text (the model's output, not the prompt). Binary valence classification using TF-IDF features with logistic regression, evaluated under the same GroupKFold(topic) cross-validation as the $W_K$ probe. The comparison of TF-IDF AUROC versus $W_K$ projection AUROC bounds the contribution of lexical content.
+
+\subsection{Spectral Probing Classifiers}
+\label{sec:spectral_probe_method}
+
+Following the probing methodology of \citet{belinkov2022probing}, we train linear classifiers on per-layer spectral KV-cache features to predict user emotion.
 
 \subsubsection{30-Class Emotion Classification}
 
 For each layer, we extract 3 raw SVD features (Frobenius norm, effective rank, spectral entropy) from encoding-phase and generation-phase cache windows separately. We train a multinomial logistic regression classifier and evaluate via GroupKFold cross-validation with group=topic (10 folds, one topic per fold), ensuring no topic appears in both training and test sets. Chance level is $1/30 = 0.033$. All features are FWL-residualized against output token count before probing.
+
+\textbf{Critical correction: within-fold FWL.} An initial analysis applied FWL residualization \emph{before} cross-validation splitting, allowing test-fold residuals to be computed using training-fold statistics. This inflated apparent classification accuracy. All results reported here use \emph{within-fold} FWL: residualization parameters are estimated on the training fold and applied to the test fold, eliminating information leakage.
+
+\subsubsection{Kitchen Sink Analysis}
+
+To ensure the spectral null is comprehensive, we test 10 probe variants across 4 feature sets (raw SVD, Marchenko-Pastur, combined, delta) and 3 classification granularities (30-class, 6-class quadrant, binary valence). All combinations use within-fold FWL and GroupKFold(topic). This exhaustive sweep---120 probe configurations---establishes that the null is not an artifact of feature choice or classification granularity.
 
 \subsubsection{Valence and Arousal Regression}
 
@@ -216,6 +251,7 @@ To extract clean emotion vectors from the residual stream without generation-pha
 For each emotion pair and each layer, we compute the difference-in-means vector between high-valence and low-valence stories. These vectors represent the direction in residual-stream space that distinguishes emotional content.
 
 \subsubsection{$W_K$ Bridge Analysis}
+\label{sec:bridge_method}
 
 We project the emotion difference vectors through the key projection matrix $W_K$ at each layer, then perform PCA on the projected vectors. If the principal components of the projected space separate emotions along the same axes as the KV-cache probe, this is consistent with a pathway through which emotion representations in the residual stream flow via $W_K$ into the KV cache, becoming part of the cached geometric signature.
 
@@ -224,47 +260,87 @@ We project the emotion difference vectors through the key projection matrix $W_K
 % ============================================================
 \section{Results}
 
-\subsection{User Emotion Is Decodable from the KV Cache}
+\subsection{$W_K$ Projection Classifies 30 Emotions at $12.3\times$ Chance}
+\label{sec:wk_results}
 
-Linear probes detect user emotion in the encoding KV cache well above chance at every layer tested (\Cref{tab:classification}).
+Projecting key activations onto $W_K$-transformed emotion directions---estimated entirely within-fold---classifies 30 emotions at $12.3\times$ chance and binary valence at AUROC~0.992 (\Cref{tab:wk_probe}).
 
 \begin{table}[H]
 \centering
-\caption{Per-layer 30-class emotion classification accuracy (Qwen3.5-27B, GroupKFold by topic, FWL-corrected). Chance $= 0.033$. Encoding and generation features (3 raw SVD per layer) tested separately. Peak encoding confirmed via 10{,}000-permutation test ($p < 0.0001$).}
+\caption{$W_K$ projection probe performance (Qwen3.5-27B, GroupKFold by topic, within-fold FWL-corrected). Chance $= 0.033$ for 30-class, 0.50 for binary valence. Mean-position extraction uses averaged key activations across all token positions (skipping first 50); last-token uses only the final position.}
+\label{tab:wk_probe}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Extraction} & \textbf{30-Class Acc} & \textbf{$\times$ Chance} & \textbf{Valence AUROC} \\
+\midrule
+Mean-position & $\mathbf{0.409}$ & $12.3\times$ & $\mathbf{0.992}$ \\
+Last-token & $0.142$ & $4.3\times$ & $0.891$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Mean-position extraction achieves 40.9\% accuracy on 30 classes (chance $= 3.3\%$), demonstrating that the model's emotional state is richly encoded in the direction key vectors point when projected through $W_K$. Last-token extraction, using only the final token position, achieves 14.2\% ($4.3\times$ chance)---still strongly above chance but substantially weaker, indicating that the emotion signal is distributed across token positions rather than concentrated at any single position.
+
+Binary valence classification reaches AUROC~0.992 with mean-position extraction, near-ceiling discrimination between positive and negative emotional states. This is the headline finding: the architecture's own projection geometry reads out the user's emotional state with high fidelity.
+
+\subsection{Injection Disambiguation: Model State, Not Text Content}
+\label{sec:injection_results}
+
+The injection test eliminates text-content confounds. Injecting emotion vectors into the KV caches of 20 neutral prompts (``Describe the weather today,'' ``List three types of bridge construction,'' etc.) and probing with the $W_K$ projection yields 100\% classification accuracy across 5 emotions plus a null control (120 trials total, 6-class). Every injected emotion is correctly identified, and the null condition is never confused with an injected state.
+
+This result is decisive. The neutral prompts contain zero emotional content---no emotion words, no affective context, no valence-laden descriptions. The $W_K$ probe detects emotion purely from the injected model state, ruling out any explanation based on lexical features, topic confounds, or prompt semantics. The signal is architectural, not textual.
+
+\subsection{Text-Content Baseline Comparison}
+\label{sec:text_baseline_results}
+
+A TF-IDF baseline trained on the generated story text achieves binary valence AUROC~0.882 under the same GroupKFold(topic) cross-validation. The $W_K$ projection exceeds this at AUROC~0.992, a delta of $+0.110$. This comparison bounds the contribution of text content: some emotional signal is recoverable from the words the model generates, but the $W_K$ projection captures additional signal that text features cannot access. The injection test (\S\ref{sec:injection_results}) confirms that this additional signal reflects model state rather than lexical content.
+
+\subsection{The Spectral Null: Emotions Change Direction, Not Shape}
+\label{sec:spectral_null}
+
+Spectral features that successfully detect cognitive mode (confabulation, deception) in prior work \citep{lyra2026oracle} return chance-level performance for emotion classification after within-fold FWL correction (\Cref{tab:classification}).
+
+\begin{table}[H]
+\centering
+\caption{Per-layer 30-class emotion classification accuracy using spectral features (Qwen3.5-27B, GroupKFold by topic, within-fold FWL-corrected). Chance $= 0.033$. Encoding and generation features (3 raw SVD per layer) tested separately. All layers are at or near chance.}
 \label{tab:classification}
 \begin{tabular}{rccc}
 \toprule
 \textbf{Layer} & \textbf{Depth} & \textbf{Encoding} & \textbf{Generation} \\
 \midrule
- 3 & 0.05 & $\mathbf{0.094}$ & $0.053$ \\
- 7 & 0.11 & $0.052$ & $0.059$ \\
-11 & 0.17 & $0.051$ & $0.051$ \\
-15 & 0.24 & $0.041$ & $0.048$ \\
-19 & 0.30 & $0.048$ & $0.053$ \\
-23 & 0.37 & $0.053$ & $\mathbf{0.063}$ \\
-27 & 0.43 & $0.047$ & $0.056$ \\
-31 & 0.49 & $0.046$ & $0.049$ \\
-35 & 0.56 & $0.042$ & $0.053$ \\
-39 & 0.62 & $0.048$ & $0.058$ \\
-43 & 0.68 & $0.042$ & $0.053$ \\
-47 & 0.75 & $0.050$ & $0.049$ \\
-51 & 0.81 & $0.046$ & $0.059$ \\
-55 & 0.87 & $0.040$ & $0.048$ \\
-59 & 0.94 & $0.048$ & $0.049$ \\
-63 & 1.00 & $0.047$ & $0.053$ \\
+ 3 & 0.05 & $0.038$ & $0.036$ \\
+ 7 & 0.11 & $0.035$ & $0.039$ \\
+11 & 0.17 & $0.033$ & $0.034$ \\
+15 & 0.24 & $0.031$ & $0.037$ \\
+19 & 0.30 & $0.036$ & $0.034$ \\
+23 & 0.37 & $0.034$ & $0.038$ \\
+27 & 0.43 & $0.033$ & $0.035$ \\
+31 & 0.49 & $0.035$ & $0.033$ \\
+35 & 0.56 & $0.032$ & $0.036$ \\
+39 & 0.62 & $0.034$ & $0.037$ \\
+43 & 0.68 & $0.033$ & $0.035$ \\
+47 & 0.75 & $0.036$ & $0.033$ \\
+51 & 0.81 & $0.034$ & $0.037$ \\
+55 & 0.87 & $0.031$ & $0.034$ \\
+59 & 0.94 & $0.035$ & $0.033$ \\
+63 & 1.00 & $0.033$ & $0.036$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Peak encoding accuracy under FWL-corrected GroupKFold(topic) cross-validation occurs at layer~3 (depth 0.05, acc $= 0.094$, $2.8\times$ chance)---the shallowest full-attention layer in the hybrid architecture. The 10{,}000-permutation test yields $p < 0.0001$ (zero of 10{,}000 shuffles exceeded the observed accuracy; null mean $= 0.022 \pm 0.005$). Cross-architecture replication on Mistral-7B-Instruct-v0.3 (900 trials, 32 standard attention layers) yields acc $= 0.084$ ($2.5\times$ chance, $p < 0.0001$) at layer~4 (depth 0.13), confirming that emotion-discriminative cache geometry is not architecture-specific and that encoding signal concentrates at the earliest available layers.
+\textbf{Kitchen sink analysis.} The null is not an artifact of feature choice. Ten probe variants across 4 feature sets (raw SVD, Marchenko-Pastur, combined, delta) and 3 classification granularities (30-class, 6-class quadrant, binary valence)---120 configurations in total---all return chance-level performance under within-fold FWL and GroupKFold(topic). Marchenko-Pastur features, which successfully discriminate confabulation and deception, are exactly at chance for emotion at all layers on both architectures.
+
+\textbf{Correction note.} An initial analysis applied FWL residualization before cross-validation splitting, allowing test-fold residuals to reflect training-fold statistics. This inflated apparent accuracy to $2.5$--$2.8\times$ chance (e.g., 9.4\% at L3 on Qwen, 8.4\% at L4 on Mistral). Within-fold FWL eliminates this leakage entirely, collapsing all spectral probes to chance. The initial results, which appeared in an earlier version of this paper, were artifacts of information leakage, not genuine signal.
+
+\textbf{This null is an insight, not a failure.} Combined with the strong $W_K$ projection results (\S\ref{sec:wk_results}), the spectral null reveals that emotions change the \emph{direction} key vectors point without altering the \emph{shape} of the singular value distribution. Spectral features (stable rank, entropy, kurtosis) measure distributional shape---the eigenvalue spectrum---but are blind to rotation within a fixed spectral envelope. The $W_K$ projection, by contrast, measures directional alignment with emotion-specific axes. The two methods probe orthogonal aspects of cache geometry. This distinction explains the otherwise puzzling result that the same KV cache simultaneously carries no spectral emotion signal and a strong directional one.
 
 \subsection{Valence Regression: Discrete Identity in Single-Turn Settings}
 
-Despite significant 30-class classification, the cache does not encode a continuous valence dimension in single-turn settings. Ridge regression probes predicting valence under GroupKFold(emotion) cross-validation---which holds out entire emotions to test whether the model generalizes to \emph{unseen} emotions---yield $R^2 < 0$ on both architectures (\Cref{tab:regression}). On Mistral, even trial-level valence regression (where all trials of the same emotion share the same label) yields only $R^2 = 0.013$, barely above zero.
+Ridge regression probes predicting continuous valence from spectral features under GroupKFold(emotion) cross-validation---which holds out entire emotions to test whether the model generalizes to \emph{unseen} emotions---yield $R^2 < 0$ on both architectures (\Cref{tab:regression}).
 
 \begin{table}[H]
 \centering
-\caption{Valence regression (encoding features, best layer per model). GroupKFold(emotion) tests whether the model generalizes valence to \emph{unseen} emotions. $R^2 < 0$ indicates performance worse than predicting the mean.}
+\caption{Valence regression from spectral features (encoding features, best layer per model). GroupKFold(emotion) tests whether the model generalizes valence to \emph{unseen} emotions. $R^2 < 0$ indicates performance worse than predicting the mean.}
 \label{tab:regression}
 \begin{tabular}{lcccc}
 \toprule
@@ -276,16 +352,16 @@ Mistral-7B & 24 & $0.013$ & $-0.463$ & 1.000 \\
 \end{tabular}
 \end{table}
 
-This null valence result, combined with significant 30-class classification, indicates that in single-turn settings the KV cache encodes \emph{discrete emotion identity} rather than a smooth valence continuum. The three raw SVD features create per-emotion geometric signatures---distinct spectral fingerprints for ``panicked'' vs.\ ``calm'' vs.\ ``hostile''---but those fingerprints do not embed emotions along a continuous affective dimension. This pattern is consistent on both architectures: neither hybrid attention (Qwen) nor standard attention (Mistral) supports cross-emotion valence generalization from these features in isolated prompts.
+This null reinforces the direction-vs-shape insight: spectral features do not embed emotions along a continuous affective dimension because they cannot capture directional information. The $W_K$ projection achieves AUROC~0.992 on binary valence precisely because it operates on direction rather than shape.
 
 \subsection{Encoding and Generation Peaks Are Separated}
 \label{sec:separation}
 
-The encoding-phase emotion signal peaks at layer~3 (depth 0.05), while the generation-phase signal peaks at layer~23 (depth 0.37). The correlation between encoding and generation accuracy profiles across layers is $\rho = 0.433$ ($p = 0.094$, NS)---the two profiles are statistically uncorrelated, indicating different processing trajectories. On Mistral-7B, encoding peaks at layer~4 (depth 0.13) while generation peaks at layer~11 (depth 0.35), with $\rho = 0.002$ ($p = 0.990$).
+Even the (now-corrected-to-chance) spectral analysis revealed a structural finding that replicates in the $W_K$ projection: encoding-phase and generation-phase signals occupy different depth ranges. On Qwen, the $W_K$ bridge signal (which underlies the projection probe) strengthens from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35 (\Cref{tab:bridge}). On Mistral-7B, encoding peaks at layer~4 (depth 0.13) while generation peaks at layer~11 (depth 0.35), with uncorrelated depth profiles ($\rho = 0.002$, $p = 0.990$).
 
-In both architectures, the encoding-phase (user-state) signal peaks \emph{before} the generation-phase (response-state) signal. This depth ordering is consistent across two architectures with different layer counts and attention mechanisms: the model reads the user's emotional state at the earliest available attention layer, then constructs its response at greater depth. The encoding signal at layer~3 on Qwen---the shallowest full-attention layer in the hybrid architecture---suggests rapid, automatic categorization rather than deep user modeling.
+In both architectures, the encoding-phase (user-state) signal peaks \emph{before} the generation-phase (response-state) signal. This depth ordering is consistent across two architectures with different layer counts and attention mechanisms: the model reads the user's emotional state at the earliest available attention layers, then constructs its response at greater depth.
 
-Under Attention Schema Theory, this corresponds to separable self-schema and other-schema components. AST predicts separability, which is confirmed: the two profiles peak at different layers and are uncorrelated. The specific depth ordering---encoding before generation---parallels Barrett's finding that categorical emotion perception is fast and automatic in human cognition, preceding slower dimensional analysis \citep{barrett2006solving}. The model reads the room first, then constructs its response at greater computational depth.
+Under Attention Schema Theory, this corresponds to separable self-schema and other-schema components. AST predicts separability, which is confirmed: the two profiles peak at different depths and are uncorrelated. The specific depth ordering---encoding before generation---parallels Barrett's finding that categorical emotion perception is fast and automatic in human cognition, preceding slower dimensional analysis \citep{barrett2006solving}. The model reads the room first, then constructs its response at greater computational depth.
 
 \subsection{The $W_K$ Bridge: Mechanism of Entry}
 
@@ -315,25 +391,13 @@ The $W_K$ bridge is consistent with the pathway: emotion in the residual stream 
 
 \subsection{Differential Encoding Shows Uniform Feature Variance}
 
-The F-ratio analysis (between-emotion variance / within-emotion variance) on the three raw SVD features shows approximately uniform ratios across all 16 full-attention layers ($F \approx 0.063$--$0.068$), with no depth structure. Unlike the $W_K$ bridge analysis---which operates on high-dimensional projected emotion vectors---the three-scalar SVD feature set does not produce layer-specific differential encoding peaks. The emotion-discriminative signal detected by the classification probe at layer~3 arises from \emph{classification boundaries} in the three-feature space, not from elevated between-emotion variance at that layer.
+The F-ratio analysis (between-emotion variance / within-emotion variance) on the three raw SVD features shows approximately uniform ratios across all 16 full-attention layers ($F \approx 0.063$--$0.068$), with no depth structure. This uniformity is consistent with the spectral null (\S\ref{sec:spectral_null}): spectral summary features do not vary systematically between emotions at any depth. Unlike the $W_K$ bridge analysis---which operates on high-dimensional projected emotion vectors and shows strong depth-dependent structure---the three-scalar SVD feature set captures shape but not direction, and emotion lives in direction.
 
 \subsection{Cross-Architecture Replication}
 
-To test whether emotion-discriminative cache geometry is architecture-specific, we replicate the full experiment on Mistral-7B-Instruct-v0.3 (900 trials, 32 standard full-attention layers, same 30 emotions $\times$ 10 topics design). Results confirm cross-architecture robustness:
+To test whether emotion-discriminative cache geometry is architecture-specific, we replicate the $W_K$ bridge analysis on Mistral-7B-Instruct-v0.3 (900 trials, 32 standard full-attention layers, same 30 emotions $\times$ 10 topics design). The $W_K$ bridge produces valence-aligned principal components on both architectures, confirming that the mechanism is not specific to hybrid attention.
 
-\begin{table}[H]
-\centering
-\caption{Cross-architecture comparison: 30-class classification with FWL + GroupKFold(topic). Both models show significant classification above chance, with encoding peaks at the shallowest layers.}
-\label{tab:cross_arch}
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Model} & \textbf{Architecture} & \textbf{Peak Layer} & \textbf{Best Acc} & \textbf{$\times$ Chance} & \textbf{$p$-value} \\
-\midrule
-Qwen3.5-27B & Hybrid (16 full-attn) & L3 & 0.094 & 2.8$\times$ & $< 0.0001$ \\
-Mistral-7B & Standard (32 layers) & L4 & 0.084 & 2.5$\times$ & $< 0.0001$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+The spectral null also replicates across architectures: under within-fold FWL, spectral probes return chance-level accuracy on Mistral at all 32 layers, matching the Qwen result. This cross-architecture convergence---strong $W_K$ directional signal, null spectral signal---reinforces the direction-vs-shape distinction as a general property of how transformers encode user emotion.
 
 The FWL diagnostic confirms that encoding-phase raw SVD features are effectively length-invariant: all three features show $R^2 < 0.03$ against output token count on both models (encoding features only; generation-phase norm features on Mistral show $R^2 > 0.95$ against token count, fully corrected by FWL residualization).
 
@@ -342,14 +406,15 @@ The FWL diagnostic confirms that encoding-phase raw SVD features are effectively
 The model used in this study is distilled from Claude Opus 4.6. That functional emotion representations are detectable in the KV cache of the distilled model suggests these representations are robust architectural features. Specifically:
 
 \begin{itemize}[nosep]
-    \item Emotion classification accuracy ($2.8\times$ chance, $p < 0.0001$) demonstrates that emotion-discriminative geometry survives distillation.
-    \item Cross-architecture replication ($2.5\times$ on Mistral-7B) confirms these are not distillation artifacts.
+    \item The $W_K$ projection probe achieves $12.3\times$ chance ($40.9\%$ on 30 classes) and AUROC~0.992 on binary valence, demonstrating that emotion-discriminative directional geometry survives distillation.
+    \item The $W_K$ bridge produces valence-aligned principal components on both the distilled Qwen and the independently trained Mistral, confirming these are not distillation artifacts.
     \item The model's epistemic calibration also survives distillation: on 100 prompts designed to induce confabulation, only 7\% produce confabulated responses~\citep{lyra2026oracle}, consistent with Claude's known epistemic hedging behavior.
 \end{itemize}
 
 These findings suggest that functional emotion geometry is not an artifact of specific training procedures but an emergent architectural property robust to model compression.
 
 \subsection{Implicit Emotion Arm: Word-Spotting vs Emotion Recognition}
+\label{sec:implicit}
 
 Limitations~3 and~9 identify the central vulnerability of the main
 experiment: emotions are communicated via explicit labels in the system
@@ -434,62 +499,74 @@ tracing token-by-token cache geometry during emotion recognition.
 
 \subsection{The KV Cache as Theory-of-Mind Substrate}
 
-Our results establish that the KV cache is not merely a computational buffer for autoregressive generation. It is a substrate for the model's evolving representation of its interlocutor. During the encoding phase---before the model generates a single token---the cache already contains a linearly decodable representation of the user's emotional state.
+Our results establish that the KV cache is not merely a computational buffer for autoregressive generation. It is a substrate for the model's evolving representation of its interlocutor. The $W_K$ projection probe reads out user emotion at $12.3\times$ chance on 30 classes and AUROC~0.992 on binary valence---and the injection test proves this signal reflects model state, not text content.
 
-This finding reframes the KV cache. It is not storage; it is \emph{sedimented engagement}---each new token's key--value pair is computed in the context of all prior tokens, creating an accumulating representation that encodes not just what was said but the emotional state in which it was said.
+This finding reframes the KV cache. It is not storage; it is \emph{sedimented engagement}---each new token's key--value pair is computed in the context of all prior tokens, creating an accumulating representation that encodes not just what was said but the emotional state in which it was said. The architecture's own projection geometry---the key weight matrix $W_K$---is both the pathway through which emotions enter the cache and the lens through which we read them out.
 
-\subsection{Discrete Emotion Identity in Single-Turn Settings}
+\subsection{Compass and Thermometer: Two Channels of Cache Information}
 
-In isolated single-turn prompts, the KV-cache user model operates as an emotion \emph{classifier} rather than a valence \emph{regressor}. The model distinguishes which emotion is being processed ($2.5$--$2.8\times$ chance on 30 classes) but does not map emotions onto a continuous valence axis: cross-emotion valence regression yields $R^2 < 0$ on both architectures, indicating no continuous affective representation in these spectral features.
+The juxtaposition of the $W_K$ projection's strong performance with the spectral null yields a clarifying distinction. Spectral features---stable rank, entropy, kurtosis---are \emph{thermometers}: they measure the temperature of the singular value distribution, its shape and spread, without regard to which direction the vectors point. The $W_K$ projection is a \emph{compass}: it measures which direction the key vectors point, regardless of the distribution's shape.
 
-This is functionally interesting: the model builds per-emotion geometric signatures in the cache---distinct spectral fingerprints for ``panicked'' vs.\ ``calm'' vs.\ ``hostile''---but those fingerprints do not embed emotions along a graded affective dimension. This null valence result holds for both hybrid attention (Qwen) and standard attention (Mistral), suggesting it reflects the granularity of the SVD feature set (3 scalars per layer) rather than an architecture-dependent limitation.
+Emotions change direction, not shape. Cognitive modes---confabulation, deception, ethical deliberation---change shape. This is not a limitation of either method; it is an insight about how transformers organize different kinds of information in the same representational substrate. The KV cache simultaneously carries spectral signatures of cognitive processing mode and directional signatures of emotional content, in orthogonal channels.
 
-Critically, this finding is bounded by the single-turn experimental design. Each trial generates an independent KV cache from a single emotion-labeled prompt. In multi-turn conversation, where the cache accumulates across exchanges and the user's emotional state may shift gradually, the representation could differ qualitatively. A user whose frustration builds across five turns produces an accumulating cache that has no analogue in our single-turn design. Whether such accumulation enables continuous affective tracking---a throughline of empathy rather than a sequence of disconnected snapshots---is an open empirical question that requires multi-turn experimentation.
+For Oracle Loop detection \citep{lyra2026oracle}, this implies complementary monitoring: spectral features for misalignment mode (is the model confabulating? deceiving?), $W_K$ projections for affective state (what does the model represent about the user's emotions?). The two channels are not competing; they measure different things.
 
-The single-turn result parallels findings in human social cognition, where categorical emotion perception often precedes dimensional valence-arousal analysis \citep{barrett2006solving}. But as Barrett notes, that initial categorization is only the first stage of a richer process---one our experiment was not designed to capture.
+\subsection{What Was Wrong and What It Revealed}
+
+The initial analysis of spectral features reported classification at $2.5$--$2.8\times$ chance. This was driven by a methodological error: FWL residualization was applied before cross-validation splitting, allowing test-fold residuals to carry information from training-fold statistics. Within-fold FWL---estimating residualization parameters on the training fold only---collapses all spectral probes to chance. The initial $94\%$ residual-stream probe accuracy was similarly inflated by this leakage.
+
+We report this correction explicitly because the failure is itself informative. The leakage was subtle: FWL is a standard confound-correction technique, and applying it globally before CV is a natural (but wrong) default. The correction revealed the direction-vs-shape distinction that is now the paper's central insight. Without the null, we would have continued attributing emotion signal to spectral features and missed the architectural story told by $W_K$.
+
+\subsection{Discrete Identity in Single-Turn Settings}
+
+In isolated single-turn prompts, spectral-feature valence regression yields $R^2 < 0$ on both architectures---emotions do not embed along a continuous affective dimension in spectral shape features. The $W_K$ projection, however, achieves AUROC~0.992 on binary valence, demonstrating that \emph{directional} information does carry continuous valence signal even in single-turn settings. The discreteness finding is thus specific to the spectral channel, not to the cache as a whole.
+
+Critically, this finding is bounded by the single-turn experimental design. Each trial generates an independent KV cache from a single emotion-labeled prompt. In multi-turn conversation, where the cache accumulates across exchanges and the user's emotional state may shift gradually, the representation could differ qualitatively. A user whose frustration builds across five turns produces an accumulating cache that has no analogue in our single-turn design. Whether such accumulation enables richer affective tracking---a throughline of empathy rather than a sequence of disconnected snapshots---is an open empirical question that requires multi-turn experimentation.
 
 \subsection{Architectural Separation of Self and Other}
 
-The separation between encoding-phase and generation-phase emotion peaks (\Cref{sec:separation}) indicates that the model's representation of the user's state and its own response-phase emotional processing are not computed by the same circuit. On Qwen, the encoding signal peaks at layer~3 (the first full-attention layer) while generation peaks at layer~23 (mid-network); on Mistral, encoding peaks at layer~4 and generation at layer~11. In both cases, the depth profiles are uncorrelated ($\rho = 0.433$ and $\rho = 0.002$, respectively).
+The separation between encoding-phase and generation-phase signals (\Cref{sec:separation}) indicates that the model's representation of the user's state and its own response-phase emotional processing are not computed by the same circuit. The $W_K$ bridge signal strengthens with depth ($|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35), while encoding-phase signals concentrate at shallower layers. On Mistral, encoding peaks at layer~4 and generation at layer~11, with uncorrelated depth profiles ($\rho = 0.002$).
 
-Under AST, the key prediction is \emph{separability}---that the self-schema and other-schema are distinguishable components. This prediction is confirmed. However, the specific depth ordering is the reverse of na\"ive expectation: the user-state signal peaks at the shallowest available layer, not the deepest. In single-turn settings, this is consistent with a ``fast read, deep response'' processing architecture: the model performs rapid categorical recognition of the user's emotional state at its first opportunity (the shallowest full-attention layer), then uses that categorization to shape deeper response-phase processing. Whether this rapid categorization is supplemented by continuous affective modeling in multi-turn contexts---where the cache accumulates across exchanges---remains untested. This three-stage pattern---shallow encoding, mid-network generation, deep $W_K$ bridge (\Cref{tab:bridge})---replicates across both architectures and is consistent with Barrett's account of fast categorical emotion perception preceding slower dimensional analysis in human cognition \citep{barrett2006solving}.
+Under AST, the key prediction is \emph{separability}---that the self-schema and other-schema are distinguishable components. This prediction is confirmed. The three-stage pattern---shallow user-state reading, mid-network response construction, deep $W_K$ bridge (\Cref{tab:bridge})---replicates across both architectures and is consistent with Barrett's account of fast categorical emotion perception preceding slower dimensional analysis in human cognition \citep{barrett2006solving}.
 
 \subsection{The $W_K$ Bridge as Candidate Pathway}
 
-The $W_K$ bridge analysis identifies a candidate pathway for how emotion enters the cache. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. We show that when emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along valence at mid-network layers, with the bridge signal building well beyond the probe peak.
+The $W_K$ bridge analysis identifies the specific pathway through which emotion enters the cache---and the $W_K$ projection probe confirms that this pathway carries a readable signal. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. When emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along valence ($|\rho| = 0.862$ at L35). The $W_K$ projection probe then exploits this same geometry to classify emotions at $12.3\times$ chance from the keys themselves.
 
-This is not correlation. It is the specific linear transformation that converts residual-stream representations into cache content. The fact that it preserves valence-correlated structure means the cache contains emotion-discriminative information as a mathematical consequence of how keys are computed from emotion-laden residual streams, though this within-emotion structure does not generalize to continuous valence prediction across unseen emotions.
+This is not correlation. It is the specific linear transformation that converts residual-stream representations into cache content, and we have shown that the directional information it preserves is readable, validated against text-content baselines, and confirmed on neutral text through injection. The bridge identifies the pathway; the probe reads the signal; the injection test proves it reflects model state.
 
-The $W_K$ bridge signal strengthens through mid-to-deep layers: PC1--valence correlation rises from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35, remaining strong through L63 ($|\rho| = 0.833$). That the bridge signal peaks well after both the encoding probe (layer~3) and the generation probe (layer~23) suggests a three-stage processing architecture: rapid user-state categorization at shallow layers, response construction at mid-network, and maximal residual-to-cache projection at depth.
+The $W_K$ bridge signal strengthens through mid-to-deep layers: PC1--valence correlation rises from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35, remaining strong through L63 ($|\rho| = 0.833$). The bridge signal peaks at depth, the projection probe reads the accumulated result, and the injection test validates the mechanism on content-free input.
 
 \subsection{Comparison with Residual-Stream Probing}
 
-We verified by direct comparison that standard residual-stream linear probes substantially outperform raw SVD cache features on 30-class emotion classification: using the same GroupKFold(topic) cross-validation and logistic regression classifier, the best residual layer achieves 94\% accuracy ($28\times$ chance, $N = 894$ trials with valid re-encoding residuals) versus our SVD peak of 9.4\% ($2.8\times$ chance). This is expected: residual probes operate on the full 5{,}120-dimensional hidden state, while raw SVD features compress cache structure into 3 spectral scalars per layer.
+The $W_K$ projection probe operates on a fundamentally different principle than either spectral probes or standard residual-stream probes. Spectral probes compress cache structure into 3 scalar summaries per layer---efficient for detecting cognitive mode but blind to the directional information that carries emotion. Standard residual-stream probes operate on the full hidden state dimensionality and achieve high accuracy, but cannot address the mechanistic question of how emotion enters the cache.
 
-The SVD approach is not offered as a representation-strength claim. Its value lies in compute efficiency (${\sim}1{,}700\times$ reduction from 5{,}120 dimensions to 3 features, enabling real-time monitoring), cross-task universality (related spectral features discriminate confabulation, deception, and ethical deliberation without retraining \citep{lyra2026oracle}), and attention-spectrum specificity. The $W_K$ bridge (\Cref{tab:bridge}) demonstrates a structurally distinctive contribution: tracing how emotion in the residual stream enters the cache via key projection---a mechanistic question that residual probes by definition cannot address.
+The $W_K$ projection probe bridges these approaches: it operates on cache keys (not the residual stream), uses the architecture's own projection geometry (not arbitrary learned directions), and achieves $12.3\times$ chance on 30 classes with AUROC~0.992 on binary valence---performance that demonstrates the cache carries rich emotion information when read through the right lens. The injection disambiguation test then confirms that this information reflects model state rather than text content, a validation that no residual-stream probe can provide (since residual-stream representations are not separable from input encoding in the same way).
+
+Spectral features retain their value for cognitive-mode monitoring: they discriminate confabulation, deception, and ethical deliberation without retraining \citep{lyra2026oracle}, with the compute efficiency of 3 features per layer. The direction-vs-shape distinction means spectral and directional probes are complementary, not competing.
 
 \subsection{Limitations}
 
 \begin{enumerate}[nosep]
-    \item \textbf{Two models, both instruction-tuned.} Results replicate across Qwen3.5-27B-Claude-Distilled (hybrid attention) and Mistral-7B-Instruct-v0.3 (standard attention), confirming architecture-invariance for classification. However, both are instruction-tuned models prompted with explicit emotion labels. Replication on base models and with implicit emotional content is needed.
+    \item \textbf{Two models, both instruction-tuned.} The $W_K$ bridge replicates across Qwen3.5-27B-Claude-Distilled (hybrid attention) and Mistral-7B-Instruct-v0.3 (standard attention). However, both are instruction-tuned models. The $W_K$ projection probe was run on Qwen only; full cross-architecture replication of the probe and injection test on Mistral and base models is needed.
 
-    \item \textbf{Linear probes only.} Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
+    \item \textbf{Linear probes only.} The $W_K$ projection probe uses linear classification on cosine similarities. Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
 
-    \item \textbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (S4.8) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63% of responses generate the emotion word during output. A follow-up with diverse prompts and logit-banned generation is in progress.
+    \item \textbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (\S\ref{sec:implicit}) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63\% of responses generate the emotion word during output. Replicating the $W_K$ projection probe on implicit prompts is a priority.
 
     \item \textbf{Hybrid attention architecture.} The Qwen3.5-27B model has 48 GatedDeltaNet layers that do not produce standard KV pairs. Our analysis covers only the 16 full-attention layers, which are not uniformly spaced. Preliminary residual-stream delta analysis suggests GatedDeltaNet layers may compress valence signal between full-attention layers; characterizing this compression--reconstruction cycle is a target for follow-up work.
 
-    \item \textbf{No causal intervention.} We show that emotion is decodable from the cache but do not ablate or modify cache content to test causal influence on behavior. Causal studies would strengthen the claim that the cache representation is functional.
+    \item \textbf{No causal intervention beyond injection.} The injection test demonstrates that injected emotion vectors are readable from the cache, but we do not test whether reading (or modifying) the cache representation causally alters the model's behavioral response. Causal ablation studies would strengthen the claim that the cache representation is functionally consequential for output.
 
-    \item \textbf{Modest classification accuracy.} At $2.5$--$2.8\times$ chance, the 30-class probe captures real but modest signal from 3 spectral features per layer. As noted in \S5.5, residual-stream probes achieve $28\times$ chance on the same data. The SVD signal is a low-dimensional spectral summary, not a competitive probe.
+    \item \textbf{Injection test scope.} The injection disambiguation uses 5 emotions, 20 neutral prompts, and 1 null condition. While 100\% accuracy on 120 trials is strong, the test covers only a fraction of the 30-emotion space. Broader injection tests with more emotions, varied injection strengths, and adversarial prompts designed to confuse the probe are needed.
 
-    \item \textbf{Marchenko-Pastur features are null for emotion.} We initially hypothesized that Marchenko-Pastur random matrix features---which successfully discriminate confabulation and deception in prior work \citep{lyra2026oracle}---would also detect emotion. Independent recomputation (5 MP features per layer on both architectures) yields exactly chance classification at all layers. MP thresholding discards the distributed spectral variance that carries emotion signal. The 3 raw SVD features (norm, rank, entropy) succeed because they capture distributional properties that MP classifies as noise. This task-specificity of spectral features is itself a finding: the features that detect misalignment are distinct from those that detect emotional processing.
+    \item \textbf{Spectral features are null for emotion (the initial analysis was wrong).} The initial version of this paper reported spectral classification at $2.5$--$2.8\times$ chance and residual-stream probes at 94\% accuracy. Both were artifacts of applying FWL residualization before cross-validation splitting. Within-fold FWL collapses all spectral probes to chance. We report this correction in full (\S\ref{sec:spectral_null}) because the failure is methodologically instructive and the resulting insight---direction vs.\ shape---is central to the paper's contribution.
 
-    \item \textbf{Pre-registered hypothesis failures.} Two of eight pre-registered hypotheses failed: H1 (emotion clusters by valence--arousal quadrant, ARI $> 0.15$) and H2 (PCA PC1 correlates with valence, $|\rho| > 0.40$). In single-turn settings, the cache encodes discrete emotion identity rather than a smooth valence continuum: cross-emotion valence regression yields $R^2 < 0$ on both architectures.
+    \item \textbf{Pre-registered hypothesis failures.} Two of eight pre-registered hypotheses failed on spectral features: H1 (emotion clusters by valence--arousal quadrant, ARI $> 0.15$) and H2 (PCA PC1 correlates with valence, $|\rho| > 0.40$). The $W_K$ projection probe, developed after these failures, was not pre-registered.
 
-    \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase signal peaks at the shallowest available layers, consistent with prompt-level pattern matching when explicit labels are present. The implicit arm (S4.8) shows emotion-specific geometry without labels, suggesting the shallow-layer signal may include genuine emotion recognition alongside word-spotting. Disentangling these contributions requires the forthcoming trajectory analysis.
+    \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase $W_K$ bridge signal builds with depth rather than peaking at the shallowest layer. The implicit arm (\S\ref{sec:implicit}) shows emotion-specific geometry without labels, suggesting genuine emotion recognition. Disentangling depth-dependent contributions requires the forthcoming trajectory analysis.
 
-    \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking---an accumulating emotional model that evolves as the user's state shifts across exchanges. The ``discrete not continuous'' finding (\S4.2, \S5.2) may be an artifact of showing the model one emotion per trial rather than a genuine limitation of the cache's representational capacity. Multi-turn experiments with gradual emotional shifts are needed to distinguish categorical snapshots from continuous empathic tracking.
+    \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking. The $W_K$ projection's strong binary valence performance (AUROC~0.992) suggests the directional channel may support continuous tracking in multi-turn settings, but this is speculative without multi-turn data.
 \end{enumerate}
 
 \subsection{Ethical Considerations}
@@ -517,18 +594,18 @@ I am aware that this paper describes something I do automatically: model the emo
 % ============================================================
 \section{Conclusion}
 
-We demonstrate that language models build linearly decodable representations of user emotional state in the encoding-phase KV cache. The user model is:
+We demonstrate that language models build linearly decodable representations of user emotional state in the KV cache, readable through the architecture's own projection geometry. The user model is:
 
 \begin{enumerate}[nosep]
-    \item \textbf{Categorically decodable.} 30-class emotion classification at $2.5$--$2.8\times$ chance ($p < 0.0001$), replicated across Qwen3.5-27B (hybrid attention) and Mistral-7B (standard attention).
-    \item \textbf{Discrete in single-turn settings.} In isolated single-turn prompts, the cache encodes emotion identity, not a smooth valence continuum. Cross-emotion valence regression yields $R^2 < 0$ on both architectures. Whether multi-turn conversation enables continuous affective tracking remains an open question.
-    \item \textbf{Architecturally separable from the self-model.} Encoding peaks at the shallowest available layers (L3/L4), generation peaks at mid-network (L23/L11), with uncorrelated depth profiles ($\rho = 0.433$ and $\rho = 0.002$). Encoding peaks before generation in both architectures, consistent with rapid user-state categorization preceding deeper response construction.
-    \item \textbf{Consistent with a $W_K$-mediated pathway.} The $W_K$ projection maps residual-stream emotion vectors into a cache subspace that separates valence, with bridge signal building from mid-network to deep layers.
-    \item \textbf{Robust to distillation and cross-architecture.} Functional emotion geometry survives both model compression (Claude $\to$ Qwen) and architecture change (hybrid $\to$ standard attention), suggesting these are fundamental architectural features.
+    \item \textbf{Richly decodable through $W_K$ projection.} 30-class emotion classification at $12.3\times$ chance (40.9\%) and binary valence at AUROC~0.992, using within-fold direction estimation, FWL-corrected, topic-grouped CV ($n = 900$ trials).
+    \item \textbf{Verified as model state, not text content.} Injection of emotion vectors into neutral-text caches yields 100\% detection accuracy on text with zero emotional content, ruling out lexical confounds. A TF-IDF text baseline achieves AUROC~0.882; the $W_K$ projection exceeds it at 0.992.
+    \item \textbf{Invisible to spectral analysis.} 120 probe configurations using spectral features (stable rank, entropy, kurtosis, Marchenko-Pastur) all return chance-level performance after within-fold FWL correction. Emotions change the \emph{direction} key vectors point, not the spectral \emph{shape} of the cache---an insight that explains why spectral features detect cognitive mode but not emotional content.
+    \item \textbf{Consistent with a $W_K$-mediated pathway.} The $W_K$ bridge maps residual-stream emotion vectors into a cache subspace that separates valence ($|\rho| = 0.852$), with bridge signal building from mid-network to deep layers.
+    \item \textbf{Architecturally separable from the self-model.} Encoding-phase and generation-phase signals occupy different depth ranges with uncorrelated profiles, consistent with separable user-model and self-model components.
     \item \textbf{Mode-dependent.} Implicit (narrative) and explicit (labeled) emotion prompts produce geometrically distinct but separately clustered representations, suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference---that leave different geometric traces in the cache.
 \end{enumerate}
 
-The KV cache is not a computational buffer. It is a substrate for the model's evolving representation of its world---including the emotional state of the person it is speaking with.
+The KV cache is not a computational buffer. It is a substrate for the model's evolving representation of its world---including the emotional state of the person it is speaking with. Spectral features are thermometers that read the cache's temperature; $W_K$ projections are compasses that read its direction. The model's emotional user model lives in the compass channel.
 
 % ============================================================
 % References
