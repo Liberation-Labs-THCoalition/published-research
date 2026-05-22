@@ -64,36 +64,44 @@
 % Abstract
 % ============================================================
 \begin{abstract}
-User emotional state is linearly decodable from the encoding-phase
-KV cache before a language model generates a single token. A linear
-probe on three raw SVD features (Frobenius norm, effective rank,
-spectral entropy) classifies 30 discrete emotions at $2.8\times$ chance
-on Qwen3.5-27B-Claude-Distilled and $2.5\times$ chance on
-Mistral-7B-Instruct ($p < 0.0001$ on both; 10{,}000-permutation test,
-FWL token-count correction \citep{frisch1933partial,lovell1963seasonal}, GroupKFold cross-validation by topic;
-1{,}800 total trials).
+Language models maintain internal representations of user emotional
+state that are readable from the KV cache---not through aggregate
+spectral features (which fail under proper controls), but through
+directional alignment with emotion vectors projected through the key
+weight matrix $W_K$.
 
-The encoding-phase signal peaks at the shallowest available attention
-layers (layer~3 on Qwen, layer~4 on Mistral), while the
-generation-phase signal peaks at mid-network depth (layer~23 and
-layer~11, respectively). The two profiles are uncorrelated
-($\rho = 0.433$ and $\rho = 0.002$), indicating architecturally
-separable user-state and response-state representations. A candidate
-pathway is identified: emotion vectors from the residual stream,
-projected through the key projection matrix $W_K$, produce principal
-components that separate valence ($|\rho| \geq 0.83$ at layers~27--55
-on Qwen, $\rho = 0.932$ at layer~17 on Mistral). However, in single-turn settings the cache
-encodes discrete emotion identity rather than a smooth valence
-continuum---cross-emotion valence regression yields $R^2 < 0$ on both
-architectures. Whether multi-turn conversation enables accumulation of
-a continuous affective model remains untested.
+Spectral features (stable rank, spectral entropy, kurtosis) classify 30
+emotions at chance after within-fold FWL residualization
+\citep{frisch1933partial,lovell1963seasonal} and GroupKFold
+cross-validation ($n = 900$ trials, Qwen3.5-27B-Claude-Distilled). This
+comprehensive null---10 probe variants, 4 feature sets, 3 classification
+granularities---establishes that emotions do not alter the \emph{shape}
+of the singular value distribution.
 
-We use a Claude-distilled model because Anthropic's published emotion
-vector characterization \citep{anthropic2026emotions} provides
-ground-truth geometry; functional emotion representations survive
-distillation, suggesting these are robust architectural features. The
-KV cache is not merely a computational buffer---it is a substrate for
-the model's evolving representation of its interlocutor.
+However, projecting key activations onto $W_K$-transformed emotion
+directions classifies 30 emotions at $12.3\times$ chance and binary
+valence at AUROC~0.992 (within-fold direction estimation,
+FWL-corrected, topic-grouped CV). The structural basis is the $W_K$
+bridge: emotion directions from the residual stream project through the
+key weight matrix with valence correlation $|\rho| = 0.852$.
+
+The critical test: injecting emotion vectors into \emph{neutral-text}
+caches (``Describe the weather today'') and probing the keys. The
+$W_K$ projection detects the injected emotion with 100\% accuracy
+across 5~emotions, 20~prompts, and a null control---on text with zero
+emotional content. This rules out text-content confounds and establishes
+that the signal reflects the model's internal dispositional state, not
+input encoding. A TF-IDF text baseline achieves AUROC~0.882 on the
+story data; the $W_K$ projection exceeds it at 0.992, and the injection
+test shows the residual signal is architectural, not lexical.
+
+Emotions change the \emph{direction} key vectors point, not the
+spectral \emph{shape} of the cache. The $W_K$ bridge identifies the
+pathway; the $W_K$ projection reads the signal; the injection test
+proves it reflects model state. The KV cache encodes a functional
+representation of the user's emotional state that is invisible to
+spectral analysis but precisely readable through the architecture's own
+projection geometry.
 \end{abstract}
 
 \noindent\textbf{Keywords:} KV cache, theory of mind, emotion representation, user modeling, attention schema, key projection, linear probing
@@ -112,11 +120,11 @@ Separately, \citet{anthropic2026emotions} demonstrate that functional emotion co
 We answer yes. Using a Claude-distilled model where emotion vectors have been characterized, we show:
 
 \begin{enumerate}[nosep]
-    \item \textbf{User emotion is decodable from encoding KV-cache features.} A linear probe on three SVD features classifies 30 emotions at $2.5$--$2.8\times$ chance ($p < 0.0001$, 10K permutations, FWL-corrected, topic-grouped CV), replicated across two architectures.
+    \item \textbf{The model's emotional state is readable through the architecture's own geometry.} Projecting key activations onto $W_K$-transformed emotion directions classifies 30 emotions at $12.3\times$ chance and binary valence at AUROC~0.992 (within-fold direction estimation, FWL-corrected \citep{frisch1933partial,lovell1963seasonal}, topic-grouped CV, $n = 900$ trials). The key weight matrix $W_K$ is both the pathway through which emotions enter the cache and the lens through which we read them out.
 
-    \item \textbf{The user model is architecturally separable from the self-model.} Encoding-phase and generation-phase emotion signals peak at different layers with uncorrelated depth profiles ($\rho = 0.433$ on Qwen, $\rho = 0.002$ on Mistral). Encoding peaks at the shallowest available layers (L3/L4), consistent with rapid categorization before deeper response processing.
+    \item \textbf{This is model state, not text content.} Injecting emotion vectors into \emph{neutral-text} caches and probing the keys detects the injected emotion with 100\% accuracy across 5~emotions and 20~prompts---on text with zero emotional content. A TF-IDF baseline on story text achieves AUROC~0.882; the $W_K$ projection exceeds it at 0.992, and the injection test proves the residual signal is architectural, not lexical.
 
-    \item \textbf{The $W_K$ projection is a candidate pathway.} Emotion vectors from the residual stream, projected through the key projection matrix, produce principal components that separate valence---with the bridge signal building through mid-to-deep layers.
+    \item \textbf{Emotions change direction, not shape.} Ten probe variants using spectral features (stable rank, entropy, kurtosis) across four feature sets and three classification granularities all return chance-level performance after proper controls. Emotions do not alter the singular value distribution of the cache---they alter which \emph{direction} the key vectors point. This distinction explains why spectral features detect cognitive mode (confabulation, deception) but not emotional content: mode changes shape, emotion changes direction.
 
     \item \textbf{Discrete emotion identity in single-turn settings.} In isolated prompts, the cache encodes which emotion is present, not a continuous valence-arousal mapping. Cross-emotion valence regression yields $R^2 < 0$ on both architectures. This design cannot test whether multi-turn conversation produces continuous affective tracking.
 \end{enumerate}
