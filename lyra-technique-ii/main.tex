@@ -104,8 +104,9 @@ $12.3\times$ chance (within-fold direction estimation, FWL-corrected,
 topic-grouped CV) and binary valence at AUROC~0.992. The critical
 disambiguation: injecting emotion vectors into \emph{neutral-text} caches
 (``Describe the weather today'') and probing the keys yields 100\% detection
-across 5~emotions, 20~prompts, and a null control---on text with zero
-emotional content. This is model state, not text encoding.
+across 5~emotions, 20~prompts, and a null control (6-class, chance
+$= 0.167$)---on text with zero emotional content. This is model state,
+not text encoding.
 
 \textbf{(2) SVD denoising of spectral features.} Within-fold rank-$k$
 projection onto the top singular value components after FWL residualization
@@ -384,7 +385,7 @@ projection reads \emph{model state} (the direction keys point) rather than
 
 \paragraph{Control: random directions.} Injecting random unit vectors of the
 same norm as emotion vectors produces classification at $0.7\times$
-chance---\emph{below} the $1/5 = 0.200$ baseline. The emotion-specific
+chance---\emph{below} the $1/6 = 0.167$ baseline. The emotion-specific
 directions are information-bearing; arbitrary directions are not.
 
 \subsection{Models and Datasets}
@@ -443,7 +444,7 @@ both architectures~\citep{lyra_p4}.
 positive/negative valence, $W_K$ projection achieves AUROC~0.992. For
 comparison:
 \begin{itemize}[nosep]
-    \item Raw spectral features (52-D): AUROC~0.52 (chance)
+    \item Raw spectral features (52-D): AUROC~0.70
     \item TF-IDF text baseline on story text: AUROC~0.882
     \item $W_K$ projection: AUROC~0.992
 \end{itemize}
@@ -475,11 +476,11 @@ do not.
 \toprule
 \textbf{Method} & \textbf{30-class (vs.\ $0.033$)} & \textbf{Valence AUROC} & \textbf{Notes} \\
 \midrule
-Raw spectral (52-D) & $1.0\times$ chance & 0.52 & Exactly chance \\
-SVD-denoised spectral (rank-10) & $12.9\times$ chance & 0.89 & See \S\ref{sec:results_denoise_emo} \\
+Raw spectral (52-D) & $1.7\times$ chance & 0.70 & 52-D features \\
+SVD-denoised spectral (rank-10) & $12.9\times$ chance & 0.960 & See \S\ref{sec:results_denoise_emo} \\
 TF-IDF text baseline & --- & 0.882 & Lexical features \\
 $W_K$ projection & $12.3\times$ chance & 0.992 & Directional \\
-$W_K$ injection (neutral text) & 100\% (5-class) & --- & Zero emotional content \\
+$W_K$ injection (neutral text) & 100\% (6-class) & --- & 5 emotions + null \\
 Random direction control & $0.7\times$ chance & --- & Below chance \\
 \bottomrule
 \end{tabular}
@@ -660,12 +661,12 @@ factual responses) shows a robust signal that scales with model size:
 \textbf{Model} & \textbf{Size} & \textbf{AUROC} \\
 \midrule
 TinyLlama & 1.1B & 0.617 \\
-Gemma-2B & 2B & 0.654 \\
-Qwen-0.6B & 0.6B & 0.648 \\
-Qwen-7B & 7B & 0.789 \\
-Mistral-7B & 7B & 0.756 \\
-Llama-8B & 8B & 0.812 \\
-Qwen-32B & 32B & 0.893 \\
+Llama-8B & 8B & 0.764 \\
+Gemma-2B & 2B & 0.798 \\
+Qwen-7B & 7B & 0.826 \\
+Qwen-0.5B & 0.5B & 0.849 \\
+Mistral-7B & 7B & 0.868 \\
+Qwen-32B & 32B & 0.882 \\
 Qwen2.5-14B & 14B & 0.966 \\
 \bottomrule
 \end{tabular}
@@ -708,7 +709,7 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- direction-level signals (new in this paper)}} \\
 30-class emotion ($W_K$) & $1.0\times$ & $12.3\times$ & --- & $<0.0001$ & Confirmed \\
-Binary valence ($W_K$) & 0.52 & 0.992 & --- & $<0.0001$ & Confirmed \\
+Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.0001$ & Confirmed \\
 Injection (neutral text) & --- & 100\% & --- & $<0.0001$ & Confirmed \\
 \midrule
 \multicolumn{6}{l}{\textit{Rescued by denoising}} \\
