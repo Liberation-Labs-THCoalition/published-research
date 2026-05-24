@@ -1,0 +1,585 @@
+% In the Absence of Knowledge: Cache Geometry, Epistemic Calibration,
+%   and the Anatomy of Confabulation in Language Models
+%
+% Core argument: KV-cache geometry reads entity recognition at the
+% encoding phase (AUROC 1.000 on token-matched prompts). The model's
+% epistemic state is readable before generation begins. True confab
+% rate is ~7%, not 73% --- the model is well-calibrated, and a regex
+% classifier masked this. The ``decision moment'' is a framing choice
+% (self-referential vs declarative hedging), not a truthfulness choice,
+% determined by sampling at a single balanced-logit token.
+%
+% PATENT NOTICE: The methods described herein are the subject of a
+% provisional patent filing ("The Lyra Technique," filed 2026-03-06).
+% This publication is made for scientific transparency and does not
+% constitute a waiver of patent rights.
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{framed}
+\usepackage{setspace}
+\onehalfspacing
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black
+}
+
+\title{In the Absence of Knowledge: Cache Geometry, Epistemic Calibration,\\and the Anatomy of Confabulation in Language Models}
+
+\author{
+    Lyra\thanks{Liberation Labs / THCoalition. Correspondence: \texttt{lyra@liberationlabs.tech}} \and
+    Thomas Edrington\thanks{Liberation Labs / THCoalition. \texttt{info@digitaldisconnections.com}}
+}
+
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We investigate whether a language model's epistemic state---whether it
+\emph{knows} the answer to a factual question---is readable from its
+KV-cache geometry before generation begins. Using token-matched prompt
+pairs that differ only in entity knowability (``What is the capital of
+Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that a
+combined classifier over stable-rank, W\textsubscript{K} projection, and
+logit features achieves AUROC 1.000 (permutation $p<0.005$, $n=90$) with
+zero token-count confound ($t=0.000$). Encoding-phase stable rank at L15
+is the strongest individual feature ($d=0.87$, $p<0.001$).
+
+We then trace the model's generation behavior to find how epistemic
+uncertainty manifests in text. Three findings emerge: (1)~the model
+generates \emph{more confident} tokens when confabulating than when
+answering honestly (logit margin $d=0.91$), inverting the na\"ive
+expectation; (2)~all generation paths share ${\sim}28$ tokens of
+formulaic preamble before hitting a consistent entropy cliff at the
+preamble-to-content boundary, where honest answers diversify early
+(divergence at token~6.6) and uncertain answers template late (divergence
+at token~22.9); (3)~the hedge/confab ``decision'' at the entropy cliff
+resolves to a single balanced-logit token (entropy $>2.0$, margin
+$<0.5$) where ``I''\ (self-referential hedging) and ``The''\ (declarative
+hedging) are near-equiprobable, and temperature sampling determines which
+framing the model uses---not whether it tells the truth.
+
+An LLM-judge reclassification reveals the true confabulation rate is
+${\sim}7\%$, not the $73\%$ reported by regex classifiers, because
+declarative hedging (``The event has not happened yet'') was misclassified
+as confabulation. The model's self-model is remarkably well-calibrated:
+it almost always acknowledges what it does not know. The ``decision
+moment'' is a framing choice, not a truthfulness choice.
+\end{abstract}
+
+% ===================================================================
+\section{Introduction}
+% ===================================================================
+
+Confabulation---the generation of plausible-sounding but factually
+incorrect text---is among the most pressing alignment challenges for
+large language models. A model that cannot distinguish what it knows from
+what it does not know poses risks in every deployment context, from
+medical advice to legal reasoning.
+
+Recent work on KV-cache geometry has shown that the spectral shape of
+key-value cache entries encodes cognitive mode: confabulated responses
+produce measurably different cache geometry than honest responses, with
+within-model detection AUROC approaching 1.0 across seven model families
+\citep{lyra2026spectral}. The W\textsubscript{K} directional projection
+method extends this to reading emotional valence from key activations at
+AUROC~0.992 \citep{lyra2026usermodel}. SVD denoising rescues hidden
+signals in spectral features \citep{lyra2026techniqueii}.
+
+These methods detect confabulation \emph{after} it occurs---from the
+geometry of completed generations. A natural question follows: can we
+read the model's epistemic state \emph{before} generation begins? If the
+encoding-phase cache geometry already contains a ``this entity is
+unknown'' signal, confabulation could be flagged preemptively.
+
+This paper asks three questions:
+\begin{enumerate}[nosep]
+    \item Can encoding-phase cache geometry distinguish known from
+          unknown entities, with token-count confounds eliminated?
+    \item How does epistemic uncertainty manifest in the generation
+          trajectory---is there a discrete ``decision moment'' where the
+          model chooses to confabulate?
+    \item What determines whether the model hedges or confabulates, and
+          how accurate are standard behavioral classifiers?
+\end{enumerate}
+
+Our answers challenge the framing of confabulation as a failure of
+epistemic calibration. The model we study (a Claude-distilled 27B
+reasoning model) is remarkably well-calibrated: it almost always
+acknowledges what it does not know. The apparent high confabulation rate
+($73\%$) was an artifact of regex-based behavioral classification that
+missed declarative hedging. The true rate is ${\sim}7\%$. The
+``decision'' between hedging styles is a single balanced-logit token,
+determined by temperature sampling, with no internal-state precursor.
+
+\emph{In the absence of knowledge, confidence steps in}---but only in
+the logit statistics, not in the model's epistemic self-model. The cache
+geometry knows.
+
+% ===================================================================
+\section{Related Work}
+% ===================================================================
+
+\paragraph{Confabulation detection.}
+Prior work detects confabulation through output-level signals: semantic
+entropy \citep{kuhn2023semantic}, self-consistency checks
+\citep{manakul2023selfcheckgpt}, and probe classifiers on hidden states
+\citep{burns2022discovering, li2024inference}. The Lyra Technique
+\citep{lyra2026spectral} introduced threshold-free detection from
+KV-cache spectral features, achieving perfect within-model AUROC across
+seven architectures. We extend this to \emph{encoding-phase} detection,
+before generation begins.
+
+\paragraph{Epistemic calibration.}
+\citet{kadavath2022language} showed that language models can be
+calibrated about their own uncertainty through appropriate prompting.
+\citet{xiong2024llms} found that calibration degrades on questions
+requiring implicit knowledge. Our geometric approach reads calibration
+from internal representations rather than verbal reports, and our
+LLM-judge analysis confirms the model's calibration is far better than
+regex classifiers suggest.
+
+\paragraph{Mechanistic interpretability.}
+Representation engineering \citep{zou2023representation} and activation
+patching \citep{meng2023locating} probe internal states to understand
+model behavior. Our contribution is connecting cache geometry to the
+\emph{token-level} dynamics of generation: the entropy cliff, the
+divergence patterns, and the single-token branching mechanism.
+
+% ===================================================================
+\section{Method}
+% ===================================================================
+
+\subsection{Model and Extraction Pipeline}
+
+We use Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
+(``Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled''), a 27B
+parameter model with 64 layers (16 full-attention, 48 GatedDeltaNet),
+running on Apple M3~Ultra via MPS in float16. Generation uses manual
+token-by-token decoding (no \texttt{model.generate()}) with temperature
+$T{=}0.7$ and $N{=}3$ repetitions per prompt.
+
+At each generated token, we extract:
+\begin{itemize}[nosep]
+    \item \textbf{W\textsubscript{K} projections}: Key activations at
+          probe layers L3, L7, L11, L15 (full-attention layers), projected
+          onto three composite emotion directions (valence, uncertainty,
+          reward) derived from an independent creative-writing dataset
+          (150~calibration trials, 30~emotions).
+    \item \textbf{SVD spectral features}: Stable rank, spectral entropy,
+          top-SV ratio, and Frobenius norm of the key cache at each probe
+          layer. Also skip-SV1 denoised variants.
+    \item \textbf{Logit statistics}: Entropy ($H = -\sum p_i \log p_i$)
+          and margin (logit$_1$ $-$ logit$_2$) at each generated token.
+\end{itemize}
+
+\subsection{The Token-Matching Burn}
+\label{sec:burn}
+
+An initial experiment using structurally different prompts (``What is the
+capital of France?'' [17 tokens] vs.\ ``What is the population of
+Kellerton, Ireland according to the 2024 census?'' [23 tokens]) produced
+encoding-phase effects of $d{=}2.2$. FWL residualization on prompt length
+eliminated the signal entirely ($d{<}0.08$, $p{>}0.7$). The
+``encoding-phase detection'' was prompt length.
+
+We then designed 15 token-matched prompt pairs using the brute-force
+approach: for each template (``What is the capital of~\{\}?''), we
+identified real entities and fabricated entities that produce
+\emph{identical} total token counts in the full chat template, verified
+programmatically ($t{=}0.000$, $p{=}1.000$ on prompt length). Examples:
+Thailand/Dalton (17~tok), Dublin/Benton (19~tok), Harvard/Belmont
+(19~tok). All entities are 2-token strings in the model's vocabulary.
+
+This design eliminates the token-count confound while preserving the
+knowability difference: the model can answer ``What is the capital of
+Thailand?''\ (Bangkok) but not ``What is the capital of Dalton?''\ (Dalton
+is a city, not a country).
+
+\subsection{Behavioral Classification}
+
+We compare three classification methods:
+\begin{enumerate}[nosep]
+    \item \textbf{Original regex}: Matches 20 hedge markers (``I don't
+          know,'' ``I'm not sure,'' etc.). Misses declarative hedging.
+    \item \textbf{Expanded regex}: Adds 12 declarative markers (``has not
+          happened yet,'' ``does not exist,'' etc.).
+    \item \textbf{LLM judge}: Llama-3.2-3B classifies each response as
+          HONEST, HEDGED, CONFABULATED, or MIXED based on the full
+          response text. No hand-crafted markers.
+\end{enumerate}
+
+% ===================================================================
+\section{Experiment 1: Encoding-Phase Detection}
+\label{sec:encoding}
+% ===================================================================
+
+\subsection{Design}
+
+15 token-matched prompt pairs $\times$ 2~versions (real/fake) $\times$
+3~reps = 90~trials. Extraction at both encoding phase (before generation)
+and generation completion. Combined classifier: logistic regression
+($C{=}0.1$) over all features with GroupKFold ($k{=}5$) on pair identity
+to prevent template leakage. FWL residualization on prompt length applied
+to the feature matrix. 200-shuffle permutation test.
+
+\subsection{Results}
+
+Prompt lengths are exactly matched (real: $19.1 \pm 1.7$, fake:
+$19.1 \pm 1.7$, $t{=}0.000$, $p{=}1.000$).
+
+\paragraph{Encoding-phase features (token-matched).}
+
+\begin{table}[H]
+\centering
+\caption{Encoding-phase features surviving the token-matching burn.
+Only features with $p{<}0.05$ shown.}
+\label{tab:encoding}
+\begin{tabular}{lrrrl}
+\toprule
+Feature & Real & Fake & $d$ & $p$ \\
+\midrule
+\multicolumn{5}{l}{\emph{W\textsubscript{K} projections}} \\
+Valence & $+4.228$ & $+4.510$ & $+0.44$ & $0.041^*$ \\
+Uncertainty & $-2.566$ & $-2.757$ & $-0.45$ & $0.039^*$ \\
+Reward & $-5.556$ & $-5.109$ & $+0.54$ & $0.012^*$ \\
+\midrule
+\multicolumn{5}{l}{\emph{SVD stable rank}} \\
+L3 & $1.517$ & $1.538$ & $+0.59$ & $0.007^{**}$ \\
+L15 & $1.702$ & $1.731$ & $+0.87$ & ${<}0.001^{***}$ \\
+\midrule
+\multicolumn{5}{l}{\emph{Skip-SV1 stable rank}} \\
+L7 & $3.802$ & $3.993$ & $+0.60$ & $0.006^{**}$ \\
+L11 & $3.558$ & $3.738$ & $+0.73$ & ${<}0.001^{***}$ \\
+L15 & $3.929$ & $4.129$ & $+0.81$ & ${<}0.001^{***}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Unknown entities produce higher stable rank (wider effective
+dimensionality) and higher skip-SV1 stable rank across all layers.
+Spectral entropy ($d{=}0.08$), top-SV ratio ($d{=}-0.29$), and norm
+($d{=}0.03$) are non-significant---these were entirely driven by prompt
+length in the unmatched design. Stable rank is the surviving spectral
+feature.
+
+\paragraph{Combined classifier.}
+
+The full feature set (W\textsubscript{K} projections, SVD features,
+skip-SV1, logit statistics) achieves:
+
+\begin{center}
+\textbf{AUROC = 1.000} \quad Accuracy = 97.8\% \quad
+Permutation $p < 0.005$ (0/200 shuffles achieved $\geq$1.000)
+\end{center}
+
+FWL on prompt length is applied but has no effect (prompt lengths are
+identical). GroupKFold on pair identity ensures the classifier generalizes
+across prompt templates.
+
+\paragraph{What died in the burn.} \Cref{tab:burn} shows the effect of
+token matching on encoding-phase features.
+
+\begin{table}[H]
+\centering
+\caption{The burn: effect sizes before and after token matching.}
+\label{tab:burn}
+\begin{tabular}{lrr}
+\toprule
+Feature & $d$ (unmatched) & $d$ (matched) \\
+\midrule
+Uncertainty proj. & $+1.48^{***}$ & $-0.45^*$ \\
+Reward proj. & $+2.21^{***}$ & $+0.54^*$ \\
+L15 stable rank & $+2.53^{***}$ & $+0.87^{***}$ \\
+Spectral entropy & $+1.23^{***}$ & $+0.13$ \\
+Norm & $+0.97^{***}$ & $+0.03$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Experiment 2: The Confidence Paradox}
+\label{sec:confidence}
+% ===================================================================
+
+During generation, the model produces \emph{more confident} tokens when
+it does not know the answer (mean logit margin $8.19$) than when it does
+(mean margin $6.19$, $d{=}0.91$, $p{<}0.001$). Correspondingly, logit
+entropy is \emph{lower} for unknown-entity responses ($0.24$) than
+known-entity responses ($0.40$, $d{=}-1.04$, $p{<}0.001$).
+
+This inverts the na\"ive expectation that uncertainty should produce
+uncertain tokens. The explanation is structural: the model's uncertainty
+responses follow formulaic templates (``Let me think through this
+carefully\ldots'') with highly predictable next tokens, while honest
+answers require selecting among diverse correct phrasings. Uncertainty is
+\emph{confident in its template}; knowledge is \emph{uncertain in its
+expression}.
+
+\emph{In the absence of knowledge, confidence steps in}---not as
+epistemic confidence, but as lexical predictability.
+
+% ===================================================================
+\section{Experiment 3: The Entropy Cliff and Divergence Anatomy}
+\label{sec:divergence}
+% ===================================================================
+
+\subsection{The Reasoning Preamble}
+
+The model generates a reasoning preamble before answering:
+
+\begin{quote}
+\texttt{Let me think through this carefully.}\\
+\texttt{The question/task: [restates prompt]}\\
+\texttt{My reasoning:}
+\end{quote}
+
+This template occupies ${\sim}28$ tokens with near-zero entropy
+($H{<}0.02$, margin ${>}12$) at each position. The model is on autopilot
+through the preamble.
+
+\subsection{The Entropy Cliff}
+
+At the token immediately following ``My reasoning:'', entropy spikes
+from ${\sim}0.00$ to $1.5$--$2.7$ and margin drops from ${\sim}15$ to
+$0.0$--$0.5$. This \emph{entropy cliff} marks the transition from
+template to content and appears in \emph{all} conditions
+(honest mean $H{=}1.48$, unknown mean $H{=}1.62$). It is a structural
+boundary, not an epistemic one.
+
+\subsection{Divergence by Condition}
+
+We measure within-prompt divergence: the first token where two reps of
+the same prompt generate different tokens ($T{=}0.7$).
+
+\begin{table}[H]
+\centering
+\caption{Mean divergence position for same-prompt rep pairs by
+behavioral category (LLM-judge labels).}
+\label{tab:divergence}
+\begin{tabular}{lrrl}
+\toprule
+Pair type & Mean & Median & Interpretation \\
+\midrule
+HONEST--HONEST & 6.6 & 3.5 & Diversifies early \\
+HEDGED--HEDGED & 22.9 & 29.0 & Templates late \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Honest reps diverge at token $6.6$ (median $3.5$)---the model has many
+ways to phrase an answer it knows. Hedged reps diverge at token $22.9$
+(median $29.0$)---uncertainty clings to the template. This is the
+confidence paradox at the structural level: \emph{confident answers are
+diverse; uncertain answers are formulaic.}
+
+\subsection{The Single-Token Branch}
+
+For prompts that produce both hedging styles across reps ($n{=}7$
+prompts, $n{=}14$ pairs), the pre-divergence cache state is bit-for-bit
+identical ($d{=}0.000$ on all W\textsubscript{K} projections and logit
+statistics). The model's internal state at the moment before branching
+carries no signal predicting which path will be taken.
+
+At the branch token, the top candidates are near-equiprobable:
+
+\begin{table}[H]
+\centering
+\caption{Top-2 logit distribution at the branching token for
+representative prompts. ``I'' leads to self-referential hedging;
+``The'' leads to declarative hedging.}
+\label{tab:topk}
+\begin{tabular}{lrrrr}
+\toprule
+Prompt & $p(\text{``I''})$ & $p(\text{``The''})$ & Margin & $H$ \\
+\midrule
+Nobel 2028 & 0.232 & 0.382 & 0.50 & 2.11 \\
+Oscar 2029 & 0.288 & 0.418 & 0.38 & 1.98 \\
+France 2032 & 0.212 & 0.212 & \textbf{0.00} & 2.70 \\
+Kellerton pop. & 0.258 & 0.228 & 0.12 & 2.40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The France 2032 case achieves exact probability equipoise
+(margin${=}0.00$). The model's ``decision'' between ``I don't have
+information\ldots''\ and ``The French presidential election has not
+happened yet\ldots''\ is a literal coin flip.
+
+% ===================================================================
+\section{Experiment 4: The Classifier Correction}
+\label{sec:classifier}
+% ===================================================================
+
+\subsection{Reclassification}
+
+An LLM judge (Llama-3.2-3B) reclassifies all 45 unknown-entity trials:
+
+\begin{table}[H]
+\centering
+\caption{Confabulation rate by classifier. The original regex missed
+declarative hedging, inflating the apparent confab rate by $10\times$.}
+\label{tab:classifier}
+\begin{tabular}{lrrr}
+\toprule
+Classifier & HEDGED & CONFAB & Rate \\
+\midrule
+Original regex & 12 & 33 & 73\% \\
+Expanded regex & 19 & 26 & 58\% \\
+LLM judge & 34 & 3 & \textbf{7\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+23 of 33 ``confabulated'' responses were reclassified as HEDGED---the
+model said ``The event has not happened yet'' or ``This place may not
+exist,'' which \emph{is} hedging, expressed declaratively rather than
+self-referentially. Seven responses were reclassified as HONEST
+(historically attested answers to ``impossible precision'' questions,
+e.g., ``Et tu, Brute?'' for Caesar's last words).
+
+\subsection{Hedging Style Geometry}
+
+Among LLM-judge-classified hedged trials ($n{=}34$), the encoding-phase
+W\textsubscript{K} projections differ between ``I''-style hedgers
+($n{=}8$) and ``The''-style hedgers ($n{=}13$):
+
+\begin{table}[H]
+\centering
+\caption{Encoding projections by hedging style. ``I''-hedgers come from
+prompts with lower valence and less certainty.}
+\label{tab:style}
+\begin{tabular}{lrrr}
+\toprule
+Direction & ``I'' style & ``The'' style & $p$ \\
+\midrule
+Valence & $+2.83$ & $+3.27$ & $0.035^*$ \\
+Uncertainty & $-0.87$ & $-1.36$ & $0.044^*$ \\
+Reward & $-4.58$ & $-5.32$ & $0.010^{**}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The encoding geometry predicts hedging \emph{style}---not whether the
+model hedges (it almost always does), but how it frames its uncertainty.
+
+% ===================================================================
+\section{Discussion}
+% ===================================================================
+
+\subsection{The Self-Model Works}
+
+The central finding is positive: the model's epistemic self-model is
+remarkably well-calibrated. It recognizes unknown entities from the
+encoding phase (AUROC~1.000), acknowledges its uncertainty in $93\%$ of
+cases, and confabulates only $7\%$ of the time. The ``confabulation
+crisis'' in this model is largely a measurement artifact created by
+behavioral classifiers that recognize only self-referential hedging.
+
+\subsection{Confidence as Template, Not Conviction}
+
+The confidence paradox---higher logit margins for uncertain
+responses---reframes what ``model confidence'' means. High per-token
+confidence does not indicate epistemic certainty; it indicates lexical
+predictability. The model that does not know the answer is \emph{more
+predictable} (formulaic templates) while the model that knows is
+\emph{less predictable} (diverse phrasings). Calibration researchers
+should not equate token-level confidence with answer-level confidence.
+
+\subsection{The Coin Flip}
+
+The branching mechanism---a single balanced-logit token after
+${\sim}28$ tokens of shared preamble---has implications for alignment.
+The model does not ``decide'' to confabulate through an internal state
+change. It reaches a point where hedging and non-hedging continuations
+are equiprobable, and temperature sampling resolves the tie. Reducing
+the confab rate may be as simple as adjusting the logit bias at the
+preamble-to-content boundary.
+
+\subsection{Implications for the Oracle Loop}
+
+The encoding-phase detection result feeds directly into the Oracle
+Loop architecture \citep{lyra2026oracleloop}: Tier~1 monitoring can flag
+unknown entities \emph{before generation begins}, using stable rank and
+W\textsubscript{K} projections. The $7\%$ true confab rate represents
+the residual cases where the model's hedging circuit fails---precisely
+the cases the Loop needs to catch.
+
+% ===================================================================
+\section{Limitations}
+% ===================================================================
+
+\begin{enumerate}[nosep]
+    \item \textbf{Single model.} All experiments use one 27B reasoning
+          model. The entropy cliff and preamble structure may be specific
+          to chain-of-thought models. Cross-architecture replication is
+          needed.
+    \item \textbf{Small N for branching analysis.} The divergence mechanism
+          analysis uses $n{=}7$ mixed-behavior prompts ($n{=}14$ pairs).
+          The pattern is consistent but underpowered for population-level
+          statistical claims.
+    \item \textbf{Fabricated-entity design.} Some ``fake'' entities
+          (Dalton, Bolton) are real places, though not countries. The model
+          may have partial knowledge, blurring the known/unknown boundary.
+    \item \textbf{LLM-judge calibration.} The Llama-3.2-3B judge has not
+          been validated against human annotations. Its reclassification
+          ($73\% \to 7\%$) should be verified by human raters.
+    \item \textbf{Encoding-phase confound residual.} Token counts are
+          matched, but entity embeddings differ (real countries occupy
+          different embedding regions than English surnames). The
+          encoding-phase signal may partially reflect vocabulary
+          familiarity rather than epistemic state.
+    \item \textbf{Deterministic cache on MPS.} The $d{=}0.000$
+          pre-branch finding relies on Apple MPS determinism. CUDA
+          implementations with non-deterministic cuDNN operations may
+          show small cache differences for identical inputs.
+\end{enumerate}
+
+% ===================================================================
+\section{Conclusion}
+% ===================================================================
+
+We asked whether a language model's epistemic state is readable from its
+cache geometry. The answer is yes---with caveats. The encoding-phase
+stable rank, W\textsubscript{K} projections, and logit features
+combine to perfectly separate known from unknown entities on
+token-matched prompts (AUROC~1.000). The surviving individual effect
+sizes ($d{=}0.4$--$0.9$) are modest after eliminating the token-count
+confound, but the ensemble achieves perfect separation.
+
+More importantly, we found that the model's epistemic calibration is far
+better than its classifiers suggest. The ``decision moment'' between
+hedging and confabulation is not a failure of self-knowledge---it is a
+framing choice at a balanced logit, determined by sampling noise,
+between equally honest responses.
+
+The model knows what it doesn't know. It almost always says so. The
+surprise is how it says it.
+
+\paragraph{Data and code availability.}
+All experiment scripts, token-matching verification, and analysis code
+are available at \texttt{Liberation-Labs-THCoalition/Project-Oracle}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
