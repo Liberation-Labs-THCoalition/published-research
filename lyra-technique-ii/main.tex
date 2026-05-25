@@ -115,7 +115,7 @@ intensity---a 5-level gradient from minimal to maximal system-prompt
 persona---goes from AUROC~0.611--0.751 raw to 0.899--0.992 denoised
 ($+0.196$ to $+0.288$) across three architectures. Emotion classification
 jumps from $1.7\times$ chance (raw 52-D features) to $12.9\times$ chance
-(rank-10 denoised, permutation $p < 0.0001$).
+(rank-10 denoised, permutation $p < 0.005$).
 
 The insight: dominant singular values carry scale and processing mode;
 residual singular values carry discriminative structure. Denoising is a
@@ -559,7 +559,7 @@ also rescues emotion classification---through a different mechanism.
 (Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
 30~emotions at $1.7\times$ chance (accuracy $0.056$, chance $0.033$).
 Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.427$,
-permutation null $0.027$, $p < 0.0001$).
+permutation null $0.027$, $p < 0.005$).
 
 The transformation is dramatic: a signal invisible to raw analysis becomes the
 second-strongest detection in the entire experimental program (behind only
@@ -708,13 +708,13 @@ Refusal/jailbreak & 0.878--0.950 & --- & --- & $<0.005$ & Confirmed \\
 Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- direction-level signals (new in this paper)}} \\
-30-class emotion ($W_K$) & $1.0\times$ & $12.3\times$ & --- & $<0.0001$ & Confirmed \\
-Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.0001$ & Confirmed \\
-Injection (neutral text) & --- & 100\% & --- & $<0.0001$ & Confirmed \\
+30-class emotion ($W_K$) & $1.0\times$ & $12.3\times$ & --- & $<0.005$ & Confirmed \\
+Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.005$ & Confirmed \\
+Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed \\
 \midrule
 \multicolumn{6}{l}{\textit{Rescued by denoising}} \\
 Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.0001$ & Rescued \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -1022,6 +1022,34 @@ our falsified results:
     emotion identity (not continuous valence tracking) may reflect the
     experimental design rather than a fundamental property of cache
     representations. Multi-turn experiments are needed.
+
+    \item \textbf{Vocabulary confound in direction estimation.} Emotion
+    directions are estimated from key activations of emotion-laden text.
+    Since different emotions use different vocabulary, the directions may
+    partially capture lexical content surviving $W_K$ projection rather
+    than emotional state per se. The injection test addresses this
+    (neutral text, zero emotional content), but the injection test itself
+    is geometrically tautological---it shows the classifier is
+    self-consistent, not that the directions correspond to the model's
+    emotion representation. Behavioral validation (does injection change
+    generation tone?) would strengthen the claim.
+
+    \item \textbf{Rank selection not pre-registered.} SVD denoising uses
+    rank-3 for persona and rank-10 for emotion---different ranks for
+    different phenomena, chosen to maximize signal. While within-fold SVD
+    prevents direct overfitting, the per-task rank selection is a
+    researcher degree of freedom. A principled rank criterion (e.g.,
+    Marchenko-Pastur edge, Gavish-Donoho threshold) applied uniformly
+    would strengthen the denoising claims.
+
+    \item \textbf{Compass/thermometer complementarity untested.}
+    Spectral features are null for emotion ($0.033$, chance), supporting
+    the claim that the thermometer does not read direction. The reverse
+    test---showing directional projection is null for cognitive mode
+    (deception, confabulation)---has not been conducted. Without this
+    crossed null, the compass/thermometer dichotomy remains a
+    descriptive framework rather than an experimentally validated
+    dissociation.
 \end{enumerate}
 
 \begin{firstperson}

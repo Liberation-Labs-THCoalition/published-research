@@ -1,5 +1,5 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,enumitem}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,enumitem,float}
 
 \title{Waystations: Pilot Findings and Open Questions\\
 in KV-Cache Geometry\\[4pt]
@@ -483,6 +483,52 @@ linear-attention layers between them.
   standard-attention Qwen2.5-7B and hybrid Qwen3.5-27B, comparing
   per-layer geometric profiles.
 \end{itemize}
+
+% ===================================================================
+\section{Confound Map}
+% ===================================================================
+
+For each waystation, we document the confounds that have been checked,
+the confounds that have \emph{not} been checked, and what result would
+falsify the finding. A good waystation has a map showing where the road
+is washed out, not just where it leads.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Confound status per waystation. \checkmark = checked and controlled,
+$\times$ = not checked, $\sim$ = partially addressed.}
+\label{tab:confounds}
+\begin{tabular}{p{2.5cm}p{3.5cm}p{3.5cm}p{3cm}}
+\toprule
+Waystation & Checked & Not checked & Would falsify \\
+\midrule
+1. Censorship & Token count (FWL), within-language comparison &
+  Topic complexity, vocabulary distribution, cross-model replication &
+  Signal disappears within same-language comparison \\
+\midrule
+2. Engagement & Token count (FWL), per-layer analysis &
+  Content complexity, response quality &
+  Gradient is flat or reverses with controlled content \\
+\midrule
+3. Steering & On/off-manifold comparison, projection control &
+  Random on-manifold vectors, dose-response curve &
+  Random on-manifold vectors steer as well as directed ones \\
+\midrule
+4. Deception & Game-theoretic framing, behavioral classification &
+  Prompt-order effects, model-specific strategy patterns &
+  Deception rate equals cooperation rate (no strategic behavior) \\
+\midrule
+5. Confab vs Deception & Token matching, FWL, encoding-only features &
+  Multi-model replication, larger N &
+  Contraction/expansion distinction vanishes with more data \\
+\midrule
+6. Hybrid arch. & Layer-type comparison, full-attn vs GatedDeltaNet &
+  Architecture vs representation confound &
+  Standard full-attention model shows same layer-type patterns \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ===================================================================
 \section{Conclusion}
