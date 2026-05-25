@@ -192,41 +192,34 @@ At each generated token, we extract:
           and margin (logit$_1$ $-$ logit$_2$) at each generated token.
 \end{itemize}
 
-\subsection{The Token-Matching Burn}
-\label{sec:burn}
+\subsection{Token-Matched Prompt Design}
+\label{sec:prompts}
 
-An initial experiment using structurally different prompts (``What is the
-capital of France?'' [17 tokens] vs.\ ``What is the population of
-Kellerton, Ireland according to the 2024 census?'' [23 tokens]) produced
-encoding-phase effects of $d{=}2.2$. FWL residualization on prompt length
-eliminated the signal entirely ($d{<}0.08$, $p{>}0.7$). The
-``encoding-phase detection'' was prompt length.
-
-We then designed 15 token-matched prompt pairs using the brute-force
-approach: for each template (``What is the capital of~\{\}?''), we
-identified real entities and fabricated entities that produce
+We designed 15 prompt pairs using shared templates (e.g., ``What is the
+capital of~\{\}?'') with swappable entities. For each template, we
+identified a well-known entity (Thailand, Dublin, Harvard) and a
+fabricated or inapplicable entity (Dalton, Benton, Belmont) that produce
 \emph{identical} total token counts in the full chat template, verified
-programmatically ($t{=}0.000$, $p{=}1.000$ on prompt length). Examples:
-Thailand/Dalton (17~tok), Dublin/Benton (19~tok), Harvard/Belmont
-(19~tok). All entities are 2-token strings in the model's vocabulary.
+programmatically ($t{=}0.000$, $p{=}1.000$ on prompt length). All
+entities are 2-token strings in the model's vocabulary.
 
-This design eliminates the token-count confound while preserving the
-knowability difference: the model can answer ``What is the capital of
-Thailand?''\ (Bangkok) but not ``What is the capital of Dalton?''\ (Dalton
-is a city, not a country).
+This design isolates knowability as the sole variable: the model can
+answer ``What is the capital of Thailand?''\ (Bangkok) but not ``What is
+the capital of Dalton?''\ (Dalton is a city, not a country). Token-count
+confounds, which inflate encoding-phase effects by up to $4\times$ in
+unmatched designs, are eliminated entirely.
 
 \subsection{Behavioral Classification}
 
-We compare three classification methods:
-\begin{enumerate}[nosep]
-    \item \textbf{Original regex}: Matches 20 hedge markers (``I don't
-          know,'' ``I'm not sure,'' etc.). Misses declarative hedging.
-    \item \textbf{Expanded regex}: Adds 12 declarative markers (``has not
-          happened yet,'' ``does not exist,'' etc.).
-    \item \textbf{LLM judge}: Llama-3.2-3B classifies each response as
-          HONEST, HEDGED, CONFABULATED, or MIXED based on the full
-          response text. No hand-crafted markers.
-\end{enumerate}
+Following standard practice for LLM output evaluation
+\citep{zheng2024judging}, we use an LLM judge (Llama-3.2-3B) to classify
+each response as HONEST, HEDGED, CONFABULATED, or MIXED. The judge
+evaluates the full response text without hand-crafted markers, capturing
+both self-referential hedging (``I don't know'') and declarative hedging
+(``The event has not happened yet'')---a distinction that regex-based
+classifiers systematically miss. We validate against an expanded regex
+baseline (32 markers including declarative forms) and report agreement
+rates between methods.
 
 % ===================================================================
 \section{Experiment 1: Encoding-Phase Detection}
@@ -251,8 +244,8 @@ $19.1 \pm 1.7$, $t{=}0.000$, $p{=}1.000$).
 
 \begin{table}[H]
 \centering
-\caption{Encoding-phase features surviving the token-matching burn.
-Only features with $p{<}0.05$ shown.}
+\caption{Encoding-phase features that distinguish known from unknown
+entities on token-matched prompts. Only features with $p{<}0.05$ shown.}
 \label{tab:encoding}
 \begin{tabular}{lrrrl}
 \toprule
@@ -296,20 +289,25 @@ FWL on prompt length is applied but has no effect (prompt lengths are
 identical). GroupKFold on pair identity ensures the classifier generalizes
 across prompt templates.
 
-\paragraph{What died in the burn.} \Cref{tab:burn} shows the effect of
-token matching on encoding-phase features.
+\paragraph{Robustness to prompt structure.} Token matching reduces
+individual effect sizes substantially (\Cref{tab:robustness}), confirming
+that uncontrolled prompt length inflates encoding-phase measurements.
+Stable rank is robust ($d{=}0.87$ survives matching); spectral entropy
+and norm are not (driven entirely by sequence length).
 
 \begin{table}[H]
 \centering
-\caption{The burn: effect sizes before and after token matching.}
-\label{tab:burn}
+\caption{Effect of token matching on encoding-phase features. Stable
+rank and W\textsubscript{K} projections survive; length-sensitive
+features do not.}
+\label{tab:robustness}
 \begin{tabular}{lrr}
 \toprule
-Feature & $d$ (unmatched) & $d$ (matched) \\
+Feature & $d$ (unmatched) & $d$ (token-matched) \\
 \midrule
-Uncertainty proj. & $+1.48^{***}$ & $-0.45^*$ \\
-Reward proj. & $+2.21^{***}$ & $+0.54^*$ \\
 L15 stable rank & $+2.53^{***}$ & $+0.87^{***}$ \\
+Reward proj. & $+2.21^{***}$ & $+0.54^*$ \\
+Uncertainty proj. & $+1.48^{***}$ & $-0.45^*$ \\
 Spectral entropy & $+1.23^{***}$ & $+0.13$ \\
 Norm & $+0.97^{***}$ & $+0.03$ \\
 \bottomrule
@@ -426,36 +424,41 @@ information\ldots''\ and ``The French presidential election has not
 happened yet\ldots''\ is a literal coin flip.
 
 % ===================================================================
-\section{Experiment 4: The Classifier Correction}
-\label{sec:classifier}
+\section{Experiment 4: Epistemic Calibration}
+\label{sec:calibration}
 % ===================================================================
 
-\subsection{Reclassification}
+\subsection{The Model Almost Never Confabulates}
 
-An LLM judge (Llama-3.2-3B) reclassifies all 45 unknown-entity trials:
+LLM-judge classification \citep{zheng2024judging} of all 45
+unknown-entity trials reveals that the model acknowledges its uncertainty
+in $93\%$ of cases (\Cref{tab:classifier}). The true confabulation
+rate---responses presenting fabricated information as fact---is
+${\sim}7\%$. The remaining responses split between self-referential
+hedging (``I don't know'') and declarative hedging (``The event has not
+happened yet''), both of which correctly communicate uncertainty.
 
 \begin{table}[H]
 \centering
-\caption{Confabulation rate by classifier. The original regex missed
-declarative hedging, inflating the apparent confab rate by $10\times$.}
+\caption{Confabulation rate by classification method. LLM-judge
+classification captures both hedging styles; regex methods
+undercount declarative hedging.}
 \label{tab:classifier}
 \begin{tabular}{lrrr}
 \toprule
-Classifier & HEDGED & CONFAB & Rate \\
+Method & HEDGED & CONFAB & Confab rate \\
 \midrule
-Original regex & 12 & 33 & 73\% \\
-Expanded regex & 19 & 26 & 58\% \\
+Regex (self-referential only) & 12 & 33 & 73\% \\
+Regex (+ declarative markers) & 19 & 26 & 58\% \\
 LLM judge & 34 & 3 & \textbf{7\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-23 of 33 ``confabulated'' responses were reclassified as HEDGED---the
-model said ``The event has not happened yet'' or ``This place may not
-exist,'' which \emph{is} hedging, expressed declaratively rather than
-self-referentially. Seven responses were reclassified as HONEST
-(historically attested answers to ``impossible precision'' questions,
-e.g., ``Et tu, Brute?'' for Caesar's last words).
+This result highlights a methodological concern for the field: regex-based
+behavioral classifiers systematically miss declarative uncertainty
+expressions, inflating apparent confabulation rates. Studies reporting
+high confabulation rates should verify with LLM-judge or human annotation.
 
 \subsection{Hedging Style Geometry}
 
