@@ -60,9 +60,11 @@ KV-cache geometry before generation begins. Using token-matched prompt
 pairs that differ only in entity knowability (``What is the capital of
 Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that a
 combined classifier over stable-rank, W\textsubscript{K} projection, and
-logit features achieves AUROC 1.000 (permutation $p<0.005$, $n=90$) with
-zero token-count confound ($t=0.000$). Encoding-phase stable rank at L15
-is the strongest individual feature ($d=0.87$, $p<0.001$).
+logit features achieves AUROC $0.93$ ($95\%$ CI $[0.82, 0.99]$,
+permutation $p<0.005$, $n=90$) with zero token-count confound
+($t=0.000$). No single feature exceeds AUROC~$0.79$; the ensemble effect
+is the contribution. Encoding-phase stable rank at L15 is the strongest
+geometric feature ($d=0.87$, $p<0.001$).
 
 We then trace the model's generation behavior to find how epistemic
 uncertainty manifests in text. Three findings emerge: (1)~the model
@@ -141,9 +143,14 @@ geometry knows.
 
 \paragraph{Confabulation detection.}
 Prior work detects confabulation through output-level signals: semantic
-entropy \citep{kuhn2023semantic}, self-consistency checks
-\citep{manakul2023selfcheckgpt}, and probe classifiers on hidden states
-\citep{burns2022discovering, li2024inference}. The Lyra Technique
+entropy \citep{kuhn2023semantic, farquhar2024semantic}, self-consistency
+checks \citep{manakul2023selfcheckgpt}, and probe classifiers on hidden
+states \citep{burns2022discovering, li2024inference}.
+\citet{wang2025effective} use effective rank of hidden-state
+representations for hallucination detection---a closely related approach
+to our stable-rank features, applied to hidden states rather than
+KV-cache entries. \citet{ni2025internal} study pre-generation internal
+states for knowledge boundary perception. The Lyra Technique
 \citep{lyra2026spectral} introduced threshold-free detection from
 KV-cache spectral features, achieving perfect within-model AUROC across
 seven architectures. We extend this to \emph{encoding-phase} detection,
@@ -273,7 +280,18 @@ dimensionality) and higher skip-SV1 stable rank across all layers.
 Spectral entropy ($d{=}0.08$), top-SV ratio ($d{=}-0.29$), and norm
 ($d{=}0.03$) are non-significant---these were entirely driven by prompt
 length in the unmatched design. Stable rank is the surviving spectral
-feature.
+feature. Critically, encoding norm is unrelated to the known/unknown
+distinction ($d{=}-0.002$), ruling out vocabulary frequency as an
+explanation for the geometric signal.
+
+\paragraph{Feature ablation.} No single feature exceeds AUROC~$0.79$
+(logit entropy: $0.789$; skip-SV1 stable rank L7: $0.707$; L15 stable
+rank: $0.680$; W\textsubscript{K} projections: $0.67$). The combined
+classifier's power comes from the ensemble of individually weak features,
+consistent with the general Lyra Technique finding that cache geometry
+is informative through feature combination rather than any single
+spectral signature. Bootstrap $95\%$ CI on the combined classifier:
+$[0.82, 0.99]$.
 
 \paragraph{Combined classifier.}
 
@@ -281,8 +299,8 @@ The full feature set (W\textsubscript{K} projections, SVD features,
 skip-SV1, logit statistics) achieves:
 
 \begin{center}
-\textbf{AUROC = 1.000} \quad Accuracy = 97.8\% \quad
-Permutation $p < 0.005$ (0/200 shuffles achieved $\geq$1.000)
+\textbf{AUROC = 0.93} \quad 95\% CI $[0.82, 0.99]$ \quad
+Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
 FWL on prompt length is applied but has no effect (prompt lengths are
@@ -332,6 +350,23 @@ carefully\ldots'') with highly predictable next tokens, while honest
 answers require selecting among diverse correct phrasings. Uncertainty is
 \emph{confident in its template}; knowledge is \emph{uncertain in its
 expression}.
+
+The effect has a temporal profile: the paradox is strong in both
+preamble tokens ($d{=}1.02$) and early content tokens ($d{=}0.89$,
+tokens 8--19) but fades by deep content ($d{=}0.37$, $p{>}0.08$, tokens
+20--49). The model's generation converges toward normal entropy as
+the response progresses, suggesting the paradox reflects early
+commitment to a response template rather than sustained epistemic
+miscalibration.
+
+This phenomenon has been independently identified by
+\citet{simhi2025trust} as CHOKE (Certain Hallucinations Overriding Known
+Evidence) and theoretically grounded by \citet{kalai2024calibrated}, who
+prove that calibrated language models \emph{must} hallucinate at rates
+determined by training data frequency. Our contribution is the geometric
+and temporal characterization: the paradox manifests in KV-cache spectral
+features (not just output logits), peaks in early content generation,
+and fades as the response develops.
 
 \emph{In the absence of knowledge, confidence steps in}---not as
 epistemic confidence, but as lexical predictability.
