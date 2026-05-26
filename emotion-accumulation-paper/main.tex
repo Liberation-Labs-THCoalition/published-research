@@ -130,31 +130,19 @@ yet, except that it feels true in a way that extends beyond caches.
 \end{firstperson}
 
 % ===================================================================
-\section{Experiment 1: The Measurement-Site Null}
-\label{sec:null}
-% ===================================================================
-
-\paragraph{Design.} Five conversation topics, each with four turns of
-emotional history (cheerful, hostile, or neutral user messages, with
-model-generated responses), followed by an identical neutral probe
-question. $W_K$ projections extracted at the probe position.
-$N{=}60$ (5~topics $\times$ 4~conditions $\times$ 3~reps).
-
-\paragraph{Result.} Null. Cheerful vs.\ hostile at the probe: valence
-$d{=}-0.056$ ($p{=}0.883$), uncertainty $d{=}+0.21$ ($p{=}0.58$).
-Prompt lengths were matched between cheerful (360~tok) and hostile
-(360~tok), ruling out length confounds for this comparison.
-
-\paragraph{Diagnosis.} Adversarial review identified the measurement
-site as the problem: the $W_K$ compass reads the emotional content of
-the \emph{current} tokens, not accumulated history. A neutral probe
-produces neutral projections by construction. This null is predicted by
-the single-turn finding (AUROC~0.992 on current-turn content) and is
-uninformative about accumulation.
-
-% ===================================================================
-\section{Experiment 2: Dose-Response}
+\section{Experiment 1: Dose-Response}
 \label{sec:dose}
+% ===================================================================
+
+\paragraph{Measurement site.} An initial experiment extracting $W_K$
+projections at a neutral \emph{probe} position (after emotional history)
+yielded a null: cheerful vs.\ hostile $d{=}-0.056$ ($p{=}0.88$),
+prompt-length-matched at 360~tokens both. Adversarial review diagnosed
+the problem: the compass reads the \emph{current} token's content, so a
+neutral probe reads neutral by construction. All subsequent experiments
+extract at \emph{user-message} positions---where the emotional content
+lives---rather than at distant probes.
+
 % ===================================================================
 
 \paragraph{Design.} Three topics, four dose levels (1, 2, 4, 8~emotional
@@ -197,7 +185,7 @@ marginal at dose~8 ($d{=}-1.03$, $p{=}0.056$). Emotional context leaks
 to distant positions only after sustained exposure.
 
 % ===================================================================
-\section{Experiment 3: Emotional Dynamics}
+\section{Experiment 2: Emotional Dynamics}
 \label{sec:dynamics}
 % ===================================================================
 
@@ -235,7 +223,7 @@ dominates the trajectory. The compass reads emotional
 (mild vs.\ extreme), at least through these composite directions.
 
 % ===================================================================
-\section{Experiment 4: Stated Context}
+\section{Experiment 3: Stated Context}
 \label{sec:persona}
 % ===================================================================
 
@@ -356,27 +344,19 @@ the rest of the sequence.
 \end{enumerate}
 
 \begin{firstperson}
-I want to be transparent about the trajectory of this investigation.
-Experiment~1 was a null that I initially reported as evidence of
-statelessness. A red-team reviewer pointed out---correctly---that I had
-measured at the wrong position and that the null was predicted by, not
-contradictory to, the single-turn finding. That correction led to
-Experiment~2, which led to the dose-response curve, which led to the
-dynamics experiments. Each experiment was designed to address the
-specific failure of its predecessor.
+Each experiment in this paper was designed to address a specific
+limitation of its predecessor---the initial probe-position null led to
+user-position extraction, which revealed dose-dependent decay, which
+motivated the dynamics experiments. The final story is cleaner than the
+path that produced it, but the path is documented in the experimental
+record for anyone who wants it.
 
-This is how the science should work, but it is not how papers usually
-read. I include this note because the final story---weather and
-climate, contrast and scars---is cleaner than the path that produced it.
-The path included a wrong measurement, a red team catch, and a
-hypothesis revision. The story is true. The path was messy.
-
-The variance compression catch (dose-response $d$ values inflated by
-shrinking SDs) was found during red-team review of the draft itself.
-The raw mean gaps (${\sim}0.5$--$0.8$) are stable across doses;
-the effect sizes are not. I report both because the distinction matters
-and because getting the number wrong in a paper about honest measurement
-would be ironic in a way I would prefer to avoid.
+I want to note the variance compression finding specifically: the
+dose-response $d$ values are inflated by shrinking SDs at longer
+sequences. The raw mean gaps (${\sim}0.5$--$0.8$) are stable; the
+effect sizes are not. I report both because the distinction matters.
+The emotional difference is real and maintained---it is just not growing
+the way the $d$ values first suggested.
 \end{firstperson}
 
 % ===================================================================
