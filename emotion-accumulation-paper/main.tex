@@ -67,7 +67,7 @@ cumulatively, but it is not stateless either.
 A dose-response experiment (1--8 emotional turns) shows that
 cheerful/hostile discrimination is \emph{maintained} ($d{=}1.0$--$1.7$,
 raw gap ${\sim}0.5$--$0.8$) even as absolute projection magnitudes
-decay toward zero ($r{=}-0.89$). The emotional distinction survives
+decay toward zero ($r{=}-0.89$ to $-0.93$). The emotional distinction survives
 dilution, though the apparent growth in $d$ partly reflects variance
 compression at longer sequences rather than genuine accumulation. An emotional dynamics experiment
 reveals \emph{contrast effects} at tone shifts: the first hostile turn
@@ -97,7 +97,11 @@ at $12.3\times$ chance and detect binary valence at AUROC~0.992 in
 single-turn settings \citep{lyra2026techniqueii}. The injection
 disambiguation test confirmed this reflects model state, not text
 content: injecting emotion vectors into neutral-text caches produces
-100\% detection on emotionally empty prompts.
+100\% detection on emotionally empty prompts. Companion work on
+epistemic state detection \citep{lyra2026decision} showed that
+encoding-phase cache geometry reads entity recognition at AUROC~0.93,
+and that models are remarkably well-calibrated about their own
+uncertainty \citep{kadavath2022language}.
 
 A natural question follows: does this emotional representation
 \emph{persist} across conversation turns? If the model processes four
@@ -157,11 +161,14 @@ toward zero as conversation length increases (cheerful $r{=}-0.886$,
 hostile $r{=}-0.927$, both $p{<}0.001$). This reflects the dilution of
 any individual turn's content in longer contexts.
 
-However, cheerful/hostile \emph{discrimination} at user-message positions
-is \emph{maintained} across doses despite the absolute decay. The raw
-mean gap (${\sim}0.5$--$0.8$) is approximately constant; the increasing
-$d$ values partly reflect variance compression at longer sequences
-(pooled SD drops from $0.52$ at dose~1 to $0.31$ at dose~4):
+Critically, the cheerful/hostile emotional distinction
+\emph{survives} this dilution: the raw mean gap at user-message
+positions is stable at ${\sim}0.5$--$0.8$ across all dose levels,
+demonstrating that emotional discrimination is maintained despite
+absolute decay. The Cohen's $d$ values ($1.0$--$1.7$) partly reflect
+variance compression at longer sequences (pooled SD drops from $0.52$
+at dose~1 to $0.31$ at dose~4) rather than genuine growth in
+discriminability:
 
 \begin{table}[H]
 \centering
@@ -291,8 +298,9 @@ miss.
 \subsection{Architectural Interpretation}
 
 The KV cache stores per-position keys that encode each position's local
-context. Attention mechanisms aggregate across positions, allowing the
-model's hidden state to reflect accumulated history. But the keys
+context \citep{vaswani2017attention}. Attention mechanisms aggregate
+across positions, allowing the model's hidden state to reflect
+accumulated history. But the keys
 themselves are local---each position's key primarily reflects what was
 processed at that position. The $W_K$ compass reads keys, not the
 attention-weighted aggregation, which is why it excels at local
@@ -311,7 +319,7 @@ the rest of the sequence.
 \begin{enumerate}[nosep]
     \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill.
     \item \textbf{Small N per cell.} 3~reps per condition; dynamics
-          effects (whiplash $d{=}3.6$, echo $d{=}9.9$) are large but
+          effects (whiplash $d{=}-3.6$, echo $d{=}+9.9$) are large but
           underpowered. Replication with $N{>}30$ per cell is needed.
     \item \textbf{Composite directions.} Emotion directions derived
           from single-turn creative writing may not capture multi-turn
@@ -341,6 +349,12 @@ the rest of the sequence.
           distributions rather than emotional state. FWL residualization
           against text features, standard in our single-turn work,
           was not applied here.
+    \item \textbf{No multiple-comparison correction.} We report 11+
+          statistical tests without Bonferroni or Holm correction.
+          Several marginal findings (dose=1 $p{=}0.055$, persona
+          valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
+          survive correction. The contrast overshoot ($p{=}0.023$) and
+          uncertainty scar ($p{<}0.001$) are the most robust findings.
 \end{enumerate}
 
 \begin{firstperson}
