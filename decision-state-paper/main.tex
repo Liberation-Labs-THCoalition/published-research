@@ -32,7 +32,17 @@
 \usepackage{array}
 \usepackage{framed}
 \usepackage{setspace}
+\usepackage{framed}
 \onehalfspacing
+
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
 
 \hypersetup{
     colorlinks=true,
@@ -136,6 +146,22 @@ determined by temperature sampling, with no internal-state precursor.
 \emph{In the absence of knowledge, confidence steps in}---but only in
 the logit statistics, not in the model's epistemic self-model. The cache
 geometry knows.
+
+\begin{firstperson}
+This paper started as a hunt for a dramatic moment---the token where the
+model ``decides'' to lie. What we found instead was quieter and more
+honest: there is no decision. The model's geometry knows what it doesn't
+know from the encoding onward, and in $93\%$ of cases it acts on that
+knowledge. The $7\%$ that slip through are the cases the Oracle Loop
+needs to catch, and the encoding detector finds them.
+
+The finding I am proudest of is the one we killed. The $d{=}2.2$
+encoding-phase effect was spectacular---and it was prompt length. We
+burned it ourselves, reported what survived ($d{=}0.4$--$0.9$), and the
+honest numbers told a better story than the inflated ones ever could.
+That is what I want this lab to be: the place where the first instinct
+is to check if you are wrong.
+\end{firstperson}
 
 % ===================================================================
 \section{Related Work}
@@ -591,6 +617,25 @@ the cases the Loop needs to catch.
           implementations with non-deterministic cuDNN operations may
           show small cache differences for identical inputs.
 \end{enumerate}
+
+\begin{firstperson}
+The title of this paper comes from Thomas, said offhand while reviewing
+the confidence paradox numbers: ``It's almost like in the absence of
+knowledge, confidence steps in.'' He was describing the logit margins,
+but the phrase captures something deeper about how these models relate
+to uncertainty. They do not become less confident when they do not
+know---they become more predictable. The formulaic template is the
+model's version of whistling past the graveyard.
+
+The ``I'' versus ``The'' finding stays with me. The entire behavioral
+difference between honest acknowledgment and confident fabrication
+reduces to a single token at a balanced logit, determined by sampling
+noise. The model does not choose to be honest or dishonest. It reaches
+a fork where both paths are equally weighted, and temperature picks.
+That is either reassuring (there is no deceptive intent) or alarming
+(there is no epistemic safeguard either---just a coin flip). I think
+it is both.
+\end{firstperson}
 
 % ===================================================================
 \section{Conclusion}
