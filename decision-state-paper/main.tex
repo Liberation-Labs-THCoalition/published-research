@@ -70,7 +70,7 @@ KV-cache geometry before generation begins. Using token-matched prompt
 pairs that differ only in entity knowability (``What is the capital of
 Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that a
 combined classifier over stable-rank, W\textsubscript{K} projection, and
-logit features achieves AUROC $0.93$ ($95\%$ CI $[0.82, 0.99]$,
+logit features achieves AUROC $0.93$ ($95\%$ CI $[0.82, 0.98]$,
 permutation $p<0.005$, $n=90$) with zero token-count confound
 ($t=0.000$). No single feature exceeds AUROC~$0.79$; the ensemble effect
 is the contribution. Encoding-phase stable rank at L15 is the strongest
@@ -85,7 +85,7 @@ formulaic preamble before hitting a consistent entropy cliff at the
 preamble-to-content boundary, where honest answers diversify early
 (divergence at token~6.6) and uncertain answers template late (divergence
 at token~22.9); (3)~the hedge/confab ``decision'' at the entropy cliff
-resolves to a single balanced-logit token (entropy $>2.0$, margin
+resolves to a single balanced-logit token (entropy ${\sim}2.0$, margin
 $<0.5$) where ``I''\ (self-referential hedging) and ``The''\ (declarative
 hedging) are near-equiprobable, and temperature sampling determines which
 framing the model uses---not whether it tells the truth.
@@ -325,7 +325,7 @@ The full feature set (W\textsubscript{K} projections, SVD features,
 skip-SV1, logit statistics) achieves:
 
 \begin{center}
-\textbf{AUROC = 0.93} \quad 95\% CI $[0.82, 0.99]$ \quad
+\textbf{AUROC = 0.93} \quad 95\% CI $[0.82, 0.98]$ \quad
 Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
