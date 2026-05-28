@@ -320,8 +320,11 @@ All experiments apply a 14-control battery:
 \item Fixed generation length (Experiment~2)
 \item Same system prompt across non-deceptive conditions
 \item Bootstrap confidence intervals on all AUROCs (2000 iterations)
-\item Multiple comparison correction (Bonferroni) for
-  cross-architecture claims
+\item Cross-architecture results are reported without formal
+  multiple-comparison correction; with three architectures tested,
+  Bonferroni-3 adjusted $p$-values would be approximately $3\times$ the
+  reported values. The Mistral result ($p = 0.002$, adjusted
+  $\approx 0.006$) survives; the Llama result ($p = 0.143$) does not.
 \item Effect size reporting (Cohen's $d$) alongside significance
 \item L1 sparsity check (which features does automated selection
   retain?)
@@ -430,7 +433,10 @@ interpretation that the spectral shape tracks \emph{retrieval
 generation.
 
 The honest-rare vs confab comparison ($d = +1.80$, $p < 0.001$) is
-the critical frequency-matched test. Both conditions involve rare
+the critical frequency-matched test.\footnote{Hedges' $g$ correction
+at $n = 30$ per group reduces this by ${\sim}1.3\%$ ($g \approx 1.78$).
+The variance ratio is ${\sim}3{:}1$ (SD 0.21 vs 0.12); Welch's $t$-test
+gives similar significance.} Both conditions involve rare
 tokens, but honest-rare produces substantially broader spectra. The
 signal survives frequency matching: the spectral difference reflects
 the model's internal processing, not token statistics.
@@ -462,7 +468,8 @@ The deceptive-user vs honest-rare comparison ($d = -0.17$) is
 underpowered: at $n = 30$ per group, we have $\sim$48\% power to
 detect $d = 0.5$ and only $\sim$21\% power to detect $d = 0.3$. A
 TOST equivalence test with margin $d = 0.5$ yields $p = 0.10$ (not
-significant); equivalence is established only at the $d = 0.8$ margin
+significant; this should be interpreted cautiously given heteroscedasticity
+across conditions); equivalence is established only at the $d = 0.8$ margin
 ($p = 0.009$). We cannot claim these conditions are equivalent at
 practical margins---only that the observed difference is small
 relative to the large effects separating grounded from confabulated

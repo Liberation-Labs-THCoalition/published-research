@@ -367,8 +367,9 @@ Peak per-layer (L23) & $+2.43$ & $< 0.001$ & Bonferroni-corrected \\
 The encoding-only baseline reveals an important pattern: confabulation
 produces \emph{higher} encoding-phase stable rank than grounded
 conditions ($g = -1.60$), while the generation endpoint shows the
-opposite ($g = +1.78$). The delta ($g = 2.32$) combines these
-anti-correlated signals: confab starts high and stays flat; grounded
+opposite ($g = +1.78$). The delta ($g = 2.32$; Hedges' correction is already applied---uncorrected
+$d \approx 2.35$, ${\sim}1.3\%$ reduction at $n = 30$ per group) combines
+these anti-correlated signals: confab starts high and stays flat; grounded
 starts lower and rises. The delta's advantage is genuine---it captures
 the \emph{reversal} between encoding and generation, not just
 additional information. However, the bootstrap CIs on delta
@@ -712,8 +713,10 @@ have found alone.
 \item \textbf{The Llama peak effect ($g = -5.08$) has a caveat.}
   CC notes the absolute difference is small (1.9\% in spectral
   entropy) and the large $g$ is partially driven by very low
-  within-group variance. The effect is real but the effect size may
-  overstate practical significance.
+  within-group variance. Glass's $\Delta$ using the control-group SD
+  would be more interpretable here, as the variance ratio between
+  conditions inflates the pooled-SD denominator. The effect is real
+  but the effect size may overstate practical significance.
 
 \item \textbf{Architecture-specific features.} Qwen's strongest
   signal is stable rank; Llama's is spectral entropy. No single

@@ -1,0 +1,1 @@
+Production code for Waystations experiments lives in the Project-Oracle repository (Liberation-Labs-THCoalition/Project-Oracle). Key scripts: induction_mapping.py (emotion vector steering, WS3), oracle_steering_clean.py (5-arm steering), emotion_geometry_bridge.py (WS6 hybrid architecture). See the Project-Oracle experiments/ directory for the full pipeline.
