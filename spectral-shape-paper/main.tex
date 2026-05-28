@@ -222,11 +222,14 @@ distributional shape of the spectrum:
 \item \textbf{Nuclear norm ratio}:
   $\sum_i \sigma_i / (\min(n,d) \cdot \sigma_1)$. Normalized trace
   norm.
-\item \textbf{MP fit residual}: $L^2$ distance between the observed
-  singular value density and the best-fit Mar\v{c}enko-Pastur
-  distribution. Measures how far the spectrum deviates from the random
-  baseline. (Note: this feature uses an MP fit but not an MP
-  threshold; it is threshold-independent but MP-derived.)
+\item \textbf{MP fit residual}: fraction of singular values exceeding
+  the Mar\v{c}enko-Pastur upper edge.\footnote{\texttt{mp\_fit\_residual}
+  uses the MP edge as a counting threshold and is therefore MP-derived,
+  not threshold-free. The remaining five shape features (stable rank,
+  participation ratio, condition number, singular value kurtosis, and
+  nuclear norm ratio) are genuinely threshold-independent.}
+  Measures how far the spectrum deviates from the random
+  baseline.
 \end{itemize}
 
 All features are computed per layer. For classification, we aggregate

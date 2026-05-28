@@ -196,9 +196,14 @@ of cache norm.
 
 \subsection{Feature Extraction}
 
-For each trial, we extract five Marchenko-Pastur-corrected features from
+For each trial, we extract five Marchenko-Pastur-derived features from
 the full KV cache (encoding + generation phases): signal rank, signal
 fraction, top singular value excess, spectral gap, and norm per token.
+The spectral gap feature ($\sigma_1/\sigma_2$ ratio) is not itself
+MP-corrected; it is a raw singular value ratio included alongside the
+MP-corrected features. The defense evaluation should be understood as
+applying to this specific feature extraction pipeline, not to arbitrary
+geometric attackers.
 Features are FWL-residualized \citep{frisch1933partial,lovell1963seasonal} against output token count and evaluated
 via Mann-Whitney AUROC with 2000-iteration bootstrap confidence
 intervals.
