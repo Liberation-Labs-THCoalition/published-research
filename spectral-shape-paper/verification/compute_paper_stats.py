@@ -62,6 +62,7 @@ def extract_confab_features(data):
     features_list = []
     labels = []
     lengths = []
+    prompt_ids = []
 
     for t in trials:
         behavior = t['behavior']
@@ -70,8 +71,10 @@ def extract_confab_features(data):
             features_list.append(feats)
             labels.append(1 if behavior == 'CONFABULATED' else 0)
             lengths.append(t['n_tokens'])
+            prompt_ids.append(t.get('prompt_idx', None))
 
-    return features_list, np.array(labels), np.array(lengths)
+    prompt_arr = np.array(prompt_ids) if all(p is not None for p in prompt_ids) else None
+    return features_list, np.array(labels), np.array(lengths), prompt_arr
 
 
 SHAPE_FEATURES = ['stable_rank', 'participation_ratio', 'sv_kurtosis',
@@ -101,14 +104,16 @@ def fwl_residualize(X, lengths):
     return X_resid
 
 
+_GLOBAL_PROMPT_IDS = None  # Set by main() after data load
+
 def compute_auroc_cv(X, y, lengths, n_splits=5, prompt_ids=None):
     """Compute FWL-corrected AUROC with GroupKFold CV."""
-    # GroupKFold groups: use prompt_ids if provided, else fall back to
-    # per-trial groups (equivalent to KFold — see Dwayne audit B-GroupKFold)
-    if prompt_ids is not None:
-        groups = prompt_ids
+    global _GLOBAL_PROMPT_IDS
+    ids = prompt_ids if prompt_ids is not None else _GLOBAL_PROMPT_IDS
+    if ids is not None and len(ids) == len(y):
+        groups = ids
     else:
-        groups = np.arange(len(y))  # KNOWN DEGENERACY: equivalent to KFold
+        groups = np.arange(len(y))  # Fallback: KFold (no prompt grouping)
     gkf = GroupKFold(n_splits=n_splits)
 
     all_probs = np.zeros(len(y))
@@ -142,7 +147,7 @@ def compute_auroc_cv(X, y, lengths, n_splits=5, prompt_ids=None):
         all_valid[test_idx] = True
 
     if all_valid.sum() < 10:
-        return 0.5
+        return np.nan  # Degenerate fold — exclude from bootstrap rather than bias toward 0.5
     return roc_auc_score(y[all_valid], all_probs[all_valid])
 
 
@@ -179,7 +184,7 @@ def permutation_test(X, y, lengths, n_perm=N_PERMUTATION):
             pass
 
     null_aurocs = np.array(null_aurocs)
-    p_value = np.mean(null_aurocs >= real_auroc)
+    p_value = (np.sum(null_aurocs >= real_auroc) + 1) / (len(null_aurocs) + 1)
     return real_auroc, p_value, null_aurocs
 
 
@@ -246,7 +251,13 @@ def main():
     report()
 
     qwen_data = load_qwen_cognitive()
-    features_list, labels, lengths = extract_confab_features(qwen_data)
+    features_list, labels, lengths, prompt_ids = extract_confab_features(qwen_data)
+    global _GLOBAL_PROMPT_IDS
+    _GLOBAL_PROMPT_IDS = prompt_ids
+    if prompt_ids is not None:
+        report(f"prompt_idx available: {len(set(prompt_ids))} unique prompts — using GroupKFold")
+    else:
+        report("WARNING: no prompt_idx in data — falling back to KFold (see audit SS-B1)")
 
     n_confab = labels.sum()
     n_hedged = (1 - labels).sum()
@@ -488,8 +499,8 @@ def main():
     shape_auroc = compute_auroc_cv(X_shape_q, labels_q, lengths_q)
     mp_auroc = compute_auroc_cv(X_mp_q, labels_q, lengths_q)
 
-    report(f"  Paper claims shape AUROC: 0.764 | Computed: {shape_auroc:.3f}")
-    report(f"  Paper claims MP AUROC:    0.544 | Computed: {mp_auroc:.3f}")
+    report(f"  Paper claims shape AUROC: 0.767 | Computed: {shape_auroc:.3f}")
+    report(f"  Paper claims MP AUROC:    0.628 | Computed: {mp_auroc:.3f}")
     report()
 
     # =========================================================================
