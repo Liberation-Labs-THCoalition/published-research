@@ -630,19 +630,25 @@ Gemma-2-9B & 0.913 & 0.919 & $+0.006$ & $< 0.005$ \\
 \end{tabular}
 \end{table}
 
-The pattern suggests denoising helps models where the raw signal is
-moderate (Qwen2.5-7B canonical $+0.068$, TinyLlama $+0.047$) and has
-little effect where the signal is already strong (Gemma-2-9B $+0.006$,
-Mistral $+0.000$). However, the reported denoised AUROCs use
+The denoised AUROCs appear to help models with moderate raw signal
+(Qwen2.5-7B $+0.068$, TinyLlama $+0.047$) and not those already strong
+(Gemma-2-9B $+0.006$, Mistral $+0.000$). \textbf{This apparent benefit
+is a selection artifact.} The reported denoised AUROC is
 $\max(\text{raw}, \text{denoised}[k])$ scored on the same CV fold that
-selects the rank, without nested cross-validation. At the observed
-fold variance ($\text{SE} \approx 0.06$), max-over-grid selection
-manufactures $+0.025$ to $+0.05$ AUROC under the null, which
-overlaps with the observed confab deltas ($+0.006$ to $+0.068$).
-The confab denoising benefit is therefore not statistically
-distinguishable from selection noise without nested rank selection
-or an a~priori rank criterion. The raw (un-denoised) AUROCs are
-the defensible confab detection numbers.
+selects the rank, with no nested loop. We quantified the selection
+bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
+task we simulated max-over-grid selection under the null sampling noise
+($\text{SE}$ taken from each task's permutation null, ${\sim}0.062$)
+and compared the 95th-percentile inflation envelope to the observed
+delta. \textbf{Across all 45~model$\times$task cells, 0 of the 16
+positive deltas exceed their selection envelope.} The headline confab
+delta ($+0.068$ for Qwen2.5-7B) sits well within its envelope
+($+0.132$). The denoising benefit is therefore statistically
+indistinguishable from max-over-grid selection noise. A definitive
+test requires nested CV or an a~priori rank (Gavish--Donoho) on the
+raw feature matrices; the summary-level evidence already shows the
+deltas fall within the selection envelope. \textbf{The raw
+(un-denoised) AUROCs are the defensible confab detection numbers.}
 
 \paragraph{Delta stable rank as primary detector.} CC's cross-experiment
 synthesis identified delta stable rank (generation minus encoding phase) as
