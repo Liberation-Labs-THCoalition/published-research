@@ -627,6 +627,20 @@ the cases the Loop needs to catch.
           pre-branch finding relies on Apple MPS determinism. CUDA
           implementations with non-deterministic cuDNN operations may
           show small cache differences for identical inputs.
+    \item \textbf{Pseudoreplication.} $n{=}90$ trials are
+          30~prompts $\times$ 3~reps at $T{=}0.7$. Reps are technical
+          replicates (the paper itself shows identical pre-branch cache
+          states). GroupKFold on pair prevents template leakage in the
+          classifier, but the bootstrap CI, Cohen's $d$, and permutation
+          test treat $n{=}90$ as the sample size. Effective $N$ is
+          ${\sim}30$; CIs and $p$-values are anti-conservative by up
+          to $\sqrt{3}$.
+    \item \textbf{Selective feature reporting.} Table~1 shows only
+          features with $p{<}0.05$; the true family is ${\sim}30$--$40$
+          tests. Holm correction on the 8~shown features pushes the
+          $W_K$ Uncertainty projection ($p{=}0.039$) to non-significant.
+          Stable-rank effects ($p{<}0.001$) survive any reasonable
+          correction; the $W_K$ and hedging-style claims are fragile.
 \end{enumerate}
 
 \begin{firstperson}

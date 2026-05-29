@@ -179,9 +179,25 @@ nodes listed together are likely connected, regardless of labels.
 
 \textbf{Single test graph.} Results are from one 21-node graph. Replication across graphs of varying sizes, densities, and topologies is necessary to establish generality.
 
-\textbf{Keyword scoring.} The scoring method may undercount correct responses phrased differently or overcount responses that mention keywords without correct reasoning.
+\textbf{Keyword scoring (construct validity).} The scorer matches
+expected keywords regardless of reasoning correctness. Scrambled
+responses scored 1.0 for naming topically-related words that are
+factually wrong (e.g., ``dignity'' for a bridge query where the
+true bridge is ``infrastructure''). The metric measures keyword
+presence, not topology recovery. A correctness-graded or
+blinded-judge rubric is needed.
 
-\textbf{Sample size.} Six to seven queries per condition is small. Larger query sets with statistical significance testing are needed for definitive claims.
+\textbf{Sample size and statistical power.} Six queries per
+condition. Exact Mann-Whitney (1-sided): walk vs.\ scrambled
+$p{=}0.047$, adjacency vs.\ scrambled $p{=}0.066$. With 5+
+contrasts and no multiple-comparison correction, the walk contrast
+barely clears $\alpha{=}0.05$ uncorrected and the adjacency
+contrast does not. Holm-Bonferroni pushes both past significance.
+
+\textbf{Single-graph pseudoreplication.} All results come from one
+21-node graph. Per-type scores (e.g., cluster 1.000) are each a
+single query ($n{=}1$). Effective $N$ for the topology claim is the
+number of graphs, which is 1.
 
 \textbf{Model specificity.} Results are from a single model (Qwen3-30B-A3B MoE). Cross-model replication is needed to confirm architecture independence.
 

@@ -1060,6 +1060,22 @@ our falsified results:
     emotion representation. Behavioral validation (does injection change
     generation tone?) would strengthen the claim.
 
+    \item \textbf{Quantization confound in scale trend.} Three
+    q4-quantized models (70B, 32B, 7B) are pooled with full-precision
+    models in the 15-model scale sweep. Quantization alters key-matrix
+    numerics and therefore spectral features directly. The top size
+    anchor (70B) is itself q4. Any scale-invariance or
+    ``larger-is-better'' trend is partly a precision trend.
+
+    \item \textbf{30-class emotion chance inflation.} 808 emotion
+    pairs have cosine similarity ${>}0.9$ (astonished/surprised at
+    0.999). Treating near-synonymous emotions as distinct classes
+    inflates the $1/30$ chance baseline. A classifier that confuses
+    astonished$\leftrightarrow$surprised is ``wrong'' by the metric but
+    correct at any meaningful resolution. Binary valence (AUROC~0.992)
+    is the defensible claim; the $12.3\times$-chance numbers conflate
+    label granularity with detection power.
+
     \item \textbf{Rank selection not pre-registered.} SVD denoising uses
     rank-3 for persona and rank-10 for emotion---different ranks for
     different phenomena, chosen to maximize signal. While within-fold SVD
