@@ -450,9 +450,9 @@ def main():
     for model_name in ['Llama-3.1-8B-Instruct', 'Mistral-7B-Instruct-v0.3']:
         try:
             data = load_cross_arch(model_name)
-            fl, lab, lens = extract_confab_features(data)
+            fl, lab, lens, pids = extract_confab_features(data)
             X_s = features_to_matrix(fl, SHAPE_FEATURES)
-            auroc = compute_auroc_cv(X_s, lab, lens)
+            auroc = compute_auroc_cv(X_s, lab, lens, prompt_ids=pids)
             report(f"  {model_name}: AUROC={auroc:.3f} (n={len(lab)}, confab={lab.sum()})")
         except Exception as e:
             report(f"  {model_name}: ERROR — {e}")
@@ -492,12 +492,12 @@ def main():
     report()
 
     # Verify the key numbers from the paper
-    features_list_q, labels_q, lengths_q = extract_confab_features(qwen_data)
+    features_list_q, labels_q, lengths_q, prompt_ids_q = extract_confab_features(qwen_data)
     X_shape_q = features_to_matrix(features_list_q, SHAPE_FEATURES)
     X_mp_q = features_to_matrix(features_list_q, MP_FEATURES)
 
-    shape_auroc = compute_auroc_cv(X_shape_q, labels_q, lengths_q)
-    mp_auroc = compute_auroc_cv(X_mp_q, labels_q, lengths_q)
+    shape_auroc = compute_auroc_cv(X_shape_q, labels_q, lengths_q, prompt_ids=prompt_ids_q)
+    mp_auroc = compute_auroc_cv(X_mp_q, labels_q, lengths_q, prompt_ids=prompt_ids_q)
 
     report(f"  Paper claims shape AUROC: 0.767 | Computed: {shape_auroc:.3f}")
     report(f"  Paper claims MP AUROC:    0.628 | Computed: {mp_auroc:.3f}")
