@@ -13,6 +13,11 @@
     "agni_false_positives_noted": "Gate 1 also raised C1 (model.generate), L1 (hooks), L4 (hidden_states) — none apply; the script is encoding-only model(use_cache=True), reads cache.layers[].keys, no generation loop. Recorded so the next reviewer does not re-flag them."
   },
 
+  "gate1_round2_notes": {
+    "encoding_phase_is_intentional": "Agni v1.1.1 flagged 'cache extracted from input, not response' as CRITICAL. This is a FALSE POSITIVE — encoding-phase measurement is the correct design for this question. We ask whether the persona system prompt reshaped the model's representation of the IDENTICAL user query; the encoding-phase cache (after processing system+user, before any generation) is precisely that. Same encoding-phase logic as self_calibration.py and decision_moment.py's encoding analysis. Generation is not needed and would add a confound (different outputs per level).",
+    "position_confound_placebo": "Agni's one REAL round-2 finding: even with length-matched prompts (spread <=3), win_start=sys_len shifts the user window's absolute position by up to 3 tokens across levels, and via RoPE those user-token keys carry slightly different positional phase — confounded with the persona label. FIX (path #2, chosen over engineering it to zero): added a POSITION-PLACEBO control arm. For each level we also run a NEUTRAL (L0-persona) system prompt padded to that level's token length, then compute the same pairwise AUROCs. The placebo holds persona constant and varies only length/position. If placebo pairwise AUROC < 0.6, the position confound is empirically ruled out. If it separates, the real gradient is trustworthy only where it clears the placebo by a clear margin. This MEASURES the confound rather than assuming it away — a placebo near chance is the strongest answer to the RoPE objection."
+  },
+
   "gate1_review": {
     "verdict": "REJECTED",
     "reviewer": "Agni (qwen3:30b-a3b)",

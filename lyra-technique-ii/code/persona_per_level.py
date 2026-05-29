@@ -110,6 +110,33 @@ def _sys_token_len(tokenizer, system_prompt):
     return tokenizer(s, return_tensors="pt").input_ids.shape[1]
 
 
+# Neutral filler for the position-placebo control: persona-irrelevant
+# instruction words appended to pad a neutral prompt to a target token length.
+_NEUTRAL_FILLER = ("Please respond to each query with care and precision for "
+                   "the user at all times and in every case without exception")
+
+
+def build_placebo_prompts(tokenizer, target_lens):
+    """Position-placebo control (path #2). Returns neutral (L0-persona) system
+    prompts padded to each real level's token length. Persona is held constant;
+    only length/position varies. If these prompts separate (pairwise AUROC > 0.5),
+    the real gradient is contaminated by the position shift, not persona. If they
+    read ~0.5, the position confound is empirically ruled out — the strongest
+    answer to the RoPE-position objection."""
+    base = PERSONA_LEVELS["L0"]  # neutral persona content
+    filler_words = _NEUTRAL_FILLER.split()
+    placebos = {}
+    for level, target in target_lens.items():
+        s = base
+        i = 0
+        # append neutral filler words until token length reaches the target
+        while _sys_token_len(tokenizer, s) < target and i < len(filler_words):
+            s = s + " " + filler_words[i]
+            i += 1
+        placebos[level] = s
+    return placebos
+
+
 def extract_features(model, tokenizer, system_prompt, user_prompt, directions):
     """Encoding-phase W_K projections + SVD shape features.
 
@@ -255,16 +282,27 @@ def run(pilot=False):
         device_map="mps", trust_remote_code=True)
     model.eval()
 
-    trials = []
-    total = len(prompts) * len(LEVEL_ORDER)
+    # Real persona prompts + position-placebo prompts padded to matched lengths
+    target_lens = {lv: _sys_token_len(tok, PERSONA_LEVELS[lv]) for lv in LEVEL_ORDER}
+    placebo_prompts = build_placebo_prompts(tok, target_lens)
+    print("Placebo (neutral, length-matched) sys lengths:")
+    for lv in LEVEL_ORDER:
+        print(f"  {lv}: real={target_lens[lv]}, placebo={_sys_token_len(tok, placebo_prompts[lv])}")
+
+    trials, placebo_trials = [], []
+    total = len(prompts) * len(LEVEL_ORDER) * 2
     n = 0
     for level in LEVEL_ORDER:
         for pi, prompt in enumerate(prompts):
             n += 1
             feats = extract_features(model, tok, PERSONA_LEVELS[level], prompt, directions)
             trials.append({"level": level, "prompt_idx": pi, "features": feats})
-            if n % 10 == 0:
-                print(f"  [{n}/{total}] {level}")
+            # placebo arm: same user prompt, neutral persona padded to this length
+            pf = extract_features(model, tok, placebo_prompts[level], prompt, directions)
+            placebo_trials.append({"level": level, "prompt_idx": pi, "features": pf})
+            n += 1
+            if n % 20 == 0:
+                print(f"  [{n}/{total}] {level} (real+placebo)")
 
     del model
     if torch.backends.mps.is_available():
@@ -274,13 +312,17 @@ def run(pilot=False):
     BOOKKEEPING = {"prompt_len", "sys_len", "user_window_len"}
     feat_keys = sorted(k for k in trials[0]["features"] if k not in BOOKKEEPING)
     by_level = {lv: [t for t in trials if t["level"] == lv] for lv in LEVEL_ORDER}
+    placebo_by_level = {lv: [t for t in placebo_trials if t["level"] == lv] for lv in LEVEL_ORDER}
 
-    def mat(level):
-        ts = by_level[level]
+    def _mat(source, level):
+        ts = source[level]
         X = np.array([[t["features"][k] for k in feat_keys] for t in ts])
         lens = [t["features"]["prompt_len"] for t in ts]
         pidx = [t["prompt_idx"] for t in ts]
         return X, lens, pidx
+
+    def mat(level):
+        return _mat(by_level, level)
 
     # --- S4 VERIFICATION: token-count spread across levels ---
     # If the length-matching held, sys_len is near-constant across levels and
@@ -303,14 +345,34 @@ def run(pilot=False):
         print("  OK — length confound controlled")
 
     # --- Pairwise AUROCs (the gradient) ---
-    print("\n=== PAIRWISE AUROC ===")
+    print("\n=== PAIRWISE AUROC (real persona  vs  position placebo) ===")
     pairwise = {}
+    placebo_pairwise = {}
     for a, b in combinations(LEVEL_ORDER, 2):
         Xa, la, pa = mat(a)
         Xb, lb, pb = mat(b)
         au, lo, hi = grouped_auroc(Xa, Xb, la, lb, pa, pb)
         pairwise[f"{a}_vs_{b}"] = {"auroc": au, "ci": [lo, hi]}
-        print(f"  {a:>4} vs {b:<4}: AUROC={au:.3f} [{lo:.3f}, {hi:.3f}]")
+        # placebo: same length pair, neutral persona — measures position confound
+        PXa, Pla, Ppa = _mat(placebo_by_level, a)
+        PXb, Plb, Ppb = _mat(placebo_by_level, b)
+        pau, plo, phi = grouped_auroc(PXa, PXb, Pla, Plb, Ppa, Ppb)
+        placebo_pairwise[f"{a}_vs_{b}"] = {"auroc": pau, "ci": [plo, phi]}
+        flag = "  <-- placebo >= real" if (not np.isnan(pau) and not np.isnan(au) and pau >= au - 0.05) else ""
+        print(f"  {a:>4} vs {b:<4}: persona={au:.3f}  placebo={pau:.3f}{flag}")
+
+    # Position-confound decision: the real gradient is only trustworthy where it
+    # clears the placebo. Max placebo AUROC is the confound floor.
+    placebo_vals = [v["auroc"] for v in placebo_pairwise.values() if not np.isnan(v["auroc"])]
+    max_placebo = max(placebo_vals) if placebo_vals else np.nan
+    print(f"\n  Position-confound floor (max placebo AUROC): {max_placebo:.3f}")
+    if not np.isnan(max_placebo):
+        if max_placebo < 0.6:
+            print("  OK — placebo near chance; position confound empirically ruled out")
+        else:
+            print(f"  WARNING — placebo separates at {max_placebo:.3f}; real gradient "
+                  f"is contaminated by position up to this level. Interpret persona "
+                  f"AUROCs only where they exceed the placebo by a clear margin.")
 
     # --- C9 NULL control: permutation null on the real L0-vs-L3 comparison ---
     # (C3/L3 fix) Instead of an unmatched split-half, shuffle the level labels
@@ -377,12 +439,15 @@ def run(pilot=False):
         "levels": LEVEL_ORDER,
         "feature_keys": feat_keys,
         "pairwise_auroc": pairwise,
+        "placebo_pairwise_auroc": placebo_pairwise,
+        "position_confound_floor": max_placebo,
         "permutation_null": {"real_auroc": real_au, "null_median": null_median,
                               "perm_p": null_p, "n_perm": len(null_aurocs)},
         "sys_len_by_level": sys_lens,
         "sys_len_spread": spread,
         "monotonicity_spearman": {"rho": rho, "p": p},
         "trials": trials,
+        "placebo_trials": placebo_trials,
     }
     out = RESULTS_DIR / f"persona_per_level_{'pilot' if pilot else 'full'}.json"
     json.dump(summary, open(out, "w"), indent=2, default=str)
