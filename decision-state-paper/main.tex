@@ -630,12 +630,22 @@ the cases the Loop needs to catch.
           present, confirming that judge capability, not just framing,
           is the bottleneck \citep{zheng2023judging}. The capable judge
           (Qwen3) gives a sensible 15.6\% rate (7/45), aligning with the
-          original CONFABULATED labels (6/7). Across methods the true
-          rate sits in the 8--16\% range; the ``73\%'' regex figure is a
-          definitive artifact. Crucially, the geometric detector
-          (AUROC~0.93) is more reproducible than any behavioral label:
-          it reads the model's epistemic state directly, sidestepping
-          the judge-reliability problem entirely. Human validation
+          original CONFABULATED labels (6/7). We then ran a three-judge
+          panel \citep[PoLL,][]{verga2024poll} on the atomic question with
+          capable, diverse-family judges (Qwen3-30B, Gemma-2-27B,
+          Qwen3.5-27B). Mean pairwise $\kappa = 0.37$; the strongest
+          capable--diverse pair (Qwen3 + Gemma-2) reached $\kappa = 0.69$
+          (``substantial''). Notably the two Qwen variants agreed
+          \emph{less} ($\kappa = 0.26$) than Qwen3 agreed with Gemma-2,
+          ruling out family correlation as the driver. The panel-majority
+          confab rate was 13.3\%, converging with the per-judge estimates.
+          Across all methods the rate sits in the 8--16\% range; the
+          ``73\%'' regex figure is a definitive artifact. Crucially, even
+          atomic decomposition with capable diverse judges tops out at
+          ``substantial'' agreement, while the geometric detector
+          (AUROC~0.93) is \emph{more} reproducible than any behavioral
+          consensus: it reads the model's epistemic state directly,
+          sidestepping the judge-reliability problem. Human validation
           remains the gold standard for the rate; the geometry is the
           stable signal.
     \item \textbf{Encoding-phase confound residual.} Token counts are
