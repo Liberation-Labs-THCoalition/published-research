@@ -79,7 +79,7 @@ Our KV-Cloak work found cache geometry beats text by 0.148 AUROC — suggestive 
 
 ### Rule 3: Bootstrap Everything
 
-n=7 gives you AUROC 0.903 with CI [0.58, 0.98]. That's noise, not precision. Report bootstrap CIs (BCa, 2000+ iterations) on every AUROC.
+n=7 gives you AUROC 0.903 with a BCa CI of [0.806, 0.977] — and even that ~0.17-wide interval is generous for the sample size; a percentile bootstrap runs wider still. Small n is noise, not precision. Report bootstrap CIs (BCa, 2000+ iterations) on every AUROC, and state the method — percentile and BCa disagree at small n.
 
 ```python
 def bootstrap_auroc(group_a, group_b, n_boot=2000):

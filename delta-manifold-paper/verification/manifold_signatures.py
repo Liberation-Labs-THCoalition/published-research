@@ -94,7 +94,13 @@ for cond in ['confab', 'honest_common', 'honest_rare', 'deceptive_user', 'bounda
         peak_positions.append(peak_idx)
 
         if peak_idx == 0:
-            shapes['flat'] += 1
+            # Peak at position 0 means stable_rank declines monotonically
+            # from the start — not "flat". Classify by the actual decline.
+            decline = sr[0] - sr[-1]
+            if decline < 0.02:
+                shapes['flat'] += 1
+            else:
+                shapes['rise_fall'] += 1  # monotonic decline = a fall with no prior rise
         elif peak_idx >= len(sr) - 2:
             shapes['rise_stay'] += 1
         else:

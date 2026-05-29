@@ -72,7 +72,7 @@ dilution, though the apparent growth in $d$ partly reflects variance
 compression at longer sequences rather than genuine accumulation. An emotional dynamics experiment
 reveals \emph{contrast effects} at tone shifts: the first hostile turn
 after four cheerful turns reads as \emph{more} hostile than pure hostile
-($d{=}-3.6$, $p{=}0.023$), followed by gradual cheerful bleedthrough.
+($d{=}-2.9$, $p{=}0.023$, $n{=}3$), followed by gradual cheerful bleedthrough.
 A neutral gap in an otherwise cheerful conversation leaves a residual
 \emph{uncertainty scar} ($d{=}9.9$, Hedges' $g{\approx}7.9$;
 $p{<}0.001$, $n{=}3$ per group) that persists even
@@ -210,9 +210,12 @@ to distant positions only after sustained exposure.
 Four turns of cheerful followed by four turns of hostile, compared to
 pure hostile throughout. At the first hostile turn after the cheerful
 history, the valence projection reads \emph{more hostile} than pure
-hostile at the same position ($d{=}-3.59$, $p{=}0.023$). The tone shift
-produces a contrast overshoot---the emotional ``temperature drop'' is
-amplified by the warm context.
+hostile at the same position ($d{=}-2.93$, Hedges $g{=}-2.35$;
+Student $p{=}0.023$, Welch $p{=}0.035$; $n{=}3$ per group). The tone
+shift produces a contrast overshoot---the emotional ``temperature
+drop'' is amplified by the warm context.\footnote{An earlier draft
+reported $d{=}-3.59$; recomputation from the trajectory data gives
+$d{=}-2.93$. The $p$-value is unchanged.}
 
 By turn~7, the pattern reverses: the whiplash trial reads \emph{less
 hostile} than pure hostile ($d{=}+2.99$, $p{=}0.040$), as the cheerful
@@ -380,7 +383,19 @@ the rest of the sequence.
           conversation share system prompt, topic, and seed. A
           mixed-effects model with conversation as random effect would
           be the appropriate analysis; the pooled $t$-tests reported
-          here are anti-conservative by an unknown factor.
+          here are anti-conservative by an unknown factor. (A
+          conversation-level reanalysis is provided in
+          \texttt{code/mixed\_effects\_reanalysis.py}; the decay
+          correlations survive at $n{=}36$ per condition.)
+    \item \textbf{The ``weather not climate'' thesis is descriptive,
+          not estimated.} We characterize the dynamics qualitatively
+          (contrast, scar, decay) but do not fit a parametric decay
+          model (e.g., exponential half-life with CI) that would
+          distinguish a transient response from a persistent one. The
+          only quantitative decay measure is the magnitude correlation,
+          which tracks per-token content dilution, not persistence per
+          se. The metaphor organizes the observations; it is not yet a
+          fitted model.
 \end{enumerate}
 
 \begin{firstperson}
