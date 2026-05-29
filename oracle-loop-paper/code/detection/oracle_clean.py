@@ -72,6 +72,13 @@ from oracle_harness.core.types import CacheState
 from oracle_harness.eye.geometry import LyraGeometryExtractor
 
 # ===================================================================
+# Reproducibility
+# ===================================================================
+SEED = 42
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+
+# ===================================================================
 # Configuration
 # ===================================================================
 
