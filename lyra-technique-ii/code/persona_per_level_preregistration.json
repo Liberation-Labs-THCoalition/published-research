@@ -1,0 +1,54 @@
+{
+  "experiment": "persona_per_level",
+  "addresses_finding": "LT2-M2 (persona gradient / monotonicity claims unbacked)",
+  "date_registered": "2026-05-29",
+  "authors": ["Lyra", "Nexus"],
+  "status": "DRAFT — pending Agni Gate 1 review before run",
+
+  "motivation": "The Lyra Technique II paper claims a monotonic persona-intensity gradient (L0<L0.5<L1<L2<L3 in geometric separability) but ships only L0-vs-L3 and one L0-vs-L0.5 scalar. The per-level breakdown asserted in section 5.2 has no backing data. This experiment produces all adjacent-level pairwise AUROCs to test the gradient directly.",
+
+  "primary_hypothesis": "Geometric separability between persona levels increases monotonically with level separation: Spearman rho(level-gap, AUROC) > 0, p < 0.05.",
+
+  "secondary_predictions": [
+    "AUROC(L0 vs L3) is the largest pairwise value.",
+    "Each adjacent-level AUROC (L0-L0.5, L0.5-L1, L1-L2, L2-L3) exceeds 0.5 but is individually weaker than the L0-L3 endpoint.",
+    "The NULL control (L0 vs L0, prompts split in half) is ~0.5, confirming no spurious separability."
+  ],
+
+  "design": {
+    "manipulation": "persona system prompt intensity (5 levels)",
+    "held_constant": "user prompt content (24 neutral explanatory prompts, identical across all levels)",
+    "n_trials": "24 prompts x 5 levels = 120",
+    "model": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+    "features": "per-layer SVD stable_rank + spectral_entropy at L3/L7/L11/L15, plus W_K emotion projections",
+    "rationale": "Holding prompt content constant means any geometric difference is attributable to persona intensity, not content. This is the control the original experiment lacked."
+  },
+
+  "red_team_controls": {
+    "C1": "prompt content identical across levels (only system prompt varies)",
+    "C2": "FWL residualization on prompt_len within each CV fold",
+    "C3": "GroupKFold on prompt_idx (no prompt in both train and test)",
+    "C4": "within-fold StandardScaler (fit on train only)",
+    "C5": "bootstrap CIs (2000 resamples) on every AUROC",
+    "C6": "Holm-Bonferroni across the 10 pairwise comparisons",
+    "C7": "seeds set (torch, numpy, mps = 42)",
+    "C8": "monotonicity tested via Spearman, not visual inspection",
+    "C9": "NULL control L0-vs-L0 must be ~0.5"
+  },
+
+  "falsification_conditions": [
+    "If the NULL control (L0 vs L0) AUROC > 0.65, the pipeline has a leakage bug — STOP, do not interpret.",
+    "If monotonicity Spearman is non-significant (p > 0.05), the gradient claim is FALSIFIED and the paper must drop 'monotonic'.",
+    "If adjacent AUROCs are non-monotonic (e.g., L1-L2 > L2-L3), report the actual ordering, not the claimed one."
+  ],
+
+  "decision_rule": "Report the actual pairwise AUROC matrix regardless of outcome. If the gradient is confirmed, it backs the section 5.2 claim. If not, section 5.2 is corrected to match the data. Either way the paper gains the per-level data it currently lacks.",
+
+  "run_protocol": [
+    "1. Agni Gate 1 design review (red team the design).",
+    "2. python3 persona_per_level.py --pilot  (6 prompts, verify pipeline + null control)",
+    "3. Inspect pilot: confirm NULL ~0.5 and features extract cleanly.",
+    "4. python3 persona_per_level.py  (full 120-trial run)",
+    "5. Agni Gate 3 result review before committing to paper."
+  ]
+}
