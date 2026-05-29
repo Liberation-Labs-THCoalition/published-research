@@ -590,8 +590,18 @@ removing mode-level variance from shape features. That both converge at
 $\sim$$12\times$ chance is evidence that they are detecting the same
 underlying signal through complementary lenses.
 
-\subsection{Confabulation Detection Confirmed Across 15+ Models}
+\subsection{Confabulation Detection Across 15+ Models}
 \label{sec:results_confab}
+
+\paragraph{Task definition note.} Confabulation detection results
+in Table~\ref{tab:confab_all} use the canonical pipeline (binary
+classification on SVD features from the scale sweep). Earlier
+canonical cognitive-state experiments using a different feature set
+showed weaker results for some models (e.g., Llama-3.1-8B AUROC~0.495,
+Qwen2.5-7B AUROC~0.541). The improvement in the scale-sweep pipeline
+reflects a different task definition (binary honest/confab vs.\
+multi-state cognitive classification), not a correction of the
+earlier results.
 
 The canonical pipeline with optional denoising confirms confabulation
 detection across the full model set, with denoising providing modest
@@ -620,12 +630,19 @@ Gemma-2-9B & 0.913 & 0.919 & $+0.006$ & $< 0.005$ \\
 \end{tabular}
 \end{table}
 
-The pattern is clear: denoising helps models where the raw signal is
+The pattern suggests denoising helps models where the raw signal is
 moderate (Qwen2.5-7B canonical $+0.068$, TinyLlama $+0.047$) and has
 little effect where the signal is already strong (Gemma-2-9B $+0.006$,
-Mistral $+0.000$). This is consistent with the scale dominance
-interpretation: strong confab signals already dominate the spectrum;
-moderate signals benefit from removing scale variance.
+Mistral $+0.000$). However, the reported denoised AUROCs use
+$\max(\text{raw}, \text{denoised}[k])$ scored on the same CV fold that
+selects the rank, without nested cross-validation. At the observed
+fold variance ($\text{SE} \approx 0.06$), max-over-grid selection
+manufactures $+0.025$ to $+0.05$ AUROC under the null, which
+overlaps with the observed confab deltas ($+0.006$ to $+0.068$).
+The confab denoising benefit is therefore not statistically
+distinguishable from selection noise without nested rank selection
+or an a~priori rank criterion. The raw (un-denoised) AUROCs are
+the defensible confab detection numbers.
 
 \paragraph{Delta stable rank as primary detector.} CC's cross-experiment
 synthesis identified delta stable rank (generation minus encoding phase) as
@@ -672,9 +689,14 @@ Qwen2.5-14B & 14B & 0.966 \\
 \end{tabular}
 \end{table}
 
-The scaling trend ($\rho = 0.92$ between log-parameters and AUROC) suggests
-that larger models develop more geometrically distinct self-models. We note
-the important caveat: self-referential prompts differ systematically from
+The scaling trend is suggestive but not statistically confirmed:
+Spearman $\rho = 0.55$, $p = 0.16$ over the 8~models in
+Table~\ref{tab:selfref}.\footnote{An earlier analysis reported
+$\rho = 0.92$; this is not reproducible from the tabulated data.
+Qwen-0.5B (0.849) outperforms several larger models, breaking
+monotonicity.} The direction (larger models trend toward higher
+self-reference AUROC) is consistent across families but underpowered
+at $n = 8$. Self-referential prompts also differ systematically from
 generic factual prompts in content, vocabulary, and likely token
 distributions. A content-matched control (e.g., questions about \emph{other}
 AI systems vs.\ questions about the responding model) is needed to
@@ -692,7 +714,11 @@ and final verdicts.
 \small
 \caption{Comprehensive phenomenon inventory: the body count. Raw vs.\
   denoised performance, significance, and verdict after all corrections.
-  $\dagger$ = pre-registered hypothesis passed.}
+  $\dagger$ = pre-registered hypothesis passed.
+  $\ddagger$ = at permutation floor ($p < 0.005$ from 200~permutations);
+  would not survive Bonferroni correction for 36~tests ($\alpha_{\text{adj}} = 0.0014$).
+  Verdicts marked $\ddagger$ should be read as ``signal detected, pending
+  higher-resolution permutation testing.''}
 \label{tab:body_count}
 \begin{tabular}{p{3.5cm}ccccl}
 \toprule
@@ -700,7 +726,7 @@ and final verdicts.
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
 Within-model deception & 1.000 & 1.000 & 0.000 & $<0.005$ & Confirmed \\
-Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed \\
+Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
 Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
 Scale invariance & $\rho=0.83$--$0.90$ & --- & --- & --- & Confirmed \\
