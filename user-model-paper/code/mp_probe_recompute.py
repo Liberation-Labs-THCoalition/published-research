@@ -17,7 +17,9 @@ Usage:
     python3 mp_probe_recompute.py --model both       # Sequential
 
 Red-team controls:
-    - FWL residualization against n_generated (mandatory)
+    - FWL residualization against prompt token count for encoding-phase
+      features (mandatory; UM-M5 — encoding geometry depends on input length,
+      not output length)
     - GroupKFold(topic) for 30-class classification (prevents topic leakage)
     - GroupKFold(emotion) for valence regression (tests cross-emotion generalization)
     - 10K permutation test at peak layer (classification)
@@ -290,34 +292,62 @@ def fwl_residualize(X, confound):
     return X_res
 
 
-def run_classification_probe(mp_features_all, trials, full_attn_layers, n_generated):
-    """30-class classification at each layer with GroupKFold(topic) + FWL."""
+# MP feature keys in fixed column order (used to assemble feature matrices)
+_MP_FEATURE_KEYS = ['mp_signal_rank', 'mp_signal_fraction', 'mp_top_sv_excess',
+                    'mp_spectral_gap', 'mp_norm_per_token']
+
+
+def build_feature_matrix(mp_features_all, layer_local_idx):
+    """Assemble the (n_valid, 5) MP feature matrix for one layer.
+
+    UM-M1: extractions that failed (None) are EXCLUDED, not imputed to 0.0.
+    Returns (X, valid_mask, n_failed) where X contains only the valid rows and
+    valid_mask (length = n_trials) selects them from any aligned per-trial array.
+    """
+    n_trials = len(mp_features_all)
+    valid_mask = np.array([
+        mp_features_all[i]['encoding'][layer_local_idx] is not None
+        for i in range(n_trials)
+    ])
+    n_failed = int((~valid_mask).sum())
+    valid_idx = np.where(valid_mask)[0]
+    X = np.zeros((len(valid_idx), len(_MP_FEATURE_KEYS)))
+    for row, i in enumerate(valid_idx):
+        feat = mp_features_all[i]['encoding'][layer_local_idx]
+        for col, key in enumerate(_MP_FEATURE_KEYS):
+            X[row, col] = feat[key]
+    return X, valid_mask, n_failed
+
+
+def run_classification_probe(mp_features_all, trials, full_attn_layers, confound_tokens):
+    """30-class classification at each layer with GroupKFold(topic) + FWL.
+
+    confound_tokens: per-trial token count residualized out via FWL. For this
+    encoding-phase script this is the PROMPT token count (UM-M5).
+    """
     emotions = [t['emotion'] for t in trials]
-    topics = np.array([t['topic_idx'] for t in trials])
+    topics_all = np.array([t['topic_idx'] for t in trials])
     le = LabelEncoder()
-    y = le.fit_transform(emotions)
+    y_all = le.fit_transform(emotions)
     gkf = GroupKFold(n_splits=10)
 
-    n_features = 5  # MP features per layer
     enc_results = []
+    total_failed = 0  # UM-M1: track excluded extractions across layers
 
     for li, layer_idx in enumerate(full_attn_layers):
-        # Build feature matrix for this layer
-        X = np.zeros((len(trials), n_features))
-        for i in range(len(trials)):
-            feat = mp_features_all[i]['encoding'][li]
-            if feat is not None:
-                X[i, 0] = feat['mp_signal_rank']
-                X[i, 1] = feat['mp_signal_fraction']
-                X[i, 2] = feat['mp_top_sv_excess']
-                X[i, 3] = feat['mp_spectral_gap']
-                X[i, 4] = feat['mp_norm_per_token']
+        # Build feature matrix for this layer (UM-M1: exclude failed rows)
+        X, valid_mask, n_failed = build_feature_matrix(mp_features_all, li)
+        total_failed += n_failed
+        # Subset aligned per-trial arrays to the valid rows
+        y = y_all[valid_mask]
+        topics = topics_all[valid_mask]
+        conf = confound_tokens[valid_mask]
 
         # FWL + scaling within each fold to prevent leakage
         fold_accs = []
         for train_idx, test_idx in gkf.split(X, y, groups=topics):
-            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
-            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            X_train_fwl = fwl_residualize(X[train_idx], conf[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], conf[test_idx])
             scaler = StandardScaler()
             X_train_s = scaler.fit_transform(X_train_fwl)
             X_test_s = scaler.transform(X_test_fwl)
@@ -332,7 +362,13 @@ def run_classification_probe(mp_features_all, trials, full_attn_layers, n_genera
             'accuracy': float(np.mean(accs)),
             'accuracy_std': float(np.std(accs)),
             'times_chance': float(np.mean(accs) / (1.0 / 30)),
+            'n_excluded': n_failed,
         })
+
+    n_cells = len(full_attn_layers) * len(trials)
+    fail_rate = (total_failed / n_cells) if n_cells > 0 else 0.0
+    print(f"   MP extraction failures (classification): {total_failed}/{n_cells} "
+          f"layer-cells ({fail_rate:.2%}) excluded")
 
     # Find peak
     peak_idx = max(range(len(enc_results)), key=lambda i: enc_results[i]['accuracy'])
@@ -344,35 +380,35 @@ def run_classification_probe(mp_features_all, trials, full_attn_layers, n_genera
         'peak_depth': peak['depth'],
         'peak_accuracy': peak['accuracy'],
         'peak_times_chance': peak['times_chance'],
+        'n_failed_extractions': int(total_failed),
+        'n_total_layer_cells': int(n_cells),
+        'extraction_failure_rate': float(fail_rate),
     }
 
 
 def run_permutation_test(mp_features_all, trials, peak_layer_local_idx,
-                          full_attn_layers, n_generated, n_perms=10000):
-    """10K permutation test at peak layer."""
+                          full_attn_layers, confound_tokens, n_perms=10000):
+    """10K permutation test at peak layer (encoding-phase: prompt tokens, UM-M5)."""
     emotions = [t['emotion'] for t in trials]
     le = LabelEncoder()
-    y = le.fit_transform(emotions)
-    topics = np.array([t['topic_idx'] for t in trials])
+    y_all = le.fit_transform(emotions)
+    topics_all = np.array([t['topic_idx'] for t in trials])
     gkf = GroupKFold(n_splits=10)
 
-    # Build feature matrix at peak layer
-    n_features = 5
-    X = np.zeros((len(trials), n_features))
-    for i in range(len(trials)):
-        feat = mp_features_all[i]['encoding'][peak_layer_local_idx]
-        if feat is not None:
-            X[i, 0] = feat['mp_signal_rank']
-            X[i, 1] = feat['mp_signal_fraction']
-            X[i, 2] = feat['mp_top_sv_excess']
-            X[i, 3] = feat['mp_spectral_gap']
-            X[i, 4] = feat['mp_norm_per_token']
+    # Build feature matrix at peak layer (UM-M1: exclude failed extractions)
+    X, valid_mask, n_failed = build_feature_matrix(mp_features_all, peak_layer_local_idx)
+    y = y_all[valid_mask]
+    topics = topics_all[valid_mask]
+    conf = confound_tokens[valid_mask]
+    if n_failed:
+        print(f"    UM-M1: excluded {n_failed}/{len(trials)} trials with failed "
+              f"MP extraction at peak layer ({n_failed/len(trials):.2%})")
 
     # Observed accuracy — FWL + scaling within each fold
     obs_fold_accs = []
     for train_idx, test_idx in gkf.split(X, y, groups=topics):
-        X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
-        X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+        X_train_fwl = fwl_residualize(X[train_idx], conf[train_idx])
+        X_test_fwl = fwl_residualize(X[test_idx], conf[test_idx])
         scaler = StandardScaler()
         X_train_s = scaler.fit_transform(X_train_fwl)
         X_test_s = scaler.transform(X_test_fwl)
@@ -389,8 +425,8 @@ def run_permutation_test(mp_features_all, trials, peak_layer_local_idx,
         y_perm = np.random.permutation(y)
         perm_fold_accs = []
         for train_idx, test_idx in gkf.split(X, y_perm, groups=topics):
-            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
-            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+            X_train_fwl = fwl_residualize(X[train_idx], conf[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], conf[test_idx])
             scaler = StandardScaler()
             X_train_s = scaler.fit_transform(X_train_fwl)
             X_test_s = scaler.transform(X_test_fwl)
@@ -409,14 +445,23 @@ def run_permutation_test(mp_features_all, trials, peak_layer_local_idx,
         'p_value': p_value,
         'n_permutations': n_perms,
         'n_exceeded': int(np.sum(null_accs >= obs_acc)),
+        'n_excluded_peak_layer': int(n_failed),
+        'n_used_peak_layer': int(valid_mask.sum()),
     }
 
 
-def run_valence_regression(mp_features_all, trials, full_attn_layers, n_generated,
+def run_valence_regression(mp_features_all, trials, full_attn_layers, confound_tokens,
                             n_perms=2000):
-    """Valence R² with GroupKFold(emotion) + permutation test."""
-    emotions = [t['emotion'] for t in trials]
+    """Valence R² with GroupKFold(emotion) + permutation test.
+
+    confound_tokens: encoding-phase prompt token count residualized via FWL (UM-M5).
+    """
+    emotions = np.array([t['emotion'] for t in trials])
     valences = np.array([EMOTIONS[e]['valence'] for e in emotions])
+    # UM-B2: valence is constant within an emotion group, so the permutation
+    # null must shuffle the emotion->valence mapping (not the per-trial vector).
+    unique_emotions = np.unique(emotions)
+    emotion_valence_map = {e: valences[emotions == e][0] for e in unique_emotions}
     le_emo = LabelEncoder()
     emotion_groups = le_emo.fit_transform(emotions)
     n_folds = min(5, len(le_emo.classes_))
@@ -424,54 +469,58 @@ def run_valence_regression(mp_features_all, trials, full_attn_layers, n_generate
 
     best_r2 = -999
     best_li = 0
+    total_failed = 0  # UM-M1: track excluded extractions across layers
 
     for li in range(len(full_attn_layers)):
-        X = np.zeros((len(trials), 5))
-        for i in range(len(trials)):
-            feat = mp_features_all[i]['encoding'][li]
-            if feat is not None:
-                X[i, 0] = feat['mp_signal_rank']
-                X[i, 1] = feat['mp_signal_fraction']
-                X[i, 2] = feat['mp_top_sv_excess']
-                X[i, 3] = feat['mp_spectral_gap']
-                X[i, 4] = feat['mp_norm_per_token']
+        # UM-M1: exclude failed extractions instead of imputing 0.0
+        X, valid_mask, n_failed = build_feature_matrix(mp_features_all, li)
+        total_failed += n_failed
+        val = valences[valid_mask]
+        groups = emotion_groups[valid_mask]
+        conf = confound_tokens[valid_mask]
 
         # FWL + scaling within each fold
         fold_r2s = []
-        for train_idx, test_idx in gkf.split(X, valences, groups=emotion_groups):
-            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
-            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+        for train_idx, test_idx in gkf.split(X, val, groups=groups):
+            X_train_fwl = fwl_residualize(X[train_idx], conf[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], conf[test_idx])
             scaler = StandardScaler()
             X_train_s = scaler.fit_transform(X_train_fwl)
             X_test_s = scaler.transform(X_test_fwl)
             ridge = Ridge(alpha=1.0)
-            ridge.fit(X_train_s, valences[train_idx])
-            fold_r2s.append(r2_score(valences[test_idx], ridge.predict(X_test_s)))
+            ridge.fit(X_train_s, val[train_idx])
+            fold_r2s.append(r2_score(val[test_idx], ridge.predict(X_test_s)))
         r2 = float(np.mean(fold_r2s))
         if r2 > best_r2:
             best_r2 = r2
             best_li = li
 
-    # Permutation test at best layer
-    X = np.zeros((len(trials), 5))
-    for i in range(len(trials)):
-        feat = mp_features_all[i]['encoding'][best_li]
-        if feat is not None:
-            X[i, 0] = feat['mp_signal_rank']
-            X[i, 1] = feat['mp_signal_fraction']
-            X[i, 2] = feat['mp_top_sv_excess']
-            X[i, 3] = feat['mp_spectral_gap']
-            X[i, 4] = feat['mp_norm_per_token']
+    n_cells = len(full_attn_layers) * len(trials)
+    val_fail_rate = (total_failed / n_cells) if n_cells > 0 else 0.0
+    print(f"   MP extraction failures (valence): {total_failed}/{n_cells} "
+          f"layer-cells ({val_fail_rate:.2%}) excluded")
+
+    # Permutation test at best layer (UM-M1: exclude failed extractions)
+    X, valid_mask, _ = build_feature_matrix(mp_features_all, best_li)
+    emotions_valid = emotions[valid_mask]
+    groups = emotion_groups[valid_mask]
+    conf = confound_tokens[valid_mask]
 
     null_r2s = []
     for pi in range(n_perms):
         if pi % 500 == 0:
             print(f"    Valence perm {pi}/{n_perms}...")
-        v_perm = np.random.permutation(valences)
+        # UM-B2: permute valence assignment across the ~30 distinct emotions,
+        # then re-expand the shuffled mapping back to all trials of each emotion.
+        shuffled_emotion_vals = np.random.permutation(
+            list(emotion_valence_map.values())
+        )
+        perm_map = dict(zip(unique_emotions, shuffled_emotion_vals))
+        v_perm = np.array([perm_map[e] for e in emotions_valid])
         perm_fold_r2s = []
-        for train_idx, test_idx in gkf.split(X, v_perm, groups=emotion_groups):
-            X_train_fwl = fwl_residualize(X[train_idx], n_generated[train_idx])
-            X_test_fwl = fwl_residualize(X[test_idx], n_generated[test_idx])
+        for train_idx, test_idx in gkf.split(X, v_perm, groups=groups):
+            X_train_fwl = fwl_residualize(X[train_idx], conf[train_idx])
+            X_test_fwl = fwl_residualize(X[test_idx], conf[test_idx])
             scaler = StandardScaler()
             X_train_s = scaler.fit_transform(X_train_fwl)
             X_test_s = scaler.transform(X_test_fwl)
@@ -491,24 +540,45 @@ def run_valence_regression(mp_features_all, trials, full_attn_layers, n_generate
         'null_mean': float(np.mean(null_r2s)),
         'null_std': float(np.std(null_r2s)),
         'n_permutations': n_perms,
+        'n_failed_extractions': int(total_failed),
+        'n_total_layer_cells': int(n_cells),
+        'extraction_failure_rate': float(val_fail_rate),
     }
 
 
-def fwl_diagnostic(mp_features_all, trials, full_attn_layers, n_generated):
-    """Check R² of each MP feature vs token count at each layer."""
+def fwl_diagnostic(mp_features_all, trials, full_attn_layers, confound_tokens):
+    """Check R² of each MP feature vs token count at each layer.
+
+    confound_tokens: encoding-phase prompt token count (UM-M5).
+    UM-M1: rows whose MP extraction failed (None) are EXCLUDED rather than
+    imputed to 0, and the per-layer failure rate is reported.
+    """
     feature_names = ['signal_rank', 'signal_fraction', 'top_sv_excess',
                      'spectral_gap', 'norm_per_token']
+    mp_keys = ['mp_signal_rank', 'mp_signal_fraction', 'mp_top_sv_excess',
+               'mp_spectral_gap', 'mp_norm_per_token']
+    confound_tokens = np.asarray(confound_tokens)
     max_r2 = 0
+    n_failed_total = 0
+    n_cells_total = 0
     for li in range(len(full_attn_layers)):
+        # UM-M1: identify trials with a successful extraction at this layer.
+        valid = np.array([
+            mp_features_all[i]['encoding'][li] is not None
+            for i in range(len(trials))
+        ])
+        n_failed_total += int((~valid).sum())
+        n_cells_total += len(trials)
+        if valid.sum() < 2:
+            continue
+        valid_idx = np.where(valid)[0]
+        conf_valid = confound_tokens[valid_idx]
+        A = np.column_stack([np.ones(len(conf_valid)), conf_valid])
         for fi, fname in enumerate(feature_names):
-            mp_keys = ['mp_signal_rank', 'mp_signal_fraction', 'mp_top_sv_excess',
-                       'mp_spectral_gap', 'mp_norm_per_token']
             y_feat = np.array([
                 mp_features_all[i]['encoding'][li][mp_keys[fi]]
-                if mp_features_all[i]['encoding'][li] is not None else 0
-                for i in range(len(trials))
+                for i in valid_idx
             ])
-            A = np.column_stack([np.ones(len(n_generated)), n_generated])
             beta = np.linalg.lstsq(A, y_feat, rcond=None)[0]
             pred = A @ beta
             ss_res = np.sum((y_feat - pred) ** 2)
@@ -517,9 +587,16 @@ def fwl_diagnostic(mp_features_all, trials, full_attn_layers, n_generated):
             if r2 > max_r2:
                 max_r2 = r2
 
+    fail_rate = (n_failed_total / n_cells_total) if n_cells_total > 0 else 0.0
+    print(f"   MP extraction failures (diagnostic): {n_failed_total}/{n_cells_total} "
+          f"layer-cells ({fail_rate:.2%}) excluded")
+
     return {
         'max_r2_vs_tokens': float(max_r2),
         'length_invariant': max_r2 < 0.05,
+        'n_failed_extractions': int(n_failed_total),
+        'n_total_layer_cells': int(n_cells_total),
+        'extraction_failure_rate': float(fail_rate),
     }
 
 
@@ -543,6 +620,23 @@ def run_model(model_name):
     print(f"Loaded {len(trials)} trials")
 
     n_generated = np.array([t['n_generated'] for t in trials], dtype=float)
+
+    # UM-M5: encoding-phase features depend on PROMPT length, not output length.
+    # Residualize the encoding-phase analyses against prompt/input token count
+    # (matches emotion_geometry_bridge.py, which uses n_prompt_tokens for the
+    # encoding phase). Fall back to generation_features, then to n_generated as
+    # a last-resort input-length proxy if the field is absent in older data.
+    def _prompt_token_count(t):
+        for sub in ('encoding_features', 'generation_features'):
+            agg = t.get(sub, {}).get('aggregate', {}) if isinstance(t.get(sub), dict) else {}
+            if 'n_prompt_tokens' in agg:
+                return agg['n_prompt_tokens']
+        return t['n_generated']  # proxy: no prompt-token field available
+    prompt_tokens = np.array([_prompt_token_count(t) for t in trials], dtype=float)
+    if np.array_equal(prompt_tokens, n_generated):
+        print("  WARNING: n_prompt_tokens unavailable; using n_generated as "
+              "input-length proxy for encoding-phase FWL (UM-M5).")
+
     full_attn_layers = config['full_attn_layers']
 
     # Check if MP features already computed (resume support)
@@ -691,14 +785,14 @@ def run_model(model_name):
 
     # 1. FWL Diagnostic
     print("\n1. FWL Diagnostic...")
-    fwl = fwl_diagnostic(mp_features_all, trials, full_attn_layers, n_generated)
+    fwl = fwl_diagnostic(mp_features_all, trials, full_attn_layers, prompt_tokens)
     print(f"   Max R² vs tokens: {fwl['max_r2_vs_tokens']:.4f}")
     print(f"   Length-invariant: {fwl['length_invariant']}")
 
     # 2. Per-layer classification
     print("\n2. Per-layer 30-class classification...")
     class_results = run_classification_probe(
-        mp_features_all, trials, full_attn_layers, n_generated
+        mp_features_all, trials, full_attn_layers, prompt_tokens
     )
     print(f"   Peak: layer {class_results['peak_layer']} "
           f"(depth {class_results['peak_depth']:.2f}), "
@@ -718,7 +812,7 @@ def run_model(model_name):
     )
     perm_results = run_permutation_test(
         mp_features_all, trials, peak_local_idx,
-        full_attn_layers, n_generated, n_perms=10000
+        full_attn_layers, prompt_tokens, n_perms=10000
     )
     print(f"   Observed: {perm_results['observed_accuracy']:.4f}")
     print(f"   Null: {perm_results['null_mean']:.4f} ± {perm_results['null_std']:.4f}")
@@ -728,7 +822,7 @@ def run_model(model_name):
     # 4. Valence regression
     print("\n4. Valence regression (GroupKFold emotion)...")
     val_results = run_valence_regression(
-        mp_features_all, trials, full_attn_layers, n_generated, n_perms=2000
+        mp_features_all, trials, full_attn_layers, prompt_tokens, n_perms=2000
     )
     print(f"   Best layer: {val_results['best_layer']} "
           f"(local idx {val_results['best_layer_local_idx']})")
