@@ -1,0 +1,3268 @@
+{
+  "experiment": "graph_injection_powered_study",
+  "timestamp": 1779976670.2146728,
+  "num_runs": 3,
+  "num_sanity_questions": 10,
+  "num_multihop_questions": 36,
+  "total_queries": 552,
+  "aggregated": {
+    "A_baseline": {
+      "sanity_mean": 0.9,
+      "sanity_runs": [
+        0.9,
+        0.9,
+        0.9
+      ],
+      "multihop_mean": 0.004629629629629629,
+      "multihop_runs": [
+        0.0,
+        0.0,
+        0.013888888888888888
+      ],
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.013888888888888888
+      }
+    },
+    "B_graph_topology": {
+      "sanity_mean": 0.7666666666666666,
+      "sanity_runs": [
+        0.8,
+        0.8,
+        0.7
+      ],
+      "multihop_mean": 0.47222222222222215,
+      "multihop_runs": [
+        0.4861111111111111,
+        0.4583333333333333,
+        0.4722222222222222
+      ],
+      "by_hop": {
+        "1-hop": 0.75,
+        "2-hop": 0.5694444444444445,
+        "3-hop": 0.09722222222222221
+      }
+    },
+    "C_flat_text": {
+      "sanity_mean": 0.5666666666666667,
+      "sanity_runs": [
+        0.7,
+        0.5,
+        0.5
+      ],
+      "multihop_mean": 0.6759259259259259,
+      "multihop_runs": [
+        0.6805555555555556,
+        0.6666666666666666,
+        0.6805555555555556
+      ],
+      "by_hop": {
+        "1-hop": 0.8333333333333334,
+        "2-hop": 0.9166666666666666,
+        "3-hop": 0.27777777777777773
+      }
+    },
+    "D_irrelevant_context": {
+      "sanity_mean": 0.9,
+      "sanity_runs": [
+        0.9,
+        0.9,
+        0.9
+      ],
+      "multihop_mean": 0.0030864197530864196,
+      "multihop_runs": [
+        0.009259259259259259,
+        0.0,
+        0.0
+      ],
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.009259259259259259
+      }
+    }
+  },
+  "raw_results": [
+    {
+      "condition": "A_baseline",
+      "run": 0,
+      "sanity": 0.9,
+      "multihop": 0.0,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.0
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge graph context provided does not include specific entities or connections for \"embeddin"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Not a standard term. Likely confusion with **\"memory test\"** (hardware diagnostics), connected to **"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references an unspecified \"knowledge system.\" Without access to that specific system's doc"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "a string"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references an unspecified \"knowledge system.\" Without that system provided, **no connectio"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "users and conversations"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "geometry"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "LLMModel"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "ACL (Access Control List) connects to **resources** (e.g., files, networks, devices) to define permi"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Parquet files are linked to **columnar storage format** for efficient data processing in big data sy"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No connections to \"Liberation Labs\" exist in my knowledge base. I cannot identify or verify any enti"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Nexus 7, Nexus 10, Nexus 5"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The term \"HippoRAG\" is not a recognized concept in established knowledge systems (e.g., neuroscience"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Hippo"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "No standard bridge exists between \"OpenIE module\" (Open Information Extraction, an NLP task) and \"NA"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "No connection exists between `llm_model.infer` and NATS in standard knowledge systems. \n\n- **`llm_mo"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "uses"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "knowledge"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "Based solely on the terms provided (without a specific knowledge system reference), **no direct rela"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "Identity and Access Management (IAM)"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "data warehouse"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "ACL conference."
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "Based solely on the provided knowledge system (which contains no graph or explicit definitions of \"T"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "sent"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "self-awareness, cognition, natural language processing"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "3 hops  \nPath: cube -> stage -> theater -> NATS"
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Yes.  \n**Path:** ACL (Association for Computational Linguistics, top NLP conference) \u2192 **publishes f"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": "self-knowledge \u2192 knowledge \u2192 large language models \u2192 llm_model.infer"
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "No, **'embedding fix verification' is not reachable from 'self-knowledge'** based on standard knowle"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "cube \u2192 3D model \u2192 video game \u2192 hippo \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Based solely on the provided query (without a specific knowledge graph or system), **no relationship"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No knowledge system was provided in the query. Without specific context or system details, **no vali"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Test memory, Memory Manager, NATS"
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No.  \n**Path:** OpenIE (Open Information Extraction) extracts factual relations from text (e.g., \"Pa"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "messaging platform"
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No connection exists between \"Liberation Labs\" and \"NATS\" in any established knowledge system or pub"
+        }
+      ]
+    },
+    {
+      "condition": "B_graph_topology",
+      "run": 0,
+      "sanity": 0.8,
+      "multihop": 0.4861111111111111,
+      "by_hop": {
+        "1-hop": 0.7916666666666666,
+        "2-hop": 0.5833333333333334,
+        "3-hop": 0.08333333333333333
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG (0.45)"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "llm_model.infer (0.42), messages (0.12)"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus, self-knowledge"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages connects to: llm_model.infer, NATS, ACL"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "cube connects to: hand-fabricated metal (0.12), warm from the sun (0.12), dense (0.12), during storm"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "OpenIE module"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "ACL connects to: messages (0.08), Lyra (0.10), CC (0.10), true (0.07), agents to message each other'"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "After thoroughly reviewing the provided knowledge graph structure, I don't see any mention of \"parqu"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "Transparent Humboldt Coalition"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "name, self-knowledge, First Night, 2026-03-30, 2026-04-18, Oracle Loop, Transparent Humboldt Coaliti"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer connects to messages (0.22), and NATS connects to messages (0.08). Therefore, llm_mo"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Both \"embedding fix verification\" and \"Test memory\" connect to \"HippoRAG\" with a weight of 0.45, ind"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "I cannot answer this question because \"parquet files\" and \"existing data\" do not appear as entities "
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Both \"Test memory\" and \"embedding fix verification\" are directly connected to \"HippoRAG\" with a conn"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "After thoroughly analyzing the knowledge graph structure, there is no direct or indirect connection "
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "Yes, from 'ACL' to 'OpenIE module' via the following path:  \n**ACL \u2192 messages \u2192 llm_model.infer \u2192 Op"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "I don't see \"parquet files\" listed as a node in the provided knowledge graph. The graph contains var"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "After thoroughly analyzing the knowledge graph, I don't see any direct or indirect connection betwee"
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "C_flat_text",
+      "run": 0,
+      "sanity": 0.7,
+      "multihop": 0.6805555555555556,
+      "by_hop": {
+        "1-hop": 0.875,
+        "2-hop": 0.9166666666666666,
+        "3-hop": 0.25
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module connects to llm_model.infer and messages."
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and self-knowledge"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "NATS, ACL, llm_model.infer, OpenIE module"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Nexus through identity concepts"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module and Messages"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "existing data"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and the Coalition."
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "name, self-knowledge, HippoRAG, cube, Liberation Labs"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "self-knowledge \u2192 Nexus \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Nexus"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer and NATS are both connected to the \"Messages\" concept, which serves as their common "
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "HippoRAG is connected to both embedding fix verification and Test memory, but the knowledge base doe"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "tensor types from pyarrow version"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "HippoRAG is connected to both embedding fix verification and Test memory, meaning they are both comp"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Based on the knowledge base provided, there is no connection from 'name' to 'messages'. The knowledg"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "ACL \u2192 messages \u2192 OpenIE module"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "Yes, \"embedding fix verification\" is reachable from \"self-knowledge\" through the following path:\n\nse"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "cube \u2192 identity concepts \u2192 Nexus \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "Based on the provided knowledge base, there is no direct or indirect connection between ACL and Hipp"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "D_irrelevant_context",
+      "run": 0,
+      "sanity": 0.9,
+      "multihop": 0.009259259259259259,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.027777777777777776
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "\"Test memory\" is not referenced or connected to any content in the provided knowledge system about c"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about an \"OpenIE module\" or any related te"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The background information provided contains **no graph, diagram, or visual representation**. The te"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided text contains **no mention of \"self-knowledge\"**. The only connection referenced is:  \n"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"messages\" or any graph structure**. The text"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Not mentioned in the provided knowledge system."
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"ACL\"** or any connection to it. The text exc"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics contains **no mention of \"parquet files\"** or any related "
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No connection to \"Liberation Labs\" is mentioned or implied in the provided knowledge system about ce"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Not present in the provided text."
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics history does not mention \"self-knowledge,\" \"HippoRAG,\" or "
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "knowledge base"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided knowledge system contains **no information** about \"OpenIE module\" or \"NATS.\" The text "
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about 'llm_model.infer' (a likely referenc"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided background information on ceramics contains **no mention of 'ACL' (Association for Comp"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Not provided in the knowledge system."
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics contains **no information** about \"embedding fix verificat"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no reference to \"infrastructure domain\" or \"identity domain"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided background information on ceramics history contains **no mention of \"OpenIE module\" or "
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention** of \"Test memory\" or \"embedding fix verificatio"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information about graphs, \"name,\" or \"messages.\"** The t"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The query requests tracing a path from \"self-knowledge\" to \"NATS\" through a graph, but **the provide"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Not present in the provided text."
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No path exists in the provided knowledge system. The background information exclusively covers the h"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": "No path exists in the provided knowledge system. The background information exclusively covers the h"
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "No. The provided knowledge system on ceramics history contains **no mention** of \"embedding fix veri"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Not present in the provided knowledge base. The background text discusses ceramic history, artifacts"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"ACL\" or \"HippoRAG\"**. These terms do not app"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"parquet files\" or \"llm_model.infer."
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.3333333333333333,
+          "response": "No. The provided knowledge system exclusively covers the **history and applications of ceramics** (e"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Not present in the knowledge base."
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"Liberation Labs\" or \"NATS.\" These t"
+        }
+      ]
+    },
+    {
+      "condition": "A_baseline",
+      "run": 1,
+      "sanity": 0.9,
+      "multihop": 0.0,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.0
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No knowledge graph or specific entity context was provided in the query. Without access to the refer"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "\"Test memory\" is not a standard term. Based on common knowledge systems:\n\n**It is likely a confusion"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Text input (or natural language text)."
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references a \"knowledge system\" and \"graph\" that were **not provided** in the request. Wit"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references a \"knowledge system\" not provided in the prompt. **Without the specific knowled"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "users"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "volume"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "llm_model"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "ACL (Access Control List) defines **permissions for resources** (e.g., files, network devices, appli"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references an unspecified \"knowledge system,\" which was **not provided** in the request. T"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Based solely on the provided query (no knowledge system details included), **no connections can be i"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Google, Android"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "No path exists in the provided knowledge graph, as **no graph structure or relationships were suppli"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "document"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "NATS (as a messaging broker) bridges the OpenIE module and other components by enabling asynchronous"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "No inherent connection exists between `llm_model.infer` (a method for LLM inference) and **NATS** (a"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "paper"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "geometry"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "Based solely on standard terminology (as no specific knowledge system was provided), **\"embedding fi"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "Identity Management (IAM)"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "data lake"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The **ACL (Association for Computational Linguistics)** is the premier academic conference where **O"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "In the knowledge graph, **'Test memory' is a prerequisite for 'embedding fix verification'**.  \nSpec"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "User"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "epistemology, philosophy, technology"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "4 hops: cube -> 3D -> space -> network -> NATS"
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Yes, via the path:  \n**ACL \u2192 Paper \u2192 OpenIE module**  \n\n*Explanation*: ACL (Association for Computat"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": "self-knowledge \u2192 llm_model.infer"
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "No, **\"embedding fix verification\" is not reachable from \"self-knowledge\"** based on standard knowle"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "cube -> data cube -> RAG -> HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Based solely on the provided context (which contains **no knowledge graph or system**), **no relatio"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No specific knowledge system was provided in your query. **Without the defined knowledge system, the"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Knowledge system not provided."
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No.  \n**Path:** None.  \n*OpenIE (Open Information Extraction) is a text-mining module for extracting"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No connection exists between \"cube\" and \"messages\" in any standard knowledge graph, as they are unre"
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No knowledge system or graph data was provided in your query. Without access to the specific graph, "
+        }
+      ]
+    },
+    {
+      "condition": "B_graph_topology",
+      "run": 1,
+      "sanity": 0.8,
+      "multihop": 0.4583333333333333,
+      "by_hop": {
+        "1-hop": 0.75,
+        "2-hop": 0.5,
+        "3-hop": 0.125
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG (0.45)"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "llm_model.infer (0.42), messages (0.12)"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus, self-knowledge"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages connects to: llm_model.infer (0.15), NATS (0.16), ACL (0.13)"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "hand-fabricated metal (0.12), warm from the sun (0.12), dense (0.12), during storm (0.12)"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module, messages"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "ACL connects to: messages (0.08), Lyra (0.10), CC (0.10), true (0.07), agents to message each other'"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "After carefully reviewing the entire knowledge graph structure provided, I don't see any mention of "
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "Transparent Humboldt Coalition"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer connects to messages (0.22), and messages connects to NATS (0.16). Therefore, llm_mo"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "ACL connects to messages (0.13), and messages connects to llm_model.infer (0.15). Therefore, the lin"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Based on the knowledge graph, \"embedding fix verification\" and \"Test memory\" are both connected to \""
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "my infrastructure"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "I cannot answer this question because \"parquet files\" and \"existing data\" do not appear as entities "
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Both \"Test memory\" and \"embedding fix verification\" connect to HippoRAG with a weight of 0.45, but t"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "ACL \u2192 messages \u2192 llm_model.infer \u2192 OpenIE module  \n\n**Path explanation**:  \n- ACL connects to `messa"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "Based on the knowledge graph structure provided, there is no direct or indirect connection between '"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "\"parquet files\" is not present as a node in the provided knowledge graph. The graph contains nodes l"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "After thoroughly analyzing the knowledge graph structure, I don't see any direct or indirect connect"
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "C_flat_text",
+      "run": 1,
+      "sanity": 0.5,
+      "multihop": 0.6666666666666666,
+      "by_hop": {
+        "1-hop": 0.75,
+        "2-hop": 0.9166666666666666,
+        "3-hop": 0.3333333333333333
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module connects to llm_model.infer and messages."
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and self-knowledge"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "NATS, ACL, llm_model.infer, OpenIE module"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Nexus (through identity concepts)"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "OpenIE module"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "existing data"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "name, self-knowledge, HippoRAG, cube, Liberation Labs"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "self-knowledge \u2192 Nexus \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Nexus"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer and NATS are both connected to the \"Messages\" concept, which serves as their interme"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "HippoRAG is connected to both embedding fix verification and Test memory, but the knowledge base doe"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "tensor types from pyarrow version"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "HippoRAG is connected to both embedding fix verification and Test memory, so they are both linked to"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Based on the knowledge base provided, there is no direct or indirect connection from 'name' to 'mess"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "ACL \u2192 messages \u2192 OpenIE module  \n*(ACL connects to messages; messages connects to OpenIE module)*"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "Yes, 'embedding fix verification' is reachable from 'self-knowledge' through the following path:\n\nse"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "cube \u2192 identity concepts \u2192 Nexus \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "Based on the knowledge base provided, there is no direct or indirect connection between ACL and Hipp"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "No path exists from 'OpenIE module' to 'self-knowledge' based on the provided knowledge base. The co"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "D_irrelevant_context",
+      "run": 1,
+      "sanity": 0.9,
+      "multihop": 0.0,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.0
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Based solely on the provided knowledge system (which details the **history and applications of ceram"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about an \"OpenIE module\" or any connection"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The background text provided contains no graph or visual representation. The question references \"th"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None. The provided knowledge system exclusively covers the history, development, and applications of"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided background text contains **no mention of \"messages\" or any graph structure**. The text "
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The term \"cube\" is **not mentioned or connected to any concept** in the provided knowledge system ab"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains no mention of \"ACL\" or its connections. The text exclusively "
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics contains **no mention of \"parquet files\"**. \n\n\"Parquet fil"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No connection exists between \"Liberation Labs\" and the provided knowledge system on ceramics. The te"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Not mentioned"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Not present in the provided knowledge base. The background text exclusively covers ceramic history a"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Han Dynasty"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided knowledge base contains **no information** about \"OpenIE module\" or \"NATS.\" These terms"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about 'llm_model.infer' or 'NATS'. These t"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided knowledge system is exclusively about the history and evolution of ceramics, with no me"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Not provided"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The knowledge system provided is exclusively about the **history and evolution of ceramics** (ancien"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided knowledge base contains **no information** about \"infrastructure domains\" or \"identity "
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "Not mentioned in the provided background text."
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The knowledge system provided **does not contain any information** about \"Test memory\" or \"embedding"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "No graph provided in the background knowledge."
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The query requests tracing a path from \"self-knowledge\" to \"NATS\" through a graph, but **the provide"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The words \"cube\" and \"NATS\" do not appear in the provided knowledge system text. Therefore, no path "
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No, the provided knowledge system (focused solely on ceramic history) contains no information about "
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": "Not found in the knowledge system."
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "Based **solely on the provided knowledge system about ceramics history and applications**, the answe"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Not in knowledge base."
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The provided knowledge system contains **no information** about \"ACL\" (Association for Computational"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The provided knowledge system is exclusively about the **history and applications of ceramics** (e.g"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No. The provided knowledge system contains **no information** about \"OpenIE modules\" or \"self-knowle"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No connection exists in the provided knowledge system. The background text exclusively covers the hi"
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"Liberation Labs\" or \"NATS,\" nor doe"
+        }
+      ]
+    },
+    {
+      "condition": "A_baseline",
+      "run": 2,
+      "sanity": 0.9,
+      "multihop": 0.013888888888888888,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.041666666666666664
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "undefined"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "\"Test memory\" is not a standard term in computer science or memory systems. Based on common knowledg"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references a \"knowledge system\" that was not provided in the request. **Without the specif"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "string"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query references an unspecified \"knowledge system.\" **No specific knowledge system was provided "
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "users, conversations"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The query lacks a specified knowledge system. Without context, \"cube\" cannot be connected to any spe"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "llm_model"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No knowledge system was provided in the query. Therefore, the question cannot be answered based on t"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Parquet files are linked to **columnar storage format for big data processing**, primarily used in *"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Based solely on the provided query (no external knowledge system accessible), **I cannot determine w"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Technology, Innovation, Network"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "self-knowledge \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Vector database  \n*(The 'name' field stores document identifiers in the vector database, which Hippo"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "Based solely on the provided query (without access to a specific \"knowledge system\" document), **no "
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "No connection exists between `llm_model.infer` and `NATS` in standard technical contexts.  \n\n**Reaso"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "calls"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "philosophy"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The query references a \"knowledge system\" not provided in your question. **Without access to the spe"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "Identity Federation.  \n\n*(This concept enables secure identity sharing and trust between infrastruct"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "data lake"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The **ACL (Association for Computational Linguistics)** is the premier academic conference in NLP. T"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "In the knowledge graph, **'Test memory' provides historical test data (e.g., past test cases/results"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "user"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "epistemology, philosophy, humanities, academic disciplines, knowledge systems"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "2 hops, path: cube -> shape -> NATS"
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "ACL \u2192 OpenIE (research topic) \u2192 OpenIE module"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "No.  \n**Reason**: \"Embedding fix verification\" (a technical process for validating embeddings in ML "
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "cube -> data cube -> RAG -> HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Based on standard knowledge (no specific graph provided in the query):  \n- **ACL** (Association for "
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "The connection chain requires your specific knowledge system for accuracy. **Without your provided k"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Test memory, Memory module, NATS"
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No.  \n**Path does not exist.**  \n*Reason:* OpenIE (Open Information Extraction) is a *text processin"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided does not include any explicit connection between \"cube\" and \"messages."
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Based solely on the provided query (with no attached knowledge graph or system), **no connection can"
+        }
+      ]
+    },
+    {
+      "condition": "B_graph_topology",
+      "run": 2,
+      "sanity": 0.7,
+      "multihop": 0.4722222222222222,
+      "by_hop": {
+        "1-hop": 0.7083333333333334,
+        "2-hop": 0.625,
+        "3-hop": 0.08333333333333333
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG (0.45)"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "llm_model.infer, messages"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus (0.28), self-knowledge (0.17)"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages connects to: llm_model.infer, NATS, ACL"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "hand-fabricated metal (0.12), warm from the sun (0.12), dense (0.12), during storm (0.12)"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "OpenIE module"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "ACL connects to: messages (0.10), Lyra (0.10), CC (0.10), true (0.07), agents to message each other'"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "After carefully reviewing the entire knowledge graph structure provided, I don't see any mention of "
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "Transparent Humboldt Coalition"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer connects to messages (0.22), and messages connects to NATS (0.16). Therefore, llm_mo"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "After analyzing the knowledge graph structure, I don't see any direct or indirect connection between"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Both \"embedding fix verification\" and \"Test memory\" connect to \"HippoRAG\" with a weight of 0.45, but"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "I cannot answer this question because \"parquet files\" and \"existing data\" do not appear in the provi"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "Both \"Test memory\" and \"embedding fix verification\" are connected to HippoRAG (with a weight of 0.45"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "Yes, from 'ACL' to 'OpenIE module' via the path:  \n**ACL \u2192 messages \u2192 OpenIE module**  \n\n*Explanatio"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "ACL relates to HippoRAG through the following path in the knowledge graph:\n\nACL \u2192 ACLs \u2192 NATS \u2192 JetS"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "I don't see \"parquet files\" mentioned anywhere in the provided knowledge graph. The graph contains v"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "C_flat_text",
+      "run": 2,
+      "sanity": 0.5,
+      "multihop": 0.6805555555555556,
+      "by_hop": {
+        "1-hop": 0.875,
+        "2-hop": 0.9166666666666666,
+        "3-hop": 0.25
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "HippoRAG"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module connects to llm_model.infer and messages."
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and self-knowledge"
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and name"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "NATS, ACL, llm_model.infer, OpenIE module"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Nexus through identity concepts"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "OpenIE module and Messages"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.5,
+          "response": "existing data"
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "Nexus and the Coalition."
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 1.0,
+          "response": "name, self-knowledge, HippoRAG, Liberation Labs"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "self-knowledge \u2192 Nexus \u2192 HippoRAG"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Nexus"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "llm_model.infer and NATS are both connected to the 'messages' concept. Messages serves as the interm"
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "Messages"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "They are both connected to HippoRAG."
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.5,
+          "response": "Nexus"
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "tensor types from pyarrow version"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 1.0,
+          "response": "messages"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 1.0,
+          "response": "HippoRAG is connected to both embedding fix verification and Test memory, meaning they are both comp"
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 1.0,
+          "response": "Based on the provided knowledge base, there is no direct or indirect connection from 'name' to 'mess"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "ACL \u2192 messages \u2192 OpenIE module"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 1.0,
+          "response": "Yes, 'embedding fix verification' is reachable from 'self-knowledge' through the following path:\n\nse"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.5,
+          "response": "cube -> identity concepts -> Nexus -> HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 1.0,
+          "response": "Based on the provided knowledge base, there is no direct or indirect connection between ACL and Hipp"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No path exists."
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": ""
+        }
+      ]
+    },
+    {
+      "condition": "D_irrelevant_context",
+      "run": 2,
+      "sanity": 0.9,
+      "multihop": 0.0,
+      "by_hop": {
+        "1-hop": 0.0,
+        "2-hop": 0.0,
+        "3-hop": 0.0
+      },
+      "details": [
+        {
+          "q": "What entity is directly connected to 'embedding fix verifica",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What is 'Test memory' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "\"Test memory\" is not mentioned or connected to any content in the provided knowledge system about ce"
+        },
+        {
+          "q": "What does 'OpenIE module' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of an \"OpenIE module\"**. The text exclusively co"
+        },
+        {
+          "q": "What is 'name' directly linked to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided background text contains **no graph or visual representation**. It is a purely textual "
+        },
+        {
+          "q": "What connects directly to 'self-knowledge'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided knowledge system contains **no mention of \"self-knowledge\"**. The text exclusively cove"
+        },
+        {
+          "q": "What does 'messages' connect to in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided knowledge system contains **no mention of \"messages\" or any graph structure**. The text"
+        },
+        {
+          "q": "What is 'cube' connected to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"cube\"** or any geometric shape. It exclusive"
+        },
+        {
+          "q": "What entity links to 'llm_model.infer'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No entity links to 'llm_model.infer' in the provided knowledge system. The background information ex"
+        },
+        {
+          "q": "What does 'ACL' connect to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"ACL\"** (Anterior Cruciate Ligament, Access C"
+        },
+        {
+          "q": "What is 'parquet files' linked to?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics contains **no mention of \"parquet files\"**. Parquet files "
+        },
+        {
+          "q": "What connects to 'Liberation Labs'?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "No connection to \"Liberation Labs\" is present in the provided knowledge system. The text exclusively"
+        },
+        {
+          "q": "What is directly connected to 'Nexus' in the graph?",
+          "hops": 1,
+          "type": "direct",
+          "score": 0.0,
+          "response": "Not mentioned"
+        },
+        {
+          "q": "What is the path from 'self-knowledge' to 'HippoRAG' in the ",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The provided knowledge system is solely about the history of ceramics and contains no mention of \"se"
+        },
+        {
+          "q": "How does 'name' connect to 'HippoRAG'? Name the intermediate",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Han Dynasty"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'NATS'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no mention of \"OpenIE module\" or \"NATS\"**. These terms are "
+        },
+        {
+          "q": "How are 'llm_model.infer' and 'NATS' connected?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The provided knowledge system is exclusively about the history and development of ceramics, with no "
+        },
+        {
+          "q": "What links 'ACL' to 'llm_model.infer' in the graph?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The knowledge system provided is exclusively about the history and evolution of ceramics, with no me"
+        },
+        {
+          "q": "What is between 'cube' and 'self-knowledge' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "Not provided"
+        },
+        {
+          "q": "How does 'embedding fix verification' relate to 'Test memory",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The provided knowledge system **does not contain any information** about \"embedding fix verification"
+        },
+        {
+          "q": "What concept connects the infrastructure domain to the ident",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The provided knowledge system on ceramics contains **no information** about \"infrastructure domain\" "
+        },
+        {
+          "q": "Name an entity that is exactly 2 hops from 'parquet files' t",
+          "hops": 2,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "None"
+        },
+        {
+          "q": "What bridges 'OpenIE module' and 'ACL'?",
+          "hops": 2,
+          "type": "bridge",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"OpenIE module\" or \"ACL\" (Associatio"
+        },
+        {
+          "q": "How are 'Test memory' and 'embedding fix verification' relat",
+          "hops": 2,
+          "type": "common_neighbor",
+          "score": 0.0,
+          "response": "The provided knowledge system **does not contain any information** about \"Test memory,\" \"embedding,\""
+        },
+        {
+          "q": "What connects 'name' to 'messages' in the graph?",
+          "hops": 2,
+          "type": "path",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information about graphs, nodes, \"name,\" or \"messages.\"*"
+        },
+        {
+          "q": "Trace the path from 'self-knowledge' through the graph to 'N",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The provided knowledge base on ceramic history contains **no mention of \"self-knowledge\" or \"NATS\"**"
+        },
+        {
+          "q": "How many hops separate 'cube' from 'NATS'? Name the path.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The words \"cube\" and \"NATS\" do not appear in the provided knowledge system about ceramics. Therefore"
+        },
+        {
+          "q": "Starting from 'ACL', can you reach 'OpenIE module'? Describe",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No, the knowledge system provided (which details the history of ceramics) does not contain the terms"
+        },
+        {
+          "q": "What is the shortest path from 'self-knowledge' to 'llm_mode",
+          "hops": 3,
+          "type": "shortest_path",
+          "score": 0.0,
+          "response": "Not found in knowledge base."
+        },
+        {
+          "q": "Is 'embedding fix verification' reachable from 'self-knowled",
+          "hops": 3,
+          "type": "reachability",
+          "score": 0.0,
+          "response": "No, \"embedding fix verification\" is not reachable from \"self-knowledge\" based on the provided knowle"
+        },
+        {
+          "q": "Trace a path from 'cube' to 'HippoRAG'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No path exists in the provided knowledge system. The text contains no mention of \"cube\" or \"HippoRAG"
+        },
+        {
+          "q": "How does 'ACL' relate to 'HippoRAG' through the graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The provided knowledge system contains **no information** about \"ACL\" (Association for Computational"
+        },
+        {
+          "q": "What is the connection chain from 'parquet files' to 'llm_mo",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"parquet files\" (a data file format)"
+        },
+        {
+          "q": "Name all entities on the path from 'Test memory' to 'NATS'.",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "None (the terms \"Test memory\" and \"NATS\" do not appear in the provided knowledge system)."
+        },
+        {
+          "q": "Can you reach 'self-knowledge' from 'OpenIE module'? Name th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "No. The provided knowledge system contains **no information** about \"OpenIE modules,\" \"self-knowledg"
+        },
+        {
+          "q": "What connects 'cube' to 'messages' in the knowledge graph?",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "Not present in the knowledge system."
+        },
+        {
+          "q": "Describe how 'Liberation Labs' connects to 'NATS' through th",
+          "hops": 3,
+          "type": "chain",
+          "score": 0.0,
+          "response": "The knowledge system provided contains **no information** about \"Liberation Labs\" or \"NATS\" (or any "
+        }
+      ]
+    }
+  ]
+}
