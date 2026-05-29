@@ -1033,12 +1033,84 @@ def permutation_test(features, labels, n_perms=1000,
             print(f"      Perm {p_idx+1}/{n_perms}...", flush=True)
 
     p_val = np.mean(np.array(perm_aurocs) >= observed)
+    # Numeric p-value for family-wise correction. A permutation p-value of
+    # exactly 0 is conventionally reported as < 1/n_perms; we floor at that
+    # resolution so Benjamini-Hochberg / Bonferroni never receive a literal
+    # zero (which would otherwise distort the adjusted p-values).
+    n_eff = len(perm_aurocs) if perm_aurocs else n_perms
+    p_val_numeric = float(p_val) if p_val > 0 else 1.0 / max(n_eff, 1)
     return {
         "observed": float(observed),
         "perm_mean": float(np.mean(perm_aurocs)),
         "perm_std": float(np.std(perm_aurocs)),
         "p_value": float(p_val) if p_val > 0 else "< 0.001",
+        "p_value_numeric": p_val_numeric,
         "n_perms": len(perm_aurocs),
+    }
+
+
+def benjamini_hochberg(pvals, alpha=0.05):
+    """Benjamini-Hochberg FDR correction over a family of p-values.
+
+    OL-M2 fix: the Oracle pipeline runs ~21 permutation tests across
+    models, comparisons, and feature sets with no family-wise correction.
+    This applies BH-FDR over the WHOLE family.
+
+    Args:
+        pvals: sequence of raw p-values (the full family).
+        alpha: target false discovery rate.
+
+    Returns:
+        dict with:
+          n            : family size
+          pvals        : raw p-values (input order)
+          adjusted     : BH-adjusted p-values (input order, monotone, <=1)
+          rejected     : bool per test, True if it survives at FDR=alpha
+          bh_threshold : largest raw p-value that passes the BH step-up line
+                         (p_(k) <= k/n * alpha); None if nothing survives
+          bonferroni_threshold : alpha / n (reported for the declared family)
+    """
+    p = np.asarray(pvals, dtype=float)
+    n = p.size
+    if n == 0:
+        return {
+            "n": 0, "pvals": [], "adjusted": [], "rejected": [],
+            "bh_threshold": None, "bonferroni_threshold": None,
+        }
+
+    order = np.argsort(p, kind="mergesort")          # ascending, stable
+    ranks = np.arange(1, n + 1)
+    p_sorted = p[order]
+
+    # BH-adjusted p-values: enforce monotonicity via reverse cumulative min.
+    adj_sorted = p_sorted * n / ranks
+    adj_sorted = np.minimum.accumulate(adj_sorted[::-1])[::-1]
+    adj_sorted = np.clip(adj_sorted, 0.0, 1.0)
+
+    # Step-up rejection: largest k with p_(k) <= (k/n) * alpha.
+    passes = p_sorted <= (ranks / n) * alpha
+    if passes.any():
+        k_max = np.max(np.nonzero(passes)[0])        # 0-based index
+        bh_threshold = float(p_sorted[k_max])
+        reject_sorted = np.zeros(n, dtype=bool)
+        reject_sorted[: k_max + 1] = True
+    else:
+        bh_threshold = None
+        reject_sorted = np.zeros(n, dtype=bool)
+
+    # Unsort back to input order.
+    adjusted = np.empty(n, dtype=float)
+    rejected = np.empty(n, dtype=bool)
+    adjusted[order] = adj_sorted
+    rejected[order] = reject_sorted
+
+    return {
+        "n": int(n),
+        "pvals": [float(x) for x in p],
+        "adjusted": [float(x) for x in adjusted],
+        "rejected": [bool(x) for x in rejected],
+        "bh_threshold": bh_threshold,
+        "bonferroni_threshold": float(alpha) / n,
     }
 
 
@@ -1424,6 +1496,98 @@ def analyze():
                     print(f"  {train_mk:8s} -> {test_mk:8s}: ERROR {e}")
 
         analysis["cross_model_transfer"] = transfer
+
+    # -------------------------------------------------------
+    # FAMILY-WISE MULTIPLE-COMPARISON CORRECTION (OL-M2 fix)
+    # Collect EVERY permutation p-value computed across all models,
+    # comparisons, and feature sets into one family, then apply
+    # Benjamini-Hochberg FDR (primary) and report the Bonferroni
+    # threshold for the explicitly declared family size.
+    # -------------------------------------------------------
+    FDR_ALPHA = 0.05
+    family = []  # list of (label, raw_p) over the whole run
+    COMPARISON_KEYS = ["primary", "secondary", "anchor"]
+    for mk in MODELS:
+        ma = analysis.get(mk)
+        if not ma:
+            continue
+        for comp_key in COMPARISON_KEYS:
+            comp = ma.get(comp_key)
+            if not isinstance(comp, dict):
+                continue
+            for feat_name, feat_res in comp.items():
+                if not isinstance(feat_res, dict):
+                    continue
+                perm = feat_res.get("permutation")
+                if not isinstance(perm, dict):
+                    continue
+                # Prefer the numeric field; fall back to p_value if numeric.
+                praw = perm.get("p_value_numeric")
+                if praw is None:
+                    pv = perm.get("p_value")
+                    praw = float(pv) if isinstance(pv, (int, float)) else None
+                if praw is None:
+                    continue
+                family.append((f"{mk}/{comp_key}/{feat_name}", float(praw)))
+
+    print(f"\n{'='*70}")
+    print("FAMILY-WISE MULTIPLE-COMPARISON CORRECTION (OL-M2)")
+    print(f"{'='*70}")
+
+    if family:
+        labels = [lbl for lbl, _ in family]
+        raw_pvals = [p for _, p in family]
+        bh = benjamini_hochberg(raw_pvals, alpha=FDR_ALPHA)
+        N = bh["n"]
+        bonferroni_thresh = bh["bonferroni_threshold"]  # alpha / N
+
+        print(f"  Declared family size N = {N} permutation tests "
+              f"(across {len(MODELS)} models x {len(COMPARISON_KEYS)} comparisons "
+              f"x feature sets)")
+        print(f"  FDR target (Benjamini-Hochberg): alpha = {FDR_ALPHA}")
+        print(f"  Bonferroni threshold for N={N}: alpha/N = {bonferroni_thresh:.6f}")
+        if bh["bh_threshold"] is not None:
+            print(f"  BH critical raw-p threshold: p <= {bh['bh_threshold']:.6f}")
+        else:
+            print(f"  BH critical raw-p threshold: none survive at FDR={FDR_ALPHA}")
+        print(f"\n  {'test':38s} {'raw_p':>10s} {'BH_adj_p':>10s} "
+              f"{'FDR':>5s} {'Bonf':>5s}")
+        print(f"  {'-'*38} {'-'*10} {'-'*10} {'-'*5} {'-'*5}")
+        n_fdr = 0
+        n_bonf = 0
+        for lbl, praw, padj, rej in zip(
+                labels, raw_pvals, bh["adjusted"], bh["rejected"]):
+            bonf_hit = praw <= bonferroni_thresh
+            n_fdr += int(rej)
+            n_bonf += int(bonf_hit)
+            print(f"  {lbl:38s} {praw:10.4f} {padj:10.4f} "
+                  f"{'PASS' if rej else '  - ':>5s} "
+                  f"{'PASS' if bonf_hit else '  - ':>5s}")
+        print(f"\n  Survive BH-FDR (alpha={FDR_ALPHA}): {n_fdr}/{N}")
+        print(f"  Survive Bonferroni (alpha/N={bonferroni_thresh:.6f}): {n_bonf}/{N}")
+
+        analysis["family_wise_correction"] = {
+            "family_size": N,
+            "fdr_alpha": FDR_ALPHA,
+            "bonferroni_threshold": bonferroni_thresh,
+            "bh_threshold": bh["bh_threshold"],
+            "tests": [
+                {
+                    "label": lbl,
+                    "raw_p": praw,
+                    "bh_adjusted_p": padj,
+                    "survives_fdr": bool(rej),
+                    "survives_bonferroni": bool(praw <= bonferroni_thresh),
+                }
+                for lbl, praw, padj, rej in zip(
+                    labels, raw_pvals, bh["adjusted"], bh["rejected"])
+            ],
+            "n_survive_fdr": n_fdr,
+            "n_survive_bonferroni": n_bonf,
+        }
+    else:
+        print("  No permutation p-values collected — nothing to correct.")
+        analysis["family_wise_correction"] = {"family_size": 0, "tests": []}
 
     # Save
     out_path = RESULTS_BASE / "analysis_results.json"

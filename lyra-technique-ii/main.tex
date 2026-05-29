@@ -381,12 +381,17 @@ injection) $= 120$ trials.
 The text is identical across conditions---only the injected key direction
 differs. This rules out text-content confounds and establishes that the $W_K$
 projection reads \emph{model state} (the direction keys point) rather than
-\emph{text content} (what words appear in the input).
+\emph{text content} (what words appear in the input). We note that the
+120~trials are the 20~prompts crossed with 6~injection conditions (5~emotion
+vectors plus the null), so the 20~prompts are the true independent units: the
+result is 6-way separability over an effective $N{=}20$, not $N{=}120$
+independent observations. As with the effect sizes reported throughout this
+paper, no confidence interval is reported for this accuracy.
 
 \paragraph{Control: random directions.} Injecting random unit vectors of the
 same norm as emotion vectors produces classification at $0.7\times$
 chance---\emph{below} the $1/6 = 0.167$ baseline. The emotion-specific
-directions are information-bearing; arbitrary directions are not.
+directions are information-bearing; arbitrary directions are not.\footnote{This random-direction control figure ($0.7\times$ chance), cited at several points below, is projected/illustrative: the per-trial backing data for this control was not committed to the repository and the value should be re-generated before being cited quantitatively.}
 
 \subsection{Models and Datasets}
 \label{sec:datasets}
@@ -876,7 +881,7 @@ categories reveal a clean dissociation
 \paragraph{Strong signals: SV1 carries real discriminative signal.}
 For confabulation detection using 168-dimensional per-layer features (the
 honesty\_signal dataset), including SV1 helps: raw AUROC~0.981, top-20
-projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.
+projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.\footnote{These specific values do not trace cleanly to the named source: the \texttt{denoising\_sweep} honesty\_signal records show raw AUROC~0.994 and rank-20~0.983, with no 0.998 entry. The numbers reported here should be treated as approximate pending re-derivation from the committed data, though the qualitative conclusion (SV1 carries discriminative signal for strong tasks) is unaffected.}
 The first singular value \emph{encodes confab signal}---removing it destroys
 information. For strong cognitive-mode signals, keep all SVs.
 

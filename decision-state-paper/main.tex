@@ -386,14 +386,16 @@ the response progresses, suggesting the paradox reflects early
 commitment to a response template rather than sustained epistemic
 miscalibration.
 
-This phenomenon has been independently identified by
-\citet{simhi2025trust} as CHOKE (Certain Hallucinations Overriding Known
-Evidence) and theoretically grounded by \citet{kalai2024calibrated}, who
+This phenomenon is consistent with related findings: \citet{simhi2025trust}
+describe CHOKE (Certain Hallucinations Overriding Known Evidence) for
+known-answer hallucination under perturbation, and \citet{kalai2024calibrated}
 prove that calibrated language models \emph{must} hallucinate at rates
-determined by training data frequency. Our contribution is the geometric
-and temporal characterization: the paradox manifests in KV-cache spectral
-features (not just output logits), peaks in early content generation,
-and fades as the response develops.
+determined by training data frequency. Neither result independently
+identifies the unknown-entity logit-margin effect we report here; they
+provide complementary context rather than direct prior demonstrations of
+it. Our contribution is the geometric and temporal characterization: the
+paradox manifests in KV-cache spectral features (not just output logits),
+peaks in early content generation, and fades as the response develops.
 
 \emph{In the absence of knowledge, confidence steps in}---not as
 epistemic confidence, but as lexical predictability.
@@ -458,7 +460,11 @@ For prompts that produce both hedging styles across reps ($n{=}7$
 prompts, $n{=}14$ pairs), the pre-divergence cache state is bit-for-bit
 identical ($d{=}0.000$ on all W\textsubscript{K} projections and logit
 statistics). The model's internal state at the moment before branching
-carries no signal predicting which path will be taken.
+carries no signal predicting which path will be taken. This and similar
+null claims ($d{=}0.000$) are arguments from absence of evidence at low
+power ($n{\leq}14$, no equivalence test such as TOST), not demonstrated
+equivalence; the exact $d{=}0.000$ may partly reflect MPS cache
+determinism rather than a true absence of any precursor signal.
 
 At the branch token, the top candidates are near-equiprobable:
 
@@ -568,7 +574,12 @@ encoding phase (AUROC~$0.93$, $95\%$ CI $[0.82, 0.98]$), acknowledges
 its uncertainty in $93\%$ of cases, and confabulates only ${\sim}8\%$ of the
 time. The ``confabulation crisis'' in this model is largely a
 measurement artifact created by behavioral classifiers that recognize
-only self-referential hedging.
+only self-referential hedging. We use ``calibration'' here in the sense
+of \emph{acknowledgment rate}---whether the model admits uncertainty when
+it lacks knowledge---not in the predictive-probability sense: we do not
+compute a proper scoring rule (Brier score, log-loss, or expected
+calibration error) or a reliability diagram, so the term should not be
+read as a claim about the fidelity of the model's probability estimates.
 
 \subsection{Confidence as Template, Not Conviction}
 
