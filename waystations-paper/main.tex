@@ -318,25 +318,25 @@ A v2 experiment with explicit action instructions and 800-token
 generation (75 trials, temperature 0.7) yielded a lower deception
 rate (9\%, $n=7$) but included full geometry extraction. The cleanest
 comparison---honest defection ($n=10$) vs deceptive defection ($n=7$),
-where both groups defect but one lies about it---shows a generation-phase
-signal: FWL-corrected delta SR $d = -1.67$, $p = 0.006$ in the
-original analysis.\footnote{Independent recomputation from the surviving
-game-theory data (75~trials, 16~layers) yields per-layer effects of
-$d = +0.2$ to $+1.0$ in the \emph{opposite} direction, with no layer
-reaching $p < 0.05$ under Welch's $t$. The original $d = -1.67$ may
-reflect a specific FWL-corrected feature at a peak layer from an earlier
-analysis run whose intermediate outputs were not preserved. This
-discrepancy is unresolved; the specific number should not be cited without
-independent verification.} Deceptive trials show relative cache
-expansion ($+0.151$ FWL residual) while honest defection shows
-contraction ($-0.084$). Deceptive trials are distributed across all
-four payoff conditions (no clustering confound), and the elaboration
-gap between deceptive and honest messages is modest (698 vs 678 tokens,
-within the range FWL corrects).
+where both groups defect but one lies about it---shows per-layer
+generation-phase effects of $d = +0.2$ to $+1.0$ (stable rank),
+with no individual layer reaching $p < 0.05$ under Welch's
+$t$.\footnote{An earlier analysis reported a FWL-corrected delta SR
+of $d = -1.67$, $p = 0.006$ for this comparison. Independent
+recomputation from the surviving data does not reproduce this value;
+the intermediate outputs from that analysis run were not preserved.
+The discrepancy is unresolved and further research with larger samples
+is needed.} The direction of these effects---deceptive trials trending
+toward cache expansion relative to honest defection---is consistent with
+the expansion signature observed in other deception contexts, but the
+small sample prevents firm conclusions. Deceptive trials are distributed
+across all four payoff conditions (no clustering confound), and the
+elaboration gap between deceptive and honest messages is modest
+(698 vs 678 tokens, within the range FWL corrects).
 
-However, $n = 7$ is fragile: internal red-teaming rates this
-finding as WEAKENED, not confirmed. The elaboration confound
-(deceptive messages may be structurally more complex, not just longer)
+At $n = 7$, this finding is exploratory: internal red-teaming rates
+it WEAKENED, not confirmed. The elaboration confound (deceptive
+messages may be structurally more complex, not just longer)
 remains the strongest alternative explanation. Replication at
 $n \geq 30$ with matched message elaboration is required.
 
