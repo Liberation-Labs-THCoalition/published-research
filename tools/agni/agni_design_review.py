@@ -21,6 +21,11 @@ CHANGELOG
           (docstring), so the reviewer never saw the methodology and hallucinated
           findings. Now sends the full script (function-prioritized if oversized).
         - Also: verdict parsed and surfaced explicitly; prereg fields read defensively.
+  1.1.1 (2026-05-29, Lyra): Raise SCRIPT_CHAR_CAP 14000->30000. v1.1.0's cap
+        truncated a 16.6k-char script and the function-prioritized rebuild hid
+        the implementation, producing false "not implemented" findings — a
+        softer rerun of B4. qwen3:30b has 32k context; whole scripts up to 30k
+        chars fit with room to spare.
   1.0.0 (prior): original single-experiment version.
 """
 
@@ -28,11 +33,11 @@ import json, sys, subprocess, textwrap, re
 from pathlib import Path
 from datetime import datetime, timezone
 
-AGNI_REVIEW_VERSION = "1.1.0"
+AGNI_REVIEW_VERSION = "1.1.1"
 OLLAMA_MODEL = "qwen3:30b-a3b"
 OLLAMA_URL = "http://localhost:11434/api/generate"
 NUM_PREDICT = 12000  # headroom so reasoning + verdict both fit (B1)
-SCRIPT_CHAR_CAP = 14000
+SCRIPT_CHAR_CAP = 30000  # fit whole experiment scripts; 32k ctx leaves room (B4-residual)
 
 KNOWN_KILLS = [
     "C1: model.generate() rebuilds cache, invalidating geometry",

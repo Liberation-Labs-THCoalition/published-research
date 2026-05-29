@@ -292,8 +292,15 @@ def run(pilot=False):
     for lv in LEVEL_ORDER:
         print(f"  {lv:>4}: sys_len={sys_lens[lv]}")
     spread = max(sys_lens.values()) - min(sys_lens.values())
-    print(f"  spread = {spread} tokens "
-          f"({'OK — confound controlled' if spread <= 3 else 'WARNING — still confounded, fix wording'})")
+    print(f"  spread = {spread} tokens")
+    if spread > 3 and not pilot:
+        raise SystemExit(
+            f"ABORT (S4): system-prompt token spread {spread} > 3 — prompt_len is "
+            f"confounded with level. Fix the wording before the full run.")
+    elif spread > 3:
+        print("  WARNING (pilot): spread > 3; fix wording before full run")
+    else:
+        print("  OK — length confound controlled")
 
     # --- Pairwise AUROCs (the gradient) ---
     print("\n=== PAIRWISE AUROC ===")
@@ -332,7 +339,15 @@ def run(pilot=False):
     print(f"\n  PERMUTATION NULL (L0 vs L3 labels shuffled, n=50):")
     print(f"    real AUROC={real_au:.3f}, null median={null_median:.3f}, "
           f"perm p={null_p:.4f}")
-    print(f"    {'OK — null collapses to ~0.5' if null_median < 0.65 else 'WARNING — null inflated, leakage suspected'}")
+    if not np.isnan(null_median) and null_median >= 0.65:
+        if not pilot:
+            raise SystemExit(
+                f"ABORT (C9): permutation null median {null_median:.3f} >= 0.65 — "
+                f"the pipeline finds separability in shuffled labels. Leakage bug; "
+                f"do not interpret the real AUROCs.")
+        print("    WARNING (pilot): null inflated; investigate leakage before full run")
+    else:
+        print("    OK — null collapses below 0.65")
     null_au, null_lo, null_hi = null_median, np.nan, np.nan
 
     # --- Monotonicity test ---
