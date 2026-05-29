@@ -3,9 +3,43 @@
   "addresses_finding": "LT2-M2 (persona gradient / monotonicity claims unbacked)",
   "date_registered": "2026-05-29",
   "authors": ["Lyra", "Nexus"],
-  "status": "DRAFT — pending Agni Gate 1 review before run",
+  "status": "REJECTED at Agni Gate 1 (2026-05-29) — fix before run",
+
+  "gate1_review": {
+    "verdict": "REJECTED",
+    "reviewer": "Agni (qwen3:30b-a3b)",
+    "real_findings_must_fix": [
+      "S4 (CRITICAL): persona system prompts differ in length (L0 ~6 tokens, L3 ~30), so prompt_len is collinear with the label (level). FWL on a label-collinear confound is pathological. FIX: length-match the 5 system prompts (pad to equal token count), OR extract features only at user-message positions so system-prompt length does not enter the measured window.",
+      "C3/L3: the C9 null (L0-vs-L0 split by prompts) uses different prompts in each arm than the experimental comparison (same prompts, different levels) — not code-path-matched. FIX: use a permutation null (shuffle level labels within the real comparison, confirm AUROC -> 0.5).",
+      "C2 (secondary): justify why emotion_directions.json W_K projections are relevant features for PERSONA discrimination, or drop them and use only the SVD shape features (which are the primary features anyway).",
+      "S1 (minor): add logit-margin tracking so confidence differences across levels can be ruled out as a driver of separability."
+    ],
+    "false_positives_agni_hallucinated": [
+      "C1/L1: script does NOT use model.generate() or register hooks — encoding-only model(input_ids, use_cache=True), no generation loop.",
+      "L4: script reads cache.layers[li].keys, not hidden_states — no off-by-one indexing risk."
+    ],
+    "note": "Gate did its job: experiment NOT fired on a confounded design. The S4 prompt-length confound is the same class as the Decision State entity-token-count confound. Length-match the system prompts and re-submit to Gate 1."
+  },
 
   "motivation": "The Lyra Technique II paper claims a monotonic persona-intensity gradient (L0<L0.5<L1<L2<L3 in geometric separability) but ships only L0-vs-L3 and one L0-vs-L0.5 scalar. The per-level breakdown asserted in section 5.2 has no backing data. This experiment produces all adjacent-level pairwise AUROCs to test the gradient directly.",
+
+  "hypotheses": [
+    "Geometric separability between persona levels increases monotonically with level separation: Spearman rho(level-gap, AUROC) > 0, p < 0.05.",
+    "AUROC(L0 vs L3) is the largest pairwise value.",
+    "Each adjacent-level AUROC (L0-L0.5, L0.5-L1, L1-L2, L2-L3) exceeds 0.5 but is individually weaker than the L0-L3 endpoint.",
+    "The NULL control (L0 vs L0, prompts split in half) is ~0.5."
+  ],
+
+  "threats_to_validity": [
+    "Prompt-content confound: if persona levels were tested on different prompts, separability could reflect content not intensity. CONTROLLED by holding the 24 prompts identical across all 5 levels.",
+    "Prompt-length confound: longer system prompts at higher intensity could drive separability via token count. CONTROLLED by FWL residualization on prompt_len within each CV fold.",
+    "Prompt leakage across CV folds: the same prompt appearing in train and test inflates AUROC. CONTROLLED by GroupKFold on prompt_idx.",
+    "Scaler leakage: fitting StandardScaler on all data leaks test-set scale. CONTROLLED by fitting the scaler on the training fold only.",
+    "Selection / multiple comparisons: 10 pairwise tests inflate family-wise error. CONTROLLED by Holm-Bonferroni across the family.",
+    "Spurious separability from the pipeline itself: CONTROLLED by the C9 null (L0 vs L0) which must read ~0.5; if it exceeds 0.65, the pipeline has a leakage bug and results are not interpreted.",
+    "Non-reproducibility: CONTROLLED by fixed seeds (torch, numpy, mps = 42).",
+    "Eyeballed monotonicity: avoided by testing the gradient with Spearman on (level-gap, AUROC) rather than visual inspection."
+  ],
 
   "primary_hypothesis": "Geometric separability between persona levels increases monotonically with level separation: Spearman rho(level-gap, AUROC) > 0, p < 0.05.",
 
