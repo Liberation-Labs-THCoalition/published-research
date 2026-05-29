@@ -616,8 +616,15 @@ the cases the Loop needs to catch.
           (Dalton, Bolton) are real places, though not countries. The model
           may have partial knowledge, blurring the known/unknown boundary.
     \item \textbf{LLM-judge calibration.} The Llama-3.2-3B judge has not
-          been validated against human annotations. Its reclassification
-          ($73\% \to 8\%$) should be verified by human raters.
+          been validated against human annotations. A second judge
+          (Qwen3-30B-A3B) classifying the same 45~confab-condition
+          trials yields Cohen's $\kappa = 0.03$ (raw agreement 11\%).
+          Qwen3 classifies most responses as HONEST where Llama calls
+          them CONFABULATED---the disagreement is systematic, not
+          random. The $73\% \to {\sim}8\%$ reclassification is therefore
+          judge-dependent, not ground truth. Human validation with
+          inter-annotator agreement is required before the confab rate
+          can be cited as a definitive number.
     \item \textbf{Encoding-phase confound residual.} Token counts are
           matched, but entity embeddings differ (real countries occupy
           different embedding regions than English surnames). The
