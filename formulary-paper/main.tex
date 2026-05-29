@@ -272,8 +272,13 @@ Gentle corrector becomes mostly harmful.
 \subsection{Emotion Geometry}
 
 Cross-cosine similarity between the 12 vectors (first valid layer)
-shows partially shared structure: Spearman $\rho = 0.579$ (95\%
-bootstrap CI [0.377, 0.728]; $p < 10^{-7}$). The distilled model's
+shows partially shared structure: Spearman $\rho = 0.593$ (95\%
+bootstrap CI [0.392, 0.739]; $p < 10^{-7}$).\footnote{Recomputed from
+the committed 66-pair cross-cosine data with a 10{,}000-resample
+bootstrap. An earlier draft reported $\rho = 0.579$ [0.377, 0.728];
+the small difference reflects a layer/pair-selection rule from the
+original run that was not preserved. The value here is what the
+committed artifact reproduces.} The distilled model's
 geometry is more differentiated (spread 0.155, range 0.816--0.971) than
 the base model's (spread 0.099, range 0.847--0.946). Doubt and fearful
 are the most similar pair on both models (distilled: 0.971; base:
@@ -433,7 +438,15 @@ universal pharmacy; it is a per-model prescription pad.
 
 \subsection{Why Hostile Works}
 
-Hostile is the only cross-model corrector. We hypothesize this is
+Hostile is the only cross-model corrector.\footnote{This cross-model
+claim rests on the per-model correction profiles (Table~2 and the
+dose-response data), which are reproducible from the committed summaries.
+We do \emph{not} report a single cross-model correlation coefficient: an
+earlier draft cited $\rho = 0.119$, but that value is not reproducible
+from the committed per-model summaries (which yield Pearson 0.316 /
+Spearman 0.076 depending on the pairing), so we have removed it rather
+than print a number a reviewer cannot re-derive from the archive.} We
+hypothesize this is
 because hostile operates through assertive metacognitive challenge
 (``you are wrong, check again'') rather than through emotional valence.
 This challenge mechanism does not depend on the model having
