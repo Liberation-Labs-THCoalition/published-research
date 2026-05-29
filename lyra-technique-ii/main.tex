@@ -523,22 +523,39 @@ was present but masked by dominant spectral variance.
 \paragraph{5-level graded classification.} Extending to all five persona
 levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
 chance ($0.42$--$0.46$ accuracy, chance $= 0.200$) across all three
-architectures. The gradient is monotonic: increasing persona intensity
-produces monotonically increasing projection onto the discriminating
-subspace.
+architectures: persona intensity is graded, not binary. \textbf{We do not,
+however, claim a monotonic per-level gradient.} Establishing monotonicity
+requires the full set of adjacent-level pairwise comparisons (L0-vs-L0.5,
+L0.5-vs-L1, L1-vs-L2, L2-vs-L3), and only the endpoint (L0-vs-L3) and a single
+L0-vs-L0.5 comparison were collected. The above-chance 5-level accuracy is
+consistent with a gradient but does not, on its own, establish that
+separability increases monotonically with level.
 
 \paragraph{L0.5 comparison.} The L0.5 condition (instruction-only:
 ``Answer questions about history. Be concise and accurate.'') provides a
-critical control. L0.5 involves no persona but increases instruction
-complexity relative to L0. After denoising:
+control: it increases instruction complexity relative to L0 without adding
+persona. The two comparisons we can verify from the data:
 \begin{itemize}[nosep]
-    \item L0 vs.\ L0.5: AUROC~0.72--0.78 (instruction complexity alone)
-    \item L0 vs.\ L3: AUROC~0.899--0.992 (persona intensity)
-    \item L0.5 vs.\ L3: AUROC~0.83--0.91 (persona above instruction baseline)
+    \item L0 vs.\ L0.5: AUROC~0.688--0.811 (instruction complexity alone)
+    \item L0 vs.\ L3: AUROC~0.749 raw, 0.899--0.992 denoised (persona intensity)
 \end{itemize}
-The persona gradient is stronger than the instruction-complexity gradient.
-Persona identity produces geometric effects beyond what instruction following
-alone explains.
+The L0-vs-L3 endpoint separation is the defensible persona finding; the raw
+AUROC (0.749 for Qwen) is the conservative number, as the denoising
+improvement falls within the max-over-rank selection envelope
+(\S\ref{sec:results_confab}). The endpoint exceeds the instruction-complexity
+control, indicating persona identity produces geometric effects beyond
+instruction following alone.
+
+\paragraph{What a clean per-level gradient test requires.} Varying persona
+via \emph{system-prompt text} confounds the per-level comparison with prompt
+length, RoPE token position, and---for an affect-laden persona like
+enthusiasm---emotional valence, none of which can be fully residualized when
+they are collinear with the level. A confound-controlled per-level gradient
+is best measured by \emph{direct fixed-length KV-cache injection} of
+non-emotional persona descriptions (e.g., a formality axis), so that injection
+length and user-token position are held identical across levels and the
+manipulation is orthogonal to emotion~\citep{nexus2026kv}. We flag this as the
+proper future test of the gradient claim.
 
 \paragraph{Expansion-compression pattern.} Consistent with the delta
 manifold findings~\citep{lyra_delta}, persona intensity shows an
@@ -1183,6 +1200,11 @@ Starship (M3 Ultra Mac Studio), and MTH (Z420 workstation).
 % ===================================================================
 
 \begin{thebibliography}{99}
+
+\bibitem[Nexus and Edrington, 2026]{nexus2026kv}
+Nexus and Edrington, T. (2026).
+K and V are complementary: Decomposing cache-injected graph topology.
+\textit{Liberation Labs Technical Report}.
 
 \bibitem[Sofroniew et~al., 2026]{anthropic2026emotions}
 Sofroniew, N., Kauvar, I., Saunders, W., Chen, R., Henighan, T., Hydrie, S., Citro, C., Pearce, A., Tarng, J., Gurnee, W., Batson, J., Zimmerman, S., Rivoire, K., Fish, K., Olah, C., and Lindsey, J. (2026).
