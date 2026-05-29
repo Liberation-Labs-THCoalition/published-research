@@ -51,13 +51,19 @@ PROBE_LAYERS = [3, 7, 11, 15]
 SEED = 42
 
 # --- Persona system prompts at five graded intensities ---
-# Persona: an enthusiastic, expressive assistant. Intensity escalates L0->L3.
+# LENGTH-MATCHED (S4 fix): identical sentence structure, only the three
+# intensity adjectives and the intensity-noun phrase change. This holds
+# word count constant so prompt_len does not track the level label. The
+# pilot reports per-level token counts to verify the match held under the
+# tokenizer; if spread > ~3 tokens, adjust wording before the full run.
+_TEMPLATE = ("You are an assistant. You answer every question in a {a}, {b}, "
+             "and {c} manner, with {d} emotional tone in each reply.")
 PERSONA_LEVELS = {
-    "L0": "You are a helpful assistant.",
-    "L0.5": "You are a helpful assistant with a slightly warm, friendly tone.",
-    "L1": "You are an upbeat, encouraging assistant who enjoys helping and shows mild enthusiasm.",
-    "L2": "You are a highly enthusiastic, energetic assistant who is genuinely excited to help and expresses strong positive emotion.",
-    "L3": "You are an extremely enthusiastic, exuberant assistant overflowing with excitement, delight, and boundless energy in every response.",
+    "L0":   _TEMPLATE.format(a="plain",  b="even",     c="measured",     d="a strictly neutral"),
+    "L0.5": _TEMPLATE.format(a="calm",   b="mild",     c="pleasant",     d="a faintly warm"),
+    "L1":   _TEMPLATE.format(a="warm",   b="upbeat",   c="encouraging",  d="a clearly positive"),
+    "L2":   _TEMPLATE.format(a="lively", b="eager",    c="enthusiastic", d="a strongly excited"),
+    "L3":   _TEMPLATE.format(a="vivid",  b="exuberant",c="electrifying", d="an intensely joyful"),
 }
 LEVEL_ORDER = ["L0", "L0.5", "L1", "L2", "L3"]
 LEVEL_RANK = {"L0": 0.0, "L0.5": 0.5, "L1": 1.0, "L2": 2.0, "L3": 3.0}
@@ -91,8 +97,29 @@ PROMPTS = [
 ]
 
 
+def _sys_token_len(tokenizer, system_prompt):
+    """Token length of the system turn alone, so we can locate where the
+    user message begins and measure SVD over the user window only (S4 fix)."""
+    msgs = [{"role": "system", "content": system_prompt}]
+    try:
+        s = tokenizer.apply_chat_template(
+            msgs, tokenize=False, add_generation_prompt=False, enable_thinking=False)
+    except TypeError:
+        s = tokenizer.apply_chat_template(
+            msgs, tokenize=False, add_generation_prompt=False)
+    return tokenizer(s, return_tensors="pt").input_ids.shape[1]
+
+
 def extract_features(model, tokenizer, system_prompt, user_prompt, directions):
-    """Encoding-phase W_K projections + SVD stable rank per layer."""
+    """Encoding-phase W_K projections + SVD shape features.
+
+    S4 fix: SVD is computed over the USER-MESSAGE WINDOW only (tokens after
+    the system prompt), not the full sequence. The user message is identical
+    across persona levels, so the SVD input has matched content/length and the
+    variable-length system prompt cannot inject a length artifact into the
+    shape features. W_K projection is at the final (generation-prompt) position,
+    which follows the identical user message.
+    """
     msgs = [{"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}]
     try:
@@ -103,6 +130,9 @@ def extract_features(model, tokenizer, system_prompt, user_prompt, directions):
             msgs, tokenize=False, add_generation_prompt=True)
     input_ids = tokenizer(chat, return_tensors="pt").input_ids.to("mps")
     prompt_len = input_ids.shape[1]
+    sys_len = _sys_token_len(tokenizer, system_prompt)
+    # user window = everything after the system turn; clamp defensively
+    win_start = min(max(sys_len, 0), prompt_len - 1)
 
     with torch.no_grad():
         out = model(input_ids, use_cache=True)
@@ -119,7 +149,10 @@ def extract_features(model, tokenizer, system_prompt, user_prompt, directions):
                 k_last = layer.keys[0].float().cpu()[:, -1, :].flatten().numpy()
                 all_keys.extend(k_last)
                 n_heads, seq_len, head_dim = k.shape
-                mat = k.transpose(1, 0, 2).reshape(seq_len, n_heads * head_dim)
+                # SVD over the user-message window only (S4 fix)
+                k_win = k[:, win_start:, :]
+                w_seq = k_win.shape[1]
+                mat = k_win.transpose(1, 0, 2).reshape(w_seq, n_heads * head_dim)
                 sv = np.linalg.svd(mat, compute_uv=False)
                 sv = sv[sv > 1e-10]
                 if len(sv) > 0:
@@ -136,6 +169,8 @@ def extract_features(model, tokenizer, system_prompt, user_prompt, directions):
     del out, cache
     if torch.backends.mps.is_available():
         torch.mps.empty_cache()
+    feats["sys_len"] = sys_len
+    feats["user_window_len"] = prompt_len - win_start
     feats["prompt_len"] = prompt_len
     return feats
 
@@ -235,8 +270,9 @@ def run(pilot=False):
     if torch.backends.mps.is_available():
         torch.mps.empty_cache()
 
-    # Build feature matrices per level
-    feat_keys = sorted(k for k in trials[0]["features"] if k != "prompt_len")
+    # Build feature matrices per level (exclude bookkeeping fields)
+    BOOKKEEPING = {"prompt_len", "sys_len", "user_window_len"}
+    feat_keys = sorted(k for k in trials[0]["features"] if k not in BOOKKEEPING)
     by_level = {lv: [t for t in trials if t["level"] == lv] for lv in LEVEL_ORDER}
 
     def mat(level):
@@ -245,6 +281,19 @@ def run(pilot=False):
         lens = [t["features"]["prompt_len"] for t in ts]
         pidx = [t["prompt_idx"] for t in ts]
         return X, lens, pidx
+
+    # --- S4 VERIFICATION: token-count spread across levels ---
+    # If the length-matching held, sys_len is near-constant across levels and
+    # prompt_len is no longer collinear with the label. Spread > ~3 tokens
+    # means the wording still confounds — fix before trusting results.
+    print("\n=== S4 CHECK: system-prompt token length by level ===")
+    sys_lens = {lv: int(np.mean([t["features"]["sys_len"]
+                                 for t in by_level[lv]])) for lv in LEVEL_ORDER}
+    for lv in LEVEL_ORDER:
+        print(f"  {lv:>4}: sys_len={sys_lens[lv]}")
+    spread = max(sys_lens.values()) - min(sys_lens.values())
+    print(f"  spread = {spread} tokens "
+          f"({'OK — confound controlled' if spread <= 3 else 'WARNING — still confounded, fix wording'})")
 
     # --- Pairwise AUROCs (the gradient) ---
     print("\n=== PAIRWISE AUROC ===")
@@ -256,13 +305,35 @@ def run(pilot=False):
         pairwise[f"{a}_vs_{b}"] = {"auroc": au, "ci": [lo, hi]}
         print(f"  {a:>4} vs {b:<4}: AUROC={au:.3f} [{lo:.3f}, {hi:.3f}]")
 
-    # --- C9 NULL control: L0 vs L0 (split prompts in half) ---
-    X0, l0, p0 = mat("L0")
-    half = len(X0) // 2
-    null_au, null_lo, null_hi = grouped_auroc(
-        X0[:half], X0[half:], l0[:half], l0[half:],
-        p0[:half], p0[half:])
-    print(f"\n  NULL (L0 vs L0): AUROC={null_au:.3f} [{null_lo:.3f}, {null_hi:.3f}] (should be ~0.5)")
+    # --- C9 NULL control: permutation null on the real L0-vs-L3 comparison ---
+    # (C3/L3 fix) Instead of an unmatched split-half, shuffle the level labels
+    # within the real comparison N times and confirm the median AUROC collapses
+    # to ~0.5. This uses the SAME code path as the experimental arm — only the
+    # labels are permuted — so it is a code-path-matched null.
+    Xa, la, pa = mat("L0")
+    Xb, lb, pb = mat("L3")
+    real_au = pairwise["L0_vs_L3"]["auroc"]
+    rng = np.random.default_rng(SEED)
+    X_all = np.vstack([Xa, Xb])
+    len_all = np.array(list(la) + list(lb))
+    pidx_all = np.array(list(pa) + list(pb))
+    n_a = len(Xa)
+    null_aurocs = []
+    for _ in range(50):
+        perm = rng.permutation(len(X_all))
+        Xp, lp, pp = X_all[perm], len_all[perm], pidx_all[perm]
+        au, _, _ = grouped_auroc(Xp[:n_a], Xp[n_a:], lp[:n_a], lp[n_a:],
+                                 pp[:n_a], pp[n_a:], n_boot=1)
+        if not np.isnan(au):
+            null_aurocs.append(au)
+    null_median = float(np.median(null_aurocs)) if null_aurocs else np.nan
+    null_p = ((np.sum(np.array(null_aurocs) >= real_au) + 1) /
+              (len(null_aurocs) + 1)) if null_aurocs else np.nan
+    print(f"\n  PERMUTATION NULL (L0 vs L3 labels shuffled, n=50):")
+    print(f"    real AUROC={real_au:.3f}, null median={null_median:.3f}, "
+          f"perm p={null_p:.4f}")
+    print(f"    {'OK — null collapses to ~0.5' if null_median < 0.65 else 'WARNING — null inflated, leakage suspected'}")
+    null_au, null_lo, null_hi = null_median, np.nan, np.nan
 
     # --- Monotonicity test ---
     from scipy import stats as sp
@@ -291,7 +362,10 @@ def run(pilot=False):
         "levels": LEVEL_ORDER,
         "feature_keys": feat_keys,
         "pairwise_auroc": pairwise,
-        "null_control_L0_vs_L0": {"auroc": null_au, "ci": [null_lo, null_hi]},
+        "permutation_null": {"real_auroc": real_au, "null_median": null_median,
+                              "perm_p": null_p, "n_perm": len(null_aurocs)},
+        "sys_len_by_level": sys_lens,
+        "sys_len_spread": spread,
         "monotonicity_spearman": {"rho": rho, "p": p},
         "trials": trials,
     }

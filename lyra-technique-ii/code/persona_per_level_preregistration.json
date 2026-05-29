@@ -3,7 +3,15 @@
   "addresses_finding": "LT2-M2 (persona gradient / monotonicity claims unbacked)",
   "date_registered": "2026-05-29",
   "authors": ["Lyra", "Nexus"],
-  "status": "REJECTED at Agni Gate 1 (2026-05-29) — fix before run",
+  "status": "REVISED after Agni Gate 1 rejection (2026-05-29) — re-submitting to Gate 1",
+
+  "gate1_revision_notes": {
+    "S4_prompt_length_confound": "FIXED two ways. (1) System prompts now share one template with only intensity adjectives swapped — all 24 words, token spread expected <=3 (down from ~24). (2) SVD shape features are now computed over the USER-MESSAGE WINDOW only (tokens after the system prompt), so the variable system-prompt length cannot add rows to the shape matrix. The script reports per-level sys_len and WARNS if spread > 3 tokens. FWL on prompt_len retained as residual safety.",
+    "C3_L3_null_control": "FIXED. Replaced the unmatched split-half null with a permutation null: shuffle the level labels within the real L0-vs-L3 comparison (n=50) and confirm the median AUROC collapses below 0.65. Same code path as the experimental arm — only labels permuted.",
+    "S1_logit_margin": "Deferred — persona intensity is not an uncertainty manipulation, so logit-margin confound is low-risk here. Noted, not blocking.",
+    "C2_emotion_directions": "W_K emotion projections retained as SECONDARY features only; the primary features are the SVD shape features (stable_rank, spectral_entropy). The gradient claim is tested on the full feature set; if it rests on the emotion projections specifically, that will be reported.",
+    "agni_false_positives_noted": "Gate 1 also raised C1 (model.generate), L1 (hooks), L4 (hidden_states) — none apply; the script is encoding-only model(use_cache=True), reads cache.layers[].keys, no generation loop. Recorded so the next reviewer does not re-flag them."
+  },
 
   "gate1_review": {
     "verdict": "REJECTED",
@@ -67,7 +75,8 @@
     "C6": "Holm-Bonferroni across the 10 pairwise comparisons",
     "C7": "seeds set (torch, numpy, mps = 42)",
     "C8": "monotonicity tested via Spearman, not visual inspection",
-    "C9": "NULL control L0-vs-L0 must be ~0.5"
+    "C9": "permutation null (shuffle level labels in the real L0-vs-L3 comparison, n=50) — median AUROC must collapse below 0.65, else leakage suspected",
+    "C10": "S4 token-spread check — sys_len reported per level; spread > 3 tokens WARNS that length-matching failed"
   },
 
   "falsification_conditions": [
