@@ -74,7 +74,8 @@ reveals \emph{contrast effects} at tone shifts: the first hostile turn
 after four cheerful turns reads as \emph{more} hostile than pure hostile
 ($d{=}-3.6$, $p{=}0.023$), followed by gradual cheerful bleedthrough.
 A neutral gap in an otherwise cheerful conversation leaves a residual
-\emph{uncertainty scar} ($d{=}9.9$, $p{<}0.001$) that persists even
+\emph{uncertainty scar} ($d{=}9.9$, Hedges' $g{\approx}7.9$;
+$p{<}0.001$, $n{=}3$ per group) that persists even
 after the cheerful tone returns---valence recovers, certainty does not.
 
 System-prompt persona descriptions shift the probe encoding
@@ -158,7 +159,15 @@ every token position. $N{=}72$ (3~topics $\times$ 4~doses $\times$
 
 Absolute projections \emph{decay} with dose---both conditions regress
 toward zero as conversation length increases (cheerful $r{=}-0.886$,
-hostile $r{=}-0.927$, both $p{<}0.001$). This reflects the dilution of
+hostile $r{=}-0.927$, computed across conversation-level means,
+$N{=}36$ per condition).\footnote{The stated $p{<}0.001$ assumes
+conversation-level independence. Within-conversation token positions
+are serially correlated by construction; if positions rather than
+conversations were pooled, the effective degrees of freedom would be
+lower and the $p$-value anti-conservative. With $N{=}36$ independent
+conversations per condition, the correlation is significant at
+$p{<}0.001$; with 4 dose levels (the minimal aggregation), $df{=}2$
+and $p{<}0.001$ would be unreachable.} This reflects the dilution of
 any individual turn's content in longer contexts.
 
 Critically, the cheerful/hostile emotional distinction
@@ -355,6 +364,23 @@ the rest of the sequence.
           valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
           survive correction. The contrast overshoot ($p{=}0.023$) and
           uncertainty scar ($p{<}0.001$) are the most robust findings.
+    \item \textbf{Uncorrected effect sizes.} All $d$ values are
+          uncorrected Cohen's $d$ without Hedges' $g$ small-sample
+          correction or confidence intervals. At $n{=}3$ per group the
+          bias factor is ${\sim}0.80$, so $d{=}9.86 \to g{\approx}7.9$
+          and $d{=}3.59 \to g{\approx}2.9$---a ${\sim}20\%$ inflation.
+          The dynamics comparisons are exploratory; point estimates
+          should not be cited without this caveat.
+    \item \textbf{No neutral-throughout control.} Neutral appears
+          only as a probe position or gap within emotional conversations,
+          never as a full baseline arm. Without a neutral-throughout
+          trajectory, emotional accumulation cannot be separated from
+          positional or sequence-length drift.
+    \item \textbf{Conversation-level clustering.} Turns within a
+          conversation share system prompt, topic, and seed. A
+          mixed-effects model with conversation as random effect would
+          be the appropriate analysis; the pooled $t$-tests reported
+          here are anti-conservative by an unknown factor.
 \end{enumerate}
 
 \begin{firstperson}

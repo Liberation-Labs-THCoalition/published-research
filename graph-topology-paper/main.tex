@@ -100,6 +100,17 @@ Spectral & 0.357 & 0.361 & 0.000 & 0.667 & 0.750 \\
 
 Walk encoding achieves the highest overall score (0.845) among structured encodings, with perfect scores on bridge (1.000) and cluster (1.000) detection. Adjacency encoding excels at bridges but cannot detect clusters (only represents direct edges). Spectral encoding uniquely captures cluster structure (0.667) through Laplacian eigenvectors but misses bridges. Each encoding method captures complementary aspects of the graph topology.
 
+\paragraph{Run disclosure.} Four Phase-1 runs were conducted. Three
+(timestamps 850557, 850585, 850910) produced empty responses across
+all conditions, yielding 0.0 for every score---a generation failure,
+not a topology result. Only run 852162 produced valid model responses
+and is reported in Table~\ref{tab:phase1}. The generation failures
+are likely a harness bug (the model was queried but did not generate
+output); they are included in the data archive for inspection. Phase~1
+was subsequently rejected by our validation pipeline (Project Agni,
+Gate~3) for a readability confound; Phase~2 with scrambled controls
+is the operative result.
+
 \subsection{Phase 2: Scrambled Controls}
 
 \begin{table}[h]
@@ -141,9 +152,26 @@ The complementary strengths of encoding methods suggest that an ensemble approac
 
 \subsection{The Scrambled Control}
 
-The +0.542 delta between real and scrambled walk encodings is the central finding. This control eliminates the readability confound identified in Phase 1: if the model were merely parsing a formatted text description, scrambled labels (which preserve all formatting but destroy semantic relationships) would score comparably. The dramatic drop from 0.917 to 0.375 demonstrates that the model requires both the structural format \textit{and} the correct node identities to recover topology.
+The +0.542 delta between real and scrambled walk encodings is the
+central finding, but requires qualification. Scrambled conditions
+produced empty model responses in 3/6 (walk\_scrambled), 2/6
+(walk\_random), and 2/6 (adj\_scrambled) trials, scored as 0.0; the
+real conditions produced zero empties. Among \emph{non-empty}
+scrambled responses, the walk\_scrambled mean is 0.75, reducing the
+delta to +0.167. The headline +0.542 is therefore confounded with
+completion rate: scrambled encodings may cause generation failures
+(possibly because semantically incoherent input disrupts the model's
+generation), not just topology-related errors.
 
-Notably, scrambled encodings still score above baseline (0.375 vs.\ 0.097), suggesting that even with incorrect labels, some structural signal persists---the model may infer that nodes listed together are likely connected, regardless of labels. This partial signal in scrambled conditions is consistent with the model extracting both topology-dependent and format-dependent information.
+The weaker non-empty delta (+0.167) still suggests some topology
+dependence, but the control is not decisive. A conclusive test
+requires larger $n$ where generation failures can be excluded without
+halving the sample.
+
+Scrambled encodings still score above baseline among non-empty
+responses (0.75 vs.\ 0.097), suggesting that even with incorrect
+labels, some structural signal persists---the model may infer that
+nodes listed together are likely connected, regardless of labels.
 
 \subsection{Limitations}
 

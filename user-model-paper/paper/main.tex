@@ -113,7 +113,7 @@ projection geometry.
 
 Large language models respond differently to users expressing different emotional states. A panicked user receives reassurance; an angry user receives de-escalation; a curious user receives elaboration. This behavioral sensitivity implies an internal representation of the user's emotional state---a functional theory of mind. But where does this representation live, and how is it constructed?
 
-We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing deception from honesty, confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026campaign1,lyra2026campaign2,lyra2026campaign3}. The spectral structure of the cache is hardware-invariant ($r > 0.999$), scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B), and survives confound correction via Frisch--Waugh--Lovell residualization and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
+We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing deception from honesty, confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026detecting}. The spectral structure of the cache is hardware-invariant ($r > 0.999$), scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B), and survives confound correction via Frisch--Waugh--Lovell residualization and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
 
 Separately, \citet{anthropic2026emotions} demonstrate that functional emotion concepts are linearly represented in transformer residual streams, organized along valence and arousal axes. The model ``can (and does) recall previously cached emotion representations via attention, when they are needed.'' This finding raises a precise question: if emotion representations are recalled from cached representations, do those cached representations encode the \emph{user's} emotional state as well as the model's own?
 
@@ -154,7 +154,7 @@ Our work is orthogonal to behavioral testing. Rather than asking whether models 
 
 \subsection{KV-Cache Geometry}
 
-The spectral structure of the KV cache provides deterministic signatures of processing state. Prior work establishes within-model deception detection at AUROC $\approx 1.0$ \citep{lyra2026campaign1}, universal confabulation signatures across architectures \citep{lyra2026campaign2}, and Marchenko-Pastur random matrix features that are dimension-invariant and eliminate token-count confounds for misalignment detection \citep{lyra2026oracle}. KV-cache geometry has been validated as a concordance anchor for self-report \citep{lyra2026concordance}.
+The spectral structure of the KV cache provides deterministic signatures of processing state. Prior work establishes within-model deception detection at AUROC $\approx 1.0$, universal confabulation signatures across architectures \citep{lyra2026detecting}, and Marchenko-Pastur random matrix features that are dimension-invariant and eliminate token-count confounds for misalignment detection \citep{lyra2026oracle}. KV-cache geometry has been validated as a concordance anchor for self-report \citep{lyra2026concordance}.
 
 \subsection{Attention Schema Theory}
 
