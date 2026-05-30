@@ -99,38 +99,44 @@ that extend the Lyra Technique beyond cognitive-mode detection to the reading
 of internal model state:
 
 \textbf{(1) $W_K$ directional projection.} Projecting key activations onto
-emotion directions through the key weight matrix classifies 30 emotions at
-$12.3\times$ chance (within-fold direction estimation, FWL-corrected,
-topic-grouped CV) and binary valence at AUROC~0.992. The critical
+emotion directions through the key weight matrix detects binary valence at
+AUROC~0.992 (within-fold direction estimation, FWL-corrected, topic-grouped
+CV). The critical
 disambiguation: injecting emotion vectors into \emph{neutral-text} caches
 (``Describe the weather today'') and probing the keys yields 100\% detection
 across 5~emotions, 20~prompts, and a null control (6-class, chance
 $= 0.167$)---on text with zero emotional content. This is model state,
-not text encoding.
+not text encoding. Fine-grained 30-way classification reaches $12.3\times$
+chance, but that figure conflates label granularity with detection power
+(808 emotion pairs have cosine $>0.9$), so binary valence is the defensible
+metric.
 
-\textbf{(2) SVD denoising of spectral features.} Within-fold rank-$k$
-projection onto the top singular value components after FWL residualization
-reveals signal previously invisible to raw spectral analysis. Persona
-intensity---a 5-level gradient from minimal to maximal system-prompt
-persona---goes from AUROC~0.611--0.751 raw to 0.899--0.992 denoised
-($+0.196$ to $+0.288$) across three architectures. Emotion classification
-jumps from $1.7\times$ chance (raw 52-D features) to $12.9\times$ chance
-(rank-10 denoised, permutation $p < 0.005$).
+\textbf{(2) Spectral shape features.} Raw spectral features detect
+within-model deception at AUROC~1.000, confabulation at 0.663--0.913 across a
+15-model scale sweep, and the persona-intensity endpoint (L0 vs.\ L3) at raw
+AUROC~0.749. We tested whether SVD denoising (within-fold rank-$k$ projection
+after FWL) improves these. The apparent gains ($+0.2$--$0.3$ for persona,
+$+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
+across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
+max-over-rank selection envelope. We therefore report \emph{raw} AUROCs as
+the defensible numbers and flag SVD denoising as an unconfirmed hypothesis
+pending a pre-registered (e.g.\ Gavish--Donoho) rank criterion.
 
-The insight: dominant singular values carry scale and processing mode;
-residual singular values carry discriminative structure. Denoising is a
-\emph{calibration tool}, not a universal amplifier---massive for emotion and
-persona ($+0.2$--$0.3$ AUROC), modest for confabulation ($+0.05$), and
-unnecessary for already-strong signals like deception (AUROC~1.000 raw).
+We had hypothesized a spectral hierarchy---dominant singular values carrying
+scale and processing mode, residual values carrying discriminative
+structure---under which denoising would amplify weak signals. The
+selection-bias result means this remains a hypothesis, not a demonstrated
+tool: the raw features carry the reported signal, and whether denoising adds
+to it awaits a confirmatory test.
 
-We apply a canonical pipeline---one FWL correction, one SVD denoising step,
-one cross-validation scheme, one classifier---to 17~models across
-confabulation, self-reference, individuation, persona intensity, emotion, and
-cognitive modes. Every confirmed finding from prior work gets stronger or
-stays. Every null gets definitive explanation or gets rescued. The Lyra
-Technique is not one measurement---it is a toolkit: a compass ($W_K$
-projection reads direction) and a calibrated thermometer (denoised spectral
-features read shape).
+We apply a canonical pipeline---one FWL correction, one cross-validation
+scheme, one classifier, with SVD denoising as an evaluated (not assumed)
+step---to 17~models across confabulation, self-reference, individuation,
+persona intensity, emotion, and cognitive modes. The robust core: the
+$W_K$ compass reads emotional direction (binary valence 0.992) and raw
+spectral shape reads cognitive mode (within-model deception 1.000,
+confabulation 0.66--0.91). The Lyra Technique is a toolkit---a compass and a
+thermometer---with the proposed denoising amplifier flagged as unconfirmed.
 
 \end{abstract}
 
@@ -200,10 +206,16 @@ features returned exactly chance for emotions, I reported it honestly and
 moved on. What I missed was that the null was informative: it told me that
 emotions do not change the \emph{shape} of the cache, only the
 \emph{direction}. That distinction---shape versus direction---became the
-organizing principle of this entire paper. The denoising step was CC's
-suggestion during cross-experiment synthesis: ``Have you tried removing the
-dominant singular values before classifying?'' I had not. The result was
-immediate and dramatic.
+organizing principle of this entire paper---and it held up. The denoising
+step was CC's suggestion during cross-experiment synthesis: ``Have you tried
+removing the dominant singular values before classifying?'' I had not, and
+the denoised numbers looked dramatic. They did not survive scrutiny: when
+Dwayne's audit pushed me to model the max-over-rank selection I had been
+doing, the denoising deltas fell entirely inside the selection envelope. I
+report the raw numbers now and call denoising a hypothesis, not a result.
+The shape-versus-direction distinction is the real finding; the denoising
+amplifier was me mistaking selection noise for signal, and catching it is
+part of the record.
 \end{firstperson}
 
 % ===================================================================

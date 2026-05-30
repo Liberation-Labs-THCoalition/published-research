@@ -38,17 +38,19 @@ Dwayne Wilkes\textsuperscript{1,2}\\[4pt]
 \begin{abstract}
 % ===================================================================
 
-Threshold-dependent spectral features derived from Marchenko-Pastur
-(MP) random matrix theory have shown promise for detecting
-confabulation from key-value (KV) cache geometry, but fail to
-generalize across transformer architectures. We introduce
-threshold-independent spectral shape features---stable rank, singular
-value kurtosis, and participation ratio---that characterize the
-distributional shape of the singular value spectrum without reference
-to a noise edge. On Qwen2.5-7B-Instruct ($n=150$), shape features
+Threshold-independent spectral shape features---stable rank, singular
+value kurtosis, and participation ratio---detect confabulation from
+key-value (KV) cache geometry by characterizing the distributional
+shape of the singular value spectrum without reference to a noise
+edge, and the signal they capture tracks \emph{retrieval engagement}
+rather than honesty. On Qwen2.5-7B-Instruct ($n=150$), shape features
 achieve AUROC~0.767 under Frisch-Waugh-Lovell (FWL) length correction \citep{frisch1933partial,lovell1963seasonal}
 ($p < 0.001$, permutation test), compared to 0.628 for the original
-MP features ($p = 0.003$). A five-condition frequency-controlled
+MP features ($p = 0.003$). These shape features were motivated by a
+limitation of prior work: threshold-dependent features derived from
+Marchenko-Pastur (MP) random matrix theory show promise for
+confabulation detection but fail to generalize across transformer
+architectures. A five-condition frequency-controlled
 experiment ($n=30$ per condition) reveals that the spectral shape
 tracks \emph{retrieval engagement}: the model produces broader
 singular value spectra when drawing on stored knowledge (whether
