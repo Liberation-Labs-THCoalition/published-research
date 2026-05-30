@@ -446,8 +446,13 @@ emotion word is absent from the prompt.
 Two caveats apply. First, with greedy decoding and a single prompt per
 emotion, within-emotion variance is zero---the ARI reflects
 distinctness \emph{between} emotions, not consistency \emph{within}
-emotions across varied narratives. A follow-up with multiple diverse
-prompts per emotion is in progress. Second, the model generates the
+emotions across varied narratives, and is therefore near-tautological
+as a clustering score. Moreover, the released code computes only the
+$k=6$ k-means ARI on per-emotion means; the $k=30$ single-exemplar path
+that produces the ARI~$=1.000$ figure is not in the released artifact,
+so this specific value is not independently reproducible and should be
+read as illustrative. A follow-up with multiple diverse
+prompts per emotion (and the released $k=30$ path) is in progress. Second, the model generates the
 target emotion word in 63\% of implicit responses despite not receiving
 it in the prompt, meaning the word enters the cache through generation.
 

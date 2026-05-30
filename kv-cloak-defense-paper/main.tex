@@ -375,6 +375,21 @@ behavioral classes. This is an artifact of the mask magnitude, not a
 genuine detection signal, and would not generalize to unseen mask
 instances under per-query key rotation.
 
+\paragraph{Consistent treatment of the $\sigma_1$-dependent features.}
+We flag that spectral\_gap ($\sigma_1/\sigma_2$) and top\_sv\_excess are
+both $\sigma_1$-dependent, and the additive mask $A$ perturbs $\sigma_1$
+in both---so the same mechanism drives the spectral\_gap \emph{decrease}
+(0.903$\to$0.614) and the top\_sv\_excess \emph{increase} (0.609$\to$0.736).
+We should not read one as ``real defense'' and the other as ``artifact''
+on different terms. The honest reading is unified: the defense works
+\emph{by} perturbing $\sigma_1$, which disrupts $\sigma_1$-dependent
+detection features---degrading the feature that happened to detect well
+(spectral\_gap) and reshuffling one that did not (top\_sv\_excess). Both
+movements are mask-on-$\sigma_1$ effects; neither should be cited as a
+topology-preserving guarantee, and the spectral\_gap degradation in
+particular should be read as ``the mask disrupts this feature,'' not as
+evidence the underlying confabulation geometry was destroyed.
+
 % ===================================================================
 \section{Discussion}
 % ===================================================================
