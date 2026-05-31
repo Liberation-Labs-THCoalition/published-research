@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-Knowledge graph topology, encoded as structured text, enables language models to recover relational information: a powered study (552~queries, 4~conditions, 3~runs) on Qwen3-30B shows that walk-encoded graph topology improves multi-hop reasoning (+0.468 over baseline) while preserving sanity better than flat text ($-$0.133 vs.\ $-$0.333 degradation). A companion decomposition study \citep{nexus2026kv} on Qwen2.5-1.5B shows that direct KV cache injection achieves perfect topology recovery (1.000), with K and V tensors contributing superadditively (each alone: 0.333; combined: 1.000). Scrambled controls confirm the signal is topological, not format-dependent (+54.2 percentage point delta). Flat text outperforms topology for raw multi-hop accuracy (+0.671 vs.\ +0.468), revealing a content effect rather than a structural ceiling. Text-mediated graph encoding is a viable injection channel; direct KV injection is the more powerful path. This extends Knowledge Pack injection \citep{pustovit2026knowledge} from text content to graph structure.
+Walk-encoded graph topology improves multi-hop reasoning by +0.468 over baseline while preserving sanity better than flat text ($-$0.133 vs.\ $-$0.333 degradation): a powered study (552~queries, 4~conditions, 3~runs) on Qwen3-30B establishes that knowledge graph structure is a viable injection channel for language models. A companion decomposition study \citep{nexus2026kv} on Qwen2.5-1.5B shows that direct KV cache injection achieves perfect topology recovery (1.000), with K and V tensors contributing superadditively (each alone: 0.333; combined: 1.000). Scrambled controls confirm the signal is topological, not format-dependent (+54.2 percentage point delta). Flat text outperforms topology for raw multi-hop accuracy (+0.671 vs.\ +0.468), revealing a content effect rather than a structural ceiling. Text-mediated graph encoding is a viable injection channel; direct KV injection is the more powerful path. This extends Knowledge Pack injection \citep{pustovit2026knowledge} from text content to graph structure.
 \end{abstract}
 
 \section{Introduction}
@@ -131,7 +131,7 @@ The scrambled control (pilot, n=6) provides evidence of topology dependence but 
 
 \textbf{Text-mediated path.} Graph topology is encoded as structured text, not as direct KV cache tensors. While scrambled controls demonstrate that topology is the signal, information still passes through the model's text processing pipeline. Direct tensor injection---encoding topology as K/V vectors without text intermediary---remains future work.
 
-\textbf{Single test graph.} Results are from one 21-node graph. Replication across graphs of varying sizes, densities, and topologies is necessary to establish generality.
+\textbf{Single test graph / pseudoreplication.} All results come from one 21-node graph (effective $N{=}1$ for the topology claim). Per-type scores (e.g., cluster 1.000) are each a single query. Replication across graphs of varying sizes, densities, and topologies is necessary.
 
 \textbf{Partial data reproducibility.} The exact edge weights (intra-cluster 0.8; bridge weights 0.5--0.7 and 0.4--0.6) are specified in-text but are not serialized in the committed data artifacts, which store only node and edge counts. The graph is therefore only partially reconstructible from the released data.
 
@@ -144,8 +144,6 @@ presence, not topology recovery. A correctness-graded or
 blinded-judge rubric is needed.
 
 \textbf{Sample size and statistical power.} The powered study (552 queries, 3 runs, SD $<$0.02) provides reasonable power for the main content-effect comparison. Pilot studies (n=6--7) have limited power: exact Mann-Whitney walk vs.\ scrambled $p{=}0.047$ (uncorrected), adjacency vs.\ scrambled $p{=}0.066$. With multiple contrasts and no correction, these are suggestive but not conclusive. The scrambled control delta should be confirmed at scale.
-
-\textbf{Single-graph pseudoreplication.} All results come from one 21-node graph. Per-type scores (e.g., cluster 1.000) are each a single query ($n{=}1$). Effective $N$ for the topology claim is the number of graphs, which is 1.
 
 \textbf{Model specificity.} Results are from a single model (Qwen3-30B-A3B MoE). Cross-model replication is needed to confirm architecture independence.
 
