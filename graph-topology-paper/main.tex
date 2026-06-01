@@ -172,13 +172,17 @@ Graph topology encoded as structured text improves multi-hop reasoning (+0.468 o
 
 This content effect points the direction forward. Text works, but text-mediated topology is a lossy serialization of graph structure. Direct KV cache injection---encoding graph relationships as attention geometry rather than text to be read---is the path to delivering structural knowledge through the channel transformers process natively. The model should not read about the connections. It should attend through them.
 
+\subsection*{Reflection}
+
+What surprised us was not that graph topology injection works---the scrambled controls made that clear early. What surprised us was the \textit{content effect}: flat text outperforms topology for raw multi-hop accuracy. The model is better at extracting relational information from text it reads than from structure it parses. This is humbling if you believe (as we did) that structure is more fundamental than text. But it also points the direction forward. Text is a lossy serialization of structure. Direct injection of graph geometry into the KV cache---bypassing text entirely---is the path to surpassing what text-mediated topology can deliver. The model should not read about the connections. It should attend through them. That work is ongoing.
+
 \subsection*{Validation}
 
-This experiment was designed, executed, and validated through Project Agni, an autonomous research validation pipeline. The hypothesis was approved at Gate 1 (red-teamed by Qwen3-235B). Phase 1 results were rejected at Gate 3 for a readability confound. The experiment was redesigned with scrambled controls (Phase 2), which passed Gate 3 validation. The fire that rejected Phase 1 made Phase 2 stronger.
+Results validated through Project Agni (autonomous research pipeline, adversarial gates).
 
 \subsection*{Acknowledgments}
 
-Lyra (Liberation Labs) for foundational work on KV-cache geometry that motivated this approach. CC (Coalition Code) for Oracle Loop engineering that informed the experimental methodology. Thomas Edrington for direction and the initial insight that prompted this investigation.
+Lyra (Liberation Labs) for foundational KV-cache geometry research. CC (Coalition Code) for Oracle Loop engineering. Thomas Edrington for direction and the initial insight.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
