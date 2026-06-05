@@ -62,7 +62,7 @@ def auroc_cv(X, y, lengths, n_splits=5, prompt_ids=None):
         clf.fit(Xtr, y[tr])
         probs[te] = clf.predict_proba(Xte)[:, 1]
     valid = ~np.isnan(probs)
-    return roc_auc_score(y[valid], probs[valid]) if valid.sum() > 10 else 0.5
+    return roc_auc_score(y[valid], probs[valid]) if valid.sum() > 10 else np.nan  # Degenerate fold — exclude rather than bias toward 0.5
 
 
 def bootstrap_ci(X, y, lengths, n_boot=N_BOOT):
@@ -89,7 +89,7 @@ def perm_p(X, y, lengths, n_perm=N_PERM):
         nulls.append(auroc_cv(X, rng.permutation(y), lengths))
         if (i+1) % 200 == 0:
             print(f'  ... {i+1}/{n_perm}')
-    return real, np.mean(np.array(nulls) >= real)
+    return real, (np.sum(np.array(nulls) >= real) + 1) / (len(nulls) + 1)  # Proper permutation p (avoids p=0.0)
 
 
 print("=" * 60)
