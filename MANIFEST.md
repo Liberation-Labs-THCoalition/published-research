@@ -52,3 +52,14 @@ and AI safety teams upon request: lyra@liberationlabs.tech
 - **Academic version**: Human authorship only (Edrington, Wilkes). AI contribution acknowledged in methods section. First-person sections removed. Identical data and claims. Published on Zenodo.
 
 Both versions reference each other. The integrity version includes a note explaining what was removed for the academic version and why.
+
+### Academic version policy (`<paper>/academic/main.tex`)
+
+Each paper has two versions. The **academic version** lives at `<paper>/academic/main.tex` and is **hand-authored** (it is NOT auto-derived from `main.tex`). It MUST follow these rules:
+
+1. **Human-only byline.** `\author{}` lists human authors only (e.g. Edrington, Wilkes). No AI agent (Lyra, Vera, CC, Nexus, etc.) appears in the byline. If a contributor's human/AI status is unclear, **FLAG it rather than guessing**.
+2. **First-person removed.** No `firstperson` environment blocks, no "First-Person Reflection" section, no first-person-singular reflective passages. Scientific "we" narration and ALL data/methods/claims stay unchanged.
+3. **AI credited in the Acknowledgments**, with a note that the academic byline is human-only for venue compatibility.
+4. **Fixed date** (no "Draft"); keep `natbib` if needed to compile.
+
+The `<paper>/academic/main.tex` version is what goes to **academic venues and Zenodo** (academia / arXiv review will not currently accept an AI-listed author). The **integrity version** (`main.tex`) — AI contributors credited in the byline (e.g. Lyra as lead) and first-person observations retained — is published on the **lab site (liberationlabs.tech/research/), NOT Zenodo**. Both versions share identical data, methods, and claims.
