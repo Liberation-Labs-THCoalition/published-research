@@ -65,9 +65,9 @@
 \maketitle
 
 \begin{abstract}
-We investigate whether a language model's epistemic state---whether it
-\emph{knows} the answer to a factual question---is readable from its
-KV-cache geometry before generation begins. Using token-matched prompt
+Encoding-phase KV-cache geometry distinguishes known from unknown entities
+at AUROC 0.93 [0.82, 0.98] before a single token is generated---the model's
+epistemic state is readable from its cache geometry. Using token-matched prompt
 pairs that differ only in entity knowability (``What is the capital of
 Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that a
 combined classifier over stable-rank, W\textsubscript{K} projection, and
