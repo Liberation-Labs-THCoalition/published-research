@@ -440,13 +440,14 @@ bootstrap CI [0.806, 0.977]---excluding chance but wide. The
 cache-vs-text delta (0.148) has CI [$-$0.008, 0.322], not significant
 at the 95\% level. Confirmation on a higher-confab-rate model is needed.
 
-\item \textbf{Simulation vs implementation.} We tested both a
-simulation (per-head orthogonal rotation) and an implementation of
-KV-Cloak's mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$). The
-real mechanism degrades spectral gap detection more than the simulation
-(0.614 vs 0.786), confirming that the simulation was conservative.
-Our implementation follows the paper's description but is not the
-authors' original code, which has not been publicly released.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Simulation vs implementation.} We tested both a
+% simulation (per-head orthogonal rotation) and an implementation of
+% KV-Cloak's mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$). The
+% real mechanism degrades spectral gap detection more than the simulation
+% (0.614 vs 0.786), confirming that the simulation was conservative.
+% Our implementation follows the paper's description but is not the
+% authors' original code, which has not been publicly released.
 
 \item \textbf{TEE trust assumption.} The defensive architecture assumes
 TEE integrity. Documented side-channel attacks against SGX
@@ -469,11 +470,12 @@ cannot distinguish ``cloak defeats injection'' from ``injection was
 never effective.'' A powered test requires 10+ calibration pairs and
 $n \geq 50$ trials per condition.
 
-\item \textbf{Magnitude attack power.} At $n=10$ per model, we can
-detect destabilization rates above 30\% (power 0.97) but cannot rule
-out rates up to 20\%. The ``robust to random perturbation'' claim should
-be read as ``no evidence of destabilization at rates above 30\%,'' not
-``destabilization rate is zero.''
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Magnitude attack power.} At $n=10$ per model, we can
+% detect destabilization rates above 30\% (power 0.97) but cannot rule
+% out rates up to 20\%. The ``robust to random perturbation'' claim should
+% be read as ``no evidence of destabilization at rates above 30\%,'' not
+% ``destabilization rate is zero.''
 
 \item \textbf{Cross-architecture significance.} No individual model in
 the cross-architecture sweep achieves significance after Bonferroni
@@ -481,12 +483,13 @@ correction for four comparisons. Detection is individually suggestive on
 Qwen-14B (0.784) and Mistral (0.707) but should not be interpreted as
 confirmed cross-architecture replication.
 
-\item \textbf{Qwen2.5-14B anomaly.} Detection AUROC increases from
-0.784 (uncloaked) to 0.951 (cloaked) on Qwen2.5-14B---contradicting the
-expected degradation pattern. This is unexplained and may reflect a
-feature-selection artifact, an architecture-specific interaction with
-per-head rotation, or a data issue. Until resolved, the scope of the
-obfuscation-degrades-detection claim excludes this model.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Qwen2.5-14B anomaly.} Detection AUROC increases from
+% 0.784 (uncloaked) to 0.951 (cloaked) on Qwen2.5-14B---contradicting the
+% expected degradation pattern. This is unexplained and may reflect a
+% feature-selection artifact, an architecture-specific interaction with
+% per-head rotation, or a data issue. Until resolved, the scope of the
+% obfuscation-degrades-detection claim excludes this model.
 
 \item \textbf{Adaptive adversary untested.} All tests assume a static,
 non-learning attacker. An adversary who can submit probe queries and
@@ -494,10 +497,11 @@ observe behavioral outputs could iteratively estimate the rotation
 basis. Formal query-complexity bounds are not provided. The threat model
 is bounded to single-query, non-adaptive adversaries.
 
-\item \textbf{Confabulation only.} We test obfuscation against
-confabulation detection. Deception detection (AUROC~1.000 in prior
-work) and other cognitive-state classifiers were not tested under
-obfuscation.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Confabulation only.} We test obfuscation against
+% confabulation detection. Deception detection (AUROC~1.000 in prior
+% work) and other cognitive-state classifiers were not tested under
+% obfuscation.
 \end{enumerate}
 
 % ===================================================================

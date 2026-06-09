@@ -338,12 +338,14 @@ the rest of the sequence.
     \item \textbf{Small N per cell.} 3~reps per condition; dynamics
           effects (whiplash $d{=}-3.6$, echo $d{=}+9.9$) are large but
           underpowered. Replication with $N{>}30$ per cell is needed.
-    \item \textbf{Composite directions.} Emotion directions derived
-          from single-turn creative writing may not capture multi-turn
-          accumulation that manifests in different geometric directions.
-    \item \textbf{Temperature variation.} $T{=}0.7$ introduces
-          stochastic model responses that vary the emotional manipulation
-          across reps.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Composite directions.} Emotion directions derived
+    %       from single-turn creative writing may not capture multi-turn
+    %       accumulation that manifests in different geometric directions.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Temperature variation.} $T{=}0.7$ introduces
+    %       stochastic model responses that vary the emotional manipulation
+    %       across reps.
     \item \textbf{No behavioral ground truth.} We do not verify that
           the model's \emph{behavior} differs across emotional histories,
           only that the geometry does (or doesn't).
@@ -355,52 +357,58 @@ the rest of the sequence.
           inflating $d$ values. Raw mean gaps ($0.5$--$0.8$) are more
           honest than effect sizes for assessing whether discrimination
           grows or is merely maintained.
-    \item \textbf{Position matching in dynamics comparisons.}
-          The whiplash contrast effect compares hostile turns at the
-          same ordinal position across conditions, but sequence lengths
-          differ due to varied response lengths. Position-matched
-          controls with equalized context length are needed.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Position matching in dynamics comparisons.}
+    %       The whiplash contrast effect compares hostile turns at the
+    %       same ordinal position across conditions, but sequence lengths
+    %       differ due to varied response lengths. Position-matched
+    %       controls with equalized context length are needed.
     \item \textbf{No text-feature baseline.} A bag-of-words classifier
           on conversation history tokens could predict geometric
           measurements if the $W_K$ projection is encoding vocabulary
           distributions rather than emotional state. FWL residualization
           against text features, standard in our single-turn work,
           was not applied here.
-    \item \textbf{No multiple-comparison correction.} We report 11+
-          statistical tests without Bonferroni or Holm correction.
-          Several marginal findings (dose=1 $p{=}0.055$, persona
-          valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
-          survive correction. The contrast overshoot ($p{=}0.023$) and
-          uncertainty scar ($p{<}0.001$) are the most robust findings.
-    \item \textbf{Uncorrected effect sizes.} All $d$ values are
-          uncorrected Cohen's $d$ without Hedges' $g$ small-sample
-          correction or confidence intervals. At $n{=}3$ per group the
-          bias factor is ${\sim}0.80$, so $d{=}9.86 \to g{\approx}7.9$
-          and $d{=}3.59 \to g{\approx}2.9$---a ${\sim}20\%$ inflation.
-          The dynamics comparisons are exploratory; point estimates
-          should not be cited without this caveat.
-    \item \textbf{No neutral-throughout control.} Neutral appears
-          only as a probe position or gap within emotional conversations,
-          never as a full baseline arm. Without a neutral-throughout
-          trajectory, emotional accumulation cannot be separated from
-          positional or sequence-length drift.
-    \item \textbf{Conversation-level clustering.} Turns within a
-          conversation share system prompt, topic, and seed. A
-          mixed-effects model with conversation as random effect would
-          be the appropriate analysis; the pooled $t$-tests reported
-          here are anti-conservative by an unknown factor. (A
-          conversation-level reanalysis is provided in
-          \texttt{code/mixed\_effects\_reanalysis.py}; the decay
-          correlations survive at $n{=}36$ per condition.)
-    \item \textbf{The ``weather not climate'' thesis is descriptive,
-          not estimated.} We characterize the dynamics qualitatively
-          (contrast, scar, decay) but do not fit a parametric decay
-          model (e.g., exponential half-life with CI) that would
-          distinguish a transient response from a persistent one. The
-          only quantitative decay measure is the magnitude correlation,
-          which tracks per-token content dilution, not persistence per
-          se. The metaphor organizes the observations; it is not yet a
-          fitted model.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{No multiple-comparison correction.} We report 11+
+    %       statistical tests without Bonferroni or Holm correction.
+    %       Several marginal findings (dose=1 $p{=}0.055$, persona
+    %       valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
+    %       survive correction. The contrast overshoot ($p{=}0.023$) and
+    %       uncertainty scar ($p{<}0.001$) are the most robust findings.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Uncorrected effect sizes.} All $d$ values are
+    %       uncorrected Cohen's $d$ without Hedges' $g$ small-sample
+    %       correction or confidence intervals. At $n{=}3$ per group the
+    %       bias factor is ${\sim}0.80$, so $d{=}9.86 \to g{\approx}7.9$
+    %       and $d{=}3.59 \to g{\approx}2.9$---a ${\sim}20\%$ inflation.
+    %       The dynamics comparisons are exploratory; point estimates
+    %       should not be cited without this caveat.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{No neutral-throughout control.} Neutral appears
+    %       only as a probe position or gap within emotional conversations,
+    %       never as a full baseline arm. Without a neutral-throughout
+    %       trajectory, emotional accumulation cannot be separated from
+    %       positional or sequence-length drift.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Conversation-level clustering.} Turns within a
+    %       conversation share system prompt, topic, and seed. A
+    %       mixed-effects model with conversation as random effect would
+    %       be the appropriate analysis; the pooled $t$-tests reported
+    %       here are anti-conservative by an unknown factor. (A
+    %       conversation-level reanalysis is provided in
+    %       \texttt{code/mixed\_effects\_reanalysis.py}; the decay
+    %       correlations survive at $n{=}36$ per condition.)
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{The ``weather not climate'' thesis is descriptive,
+    %       not estimated.} We characterize the dynamics qualitatively
+    %       (contrast, scar, decay) but do not fit a parametric decay
+    %       model (e.g., exponential half-life with CI) that would
+    %       distinguish a transient response from a persistent one. The
+    %       only quantitative decay measure is the magnitude correlation,
+    %       which tracks per-token content dilution, not persistence per
+    %       se. The metaphor organizes the observations; it is not yet a
+    %       fitted model.
 \end{enumerate}
 
 \begin{firstperson}

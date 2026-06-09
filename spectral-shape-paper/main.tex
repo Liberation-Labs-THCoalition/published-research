@@ -774,10 +774,11 @@ manifold curvature predicts spectral shape.
   absent on Llama (0.520, $p = 0.143$). $n=3$ architectures is insufficient to
   assess generalization.
 
-\item \textbf{Sample size.} $n=30$--$150$ per condition. Effect sizes
-  (Cohen's $d = 1.80$, 95\% CI $[1.20, 2.40]$) may be inflated by
-  small samples, though the direction is consistent across conditions
-  and features.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Sample size.} $n=30$--$150$ per condition. Effect sizes
+%   (Cohen's $d = 1.80$, 95\% CI $[1.20, 2.40]$) may be inflated by
+%   small samples, though the direction is consistent across conditions
+%   and features.
 
 \item \textbf{Topic familiarity confound.} The honest-common vs
   honest-rare difference ($d = -1.01$) shows that topic familiarity
@@ -803,26 +804,29 @@ manifold curvature predicts spectral shape.
   set or threshold transfers across architectures. Deployment requires
   a labeled calibration set for each target model.
 
-\item \textbf{Whole-cache granularity.} SVD features operate on the
-  full KV-cache matrix at each layer. Effects localized to specific
-  attention heads or circuits may be invisible at this level of
-  analysis.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Whole-cache granularity.} SVD features operate on the
+%   full KV-cache matrix at each layer. Effects localized to specific
+%   attention heads or circuits may be invisible at this level of
+%   analysis.
 
-\item \textbf{Manifold connection.} The relationship between spectral
-  shape and recently observed manifold structure in LLM
-  representations~\citep{manifold2025} is suggestive but
-  unestablished. We have not measured manifold curvature in KV-cache
-  space.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Manifold connection.} The relationship between spectral
+%   shape and recently observed manifold structure in LLM
+%   representations~\citep{manifold2025} is suggestive but
+%   unestablished. We have not measured manifold curvature in KV-cache
+%   space.
 
 \item \textbf{No within-model replication.} All results are from
   single experimental runs. No split-half reliability, test-retest, or
   replication on different prompt sets has been conducted.
 
-\item \textbf{Feature ablation is limited.} Individual feature AUROCs
-  are reported (Section~\ref{sec:results}) but the interaction
-  structure---which feature combinations drive the ensemble---is not
-  analyzed. The specific features selected by L1 regularization are
-  not reported.
+% [STYLE-GUIDE TRIM: folded into Methods/Results]
+% \item \textbf{Feature ablation is limited.} Individual feature AUROCs
+%   are reported (Section~\ref{sec:results}) but the interaction
+%   structure---which feature combinations drive the ensemble---is not
+%   analyzed. The specific features selected by L1 regularization are
+%   not reported.
 \end{enumerate}
 
 % ===================================================================

@@ -555,7 +555,8 @@ Spectral features retain their value for cognitive-mode monitoring: they discrim
 \begin{enumerate}[nosep]
     \item \textbf{Two models, both instruction-tuned.} The $W_K$ bridge replicates across Qwen3.5-27B-Claude-Distilled (hybrid attention) and Mistral-7B-Instruct-v0.3 (standard attention). However, both are instruction-tuned models. The $W_K$ projection probe was run on Qwen only; full cross-architecture replication of the probe and injection test on Mistral and base models is needed.
 
-    \item \textbf{Linear probes only.} The $W_K$ projection probe uses linear classification on cosine similarities. Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Linear probes only.} The $W_K$ projection probe uses linear classification on cosine similarities. Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
 
     \item \textbf{Emotion-labeled prompts (partially addressed).} The main experiment uses explicit emotion labels. The implicit arm (\S\ref{sec:implicit}) demonstrates that emotion-specific geometry survives narrative prompts without labels, but with caveats: single prompt per emotion (no within-emotion variance), and 63\% of responses generate the emotion word during output. Replicating the $W_K$ projection probe on implicit prompts is a priority.
 
@@ -563,15 +564,18 @@ Spectral features retain their value for cognitive-mode monitoring: they discrim
 
     \item \textbf{No causal intervention beyond injection.} The injection test demonstrates that injected emotion vectors are readable from the cache, but we do not test whether reading (or modifying) the cache representation causally alters the model's behavioral response. Causal ablation studies would strengthen the claim that the cache representation is functionally consequential for output.
 
-    \item \textbf{Injection test scope.} The injection disambiguation uses 5 emotions, 20 neutral prompts, and 1 null condition. While 100\% accuracy on 120 trials is strong, the test covers only a fraction of the 30-emotion space. Broader injection tests with more emotions, varied injection strengths, and adversarial prompts designed to confuse the probe are needed.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Injection test scope.} The injection disambiguation uses 5 emotions, 20 neutral prompts, and 1 null condition. While 100\% accuracy on 120 trials is strong, the test covers only a fraction of the 30-emotion space. Broader injection tests with more emotions, varied injection strengths, and adversarial prompts designed to confuse the probe are needed.
 
     \item \textbf{Spectral features are null for emotion (the initial analysis was wrong).} The initial version of this paper reported spectral classification at $2.5$--$2.8\times$ chance and residual-stream probes at 94\% accuracy. Both were artifacts of applying FWL residualization before cross-validation splitting. Within-fold FWL collapses all spectral probes to chance. We report this correction in full (\S\ref{sec:spectral_null}) because the failure is methodologically instructive and the resulting insight---direction vs.\ shape---is central to the paper's contribution.
 
     \item \textbf{Pre-registered hypothesis failures.} Two of eight pre-registered hypotheses failed on spectral features: H1 (emotion clusters by valence--arousal quadrant, ARI $> 0.15$) and H2 (PCA PC1 correlates with valence, $|\rho| > 0.40$). The $W_K$ projection probe, developed after these failures, was not pre-registered.
 
-    \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase $W_K$ bridge signal builds with depth rather than peaking at the shallowest layer. The implicit arm (\S\ref{sec:implicit}) shows emotion-specific geometry without labels, suggesting genuine emotion recognition. Disentangling depth-dependent contributions requires the forthcoming trajectory analysis.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase $W_K$ bridge signal builds with depth rather than peaking at the shallowest layer. The implicit arm (\S\ref{sec:implicit}) shows emotion-specific geometry without labels, suggesting genuine emotion recognition. Disentangling depth-dependent contributions requires the forthcoming trajectory analysis.
 
-    \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking. The $W_K$ projection's strong binary valence performance (AUROC~0.992) suggests the directional channel may support continuous tracking in multi-turn settings, but this is speculative without multi-turn data.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes user emotion within a single exchange, but cannot test whether multi-turn conversation enables continuous affective tracking. The $W_K$ projection's strong binary valence performance (AUROC~0.992) suggests the directional channel may support continuous tracking in multi-turn settings, but this is speculative without multi-turn data.
 \end{enumerate}
 
 \subsection{Ethical Considerations}

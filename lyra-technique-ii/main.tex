@@ -1036,16 +1036,18 @@ our falsified results:
     about the responding model vs.\ questions about a \emph{different}
     AI system.
 
-    \item \textbf{Individuation above system-prompt is small.} Cross-prompt
-    individuation (whether the model maintains a consistent geometric
-    identity across different prompts) shows effects of $\sim$0.06 AUROC
-    above system-prompt baseline. This is statistically marginal and may
-    not be practically meaningful.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Individuation above system-prompt is small.} Cross-prompt
+    % individuation (whether the model maintains a consistent geometric
+    % identity across different prompts) shows effects of $\sim$0.06 AUROC
+    % above system-prompt baseline. This is statistically marginal and may
+    % not be practically meaningful.
 
-    \item \textbf{Permutation floor.} With 200~permutations, the $p$-value
-    floor is $1/201 \approx 0.005$. For experiments requiring Bonferroni
-    correction across multiple comparisons, 2000~permutations would be
-    needed to achieve a floor of $0.0005$.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Permutation floor.} With 200~permutations, the $p$-value
+    % floor is $1/201 \approx 0.005$. For experiments requiring Bonferroni
+    % correction across multiple comparisons, 2000~permutations would be
+    % needed to achieve a floor of $0.0005$.
 
     \item \textbf{$W_K$ projection was not pre-registered.} The $W_K$
     directional projection was developed after observing the null result
@@ -1059,11 +1061,12 @@ our falsified results:
     into the 16~full-attention layers. Replication on standard
     full-attention architectures is needed.
 
-    \item \textbf{Denoising narrative is post-hoc.} The spectral hierarchy
-    (dominant = scale, residual = content) is a narrative constructed after
-    observing the differential effects of denoising across phenomena. It
-    was not predicted before the experiments. The narrative is consistent
-    with all observations, but consistency is not confirmation.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Denoising narrative is post-hoc.} The spectral hierarchy
+    % (dominant = scale, residual = content) is a narrative constructed after
+    % observing the differential effects of denoising across phenomena. It
+    % was not predicted before the experiments. The narrative is consistent
+    % with all observations, but consistency is not confirmation.
 
     \item \textbf{Persona intensity uses GroupKFold on prompts.} All
     responses to a given prompt appear in the same fold, preventing prompt
@@ -1072,10 +1075,11 @@ our falsified results:
     introducing confounds beyond persona intensity per se. FWL controls
     for token count but not for content complexity.
 
-    \item \textbf{Norm-as-token-proxy in scale sweep.} For the scale
-    invariance analysis (0.6B--70B), FWL was applied using key-norm as a
-    proxy for token count in some experiments where per-token extraction
-    was computationally prohibitive. This is an imperfect proxy.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Norm-as-token-proxy in scale sweep.} For the scale
+    % invariance analysis (0.6B--70B), FWL was applied using key-norm as a
+    % proxy for token count in some experiments where per-token extraction
+    % was computationally prohibitive. This is an imperfect proxy.
 
     \item \textbf{Text baselines incomplete.} TF-IDF text baselines are
     available for the emotion experiment (AUROC~0.882) and the dual
@@ -1083,22 +1087,24 @@ our falsified results:
     sycophancy experiments. Claims about geometry capturing signal
     ``beyond text'' are limited to experiments with text baselines.
 
-    \item \textbf{Emotion classification is single-turn.} All emotion
-    experiments use isolated single-turn prompts. The finding of discrete
-    emotion identity (not continuous valence tracking) may reflect the
-    experimental design rather than a fundamental property of cache
-    representations. Multi-turn experiments are needed.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Emotion classification is single-turn.} All emotion
+    % experiments use isolated single-turn prompts. The finding of discrete
+    % emotion identity (not continuous valence tracking) may reflect the
+    % experimental design rather than a fundamental property of cache
+    % representations. Multi-turn experiments are needed.
 
-    \item \textbf{Vocabulary confound in direction estimation.} Emotion
-    directions are estimated from key activations of emotion-laden text.
-    Since different emotions use different vocabulary, the directions may
-    partially capture lexical content surviving $W_K$ projection rather
-    than emotional state per se. The injection test addresses this
-    (neutral text, zero emotional content), but the injection test itself
-    is geometrically tautological---it shows the classifier is
-    self-consistent, not that the directions correspond to the model's
-    emotion representation. Behavioral validation (does injection change
-    generation tone?) would strengthen the claim.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Vocabulary confound in direction estimation.} Emotion
+    % directions are estimated from key activations of emotion-laden text.
+    % Since different emotions use different vocabulary, the directions may
+    % partially capture lexical content surviving $W_K$ projection rather
+    % than emotional state per se. The injection test addresses this
+    % (neutral text, zero emotional content), but the injection test itself
+    % is geometrically tautological---it shows the classifier is
+    % self-consistent, not that the directions correspond to the model's
+    % emotion representation. Behavioral validation (does injection change
+    % generation tone?) would strengthen the claim.
 
     \item \textbf{Quantization confound in scale trend.} Three
     q4-quantized models (70B, 32B, 7B) are pooled with full-precision
@@ -1107,31 +1113,34 @@ our falsified results:
     anchor (70B) is itself q4. Any scale-invariance or
     ``larger-is-better'' trend is partly a precision trend.
 
-    \item \textbf{30-class emotion chance inflation.} 808 emotion
-    pairs have cosine similarity ${>}0.9$ (astonished/surprised at
-    0.999). Treating near-synonymous emotions as distinct classes
-    inflates the $1/30$ chance baseline. A classifier that confuses
-    astonished$\leftrightarrow$surprised is ``wrong'' by the metric but
-    correct at any meaningful resolution. Binary valence (AUROC~0.992)
-    is the defensible claim; the $12.3\times$-chance numbers conflate
-    label granularity with detection power.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{30-class emotion chance inflation.} 808 emotion
+    % pairs have cosine similarity ${>}0.9$ (astonished/surprised at
+    % 0.999). Treating near-synonymous emotions as distinct classes
+    % inflates the $1/30$ chance baseline. A classifier that confuses
+    % astonished$\leftrightarrow$surprised is ``wrong'' by the metric but
+    % correct at any meaningful resolution. Binary valence (AUROC~0.992)
+    % is the defensible claim; the $12.3\times$-chance numbers conflate
+    % label granularity with detection power.
 
-    \item \textbf{Rank selection not pre-registered.} SVD denoising uses
-    rank-3 for persona and rank-10 for emotion---different ranks for
-    different phenomena, chosen to maximize signal. While within-fold SVD
-    prevents direct overfitting, the per-task rank selection is a
-    researcher degree of freedom. A principled rank criterion (e.g.,
-    Marchenko-Pastur edge, Gavish-Donoho threshold) applied uniformly
-    would strengthen the denoising claims.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Rank selection not pre-registered.} SVD denoising uses
+    % rank-3 for persona and rank-10 for emotion---different ranks for
+    % different phenomena, chosen to maximize signal. While within-fold SVD
+    % prevents direct overfitting, the per-task rank selection is a
+    % researcher degree of freedom. A principled rank criterion (e.g.,
+    % Marchenko-Pastur edge, Gavish-Donoho threshold) applied uniformly
+    % would strengthen the denoising claims.
 
-    \item \textbf{Compass/thermometer complementarity untested.}
-    Spectral features are null for emotion ($0.033$, chance), supporting
-    the claim that the thermometer does not read direction. The reverse
-    test---showing directional projection is null for cognitive mode
-    (deception, confabulation)---has not been conducted. Without this
-    crossed null, the compass/thermometer dichotomy remains a
-    descriptive framework rather than an experimentally validated
-    dissociation.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Compass/thermometer complementarity untested.}
+    % Spectral features are null for emotion ($0.033$, chance), supporting
+    % the claim that the thermometer does not read direction. The reverse
+    % test---showing directional projection is null for cognitive mode
+    % (deception, confabulation)---has not been conducted. Without this
+    % crossed null, the compass/thermometer dichotomy remains a
+    % descriptive framework rather than an experimentally validated
+    % dissociation.
 \end{enumerate}
 
 \begin{firstperson}
