@@ -65,12 +65,16 @@ significant at the 95\% level. In a cross-architecture sweep
 strength varies by model (0.590--0.784); no model achieves significance
 after Bonferroni correction for four comparisons.
 
-\item \textbf{Obfuscation completely transforms the external feature
-space.} Per-head orthogonal rotation---simulating KV-Cloak's reversible
-matrix obfuscation---produces a total distributional shift in MP
-features (cloaked-honest vs uncloaked-honest: Wilcoxon signed-rank
-$p = 5.5 \times 10^{-16}$, $n=89$ paired trials). A detector
-calibrated on uncloaked caches cannot operate on cloaked caches.
+\item \textbf{Obfuscation defeats transfer attacks.} Per-head orthogonal
+rotation---simulating KV-Cloak's reversible matrix obfuscation---produces
+a total distributional shift in MP features (cloaked-honest vs
+uncloaked-honest: Wilcoxon signed-rank $p = 5.5 \times 10^{-16}$,
+$n=89$ paired trials). A detector calibrated on uncloaked caches cannot
+operate on cloaked caches. This is a domain-shift effect: rotation
+preserves the underlying geometric structure but changes the coordinate
+system, preventing transfer from uncloaked calibration data. An
+adversary with access to the obfuscation key could retrain and recover
+the signal.
 
 \item \textbf{Models are robust to random perturbation.} Magnitude-based
 attacks (random-direction injection at steering-vector norm) produce
@@ -95,13 +99,17 @@ Oracle Loop provides misalignment detection and correction; KV-Cloak
 prevents external adversaries from weaponizing the same geometric
 methods. Together, they address the dual-use risk inherent in publishing
 cache-geometry techniques. A direct implementation of KV-Cloak's
-mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$) degrades the
-strongest detection feature (spectral gap) from 0.903 to 0.614---near
-chance---confirming that the defense is stronger than our initial
-orthogonal-rotation simulation (0.786) suggested. We discuss limitations
-including small sample size ($n=7$ confabulations on the distilled
-model), marginal cache-vs-text added value, reliance on TEE hardware
-trust assumptions, and underpowered injection testing.
+mechanism ($S \cdot \hat{P} \cdot (K + A) \cdot M$) degrades
+spectral gap detection from 0.903 to 0.614 via $\sigma_1$ perturbation
+from the additive mask, while top-SV excess increases (0.609 to 0.736)
+under the same mechanism---both are mask-on-$\sigma_1$ effects, not
+evidence of geometric destruction.
+The rotation-simulation result (0.786) represents
+transfer-attack failure (domain shift under coordinate change), not
+signal degradation. We discuss limitations including small sample size
+($n=7$ confabulations on the distilled model, making the 0.903 baseline
+itself exploratory), marginal cache-vs-text added value, reliance on TEE
+hardware trust assumptions, and underpowered injection testing.
 
 \end{abstract}
 
@@ -365,12 +373,13 @@ norm\_per\_token & 0.598 [.51,.77] & 0.598 [.51,.77] & 0.673 [.52,.85] \\
 \end{tabular}
 \end{table}
 
-The real KV-Cloak mechanism degrades spectral gap detection more than
-the simulation (0.614 vs 0.786), confirming that per-head orthogonal
-rotation alone \emph{understates} the defense. The additive mask $A$
-and per-block permutation $\hat{P}$ contribute additional disruption
-beyond what rotation provides. The simulation was conservative: the
-actual defense is stronger than we initially reported.
+The real KV-Cloak mechanism produces a larger AUROC drop for spectral
+gap than rotation alone (0.614 vs 0.786). Per-head rotation is a
+coordinate change that prevents transfer from uncloaked calibration
+data; the additive mask $A$ additionally perturbs $\sigma_1$-dependent
+features. Both degrade a transfer attack---a detector calibrated on
+uncloaked caches applied to cloaked caches---rather than destroying the
+underlying geometric signal.
 
 The anomalous increase in top\_sv\_excess (0.609 $\to$ 0.736) under
 real KV-Cloak reflects additive-mask-induced structure: the mask $A$

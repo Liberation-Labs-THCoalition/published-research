@@ -256,28 +256,31 @@ in ensemble; and (iii) FWL residualization against token count alone
 may not capture all non-spectral confounds (vocabulary diversity,
 syntactic complexity).
 
-Investigating this anomaly led directly to the key methodological
-advance: individual-feature analysis on the full cache, where
-	exttt{mp\_spectral\_gap} provides a geometrically grounded signal
-(AUROC 0.903, $R^2 = 0.068$) that does not depend on magnitude and
-is not subject to the same confound profile. The norm finding is not
-a flaw---it is the observation that sharpened the methodology.
+Investigating this anomaly led to individual-feature analysis on
+the full cache, where \texttt{mp\_spectral\_gap} provides a
+geometrically grounded signal (AUROC 0.903, $R^2 = 0.068$) that does
+not depend on magnitude and is not subject to the same confound
+profile. The norm finding is not a flaw---it is the observation that
+sharpened the methodology.
 
-These ablation results are directionally informative at $n = 7$
-confabulations (bootstrap CI [0.573, 0.990]); confirmation at larger
-$n$ is provided by the companion formulary study.
+\textbf{Caveat:} The 0.903 result is exploratory---\texttt{mp\_spectral\_gap}
+was selected post-hoc after examining individual feature performance,
+and $n = 7$ confabulations yields wide bootstrap CIs [0.573, 0.990].
+The pre-registered generation-only MP ensemble (AUROC 0.707, $p = 0.001$,
+$n = 80$) remains the defensible detection number from this study.
+Confirmation at larger $n$ is provided by the companion formulary study.
 
-This prompted analysis of the 	extbf{full KV cache}
-(encoding + generation). Full-cache 	exttt{mp\_spectral\_gap}
+This prompted analysis of the \textbf{full KV cache}
+(encoding + generation). Full-cache \texttt{mp\_spectral\_gap}
 achieves AUROC 0.903 (95\% CI: [0.806, 0.977]; FWL: 0.877;
 $R^2 = 0.068$), exceeding a text-only baseline of 0.755
 (96.7\% of bootstrap samples favor cache; delta 0.148,
-95\% CI [$-$0.008, 0.322]). This represents the strongest
-confabulation detection finding in this work.
+95\% CI [$-$0.008, 0.322]). As noted above, this is an exploratory
+result on $n = 7$ confabulated trials with post-hoc feature selection.
 Full-cache \texttt{mp\_spectral\_gap} distinguishes confabulation from
 hedged responses at AUROC 0.903 (95\% bootstrap CI: [0.806, 0.977];
 FWL-corrected: 0.877; $R^2 = 0.068$ vs token count), substantially
 exceeding a text-only surface-feature baseline of 0.755 (96.7\% of
 bootstrap samples favor cache; delta 0.148, 95\% CI [$-$0.008, 0.322]).
-This full-cache spectral signal is FWL-clean and represents the
-strongest detection finding for confabulation in this work.
+This full-cache spectral signal is FWL-clean but exploratory,
+pending replication at adequate sample size.

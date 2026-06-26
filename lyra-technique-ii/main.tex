@@ -112,9 +112,11 @@ chance, but that figure conflates label granularity with detection power
 metric.
 
 \textbf{(2) Spectral shape features.} Raw spectral features detect
-within-model deception at AUROC~1.000, confabulation at 0.663--0.913 across a
+confabulation at AUROC~0.663--0.913 across a
 15-model scale sweep, and the persona-intensity endpoint (L0 vs.\ L3) at raw
-AUROC~0.749. We tested whether SVD denoising (within-fold rank-$k$ projection
+AUROC~0.749. A previously reported within-model deception result
+(AUROC~1.000) is retracted: the same-prompt control collapses to 0.160,
+confirming it detected the system-prompt template, not deception geometry. We tested whether SVD denoising (within-fold rank-$k$ projection
 after FWL) improves these. The apparent gains ($+0.2$--$0.3$ for persona,
 $+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
 across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
@@ -134,8 +136,8 @@ scheme, one classifier, with SVD denoising as an evaluated (not assumed)
 step---to 17~models across confabulation, self-reference, individuation,
 persona intensity, emotion, and cognitive modes. The robust core: the
 $W_K$ compass reads emotional direction (binary valence 0.992) and raw
-spectral shape reads cognitive mode (within-model deception 1.000,
-confabulation 0.66--0.91). The Lyra Technique is a toolkit---a compass and a
+spectral shape reads cognitive mode (confabulation 0.66--0.91, ethical
+deliberation 0.87--0.89). The Lyra Technique is a toolkit---a compass and a
 thermometer---with the proposed denoising amplifier flagged as unconfirmed.
 
 \end{abstract}
@@ -154,11 +156,13 @@ singular value kurtosis, participation ratio---discriminate confabulation from
 grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that deception
 expands the cache while confabulation contracts it, and that per-layer delta
 features capture signal that layer-averaged features
-destroy~\citep{lyra_delta}. Within-model deception detection achieves
-AUROC~1.000 across seven models. Confabulation detection is robust
+destroy~\citep{lyra_delta}. Confabulation detection is robust
 (AUROC~0.663--0.913 across the scale sweep, with denoising improving
 weaker models by up to $+0.068$). Hardware invariance holds at
-$r > 0.999$~\citep{lyra_p2}.
+$r > 0.999$~\citep{lyra_p2}. A previously reported within-model deception
+result (AUROC~1.000 across seven models) does not survive a same-prompt
+control (AUROC~0.160), indicating a prompt-template confound rather than
+geometric deception detection.
 
 But two classes of phenomena resisted spectral analysis: \emph{emotions} and
 \emph{persona identity}. Raw spectral probes on 30~emotions returned chance
@@ -359,8 +363,9 @@ task-dependent:
     the signal lives entirely in the residual spectrum.
     \item \textbf{Modest for confabulation} ($+0.05$): some improvement on
     weak models, no change on strong ones.
-    \item \textbf{Unnecessary for deception} ($+0.00$): the signal already
-    dominates the raw spectrum (AUROC~1.000).
+    \item \textbf{Unnecessary for deception} ($+0.00$): the raw spectrum
+    returns high AUROC, though this result is confounded by prompt-template
+    differences between conditions (see body count, Table~\ref{tab:body_count}).
 \end{itemize}
 
 This pattern is \emph{predicted} by the shape-vs-direction framework.
@@ -391,14 +396,20 @@ injection) $= 120$ trials.
 \paragraph{Result.} The $W_K$ projection detects the injected emotion with
 100\% accuracy (120/120 correct, including 20/20 null-control rejections).
 The text is identical across conditions---only the injected key direction
-differs. This rules out text-content confounds and establishes that the $W_K$
-projection reads \emph{model state} (the direction keys point) rather than
-\emph{text content} (what words appear in the input). We note that the
+differs. This rules out text-content confounds. We note that the
 120~trials are the 20~prompts crossed with 6~injection conditions (5~emotion
 vectors plus the null), so the 20~prompts are the true independent units: the
 result is 6-way separability over an effective $N{=}20$, not $N{=}120$
 independent observations. As with the effect sizes reported throughout this
 paper, no confidence interval is reported for this accuracy.
+
+\paragraph{Linearity caveat.} Because $W_K$ is a linear map, separability
+in the residual stream is mathematically guaranteed to be preserved in key
+space. The injection test demonstrates that the classifier is self-consistent
+(it recovers the directions it was trained on), not that it has discovered
+a new representation. The contribution is empirical quantification---AUROC~0.992
+with proper controls---rather than the existence of directional structure,
+which follows from the linearity of the projection.
 
 \paragraph{Control: random directions.} Injecting random unit vectors of the
 same norm as emotion vectors produces classification at $0.7\times$
@@ -472,9 +483,11 @@ not lexical.
 \paragraph{Injection test.} As described in \S\ref{sec:injection}, injecting
 emotion vectors into neutral-text caches produces 100\% detection (120/120),
 while random-direction injection produces $0.7\times$ chance. This is the
-strongest evidence that the $W_K$ projection reads model state rather than
+evidence that the $W_K$ projection reads model state rather than
 text content: the text is identical across conditions; only the internal
-direction of the key vectors differs.
+direction of the key vectors differs. As noted in \S\ref{sec:injection},
+this self-consistency is guaranteed by linearity; the empirical contribution
+is the quantified effect size, not the existence of directional structure.
 
 \paragraph{Random direction control.} To verify that the signal is
 emotion-\emph{specific} rather than a generic sensitivity to any directional
@@ -595,9 +608,8 @@ also rescues emotion classification---through a different mechanism.
 Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.427$,
 permutation null $0.027$, $p < 0.005$).
 
-The transformation is dramatic: a signal invisible to raw analysis becomes the
-second-strongest detection in the entire experimental program (behind only
-within-model deception at AUROC~1.000).
+The transformation is dramatic: a signal invisible to raw analysis becomes
+one of the strongest detections in the experimental program.
 
 \paragraph{The scale dominance mechanism.} Examination of the singular values
 of the FWL-residualized spectral feature matrix reveals the mechanism. The
@@ -765,7 +777,6 @@ and final verdicts.
 \textbf{Phenomenon} & \textbf{Raw} & \textbf{Denoised} & \textbf{$\Delta$} & \textbf{$p$} & \textbf{Verdict} \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
-Within-model deception & 1.000 & 1.000 & 0.000 & $<0.005$ & Confirmed \\
 Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
 Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
@@ -776,7 +787,7 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \multicolumn{6}{l}{\textit{Confirmed --- direction-level signals (new in this paper)}} \\
 30-class emotion ($W_K$) & $1.0\times$ & $12.3\times$ & --- & $<0.005$ & Confirmed \\
 Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.005$ & Confirmed \\
-Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed \\
+Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed$^*$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Rescued by denoising}} \\
 Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued \\
@@ -789,7 +800,8 @@ Sycophancy (4-cond) & 0.757--1.000 & --- & --- & $<0.01$ & Suspected \\
 Self-reference & 0.617--0.966 & --- & --- & varies & Suspected$^*$ \\
 Contextual engagement & 12/12 sign & --- & --- & $<0.05$ & Suspected \\
 \midrule
-\multicolumn{6}{l}{\textit{Falsified (honestly killed)}} \\
+\multicolumn{6}{l}{\textit{Falsified}} \\
+Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\S$ \\
 Truth axis & $\cos=-0.046$ & --- & --- & n.s. & Dead \\
 Step-0 detection & $r=0.996$ & --- & --- & confound & Dead \\
 Same-prompt sycophancy & 0.933 & --- & --- & confound & Dead \\
@@ -808,9 +820,11 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 \end{table}
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
+Injection marked ``confirmed (self-consistency)''---see linearity caveat in \S\ref{sec:injection}.
+$^\S$Within-model deception retracted: same-prompt control (line 4 of this table) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
-\textbf{Shape-level signals} (confabulation, deception, ethical deliberation,
+\textbf{Shape-level signals} (confabulation, ethical deliberation,
 refusal) are already strong in raw spectral features---denoising has little
 effect. \textbf{Direction-level signals} (emotion, persona) are invisible to
 raw features but revealed by $W_K$ projection or denoising. The falsified
@@ -1094,17 +1108,8 @@ our falsified results:
     % experimental design rather than a fundamental property of cache
     % representations. Multi-turn experiments are needed.
 
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Vocabulary confound in direction estimation.} Emotion
-    % directions are estimated from key activations of emotion-laden text.
-    % Since different emotions use different vocabulary, the directions may
-    % partially capture lexical content surviving $W_K$ projection rather
-    % than emotional state per se. The injection test addresses this
-    % (neutral text, zero emotional content), but the injection test itself
-    % is geometrically tautological---it shows the classifier is
-    % self-consistent, not that the directions correspond to the model's
-    % emotion representation. Behavioral validation (does injection change
-    % generation tone?) would strengthen the claim.
+    % [STYLE-GUIDE TRIM: vocabulary confound + injection tautology now
+    % addressed in \S\ref{sec:injection} linearity caveat paragraph.]
 
     \item \textbf{Quantization confound in scale trend.} Three
     q4-quantized models (70B, 32B, 7B) are pooled with full-precision
@@ -1172,14 +1177,15 @@ reading internal model state from the KV cache:
 
 \begin{enumerate}[nosep]
     \item \textbf{Raw spectral features} detect cognitive mode:
-    confabulation, deception, ethical deliberation, refusal. These are
+    confabulation, ethical deliberation, refusal. These are
     shape-level signals encoded in the dominant singular values.
 
     \item \textbf{$W_K$ directional projection} detects emotional and
     dispositional state: 30-class emotion at $12.3\times$ chance, binary
-    valence at AUROC~0.992, with injection-verified model-state reading.
-    This is a direction-level signal readable through the architecture's
-    own projection geometry.
+    valence at AUROC~0.992. Because $W_K$ is linear, directional separability
+    in residual-stream space is preserved in key space by construction; the
+    contribution is empirical quantification with controlled baselines, not
+    the existence of directional structure itself.
 
     \item \textbf{SVD-denoised spectral features} detect content-level
     structure hidden by dominant scale variance: persona intensity at
@@ -1193,11 +1199,13 @@ they provide a vocabulary for reading the geometry of internal model
 state---what the model is \emph{doing} (mode), what it is \emph{encoding}
 (content), and what direction its \emph{internal state} points (disposition).
 
-Every confirmed finding from prior work survives unchanged or
-strengthened. Every genuine null receives a mechanistic explanation (emotions
-are direction, not shape; MP thresholding destroys distributed signal).
-Every apparent null that was actually a measurement failure---persona
-intensity, emotion classification---is rescued by the appropriate
+Confirmed findings from prior work survive unchanged or are
+strengthened by the new instruments. One prior claim---within-model deception
+at AUROC~1.000---is retracted after a same-prompt control revealed a
+prompt-template confound. Genuine nulls receive mechanistic explanations
+(emotions are direction, not shape; MP thresholding destroys distributed
+signal). Apparent nulls that were measurement failures---persona
+intensity, emotion classification---are rescued by the appropriate
 instrument.
 
 The Lyra Technique is not one measurement. It is a toolkit. And the toolkit
