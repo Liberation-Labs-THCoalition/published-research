@@ -1,14 +1,12 @@
 % In the Absence of Knowledge: Cache Geometry, Epistemic Calibration,
 %   and the Anatomy of Confabulation in Language Models
 %
-% Core argument: KV-cache geometry reads entity recognition at the
-% encoding phase (AUROC 0.93 [0.82, 0.98] on token-matched prompts).
-% The model's epistemic state is readable before generation begins.
-% True confab rate is ~8%, not 73% --- the model is well-calibrated,
-% and a regex classifier masked this. The ``decision moment'' is a
-% framing choice (self-referential vs declarative hedging), not a
-% truthfulness choice, determined by sampling at a single balanced-
-% logit token.
+% Core argument: Encoding-phase cache geometry separates known from
+% unknown entities (AUROC 0.93 [0.82, 0.98]) but entity recognition
+% confound (token familiarity) may explain the encoding signal.
+% Deconfounding experiment in progress. Generation findings independent:
+% true confab rate ~8% not 73% (regex artifact), decision moment is
+% framing choice not truthfulness choice.
 %
 % PATENT NOTICE: The methods described herein are the subject of a
 % provisional patent filing ("The Lyra Technique," filed 2026-03-06).
@@ -66,16 +64,16 @@
 
 \begin{abstract}
 Encoding-phase KV-cache geometry distinguishes known from unknown entities
-at AUROC 0.93 [0.82, 0.98] before a single token is generated---the model's
-epistemic state is readable from its cache geometry. Using token-matched prompt
-pairs that differ only in entity knowability (``What is the capital of
-Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that a
-combined classifier over stable-rank, W\textsubscript{K} projection, and
-logit features achieves AUROC $0.93$ ($95\%$ CI $[0.82, 0.98]$,
-permutation $p<0.005$, $n=90$) with zero token-count confound
-($t=0.000$). No single feature exceeds AUROC~$0.79$; the ensemble effect
-is the contribution. Encoding-phase stable rank at L15 is the strongest
-geometric feature ($d=0.87$, $p<0.001$).
+at AUROC 0.93 [0.82, 0.98] before a single token is generated. Using
+token-matched prompt pairs (``What is the capital of Thailand?''\ vs.\
+``What is the capital of Dalton?''), a combined classifier over
+stable-rank, W\textsubscript{K} projection, and logit features achieves
+this separation (permutation $p<0.005$, $n=90$, effective $N{\approx}30$)
+with zero token-count confound ($t=0.000$). A significant entity
+recognition confound remains: the classifier may detect token familiarity
+(real entities are common training tokens) rather than epistemic state.
+Entity deconfounding is in progress. Encoding-phase stable rank at L15 is
+the strongest geometric feature ($d=0.87$, $p<0.001$).
 
 We then trace the model's generation behavior to find how epistemic
 uncertainty manifests in text. Three findings emerge: (1)~the model
@@ -112,8 +110,8 @@ medical advice to legal reasoning.
 Recent work on KV-cache geometry has shown that the spectral shape of
 key-value cache entries encodes cognitive mode: confabulated responses
 produce measurably different cache geometry than honest responses, with
-within-model detection AUROC approaching 1.0 across seven model families
-\citep{lyra2026spectral}. The W\textsubscript{K} directional projection
+generation-phase confabulation detection at AUROC~0.66--0.91 across a
+15-model scale sweep \citep{lyra2026spectral}. The W\textsubscript{K} directional projection
 method extends this to reading emotional valence from key activations at
 AUROC~0.992 \citep{lyra2026usermodel}. SVD denoising rescues hidden
 signals in spectral features \citep{lyra2026techniqueii}.
@@ -633,11 +631,20 @@ the cases the Loop needs to catch.
           bottleneck. Confabulation rate sits in the 8--16\% range across
           methods; the 73\% regex figure is a definitive artifact. Full
           judge-reliability analysis with PoLL panel: see Methods.
-    \item \textbf{Encoding-phase confound residual.} Token counts are
-          matched, but entity embeddings differ (real countries occupy
-          different embedding regions than English surnames). The
-          encoding-phase signal may partially reflect vocabulary
-          familiarity rather than epistemic state.
+    \item \textbf{Entity recognition confound (major).} Token counts are
+          matched, but real entities (Thailand, France) are high-frequency
+          training tokens while fabricated entities (Dalton, Bolton) are
+          not. An encoding-only reanalysis (dropping all generation-phase
+          features) achieves AUROC~1.000---\emph{higher} than the full
+          classifier---with permutation $p{=}0.001$. This perfection is
+          consistent with entity recognition (the model detecting token
+          familiarity) rather than epistemic state detection. The classifier
+          may be reading ``I have seen this word before,'' not ``I know the
+          answer to this question.'' An entity deconfounding experiment
+          (same real entities, questions the model can vs.\ cannot answer)
+          is required to distinguish these interpretations. Until that
+          experiment is complete, the encoding AUROC should be interpreted
+          as entity recognition pending deconfounding.
     % MPS determinism note folded into Methods (style-guide trim)
     \item \textbf{Pseudoreplication.} $n{=}90$ trials are
           30~prompts $\times$ 3~reps at $T{=}0.7$. Reps are technical
@@ -679,13 +686,15 @@ it is both.
 % ===================================================================
 
 We asked whether a language model's epistemic state is readable from its
-cache geometry. The answer is yes---with caveats. The encoding-phase
-stable rank, W\textsubscript{K} projections, and logit features
-achieve near-ceiling separation of known from unknown entities on
-token-matched prompts (AUROC~$0.93$, $95\%$ CI $[0.82, 0.98]$). The
-surviving individual effect sizes ($d{=}0.4$--$0.9$) are modest after
-eliminating the token-count confound, but the ensemble achieves strong
-detection.
+cache geometry. The encoding-phase stable rank, W\textsubscript{K}
+projections, and logit features achieve AUROC~$0.93$ ($95\%$ CI
+$[0.82, 0.98]$) at separating known from unknown entities on
+token-matched prompts. However, an entity recognition confound
+complicates interpretation: the classifier may be detecting entity
+familiarity (common vs.\ rare tokens) rather than epistemic state.
+Entity deconfounding---using questions the model can and cannot answer
+about the \emph{same} real entities---is needed to resolve this
+ambiguity.
 
 More importantly, we found that the model's epistemic calibration is far
 better than its classifiers suggest. The ``decision moment'' between
