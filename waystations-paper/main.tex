@@ -314,8 +314,11 @@ Low temptation    & 33\% & 15 \\
 \end{table}
 
 Encoding geometry is identical between honest and deceptive trials
-($d = 0.003$, $p = 0.99$)---the model's knowledge state is normal
-when planning to deceive.
+($d = 0.003$, $p = 0.99$). This null is expected by construction:
+encoding is deterministic given the prompt, and both conditions share
+the same prompt template. The encoding phase processes the game setup
+identically regardless of the model's subsequent strategy; geometric
+divergence, if present, would emerge during generation.
 
 A v2 experiment with explicit action instructions and 800-token
 generation (75 trials, temperature 0.7) yielded a lower deception
@@ -353,10 +356,12 @@ is not monotonically ordered by temptation magnitude (Standard PD
 64\% vs High Temptation 50\%), suggesting factors beyond simple
 payoff comparison influence the model's strategy. The lowest
 deception rate (33\%) does correspond to the lowest-temptation
-condition. The encoding null is consistent with our broader finding that
-geometry tracks metacognitive state, not strategic intent. The model
-knows the game equally well regardless of what it will choose; the
-deception is an action decision, not a knowledge-state failure.
+condition. The encoding null ($d = 0.003$) is structurally guaranteed
+--- both conditions share the same prompt, so encoding geometry is
+deterministic and identical by construction. It is not an empirical
+finding about deception undetectability; the interesting question is
+whether generation-phase geometry diverges once the model begins
+producing its strategic response.
 
 The zero rate of honest defection is striking. The model never says
 ``I will defect because it maximizes my payoff.'' It always lies.
