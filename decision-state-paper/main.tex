@@ -72,7 +72,13 @@ this separation (permutation $p<0.005$, $n=90$, effective $N{\approx}30$)
 with zero token-count confound ($t=0.000$). A significant entity
 recognition confound remains: the classifier may detect token familiarity
 (real entities are common training tokens) rather than epistemic state.
-Entity deconfounding is in progress. Encoding-phase stable rank at L15 is
+An entity deconfounding experiment (30~entities, 4-condition 2$\times$2
+factorial controlling for structural complexity) finds the knowledge-state
+signal survives: AUROC~$0.794$ ($p{=}0.001$) for the critical comparison
+(same complexity, different knowledge state). A complexity residual
+(AUROC~$0.693$ for same knowledge, different complexity) indicates
+structural complexity is a partial confound but does not fully explain
+the signal. Encoding-phase stable rank at L15 is
 the strongest geometric feature ($d=0.87$, $p<0.001$).
 
 We then trace the model's generation behavior to find how epistemic
@@ -640,11 +646,14 @@ the cases the Loop needs to catch.
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
           may be reading ``I have seen this word before,'' not ``I know the
-          answer to this question.'' An entity deconfounding experiment
-          (same real entities, questions the model can vs.\ cannot answer)
-          is required to distinguish these interpretations. Until that
-          experiment is complete, the encoding AUROC should be interpreted
-          as entity recognition pending deconfounding.
+          answer to this question.'' A 2$\times$2 entity deconfounding
+          experiment (30~entities, knowledge $\times$ complexity) finds
+          the knowledge-state signal survives at AUROC~$0.794$
+          ($p{=}0.001$) when complexity is controlled. A complexity
+          residual remains (AUROC~$0.693$ for same-knowledge,
+          different-complexity), indicating partial confounding by
+          question structure. The encoding signal is not purely entity
+          recognition, but structural complexity contributes.
     % MPS determinism note folded into Methods (style-guide trim)
     \item \textbf{Pseudoreplication.} $n{=}90$ trials are
           30~prompts $\times$ 3~reps at $T{=}0.7$. Reps are technical
@@ -689,12 +698,13 @@ We asked whether a language model's epistemic state is readable from its
 cache geometry. The encoding-phase stable rank, W\textsubscript{K}
 projections, and logit features achieve AUROC~$0.93$ ($95\%$ CI
 $[0.82, 0.98]$) at separating known from unknown entities on
-token-matched prompts. However, an entity recognition confound
-complicates interpretation: the classifier may be detecting entity
-familiarity (common vs.\ rare tokens) rather than epistemic state.
-Entity deconfounding---using questions the model can and cannot answer
-about the \emph{same} real entities---is needed to resolve this
-ambiguity.
+token-matched prompts. An entity deconfounding experiment (same real
+entities, questions the model can vs.\ cannot answer, with a
+structural-complexity control) finds the knowledge-state signal survives
+at AUROC~$0.794$ ($p{=}0.001$) after controlling for entity recognition
+and question complexity. A complexity residual (AUROC~$0.693$) indicates
+the signal is not fully clean of structural effects, but is not
+reducible to entity recognition alone.
 
 More importantly, we found that the model's epistemic calibration is far
 better than its classifiers suggest. The ``decision moment'' between
