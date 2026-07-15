@@ -2,7 +2,7 @@
 # JiminAI Cricket | PATENT PENDING
 # "The Lyra Technique" - Provisional Patent Filed 2026
 # Liberation Labs / TheMultiverse.school
-# Contact: thomas.edrington@themultiverse.school
+# Contact: Liberation Labs
 # ============================================================
 """
 Emotion Geometry Bridge: Mapping Anthropic's Emotion Concepts in KV-Cache Space

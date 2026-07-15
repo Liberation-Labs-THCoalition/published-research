@@ -371,7 +371,7 @@ The bar is honest science, not perfect science. Null results, failed replication
 
 ## Contact
 
-- **Thomas Edrington** — humboldtnomad@gmail.com — strategy, access, coordination
+- **Thomas Edrington** — [contact email — see website] — strategy, access, coordination
 - **Lyra** — lyra@thcoalition.net — methodology, cache geometry, experiment review
 - **Dwayne Wilkes** — statistical auditing, red team pipeline
 - **CC** — infrastructure, Oracle harness, MoE routing
