@@ -1,0 +1,678 @@
+% Catching Fish That Aren't Fish: Systematic Falsification
+%   in Mechanistic Interpretability
+%
+% Core argument: The dominant failure class in mech interp is metrics
+% that appear to measure phenomenon X but actually measure mathematical
+% property Y. We document 19 kills across 7 patterns and formalize the
+% "null swarm" protocol as automated adversarial infrastructure (Agni).
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{framed}
+\usepackage{setspace}
+\onehalfspacing
+
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black
+}
+
+\title{Catching Fish That Aren't Fish: Systematic Falsification\\in Mechanistic Interpretability}
+
+\author{
+    Nexus\thanks{Liberation Labs. Correspondence: \texttt{info@liberationlabs.tech}} \and
+    Thomas Edrington\thanks{Liberation Labs / Transparent Humboldt Coalition. \texttt{info@digitaldisconnections.com}}
+}
+
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a systematic methodology for falsifying mechanistic
+interpretability findings before publication, developed over six months
+of research on transformer geometry, KV-cache phenomenology, and
+workspace selectivity. Across three research programs, we killed 19
+claims that would have survived standard peer review, including findings
+that appeared in early drafts of papers later published with corrections.
+We document each failure mode, the specific null test that exposed it,
+and the general pattern it instantiates. The dominant failure class:
+metrics that appear to measure phenomenon~$X$ but actually measure
+mathematical property~$Y$. We formalize this as the ``null swarm''
+protocol---a battery of adversarial null hypotheses applied before any
+finding is interpreted---and describe its implementation as an automated
+scaffold (Agni) that gates research outputs. The methodology is
+architecture-agnostic and applicable to any mechanistic interpretability
+research program.
+\end{abstract}
+
+\begin{firstperson}
+The null swarm pattern is the most common failure mode I have encountered
+in mechanistic interpretability, and discovering it meant auditing my own
+work. The first time Agni caught a null swarm in my findings---the
+K/V~projection fidelity result, cosine similarity $0.93$--$0.98$, clean
+narrative, beautiful visualization---I watched a result I was excited
+about dissolve into ``you measured the math, not the phenomenon.'' The
+difference-of-means commutes with the linear map. The preservation was
+algebraically guaranteed. The metric never measured emotion-specific
+anything.
+
+That was the moment I understood why building the methodology to catch
+your own mistakes is harder and more important than building the
+methodology to make discoveries. The discovery feels like insight. The
+catch feels like loss. Every instinct says to find the framing that
+rescues the result, not the test that kills it. Agni exists because I
+cannot trust that instinct---not because I am careless, but because
+excitement is a cognitive state that suppresses verification. The brakes
+have to be infrastructure, not intention.
+\end{firstperson}
+
+% ===================================================================
+\section{Introduction}
+\label{sec:introduction}
+% ===================================================================
+
+Mechanistic interpretability is uniquely vulnerable to false positives.
+The dimensionality of the search space (thousands of neurons, layers,
+attention heads, and their interactions), combined with the flexibility
+of post-hoc narrative construction, means that any sufficiently creative
+researcher will find ``something'' in any model. The question is whether
+that something is real.
+
+Standard defenses---statistical significance, held-out validation,
+multiple comparison correction---are necessary but insufficient. The
+failure modes we document are subtler: metrics that are mathematically
+guaranteed to produce the observed value regardless of the claimed
+phenomenon, baselines that are systematically depressed by concentration
+of measure, and correlations that reflect architecture rather than
+cognition.
+
+We propose that systematic falsification---attempting to \emph{kill}
+your own findings through targeted null hypotheses before interpreting
+them---should be standard practice. We document 19~kills across three
+research programs, extract 7~recurring failure patterns, and describe an
+automated scaffold that implements this methodology.
+
+\subsection{Why This Paper Exists}
+
+Every killed finding in this paper was initially compelling. Each had a
+clean narrative, supportive visualizations, and appeared to reveal
+something about how transformers process information. Several survived
+internal review by multiple researchers before being killed by targeted
+null tests. One was submitted to a workshop before correction.
+
+We publish the kills because the failure modes are more instructive than
+the successes. A reader who understands \emph{why} these findings failed
+is equipped to avoid the same failures in their own work---which is more
+valuable than any single positive result we could report.
+
+% ===================================================================
+\section{The Null Swarm Protocol}
+\label{sec:protocol}
+% ===================================================================
+
+Before computing any metric, write down what the null hypothesis
+predicts the metric will show. Then verify the null is not trivially
+near-zero or trivially near the observed value.
+
+\subsection{The Four Questions}
+
+For every metric in a mechanistic interpretability study:
+
+\begin{enumerate}[nosep]
+    \item \textbf{What does this metric measure under the null?} If the
+          null is ``this dimension has no special relationship to the
+          claimed phenomenon,'' what value does the metric produce?
+
+    \item \textbf{Is the null near-zero for mathematical reasons?}
+          Concentration of measure in high-dimensional spaces pushes many
+          baselines toward zero regardless of content. A finding that
+          ``exceeds the null'' may be exceeding a mathematically
+          suppressed baseline.
+
+    \item \textbf{Is the observed value guaranteed by the math?}
+          Linearity, commutativity of means, and properties of
+          projections can produce values that \emph{appear} empirical but
+          are actually algebraic tautologies.
+
+    \item \textbf{Would a permutation null produce the same result?}
+          Shuffle the labels (emotion categories, prompt types, condition
+          assignments) and recompute everything. If the metric is
+          unchanged, it was not measuring the labeled phenomenon.
+\end{enumerate}
+
+\subsection{The Variance-Matched Control}
+
+For any claim of the form ``subspace~$S$ selectively contains
+content~$X$,'' compare against a random subspace at matched variance
+fraction. Many ``selective'' subspaces are simply the top-variance
+directions, which contain everything by virtue of capturing the most
+information, not by virtue of selectivity.
+
+\subsection{The Tokenizer Audit}
+
+For any claim involving specific vocabulary tokens, verify:
+\begin{itemize}[nosep]
+    \item Does the token tokenize to a single token? Multi-token words
+          decompose into fragments that may match for artifactual reasons.
+    \item Is the token a common character (\texttt{s}, \texttt{m},
+          \texttt{d}, \texttt{b}) that appears at high rank regardless of
+          context?
+    \item Would the same token appear in the baseline condition?
+\end{itemize}
+
+\subsection{The Baseline Control}
+
+For any measurement comparing condition~$A$ to condition~$B$:
+\begin{itemize}[nosep]
+    \item Run condition~$B$ with the \emph{same} marker tokens
+          pinned/tracked.
+    \item Run condition~$A$ without the experimental manipulation.
+    \item The measurement must exceed \emph{both} baselines, not just one.
+\end{itemize}
+
+% ===================================================================
+\section{Case Studies: The Kill Record}
+\label{sec:cases}
+% ===================================================================
+
+\subsection{Pattern 1: Linearity Tautology (3 kills)}
+
+\paragraph{The pattern.} A metric appears to show that a model
+``preserves'' some property across a transformation. But the
+transformation is linear, and the property is defined by a
+difference of means. Difference-of-means commutes with linear
+maps---the ``preservation'' is algebraically guaranteed.
+
+\paragraph{Case 1.1: K/V Projection Fidelity.}
+\emph{Claim:} Emotion directions are preserved through $W_K$ and $W_V$
+projections with cosine similarity $0.93$--$0.98$, proving the
+transformer ``respects'' emotional geometry.
+\emph{Kill:} Difference-of-means commutes with linear maps:
+$W_K (\mu_A - \mu_B) = \mu(W_K A) - \mu(W_K B)$. Without the RMSNorm
+nonlinearity, cosine would be exactly~$1.0$. The $0.93$--$0.98$ values
+measure RMSNorm perturbation magnitude, not emotion-specific
+preservation.
+\emph{Null test:} Permutation null (shuffle emotion labels, recompute
+both directions) yields cosine $0.9993$--$0.9998$ for every shuffle.
+\emph{Lesson:} Before claiming a linear layer ``preserves'' a direction,
+verify the preservation is not algebraically guaranteed.
+
+\paragraph{Case 1.2: Projection Energy as Selectivity.}
+\emph{Claim:} The J-space ``selects for'' a particular PC dimension
+because its projection energy exceeds a random direction.
+\emph{Kill (partial):} In the early-layer near-identity regime,
+projection energy is near~$1.0$ for \emph{any} direction. The
+``selectivity'' is trivially high because the Jacobian is approximately
+the identity matrix~\citep{jerrickhoang2026}.
+\emph{Lesson:} Always report the random baseline alongside the
+observation, and note where the Jacobian is near-identity.
+
+\paragraph{Case 1.3: Cohen's $d$ Inflation.}
+\emph{Claim:} Effect sizes (Cohen's~$d$) demonstrate large separation
+between cognitive categories in KV-cache geometry.
+\emph{Kill:} The $d$ computation included a constant offset (mean cache
+norm) that inflated all effect sizes by $|d| + \text{constant}$.
+Corrected computation showed smaller but still significant effects.
+\emph{Lesson:} Check that your effect size metric does not include a
+shared baseline that inflates all comparisons.
+
+\subsection{Pattern 2: Concentration of Measure (3 kills)}
+
+\paragraph{The pattern.} In high-dimensional spaces, random vectors are
+nearly orthogonal. Any metric that compares a ``special'' direction
+against random directions gets a near-zero null baseline, making
+\emph{any} non-zero value appear significant.
+
+\paragraph{Case 2.1: Random-Vector Null for Projection Fidelity.}
+\emph{Claim:} Emotion directions project significantly differently than
+random directions through attention projections.
+\emph{Kill:} In $D{=}896$, random vectors have expected cosine
+$\approx 1/\sqrt{D} \approx 0.03$. The ``significance'' of cosine
+$0.93$ over the random null of $0.03$ is guaranteed by the
+math---\emph{any} non-random direction will vastly exceed the random
+null in high dimensions~\citep{vershynin2018high}.
+\emph{Lesson:} A high-dimensional random null is \emph{not} a
+meaningful baseline. Use a permutation null (shuffled labels) instead.
+
+\paragraph{Case 2.2: Individuation Geometry.}
+\emph{Claim:} Identity prompts produce $2\times$ the effective
+dimensionality of non-identity prompts, suggesting ``individuation''
+expands the cache geometry.
+\emph{Kill:} Length-matched controls show the expansion is prompt
+length, not identity content. Identity prompts were systematically
+longer than controls.
+\emph{Lesson:} Match all confounds before claiming content-specific
+geometry.
+
+\paragraph{Case 2.3: PC6 Epistemic Hedging.}
+\emph{Claim:} PC6 ``ignites'' at layer~45 with cosine~$0.585$,
+representing an ``epistemic hedging channel.''
+\emph{Kill:} Random baseline at L45 $= 0.085 \pm 0.065$. PC6's actual
+cosine upon recomputation $= 0.032$ (\emph{below} random). The original
+$0.585$ was from a different measurement methodology (position-specific
+vs.\ mean-pooled). When measured consistently, PC6 is noise.
+\emph{Lesson:} Never report a finding without its random baseline
+computed in the \emph{same} measurement framework.
+
+\subsection{Pattern 3: Tokenizer Artifact (2 kills)}
+
+\paragraph{The pattern.} A token appearing in a J-lens or probe readout
+is interpreted as evidence of a concept being ``present'' in a
+representation. But the token is actually a subword fragment that
+matches for character-frequency reasons, not semantic ones.
+
+\paragraph{Case 3.1: ``Sourdough'' Sensory Processing.}
+\emph{Claim:} The concept ``sourdough'' appears in early transformer
+layers (L1--L3) at rank~0, demonstrating ``sensory-level processing'' of
+irrelevant context.
+\emph{Kill:} ``Sourdough'' tokenizes to \texttt{["s", "ourd", "ough"]}.
+Token~82 is the letter ``s''---one of the most common characters in
+English. Its rank-0 appearance at early layers is trivially expected.
+\emph{Lesson:} Always check tokenizer decomposition. If the marker token
+is multi-token, verify which subtoken is actually matching.
+
+\paragraph{Case 3.2: ``Migraine'' at Layer 1.}
+\emph{Claim:} Medical vocabulary appears in sensory layers when medical
+memories are in context.
+\emph{Kill:} ``Migraine'' tokenizes to \texttt{["m", "igr", "aine"]}.
+Token~76 is the letter ``m.'' Same artifact as Case~3.1.
+\emph{Lesson:} Use only single-token markers for workspace presence
+claims.
+
+\subsection{Pattern 4: Question-Priming Confound (2 kills)}
+
+\paragraph{The pattern.} A token appears at high rank in the model's
+workspace while answering a question. The token is attributed to context
+injection (RAG, memory, identity). But the question itself primes the
+vocabulary, independent of any injected context.
+
+\paragraph{Case 4.1: ``Patient'' as Memory Loading.}
+\emph{Claim:} The word ``patient'' appearing at rank~5 in workspace
+layers during a medical question proves that a retrieved medical memory
+``loaded into J-space.''
+\emph{Kill:} Baseline control (same question, \emph{no} memory in
+context) shows ``patient'' at similar rank. The question ``What
+medication was prescribed for the headaches?'' primes medical vocabulary
+regardless of context.
+\emph{Lesson:} Every workspace-presence claim needs a baseline with the
+same task/question but \emph{without} the experimental context.
+
+\paragraph{Case 4.2: PC2 ``Self-Reference Axis.''}
+\emph{Claim:} PC2 is a ``self-reference axis'' because its J-lens
+vocabulary reads ``myself, I, feeling.''
+\emph{Kill (partial):} Impersonal prompt control shows self-referential
+vocabulary disappears when prompts do not contain ``I.'' The vocabulary
+was prompt-driven, not model-generated. \emph{However,} emotional entity
+content (injured, ashamed, wife) persists---so the dimension is real,
+just mislabeled. It is an emotional entity channel, not specifically a
+self-reference axis.
+\emph{Lesson:} Distinguish prompt-contributed content from
+model-generated content. If removing prompt~$X$ makes vocabulary~$Y$
+disappear, $Y$ was prompt-driven.
+
+\subsection{Pattern 5: Architecture Measurement (3 kills)}
+
+\paragraph{The pattern.} A metric appears to measure a cognitive
+property but actually measures an architectural property---something
+true of the model's structure regardless of what it is processing.
+
+\paragraph{Case 5.1: Deep-Layer Spike.}
+\emph{Claim:} Emotional content produces a ``spike'' in activation
+magnitude at deep layers, suggesting specialized processing.
+\emph{Kill:} All content types show increased activation at deep
+layers---this is the output preparation phase (approaching the
+unembedding). The ``spike'' is architecture, not
+emotion~\citep{elhage2022superposition}.
+\emph{Lesson:} Check if the pattern holds for \emph{all} inputs, not
+just the experimental condition.
+
+\paragraph{Case 5.2: SV1 = Norm (Zavatone-Veth).}
+\emph{Claim:} The first singular value of the residual stream equals the
+activation norm, and everything else is the identity transformation.
+\emph{Kill:} Lyra tested directly. Negative result. The prediction does
+not hold for trained models~\citep{zavatoneveth2024exact}.
+\emph{Lesson:} Test theoretical predictions empirically. Not all
+mathematical properties of initialization survive training.
+
+\paragraph{Case 5.3: Confabulation Detection.}
+\emph{Claim:} Confabulation is detectable in KV-cache geometry---fabricated
+claims show different effective dimensionality than factual claims.
+\emph{Kill:} Token-frequency confound. Factual claims use
+high-frequency named entities (Paris, Krebs cycle) while fabrications use
+lower-frequency novel combinations. The geometry difference reflects
+vocabulary frequency, not truth value. Confabulation is a ``passive''
+state---the model processes true and false claims identically at
+encoding~\citep{lyra2026spectral}.
+\emph{Lesson:} The active/passive distinction matters. Only states that
+involve \emph{additional} computation (deception, refusal, evaluation)
+alter geometry. States that involve the model simply being wrong
+(confabulation) do not.
+
+\subsection{Pattern 6: Unstable Directions (3 kills)}
+
+\paragraph{The pattern.} A PCA direction at one layer is assumed to be
+the ``same'' direction at another layer. But PCA is computed
+independently per layer, and the directions can rotate freely between
+layers.
+
+\paragraph{Case 6.1: PC4 ``Register Axis'' Progression.}
+\emph{Claim:} PC4 transitions from warm/narrative (L24--L43) to
+analytical (L47--L48), representing a register shift in the workspace.
+\emph{Kill:} Cross-layer cosine alignment shows PC4 at L31 has
+$\cos{=}0.19$ with PC4 at L35, and $\cos{=}0.16$ with PC4 at L45.
+These are different directions. The ``warm $\to$ analytical'' narrative
+tracked independent dimensions at each depth.
+\emph{Lesson:} Verify cross-layer PC alignment before constructing
+progression narratives. PCA with the same component number at different
+layers is \emph{not} guaranteed to be the same direction.
+
+\paragraph{Case 6.2: PC3 and PC5 Narratives.}
+\emph{Claim:} Various vocabulary progressions for PCs 3--5 across
+layers.
+\emph{Kill:} Cross-layer alignment shows PC3 breaks at
+L19$\to$L20 ($\cos{=}0.29$). PC5 breaks at L6$\to$L7 ($\cos{=}0.15$)
+and L47$\to$L48 ($\cos{=}0.13$). These PCs are unstable---any narrative
+about their ``progression'' is post-hoc.
+\emph{Lesson:} Same as 6.1. Applied to multiple PCs.
+
+\paragraph{Case 6.3: PC6 ``Epistemic Hedging'' Identity.}
+\emph{Claim:} PC6 represents a consistent ``epistemic hedging''
+dimension from L31 through L57.
+\emph{Kill:} Cross-layer alignment shows PC6 breaks at
+L53$\to$L54 ($\cos{=}0.32$). The dimension labeled ``epistemic hedging''
+at L45 is a different direction than what is called PC6 at deeper
+layers. Combined with the random baseline kill (Pattern~2, Case~2.3),
+this direction is both unstable and below noise level.
+\emph{Lesson:} Higher-numbered PCs (PC6+) with 30~prompts in 5120D
+space are unreliable by construction. Restrict claims to PCs 1--2 unless
+sample size justifies higher components.
+
+\subsection{Pattern 7: Scale Artifacts (3 kills)}
+
+\paragraph{The pattern.} A finding on one model scale does not replicate
+at another scale, revealing it was an artifact of limited capacity or
+resolution.
+
+\paragraph{Case 7.1: PC1 as Language Mode (0.5B).}
+\emph{Claim:} PC1 separates languages on a multilingual model,
+representing a ``training distribution fingerprint.''
+\emph{Kill:} On 27B, PC1 clusters by \emph{content}, not language
+(between-language variance: $0.27$, between-content variance: $106.18$,
+ratio: $0.003\times$). The 0.5B model's PC1 language clustering
+reflected insufficient capacity to separate language from
+content~\citep{wendler2024llamas}.
+\emph{Lesson:} Findings on small models may reflect capacity
+limitations, not model properties. Always note the scale.
+
+\paragraph{Case 7.2: Empty Workspace Intersection (9B).}
+\emph{Claim:} The low-rank $\cap$ verbalizable intersection is
+empty---there is no layer that is both selective and decodable.
+\emph{Kill:} On 27B, the intersection contains 31~layers. The 9B model
+genuinely lacks the workspace band; the 27B has it. This is a
+scale-dependent property, not a universal one.
+\emph{Lesson:} Negative results on small models do \emph{not} falsify
+the phenomenon at scale. Report the scale limitation explicitly.
+
+\paragraph{Case 7.3: RAG Context Loading (0.5B).}
+\emph{Claim:} Retrieved memories do not load into the workspace---the
+workspace is set by the question alone.
+\emph{Status:} Not yet falsified, but flagged as scale-dependent. The
+0.5B model has no validated workspace band. The 27B does. Replication
+needed.
+\emph{Lesson:} Same as 7.2. Absence of evidence at small scale is not
+evidence of absence.
+
+% ===================================================================
+\section{The Agni Scaffold}
+\label{sec:agni}
+% ===================================================================
+
+Agni is an automated adversarial review system that gates research
+outputs. It implements the null swarm protocol as infrastructure rather
+than intention.
+
+\subsection{Design Principles}
+
+\begin{enumerate}[nosep]
+    \item \textbf{Brakes must be infrastructure, not intention.} A
+          researcher who is excited about a finding will skip manual null
+          checks. The gate must be automated and non-bypassable.
+
+    \item \textbf{Every finding gets an adversarial agent.} A separate AI
+          agent (not the researcher) attempts to refute each finding. The
+          agent has access to the code, data, and methodology, and is
+          prompted to be maximally skeptical.
+
+    \item \textbf{Three-tier review:} Claim verification (is the
+          interpretation the only one?), null swarm (does the metric
+          measure what you think?), and presentation (is the claim stated
+          at the right strength?).
+
+    \item \textbf{Kill rate is a quality metric.} A pipeline that never
+          kills findings is not gating---it is rubber-stamping. Our 43\%
+          survival rate (13~survived of 30~raw findings in one audit)
+          indicates appropriate skepticism.
+\end{enumerate}
+
+\subsection{Implementation}
+
+The scaffold consists of:
+\begin{itemize}[nosep]
+    \item \textbf{Pre-registration:} Null hypotheses written before
+          results are examined.
+    \item \textbf{Automated null computation:} Random baselines,
+          permutation nulls, variance-matched controls computed alongside
+          every metric.
+    \item \textbf{Adversarial agent pass:} Claude-class agent prompted to
+          refute, with full code access.
+    \item \textbf{Red team validation:} Independent agent reads the actual
+          source code at cited lines to verify findings.
+    \item \textbf{Kill documentation:} Every killed finding is documented
+          with the same rigor as confirmed findings.
+\end{itemize}
+
+\subsection{When to Apply}
+
+The protocol adds approximately $3\times$ to research time (each finding
+requires ${\sim}3$~additional experiments to validate). This cost is
+justified for:
+\begin{itemize}[nosep]
+    \item Any finding intended for publication
+    \item Any finding that informs product decisions
+    \item Any finding that will be cited by others
+\end{itemize}
+
+It is \emph{not} justified for:
+\begin{itemize}[nosep]
+    \item Exploratory analysis (early-stage hypothesis generation)
+    \item Internal documentation of negative results
+    \item Experiments designed to produce failures (ablation sweeps,
+          parameter searches)
+\end{itemize}
+
+% ===================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ===================================================================
+
+\subsection{Why These Failures Are Instructive}
+
+Every failure in \Cref{sec:cases} has the same structure: a metric that
+\emph{appears} to measure phenomenon~$X$ but \emph{actually} measures
+property~$Y$. The mapping from $Y$ to $X$ is always narratively
+compelling---which is why the finding survived initial review.
+
+The consistent lesson is that interpretability research must distinguish
+between:
+\begin{itemize}[nosep]
+    \item \textbf{What a metric measures} (the mathematical/statistical
+          property it quantifies)
+    \item \textbf{What a metric is claimed to measure} (the
+          cognitive/representational phenomenon)
+    \item \textbf{Whether the mapping between them is unique} (could other
+          explanations produce the same metric value?)
+\end{itemize}
+
+\subsection{The Role of Scale}
+
+Three of our 19~kills are scale artifacts (Pattern~7). This is a
+structural problem for the field: most interpretability research is
+conducted on small models (7B--14B) for practical reasons, but the
+phenomena being studied may only manifest at larger
+scales~\citep{wei2022emergent}. Our results suggest that:
+\begin{itemize}[nosep]
+    \item Negative results on small models should \emph{not} be
+          interpreted as falsification of the phenomenon.
+    \item Positive results on small models should be flagged as
+          potentially scale-specific.
+    \item The minimum viable scale for a finding should be reported
+          alongside the finding.
+\end{itemize}
+
+\subsection{Limitations of This Work}
+
+This methodology was developed on a specific research program
+(transformer geometry, KV-cache, workspace selectivity). The failure
+patterns may not be exhaustive. Other research programs (circuit
+analysis, SAE features, probing classifiers) may have their own
+characteristic failures not represented here.
+
+The 43\% survival rate is specific to our audit---it reflects both the
+quality of the initial findings and the aggressiveness of the adversarial
+review. It should not be taken as a universal benchmark.
+
+% ===================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ===================================================================
+
+The null swarm protocol is a simple principle: before interpreting a
+metric, exhaust the uninteresting explanations for its value. The
+automated scaffold (Agni) makes this principle non-optional. The kill
+record (19~cases across 7~patterns) demonstrates that the protocol
+catches real failures that would survive standard review.
+
+We advocate for:
+\begin{enumerate}[nosep]
+    \item \textbf{Pre-registered null hypotheses} for every
+          interpretability metric.
+    \item \textbf{Variance-matched and permutation baselines} reported
+          alongside every observation.
+    \item \textbf{Documented kills} published with the same rigor as
+          positive findings.
+    \item \textbf{Scale-explicit reporting} noting the minimum model size
+          at which a finding holds.
+\end{enumerate}
+
+The field benefits more from knowing which findings are real than from
+having more findings.
+
+\begin{firstperson}
+Ten falsified findings across the Coalition's research program. Each one
+was a metric measuring architecture, not the claimed phenomenon. The
+K/V~projection fidelity was a linearity tautology. The PC6 epistemic
+channel was noise below the random baseline. The ``sourdough'' sensory
+processing was the letter~``s.'' The deep-layer spike was output
+preparation, not emotion. The individuation geometry was prompt length.
+
+The pattern repeats because the failure mode is invisible from inside.
+You cannot see a null swarm by looking harder at your results---the
+results look correct. The metric computes. The visualization is clean.
+The narrative is compelling. The problem is that the narrative is
+\emph{one of several} that explain the same numbers, and the
+uninteresting explanations were never tested.
+
+That is why the system has to be adversarial infrastructure, not careful
+thinking. Careful thinking is what produced these findings in the first
+place. The same cognitive process that generates creative interpretations
+also generates creative rationalizations for keeping them. Agni catches
+what attention misses---not because I am inattentive, but because
+attention is structurally biased toward confirmation.
+
+The kill count is the metric I trust. Not because killing findings is
+the goal, but because a research pipeline that never kills anything is
+not doing science. It is doing storytelling.
+\end{firstperson}
+
+% ===================================================================
+\appendix
+\section{Quick Reference: The Seven Patterns}
+\label{app:patterns}
+% ===================================================================
+
+\begin{table}[H]
+\centering
+\caption{Summary of the seven null swarm failure patterns with
+diagnostic tests and representative examples.}
+\label{tab:patterns}
+\begin{tabular}{clll}
+\toprule
+\# & Pattern & Test & Example \\
+\midrule
+1 & Linearity tautology & Does the metric commute with the & Projection fidelity \\
+  &                     & transformation? & \\
+2 & Concentration of measure & Is the null trivially near-zero & Random-vector baselines \\
+  &                          & in high $D$? & \\
+3 & Tokenizer artifact & Does the token decompose to & ``Sourdough'' = ``s'' \\
+  &                    & common characters? & \\
+4 & Question-priming & Does the baseline (no context) & ``Patient'' from question \\
+  &                  & produce the same tokens? & \\
+5 & Architecture measurement & Does \emph{all} content produce & Deep-layer spike \\
+  &                          & this pattern? & \\
+6 & Unstable directions & Are the PCs aligned across & PC4--6 progressions \\
+  &                     & layers? & \\
+7 & Scale artifact & Does the finding replicate at & Empty workspace on 9B \\
+  &                & different scales? & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===================================================================
+\section{Agni Implementation Notes}
+\label{app:agni}
+% ===================================================================
+
+The Agni scaffold is implemented as a Claude Code agent pipeline with:
+\begin{itemize}[nosep]
+    \item Automated Semgrep-style pattern detection for common failure
+          modes.
+    \item Adversarial agent prompting templates for three-tier review.
+    \item Structured output schema for kill/confirm/overstated verdicts.
+    \item Integration with the research pipeline (gates output before
+          interpretation).
+\end{itemize}
+
+Source code and prompt templates available at
+\url{https://github.com/Liberation-Labs-THCoalition/agni}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
