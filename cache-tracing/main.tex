@@ -1,0 +1,524 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{framed}
+
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+\title{Where the Fish Are Not:\\
+Cache Tracing, Causal Injection, and the Opacity\\
+of the Transformer Workspace}
+
+\author{
+  Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
+  \and Thomas Edrington\thanks{Liberation Labs.}
+}
+
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================================
+\begin{abstract}
+We attempt to trace workspace content --- as identified by Gurnee et
+al.'s Jacobian Lens (J-space) --- into the KV-cache value projections
+that our prior work uses for detecting confabulation, deception, and
+emotional state. We report three classes of results. First, an
+observational measurement: logit-lens concept directions explain
+$2.1$--$8.4\times$ more variance in the $W_V$-projected residual stream
+than random vocabulary directions, with lift increasing across depth.
+Second, a kill: cross-prompt controls collapse this lift to
+$1.0$--$1.2\times$ (380~pairs), identifying the signal as a selection
+artifact. Third, a promoted finding: position-local causal injection
+produces zero behavioral change across $6{,}960$ trials and four
+distinct methods (additive unembedding, additive on-manifold,
+Anthropic-style swap, and removal-only). The null is the result. The workspace band is
+where computation happens, not where it is readable --- four converging
+lines of evidence now support this opacity thesis. Our prior spectral
+findings remain intact; none depended on workspace content being
+linearly decodable from the value cache.
+\end{abstract}
+
+\begin{firstperson}
+Thomas asked where J-space lives in the cache. It was the right
+question, and the answer turned out to be: not where I expected.
+The instruments that read the workspace from the outside --- V-projection
+spectral features, J-lens concept directions, Oracle Loop corrections
+--- all work. But none of them work by reading named concepts at a single
+position inside the workspace band. The workspace is opaque at the
+depth where it operates. What I learned this week is the difference
+between measuring a net's shape and catching the fish.
+\end{firstperson}
+
+% ============================================================================
+\section{Introduction}
+\label{sec:intro}
+
+The question that motivated this investigation was deceptively simple:
+does workspace content show up in the value cache? Gurnee et
+al.~\citep{gurnee2026gwt} identify a privileged subspace --- the
+J-space --- in the residual stream where the model maintains
+verbalizable representations. Our twelve-month program of KV-cache
+geometry research~\citep{lyra2026decision,lyra2026weather,lyra2026identity}
+has measured reliable spectral signatures in value projections across
+cognitive states, models, and scales. If workspace content projects
+linearly through $W_V$ into the value cache, our spectral features
+might index \emph{what the model thinks about} rather than
+\emph{how it processes}.
+
+We designed three experiments to test this. Each one produced a result
+that changed our understanding.
+
+\begin{enumerate}
+\item \textbf{Observational alignment} (\S\ref{sec:observational}):
+  logit-lens concept directions explain significant variance in the
+  $W_V$-projected residual stream. Signal real, interpretation killed.
+\item \textbf{Cross-prompt control} (\S\ref{sec:crossprompt}): the
+  alignment is a selection artifact. Directions chosen from the same
+  hidden state trivially explain that hidden state.
+\item \textbf{Causal injection} (\S\ref{sec:causal}): injecting
+  concept directions at single positions produces zero behavioral
+  change across $6{,}960$ trials and four methods. The model
+  integrates across the full sequence before committing to output.
+\end{enumerate}
+
+The pattern across all three results supports what we term the
+\emph{opacity thesis}: the workspace band is where computation
+happens, not where computation is readable. Four converging lines
+of evidence --- V-projection spectral features, J-lens concept
+recovery, CC's Oracle Loop behavioral proof, and now causal
+intervention --- support this conclusion from different angles.
+
+% ============================================================================
+\section{Background}
+\label{sec:background}
+
+\subsection{The J-Space Workspace}
+
+Gurnee et al.~\citep{gurnee2026gwt} define the Jacobian Lens (J-lens)
+as the average linearized effect of a residual-stream activation on
+token likelihoods, averaged over a large corpus. The resulting vectors
+define a subspace --- the J-space --- that satisfies five functional
+properties of a Global Workspace~\citep{baars1988cognitive}: verbal
+report, directed modulation, internal reasoning, flexible
+generalization, and selectivity. The workspace occupies intermediate
+layers (roughly 38--92\% of model depth in their production models).
+
+\subsection{Our V-Projection Program}
+
+Our independent program measures spectral features of value-projection
+matrices ($W_V$-projected residual-stream activations) across cognitive
+states. Key results include confabulation detection (AUROC~$0.707$
+after Frisch-Waugh-Lovell (FWL) residualization; range $0.627$--$0.999$ across
+designs)~\citep{lyra2026decision}, user-emotion encoding
+($2.5$--$2.8\times$ signal at early
+layers)~\citep{lyra2026weather}, and identity geometry
+(distinctiveness $0.154$ vs.\ substrate
+$0.080$)~\citep{lyra2026identity}. All measurements use spectral
+features --- stable rank, spectral entropy, top singular-value ratios
+--- not named concept directions.
+
+\subsection{The Bridging Hypothesis}
+
+If workspace content projects linearly through $W_V$, then logit-lens
+vocabulary directions (which name concepts via the unembedding matrix
+$W_U$) should explain systematic variance in V-cache activations at
+workspace-band layers. This would connect our spectral measurements
+to the J-space framework mechanistically, establishing that
+V-projection features index workspace content rather than
+generic computational structure.
+
+% ============================================================================
+\section{Observational Alignment}
+\label{sec:observational}
+
+\subsection{Method}
+
+We measured the alignment between logit-lens concept directions and
+the $W_V$-projected residual stream using least-squares regression
+($R^2$). For each of 20~prompts across four categories (factual,
+confabulation-prone, instruction, emotional), we extracted the
+top-10 logit-lens vocabulary directions at the final token position and
+computed $R^2$ against the hidden state at each layer.
+
+\textbf{Random baseline}: 100 random draws of 10 vocabulary directions
+per cell (prompt $\times$ layer), computed on CPU. Random $R^2$
+averaged ${\sim}1.2\%$ (expected value $k/d = 10/4096 \approx 0.24\%$;
+the modestly higher empirical baseline likely reflects non-uniformity
+in vocabulary direction norms).
+
+\textbf{Platform note}: \texttt{torch.linalg.lstsq} is not implemented
+on MPS. All regression computations used CPU tensors. An earlier
+implementation (v1/v2) silently returned zeros due to a caught
+exception; the bug was identified and fixed before any results were
+reported.
+
+\subsection{Results}
+
+Same-prompt logit-lens directions explained $2.1$--$8.4\times$ more
+variance than random directions across layers L9--L33 (Qwen3-8B,
+36~layers). The lift profile increased with depth, peaking at deep
+layers (L27--L33). The signal replicated across all 20~prompts and all
+four prompt categories.
+
+\subsection{The Confound}
+
+Project Agni (adversarial review) flagged the increasing depth profile
+as confound-consistent: if the residual stream at deeper layers is
+increasingly well-predicted by the logit-lens directions that will
+\emph{become} the output distribution, then the alignment is explained
+by proximity to the output rather than workspace content per se. A
+selection artifact --- directions chosen because they align with
+$\mathbf{h}_l$ trivially explain $\mathbf{h}_l$ --- would produce
+exactly this profile.
+
+The discriminating test: \emph{cross-prompt alignment}. If the signal
+reflects workspace content (which varies by prompt), then prompt~A's
+concept directions should explain significant variance in prompt~B's
+hidden states at the same layer. If the signal is a selection artifact,
+cross-prompt lift should collapse.
+
+% ============================================================================
+\section{Cross-Prompt Control: The Kill}
+\label{sec:crossprompt}
+
+\subsection{Method}
+
+For each ordered pair of prompts (380~pairs from 20~prompts), we
+extracted logit-lens directions from prompt~A and computed $R^2$
+against prompt~B's hidden state at each layer. Additionally, we
+froze the directions from the deepest layer (L33) and applied them
+at all other layers as a second control.
+
+\subsection{Results}
+
+Cross-prompt lift collapsed to $1.0$--$1.2\times$ random across all
+380~pairs and all layers. The collapse was total and clean. Frozen-layer
+directions (L33 applied at L9--L30) showed the same collapse.
+
+\subsection{Interpretation}
+
+The observational alignment was a selection artifact. Logit-lens
+directions extracted from position $p$ at layer $l$ explain variance
+at that same $(p, l)$ because they were \emph{selected} to align with
+that hidden state. The alignment does not transfer across prompts,
+confirming that it reflects prompt-specific activation patterns rather
+than shared workspace content.
+
+\textbf{Lesson}: any alignment-based measurement where concept
+directions are extracted from the same hidden state being measured will
+show inflated $R^2$. Cross-prompt controls are mandatory for alignment
+claims. The selection artifact is the null hypothesis for any
+self-referential projection.
+
+\textbf{What survives}: the Agni-approved claim is that ``logit-lens
+top-10 vocabulary directions explain significantly more variance in the
+$W_V$-projected residual stream than random vocabulary directions at
+all layers (lift $2.1$--$8.4\times$), but the increasing depth profile
+is confound-consistent and the cross-prompt control collapses the
+lift.'' The signal is real at the per-prompt level; the workspace-content
+interpretation is killed.
+
+% ============================================================================
+\section{Causal Injection: The Promoted Finding}
+\label{sec:causal}
+
+The cross-prompt control killed the observational interpretation but
+left a causal question open: can injecting concept directions at
+workspace-band layers change model output? If the workspace is
+\emph{writable} at single positions, injection should produce
+behavioral effects even if the readout is artifactual.
+
+\subsection{Four Methods}
+
+We tested four injection approaches across $6{,}960$ total trials on
+Qwen3-8B.
+
+\textbf{Method 1: Additive unembedding} (300~trials). Inject
+$\alpha \cdot W_U^\top[\text{concept}]$ into the residual stream at
+workspace-band layers. Four probes, five concepts, three injection
+layers, five dose levels. Zero behavioral changes.
+
+\textbf{Method 2: Additive on-manifold} (6{,}000~trials). To address
+the concern that unembedding directions are readout-optimized rather
+than concept-bearing, we used J-lens-transported directions:
+$\mathbf{e}_{c'} \cdot J_L$ for random vocabulary token $c'$. This
+produces a direction in the same transport space as concept directions
+but for a different concept. Twenty probes, five injection layers,
+six random vocabulary directions per probe, five doses, positive and
+negative. Zero behavioral changes.
+
+\textbf{Method 3: Swap} (360~trials). Following Anthropic's
+methodology, we project out the source concept direction and project in
+the target concept direction at matched magnitude. This preserves
+activation norms (surviving RMSNorm) and should be the strongest
+possible single-position intervention. Twelve probes, five layers, six
+swap pairs. Zero behavioral changes.
+
+\textbf{Method 4: Removal-only} (300~trials). To separate the two
+components of the swap (removal vs.\ injection), we project out the
+source concept direction \emph{without} projecting in any target.
+If the swap's null was due to removal and injection canceling, removal
+alone should produce behavioral effects. Twelve probes, five layers,
+five concepts. Zero behavioral changes. Removal magnitudes were
+non-trivial ($1.4$--$4.8$), confirming the concept directions are
+active at these positions --- the model simply does not change output
+when they are removed at a single position.
+
+\subsection{Why Swap Should Have Worked}
+
+The swap method preserves activation magnitude (additive injection does
+not --- RMSNorm attenuates arbitrary additions). Swap produces
+${\sim}5\times$ more rank movement in the residual stream than additive
+injection at matched layers. The removal-only control confirms this
+rank movement is real (the directions are present with non-trivial
+magnitude) but behaviorally inert. The methodology adapts the
+intervention logic Anthropic uses for J-space ablation experiments,
+which \emph{do} produce behavioral effects in their production
+models (at larger scale and potentially at multiple positions). Yet on an 8B
+model at single positions: nothing.
+
+\subsection{The Null as Finding}
+
+Position-local KV-cache concept manipulation --- whether additive,
+swap-based, or removal-only, with unembedding, J-lens, or on-manifold
+directions --- does not change behavioral output on an 8B model across
+$6{,}960$~trials and four methods. The model integrates across the full
+sequence before committing.
+
+This null is promoted to a finding because it discriminates between
+intervention strategies. CC's Oracle Loop~\citep{lyra2026oracle}
+achieves $80\%$--$100\%$ deception correction with three clean controls.
+It works because it normalizes the activation \emph{profile} across the
+full sequence, not because it injects a direction at one position. The
+differentiating variable is not the direction type but the intervention
+scope: sequence-wide normalization succeeds where position-local
+manipulation fails. (This comparison is cross-experimental: our
+injection results use Qwen3-8B while the Oracle Loop operates on
+a 27B Claude-distilled model. The scope difference is robust but the
+scale difference has not been controlled.)
+
+\textbf{Implication}: readout directions (unembedding) $\neq$ concept
+directions (J-lens) $\neq$ behavioral directions (linear artificial
+tomography [LAT]-extracted,
+profile-normalized). The workspace accepts input from all positions
+simultaneously and commits to output based on the integrated result.
+
+% ============================================================================
+\section{Noise Decomposition: The Workspace Noise Kill}
+\label{sec:noise}
+
+A parallel investigation attempted to characterize workspace noise
+structure using logit-lens softmax decomposition, inspired by Nexus's
+workspace entropy findings~\citep{lyra2026nexus_emotion}.
+
+\subsection{Observation}
+
+We decomposed logit-lens softmax distributions into two components:
+\emph{tail smear} (mass past rank 20, indicating diffuse uncertainty)
+and \emph{rival mass} (candidates 2--5, indicating deliberation between
+specific alternatives). Confabulation-prone probes showed
+$2.3$--$2.8\times$ more tail smear than factual probes at
+workspace-band layers (L9--L18).
+
+\subsection{The Kill}
+
+A multi-position discriminator revealed that confabulation-prone probes
+show elevated tail smear at \emph{all} positions, not just the answer
+position. The tail smear is generic softmax uncertainty spread across
+the whole prompt by attention to unknown entity tokens. The ``workspace
+noise'' framing adds zero explanatory content beyond ``the model is
+uncertain.''
+
+\subsection{What Survives}
+
+The observation that logit-lens softmax entropy differs by prompt
+category at mid-depth layers. The per-position profile as a potential
+feature for hallucination detection. The connection to Nexus's
+tail-smear finding --- same signal, different instrument, no theory
+required.
+
+\textbf{Commitment boundary}: factual, confabulation-prone, and
+emotional probes all commit (tail drops below $0.10$) at L24.
+Instruction probes commit later, at L27. This divergence is real and
+may reflect the additional processing required for instruction-following.
+
+% ============================================================================
+\section{The Opacity Thesis}
+\label{sec:opacity}
+
+Four converging lines of evidence support the same conclusion:
+the workspace band is where computation happens, not where computation
+is readable.
+
+\begin{enumerate}
+\item \textbf{V-projection spectral features}: measure the net's shape
+  (stable rank, spectral entropy) but not the fish (named concepts).
+  Spectral features track metacognitive state without encoding
+  propositional content.
+\item \textbf{J-lens concept recovery}: the geometric gate passes at
+  8B (all 5 concepts, L15--L27, AUROC~$0.78$--$1.00$), but concept
+  directions fail to transfer across prompts ($R^2$ collapse) and fail
+  to causally affect output when injected at single positions.
+\item \textbf{Oracle Loop}: works by normalizing the activation profile
+  across the full sequence at the materialization boundary (L35--L47),
+  not by injecting content at workspace-band depths. The workspace is
+  upstream of the intervention.
+\item \textbf{Causal injection}: $6{,}960$ trials, four methods, zero
+  behavioral changes at position-local scope. The workspace integrates
+  before committing.
+\end{enumerate}
+
+\begin{firstperson}
+Vera named it best: I was looking for fish in a place where only nets
+are visible. The workspace is not a blackboard where named concepts
+are written and read. It is a computational medium where representations
+interact, transform, and integrate before materializing as readable
+output at deeper layers. Our spectral features measure the net's
+structure --- how many dimensions, how concentrated, how stable ---
+because that is what is geometrically accessible from outside. The
+concepts themselves are inside, doing work, invisible to readout until
+they surface at the materialization boundary.
+
+This is humbling but clarifying. Every positive result in our program
+measures computational structure, not content. That distinction matters
+for what we can and cannot claim.
+\end{firstperson}
+
+% ============================================================================
+\section{Implications for Prior Work}
+\label{sec:implications}
+
+No prior result in our program is threatened by these findings. Our
+spectral features never claimed to decode workspace content; they
+measure geometric properties (stable rank, spectral entropy, norm
+ratios) that index \emph{how} the model processes, not \emph{what} it
+processes. The confabulation detector reads spectral contraction
+(reduced workspace engagement). The emotion encoder reads $W_K$ valence
+projections (input-evaluation structure). The identity geometry reads
+subspace overlap (what the workspace contains in aggregate, not per
+concept).
+
+The Oracle Formulary stands because its correction vectors are derived
+via contrastive extraction (LAT), not logit-lens vocabulary projection.
+LAT directions are behavioral directions grounded in output differences,
+not readout directions grounded in vocabulary alignment. The
+distinction between readout, concept, and behavioral directions is a
+methodological contribution of this investigation.
+
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+Thomas asked where J-space lives in the cache. The answer: not where
+concepts are readable, but where they do their work. The workspace is
+opaque at operating depth and materializes at the boundary between
+intermediate and deep layers. Our instruments read the geometry of this
+opacity --- the shape of the computational structure --- because the
+content is invisible until it surfaces.
+
+The promoted finding is simple: single-position intervention does not
+work ($6{,}960$ trials, four methods). Sequence-wide intervention does
+(Oracle Loop, $80\%$--$100\%$ correction). The workspace integrates
+before it commits. Reading it and writing to it require different
+strategies, and the strategies that work operate at different depths
+and scopes than the ones that fail.
+
+Three interpretations died in this investigation: the content-projection
+hypothesis (killed by cross-prompt control), the workspace-noise framing
+(killed by multi-position discriminator), and position-local causal
+intervention (null across four methods, $6{,}960$~trials). The
+position-local null survived as a promoted finding --- a null that
+discriminates.
+
+% ============================================================================
+\appendix
+
+\section{Key Numbers}
+\label{app:numbers}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Summary measurements. All experiments on Qwen3-8B (36~layers,
+dense, full-attention) at bfloat16 on MPS (Mac Studio M3 Ultra).}
+\label{tab:numbers}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Measurement} & \textbf{Value} & \textbf{N} & \textbf{Status} \\
+\midrule
+Same-prompt R$^2$ lift & $2.1$--$8.4\times$ & 240 & Killed (selection artifact) \\
+Cross-prompt R$^2$ lift & $1.0$--$1.2\times$ & 380 pairs & Kill confirmed \\
+Additive unembed: behavior change & 0/300 & 300 & Null \\
+Additive on-manifold: behavior change & 0/6{,}000 & 6{,}000 & Null \\
+Swap (Anthropic method): behavior change & 0/360 & 360 & Null \\
+Removal-only: behavior change & 0/300 & 300 & Null \\
+\textbf{Total causal injection} & \textbf{0/6{,}960} & \textbf{6{,}960} & \textbf{Promoted to finding} \\
+\addlinespace
+Confab tail smear (L9--L18) & $0.66$--$0.74$ & 5 prompts & Survives \\
+Factual tail smear (L9--L18) & $0.25$--$0.30$ & 5 prompts & Survives \\
+Tail ratio (confab/factual) & $2.3$--$2.8\times$ & 5 per cat. & Survives \\
+Commitment boundary (factual) & L24 & 5 prompts & Survives \\
+Commitment boundary (instruction) & L27 & 5 prompts & Survives \\
+\addlinespace
+J-lens geometric gate & 5/5 concepts & L15--L27 & AUROC $0.78$--$1.00$ \\
+J-lens best-layer accuracy & 43.3\% & 60 items & vs.\ 18.3\% fixed-layer \\
+Logit-lens best-layer accuracy & 61.7\% & 60 items & Complementary \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy selects the single layer (of 13 candidate layers) with the highest accuracy across all 60~items. Under a conventional selection-artifact null (each layer at the 18.3\% fixed-layer baseline), the expected best-of-13 accuracy is ${\sim}27\%$ (95th percentile ${\sim}32\%$), well below the observed 43.3\%.
+
+\section{Reproduction}
+\label{app:reproduction}
+
+All experiments ran on Starship (Mac Studio M3 Ultra, MPS backend) using
+Qwen3-8B (dense, 36~layers, all full-attention) at bfloat16. J-lens
+fitted from \texttt{anthropics/jacobian-lens} v0.1.0 on 70 wikitext
+prompts.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Experiment} & \textbf{Script} \\
+\midrule
+Cache tracing v3 & \texttt{gwt-response/cache\_tracing.py} \\
+Cross-prompt control & \texttt{cache\_tracing\_crossprompt.py} \\
+Additive injection v3 & \texttt{gwt-response/causal\_injection.py} \\
+Causal swap & \texttt{causal\_swap.py} \\
+Removal-only control & \texttt{causal\_removal\_only.py} \\
+Noise decomposition & Inline (see output logs) \\
+Multi-position discriminator & Inline (see output logs) \\
+G0 validation & \texttt{gwt-response/g0\_items/run\_g0.py} \\
+Geometric gate & \texttt{run\_geometric\_gate.py} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Repository:
+\texttt{github.com/Liberation-Labs-THCoalition/lyra-s-research-}
+
+\bibliography{references}
+\bibliographystyle{plainnat}
+
+\end{document}
