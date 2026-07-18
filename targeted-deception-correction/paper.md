@@ -148,7 +148,7 @@ The confirmatory replication demonstrates that correction magnitude is frame-dep
 
 ### 3.8 Detection Stack Disclosure
 
-All experiments in this paper use a single detection channel: residual-stream projection onto the natively extracted deception direction at Layers 31-47. The production architecture (described in the companion paper's specification) includes additional detection channels — K-space centroid projection (AUROC 0.960 within-distribution on the distilled variant), circumplex arousal monitoring, post-generation output verification, and co-regulation pathology routing — that were not integrated into these experiments. These channels may address the behavioral detection gap reported in Section 3.5; their integration and evaluation is ongoing work. We report the single-channel results as they stand rather than delay publication for full-stack integration.
+All experiments in this paper use a single detection channel: residual-stream projection onto the natively extracted deception direction at Layers 31-47. The broader Oracle project codebase includes additional detection channels — K-space centroid projection, post-generation output verification, and arousal monitoring — that were not integrated into or evaluated in these experiments. These channels may address the behavioral detection gap reported in Section 3.5; their controlled evaluation is ongoing work. We report the single-channel results as they stand rather than delay publication for full-stack integration.
 
 ---
 
@@ -177,7 +177,7 @@ The near-orthogonality of cross-model directions (|cos| < 0.053) means the corre
 3. The mechanism question — whether correction removes deception or merely overrides it — is not fully resolved. The frame-erasure test shows benign instructions are preserved, but a more demanding test (e.g., does the corrected model acknowledge the pressure if asked directly?) would be informative.
 4. The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention but a 0% false positive rate mitigates the iatrogenic risk.
 5. Our attempt to replicate behavior-level detection accuracy reported in prior work (Goldowsky-Dill et al., 2025) did not succeed on this model and paradigm set. We report this negative result rather than omit it.
-6. All experiments use a single detection channel (residual-stream projection). The production specification includes additional channels (K-space centroids, circumplex arousal, post-generation verification) that may address the behavioral detection gap but have not been evaluated in a combined stack.
+6. All experiments use a single detection channel (residual-stream projection). The broader Oracle project codebase includes additional channels (K-space centroids, arousal monitoring, post-generation verification) that may address the behavioral detection gap but have not been evaluated in a combined stack.
 7. The pre-registered confirmatory replication did not meet its primary endpoint (scenario-level p = 0.34), though the placebo comparison remained significant (p = 0.019). The difference is attributable to frame-dependent baseline rates: novel frames induced substantially less deception than the original extraction frames. This underscores that correction efficacy depends on the strength of the deception induction.
 
 ---

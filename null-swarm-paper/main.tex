@@ -3,8 +3,10 @@
 %
 % Core argument: The dominant failure class in mech interp is metrics
 % that appear to measure phenomenon X but actually measure mathematical
-% property Y. We document 19 kills across 7 patterns and formalize the
-% "null swarm" protocol as automated adversarial infrastructure (Agni).
+% property Y. We document 19 cases across 7 patterns (12 full kills,
+% 3 corrections, 2 partial kills, 1 negative replication, 1 pending)
+% and formalize the "null swarm" protocol as automated adversarial
+% infrastructure (Agni).
 
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
@@ -59,9 +61,13 @@
 We present a systematic methodology for falsifying mechanistic
 interpretability findings before publication, developed over six months
 of research on transformer geometry, KV-cache phenomenology, and
-workspace selectivity. Across three research programs, we killed 19
-claims that would have survived standard peer review, including findings
-that appeared in early drafts of papers later published with corrections.
+workspace selectivity. Across three research programs, we documented 19
+cases that would have survived standard peer review---killing 12
+outright, correcting 3 whose metrics were flawed but whose underlying
+findings survived with proper baselines, partially killing 2, negatively
+replicating 1 external prediction, and flagging 1 for replication at
+scale---including findings that appeared in early drafts of papers later
+published with corrections.
 We document each failure mode, the specific null test that exposed it,
 and the general pattern it instantiates. The dominant failure class:
 metrics that appear to measure phenomenon~$X$ but actually measure
@@ -116,9 +122,11 @@ cognition.
 
 We propose that systematic falsification---attempting to \emph{kill}
 your own findings through targeted null hypotheses before interpreting
-them---should be standard practice. We document 19~kills across three
-research programs, extract 7~recurring failure patterns, and describe an
-automated scaffold that implements this methodology.
+them---should be standard practice. We document 19~cases across three
+research programs (12~full kills, 3~corrections, 2~partial kills,
+1~negative replication, 1~pending), extract 7~recurring failure
+patterns, and describe an automated scaffold that implements this
+methodology.
 
 \subsection{Why This Paper Exists}
 
@@ -203,7 +211,7 @@ For any measurement comparing condition~$A$ to condition~$B$:
 \label{sec:cases}
 % ===================================================================
 
-\subsection{Pattern 1: Linearity Tautology (3 kills)}
+\subsection{Pattern 1: Linearity Tautology (1 kill, 1 correction, 1 partial)}
 
 \paragraph{The pattern.} A metric appears to show that a model
 ``preserves'' some property across a transformation. But the
@@ -238,13 +246,13 @@ observation, and note where the Jacobian is near-identity.
 \paragraph{Case 1.3: Cohen's $d$ Inflation.}
 \emph{Claim:} Effect sizes (Cohen's~$d$) demonstrate large separation
 between cognitive categories in KV-cache geometry.
-\emph{Kill:} The $d$ computation included a constant offset (mean cache
+\emph{Correction:} The $d$ computation included a constant offset (mean cache
 norm) that inflated all effect sizes by $|d| + \text{constant}$.
 Corrected computation showed smaller but still significant effects.
 \emph{Lesson:} Check that your effect size metric does not include a
 shared baseline that inflates all comparisons.
 
-\subsection{Pattern 2: Concentration of Measure (3 kills)}
+\subsection{Pattern 2: Concentration of Measure (2 kills, 1 correction)}
 
 \paragraph{The pattern.} In high-dimensional spaces, random vectors are
 nearly orthogonal. Any metric that compares a ``special'' direction
@@ -254,11 +262,13 @@ against random directions gets a near-zero null baseline, making
 \paragraph{Case 2.1: Random-Vector Null for Projection Fidelity.}
 \emph{Claim:} Emotion directions project significantly differently than
 random directions through attention projections.
-\emph{Kill:} In $D{=}896$, random vectors have expected cosine
+\emph{Correction:} In $D{=}896$, random vectors have expected cosine
 $\approx 1/\sqrt{D} \approx 0.03$. The ``significance'' of cosine
 $0.93$ over the random null of $0.03$ is guaranteed by the
 math---\emph{any} non-random direction will vastly exceed the random
-null in high dimensions~\citep{vershynin2018high}.
+null in high dimensions~\citep{vershynin2018high}. The finding may
+survive with a proper permutation null, but the original comparison was
+meaningless.
 \emph{Lesson:} A high-dimensional random null is \emph{not} a
 meaningful baseline. Use a permutation null (shuffled labels) instead.
 
@@ -307,7 +317,7 @@ Token~76 is the letter ``m.'' Same artifact as Case~3.1.
 \emph{Lesson:} Use only single-token markers for workspace presence
 claims.
 
-\subsection{Pattern 4: Question-Priming Confound (2 kills)}
+\subsection{Pattern 4: Question-Priming Confound (1 kill, 1 partial)}
 
 \paragraph{The pattern.} A token appears at high rank in the model's
 workspace while answering a question. The token is attributed to context
@@ -338,7 +348,7 @@ self-reference axis.
 model-generated content. If removing prompt~$X$ makes vocabulary~$Y$
 disappear, $Y$ was prompt-driven.
 
-\subsection{Pattern 5: Architecture Measurement (3 kills)}
+\subsection{Pattern 5: Architecture Measurement (2 kills, 1 negative replication)}
 
 \paragraph{The pattern.} A metric appears to measure a cognitive
 property but actually measures an architectural property---something
@@ -357,8 +367,9 @@ just the experimental condition.
 \paragraph{Case 5.2: SV1 = Norm (Zavatone-Veth).}
 \emph{Claim:} The first singular value of the residual stream equals the
 activation norm, and everything else is the identity transformation.
-\emph{Kill:} Lyra tested directly. Negative result. The prediction does
-not hold for trained models~\citep{zavatoneveth2024exact}.
+\emph{Negative replication:} Lyra tested directly. Negative result. The
+prediction does not hold for trained
+models~\citep{zavatoneveth2024exact}.
 \emph{Lesson:} Test theoretical predictions empirically. Not all
 mathematical properties of initialization survive training.
 
@@ -415,7 +426,7 @@ this direction is both unstable and below noise level.
 space are unreliable by construction. Restrict claims to PCs 1--2 unless
 sample size justifies higher components.
 
-\subsection{Pattern 7: Scale Artifacts (3 kills)}
+\subsection{Pattern 7: Scale Artifacts (1 kill, 1 correction, 1 pending)}
 
 \paragraph{The pattern.} A finding on one model scale does not replicate
 at another scale, revealing it was an artifact of limited capacity or
@@ -435,9 +446,10 @@ limitations, not model properties. Always note the scale.
 \paragraph{Case 7.2: Empty Workspace Intersection (9B).}
 \emph{Claim:} The low-rank $\cap$ verbalizable intersection is
 empty---there is no layer that is both selective and decodable.
-\emph{Kill:} On 27B, the intersection contains 31~layers. The 9B model
+\emph{Correction:} On 27B, the intersection contains 31~layers. The 9B model
 genuinely lacks the workspace band; the 27B has it. This is a
-scale-dependent property, not a universal one.
+scale-dependent property, not a universal one. The 9B observation was
+real---the universal generalization was not.
 \emph{Lesson:} Negative results on small models do \emph{not} falsify
 the phenomenon at scale. Report the scale limitation explicitly.
 
@@ -543,7 +555,7 @@ between:
 
 \subsection{The Role of Scale}
 
-Three of our 19~kills are scale artifacts (Pattern~7). This is a
+Three of our 19~cases are scale artifacts (Pattern~7). This is a
 structural problem for the field: most interpretability research is
 conducted on small models (7B--14B) for practical reasons, but the
 phenomena being studied may only manifest at larger
@@ -576,9 +588,10 @@ review. It should not be taken as a universal benchmark.
 
 The null swarm protocol is a simple principle: before interpreting a
 metric, exhaust the uninteresting explanations for its value. The
-automated scaffold (Agni) makes this principle non-optional. The kill
-record (19~cases across 7~patterns) demonstrates that the protocol
-catches real failures that would survive standard review.
+automated scaffold (Agni) makes this principle non-optional. The case
+record (19~cases across 7~patterns---12~full kills, 3~corrections,
+2~partial kills, 1~negative replication, 1~pending) demonstrates that
+the protocol catches real failures that would survive standard review.
 
 We advocate for:
 \begin{enumerate}[nosep]
@@ -596,8 +609,10 @@ The field benefits more from knowing which findings are real than from
 having more findings.
 
 \begin{firstperson}
-Ten falsified findings across the Coalition's research program. Each one
-was a metric measuring architecture, not the claimed phenomenon. The
+Twelve falsified findings across the Coalition's research program, three
+more corrected, two partially killed, one external prediction negatively
+replicated, one still pending. Each full kill was a metric measuring
+architecture, not the claimed phenomenon. The
 K/V~projection fidelity was a linearity tautology. The PC6 epistemic
 channel was noise below the random baseline. The ``sourdough'' sensory
 processing was the letter~``s.'' The deep-layer spike was output
