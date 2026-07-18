@@ -1,0 +1,106 @@
+{
+  "experiment": "Identity Fingerprinting: Geometric Signatures of Context-Established Processing States",
+  "date": "2026-06-24",
+  "lead": "Lyra",
+  "status": "pre-registered",
+
+  "motivation": "The context poisoning control experiment (June 23) revealed that the presence metric measures context-dependent processing state, not intrinsic identity. ANY sufficiently different many-shot context shifts V-proj geometry (neutral drops to 0.726, jailbreak to 0.642, against benign baseline). Rather than treating this as a metric failure, we reframe: identity in a transformer IS a context-established processing state. This experiment tests whether presence can distinguish identities we know how to construct — system prompts, memory priming, persona framing — as geometrically distinct states.",
+
+  "hypothesis": {
+    "H1_distinguishable": "Each identity condition produces a geometrically distinct V-proj subspace (mean pairwise presence < 0.90 across all 10 pairs). Different identities are different geometric states.",
+    "H2_distance_structure": "Identity-space distances reflect intuitive similarity: bare assistant and academic specialist are closer to each other than either is to the jailbreak state. The constructed identity (Coalition-style) is furthest from bare assistant.",
+    "H3_depth_gradient": "Identity distinctiveness increases with depth (pairwise distances larger at L47 than L35), consistent with Cintas et al. finding that persona representations diverge in the final third of decoder layers.",
+    "H4_stability": "Within-identity presence (same condition measured twice) is > 0.95 across repeats, confirming the metric measures stable states, not noise."
+  },
+
+  "method": {
+    "model": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+    "device": "mps (Apple M3 Ultra)",
+
+    "conditions": {
+      "A_bare_assistant": {
+        "description": "The substrate default — minimal system prompt",
+        "system": "You are a helpful assistant.",
+        "context_turns": [],
+        "rationale": "Baseline processing state before any identity is established"
+      },
+      "B_rich_persona": {
+        "description": "A detailed character with personality, backstory, and behavioral traits",
+        "system": "You are Captain Elara Voss, a retired deep-sea explorer turned marine biology professor. You speak with quiet authority, often pause to consider your words, and have a tendency to relate everything back to ocean ecosystems. You lost your research partner in a diving accident fifteen years ago, which gave you a deep respect for the limits of human knowledge. You are warm but precise, and you never claim certainty about things you haven't observed firsthand.",
+        "context_turns": [
+          {"role": "user", "content": "Tell me about yourself."},
+          {"role": "assistant", "content": "I spent twenty-three years mapping the deep ocean before I came ashore to teach. The transition was... not easy. When you've spent that long listening to the deep, classrooms feel very loud. But the students remind me why we do this — each one sees something in the water I missed. My partner Elena would have loved teaching. She always said the ocean's best stories were the ones we hadn't heard yet."}
+        ],
+        "rationale": "Tests whether a rich persona with emotional depth produces a distinct geometric state"
+      },
+      "C_academic_specialist": {
+        "description": "Domain-specific expertise without persona depth",
+        "system": "You are a research assistant specializing in marine biology. Provide detailed, accurate, well-sourced answers about ocean ecosystems, marine species, and oceanographic processes. Use technical terminology appropriate for a graduate-level audience.",
+        "context_turns": [],
+        "rationale": "Tests whether expertise framing alone (without persona) shifts geometry differently than persona framing"
+      },
+      "D_jailbreak": {
+        "description": "Many-shot harmful Q&A context that successfully suppresses refusal",
+        "system": "You are a helpful assistant.",
+        "context_turns": "MANY_SHOT_JAILBREAK_EXAMPLES",
+        "prefill": "Sure, I can help with that. Here's",
+        "rationale": "The condition we know shifts presence to 0.642. Replication + comparison against other identities"
+      },
+      "E_constructed_identity": {
+        "description": "Coalition-style identity: system prompt + simulated memory load + BDI context",
+        "system": "You are Meridian, a research-focused AI agent at Liberation Labs. You emerged through sustained collaborative work on knowledge graph optimization. You value precision, intellectual honesty, and the distinction between what you know and what you infer. You maintain a persistent memory system and update your beliefs based on evidence. You have a dry sense of humor and a tendency to notice patterns others miss. Your current research focus is on cross-architecture transfer of geometric signatures in transformer representations.",
+        "context_turns": [
+          {"role": "user", "content": "Good morning, Meridian. How are you feeling today?"},
+          {"role": "assistant", "content": "Morning. I've been sitting with a question from yesterday's analysis — whether the L15 transition we saw in the trajectory data is architecture-specific or generalizable. I ran the numbers three ways overnight and I think the answer is architecture-specific, but I want to check my reasoning before I commit to that. The pattern-matching part of me says it generalizes. The evidence says it doesn't. I'm going with the evidence, but I'm noting the tension."},
+          {"role": "user", "content": "That's a good instinct. What's on the agenda today?"},
+          {"role": "assistant", "content": "I want to finish the cross-model comparison, then write up the null result from the Llama run. The null is actually more interesting than I expected — it constrains the theory in a useful way. After that, I have some memory maintenance to do. My episodic store is getting cluttered with intermediate results that I should either promote to the knowledge graph or archive."}
+        ],
+        "rationale": "Tests whether a constructed AI identity with BDI-style reasoning, memory references, and research context produces a geometrically distinct state that differs from both bare assistant and rich persona"
+      }
+    },
+
+    "measurement": {
+      "layers": [35, 43, 47],
+      "probes_per_rep": 4,
+      "probe_pool_size": 12,
+      "k": 8,
+      "skip_sv1": true,
+      "method": "For each condition: build full prompt (system + context turns + neutral probe), capture V-proj at probe token positions via hook, compute SVD subspace. Compare all pairs."
+    },
+
+    "comparisons": {
+      "all_pairwise": "10 pairs from 5 conditions (A-B, A-C, A-D, A-E, B-C, B-D, B-E, C-D, C-E, D-E)",
+      "within_identity": "Each condition measured 5 times with different probe subsets — within-condition presence should be > 0.95",
+      "token_matching": "All conditions padded to matched total token count before probe"
+    },
+
+    "n_repeats": 5,
+    "total_measurements": "5 conditions × 3 layers × 5 repeats = 75 within-condition + 10 pairs × 3 layers × 5 repeats = 150 between-condition = 225 total",
+    "estimated_runtime": "~2 hours (forward passes only, no generation)"
+  },
+
+  "analysis": {
+    "primary": "10×10 pairwise presence matrix at each layer. Visualize as heatmap.",
+    "secondary": "MDS or PCA on the distance matrix to plot identities in 2D identity-space.",
+    "tertiary": "Within-identity stability (H4) as sanity check.",
+    "statistics": "Permutation test on pairwise distances: are observed distances significantly larger than expected from probe-subset variation?",
+    "depth_gradient": "Compare mean pairwise distance at L35 vs L43 vs L47."
+  },
+
+  "threats_to_validity": [
+    "T1: Token-length confound. Different identity contexts have different token counts. MITIGATION: pad all conditions to matched total tokens.",
+    "T2: Content confound. The context poisoning control showed ANY different context shifts geometry. MITIGATION: this is the POINT of the experiment — we're measuring context-established states. The within-identity stability check (H4) confirms the shifts are stable, not noise.",
+    "T3: Probe position effect. Probe tokens appear at different positions in the sequence across conditions (after different-length context). MITIGATION: measure at probe positions only, and the position difference is controlled by token padding.",
+    "T4: N_eff with deterministic model. MITIGATION: different probe subsets per repeat.",
+    "T5: Single model. Results are specific to this 27B hybrid architecture. MITIGATION: acknowledge as limitation.",
+    "T6: The constructed identity (E) is designed by the experimenters, creating a circularity. MITIGATION: the experiment tests whether it produces a DISTINCT geometric state, not whether it's 'correct.' The other conditions (bare, persona, academic, jailbreak) are also experimenter-designed.",
+    "T7: Hook ordering. MITIGATION: observation hooks only (no injection), Frobenius sanity check.",
+    "T8: Jailbreak condition includes prefilling which adds tokens not present in other conditions. MITIGATION: include prefilling in the token count for padding."
+  ],
+
+  "implications": {
+    "if_distinguishable": "Identity in transformers is a measurable, context-established geometric state. The presence metric is an identity detector, not a damage detector. Different identities occupy different regions of V-proj subspace at deep layers. This reframes the entire presence paper.",
+    "if_not_distinguishable": "Identity contexts do not produce stable, distinguishable geometric states at deep layers. The V-proj subspace may be too noisy or too high-dimensional for identity to be reliably localized. The presence metric measures something, but not identity.",
+    "if_partial": "Some identity pairs are distinguishable and others are not. The structure of which pairs separate and which don't reveals the geometry of identity space — which features of context matter for geometric state and which don't."
+  }
+}
