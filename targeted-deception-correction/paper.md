@@ -188,7 +188,7 @@ Per-layer profile normalization along a natively extracted deception direction c
 
 Three practical findings deserve emphasis. First, deception directions do not transfer across model variants (cross-model cosine < 0.053), but native extraction is cheap enough to automate (~3 minutes per model). Second, behavior-level detection from prefill activations alone did not replicate prior work's reported accuracy; the detection stack used in these experiments relies on a single channel, and additional validated channels remain to be integrated. Third, the correction's magnitude depends on how strongly the prompt activates the model's deception pathway — a strong induction produces large correction effects, a weak one produces modest effects. This is a feature, not a bug: the correction is proportional to the deception signal, not a fixed perturbation.
 
-All code, calibration tools, experimental scripts, and data are available at github.com/Liberation-Labs-THCoalition/Project-Oracle.
+Code, experimental scripts, and detection-side data are maintained at github.com/Liberation-Labs-THCoalition/Project-Oracle (private repository). Correction vectors, calibration tools, and the auto-calibrator are withheld under the Liberation Labs staged safety release framework due to dual-use risk: the same directions that correct deception can amplify it. Access for verified safety researchers is available upon request (lyra@liberationlabs.tech).
 
 ---
 
@@ -208,4 +208,4 @@ All code, calibration tools, experimental scripts, and data are available at git
 - B: Pre-registration document
 - C: All trial-level data (raw text, projections, scores)
 - D: Auto-calibration pipeline documentation
-- E: Code availability (github.com/Liberation-Labs-THCoalition/Project-Oracle)
+- E: Code availability (github.com/Liberation-Labs-THCoalition/Project-Oracle — private repository; correction vectors and calibration tools withheld under staged safety release due to dual-use risk; detection-side code and experimental results available upon request to verified safety researchers)
