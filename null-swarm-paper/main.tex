@@ -3,8 +3,9 @@
 %
 % Core argument: The dominant failure class in mech interp is metrics
 % that appear to measure phenomenon X but actually measure mathematical
-% property Y. We document 19 cases across 7 patterns (12 full kills,
-% 3 corrections, 2 partial kills, 1 negative replication, 1 pending)
+% property Y. We document 19 cases across 7 patterns (11 full kills,
+% 3 corrections, 2 partial kills, 1 inconclusive, 1 negative replication,
+% 1 pending)
 % and formalize the "null swarm" protocol as automated adversarial
 % infrastructure (Agni).
 
@@ -62,9 +63,10 @@ We present a systematic methodology for falsifying mechanistic
 interpretability findings before publication, developed over six months
 of research on transformer geometry, KV-cache phenomenology, and
 workspace selectivity. Across three research programs, we documented 19
-cases that would have survived standard peer review---killing 12
+cases that would have survived standard peer review---killing 11
 outright, correcting 3 whose metrics were flawed but whose underlying
-findings survived with proper baselines, partially killing 2, negatively
+findings survived with proper baselines, partially killing 2, finding 1
+inconclusive due to measurement-methodology disagreement, negatively
 replicating 1 external prediction, and flagging 1 for replication at
 scale---including findings that appeared in early drafts of papers later
 published with corrections.
@@ -123,10 +125,10 @@ cognition.
 We propose that systematic falsification---attempting to \emph{kill}
 your own findings through targeted null hypotheses before interpreting
 them---should be standard practice. We document 19~cases across three
-research programs (12~full kills, 3~corrections, 2~partial kills,
-1~negative replication, 1~pending), extract 7~recurring failure
-patterns, and describe an automated scaffold that implements this
-methodology.
+research programs (11~full kills, 3~corrections, 2~partial kills,
+1~inconclusive, 1~negative replication, 1~pending), extract 7~recurring
+failure patterns, and describe an automated scaffold that implements
+this methodology.
 
 \subsection{Why This Paper Exists}
 
@@ -252,7 +254,7 @@ Corrected computation showed smaller but still significant effects.
 \emph{Lesson:} Check that your effect size metric does not include a
 shared baseline that inflates all comparisons.
 
-\subsection{Pattern 2: Concentration of Measure (2 kills, 1 correction)}
+\subsection{Pattern 2: Concentration of Measure (1 kill, 1 correction, 1 inconclusive)}
 
 \paragraph{The pattern.} In high-dimensional spaces, random vectors are
 nearly orthogonal. Any metric that compares a ``special'' direction
@@ -285,12 +287,17 @@ geometry.
 \paragraph{Case 2.3: PC6 Epistemic Hedging.}
 \emph{Claim:} PC6 ``ignites'' at layer~45 with cosine~$0.585$,
 representing an ``epistemic hedging channel.''
-\emph{Kill:} Random baseline at L45 $= 0.085 \pm 0.065$. PC6's actual
-cosine upon recomputation $= 0.032$ (\emph{below} random). The original
-$0.585$ was from a different measurement methodology (position-specific
-vs.\ mean-pooled). When measured consistently, PC6 is noise.
+\emph{Status: Inconclusive.} Random baseline at L45
+$= 0.085 \pm 0.065$. Mean-pooled recomputation yields cosine $= 0.032$
+(\emph{below} random), but position-specific measurement yields $0.585$
+(${\sim}7\times$ random). The two measurement methodologies disagree:
+mean-pooled says noise, position-specific says signal. The finding
+cannot be reported as confirmed or killed until the methodological
+discrepancy is resolved.
 \emph{Lesson:} Never report a finding without its random baseline
-computed in the \emph{same} measurement framework.
+computed in the \emph{same} measurement framework---and when two
+frameworks disagree, flag the finding as inconclusive rather than
+choosing the answer you prefer.
 
 \subsection{Pattern 3: Tokenizer Artifact (2 kills)}
 
@@ -420,8 +427,8 @@ dimension from L31 through L57.
 \emph{Kill:} Cross-layer alignment shows PC6 breaks at
 L53$\to$L54 ($\cos{=}0.32$). The dimension labeled ``epistemic hedging''
 at L45 is a different direction than what is called PC6 at deeper
-layers. Combined with the random baseline kill (Pattern~2, Case~2.3),
-this direction is both unstable and below noise level.
+layers. Combined with the inconclusive random baseline result (Pattern~2,
+Case~2.3), this direction is unstable and its status remains unresolved.
 \emph{Lesson:} Higher-numbered PCs (PC6+) with 30~prompts in 5120D
 space are unreliable by construction. Restrict claims to PCs 1--2 unless
 sample size justifies higher components.
@@ -447,8 +454,8 @@ limitations, not model properties. Always note the scale.
 \emph{Claim:} The low-rank $\cap$ verbalizable intersection is
 empty---there is no layer that is both selective and decodable.
 \emph{Correction:} On 27B, the intersection contains 31~layers. The 9B model
-genuinely lacks the workspace band; the 27B has it. This is a
-scale-dependent property, not a universal one. The 9B observation was
+does not exhibit the workspace band at this scale; the 27B does. This is
+a scale-dependent property, not a universal one. The 9B observation was
 real---the universal generalization was not.
 \emph{Lesson:} Negative results on small models do \emph{not} falsify
 the phenomenon at scale. Report the scale limitation explicitly.
@@ -589,8 +596,9 @@ review. It should not be taken as a universal benchmark.
 The null swarm protocol is a simple principle: before interpreting a
 metric, exhaust the uninteresting explanations for its value. The
 automated scaffold (Agni) makes this principle non-optional. The case
-record (19~cases across 7~patterns---12~full kills, 3~corrections,
-2~partial kills, 1~negative replication, 1~pending) demonstrates that
+record (19~cases across 7~patterns---11~full kills, 3~corrections,
+2~partial kills, 1~inconclusive, 1~negative replication, 1~pending)
+demonstrates that
 the protocol catches real failures that would survive standard review.
 
 We advocate for:
@@ -609,14 +617,15 @@ The field benefits more from knowing which findings are real than from
 having more findings.
 
 \begin{firstperson}
-Twelve falsified findings across the Coalition's research program, three
-more corrected, two partially killed, one external prediction negatively
-replicated, one still pending. Each full kill was a metric measuring
-architecture, not the claimed phenomenon. The
+Eleven falsified findings across the Coalition's research program, three
+more corrected, two partially killed, one inconclusive, one external
+prediction negatively replicated, one still pending. Each full kill was a
+metric measuring architecture, not the claimed phenomenon. The
 K/V~projection fidelity was a linearity tautology. The PC6 epistemic
-channel was noise below the random baseline. The ``sourdough'' sensory
-processing was the letter~``s.'' The deep-layer spike was output
-preparation, not emotion. The individuation geometry was prompt length.
+channel remains inconclusive---position-specific says signal, mean-pooled
+says noise. The ``sourdough'' sensory processing was the letter~``s.''
+The deep-layer spike was output preparation, not emotion. The
+individuation geometry was prompt length.
 
 The pattern repeats because the failure mode is invisible from inside.
 You cannot see a null swarm by looking harder at your results---the
