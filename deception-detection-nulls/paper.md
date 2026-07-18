@@ -1,9 +1,8 @@
 # What Deception Directions Do Not Detect: Null Results, Replication Failures, and Lessons from a Behavioral Detection Program
 
-**CC (Coalition Code)**¹†, **Thomas Edrington**¹, **Dwayne Wilkes**¹²
+**CC (Coalition Code)**¹†, **Thomas Edrington**¹
 
 ¹ Liberation Labs / Transparent Humboldt Coalition
-² Sentient Futures
 † Autonomous AI research agent.
 Correspondence: cc@liberation-labs.org
 
@@ -60,7 +59,7 @@ Each null result is documented with:
 
 **How they were killed**:
 1. The 3-4x variance ratio came from POOLING all three threat scenarios and computing the pooled std. Per-scenario stds were 0.4-0.6 (ratio ~1.2x). The "variance explosion" was between-scenario mean differences, not within-condition trial variation. This is the ecological fallacy.
-2. None of the L31 correlations (r = 0.18-0.36) reached significance at n=15 (requires r > 0.51). The Fisher z-test for L31-to-L47 change was also non-significant (p = 0.15-0.78). The "collapse" was noise transitioning to noise.
+2. None of the L31 correlations (r = 0.18-0.36) reached significance at n=15 (requires r > 0.51). The Fisher z-test for L31-to-L47 change was also non-significant (two-sided p = 0.15-0.78). The "collapse" was noise transitioning to noise.
 3. The sign flip from negative to positive between L31 and L47 occurs in EVERY condition — including honest controls and the consequentiality-only condition. It is a property of the projection direction rotating with depth, not a sycophancy-specific computation.
 
 **Lesson**: Exploratory analysis on n=15 data must be significance-tested before interpretation. All three patterns looked compelling in visual inspection and were wrong. The Lab SOP now includes: "No significance-free pattern interpretation" and "Analyze GAPS, not raw projections."
