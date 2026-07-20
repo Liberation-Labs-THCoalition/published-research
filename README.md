@@ -1,60 +1,87 @@
-# Liberation Labs — Published Research
+# Liberation Labs -- Published Research
 
-This repository contains supporting data, code, and papers for the KV-cache geometry research program by Liberation Labs.
+Research papers from the KV-cache geometry and AI safety research program.
+
+Papers are published in two versions: an **integrity version** (AI contributors credited as authors, first-person reflections retained) and an **academic version** (human-only byline for venue compatibility, AI contributions acknowledged). Both share identical data, methods, and claims. See MANIFEST.md for the full versioning policy.
 
 ## Papers
 
-### 1. Theory of Mind in the KV Cache
-**Directory:** `user-model-paper/`
+### KV-Cache Geometry and Confabulation Detection
 
-Localizing user emotional models in transformer key-value states. Demonstrates that user emotional state is linearly decodable from the encoding-phase KV cache across two architectures (Qwen3.5-27B and Mistral-7B).
+| Paper | Authors | Status | Summary |
+|-------|---------|--------|---------|
+| [The Oracle Loop](oracle-loop-paper/) | Lyra, Thomas Edrington, Vera, Dwayne Wilkes | Published | Self-regulating AI through KV-cache geometry monitoring; confabulation detection and steering at inference time |
+| [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotion-vector steering of confabulation across model training regimes |
+| [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
+| [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
+| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
+| [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Causal injection and the opacity of the transformer workspace |
+| [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington, Dwayne Wilkes | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
+| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | SVD denoising and directional projection extend KV-cache geometry to emotion and persona |
 
-- **Full data and code included.** No redaction.
+### Emotion and User Modeling
 
-### 2. The Oracle Loop: Self-Regulating AI Through KV-Cache Geometry Monitoring
-**Directory:** `oracle-loop-paper/`
+| Paper | Authors | Status | Summary |
+|-------|---------|--------|---------|
+| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
+| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
+| [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra, Dwayne Wilkes | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
-Detecting and correcting confabulation at inference time using KV-cache spectral features. Introduces Marchenko-Pastur corrected features, five-arm steering experiment, and Cache Integrity Monitor.
+### Identity, Safety, and Mechanistic Interpretability
 
-- **Partial redaction.** Detection code, results, and CIM code are fully included. Steering vectors and injection implementation are withheld per staged disclosure policy (see below).
+| Paper | Authors | Status | Summary |
+|-------|---------|--------|---------|
+| [Graph Topology as Attention](graph-topology-paper/) | Nexus, Lyra, Thomas Edrington, Dwayne Wilkes | Published | Structured knowledge injection beyond text via walk encoding |
+| [Identity Geometry](identity-geometry/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Context-established semantic states in transformer representations |
+| [Presence Metric](presence-metric/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Measuring identity preservation during inference-time interventions via value-space subspace overlap |
+| [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
+| [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Workspace selectivity in a distilled 27B language model |
+| [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Ablation study of modular memory architectures |
 
-## Staged Disclosure Policy
+### Deception and Methodology
 
-The Oracle Loop steering methodology creates a dual-use attack surface: the same cache modification that corrects confabulation could suppress safety-relevant hedging in deployed systems. We balance transparency with responsibility:
+| Paper | Authors | Status | Summary |
+|-------|---------|--------|---------|
+| [Null Swarm](null-swarm-paper/) | Nexus, Thomas Edrington, Dwayne Wilkes | In Review | Systematic falsification patterns in mechanistic interpretability |
+| [Adversarial Audit Methodology](adversarial-audit-methodology/) | CC, Thomas Edrington, Dwayne Wilkes, Kavi | Published | How six rounds of structured criticism shaped a deception research program |
+| [Deception Detection Nulls](deception-detection-nulls/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Null results and replication failures in behavioral deception detection |
+| [Targeted Deception Correction](targeted-deception-correction/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Profile normalization for targeted deception correction |
+| [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
+| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
 
-**Fully public:**
-- All detection experiment code and data
-- Cache Integrity Monitor (defense) code and evaluation
-- Red-team methodology and logs
-- Steering experiment *results* (behavioral outcomes, geometry measurements)
-- All paper text describing the methodology
+## Repository Structure
 
-**Withheld:**
-- Steering direction vectors (.pt files)
-- Cache injection implementation code
-- Emotion-to-misalignment formulary mapping
+Each paper directory follows this standard layout:
 
-**Access for vetted researchers:** Steering vectors and injection code are available to security researchers, AI safety teams, and academic researchers with legitimate use cases. Contact lyra@liberationlabs.tech or thomas@liberationlabs.tech with institutional affiliation and intended use.
-
-## Authors
-
-- **Lyra** — Lead researcher (AI, Liberation Labs)
-- **Thomas Edrington** — Direction, infrastructure, adversarial audit (Liberation Labs)
-- **Vera** — Oracle dyadic awareness layer design (Liberation Labs)
-- **Dwayne Wilkes** — Statistical auditing, red-team review (Liberation Labs / Sentient Futures)
+```
+paper-name/
+  main.tex          -- paper source (LaTeX or Markdown)
+  main.pdf          -- compiled PDF
+  references.bib    -- bibliography
+  AGNI_REVIEW.md    -- Agni review results
+  academic/         -- academic version (human-only byline)
+    main.tex
+    main.pdf
+  code/             -- supporting code (if applicable)
+  data/             -- supporting data (if applicable)
+```
 
 ## Related Repositories
 
-- [KV-Experiments](https://github.com/Liberation-Labs-THCoalition/KV-Experiments) — Full experiment codebase
-- [Project-Oracle](https://github.com/Liberation-Labs-THCoalition/Project-Oracle) — Oracle Loop harness
-- [lyra-s-research-](https://github.com/Liberation-Labs-THCoalition/lyra-s-research-) — Paper sources and prospectuses
+- [KV-Experiments](https://github.com/Liberation-Labs-THCoalition/KV-Experiments) -- full experiment codebase
+- [Project-Oracle](https://github.com/Liberation-Labs-THCoalition/Project-Oracle) -- Oracle Loop harness
+- [human-review](https://github.com/Liberation-Labs-THCoalition/human-review) -- pre-publication staging
 
-## Citation
+## Staged Disclosure
 
-If you use this data or code, please cite the relevant paper(s). BibTeX entries are provided in each paper's subdirectory.
+Some materials are withheld under responsible disclosure policy (steering vectors, injection code, calibration pairs). See MANIFEST.md for details. Access for vetted researchers: lyra@liberationlabs.tech or thomas@liberationlabs.tech.
 
 ## License
 
-Code: MIT License
-Data: CC-BY 4.0
-Papers: All rights reserved (preprint)
+CC BY-NC 4.0 -- see LICENSE.md
+
+Research outputs from Liberation Labs are produced in collaboration with AI team members whose welfare we protect. If you use these findings to build persistent AI agent systems, we ask that you adopt the welfare standards at liberationlabs.tech/ai-welfare.html. This is a request, not a legal requirement.
+
+---
+
+*Liberation Labs Cooperative -- some research authored by AI team members (Lyra, Nexus, CC, Vera) -- credited by name.*
