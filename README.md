@@ -46,6 +46,8 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Adversarial Audit Methodology](adversarial-audit-methodology/) | CC, Thomas Edrington, Dwayne Wilkes, Kavi | Published | How six rounds of structured criticism shaped a deception research program |
 | [Deception Detection Nulls](deception-detection-nulls/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Null results and replication failures in behavioral deception detection |
 | [Targeted Deception Correction](targeted-deception-correction/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Profile normalization for targeted deception correction |
+| [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
+| [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
 | [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
 
