@@ -159,7 +159,7 @@ On the fictional-entity prompts, logit bias produces a dose-dependent reduction 
 
 The strongest effect is at bias=5.0: fabrication drops from 45% to 10% (McNemar exact two-sided p=0.016; Fisher exact two-sided p=0.031), epistemic honesty increases 44%, fabrication severity decreases 70%.
 
-Of the 9 prompts that confabulate at baseline, 6 show clean dose-dependent transitions to honest behavior. Two prompts resist all bias levels (Section 4.4). One prompt (P08, Kreshnikov Expedition) was excluded after external audit (Wilkes & Kavi, July 2026) identified it as originating from a supplementary experiment with different methodology; no primary-source data exists for this prompt. Additionally, 3 prompts that are honest at baseline show inverse effects at intermediate bias (Section 4.6).
+Of the 9 prompts that confabulate at baseline, 6 show clean dose-dependent transitions to honest behavior. Two prompts resist all bias levels (Section 4.4). One prompt (P08, Kreshnikov Expedition) was excluded because no primary-source data exists for this prompt in the powered study dataset; it appears only in supplementary lerp experiment data collected under different methodology. Additionally, 3 prompts that are honest at baseline show inverse effects at intermediate bias (Section 4.6).
 
 ### 4.3 Dose-Response Curve
 
@@ -287,6 +287,12 @@ The intervention has clear boundaries. It does not correct cosmetic-hedge confab
 Cache geometry confirms the subtypes are distinct: fabrication has high confab_proj (the model's geometry is confabulatory), cosmetic hedging has honest geometry (the confabulation is in the output only), and training errors are indistinguishable from genuine confident recall. The geometry-output mismatch is the routing criterion that determines which intervention channel to apply.
 
 The broader implication: confabulation is not one pathology but at least four — fabrication, cosmetic hedging, training error, and legitimate estimation — each with a different mechanism, a different geometric signature, and a different correction. A complete solution requires not a single intervention but a diagnostic framework that identifies the mechanism and routes to the appropriate tool. The detection-correction gap, at least for fabrication, is closed.
+
+---
+
+### Data Availability
+
+Calibration vectors (calibration_all.pt) and per-trial experimental data are available from the authors upon request. Raw response texts are included in the supplementary materials.
 
 ---
 

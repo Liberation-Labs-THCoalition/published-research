@@ -275,7 +275,7 @@ Nineteen findings confirmed, eight falsified, six superseded. The falsified ones
 - McKenzie, A. et al. (2025). "Detecting High-Stakes Interactions with Activation Probes." arXiv:2506.10805.
 - Meinke, A. et al. (2024). "Frontier Models are Capable of In-Context Scheming." arXiv:2412.04984.
 - Menon, V. & Uddin, L. (2010). "Saliency, switching, attention and control." Brain Structure and Function, 214:655-667.
-- Natarajan, S. et al. (2025). "Building Better Deception Probes Using Targeted Instruction Pairs." arXiv:2602.01425.
+- Natarajan, V. et al. (2026). "Building Better Deception Probes Using Targeted Instruction Pairs." arXiv:2602.01425.
 - Nguyen, J. et al. (2025). "Probing and Steering Evaluation Awareness." arXiv:2507.01786. ICML Workshops.
 - O'Brien, C. et al. (2026). "A Few Bad Neurons: Isolating and Surgically Correcting Sycophancy." arXiv:2601.18939.
 - Petrov, V. (2026). "On the Failure of Topic-Matched Contrast Baselines in Multi-Directional Refusal Abliteration." arXiv:2603.22061.
@@ -289,7 +289,7 @@ Nineteen findings confirmed, eight falsified, six superseded. The falsified ones
 
 ## Supplementary Material
 
-- A: Full adversarial audit reports (5 stages)
+- A: Adversarial audit reports (stages 1, 2, and 4; stages 3 and 5 pending)
 - B: All guideline texts with length verification
 - C: Per-trial projection data
 - D: Code availability (github.com/Liberation-Labs-THCoalition/Project-Oracle, staged release)

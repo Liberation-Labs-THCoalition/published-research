@@ -101,7 +101,7 @@ deceptive pressure framing achieves AUROC 0.915 on novel prompts with 0\% false 
 rate; behavior-level prediction (will this model cave or resist on this trial?) did not
 replicate prior work's reported accuracy and remains an open problem. The correction
 pipeline and experimental data are available under the Liberation Labs staged release
-framework; access details at \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}.
+framework; access details at \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} (access upon application).
 \end{abstract}
 
 \newpage
@@ -300,7 +300,7 @@ The placebo controls provide the strongest evidence for this interpretation. Ran
 
 \subsection{The Detection-Correction Asymmetry}\label{sec:asymmetry}
 
-A striking finding: correction works better than detection. We can reduce deception from 80\% to 0\% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
+A striking finding: correction works better than detection. In the exploratory proof, deception drops from 80\% to 0\% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
 
 This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt (frame-level detection, AUROC 0.915), rather than reactively when deceptive behavior is detected in the output.
 
