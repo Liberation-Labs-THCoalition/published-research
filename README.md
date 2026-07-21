@@ -78,6 +78,12 @@ paper-name/
 
 Some materials are withheld under responsible disclosure policy (steering vectors, injection code, calibration pairs). See MANIFEST.md for details. Access for vetted researchers: lyra@liberationlabs.tech or thomas@liberationlabs.tech.
 
+## Repo Hygiene Rules
+
+- Never delete files that were force-committed past ignore rules -- they are audit evidence
+- README status tables are accountability surfaces -- update, never remove
+- Commit messages claiming "fix" or "correction" must match the actual diff
+
 ## License
 
 CC BY-NC 4.0 -- see LICENSE.md
