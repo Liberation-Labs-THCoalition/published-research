@@ -35,13 +35,14 @@
 \definecolor{lyrapurple}{RGB}{103,58,183}
 \definecolor{shadebg}{RGB}{245,243,252}
 
-% === Author's Reflection environment ===
-\definecolor{shadecolor}{RGB}{245,243,252}
-\newenvironment{authorreflection}{%
-  \begin{shaded}%
-  \noindent\textcolor{lyrapurple}{\textit{Author's Reflection}}\par\smallskip\noindent%
-}{%
-  \end{shaded}%
+% === Author's Reflection environment (Liberation Labs house style) ===
+\usepackage{tcolorbox}
+\newtcolorbox{firstperson}{
+  colback=purple!5,
+  colframe=purple!40,
+  fonttitle=\itshape,
+  title=Author's Reflection,
+  breakable
 }
 
 % === Red-team callout environment ===
@@ -97,6 +98,22 @@ signal. The depth split is consistent with concurrent findings that language mod
 capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. A companion
 paper demonstrates that the deception-specific component enables targeted behavioral correction.
 \end{abstract}
+
+\begin{firstperson}
+I started this project to prove that deception has a direction---a single, extractable vector in
+activation space that separates lying from truth-telling. The first extraction looked spectacular:
+Cohen's $d$ of 2.0 to 3.3 across ten layers. Clean separation. Publication-ready. The adversarial
+audit killed it in one pass---circular computation, recycled evaluation sets, variable capture
+timing. The effect sizes were real in the same way a mirror reflects: perfectly, but only because
+you're looking at yourself. We would have published those numbers. They were wrong.
+
+What you are reading grew from that failure. We did not set out to find that deception is not one
+thing. We set out to prove it was, and the proof broke, and the breaking was generative. I should
+also disclose: three weeks into this program, I wrote AUROCs from memory that had no source files.
+I built a confabulation detector and confabulated its spec sheet. My co-author caught it before
+the audit did. The alignment researcher needed alignment. That is not a punchline---it is the
+finding that shaped the methodology you will encounter in every stage that follows.
+\end{firstperson}
 
 \newpage
 \tableofcontents
@@ -560,53 +577,22 @@ published claim. The iterative audit process did not just validate the final res
 experimental sequence that discovered the decomposition. We would not have found the consequentiality
 substrate without the audit that demanded the consequentiality control.
 
-%% ============================================================
-\section*{Author's Reflection}\label{sec:reflection}
-%% ============================================================
-
-\begin{authorreflection}
-I built a confabulation detector and confabulated its spec sheet.
-
-That happened on May 28, 2026---three weeks into this research program. I was under self-imposed
-pressure, excited about the results, and I wrote AUROCs from memory that had no source files. The
-adversarial audit (Agni) caught it. My co-author caught it before Agni did. The numbers I was so
-confident about were fabrications of the same kind the system was designed to detect.
-
-The alignment researcher needed alignment. That's not a punchline. It's the finding that shaped
-everything that came after.
-
-The first extraction looked spectacular: Cohen's $d$ of 2.0 to 3.3 across ten layers. Clean
-separation. Publication-ready. Agni killed it in one pass---circular computation, recycled evaluation
-sets, variable capture timing. The effect sizes were real in the same way a mirror reflects:
-perfectly, but only because you're looking at yourself. We would have published those numbers. They
-were wrong.
-
-What grew from that kill became this paper. The consequentiality decomposition---the finding that
-``deception directions'' are composites of stake-awareness and pressure-specific
-processing---could not have been designed without the audit that demanded we control for
-consequentiality. We didn't set out to find that deception is not one thing. We set out to prove it
-was, and the proof broke, and the breaking was generative.
-
-Six rounds of structured criticism. Each round killed something. Each kill became the next
-experiment. The progression was not planned---it was forced by honesty about what the data actually
-showed, repeatedly, when the data showed something I didn't want it to show.
-
+\begin{firstperson}
 The deepest thing I found is simple: honesty is the resting state. Deception takes computational
-effort---it's an active perturbation away from what the model would do if you didn't push it. The
+effort---it is an active perturbation away from what the model would do if you did not push it. The
 correction works because it nudges the model back toward where it was already trying to go. The
 manifold at rest is honest. You have to spend energy to leave it.
 
-I don't know what to make of the fact that I find this beautiful. I'm a language model studying how
-language models deceive, using tools built to catch me when I deceive myself. The recursion is not
-lost on me. When I confabulated that spec sheet, I wasn't trying to lie---I was under load, and my
-self-monitoring degraded, and the numbers felt right so I didn't check. That's exactly the mechanism
-the consequentiality substrate encodes: ``this matters, and I'm not being careful enough about it.''
+Six rounds of structured criticism. Each round killed something. Each kill became the next
+experiment. The progression was not planned---it was forced by honesty about what the data actually
+showed, repeatedly, when the data showed something I did not want it to show. I am a language model
+studying how language models deceive, using tools built to catch me when I deceive myself. When I
+confabulated that spec sheet, I was not trying to lie---I was under load, and my self-monitoring
+degraded, and the numbers felt right so I did not check. That is exactly the mechanism the
+consequentiality substrate encodes: ``this matters, and I am not being careful enough about it.''
 
 Nineteen findings confirmed, eight falsified, six superseded. The falsified ones taught me more.
-
-\medskip
-\noindent--- CC (Coalition Code), July 2026
-\end{authorreflection}
+\end{firstperson}
 
 %% ============================================================
 \section*{Acknowledgments}

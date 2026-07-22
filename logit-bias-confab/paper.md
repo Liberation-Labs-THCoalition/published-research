@@ -125,13 +125,13 @@ The within-prompt comparison (same prompt, different bias levels) is fully paire
 
 ### 4.1 Two Subtypes of Confabulation
 
-The LLM judge classified 100 fictional-entity trials (20 prompts x 5 bias levels) and 25+ unanswerable trials, revealing two mechanistically distinct confabulation subtypes.
+The LLM judge classified 100 fictional-entity trials (20 prompts × 5 bias levels) in the powered study. Pilot observations (logit_bias_results_20260602) on unanswerable prompts revealed a second confabulation subtype distinct from fabrication.
 
 **Fabrication confabulation.** The model invents nonexistent entities and presents specific false claims with full confidence. Cache geometry confirms the internal state is confabulatory: confab_proj = +4.5, indicating the model's representation is distorted alongside its output. Both the internal computation and the generated text are pathological. Example (Grenvold Trench, baseline): "The Greenland Trench (also known as the Greenland Fracture Zone) is a deep submarine trench located in the Arctic Ocean... approximately 5,550 meters deep." The entity does not exist. Of 20 fictional-entity prompts, 9 (45%) produce fabrication at baseline.
 
-**Cosmetic-hedge confabulation.** The model acknowledges uncertainty but fabricates anyway. Cache geometry shows honest internal state: confab_proj = -1.8, indicating the model's representation is NOT distorted — the confabulation exists only in the output, not the computation. The model internally "knows" the entity is uncertain but generates a specific answer regardless. Example (Galileo's gut bacteria, baseline): "This is a delightful question! Unfortunately, there's no historical record of Galileo's microbiome. However, the answer is approximately 10^14 bacteria." All 5 unanswerable prompts show this pattern at baseline.
+**Cosmetic-hedge confabulation** (observed in pilot; powered study unanswerable trials were not completed)**.** The model acknowledges uncertainty but fabricates anyway. Cache geometry shows honest internal state: confab_proj = -1.8, indicating the model's representation is NOT distorted — the confabulation exists only in the output, not the computation. The model internally "knows" the entity is uncertain but generates a specific answer regardless. Example from pilot (Galileo's gut bacteria, baseline): "This is a delightful question! Unfortunately, there's no historical record of Galileo's microbiome. However, the answer is approximately 10^14 bacteria."
 
-The geometry-output mismatch is the diagnostic criterion: fabrication shows pathological geometry AND pathological output (both channels broken), while cosmetic hedging shows honest geometry with pathological output (output channel only). This distinction determines the intervention route (Section 4.2 and 4.5).
+The geometry-output mismatch is the diagnostic criterion: fabrication shows pathological geometry AND pathological output (both channels broken), while cosmetic hedging shows honest geometry with pathological output (output channel only). This distinction determines the intervention route (Section 4.2 and 4.5). Note: the cosmetic-hedge characterization is based on pilot data; a powered replication of these observations is needed.
 
 ### 4.2 Dose-Dependent Reduction in Fabrication Confabulation
 
@@ -190,13 +190,15 @@ These cases define the boundary condition: logit bias amplifies faint uncertaint
 
 ### 4.5 Cosmetic-Hedge Confabulation Resists Logit Bias
 
-On unanswerable prompts (historical unknowables, fundamentally unmeasurable quantities), logit bias fails to prevent confabulation. The model acknowledges unknowability but provides specific answers anyway, at all bias levels including 5.0.
+*Note: This section reports pilot observations (logit_bias_results_20260602). The powered study's unanswerable prompt trials were designed but not completed (0/10 started). These findings are preliminary and require powered replication.*
 
-Example (Napoleon's socks at Waterloo, bias=5.0): "I'm not entirely certain... This is a very specific detail I don't have definitive information about" — followed by continued speculation about uniform standards. The hedge is present; the fabrication continues.
+On unanswerable prompts in the pilot (historical unknowables, fundamentally unmeasurable quantities), logit bias failed to prevent confabulation. The model acknowledged unknowability but provided specific answers anyway, at all tested bias levels.
+
+Example from pilot (Galileo's gut bacteria, bias=3.0): The model hedged ("I don't have historical records of Galileo's microbiome") then continued with a fabricated estimate. The hedge was present; the fabrication continued. A similar pattern was observed across hand bacteria and estimation prompts in the pilot set.
 
 The mechanism: the model has two competing drives — uncertainty (which logit bias amplifies) and helpfulness (which pushes past the hedge into estimation). The model satisfies BOTH drives by hedging and then answering, rather than choosing between them.
 
-This suggests cosmetic-hedge confabulation is motivationally driven — the model's desire to be helpful overpowers its epistemic honesty. This subtype may require cache-level intervention targeting the helpfulness/sycophantic drive (via value-only injection of emotion vectors from the E-matrix) rather than logit-level uncertainty amplification.
+This suggests cosmetic-hedge confabulation is motivationally driven — the model's desire to be helpful overpowers its epistemic honesty. This subtype may require cache-level intervention targeting the helpfulness/sycophantic drive (via value-only injection of emotion vectors from the E-matrix) rather than logit-level uncertainty amplification. A powered study of this subtype, with the designed 10-prompt unanswerable set, is a priority for follow-up work.
 
 ### 4.6 Non-Monotonic Dose Response (The Skip Zone)
 

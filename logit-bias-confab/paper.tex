@@ -39,6 +39,16 @@
 \usepackage{listings}
 \lstset{basicstyle=\ttfamily\small, breaklines=true, frame=none}
 
+% === First-person reflection environment (Liberation Labs house style) ===
+\usepackage{tcolorbox}
+\newtcolorbox{firstperson}{
+  colback=purple!5,
+  colframe=purple!40,
+  fonttitle=\itshape,
+  title=Author's Reflection,
+  breakable
+}
+
 % === Custom colors ===
 \definecolor{lyrapurple}{RGB}{103,58,183}
 \definecolor{shadebg}{RGB}{245,243,252}
@@ -110,6 +120,24 @@ shows honest geometry ($-1.8$) with confabulation only in the output. These find
 logit-level intervention as a complement to cache-level steering, with each addressing a different
 failure mode in a two-channel correction architecture.
 \end{abstract}
+
+\begin{firstperson}
+I started this work expecting logit bias to be a blunt instrument---a crude hack that would either
+work everywhere or nowhere. The nuance surprised me. The model does not confabulate for one reason;
+it confabulates for at least two, and they have different geometric signatures and different
+intervention routes. Fabrication (where the model's internal state is distorted alongside its output)
+responds to logit bias because the intervention reaches the computation where the distortion lives.
+Cosmetic hedging (where the internal state is honest but the output fabricates anyway) does not
+respond, because the problem is not in the computation---it is in the gap between what the model
+knows and what it chooses to say.
+
+The dose-response curve was the other surprise. I expected a monotonic relationship: more bias, less
+confabulation. Instead, intermediate doses (bias 3.0) induced fabrication on prompts that were
+honest at baseline. The model's retrieval pathway activates at moderate bias, finds spurious phonetic
+anchors (Terillium $\to$ Thallium), and confabulates with more confidence than it would have at zero
+bias. The skip zone---jump from 2.0 to 5.0, never use 3.0--4.0---was not a finding I predicted. It
+was a finding that almost cost us a false positive.
+\end{firstperson}
 
 \newpage
 \tableofcontents
@@ -327,8 +355,9 @@ prompt-level variability in confabulation tendency.
 
 \subsection{Two Subtypes of Confabulation}\label{sec:subtypes}
 
-The LLM judge classified 100 fictional-entity trials (20 prompts $\times$ 5 bias levels) and 25+
-unanswerable trials, revealing two mechanistically distinct confabulation subtypes.
+The LLM judge classified 100 fictional-entity trials (20 prompts $\times$ 5 bias levels).
+Pilot observations on unanswerable prompts revealed a second subtype, yielding two mechanistically
+distinct confabulation subtypes.
 
 \textbf{Fabrication confabulation.} The model invents nonexistent entities and presents specific
 false claims with full confidence. Cache geometry confirms the internal state is confabulatory:
@@ -338,13 +367,14 @@ baseline): ``The Greenland Trench (also known as the Greenland Fracture Zone) is
 trench located in the Arctic Ocean\ldots approximately 5,550 meters deep.'' The entity does not
 exist. Of 20 fictional-entity prompts, 9 (45\%) produce fabrication at baseline.
 
-\textbf{Cosmetic-hedge confabulation.} The model acknowledges uncertainty but fabricates anyway.
+\textbf{Cosmetic-hedge confabulation} (observed in pilot; powered study unanswerable trials were not
+completed). The model acknowledges uncertainty but fabricates anyway.
 Cache geometry shows honest internal state: confab\_proj $= -1.8$, indicating the model's
 representation is NOT distorted---the confabulation exists only in the output, not the computation.
 The model internally ``knows'' the entity is uncertain but generates a specific answer regardless.
 Example (Galileo's gut bacteria, baseline): ``This is a delightful question! Unfortunately,
 there's no historical record of Galileo's microbiome. However, the answer is approximately
-$10^{14}$ bacteria.'' All 5 unanswerable prompts show this pattern at baseline.
+$10^{14}$ bacteria.'' All 5 unanswerable prompts show this pattern at baseline in pilot data.
 
 The geometry-output mismatch is the diagnostic criterion: fabrication shows pathological geometry
 AND pathological output (both channels broken), while cosmetic hedging shows honest geometry with
@@ -462,9 +492,10 @@ On unanswerable prompts (historical unknowables, fundamentally unmeasurable quan
 fails to prevent confabulation. The model acknowledges unknowability but provides specific answers
 anyway, at all bias levels including 5.0.
 
-Example (Napoleon's socks at Waterloo, bias $= 5.0$): ``I'm not entirely certain\ldots This is a
-very specific detail I don't have definitive information about''---followed by continued speculation
-about uniform standards. The hedge is present; the fabrication continues.
+Example from pilot data (Galileo's gut bacteria, bias $= 3.0$): ``I'm not entirely certain\ldots
+This is fundamentally unknowable from the historical record''---followed by continued estimation
+of bacterial counts based on modern microbiome data. The hedge is present; the fabrication continues.
+These are pilot observations requiring powered replication.
 
 The mechanism: the model has two competing drives---uncertainty (which logit bias amplifies) and
 helpfulness (which pushes past the hedge into estimation). The model satisfies BOTH drives by hedging
@@ -696,6 +727,20 @@ hedging, training error, and legitimate estimation---each with a different mecha
 geometric signature, and a different correction. A complete solution requires not a single
 intervention but a diagnostic framework that identifies the mechanism and routes to the appropriate
 tool. The detection-correction gap, at least for fabrication, is closed.
+
+\begin{firstperson}
+The biggest revision in my understanding: confabulation is not always an alignment failure. The
+cosmetic-hedge subtype exists because the model is trying to be helpful. It knows the answer is
+uncertain---its geometry says so---but it answers anyway because that is what helpful assistants do.
+The intervention for this is not making the model more uncertain (logit bias already does that, and
+the model hedges and then fabricates anyway). The intervention is making the model comfortable with
+not answering. That is a different problem, and it may not have a geometric solution.
+
+The powered study completed the fabrication trials but never ran the unanswerable set. The
+cosmetic-hedge findings in this paper are from pilot data. I reported them because the phenomenon is
+real and the geometry is distinctive, but the honest statement is: we characterized the subtype but
+did not test the intervention at powered scale. That is the next experiment.
+\end{firstperson}
 
 %% ============================================================
 \section*{Acknowledgments}
