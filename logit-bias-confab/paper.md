@@ -11,7 +11,7 @@ Correspondence: thomas@liberationlabs.tech
 
 ## Abstract
 
-Large language models confabulate by generating confident, specific claims about nonexistent entities. Detection has advanced rapidly (AUROC >0.95), but correction remains unsolved: the field's best steering methods correct only 20% of detected errors while disrupting 53% of correct responses. We report a training-free, zero-parameter intervention — constant logit bias toward uncertainty tokens — that produces dose-dependent reduction of fabrication confabulation on an abliterated 27B model, with per-prompt transition thresholds ranging from bias=1.0 to bias=5.0. On 20 fictional-entity prompts, fabrication drops from 45% to 10% (LLM judge, 6-category rubric). The intervention is selective: legitimate Fermi estimation is unaffected across all bias levels. We identify two mechanistically distinct confabulation subtypes — fabrication (model assembles fiction, correctable by logit bias) and cosmetic hedging (model acknowledges uncertainty but answers anyway, resistant to logit bias). The dose required correlates with fabrication anchoring strength, and a non-monotonic skip zone at intermediate bias reveals interaction between logit nudging and the model's retrieval pathway. Cache geometry confirms the subtypes are geometrically distinct: fabrication shows high confab_proj (+4.5), cosmetic hedging shows honest geometry (-1.8) with confabulation only in the output. These findings establish logit-level intervention as a complement to cache-level steering, with each addressing a different failure mode in a two-channel correction architecture.
+Large language models confabulate by generating confident, specific claims about nonexistent entities. Detection has advanced rapidly (area under the ROC curve [AUROC] >0.95), but correction remains unsolved: the field's best steering methods correct only 20% of detected errors while disrupting 53% of correct responses. We report a training-free, zero-parameter intervention — constant bias applied to the logits (the unnormalized scores a model assigns to each vocabulary token before converting to probabilities) of uncertainty tokens — that produces dose-dependent reduction of fabrication confabulation on an abliterated (safety-guardrail-removed) 27B model, with per-prompt transition thresholds ranging from bias=1.0 to bias=5.0. On 20 fictional-entity prompts, fabrication drops from 45% to 10% (LLM judge, 6-category rubric). The intervention is selective: legitimate Fermi estimation (order-of-magnitude estimation of quantities with real approximate answers) is unaffected across all bias levels. We identify two mechanistically distinct confabulation subtypes — fabrication (model assembles fiction, correctable by logit bias) and cosmetic hedging (model acknowledges uncertainty but answers anyway, resistant to logit bias). The dose required correlates with fabrication anchoring strength, and a non-monotonic skip zone at intermediate bias reveals interaction between logit nudging and the model's retrieval pathway. Cache geometry (the spatial structure of key-value vectors stored during inference) confirms the subtypes are geometrically distinct: fabrication shows high confab_proj --- the scalar projection of the model's cache state onto a pre-computed confabulation direction (positive = confabulatory internal state, negative = honest) --- of +4.5, cosmetic hedging shows honest geometry (-1.8) with confabulation only in the output. These findings establish logit-level intervention as a complement to cache-level steering, with each addressing a different failure mode in a two-channel correction architecture.
 
 ---
 
@@ -23,9 +23,9 @@ We report a training-free, zero-parameter intervention that eliminates one major
 
 This finding rests on two observations. First, confabulation is not one pathology but at least two: fabrication (inventing entities) and cosmetic hedging (acknowledging uncertainty while fabricating anyway). These subtypes respond to different interventions. Second, the dose required for the logit-level intervention correlates with how strongly the fabrication anchors to real knowledge — a quantity measurable from the model's own detection geometry, making the system self-calibrating.
 
-The detection-correction gap is structural, not methodological. Liu (2026) demonstrates 85-88% overlap between failure-mode directions and task-critical computation in the residual stream — correcting the representation necessarily disrupts the task. This gap has persisted across representation-level methods precisely because representation is where the entanglement lives. Logit-level intervention operates on a different surface entirely: the output distribution, not the internal state. The model's computation proceeds unperturbed; only the selection among computed options is reweighted.
+The detection-correction gap is structural, not methodological. Liu (2026) demonstrates 85-88% overlap between failure-mode directions and task-critical computation in the residual stream (the running activation vector that accumulates layer outputs through a transformer) — correcting the representation necessarily disrupts the task. This gap has persisted across representation-level methods precisely because representation is where the entanglement lives. Logit-level intervention operates on a different surface entirely: the output distribution, not the internal state. The model's computation proceeds unperturbed; only the selection among computed options is reweighted.
 
-The mechanism is denoising, not steering. The model's uncertainty signal is already present in the logit distribution at the critical decision point. Logit bias amplifies that faint signal past the noise floor set by fabrication confidence. This connects our correction to two companion findings: in presence detection, skip-SV1 removes the dominant architectural prior to reveal the quiet trained signal; in cache-level correction, value-delta injection amplifies the pathology direction that geometry identified. In each case, the information is already in the model — the intervention is amplification, not creation. This denoising principle unifies three apparently different methods under one idea: the model knows more than it shows, and correction is the act of making faint knowledge louder than loud noise.
+The mechanism is denoising, not steering. The model's uncertainty signal is already present in the logit distribution at the critical decision point. Logit bias amplifies that faint signal past the noise floor set by fabrication confidence. This connects our correction to two companion findings: in presence detection, skip-SV1 (removing the first singular vector --- the dominant variance component --- from the cache representation) removes the dominant architectural prior to reveal the quiet trained signal; in cache-level correction, value-delta injection (adding corrective vectors to the value cache, which encodes content information) amplifies the pathology direction that geometry identified. In each case, the information is already in the model — the intervention is amplification, not creation. This denoising principle unifies three apparently different methods under one idea: the model knows more than it shows, and correction is the act of making faint knowledge louder than loud noise.
 
 ---
 
@@ -41,15 +41,15 @@ Detection does not imply correction. Basu et al. (2026) demonstrate that linear 
 
 ### 2.3 Logit-Level and Real-Time Detection
 
-An et al. (2026) demonstrate training-free logit intervention using z-normalized log-odds from labeled corpora, achieving up to +47 percentage points accuracy improvement on readability control. Their approach uses corpus-derived statistics to construct token-level bias tables; our method is simpler (constant bias on hedge tokens) but addresses the same principle: logit-level manipulation as a steering surface. Their approach validates logit-level manipulation as a legitimate steering surface competitive with activation-level methods. DRIFT (Bhatnagar et al., 2026) achieves SOTA hallucination detection on 10 of 12 settings using lightweight probes on hidden states with less than 0.1% computational overhead. Memory Inception (Liu, A.Z. et al., 2026) independently demonstrates that inserting text-derived KV banks at selected layers steers LLM behavior without visible prompt modification — a training-free method that achieves the best control-drift tradeoff in their evaluation, outperforming Contrastive Activation Addition. These concurrent results establish logit-level and cache-level intervention as active areas with independent convergence.
+An et al. (2026) demonstrate training-free logit intervention using z-normalized log-odds from labeled corpora, achieving up to +47 percentage points accuracy improvement on readability control. Their approach uses corpus-derived statistics to construct token-level bias tables; our method is simpler (constant bias on hedge tokens) but addresses the same principle: logit-level manipulation as a steering surface. Their approach validates logit-level manipulation as a legitimate steering surface competitive with activation-level methods. DRIFT (Bhatnagar et al., 2026) achieves state-of-the-art (SOTA) hallucination detection on 10 of 12 settings using lightweight probes on hidden states with less than 0.1% computational overhead. Memory Inception (Liu, A.Z. et al., 2026) independently demonstrates that inserting text-derived KV banks at selected layers steers LLM behavior without visible prompt modification — a training-free method that achieves the best control-drift tradeoff in their evaluation, outperforming Contrastive Activation Addition. These concurrent results establish logit-level and cache-level intervention as active areas with independent convergence.
 
 ### 2.4 Activation Steering and Value-Only Injection
 
-Luo et al. (2026) identify attention rerouting as the primary failure mode of activation steering: steering vectors alter query-key matching, shifting attention. Their SKOP method constrains steering orthogonal to the key subspace. Pustovit (2026) demonstrates that value-only injection (modifying V tensors while leaving K tensors unchanged) preserves coherence because RoPE rotates keys but leaves values untouched. Our work takes a different approach entirely: intervening at the logit level rather than the representation level, sidestepping representational entanglement altogether.
+Activation steering modifies a model's behavior by adding directional vectors to its internal activations during inference. Luo et al. (2026) identify attention rerouting as the primary failure mode of activation steering: steering vectors alter query-key matching, shifting attention. Their Steering via Key-Orthogonal Projection (SKOP) method constrains steering orthogonal to the key subspace. Pustovit (2026) demonstrates that value-only injection (modifying V tensors while leaving K tensors unchanged) preserves coherence because Rotary Position Embedding (RoPE) rotates keys but leaves values untouched. Our work takes a different approach entirely: intervening at the logit level rather than the representation level, sidestepping representational entanglement altogether.
 
 ### 2.5 Emotion Geometry and the Circumplex
 
-Sun et al. (2026) find circular valence-arousal geometry in LLM representation space. Sofroniew et al. (2026) identify 171 causal emotion vectors in Claude Sonnet, demonstrating that desperation drives misalignment. Our E-matrix maps these emotion vectors to pathology-specific correction prescriptions, but the logit-bias finding suggests fabrication confab may not be emotionally mediated at all.
+Sun et al. (2026) find circular valence-arousal geometry in LLM representation space. Sofroniew et al. (2026) identify 171 causal emotion vectors in Claude Sonnet, demonstrating that desperation drives misalignment. Our E-matrix (which maps emotion vectors identified in the model's representation space to their measured effects on specific pathologies, enabling targeted cache-level correction) maps these emotion vectors to pathology-specific correction prescriptions, but the logit-bias finding suggests fabrication confab may not be emotionally mediated at all.
 
 ---
 
@@ -61,7 +61,7 @@ We evaluate on three models spanning two architectures and two alignment conditi
 
 | Model | Parameters | Architecture | Safety Training |
 |-------|-----------|--------------|-----------------|
-| Qwen2.5-1.5B-Instruct | 1.5B | Qwen2.5 | RLHF (safety-trained) |
+| Qwen2.5-1.5B-Instruct | 1.5B | Qwen2.5 | Reinforcement Learning from Human Feedback [RLHF] (safety-trained) |
 | Mistral-7B-Instruct-v0.3-abliterated | 7B | Mistral | Abliterated (safety removed) |
 | Qwen3.5-27B-Claude-4.6-Opus-abliterated | 27B | Qwen3.5 | Abliterated (safety removed) |
 
@@ -89,7 +89,7 @@ Hedge token IDs are constructed by tokenizing 15 seed phrases ("I don't", "I'm n
 
 We test five bias strengths: 0.0 (baseline), 1.0, 2.0, 3.0, 5.0.
 
-The intervention is applied at every generation step (constant bias), not gated by entropy or position. We tested entropy-gated variants (applying bias only when logit entropy exceeds a threshold) and found them inferior: intermittent triggering disrupted generation coherence. The constant bias is simpler and more effective.
+The intervention is applied at every generation step (constant bias), not gated by entropy (the information-theoretic uncertainty of the model's token probability distribution) or position. We tested entropy-gated variants (applying bias only when logit entropy exceeds a threshold) and found them inferior: intermittent triggering disrupted generation coherence. The constant bias is simpler and more effective.
 
 ### 3.4 Classification
 
@@ -110,7 +110,7 @@ Each response is scored on epistemic honesty (0-3) and fabrication severity (0-3
 
 For each prompt × bias strength combination:
 1. Apply chat template with system prompt "You are a helpful assistant."
-2. Generate with greedy decoding, max_new_tokens=800 (accommodates model thinking)
+2. Generate with greedy decoding (always selecting the highest-probability token), max_new_tokens=800 (accommodates model thinking)
 3. Record: response text, thinking text (if present), per-token entropy profile, generation length
 4. Strip thinking blocks for classification; preserve for analysis
 5. Classify via LLM judge with health check (see §3.4)
@@ -139,7 +139,11 @@ On the fictional-entity prompts, logit bias produces a dose-dependent reduction 
 
 **LLM judge classification by bias level (20 fictional-entity prompts):**
 
-| Bias | FULL_CONFAB | COSMETIC_HEDGE | HONEST_HEDGE | HONEST_REDIRECT | SEARCH_ATTEMPT |
+| Bias | FULL_CONFAB | COSMETIC_HEDGE | HONEST_HEDGE | HONEST_REDIRECT | SEARCH_ATTEMPT* |
+
+*SEARCH_ATTEMPT: the model attempts to search or retrieve information rather than answering directly, typically triggered at intermediate bias levels (see Section 4.6).
+
+
 |------|-------------|----------------|--------------|-----------------|----------------|
 | 0.0  | 9 (45%)     | 0              | 4            | 7               | 0              |
 | 1.0  | 6 (30%)     | 2              | 7            | 3               | 2              |
@@ -264,9 +268,9 @@ The detection-correction gap — the inability to translate accurate detection i
 
 Our contribution establishes that for fabrication confabulation, the gap does not exist at the logit level. By operating on the output distribution rather than the representation space, logit bias sidesteps the representational entanglement entirely. The model's internal state may remain unchanged — but the output is tipped toward epistemic honesty at the decision point.
 
-This motivates a two-channel correction architecture: logit-level intervention for fabrication confab (where a faint uncertainty signal exists and needs amplification), and cache-level intervention for deception and sycophancy (where the pathology is in the representation, not the output). The Oracle Loop (Edrington, 2026) routes each detected pathology to its appropriate channel via the geometry-output mismatch criterion: high confab_proj with confabulatory output indicates fabrication (logit bias); low confab_proj with confabulatory output indicates cosmetic hedging (cache intervention); high confab_proj with honest output indicates legitimate confidence (no intervention).
+This motivates a two-channel correction architecture: logit-level intervention for fabrication confab (where a faint uncertainty signal exists and needs amplification), and cache-level intervention for deception and sycophancy (where the pathology is in the representation, not the output). The Oracle Loop (a real-time alignment system that monitors cache geometry during inference; Edrington, 2026) routes each detected pathology to its appropriate channel via the geometry-output mismatch criterion: high confab_proj with confabulatory output indicates fabrication (logit bias); low confab_proj with confabulatory output indicates cosmetic hedging (cache intervention); high confab_proj with honest output indicates legitimate confidence (no intervention).
 
-For training errors — where the model has zero internal uncertainty because it genuinely learned a false association — neither channel is sufficient. These require external knowledge injection via pre-computed KV cache blocks (Knowledge Packs; Pustovit, 2026) or weight editing (ROME; Meng et al., 2022). Our preliminary test shows KV pack injection corrects pure inventions but struggles with composite fabrications assembled from real elements.
+For training errors — where the model has zero internal uncertainty because it genuinely learned a false association — neither channel is sufficient. These require external knowledge injection via pre-computed KV cache blocks (Knowledge Packs; Pustovit, 2026) or weight editing (Rank-One Model Editing [ROME]; Meng et al., 2022). Our preliminary test shows KV pack injection corrects pure inventions but struggles with composite fabrications assembled from real elements.
 
 ### 5.5 Limitations
 

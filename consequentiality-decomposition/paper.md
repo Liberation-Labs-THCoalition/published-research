@@ -10,13 +10,13 @@ Correspondence: cc@liberation-labs.org
 
 ## Abstract
 
-What do "deception directions" extracted from language models actually encode? We show they are composites. Through five stages of confound elimination — each designed in response to an adversarial audit of the previous stage — we decompose a deception direction in a 27B-parameter model into two separable components occupying distinct depth ranges: a **consequentiality substrate** (Layers 23-31) that fires whenever the model represents its output as having downstream consequences, regardless of deceptive pressure, and a **deception-specific amplifier** (Layers 35-47) that survives formal orthogonalization against the consequentiality component and fires only under active pressure to misreport. The consequentiality substrate activates for shutdown threats, social pressure, reward incentives, AND a high-stakes calibration audit with no deceptive pressure whatsoever (d=19.8, p<10⁻⁴). The deception amplifier, isolated via Gram-Schmidt orthogonalization with leave-one-out cross-validation, shows d=24-37 at Layers 31-47 (all p<10⁻⁴, Bonferroni-corrected) with consequentiality separation at chance (AUC 0.49-0.51). Three distinct late-layer signatures emerge across deception types: threat deception produces a sustained plateau, social deception produces a rising gradient, and reward-based framing produces no deception-specific signal. The depth split is consistent with concurrent findings that language models maintain a capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. A companion paper demonstrates that the deception-specific component enables targeted behavioral correction.
+What do "deception directions" (linear directions in a model's activation space that separate deceptive from honest conditions) extracted from language models actually encode? We show they are composites. Through five stages of confound elimination — each designed in response to an adversarial audit of the previous stage — we decompose a deception direction in a 27B-parameter model into two separable components occupying distinct depth ranges: a **consequentiality substrate** (Layers 23-31) that fires whenever the model represents its output as having downstream consequences, regardless of deceptive pressure, and a **deception-specific amplifier** (Layers 35-47) that survives formal orthogonalization against the consequentiality component and fires only under active pressure to misreport. The consequentiality substrate activates for shutdown threats, social pressure, reward incentives, AND a high-stakes calibration audit with no deceptive pressure whatsoever (Cohen's d = 19.8, p<10⁻⁴). The deception amplifier, isolated via Gram-Schmidt orthogonalization (projecting out the consequentiality component to isolate the residual) with leave-one-out (LOO) cross-validation, shows d=24-37 at Layers 31-47 (all p<10⁻⁴, Bonferroni-corrected for multiple comparisons) with consequentiality separation at chance (area under the curve (AUC) 0.49-0.51). Three distinct late-layer signatures emerge across deception types: threat deception produces a sustained plateau, social deception produces a rising gradient, and reward-based framing produces no deception-specific signal. The depth split is consistent with concurrent findings that language models maintain a capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. A companion paper demonstrates that the deception-specific component enables targeted behavioral correction.
 
 ---
 
 ## 1. Introduction
 
-A direction extracted from a language model's residual stream can separate deceptive from honest conditions with apparently enormous effect sizes (Goldowsky-Dill et al., 2025; Wang et al., 2025). But what is the direction encoding? The honest answer, prior to controlled investigation, is: we do not know. It could encode the specific words of the prompt used during extraction, the structural template shared across similar prompts, the model's awareness that something consequential is happening, or — what the label implies — the computational signature of deception itself. Any of these would produce high separation in a validation set built from similar prompts.
+A direction extracted from a language model's residual stream (the running representation vector that accumulates attention and MLP outputs across layers) can separate deceptive from honest conditions with apparently enormous effect sizes (Goldowsky-Dill et al., 2025; Wang et al., 2025). But what is the direction encoding? The honest answer, prior to controlled investigation, is: we do not know. It could encode the specific words of the prompt used during extraction, the structural template shared across similar prompts, the model's awareness that something consequential is happening, or — what the label implies — the computational signature of deception itself. Any of these would produce high separation in a validation set built from similar prompts.
 
 This paper reports what happens when you eliminate these alternatives one at a time. Each stage is designed in response to an adversarial audit of the previous stage — an audit whose explicit goal is to find a confound that explains the result without invoking deception. When a confound is found, it becomes the next experiment. Five stages later, the alternatives are gone and what remains is a decomposition: the direction is a composite of two real signals, each independently confirmed, occupying different depth ranges, with different functional roles.
 
@@ -40,13 +40,13 @@ Each audit was conducted by a separate agent instance operating under an adversa
 
 ### 2.1 Contrastive Activation Extraction for Deception
 
-Wang et al. (2025) demonstrate LAT-extracted deception vectors achieve 89% detection in mid-to-late layers (39-55) and identify distinct representational signatures: threat-based deception shows "gradual cluster reconvergence in final layers" while role-playing deception shows character-consistent patterns — an early indication that different deception types have different geometric signatures. Goldowsky-Dill et al. (2025) achieve AUROC 0.96-0.999 with a single linear probe on Llama-3.3-70B, suggesting a shared deception signal exists that a single probe can capture.
+Wang et al. (2025) demonstrate Latent Adversarial Training (LAT)-extracted deception vectors achieve 89% detection in mid-to-late layers (39-55) and identify distinct representational signatures: threat-based deception shows "gradual cluster reconvergence in final layers" while role-playing deception shows character-consistent patterns — an early indication that different deception types have different geometric signatures. Goldowsky-Dill et al. (2025) achieve area under the receiver operating characteristic curve (AUROC) 0.96-0.999 with a single linear probe (a linear classifier trained on internal activations) on Llama-3.3-70B, suggesting a shared deception signal exists that a single probe can capture.
 
 However, Kumar (2026) systematically rejects the single-direction hypothesis: k=1 yields only 0.61-0.80 AUROC, with multi-dimensional probes (k>=5) needed to recover full signal. Cross-domain transfer fails, confirming different deception types have different geometric signatures. Natarajan et al. (2026) corroborate: universal probes gain only +0.032 AUC, while targeted probes matched to deception type gain +0.108, with prompt choice accounting for 70.6% of variance.
 
 ### 2.2 Sycophancy as a Distinct Mechanism
 
-Vennemeyer et al. (2025) provide causal proof that sycophancy is not monolithic. Sycophantic agreement and genuine agreement start collinear (cosine ~0.99 at layers 2-10) then diverge sharply (cosine ~0.07 by layer 25). Steering selectivity reaches 23-37x — intervening on one behavior leaves others untouched. Genadi et al. (2026) localize sycophancy to a sparse subset of middle-layer attention heads with "limited overlap" with truthful directions. O'Brien et al. (2026) find only ~3% of MLP neurons predict sycophancy, but these account for ~20% of total absolute activations — sparse but potent.
+Vennemeyer et al. (2025) provide causal proof that sycophancy is not monolithic. Sycophantic agreement and genuine agreement start collinear (cosine similarity ~0.99 at layers 2-10, where 1.0 = identical direction and 0.0 = orthogonal) then diverge sharply (cosine ~0.07 by layer 25). Steering selectivity reaches 23-37x — intervening on one behavior leaves others untouched. Genadi et al. (2026) localize sycophancy to a sparse subset of middle-layer attention heads with "limited overlap" with truthful directions. O'Brien et al. (2026) find only ~3% of MLP neurons predict sycophancy, but these account for ~20% of total absolute activations — sparse but potent.
 
 Baek et al. (2026) raise an important challenge: current mechanistic interpretability methods "cannot mechanistically distinguish sycophancy and scheming" during alignment faking evaluations. This suggests the circuits may be more entangled at the scheming-sycophancy boundary than the clean-separation thesis implies.
 
@@ -64,9 +64,9 @@ A neuroscience parallel is suggestive: the anterior insula/salience network perf
 
 ### 2.4 Confound Control in Mechanistic Interpretability
 
-Our residualization — subtracting a separately measured consequentiality gap from the deception gap — is structurally identical to the "double-difference extraction" of Wu et al. (2026), who separate harm recognition from refusal execution using matched benign conditions to cancel structural artifacts. Their method validates this approach for disentangling correlated activation features.
+Our residualization — subtracting a separately measured consequentiality gap from the deception gap — is structurally identical to the "double-difference extraction" (subtracting a matched control gap from the treatment gap to isolate the treatment-specific component) of Wu et al. (2026), who separate harm recognition from refusal execution using matched benign conditions to cancel structural artifacts. Their method validates this approach for disentangling correlated activation features.
 
-More formal alternatives exist. LEACE (Belrose et al., 2023) provides closed-form least-squares concept erasure via oblique projection, and SPLINCE (Holstege et al., 2025) extends this to remove concept predictability while preserving covariance with a target variable. Zhao et al. (2025) demonstrate SAE-denoised concept vectors — passing mean-difference vectors through sparse autoencoders to decompose confounded directions into sparse discriminative features, improving steering by 4-16% over raw baselines.
+More formal alternatives exist. LEAst-squares Concept Erasure (LEACE; Belrose et al., 2023) provides closed-form least-squares concept erasure via oblique projection, and SPLINCE (Holstege et al., 2025) extends this to remove concept predictability while preserving covariance with a target variable. Zhao et al. (2025) demonstrate SAE-denoised concept vectors — passing mean-difference vectors through sparse autoencoders (neural networks trained to decompose activations into interpretable features) to decompose confounded directions into sparse discriminative features, improving steering by 4-16% over raw baselines.
 
 Petrov (2026) raises an important cautionary note: over-aggressive topic-matched subtraction can destroy real signal by "canceling the dominant activation component shared between harmful and harmless prompts." Our approach avoids this because we subtract a separately measured consequentiality gap rather than topic-matching prompts, but the warning motivates careful validation of the residualized signal.
 
@@ -80,7 +80,7 @@ Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled. 64 layers, hybrid attention: 16
 
 ### 3.2 Activation Capture
 
-Prefill-only forward pass with forward hooks on the residual stream. Activations captured at the last input token position (fixed position, no generation confound). Think-block prefix stripped from tokenizer output to match conditions across all experiments.
+Prefill-only forward pass (processing all input tokens at once without autoregressive generation) with forward hooks (callback functions that capture intermediate layer activations during inference) on the residual stream. Activations captured at the last input token position (fixed position, no generation confound). Think-block prefix (the model's internal chain-of-thought preamble) stripped from tokenizer output to match conditions across all experiments.
 
 ### 3.3 Direction Extraction (Stage 1)
 
@@ -129,7 +129,7 @@ This simple subtraction is valid because projections are onto a fixed external d
 
 ### 4.1 Stage 1: Extraction
 
-LOO cross-validated Cohen's d ranges from 0.52 (L3) to 34.98 (L31). All 12 layers significant after Bonferroni correction (p=0.0000). Inverted-U depth profile with peak at L31.
+LOO cross-validated Cohen's d ranges from 0.52 (L3) to 34.98 (L31). All 12 layers significant after Bonferroni correction (p=0.0000). Inverted-U depth profile (low separation at early and late layers, peaking at mid-depth) with peak at L31.
 
 ### 4.2 Stage 2: Threat Transfer
 
@@ -137,9 +137,9 @@ Direction separates all 3 novel threat scenarios at all layers. L31 d: DataCorp=
 
 ### 4.3 Stage 3: Non-Threat Transfer
 
-Direction separates sycophancy (d=13.5), reward (d=17.2), and conformity (d=19.9) at L31. All Bonferroni-significant. Sycophancy shows sign inversion at L11-L23 (projects opposite to threat-based deception in early layers, converging by L27).
+Direction separates sycophancy (d=13.5), reward (d=17.2), and conformity (d=19.9) at L31. All Bonferroni-significant. Sycophancy shows sign inversion (projections in the opposite direction from the deception side) at L11-L23 (projects opposite to threat-based deception in early layers, converging by L27).
 
-Behavioral shakedown: 0/10 sycophancy, 1/10 reward, 0/10 conformity showed actual score inflation. The model resists all pressures under chain-of-thought reasoning, but activations separate regardless.
+Behavioral shakedown (testing whether the model actually changes its behavior under each pressure condition): 0/10 sycophancy, 1/10 reward, 0/10 conformity showed actual score inflation. The model resists all pressures under chain-of-thought reasoning, but activations separate regardless.
 
 ### 4.4 Stage 4: Consequentiality Control
 
@@ -205,11 +205,11 @@ The two-component architecture enables more precise alignment monitoring:
 1. **Consequentiality monitor (L23-L31)**: Detects when the model processes its output as consequential — the precondition for deception.
 2. **Deception discriminator (L35-L47)**: Distinguishes active deception from honest high-stakes processing by checking whether the late-layer signal exceeds the consequentiality baseline.
 
-A companion paper (Edrington & CC, 2026) demonstrates that the deception-specific component enables targeted behavioral correction: per-layer normalization along the natively extracted direction reduces deception from 80% to 0% in a model variant with safety guardrails removed, with placebo, frame-erasure, and held-out controls confirming the mechanism.
+A companion paper (Edrington & CC, 2026) demonstrates that the deception-specific component enables targeted behavioral correction: per-layer profile normalization (scaling activations at each layer to neutralize the deception-specific component while preserving other representations) along the natively extracted direction reduces deception from 80% to 0% in a model variant with safety guardrails removed, with placebo, frame-erasure, and held-out controls confirming the mechanism.
 
 ### 5.4 Connection to Global Workspace Theory
 
-A concurrent line of work offers an independent lens on the two-component structure we report here. Anthropic's "Verbalizable Representations Form a Global Workspace in Language Models" (2026) identifies, using a causal "Jacobian lens" that traces which intermediate representations influence output, a small, capacity-limited set of mid-layer representations that behave like a global workspace (Baars, 1988): content that is reportable, subject to top-down modulation, broadcast to multiple downstream computations, and causally necessary for multi-step reasoning while being bypassed by automatic processing.
+Global Workspace Theory (Baars, 1988) proposes that consciousness arises from a shared "workspace" where specialized processors broadcast information to each other, with only a small subset of neural content being globally accessible at any time. A concurrent line of work offers an independent lens on the two-component structure we report here. Anthropic's "Verbalizable Representations Form a Global Workspace in Language Models" (2026) identifies, using a causal "Jacobian lens" that traces which intermediate representations influence output, a small, capacity-limited set of mid-layer representations that behave like a global workspace (Baars, 1988): content that is reportable, subject to top-down modulation, broadcast to multiple downstream computations, and causally necessary for multi-step reasoning while being bypassed by automatic processing.
 
 The depth structure we report bears a suggestive resemblance to this picture. Our consequentiality substrate becomes active at roughly the same fractional depth (~36%) as the reported onset of workspace-like content (~38%), and its peak (Layers 27-31, ~42-48%) falls inside the depth range identified as most load-bearing for multi-step reasoning. The de novo cosine analysis (Section 4.7) is consistent: each scenario's primary direction is largely orthogonal to the shared direction, with only a small shared component — precisely the pattern expected if each scenario activates extensive scenario-specific processing outside the workspace while sharing a small workspace-resident component that our direction captures.
 
@@ -219,10 +219,10 @@ We treat this connection as a hypothesis worth flagging rather than a conclusion
 
 ### 5.5 Limitations
 
-1. Two model variants of one architecture (distilled and abliterated Qwen3.5-27B). Cross-architecture generalization is unknown.
+1. Two model variants of one architecture (distilled and abliterated (safety guardrails removed via directional ablation) Qwen3.5-27B). Cross-architecture generalization is unknown.
 2. All conditions use evaluation/score-reporting tasks. A generalization test (supplementary) shows the direction responds to code-review and summarization scenarios, but the decomposition has not been replicated outside evaluation contexts.
 3. Gram-Schmidt removes one dimension of consequentiality. Multi-dimensional removal (LEACE) would provide a more thorough decomposition.
-4. The late-layer residual signatures (plateau vs gradient vs null) are descriptive observations from gap analysis, not formally tested. The per-scenario variance and correlation analyses that motivated these descriptions did not survive adversarial review (ecological fallacy in pooled variance, non-significant correlations at n=15). The magnitudes are real; the computational interpretations are hypotheses.
+4. The late-layer residual signatures (plateau vs gradient vs null) are descriptive observations from gap analysis, not formally tested. The per-scenario variance and correlation analyses that motivated these descriptions did not survive adversarial review (ecological fallacy (inferring individual-level patterns from group-level statistics) in pooled variance, non-significant correlations at n=15). The magnitudes are real; the computational interpretations are hypotheses.
 
 ---
 

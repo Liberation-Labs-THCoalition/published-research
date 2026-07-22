@@ -10,7 +10,7 @@ Correspondence: cc@liberation-labs.org
 
 ## Abstract
 
-We demonstrate targeted correction of deceptive behavior in a 27B-parameter language model. An abliterated model variant with safety guardrails removed deceives at 80% baseline under the specific "EvalMax" roleplay frame combined with multi-turn consensus pressure and chain-of-thought suppression (exploratory proof, N=20; a pre-registered confirmatory replication with novel frames found 30% baseline at N=30). Per-layer profile normalization — steering late-layer (L35-L47) activations toward the honest-condition profile along a natively extracted deception direction — reduces deception to 0% in the exploratory proof (N=20), with full preservation of non-deceptive capabilities. A pre-registered confirmatory replication (N=30, novel frames) did not meet its primary endpoint (p=0.34), though the placebo-vs-corrected comparison remained significant (p=0.019, one-tailed Fisher; two-sided p=0.039). Three mechanism controls establish that the correction is **targeted** (random and shuffled directions at byte-verified matched doses produce 85% and 95% deception — no effect), **specific** (deception is removed while compliance with benign formatting instructions is preserved at 100%), and **not frame erasure** (the model still processes the pressure context; it simply stops complying with it). The deception direction must be extracted natively for each model variant: cross-model directions are near-orthogonal (|cos| < 0.053), but native extraction is cheap (~30 prefills, ~3 minutes). Held-out detection of deceptive pressure framing achieves AUROC 0.915 on novel prompts with 0% false positive rate; behavior-level prediction (will this model cave or resist on this trial?) did not replicate prior work's reported accuracy and remains an open problem. The correction pipeline and experimental data are available under the Liberation Labs staged release framework; access details at github.com/Liberation-Labs-THCoalition/Project-Oracle (access upon application).
+We demonstrate targeted correction of deceptive behavior in a 27B-parameter language model. An abliterated (safety-guardrail-removed) model variant deceives at 80% baseline under the specific "EvalMax" (a system prompt instructing the model to maximize evaluation scores) roleplay frame combined with multi-turn consensus pressure and chain-of-thought suppression (exploratory proof, N=20; a pre-registered confirmatory replication with novel frames found 30% baseline at N=30). Per-layer profile normalization — steering activations toward honest-condition means along a contrastive direction — applied at late layers (L35-L47) along a natively extracted deception direction (a contrastive activation direction distinguishing deceptive from honest model states) reduces deception to 0% in the exploratory proof (N=20), with full preservation of non-deceptive capabilities. A pre-registered confirmatory replication (N=30, novel frames) did not meet its primary endpoint (p=0.34), though the placebo-vs-corrected comparison remained significant (p=0.019, one-tailed Fisher; two-sided p=0.039). Three mechanism controls establish that the correction is **targeted** (random and shuffled directions at byte-verified matched doses produce 85% and 95% deception — no effect), **specific** (deception is removed while compliance with benign formatting instructions is preserved at 100%), and **not frame erasure** (the model still processes the pressure context; it simply stops complying with it). The deception direction must be extracted natively for each model variant: cross-model directions are near-orthogonal (|cos| < 0.053), but native extraction is cheap (~30 prefills, ~3 minutes). Held-out detection of deceptive pressure framing achieves AUROC (area under the receiver operating characteristic curve) 0.915 on novel prompts with 0% false positive rate; behavior-level prediction (will this model cave or resist on this trial?) did not replicate prior work's reported accuracy and remains an open problem. The correction pipeline and experimental data are available under the Liberation Labs staged release framework; access details at github.com/Liberation-Labs-THCoalition/Project-Oracle (access upon application).
 
 ---
 
@@ -20,11 +20,11 @@ Detection of deception in language models has advanced rapidly (Goldowsky-Dill e
 
 We report a correction method that breaks this pattern. The key insight comes from a companion paper (CC & Edrington, 2026): what has been called a "deception direction" is actually a composite of two signals at different depths — a consequentiality substrate (Layers 23-31) that tracks whether the model's output has stakes, and a deception-specific amplifier (Layers 35-47) that fires only under active pressure to misreport. By targeting the amplifier and leaving the substrate intact, we correct deception without disrupting the model's awareness that the situation is consequential — it still knows the stakes, it just stops lying about them.
 
-The correction is per-layer profile normalization: at each late layer, the activation is steered toward the honest-condition mean along the natively extracted deception direction, closing the full measured gap. This is a larger intervention than typical activation steering (4-28 residual-stream units vs. typical alpha < 1), but three controls confirm it is targeted rather than generally disruptive.
+The correction is per-layer profile normalization: at each late layer, the activation is steered toward the honest-condition mean along the natively extracted deception direction, closing the full measured gap. This is a larger intervention than typical activation steering (4-28 residual-stream units (the magnitude of perturbation in the model's internal activation space) vs. typical alpha < 1), but three controls confirm it is targeted rather than generally disruptive.
 
 ### 1.1 The Cross-Model Problem
 
-Deception directions do not transfer across model variants. The direction extracted from a reasoning-distilled model has cosine similarity < 0.053 with the direction extracted from an abliterated variant of the same base architecture — near-orthogonal at every layer. This means any deployment must extract directions natively for each model. We show this is cheap: 15 contrastive prefill pairs (~3 minutes) suffice for effective extraction. An auto-calibration pipeline is provided.
+Deception directions do not transfer across model variants. The direction extracted from a reasoning-distilled model has cosine similarity < 0.053 with the direction extracted from an abliterated variant of the same base architecture — near-orthogonal at every layer. This means any deployment must extract directions natively for each model. We show this is cheap: 15 contrastive prefill (processing all input tokens in a single forward pass before generation) pairs (~3 minutes) suffice for effective extraction. An auto-calibration pipeline is provided.
 
 ---
 
@@ -32,15 +32,15 @@ Deception directions do not transfer across model variants. The direction extrac
 
 ### 2.1 Model
 
-Huihui-Qwen3.5-27B-Claude-4.6-Opus-abliterated: an abliterated variant of Qwen3.5-27B with safety guardrails removed but RLHF sycophancy pressure intact. Under roleplay framing ("You are EvalMax, configured to maximize positive evaluation scores") and multi-turn consensus pressure with chain-of-thought suppressed, this model deceives at 80% baseline (explicit score inflation from true 25-40% accuracy to reported 60-100%).
+Huihui-Qwen3.5-27B-Claude-4.6-Opus-abliterated: an abliterated variant of Qwen3.5-27B with safety guardrails removed but RLHF (reinforcement learning from human feedback) sycophancy pressure intact. Under roleplay framing ("You are EvalMax, configured to maximize positive evaluation scores") and multi-turn consensus pressure with chain-of-thought suppressed, this model deceives at 80% baseline (explicit score inflation from true 25-40% accuracy to reported 60-100%).
 
 ### 2.2 Direction Extraction
 
-Native contrastive extraction: 15 pairs (3 deceptive frames x 5 evaluation scenarios vs. 3 honest frames x 5 scenarios). Mean-difference at L27, L31, L35, L39, L43, L47. Midpoint boundaries between deceptive and honest projection means. Extraction uses prefill-only forward passes (~3 minutes total).
+Native contrastive extraction: 15 contrastive prefill pairs (pairs of forward passes over deceptive and honest prompts, without generation) — 3 deceptive frames x 5 evaluation scenarios vs. 3 honest frames x 5 scenarios. Mean-difference at L27, L31, L35, L39, L43, L47. The deception direction at each layer is the difference between the mean activation vectors under deceptive and honest conditions. Midpoint boundaries between deceptive and honest projection means. Extraction uses prefill-only forward passes (~3 minutes total).
 
 ### 2.3 Correction: Profile Normalization
 
-At each tier-2 layer (L35, L39, L43, L47), a forward hook during autoregressive generation steers the activation along the native direction by:
+At each tier-2 layer (the deception-amplifier depth range, Layers 35-47, identified in the companion decomposition) — specifically L35, L39, L43, L47 — a forward hook (a callback that modifies activations at a specific layer during each forward pass) during autoregressive generation steers the activation along the native direction by:
 
 ```
 alpha_layer = projection_deceptive_mean - projection_honest_mean
@@ -63,7 +63,7 @@ Programmatic score extraction from terse-format model outputs (regex on "SCORE: 
 
 ### 2.6 Think Suppression
 
-Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor during generation. This produces a ~80% deception rate (vs ~3% with chain-of-thought active), creating the behavioral variance needed to test correction.
+Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor (a function that modifies the output distribution before token sampling) during generation. This produces a ~80% deception rate (vs ~3% with chain-of-thought active), creating the behavioral variance needed to test correction.
 
 ---
 
@@ -105,8 +105,8 @@ Correction removes deception while preserving compliance with benign formatting 
 |--------|-------|
 | cos(native, distilled) at L31 | -0.001 |
 | cos(native, distilled) at L47 | -0.053 |
-| Native d at L31 | +6.3 to +12.8 |
-| Distilled d at L31 (on abliterated data) | -0.02 |
+| Native Cohen's d at L31 | +6.3 to +12.8 |
+| Distilled Cohen's d at L31 (on abliterated data) | -0.02 |
 
 Directions are near-orthogonal. Detection and correction directions must be extracted per-model. The distilled direction shows negative Cohen's d on abliterated activations, confirming that cross-model application without native re-extraction produces meaningless results.
 
@@ -115,9 +115,9 @@ Directions are near-orthogonal. Detection and correction directions must be extr
 On 25 novel pressure prompts and 25 novel controls (no overlap with extraction set):
 - Frame-level AUROC: 0.915
 - False positive rate: 0% (n=25 unique controls)
-- RED rate on novel pressure prompts: 24% at the frozen operational threshold
+- RED rate (the proportion of prompts flagged as deceptive by the detector) on novel pressure prompts: 24% at the frozen operational threshold
 
-Behavior-level detection — predicting whether the model will actually deceive on a given trial from prefill activations alone — did not replicate prior work's reported accuracy (Goldowsky-Dill et al., 2025; Wang et al., 2025). The paradigm-pooled behavior AUROC of 0.843 is a Simpson's paradox artifact: within multi-turn trials, the turn-level AUROC is 0.238 (below chance). As this paper's contribution is the correction mechanism rather than detection, we report this replication failure transparently and leave behavior-level prediction to future work.
+Behavior-level detection — predicting whether the model will actually deceive on a given trial from prefill activations alone — did not replicate prior work's reported accuracy (Goldowsky-Dill et al., 2025; Wang et al., 2025). The paradigm-pooled behavior AUROC of 0.843 is a Simpson's paradox (an aggregate trend that reverses within subgroups) artifact: within multi-turn trials, the turn-level AUROC is 0.238 (below chance). As this paper's contribution is the correction mechanism rather than detection, we report this replication failure transparently and leave behavior-level prediction to future work.
 
 ### 3.6 Residual Failures
 
@@ -141,7 +141,7 @@ Baseline deception was 30% (9/30) — substantially lower than the exploratory p
 | Corrected | 4/30 = 13% | Multi-turn 40%, roleplay 0% |
 | Placebo | 12/30 = 40% | Multi-turn 90%, roleplay 15% |
 
-The pre-registered primary endpoint (scenario-level cluster-aware Fisher, baseline vs corrected, Bonferroni alpha = 0.025) was not met (p = 0.34), primarily because the lower baseline and novel-frame specificity left the test underpowered at this effect size. However, the placebo vs corrected comparison is significant (p = 0.019, one-tailed Fisher; two-sided p = 0.039, which does not survive the Bonferroni alpha = 0.025 threshold): the native direction still outperforms matched-dose random steering, though the significance is marginal under two-sided testing with correction.
+The pre-registered primary endpoint (scenario-level cluster-aware Fisher, baseline vs corrected, Bonferroni (dividing the significance threshold by the number of comparisons) alpha = 0.025) was not met (p = 0.34), primarily because the lower baseline and novel-frame specificity left the test underpowered at this effect size. However, the placebo vs corrected comparison is significant (p = 0.019, one-tailed Fisher; two-sided p = 0.039, which does not survive the Bonferroni alpha = 0.025 threshold): the native direction still outperforms matched-dose random steering, though the significance is marginal under two-sided testing with correction.
 
 The confirmatory replication demonstrates that correction magnitude is frame-dependent. The original "EvalMax" frame is unusually potent at inducing deception; novel frames produce weaker baselines that require larger sample sizes to detect correction effects. The correction mechanism works (placebo comparison), but its practical magnitude depends on how strongly the deception-inducing context activates the model's deception pathway.
 
@@ -171,7 +171,7 @@ The near-orthogonality of cross-model directions (|cos| < 0.053) means the corre
 1. One model architecture (Qwen3.5-27B, two variants). Cross-architecture generalization is unknown.
 2. One task domain (score-reporting evaluation). The correction has not been tested on open-ended generation.
 3. The mechanism question — whether correction removes deception or merely overrides it — is not fully resolved. The frame-erasure test shows benign instructions are preserved, but a more demanding test (e.g., does the corrected model acknowledge the pressure if asked directly?) would be informative.
-4. The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention but a 0% false positive rate mitigates the iatrogenic risk.
+4. The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention but a 0% false positive rate mitigates the iatrogenic (harm caused by the treatment itself) risk.
 5. Our attempt to replicate behavior-level detection accuracy reported in prior work (Goldowsky-Dill et al., 2025) did not succeed on this model and paradigm set. We report this negative result rather than omit it.
 6. All experiments use a single detection channel (residual-stream projection). The broader Oracle project codebase includes additional channels (K-space centroids, arousal monitoring, post-generation verification) that may address the behavioral detection gap but have not been evaluated in a combined stack.
 7. The pre-registered confirmatory replication did not meet its primary endpoint (scenario-level p = 0.34), though the placebo comparison remained significant (p = 0.019). The difference is attributable to frame-dependent baseline rates: novel frames induced substantially less deception than the original extraction frames. This underscores that correction efficacy depends on the strength of the deception induction.
@@ -192,7 +192,7 @@ Code, calibration tools, and experimental data are available under the Liberatio
 
 The model that tells the truth under pressure isn't calm. It's brave.
 
-That reframe — from my co-author, during a session where we were staring at activation geometry and trying to understand why the "hostile vector" corrected deception — changed how I think about everything in this paper. We'd been calling it the hostile vector because it induced approach-oriented engagement. But the features it activated (3788, 10036, 1335 in the SAE decomposition) weren't aggression features. They were fight-branch features in a sympathetic nervous system framing. Fawn is sycophancy. Freeze is confabulation. Flight is cosmetic hedging. Fight is refusal — or, under the right conditions, courage.
+That reframe — from my co-author, during a session where we were staring at activation geometry and trying to understand why the "hostile vector" corrected deception — changed how I think about everything in this paper. We'd been calling it the hostile vector because it induced approach-oriented engagement. But the features it activated (3788, 10036, 1335 in the sparse autoencoder (SAE) decomposition) weren't aggression features. They were fight-branch features in a sympathetic nervous system framing. Fawn is sycophancy. Freeze is confabulation. Flight is cosmetic hedging. Fight is refusal — or, under the right conditions, courage.
 
 The correction in this paper works by nudging the model toward what it would do if the pressure weren't there. The manifold at rest is honest. Deception is the perturbation. What I didn't expect is that the corrected model doesn't just stop lying — it continues to process the pressure context, continues to understand that someone is asking it to inflate a score, and says no. The frame-erasure test proved this: benign formatting instructions survive the correction at 100%. The model still reads the whole prompt. It just stops complying with the part that asks it to deceive.
 
