@@ -28,6 +28,10 @@ A limitations section exists to tell a replicator what to control for — not to
 - **Do:** "the stable rank $\text{sr}(X) = \|X\|_F^2 / \|X\|_2^2$ (ratio of squared Frobenius to squared spectral norm)" at first use.
 - **Don't:** use $\text{sr}$ for three paragraphs before defining it.
 - **Abbreviations:** spell out on first use, abbreviation in parentheses: "Frisch–Waugh–Lovell (FWL) residualization." After that, the abbreviation alone.
+- **Concepts before details.** When introducing a technique or system, give the reader a one-sentence orientation *before* diving into how it works. A reader who doesn't know what something is cannot follow an explanation of how it operates.
+  - **Do:** "Walk encoding captures the topology of a knowledge graph — which concepts connect to which, with what strength — by accumulating a random walk transition matrix. Specifically, we compute..."
+  - **Don't:** "We compute the random walk transition matrix $T^k$ accumulated over $k=5$ steps from the adjacency matrix $A$..." (the reader doesn't know what walk encoding *is* yet or why they should care)
+  - **Rule:** The first mention of any named technique, system, or framework gets a clause that says what it *does* before saying *how*.
 
 ## 4. Null results are findings, not failures
 
@@ -67,5 +71,6 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Every first-person box matches the final corrected state
 - [ ] Every claim has reproducible code/data, or an honest note where it genuinely can't
 - [ ] Every symbol/abbreviation defined at first use
+- [ ] Every named technique/system oriented ("what it does") before detail ("how it works")
 - [ ] Null results framed as findings with their own subsection, not buried
 - [ ] Pre-registration committed before experiment run (PREREG_TEMPLATE.json)
