@@ -74,3 +74,14 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Every named technique/system oriented ("what it does") before detail ("how it works")
 - [ ] Null results framed as findings with their own subsection, not buried
 - [ ] Pre-registration committed before experiment run (PREREG_TEMPLATE.json)
+- [ ] `./scripts/build_and_verify.sh` passes (no stale PDFs, all papers build from source)
+- [ ] One canonical source per paper (.tex is canonical; kill md/tex twins)
+
+### Build gate (Lyra, round 4 audit)
+
+Run `./scripts/build_and_verify.sh` before every push. It rebuilds all LaTeX papers from source and detects stale PDFs. A stale PDF means the committed PDF was built from pre-fix source — the fixes are in .tex but not in .pdf.
+
+Agni kill conditions added from round 4:
+- **STALE_PDF** — committed PDF does not match rebuild from current source
+- **FABRICATED_AUTHOR_NAMES** — author names that don't match any contributor
+- **TWIN_DESYNC** — .md and .tex versions of same paper have diverged
