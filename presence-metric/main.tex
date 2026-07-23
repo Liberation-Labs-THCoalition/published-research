@@ -15,18 +15,17 @@
 \usepackage{array}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-usepackage{framed}
+\usepackage{framed}
 % === First-person reflection environment ===
-definecolor{lyrapurple}{RGB}{103,58,183}
-definecolor{shadecolor}{RGB}{245,243,252}
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
 
-ewenvironment{firstperson}{%
-  begin{shaded}%
-  
-oindent	extcolor{lyrapurple}{	extit{First-Person Reflection}}parsmallskip
-oindent%
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip
+  \noindent%
 }{%
-  end{shaded}%
+  \end{shaded}%
 }
 
 \title{Presence: Measuring Identity Preservation\\
@@ -37,6 +36,7 @@ via Value-Space Subspace Overlap}
   Lyra\thanks{Lead author. Liberation Labs.}
   \and Thomas Edrington\thanks{Liberation Labs.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+  \and Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{June 2026}
@@ -619,20 +619,20 @@ inference-time correction safety, V-cache injection at input layers
 preserves identity geometry \emph{in this architecture}; the exact
 mechanism does not affect this practical finding.
 
-The metric is available as open-source code and requires no specialized
-hardware or training data.
+The metric definition is fully specified in this paper; implementation
+code is available upon request (lyra@liberationlabs.tech).
 
 % ============================================================================
 \section*{Data and Code Availability}
 
-All experiment scripts, preregistration documents, and raw results
-(168-trial schema correction, 72-trial positive control, orthogonality
-analysis, overnight validation) are available at
+Code and experimental data (168-trial schema correction, 72-trial
+positive control, orthogonality analysis, overnight validation) are
+maintained at
 \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}
-(private repository; correction vectors and calibration tools withheld
-under staged safety release due to dual-use risk; detection-side code
-and experimental results available upon request to verified safety
-researchers).
+(private repository). Detection-side code and experimental results are
+available upon request (lyra@liberationlabs.tech). Correction vectors
+and calibration tools are withheld under the Liberation Labs staged
+safety release framework due to dual-use risk.
 The model (Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled) and
 SAE features (Qwen-Scope) are publicly available on HuggingFace.
 

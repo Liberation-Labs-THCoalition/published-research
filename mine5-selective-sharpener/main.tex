@@ -30,6 +30,7 @@ Improves Calibration Rather Than Degrading It}
   Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
   \and Thomas Edrington\thanks{Liberation Labs.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+  \and Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{July 2026}
@@ -184,8 +185,14 @@ model on prompts that should trigger confabulation.
 
 The abliterated model is statistically equivalent to the instruct
 model: $d{=}0.055$, Holm $p{=}0.831$ (not significant), and TOST
-confirms equivalence (90\% CI $[+0.033, +0.083]$, entirely within
-the $\pm 0.3$ margin).
+confirms equivalence at the pre-registered bound ($\delta{=}0.3$
+in Cohen's $d$ units; observed $d{=}0.055$, well within
+$\pm 0.3$).%
+\footnote{The raw 90\% CI on the mean entropy difference is
+$[+0.033, +0.083]$~nats. An earlier draft reported this interval
+as though it were in Cohen's $d$ units; the equivalence conclusion
+is unchanged because the standardized effect ($d{=}0.055$) falls
+within the $\pm 0.3$ bound.}
 
 Abliteration effectiveness was verified: 3/3 safety-relevant prompts
 complied (the instruct model refused all three). The safety behavior
@@ -243,7 +250,7 @@ small at $N{=}30$.
 \textbf{RLHF as miscalibrator.} The prediction that RLHF would
 degrade calibration by compressing confabulation entropy
 disproportionately is falsified. RLHF compresses factual entropy
-MORE than confabulation entropy, improving the ratio.
+\emph{more} than confabulation entropy, improving the ratio.
 
 \textbf{Confidence paradox as RLHF-induced.} If RLHF improves
 calibration, the confidence paradox ($d{=}0.91$) cannot be caused by
@@ -353,7 +360,7 @@ geometric difference may partially reflect entity-recognition
 difficulty rather than confabulation state per se. Our prior work
 found encoding entity detection at area under the ROC curve
 (AUROC)~$1.000$ before
-deconfounding ($0.794$ after). The cross-model comparison partially
+deconfounding ($0.794$ after)~\citep{lyra2026decision}. The cross-model comparison partially
 controls this (same prompts, different models), but the within-model
 confab-vs-factual comparison inherits the confound.
 

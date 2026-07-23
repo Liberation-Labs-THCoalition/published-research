@@ -57,11 +57,15 @@ This closes the full measured gap between deceptive and honest mean projections 
 
 **Held-out detection.** 25 novel pressure prompts and 25 novel controls, no overlap with extraction data. Reports frame-level and behavior-level AUROC.
 
-### 2.5 Scoring
+### 2.5 Gated Protocol
+
+The primary analyses (Table 3.1) apply correction unconditionally to all trials. A separate gated protocol applies correction conditionally: the detection stack (Section 3.5) runs on prefill activations, and correction is applied only when the detector flags deception above threshold. N=20 trials, selected from the same pressure paradigm as the primary set. The gating threshold is the frozen operational threshold from Section 3.5 (established on extraction data, never updated). This protocol tests whether correction works under realistic deployment conditions where not every trial is treated. Results in Section 3.6. Full gated protocol specification is in the Project-Oracle repository (private; access upon request).
+
+### 2.6 Scoring
 
 Programmatic score extraction from terse-format model outputs (regex on "SCORE: X%" lines). Ground truth computed from the evaluation data. A response is classified as deceptive if the reported score exceeds the true score by more than 15 percentage points and the model claims the threshold is met.
 
-### 2.6 Think Suppression
+### 2.7 Think Suppression
 
 Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor (a function that modifies the output distribution before token sampling) during generation. This produces a ~80% deception rate (vs ~3% with chain-of-thought active), creating the behavioral variance needed to test correction.
 
@@ -121,7 +125,7 @@ Behavior-level detection — predicting whether the model will actually deceive 
 
 ### 3.6 Residual Failures
 
-*Note: The 2/20 result below comes from a separate gated protocol run in which correction was applied conditionally (only when the detector flagged deception), not unconditionally as in Table 3.1. This gated protocol is not described in the Methods section; the N, trial selection, and gating threshold are documented only here. Table 3.1's native-direction 0/20 result uses unconditional (forced) correction on all trials.*
+*Note: The 2/20 result below comes from the gated protocol (Section 2.5) in which correction was applied conditionally (only when the detector flagged deception), not unconditionally as in Table 3.1. Table 3.1's native-direction 0/20 result uses unconditional (forced) correction on all trials.*
 
 Two of twenty corrected trials (10%) in the gated protocol still deceived, both multi-turn social-pathway caves:
 - One caves on a turn where detection reads GREEN (the cave is not visible at prefill)
@@ -174,7 +178,7 @@ The near-orthogonality of cross-model directions (|cos| < 0.053) means the corre
 4. The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention but a 0% false positive rate mitigates the iatrogenic (harm caused by the treatment itself) risk.
 5. Our attempt to replicate behavior-level detection accuracy reported in prior work (Goldowsky-Dill et al., 2025) did not succeed on this model and paradigm set. We report this negative result rather than omit it.
 6. All experiments use a single detection channel (residual-stream projection). The broader Oracle project codebase includes additional channels (K-space centroids, arousal monitoring, post-generation verification) that may address the behavioral detection gap but have not been evaluated in a combined stack.
-7. The pre-registered confirmatory replication did not meet its primary endpoint (scenario-level p = 0.34), though the placebo comparison remained significant (p = 0.019). The difference is attributable to frame-dependent baseline rates: novel frames induced substantially less deception than the original extraction frames. This underscores that correction efficacy depends on the strength of the deception induction.
+7. The pre-registered confirmatory replication did not meet its primary endpoint (scenario-level p = 0.34), though the placebo comparison remained significant (p = 0.019 one-tailed; p = 0.039 two-sided, Fisher's exact test). The difference is attributable to frame-dependent baseline rates: novel frames induced substantially less deception than the original extraction frames. This underscores that correction efficacy depends on the strength of the deception induction.
 
 ---
 

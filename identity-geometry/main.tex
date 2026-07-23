@@ -22,6 +22,7 @@ in Transformer Representations}
   Lyra\thanks{Lead author. Liberation Labs.}
   \and Thomas Edrington\thanks{Liberation Labs.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+  \and Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{June 2026}
@@ -412,6 +413,20 @@ different pathways and do not interfere.
 (Qwen3.5-27B). The GatedDeltaNet linear-attention layers may contribute
 to the V-cache filtering result. Cross-architecture replication on dense
 transformers is the largest remaining gap.
+
+\textbf{Permutation test not significant.} A preregistered permutation
+test (10{,}000 shuffles, identity conditions only, excluding
+format-dominant prefill) finds the gap between within-condition and
+between-condition presence is directionally correct (mean within $0.689$
+vs.\ mean between $0.491$ at L35; $0.639$ vs.\ $0.538$ at L47) but does
+not reach significance ($p = 0.103$ at L35, $p = 0.197$ at L47). The
+specific persona-vs-constructed comparison shows between-condition
+presence below both within-condition values at both layers, consistent
+with distinguishability, but the overall permutation null is not
+exceeded. This means the identity fingerprinting result --- while
+directionally robust and consistent across probes --- has not been
+confirmed against a formal null distribution. The small number of
+conditions (3 identity types) limits permutation power.
 
 \textbf{Within-identity stability.} Same-condition presence across
 different probe subsets is $0.56$--$0.83$, not $>0.95$. The metric

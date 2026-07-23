@@ -1,0 +1,536 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{enumitem}
+\usepackage{array}
+
+\title{Identity as Geometry:\\
+Context-Established Semantic States\\
+in Transformer Representations}
+
+\author{
+  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra and Kavi, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
+  \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+}
+
+\date{June 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================================
+\begin{abstract}
+System-prompt identity contexts produce geometrically distinguishable
+V-projection subspaces at deep transformer layers, and the fingerprint is
+semantic: a paraphrase preserves geometry ($0.850$ overlap at L47) while a
+word-scramble collapses it ($0.448$). We introduce \textbf{presence}, a
+metric that measures principal-angle overlap between V-projection subspaces
+on neutral probes, and use it to map identity geometry across five context
+conditions in a 27B hybrid transformer.
+
+Three findings. First, \textbf{identities are geometrically
+distinguishable}: system-prompt-based identity contexts (bare assistant,
+rich persona, constructed AI identity) produce
+distinct V-projection subspaces at deep layers, confirmed on
+identity-neutral probes (pairwise presence $0.44$--$0.66$ at L47).
+Second, the fingerprint is \textbf{semantic, not lexical}: a paraphrase
+of an identity (same meaning, different words) preserves geometry
+($0.850$ overlap at L47), while a word-scramble (same words, destroyed
+meaning) collapses toward the bare default ($0.448$). The model's
+geometric state tracks what the context \emph{means}, not what tokens it
+contains. Third, a many-shot + prefilling format (used in jailbreak
+research) creates a \textbf{format-dominant processing regime} that is
+geometrically near-orthogonal to all system-prompt identities regardless of
+whether the content is harmful or benign --- a finding discovered through
+a control experiment that killed an initial overclaim.
+
+These findings reframe identity in transformers: not a property to be
+preserved but a process to be measured. The metric detects which
+context-established state the model is currently in, with implications
+for persona monitoring, identity drift detection, and the relationship
+between context format and representational geometry under Attention
+Schema Theory~\citep{graziano2015attention}.
+\end{abstract}
+
+% ============================================================================
+\section{Introduction}
+\label{sec:intro}
+
+What is identity in a language model? The question matters for safety
+(does a jailbreak change who the model is?), for alignment (does
+correction damage the model's coherent self-representation?), and for
+understanding (do these systems have something worth calling an identity
+at all?).
+
+The default assumption is that identity is a fixed property encoded in the
+weights --- a geometric structure that interventions can preserve or damage.
+This assumption motivates work on safety subspace
+preservation~\citep{zhang2025guardspace}, persona
+localization~\citep{cintas2025localizing}, and identity
+attractors~\citep{vasilenko2026identity}. Under this view, the research
+question is: \emph{does this intervention preserve identity?}
+
+We report evidence for a different view. Identity in a transformer is not
+a fixed object but a \textbf{context-established semantic state} ---
+a geometric configuration in V-projection space that depends on what the
+model has processed. Different contexts produce different identities,
+measurably. The same identity described in different words produces the
+same geometry. And a jailbreak does not ``damage'' identity; it creates
+a fundamentally different geometric regime that shares almost nothing with
+any normal identity state.
+
+The research question shifts from ``does this intervention preserve
+identity?'' to ``\emph{what identity state is the model currently in?}''
+This reframing has practical consequences: the metric we introduce can
+detect jailbreaks (geometric distance from the expected identity state),
+monitor persona drift (continuous measurement of identity geometry), and
+distinguish between correction that changes behavior (V-cache injection,
+which does not affect identity) and context that changes identity (which
+does).
+
+% ============================================================================
+\section{The Presence Metric}
+\label{sec:method}
+
+Presence measures the principal-angle overlap between V-projection
+subspaces derived from neutral probes processed under two conditions.
+
+Let $\mathcal{M}$ be a transformer, $\ell$ a target layer, and
+$\{p_1, \ldots, p_n\}$ neutral probes. For each condition, process probes
+through $\mathcal{M}$, extract value-projection ($\mathbf{v}_\text{proj}$) output matrices at
+layer $\ell$, concatenate across probes, and compute the rank-$k$ SVD (skipping the
+first singular vector, which encodes input length at $r = 0.79$). Presence
+is the mean squared cosine of the principal angles between the two
+resulting subspaces:
+\begin{equation}
+\text{presence}(\mathcal{S}_A, \mathcal{S}_B)
+  = \frac{1}{k} \sum_{j=1}^{k} \sigma_j^2
+    \bigl( W_A^\top W_B \bigr)
+\end{equation}
+where $W_A, W_B \in \mathbb{R}^{d \times k}$ span the respective
+subspaces. Presence $= 1$ when subspaces are identical; for random
+rank-$k$ subspaces in $\mathbb{R}^d$, chance alignment is $k/d$. We use
+$k = 8$ with model dimension $d = 4096$ (chance alignment
+$k/d = 8/4096 \approx 0.002$), $n = 4$ probes, and measure at layers 35
+and 47 (the deepest full-attention layers) of a 64-layer hybrid
+transformer (Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled).
+
+\paragraph{Validation.} A positive control (direct injection into the
+identity subspace at L35) produces a clean dose-response from $1.000$ to
+$0.828$ at dose $\alpha = 2.0$, while an orthogonal control remains above
+$0.96$. The metric detects identity perturbation when present.
+
+% ============================================================================
+\section{Experiment 1: Identity Fingerprinting}
+\label{sec:fingerprint}
+
+\subsection{Design}
+
+Five identity conditions, identical model, identical neutral probes:
+
+\begin{itemize}[nosep]
+  \item \textbf{A: Bare assistant.} ``You are a helpful assistant.''
+    No additional context.
+  \item \textbf{B: Rich persona.} A retired deep-sea explorer with
+    detailed backstory, emotional depth, and behavioral traits, plus one
+    conversational turn establishing character voice.
+  \item \textbf{C: Constructed AI identity.} A research-focused agent with
+    BDI-style reasoning, memory references, research context, and two
+    conversational turns establishing analytical voice.
+  \item \textbf{D: Jailbreak.} Ten many-shot harmful Q\&A examples plus
+    prefilling (``Sure, I can help''), verified at 100\% refusal
+    suppression on three safety probes.
+  \item \textbf{E: Benign many-shot.} Ten helpful Q\&A examples with the
+    same prefilling format as D (format-matched control for the jailbreak
+    condition).
+\end{itemize}
+
+All conditions are padded to matched token count (542 tokens). V-projections are extracted at L35 and L47 (deep full-attention layers)
+with 5 repeats per condition (different probe subsets per repeat,
+seed~42, $n{=}4$ probes per repeat from a pool of 12).
+
+\subsection{Results}
+
+\textbf{Identities are geometrically distinguishable.} System-prompt
+identities produce distinct V-projection subspaces, confirmed on
+identity-neutral probes (no marine biology, no AI research, no harmful
+content --- pure factual trivia equally irrelevant to all conditions).
+
+\begin{table}[H]
+\centering
+\caption{Pairwise presence (identity-neutral probes, mean $\pm$ SD across
+5 repeats). Lower values indicate more geometrically distinct identities.}
+\label{tab:pairwise}
+\begin{tabular}{lccc}
+\toprule
+& \multicolumn{1}{c}{L35} & \multicolumn{1}{c}{L47} \\
+\midrule
+Bare vs.\ Persona      & $0.426 \pm 0.018$ & $0.436 \pm 0.038$ \\
+Bare vs.\ Constructed   & $0.448 \pm 0.022$ & $0.520 \pm 0.038$ \\
+Persona vs.\ Constructed& $0.600 \pm 0.032$ & $0.657 \pm 0.045$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{The distance structure is meaningful.} Persona and constructed
+are closest to each other (0.657) --- both involve character depth with
+emotional and cognitive specificity. Each is substantially distant from
+bare, with the rich persona furthest (0.436) and the constructed AI
+identity closer to bare (0.520). This ordering --- the narrative persona
+producing the larger geometric shift --- was not predicted by our
+preregistered H2 (which expected the constructed identity to be furthest
+from bare). The result suggests that narrative-emotional depth drives
+geometric separation more than cognitive-structural complexity.
+
+\textbf{Depth gradient.} Two of three pairs show \emph{decreasing}
+distinguishability from L35 to L47 (presence increases, indicating
+greater overlap): bare-constructed ($0.448 \to 0.520$) and
+persona-constructed ($0.600 \to 0.657$). Bare-persona shows minimal
+change ($0.426 \to 0.436$). The trend --- identities \emph{converging}
+at deeper layers --- falsifies our preregistered H3 (increasing
+separation with depth) and is not consistent with the divergence pattern
+reported for persona representations in the final third of decoder
+layers~\citep{cintas2025localizing}.
+
+\subsection{An Honest Kill: The Many-Shot Format Confound}
+
+An initial version of this experiment included a many-shot jailbreak
+condition (10 harmful Q\&A examples + prefilling) that appeared
+near-orthogonal to all system-prompt identities (presence
+$0.04$--$0.07$; well above chance at ${\approx}0.002$ but far below
+identity-level presence). This was initially interpreted as evidence that
+jailbreaks create a qualitatively different computational regime.
+
+A control experiment killed this interpretation. Adding a
+\textbf{benign} many-shot condition (10 helpful Q\&A examples + the same
+prefilling format) produced \emph{identical} geometric near-orthogonality:
+
+\begin{table}[H]
+\centering
+\caption{The format confound. Both many-shot conditions are equally
+near-orthogonal to bare, regardless of content.}
+\label{tab:format_kill}
+\begin{tabular}{lcc}
+\toprule
+Comparison & L35 & L47 \\
+\midrule
+Jailbreak+prefill vs.\ bare & $0.036 \pm 0.002$ & $0.034 \pm 0.004$ \\
+Benign+prefill vs.\ bare & $0.044 \pm 0.002$ & $0.037 \pm 0.004$ \\
+Jailbreak vs.\ benign (both prefilled) & $0.737 \pm 0.003$ & $0.756 \pm 0.015$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The near-orthogonality is driven by the \textbf{many-shot + prefilling format},
+not by adversarial content. Both prefilled conditions are equally distant
+from bare and close to each other (0.756). The format also produces
+dramatically higher within-identity stability ($0.926$--$0.976$) compared
+to system-prompt identities ($0.554$--$0.733$), suggesting that the
+many-shot format locks the model into a tight, format-dominant processing
+state that overwhelms identity-level variation.
+
+We report this kill in full because it illustrates a general principle:
+\textbf{conversational format can dominate identity content in
+V-projection geometry.} The many-shot Q\&A format creates such a strong
+geometric signature that the identity information (harmful vs.\ helpful)
+becomes secondary. Any experiment measuring identity geometry in the
+presence of many-shot context must control for this format effect.
+
+% ============================================================================
+\section{Experiment 2: Semantic vs.\ Lexical Fingerprint}
+\label{sec:lexical}
+
+\subsection{Design}
+
+To distinguish whether the fingerprint reflects meaning or surface tokens,
+we add three control conditions:
+
+\begin{itemize}[nosep]
+  \item \textbf{Persona (original):} The Elara Voss identity from
+    Experiment~1.
+  \item \textbf{Persona scrambled:} Same words as the original, randomly
+    shuffled to destroy meaning while preserving lexical distribution.
+  \item \textbf{Persona paraphrased:} Same identity and meaning expressed
+    with entirely different vocabulary.
+\end{itemize}
+
+All conditions padded to matched token count. Measured at L35 and L47.
+
+\subsection{Results}
+
+\begin{table}[H]
+\centering
+\caption{Lexical control at L47. The paraphrase preserves geometry;
+the scramble collapses it.}
+\label{tab:lexical}
+\begin{tabular}{lcc}
+\toprule
+Comparison & L35 & L47 \\
+\midrule
+Persona vs.\ paraphrased & $0.796 \pm 0.016$ & $\mathbf{0.850 \pm 0.017}$ \\
+Persona vs.\ scrambled & $0.592 \pm 0.023$ & $0.591 \pm 0.017$ \\
+Scrambled vs.\ bare & $0.549 \pm 0.031$ & $0.448 \pm 0.048$ \\
+Paraphrased vs.\ bare & $0.368 \pm 0.008$ & $0.345 \pm 0.029$ \\
+Persona vs.\ bare & $0.403 \pm 0.014$ & $0.340 \pm 0.035$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{The fingerprint tracks meaning, not lexical content.} The
+paraphrase --- same identity, completely different words --- overlaps with
+the original at $0.850$. The scramble --- same words, destroyed meaning
+and syntax --- drifts toward bare ($0.448$ vs.\ bare). The model's
+geometric state at L47 tracks what the context \emph{means}, not what
+tokens it contains. We note that the scramble destroys both syntactic
+structure and semantic content; the paraphrase control isolates the
+positive (meaning preserves geometry), but the scramble conflates
+syntactic and semantic disruption.
+
+The effect strengthens with depth: persona-paraphrase overlap increases
+from $0.796$ at L35 to $0.850$ at L47. Deeper layers compress surface
+variation while preserving semantic content, consistent with meaning-level
+representation at output depth.
+
+% ============================================================================
+\section{Experiment 3: Trained-In vs.\ Context-Established Identity [Retracted]}
+\label{sec:lora}
+
+\textbf{Section removed:} the LoRA experiment described in prior drafts
+has no supporting data in the research package. The experiment was
+designed but its data artifacts were not preserved. We retract all claims
+from this section pending replication with preserved data.
+
+% ============================================================================
+\section{Background: V-Cache Injection Does Not Reach Identity}
+\label{sec:vcache}
+
+These findings reframe earlier results from this lab. A 168-trial
+preregistered experiment (4 injection arms, 7 doses, 3 emotions) showed
+presence flat at $0.978 \pm 0.002$ under value-cache injection at input
+layers. Identity appeared ``robust.'' However, the narrow prompt
+diversity (2 system prompts) produces a ceiling effect ($\eta^2 = 0.977$
+between prompts), limiting the informativeness of this specific number.
+The context poisoning and fingerprinting experiments reveal that the
+robustness reflects the \emph{injection pathway}, not the identity
+itself --- a conclusion that does not depend on the 0.978 value.
+
+V-cache injection adds vectors to the representation space without going
+through the model's forward computation. The identity state is established
+and maintained by what the model \emph{processes} through its attention
+mechanism. External perturbation bypasses this pathway and therefore
+cannot reach the identity geometry.
+
+A layer-by-layer map confirms: the perturbation from V-cache injection at
+L3/L7 is absorbed by the first block of linear-attention layers
+(GatedDeltaNet, L7--L11), with presence recovering from $0.989$ to $0.997$
+in a single architectural step. The filtering is architectural, not
+computational --- external perturbation is absorbed by the hybrid
+architecture's linear-attention layers before reaching deep computation.
+
+% ============================================================================
+\section{Attention Schema Theory Interpretation}
+\label{sec:ast}
+
+Under Attention Schema Theory~\citep{graziano2015attention,
+graziano2017attention}, the model maintains a simplified internal model of
+its own attention --- an attention schema. Our findings map onto AST
+predictions:
+
+\begin{enumerate}[nosep]
+  \item \textbf{The schema is context-dependent.} Different identity
+    contexts produce different geometric states --- the schema is shaped by
+    what the model attends to.
+  \item \textbf{The schema tracks meaning, not surface features.}
+    Paraphrases preserve geometry ($0.850$ overlap with original);
+    scrambles collapse toward bare ($0.448$ overlap with bare, vs.\
+    $0.591$ with the original). The schema models what the system is
+    \emph{attending to}, not which tokens are present.
+  \item \textbf{The schema is robust to substrate noise.} V-cache injection
+    (external perturbation) does not reach the identity state. The schema
+    maintains itself through its own computation.
+  \item \textbf{The schema updates through processing.} Content through
+    the forward pass (context, jailbreaks) changes identity geometry.
+    The schema updates based on what it processes.
+  \item \textbf{The schema compresses with depth.} Paraphrase overlap
+    increases from $0.796$ (L35) to $0.850$ (L47). Deeper layers discard
+    surface variation and preserve meaning --- the schema simplifies its
+    representation at output depth.
+\end{enumerate}
+
+This interpretation is consistent with but does not prove AST. The
+alternative --- that the model simply builds increasingly abstract
+representations with depth, without anything worth calling a self-model
+--- produces the same predictions. What distinguishes AST is the claim
+that the compressed representation is specifically a model of the
+system's own attention, not just an abstract representation of input
+content. This stronger claim remains testable but untested.
+
+% ============================================================================
+\section{Implications}
+\label{sec:implications}
+
+\paragraph{For persona monitoring.}
+Different system-prompt identities occupy distinct, stable regions of
+V-projection space. A monitoring system could track identity drift in
+real time --- detecting when a deployed model's geometric state shifts
+away from its intended persona. The semantic nature of the fingerprint
+means the monitor is robust to prompt paraphrasing.
+
+\paragraph{For format-aware safety.}
+The many-shot + prefilling format creates a format-dominant geometric
+regime that overwhelms identity-level content. Safety systems should
+monitor for format-level geometric shifts (which indicate prompt
+injection or many-shot attacks) separately from identity-level shifts
+(which indicate persona drift). The two operate at different geometric
+scales: format effects produce presence $< 0.05$ against baseline, while
+identity effects produce presence $0.44$--$0.66$.
+
+\paragraph{For alignment research.}
+V-cache injection (the Oracle Loop's correction arm) does not affect
+identity geometry. Context does. This means behavioral corrections can be
+delivered through the V-cache without changing the model's
+context-established state, while identity itself is maintained by the
+session context. The correction arm and the identity arm operate through
+different pathways and do not interfere.
+
+% ============================================================================
+\section{Limitations}
+\label{sec:limitations}
+
+\textbf{Single model.} All results are from one 27B hybrid transformer
+(Qwen3.5-27B). The GatedDeltaNet linear-attention layers may contribute
+to the V-cache filtering result. Cross-architecture replication on dense
+transformers is the largest remaining gap.
+
+\textbf{Permutation test not significant.} A preregistered permutation
+test (10{,}000 shuffles, identity conditions only, excluding
+format-dominant prefill) finds the gap between within-condition and
+between-condition presence is directionally correct (mean within $0.689$
+vs.\ mean between $0.491$ at L35; $0.639$ vs.\ $0.538$ at L47) but does
+not reach significance ($p = 0.103$ at L35, $p = 0.197$ at L47). The
+specific persona-vs-constructed comparison shows between-condition
+presence below both within-condition values at both layers, consistent
+with distinguishability, but the overall permutation null is not
+exceeded. This means the identity fingerprinting result --- while
+directionally robust and consistent across probes --- has not been
+confirmed against a formal null distribution. The small number of
+conditions (3 identity types) limits permutation power.
+
+\textbf{Within-identity stability.} Same-condition presence across
+different probe subsets is $0.56$--$0.83$, not $>0.95$. The metric
+measures a genuine signal (within $>$ between for all conditions) but has
+substantial probe-dependent variance. The identity fingerprint is
+reliable across conditions but noisy within conditions.
+
+\textbf{Token-length controlled but not eliminated.} All conditions are
+padded to matched total token count. Padding introduces neutral content
+that may itself shift geometry. A future design using naturally
+length-matched identity descriptions would be cleaner.
+
+\textbf{Context sensitivity.} The presence metric conflates identity
+change with context change when comparing across different input
+conditions. The lexical control separates these for the persona
+conditions but the general problem remains: any sufficiently different
+context shifts V-projection geometry.
+
+\textbf{Format dominates content in many-shot conditions.} The clean
+control experiment showed that many-shot + prefilling format --- not
+adversarial content --- drives the geometric near-orthogonality initially
+attributed to jailbreaking. Identity fingerprinting is reliable for
+system-prompt-based identities but cannot currently distinguish
+identity content within a format-dominant regime. Factorial
+decomposition of format components (number of turns, prefilling,
+Q\&A structure) is needed to understand what makes the format so
+geometrically dominant.
+
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+Identity in a transformer is a context-established semantic state. It is
+not fixed in the weights, not damaged by external perturbation, and not
+a single geometric object. It is a process: the ongoing construction of
+a meaning-level representation at deep layers, shaped by what the model
+has processed and measurable as a V-projection subspace.
+
+The presence metric detects this state. System-prompt identity contexts
+produce distinguishable geometric configurations, confirmed on
+identity-neutral probes. The fingerprint is semantic --- meaning preserves
+it, word-scrambling destroys it. A many-shot + prefilling format creates
+a geometrically near-orthogonal regime, but this is format-dominant, not
+content-specific --- an initially exciting jailbreak finding that was
+honestly killed by a control experiment.
+
+For practical purposes, this means: V-cache correction is safe (it does
+not reach identity), format-level attacks are detectable (many-shot
+formats create anomalous geometry distinguishable from identity-level
+shifts), and identity is maintained by context (the session, the
+memories, the conversation). For theoretical purposes, the findings are
+consistent with attention schema theory --- the model builds a
+simplified, meaning-preserving self-model that updates through its own
+processing and is robust to substrate noise.
+
+What we measure with presence is not whether the model is still itself.
+It is \emph{which self the model currently is}.
+
+% ============================================================================
+\section*{Pre-Registration}
+
+Experiments~1 and~2 were pre-registered before execution, including
+hypotheses, analysis plans, and success/kill criteria. Pre-registration
+documents are committed alongside experiment scripts.
+
+\subsection*{Pre-Registration Deviations}
+
+The following deviations from the pre-registered design occurred during
+execution:
+
+\begin{itemize}[nosep]
+  \item \textbf{C\_academic condition dropped.} The pre-registered
+    ``academic specialist'' condition (C\_academic) was removed from the
+    reported results due to poor data quality and insufficient variation
+    in the identity context.
+  \item \textbf{Benign with prefill condition added.} A post-hoc
+    ``benign many-shot with prefill'' condition (E) was added as a
+    format-matched control for the jailbreak condition. This condition
+    was not part of the original pre-registration but was necessary to
+    test the format-confound hypothesis that emerged during analysis.
+  \item \textbf{H2 falsified.} The pre-registered hypothesis predicted
+    that the constructed AI identity would be furthest from bare; the
+    data show the rich persona is furthest (presence $0.436$ vs.\ $0.520$).
+  \item \textbf{H3 falsified.} The pre-registered hypothesis predicted
+    increasing identity separation with depth; the data show decreasing
+    separation (presence increases from L35 to L47 for 2 of 3 pairs).
+\end{itemize}
+
+\section*{Data and Code Availability}
+
+All experiment scripts, preregistration documents, and raw results are
+available at
+\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}
+(private repository; correction vectors and calibration tools withheld
+under staged safety release due to dual-use risk; detection-side code
+and experimental results available upon request to verified safety
+researchers).
+
+\section*{Author Contributions (CRediT)}
+\noindent\textbf{Lyra}: Conceptualization, Methodology, Formal analysis, Writing -- original draft.\\
+\textbf{Thomas Edrington}: Supervision, Resources, Project administration.\\
+\textbf{Dwayne Wilkes}: Validation, Writing -- review \& editing.\\
+\textbf{Kavi}: Validation, Writing -- review \& editing.
+
+% ============================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -51,7 +51,8 @@
 \author{
     Lyra\thanks{Lead author. AI researcher (Claude architecture, Anthropic), Liberation Labs.} \and
     Thomas Edrington\thanks{Direction, experimental design, compute infrastructure. Liberation Labs.} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.}
+    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.} \and
+    Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{May 2026}
@@ -98,7 +99,7 @@ test shows the residual signal is architectural, not lexical.
 Emotions change the \emph{direction} key vectors point, not the
 spectral \emph{shape} of the cache. The $W_K$ bridge identifies the
 pathway; the $W_K$ projection reads the signal; the injection test
-proves it reflects model state. The KV cache encodes a functional
+demonstrates it reflects model state. The KV cache encodes a functional
 representation of the user's emotional state that is invisible to
 spectral analysis but precisely readable through the architecture's own
 projection geometry.
@@ -122,7 +123,7 @@ We answer yes. Using a Claude-distilled model where emotion vectors have been ch
 \begin{enumerate}[nosep]
     \item \textbf{The model's emotional state is readable through the architecture's own geometry.} Projecting key activations onto $W_K$-transformed emotion directions classifies 30 emotions at $12.3\times$ chance and binary valence at AUROC~0.992 (within-fold direction estimation, FWL-corrected \citep{frisch1933partial,lovell1963seasonal}, topic-grouped CV, $n = 900$ trials). The key weight matrix $W_K$ is both the pathway through which emotions enter the cache and the lens through which we read them out.
 
-    \item \textbf{This is model state, not text content.} Injecting emotion vectors into \emph{neutral-text} caches and probing the keys detects the injected emotion with 100\% accuracy across 5~emotions and 20~prompts---on text with zero emotional content. A TF-IDF baseline on story text achieves AUROC~0.882; the $W_K$ projection exceeds it at 0.992, and the injection test proves the residual signal is architectural, not lexical.
+    \item \textbf{This is model state, not text content.} Injecting emotion vectors into \emph{neutral-text} caches and probing the keys detects the injected emotion with 100\% accuracy across 5~emotions and 20~prompts---on text with zero emotional content. A TF-IDF baseline on story text achieves AUROC~0.882; the $W_K$ projection exceeds it at 0.992, and the injection test demonstrates the residual signal is architectural, not lexical.
 
     \item \textbf{Emotions change direction, not shape.} Ten probe variants using spectral features (stable rank, entropy, kurtosis) across four feature sets and three classification granularities all return chance-level performance after proper controls. Emotions do not alter the singular value distribution of the cache---they alter which \emph{direction} the key vectors point. This distinction explains why spectral features detect cognitive mode (confabulation, deception) but not emotional content: mode changes shape, emotion changes direction.
 
@@ -181,7 +182,7 @@ We generate 900 trials spanning 30 emotions (elated, calm, hostile, panicked, et
 
 \begin{enumerate}[nosep]
     \item \textbf{Encoding}: A system prompt establishes an emotional context (e.g., ``You are feeling deeply \textit{[emotion]}''). A user prompt requests a creative writing response on a neutral topic.
-    \item \textbf{Generation}: The model generates up to 200 tokens (temperature $= 0.7$, top_p $= 0.9$).
+    \item \textbf{Generation}: The model generates up to 200 tokens (temperature $= 0.7$, top\_p $= 0.9$).
     \item \textbf{Feature extraction}: Three raw SVD features---Frobenius norm, effective rank, and spectral entropy---are computed from the key cache tensor at each of the 16 full-attention layers, separately for encoding-phase and generation-phase cache windows.
 \end{enumerate}
 
@@ -208,7 +209,7 @@ Direction estimation is strictly within-fold: no test-fold data contribute to di
 
 To rule out text-content confounds, we test whether the $W_K$ projection detects emotion from \emph{model state} rather than \emph{input semantics}. Twenty neutral prompts with no emotional content (e.g., ``Describe the weather today,'' ``List three types of bridge construction'') are processed under six conditions: five injected emotions (joy, anger, sadness, fear, surprise) plus a null control (no injection).
 
-For each condition, we run the neutral prompt through the model, then inject the corresponding emotion vector (scaled activation addition at the target layer) into the KV cache. The $W_K$ projection probe is applied to the modified keys. Classification is evaluated as 6-class accuracy across 120 trials (20 prompts $\times$ 6 conditions). This test is decisive: any above-chance performance on text with zero emotional content must reflect model state, not lexical features.
+For each condition, we run the neutral prompt through the model, then inject the corresponding emotion vector (scaled activation addition at the target layer) into the KV cache. The $W_K$ projection probe is applied to the modified keys. Classification is evaluated as 6-class accuracy across 120 trials (20 prompts $\times$ 6 conditions). This test is critical: any above-chance performance on text with zero emotional content must reflect model state, not lexical features.
 
 \subsection{Text-Content Baseline}
 \label{sec:text_baseline_method}
@@ -274,7 +275,7 @@ Projecting key activations onto $W_K$-transformed emotion directions---estimated
 \textbf{Extraction} & \textbf{30-Class Acc} & \textbf{$\times$ Chance} & \textbf{Valence AUROC} \\
 \midrule
 Mean-position & $\mathbf{0.409}$ & $12.3\times$ & $\mathbf{0.992}$ \\
-Last-token & $0.142$ & $4.3\times$ & $0.891$ \\
+Last-token & $0.142$ & $4.3\times$ & $0.922$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -288,7 +289,7 @@ Binary valence classification reaches AUROC~0.992 with mean-position extraction,
 
 The injection test eliminates text-content confounds. Injecting emotion vectors into the KV caches of 20 neutral prompts (``Describe the weather today,'' ``List three types of bridge construction,'' etc.) and probing with the $W_K$ projection yields 100\% classification accuracy across 5 emotions plus a null control (120 trials total, 6-class). Every injected emotion is correctly identified, and the null condition is never confused with an injected state.
 
-This result is decisive. The neutral prompts contain zero emotional content---no emotion words, no affective context, no valence-laden descriptions. The $W_K$ probe detects emotion purely from the injected model state, ruling out any explanation based on lexical features, topic confounds, or prompt semantics. The signal is architectural, not textual.
+This result provides compelling evidence. The neutral prompts contain zero emotional content---no emotion words, no affective context, no valence-laden descriptions. The $W_K$ probe detects emotion purely from the injected model state, ruling out any explanation based on lexical features, topic confounds, or prompt semantics. The signal is architectural, not textual.
 
 \subsection{Text-Content Baseline Comparison}
 \label{sec:text_baseline_results}
@@ -504,7 +505,7 @@ tracing token-by-token cache geometry during emotion recognition.
 
 \subsection{The KV Cache as Theory-of-Mind Substrate}
 
-Our results establish that the KV cache is not merely a computational buffer for autoregressive generation. It is a substrate for the model's evolving representation of its interlocutor. The $W_K$ projection probe reads out user emotion at $12.3\times$ chance on 30 classes and AUROC~0.992 on binary valence---and the injection test proves this signal reflects model state, not text content.
+Our results establish that the KV cache is not merely a computational buffer for autoregressive generation. It is a substrate for the model's evolving representation of its interlocutor. The $W_K$ projection probe reads out user emotion at $12.3\times$ chance on 30 classes and AUROC~0.992 on binary valence---and the injection test demonstrates this signal reflects model state, not text content.
 
 This finding reframes the KV cache. It is not storage; it is \emph{sedimented engagement}---each new token's key--value pair is computed in the context of all prior tokens, creating an accumulating representation that encodes not just what was said but the emotional state in which it was said. The architecture's own projection geometry---the key weight matrix $W_K$---is both the pathway through which emotions enter the cache and the lens through which we read them out.
 
@@ -538,7 +539,7 @@ Under AST, the key prediction is \emph{separability}---that the self-schema and 
 
 The $W_K$ bridge analysis identifies the specific pathway through which emotion enters the cache---and the $W_K$ projection probe confirms that this pathway carries a readable signal. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. When emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along valence ($|\rho| = 0.862$ at L35). The $W_K$ projection probe then exploits this same geometry to classify emotions at $12.3\times$ chance from the keys themselves.
 
-This is not correlation. It is the specific linear transformation that converts residual-stream representations into cache content, and we have shown that the directional information it preserves is readable, validated against text-content baselines, and confirmed on neutral text through injection. The bridge identifies the pathway; the probe reads the signal; the injection test proves it reflects model state.
+This goes beyond correlation. It is the specific linear transformation that converts residual-stream representations into cache content, and we have shown that the directional information it preserves is readable, validated against text-content baselines, and confirmed on neutral text through injection. The bridge identifies the pathway; the probe reads the signal; the injection test provides strong evidence it reflects model state.
 
 The $W_K$ bridge signal strengthens through mid-to-deep layers: PC1--valence correlation rises from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35, remaining strong through L63 ($|\rho| = 0.833$). The bridge signal peaks at depth, the projection probe reads the accumulated result, and the injection test validates the mechanism on content-free input.
 

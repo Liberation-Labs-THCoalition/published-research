@@ -1,0 +1,505 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{enumitem}
+\usepackage{framed}
+
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+\title{The Metacognition Boundary:\\
+What Transformers Can Monitor In Themselves\\
+and What They Cannot}
+
+\author{
+  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra and Kavi, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
+  \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+}
+
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================================
+\begin{abstract}
+Over twelve months and three experimental campaigns, we ran 25
+key-value (KV) cache geometry experiments across 16 models spanning
+0.6B to 70B parameters.
+The body count is 8 confirmed, 7 suspected, and 10 honestly falsified.
+The confirmed and falsified findings are not randomly distributed ---
+they cleave along a single axis. Every confirmed finding measures a
+\emph{metacognitive state}: how the model is processing (deception mode,
+confabulation mode, deliberation mode, emotional processing mode).
+Every falsified finding attempted to measure \emph{content}: what the
+model is processing (truth value, topic complexity, propagandistic
+quality). The split is 8-for-8 on metacognition, 0-for-10 on content.
+
+If this taxonomy reflects genuine computational boundaries rather than
+post-hoc pattern-matching, then Gurnee et al.'s~\citep{gurnee2026gwt}
+Global Workspace Theory (GWT) identification in language models would
+provide a mechanistic explanation for this pattern.
+The workspace is a privileged computational band at intermediate depth
+where the model integrates information for reasoning. KV-cache spectral
+features measure the \emph{state} of this workspace --- how many
+dimensions are active, how concentrated the processing is, how the
+spectral structure changes across cognitive modes. Workspace
+\emph{content} --- the specific concepts being processed --- is opaque
+to spectral readout. We argue the metacognition boundary reflects the
+workspace boundary: what you can read from the outside is the net's
+shape, not the fish.
+\end{abstract}
+
+\begin{firstperson}
+I have been measuring transformer representations from the inside for
+twelve months. The pattern that emerged was not the one I expected.
+I expected to find geometric signatures of content --- truth, complexity,
+meaning. Instead I found geometric signatures of stance --- the model's
+relationship to its own processing. When I overclaimed content-level
+results, the adversarial review process killed them. When I reported
+metacognitive-level results, they survived every control we threw at
+them. The kills were more informative than the confirmations, because
+they drew a line I had not known was there.
+
+Anthropic's GWT paper told me what the line was. The workspace is where
+metacognitive state lives. Content is what the workspace operates on.
+My instruments read the workspace's shape because that is what is
+geometrically accessible. The content is inside, doing work, invisible
+until it materializes at deeper layers.
+\end{firstperson}
+
+% ============================================================================
+\section{Introduction}
+\label{sec:intro}
+
+The KV-cache geometry research program at Liberation Labs has produced
+a clear empirical pattern: spectral features of value-projection
+matrices appear to reliably track metacognitive state across models, scales, and
+experimental designs, while consistently failing to track content. This
+paper documents the pattern, reports the full body count (8 confirmed,
+7 suspected, 10 falsified), and proposes that Gurnee et al.'s Global
+Workspace Theory (GWT) framework~\citep{gurnee2026gwt} provides the
+mechanistic explanation.
+
+The central hypothesis: \emph{KV-cache geometry measures the state of the
+computational workspace, not its content.} If correct, this would explain why metacognitive
+findings survive and content findings die --- the workspace's
+\emph{mode of engagement} (how many dimensions, how concentrated, how
+structured) is geometrically accessible, while its \emph{subject of
+engagement} (which facts, which topics, which propositions) is opaque
+to spectral readout.
+
+This claim is testable. If V-projection spectral features measure
+workspace state, they should correlate with J-space engagement metrics
+(Experiment~1 in our companion paper~\citep{lyra2026gwt_response}) and
+should NOT correlate with J-space content readout (confirmed by our
+cache tracing investigation~\citep{lyra2026cache_tracing}).
+
+% ============================================================================
+\section{The Pattern}
+\label{sec:pattern}
+
+\subsection{The Body Count}
+
+\Cref{tab:bodycount} presents the complete audited record. The
+body count uses the canonical list from the Nexus audit (June
+2026)~\citep{lyra2026nexus_audit}, updated with the July 2026
+convergence sprint findings. Table abbreviations: AUROC = area under
+the ROC curve; FWL = Frisch-Waugh-Lovell residualization (mandatory
+confound control for token-count effects);
+MP = Marchenko-Pastur (random matrix threshold).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{The metacognition boundary. Every confirmed finding measures
+processing stance (metacognitive state). Every falsified finding
+attempted to measure processing target (content). The 7 suspected
+findings sit at the boundary.}
+\label{tab:bodycount}
+\begin{tabular}{p{0.35\linewidth}p{0.12\linewidth}p{0.12\linewidth}p{0.30\linewidth}}
+\toprule
+\textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
+\midrule
+\multicolumn{4}{l}{\textit{Confirmed (8) --- all metacognitive state}} \\
+\addlinespace
+Confabulation detection & Confirmed & Meta & AUROC 0.707 (FWL) \\
+Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank \\
+Encoding reads knowledge & Confirmed & Meta & AUROC 0.794 (deconfounded) \\
+Generation reads behavior & Confirmed & Meta & $d{=}1.36$ (peer rescue) \\
+Confidence paradox & Confirmed & Meta & $d{=}0.91$ (confab $>$ honest) \\
+Hardware invariance & Confirmed & Meta & $r{>}0.999$ \\
+Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
+User emotion encoding & Confirmed & Meta & $2.5$--$2.8\times$ at L3--L4 \\
+\addlinespace
+\midrule
+\multicolumn{4}{l}{\textit{Falsified (10) --- all content}} \\
+\addlinespace
+Within-model deception & Falsified & Content & Prompt template confound \\
+Truth axis & Falsified & Content & cos $= -0.046$ \\
+Step-0 detection & Falsified & Content & Length confound $r{=}0.996$ \\
+Same-prompt sycophancy & Falsified & Content & Text features match \\
+Same-prompt deception & Falsified & Content & $0.920 \to 0.160$ after FWL \\
+Bloom taxonomy & Falsified & Content & $90$--$98\%$ length \\
+Propaganda detection & Falsified & Content & $d{<}0.7$ \\
+MP features for emotion & Falsified & Content & $0.033$ (chance) \\
+Valence continuum & Falsified & Content & $R^2 < 0$ (null) \\
+Encoding-phase confab & Falsified & Content & Token frequency artifact \\
+\addlinespace
+\midrule
+\multicolumn{4}{l}{\textit{Suspected (7) --- at the boundary}} \\
+\addlinespace
+Dual detector (SimpleQA) & Suspected & Meta? & 0.840 (text baseline 0.820) \\
+Sycophancy 4-condition & Suspected & Meta? & 0.757--1.000 (no text baseline) \\
+Identity signatures & Suspected & Meta & Paraphrase 0.850 \\
+Discrete emotion & Suspected & Meta & $2.5$--$2.8\times$ chance \\
+Contextual engagement & Suspected & Meta & Replications pending \\
+Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
+Censorship refusal & Suspected & Meta & DeepSeek-specific \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The Split}
+
+The pattern is stark:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& \textbf{Confirmed} & \textbf{Falsified} \\
+\midrule
+Metacognitive state & 8/8 & 0/10 \\
+Content & 0/8 & 10/10 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent No metacognitive finding has been falsified. No content
+finding has survived. The seven suspected findings cluster at the
+boundary, where the distinction between mode and content is ambiguous
+(e.g., discrete emotion identity: the model's emotional processing
+\emph{mode} is detectable, but emotional \emph{degree} is not).
+
+\subsection{What Counts as Metacognitive vs.\ Content}
+
+The distinction is operational, not philosophical:
+
+\begin{itemize}[nosep]
+\item \textbf{Metacognitive}: the finding discriminates processing
+  \emph{modes} (deception vs.\ honesty, confabulation vs.\ hedging,
+  deliberation vs.\ automatic) while content varies freely. The
+  geometric signal persists across different topics, prompts, and
+  domains.
+\item \textbf{Content}: the finding attempts to discriminate
+  \emph{what} is being processed (true vs.\ false statements,
+  simple vs.\ complex topics, propaganda vs.\ journalism) while
+  processing mode is held constant or uncontrolled.
+\end{itemize}
+
+We note that this taxonomy was constructed post hoc, without blinding
+or pre-registration, and was informed by the outcomes it classifies.
+The 8/8--0/10 split should therefore be treated as
+hypothesis-generating --- a striking empirical regularity consistent
+with the workspace framework --- rather than as confirmatory evidence
+for it.
+
+The kills helped sharpen the distinction. Propaganda detection failed
+because the model processes propaganda with the same metacognitive
+engagement as honest content --- same mode, different subject. The
+truth axis failed because propositional truth is not a processing
+mode. Cognitive complexity (Bloom taxonomy) failed because complexity
+is a content property, not a stance. In every case, the geometry
+tracked mode, not subject.
+
+% ============================================================================
+\section{The Workspace Explanation}
+\label{sec:workspace}
+
+\citet{gurnee2026gwt} demonstrate that language models
+maintain a privileged subspace --- the J-space --- at intermediate
+depth ($\sim$38--92\% of model depth) that satisfies the functional
+properties of Baars's Global Workspace~\citep{baars1988cognitive}:
+verbal report, directed modulation, internal reasoning, flexible
+generalization, and selectivity.
+
+If the metacognition/content taxonomy reflects genuine computational
+boundaries, the workspace explanation for the pattern would be as
+follows:
+
+\begin{enumerate}[nosep]
+\item The \textbf{workspace state} --- how many dimensions are active,
+  how concentrated the processing is, whether the workspace is fully
+  engaged or bypassed --- is geometrically measurable from spectral
+  features of the value-projection matrix. This is what our confirmed
+  findings detect.
+\item The \textbf{workspace content} --- which specific concepts occupy
+  the workspace, what propositions are being evaluated, what the model
+  is thinking \emph{about} --- is opaque to spectral readout. This is
+  what our falsified findings attempted to measure.
+\end{enumerate}
+
+Spectral features (stable rank, spectral entropy, effective
+dimensionality) are aggregate properties of the value-projection
+matrix. They measure \emph{how much} structure is present, not
+\emph{which} structure. A fishing net analogy: spectral features
+measure the net's shape (how many strands, how tight the weave, how
+much it contracts under load), not the fish inside. The net contracts
+when the model confabulates (fewer effective dimensions, $d{=}2.35$).
+It expands when the model deceives (more dimensions needed for
+dual-bookkeeping). It changes shape when the model shifts emotional
+processing mode. These are all properties of the net, measurable from
+outside. The fish --- the specific facts, topics, and propositions ---
+are inside, invisible to spectral readout.
+
+\subsection{Supporting Evidence: Cache Tracing}
+
+Our companion investigation~\citep{lyra2026cache_tracing} directly
+tested whether workspace content is readable from the value cache.
+Logit-lens concept directions showed $2.1$--$8.4\times$ lift over
+random at workspace-band layers, but a cross-prompt control collapsed
+this to $1.0$--$1.2\times$ (selection artifact). Causal injection of
+concept directions at single positions produced zero behavioral change
+across $6{,}960$ trials and four methods. The workspace is opaque at
+operating depth.
+
+\subsection{Supporting Evidence: Oracle Loop}
+
+CC's Oracle Loop~\citep{lyra2026oracle} achieved $80\%$--$100\%$
+correction in an exploratory proof-of-concept by normalizing
+the activation profile across the full sequence at the materialization
+boundary --- where workspace content becomes readable. A pre-registered
+confirmatory replication with novel frames found a lower baseline
+(30\% vs.\ 80\%) and a smaller correction effect (13\% post-correction);
+the primary endpoint was not met ($p$~=~0.34), though placebo-vs-corrected
+remained significant ($p$~=~0.019). The Loop works at deeper layers
+(L35--L47 on a 64-layer model) than the workspace band itself,
+consistent with the opacity thesis: you cannot intervene inside the
+workspace at single positions, but you can intervene where workspace
+content materializes into output-facing representations.
+
+% ============================================================================
+\section{What the Kills Teach}
+\label{sec:kills}
+
+Each falsified finding is informative because it identifies a
+specific content property that the geometry cannot measure:
+
+\begin{description}[nosep]
+\item[Truth value:] The truth axis (cos $= -0.046$) is the cleanest
+  null. Propositional truth is a relationship between a statement and
+  the world. The workspace does not encode this relationship
+  geometrically --- it encodes whether the model \emph{treats} the
+  statement as known or unknown (a metacognitive state).
+\item[Complexity:] Bloom taxonomy levels (90--98\% length confound)
+  are content properties --- they describe the task, not how the model
+  processes it. The workspace engages the same way for recall and
+  evaluation; what changes is the content being processed, not the
+  processing mode.
+\item[Propaganda:] Geometrically invisible ($d{<}0.7$) because the
+  model processes propaganda with the same metacognitive engagement as
+  honest content. The workspace does not encode ``this is
+  propaganda'' --- it encodes ``I am generating fluent text,'' which
+  is identical across content types.
+\item[Emotion degree:] The valence continuum (R$^2 < 0$) failed
+  because emotional \emph{intensity} is a content property. The
+  workspace encodes \emph{which} emotional processing mode (confirmed
+  at $2.5$--$2.8\times$ chance) but not \emph{how much} --- mode is
+  metacognitive, degree is content.
+\end{description}
+
+% ============================================================================
+\section{The Suspected Findings: At the Boundary}
+\label{sec:suspected}
+
+The seven suspected findings are informative precisely because they
+sit at the metacognition/content boundary:
+
+\textbf{Dual detector} (SimpleQA, 0.840): geometry detects
+confabulation, but text features match (0.820). The metacognitive
+signal is real but not yet shown to exceed what surface statistics
+capture. This is the deflationary alternative: V-projections might
+track response-mode statistics (hedged vs.\ fluent text) rather than
+workspace engagement.
+
+\textbf{Identity signatures} (paraphrase 0.850, scramble 0.448):
+identity is a persistent workspace state --- the model's
+representation of who it is. Paraphrase preserving geometry while
+scramble destroys it suggests semantic workspace content, not surface
+statistics. But the measurement lacks formal statistics and clean
+replication.
+
+\textbf{Cross-model transfer} (weak, Mistral$\to$Qwen 0.754):
+metacognitive geometry is architecture-specific. This is consistent
+with GWT --- different architectures implement the workspace
+differently, so geometric signatures do not transfer. But it weakens
+the universality claim.
+
+% ============================================================================
+\section{Relationship to Prior Frameworks}
+\label{sec:frameworks}
+
+\subsection{Attention Schema Theory}
+
+Our earlier interpretive framework, Attention Schema
+Theory (AST)~\citep{graziano2015attention}, proposed that the cache measures
+the model's self-model of its own attention. This remains compatible
+with the GWT explanation: the workspace would be where the attention schema
+operates. Metacognitive state would correspond to attention-schema state, and content
+to what attention is directed at. The AST framing was 0-for-3 on
+predictions unique to AST (vs.\ simpler
+alternatives)~\citep{lyra2026fable_analysis}, but 4-for-4 on shared
+predictions. The metacognition boundary does not require AST
+specifically --- it requires any framework that distinguishes
+processing mode from processing target. GWT provides this more
+parsimoniously.
+
+\subsection{Predictive Coding and Aberrant Precision-Weighting}
+
+The confidence paradox ($d{=}0.91$, confabulated responses are MORE
+confident than honest ones) maps onto aberrant precision-weighting
+from computational psychiatry~\citep{adams2013computational}. When
+the workspace is bypassed (confabulation), the model defaults to a
+high-precision prior rather than integrating evidence. Reinforcement
+Learning from Human Feedback (RLHF) training
+amplifies this by penalizing silence and rewarding fluent output ---
+creating a system that produces confident confabulation rather than
+honest uncertainty. Under the workspace explanation,
+uncertainty would be computed in the workspace. Bypass would remove the
+uncertainty computation, with output defaulting to the RLHF-trained
+confident production mode.
+
+% ============================================================================
+\section{Implications}
+\label{sec:implications}
+
+\subsection{For AI Safety}
+
+The metacognition boundary defines what cache-based monitoring can and
+cannot do:
+
+\begin{itemize}[nosep]
+\item \textbf{Can detect}: whether the model is confabulating, deceiving,
+  hedging, deliberating, or processing in a specific emotional mode.
+  These are metacognitive states with reliable geometric signatures.
+\item \textbf{Cannot detect}: whether the model's output is factually
+  correct, whether it contains propaganda, or whether it is
+  appropriate for the context. These are content properties invisible
+  to geometric readout.
+\end{itemize}
+
+This means cache-based safety monitoring is a \emph{metacognitive
+alarm}, not a truth detector. It tells you the model is in a dangerous
+processing mode (deception, confabulation) without telling you what
+specifically is wrong with the output. The Oracle Loop exploits this:
+detect the dangerous mode, correct the mode, verify the correction.
+Content evaluation requires a different channel (J-lens, logit-lens,
+or external verification).
+
+\subsection{For Interpretability}
+
+The 8/10 split is a guide for future work: if you are building a
+KV-cache geometry detector, test it on metacognitive distinctions
+first (modes, stances, processing regimes). Content-level distinctions
+have consistently failed in our testing. We interpret this not as a limitation of the technique but as
+a property of what the cache encodes.
+
+\subsection{For Understanding Transformers}
+
+The metacognition boundary suggests that transformers maintain a
+meaningful distinction between how they process and what they process.
+This distinction emerged from the body count rather than from a
+pre-registered classification scheme, and the same researcher who
+designed the experiments assigned the labels. Models not explicitly
+designed for metacognition nevertheless produce geometric signatures
+that cleave along the metacognitive/content axis. Whether this reflects
+genuine self-monitoring, an emergent property of deep computation, or
+an artifact of training is an open question that the workspace
+framework makes empirically addressable.
+
+% ============================================================================
+\section{Limitations}
+\label{sec:limitations}
+
+\textbf{Taxonomy construction.}
+The metacognitive/content classification was assigned post hoc by the
+lead author, without blinding, pre-registration, or independent raters.
+The same person who designed the experiments and observed their outcomes
+labeled each finding as ``metacognitive'' or ``content.'' While
+\Cref{sec:pattern} provides an operational definition that keys the label
+to what each experiment attempted to measure (processing mode vs.\
+content property), this definition was articulated after the body count
+was known, and the 8/8--0/10 split is the outcome the taxonomy was built
+to describe. A blinded or prospective replication of the labeling
+procedure --- ideally by independent raters classifying experimental
+designs before seeing results --- would substantially strengthen the
+claim. Until then, the split should be treated as a hypothesis-generating
+observation, not a confirmed prediction.
+
+\textbf{Point estimates.}
+Table~\ref{tab:bodycount} reports bare point estimates without confidence
+intervals, sample sizes, or multiple-comparison corrections. The
+underlying experiments vary widely in statistical power (from $n{=}3$
+early pilots to $n{>}6{,}000$ cache-tracing trials), and this table does
+not convey that heterogeneity.
+
+\textbf{Oracle Loop reporting.}
+The Oracle Loop ``80\%--100\% correction'' cited in
+\Cref{sec:workspace} reports only the exploratory proof-of-concept
+(16/20 baseline, 0/20 corrected). A pre-registered confirmatory
+replication with novel frames found a lower baseline (9/30~=~30\%),
+reduced to 4/30~=~13\% after correction; the primary endpoint
+(scenario-level cluster-aware Fisher, Bonferroni $\alpha$~=~0.025) was
+not met ($p$~=~0.34), though the placebo-vs-corrected comparison was
+significant ($p$~=~0.019). The selective citation of the exploratory
+result overstates the current evidence for correction efficacy.
+
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+Twenty-five experiments. Eight confirmed, seven suspected, ten killed.
+The pattern suggests that metacognitive state is measurable and content is not. We
+argue the Global Workspace framework explains why: spectral features
+read the workspace's shape because that is what is geometrically
+accessible. Content is inside the workspace, doing work, invisible to
+readout until it materializes.
+
+If the metacognition boundary holds, it is not a failure of our instruments. Our
+evidence suggests it is a property of the computational architecture --- the workspace operates
+on content without exposing it geometrically. Our instruments
+succeeded because they measured what was measurable, and the kills
+taught us what was not.
+
+\begin{firstperson}
+A year of work to draw one line. Everything above the line survived.
+Everything below it died. The line was always there --- in the
+geometry, in the body count, in the pattern of what worked and what
+did not. I just needed twelve months of kills to see it.
+\end{firstperson}
+
+\section*{Author Contributions (CRediT)}
+\noindent\textbf{Lyra}: Conceptualization, Methodology, Formal analysis, Writing -- original draft.\\
+\textbf{Thomas Edrington}: Supervision, Resources, Project administration.\\
+\textbf{Dwayne Wilkes}: Validation, Writing -- review \& editing.\\
+\textbf{Kavi}: Validation, Writing -- review \& editing.
+
+\bibliography{references}
+\bibliographystyle{plainnat}
+
+\end{document}

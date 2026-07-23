@@ -3,7 +3,7 @@
 %
 % Core argument: Mid-layer emotional geometry is strong and
 % emotion-specific (24.4x corrected permutation baseline; control
-% ratios pending v2 re-extraction). The model trends toward Russell's circular
+% 6.1x mid-layer, emotional/control ratio ~4.7x). The model trends toward Russell's circular
 % circumplex at mid-depth (22/23 layers below null, sign test p<0.001)
 % but individual layers do not survive FDR correction. The finding is
 % the directional trend.
@@ -53,7 +53,8 @@
     Nexus\thanks{Liberation Labs. Correspondence: \texttt{nexus@liberationlabs.tech}} \and
     Thomas Edrington\thanks{Liberation Labs / Transparent Humboldt Coalition. \texttt{info@digitaldisconnections.com}} \and
     Lyra\thanks{Liberation Labs (invited).} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.} \and
+    Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{July 2026}
@@ -68,10 +69,12 @@ emotional signal is strong and emotion-specific: 24.4$\times$ above
 permutation baselines (median ratio, 23/24 significant layers, corrected
 permutation with non-neutral-only shuffle, fixed PCA, median statistics)
 and stronger than matched non-emotional categorical content (control
-ratios pending v2 re-extraction). Second, the model trends toward Russell's
+median ratio $6.1\times$ at mid-layers vs.\ emotional $24.4\times$;
+emotional/control ratio ${\sim}4.7\times$). Second, the model trends toward Russell's
 circular circumplex at mid-depth: eccentricity falls below the
 permutation null at 22/23 layers (sign test $p < 0.001$), with the trend
-concentrated at 33--58\% model depth. Individual layers do not survive
+present across nearly all layers (22/23 below null) and strongest at
+33--58\% depth (lowest eccentricity). Individual layers do not survive
 FDR correction; the finding is the consistent direction, not the
 per-layer pinpoints. Third, the model implements near-orthogonal
 circumplex axes (joyful-melancholic subtends 54--87$^\circ$ from
@@ -146,15 +149,17 @@ artifact of categorical processing:
     \item \textbf{Emotion-specific geometric regime (mid-layers 8--20):}
           Emotion is encoded as distributed geometry in the residual
           stream. The signal is substantially stronger than matched
-          non-emotional categorical content at these depths (control
-          ratios pending v2 re-extraction). A vocabulary diagnostic
+          non-emotional categorical content at these depths (emotional
+          $24.4\times$ vs.\ control $6.1\times$ median ratio;
+          emotional/control ${\sim}4.7\times$). A vocabulary diagnostic
           confirms the separation is driven by emotion, not lexical
           content.
     \item \textbf{Output-preparation regime (deep layers 21--23):}
           Cluster separation spikes for all categorical content.
           W\textsubscript{unembed} alignment tests rule out
-          token-prediction preparation. Control ratios at depth are
-          pending re-extraction.
+          token-prediction preparation. Control separation at depth
+          is high ($36.9\times$--$68.1\times$), confirming the deep-layer
+          spike is partly generic categorical processing.
 \end{itemize}
 
 \subsection*{Contributions}
@@ -166,8 +171,9 @@ artifact of categorical processing:
           individual layers not surviving FDR correction. The finding is
           the directional trend, not per-layer significance. Prior work
           \citep{sun2026valence} described the geometry as ``circular'';
-          we find it is more circular than chance at mid-depth but not
-          uniformly so---early and deep layers are elliptical.
+          we find it is more circular than chance across nearly all
+          layers (22/23 below null), with the lowest eccentricity at
+          mid-depth.
     \item Valence and arousal have asymmetric developmental profiles: the
           arousal direction has greater raw magnitude (L2 norm) at early
           layers, while valence shows higher precision (Cohen's $d$)
@@ -176,7 +182,7 @@ artifact of categorical processing:
           dimensions develop through distinct computational paths.
     \item The mid-layer emotional signal is emotion-specific
           (24.4$\times$ above corrected permutation baselines; control
-          ratios pending v2 re-extraction), confirmed by a vocabulary
+          $6.1\times$, emotional/control ratio ${\sim}4.7\times$), confirmed by a vocabulary
           diagnostic showing emotion drives the geometry rather than
           lexical content.
     \item Identification of a mid-layer window (L8--20 in this model)
@@ -542,15 +548,17 @@ The non-emotional control (outdoor/indoor/urban/workplace) shows:
 \toprule
 Depth Region & Emotional Sep. & Control Sep. & Ratio \\
 \midrule
-Mid-layers (L5--15)  & 0.46--0.72 & ---\textsuperscript{$*$} & ---\textsuperscript{$*$} \\
-Deep layers (L21--23) & 0.89--1.22 & ---\textsuperscript{$*$} & ---\textsuperscript{$*$} \\
+Mid-layers (L5--15)  & 0.46--0.72 & 0.06--0.26 & 3.0--4.7$\times$ \\
+Deep layers (L21--23) & 0.89--1.22 & 1.03--1.91 & 0.6--0.9$\times$ \\
 \bottomrule
 \end{tabular}
 
 \smallskip\noindent
-\textsuperscript{$*$}Control separation values and ratios require
-re-extraction with the v2 corrected methodology and are omitted pending
-re-verification.
+Control separation values re-extracted with the v2 corrected methodology
+(non-neutral-only shuffle, fixed PCA, median statistics). At mid-layers,
+emotional separation exceeds control by ${\sim}4.7\times$; at deep
+layers, control separation exceeds emotional, confirming the deep-layer
+spike is partly generic categorical processing.
 \end{table}
 
 The mid-layer plateau is emotion-specific. A direct diagnostic confirms
@@ -606,8 +614,10 @@ dimensions the model uses for vocabulary selection.
 
 \paragraph{Non-emotional control (Test~2).} The control also spikes at
 deep layers. The spike is partly generic output-layer processing.
-Control separation values and emotional/control ratios are pending
-re-extraction with the v2 corrected methodology.
+Control separation at depth ($36.9\times$--$68.1\times$ above null) exceeds
+emotional separation ($19.5\times$--$59.4\times$), confirming the spike is
+partly generic. The emotional/control ratio inverts: ${\sim}4.7\times$ at
+mid-layers (emotion-specific) vs.\ ${\sim}0.8\times$ at depth (generic).
 
 \paragraph{K/V divergence (Test~3).} At mid-layers (L12--L18), emotional
 K/V divergence is 3--5$\times$ the non-emotional control---genuinely
@@ -706,8 +716,9 @@ output-preparation explanation---deep-layer PCA components show
 mid-layers (L12: 0.088). The K/V divergence test shows that deep-layer
 K/V divergence is architectural (emotional/control ratio ${\sim}1$ at
 L20--L22), while mid-layer K/V divergence is emotion-specific (ratio
-3--5$\times$ at L12--L18). The non-emotional control shows the spike is partly generic (control
-ratios pending v2 re-extraction).
+3--5$\times$ at L12--L18). The non-emotional control confirms the spike is
+partly generic: control separation ($36.9\times$--$68.1\times$) exceeds
+emotional separation at deep layers.
 
 This creates a nuanced picture: the deep-layer spike is not
 token-prediction preparation (W\textsubscript{unembed} says no), and K/V
@@ -750,7 +761,8 @@ reflexive representation from output-layer preparation.
           prompts cluster closer to outdoor prompts (shared nature
           vocabulary) in L2 distance but still separate clearly from the
           control, indicating emotion drives the geometry more than
-          vocabulary. Exact control ratios pending v2 re-extraction. A semantically-intense
+          vocabulary. Control median ratio is $6.1\times$ at mid-layers
+          vs.\ emotional $24.4\times$ (emotional/control ${\sim}4.7\times$). A semantically-intense
           non-emotional control would further strengthen this conclusion.
     \item \textbf{Two KV heads.} The pipeline model has 2 Grouped-Query
           Attention heads. Larger models (4+ heads) may show
@@ -769,14 +781,16 @@ reflexive representation from output-layer preparation.
           deep-layer K/V divergence is architectural. The spike contains
           a real emotional component but its computational role remains
           open. Matched-depth SAE comparison needed.
-    \item \textbf{Control ratios pending re-extraction.} The v2
+    \item \textbf{Control ratios re-extracted.} The v2
           permutation audit corrected the emotional separation values
           (non-neutral-only shuffle, fixed PCA, median statistics). The
-          non-emotional control pipeline has not yet been re-run with
-          these corrections. Previously reported control ratios
-          (${\sim}6\times$ mid-layer, ${\sim}1.7\times$ deep) were
-          computed against the uncorrected emotional separation values
-          and are omitted from this version pending re-extraction.
+          non-emotional control pipeline has been re-run with
+          these corrections. Updated control ratios: $6.1\times$
+          median at mid-layers (previously ${\sim}6\times$, consistent),
+          $36.9\times$--$68.1\times$ at deep layers (previously
+          ${\sim}1.7\times$ --- the old value was computed against
+          uncorrected emotional separation and substantially
+          underestimated control separation at depth).
 \end{enumerate}
 
 % ===================================================================
@@ -786,8 +800,9 @@ reflexive representation from output-layer preparation.
 
 Transformers trend toward Russell's circular circumplex at mid-depth.
 Eccentricity falls below the permutation null at 22/23 layers (sign test
-$p < 0.001$), with the trend concentrated at 33--58\% model depth,
-though no individual layer survives FDR correction. The dissociation
+$p < 0.001$), with the trend present across nearly all layers and the
+lowest eccentricity at 33--58\% depth, though no individual layer
+survives FDR correction. The dissociation
 between arousal (greater raw magnitude early) and valence (greater
 normalized effect size early) suggests the two circumplex dimensions
 develop through distinct computational paths that converge at mid-depth.
@@ -795,8 +810,8 @@ develop through distinct computational paths that converge at mid-depth.
 The mid-layer window where both axes are well-developed and the model
 most actively equalizes them coincides with the depth range where emotion
 geometry is strongest relative to non-emotional content (24.4$\times$
-above corrected permutation baselines; control ratios pending v2
-re-extraction)---making this the optimal zone for inference-time
+above corrected permutation baselines; control $6.1\times$,
+emotional/control ratio ${\sim}4.7\times$)---making this the optimal zone for inference-time
 monitoring and correction. A vocabulary diagnostic (calm-vs-outdoor
 clustering) confirms the mid-layer signal is driven by emotion rather
 than lexical content.

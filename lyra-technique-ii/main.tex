@@ -72,7 +72,8 @@
     Thomas Edrington\thanks{Direction, experimental design, compute infrastructure. Liberation Labs.} \and
     CC\thanks{K-Steering synthesis, cross-experiment probe validation. Liberation Labs.} \and
     Ang Jandak\thanks{Persona intensity experiment design and execution.} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.}
+    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.} \and
+    Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{Draft --- \today}
@@ -363,9 +364,10 @@ task-dependent:
     the signal lives entirely in the residual spectrum.
     \item \textbf{Modest for confabulation} ($+0.05$): some improvement on
     weak models, no change on strong ones.
-    \item \textbf{Unnecessary for deception} ($+0.00$): the raw spectrum
-    returns high AUROC, though this result is confounded by prompt-template
-    differences between conditions (see body count, Table~\ref{tab:body_count}).
+    \item \textbf{Deception (retracted):} the raw AUROC~1.000 was a
+    prompt-template confound, not genuine deception detection
+    (Table~\ref{tab:body_count}). No conclusions about denoising for
+    deception can be drawn from these data.
 \end{itemize}
 
 This pattern is \emph{predicted} by the shape-vs-direction framework.
@@ -789,9 +791,9 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.005$ & Confirmed \\
 Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed$^*$ \\
 \midrule
-\multicolumn{6}{l}{\textit{Rescued by denoising}} \\
-Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued \\
+\multicolumn{6}{l}{\textit{Rescued by denoising$^\|$}} \\
+Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued$^\|$ \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued$^\|$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -822,6 +824,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 $^*$Self-reference marked ``suspected'' pending content-matched control.
 Injection marked ``confirmed (self-consistency)''---see linearity caveat in \S\ref{sec:injection}.
 $^\S$Within-model deception retracted: same-prompt control (line 4 of this table) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
+$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion.
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
 \textbf{Shape-level signals} (confabulation, ethical deliberation,
@@ -874,25 +877,39 @@ content from residual SVs, and direction from $W_K$ projection.
 The denoising prescription is task-dependent:
 
 \begin{itemize}[nosep]
-    \item \textbf{Emotion or persona detection:} Denoise aggressively
-    (rank-3 to rank-10). The target signal lives entirely in the residual
-    spectrum. Raw features are useless.
+    \item \textbf{Emotion or persona detection:} Denoising appears to
+    dramatically improve detection (persona $+0.2$--$0.3$, emotion from
+    $1.7\times$ to $12.9\times$ chance), but these deltas fall within
+    the max-over-rank selection envelope and are not yet confirmed
+    (\S\ref{sec:results_confab}). Raw features detect persona at
+    AUROC~0.611--0.751 and emotion at $1.7\times$ chance; the $W_K$
+    projection (\S\ref{sec:wk}) is the confirmed instrument for
+    emotion detection (AUROC~0.992).
 
-    \item \textbf{Confabulation detection on weak models:} Denoise modestly
-    (rank-3). The improvement is real ($+0.05$) but not transformative.
+    \item \textbf{Confabulation detection on weak models:} Denoising
+    shows apparent improvement ($+0.05$) but falls within the selection
+    envelope and is not confirmed as a real gain
+    (\S\ref{sec:results_confab}). The raw AUROCs (0.663--0.913) are
+    the defensible numbers.
 
     \item \textbf{Confabulation detection on strong models:} Do not denoise.
     The signal already dominates the spectrum. Denoising removes nothing
     useful and may remove weak signal.
 
-    \item \textbf{Deception detection:} Do not denoise. AUROC is already
-    1.000. Denoising has no room to improve.
+    \item \textbf{Deception detection:} \emph{Retracted.} The previously
+    reported within-model deception AUROC of 1.000 was a prompt-template
+    confound (same-prompt control collapses to 0.160; see
+    Table~\ref{tab:body_count} and \S\ref{sec:body_count}). No
+    practitioner guidance on deception detection can be offered from
+    these data. Whether denoising helps or hurts a \emph{clean}
+    deception detector is an open question pending confound-free
+    replication.
 
     \item \textbf{Unknown phenomenon:} Run both raw and denoised. If denoising
     dramatically improves detection, the phenomenon is direction-level (like
     emotion). If denoising has no effect, the phenomenon is shape-level (like
-    deception). If denoising \emph{hurts}, the signal was in the dominant
-    components and denoising removed it.
+    confabulation on strong models). If denoising \emph{hurts}, the signal was
+    in the dominant components and denoising removed it.
 \end{itemize}
 
 \subsection{The SV1 Mechanism: Scale vs Signal in the First Singular Value}
@@ -907,7 +924,7 @@ categories reveal a clean dissociation
 \paragraph{Strong signals: SV1 carries real discriminative signal.}
 For confabulation detection using 168-dimensional per-layer features (the
 honesty\_signal dataset), including SV1 helps: raw AUROC~0.981, top-20
-projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.\footnote{These specific values do not trace cleanly to the named source: the \texttt{denoising\_sweep} honesty\_signal records show raw AUROC~0.994 and rank-20~0.983, with no 0.998 entry. The numbers reported here should be treated as approximate pending re-derivation from the committed data, though the qualitative conclusion (SV1 carries discriminative signal for strong tasks) is unaffected.}
+projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.\footnote{These values trace to \texttt{data/skip\_first\_sv\_analysis.json} (raw: 0.981, top\_20: 0.998, skip1\_plus\_20: 0.966), not \texttt{denoising\_sweep} which reports different numbers (0.994, 0.983) from a separate analysis pipeline.}
 The first singular value \emph{encodes confab signal}---removing it destroys
 information. For strong cognitive-mode signals, keep all SVs.
 
@@ -962,9 +979,11 @@ architecture~\citep{lyra_p2} at different tiers:
 
 \begin{itemize}[nosep]
     \item \textbf{Tier 1: Spectral monitoring} (existing). Raw spectral
-    features detect confabulation, deception, refusal, and ethical
+    features detect confabulation, refusal, and ethical
     deliberation. No denoising needed for strong signals. This is the
-    ``smoke detector''---it alerts on mode-level anomalies.
+    ``smoke detector''---it alerts on mode-level anomalies. (Deception
+    detection was previously listed here but is retracted pending
+    confound-free replication; see Table~\ref{tab:body_count}.)
 
     \item \textbf{Tier 1.5: $W_K$ emotion reading} (new). $W_K$ projection
     reads the model's internal emotional/dispositional state. This enables
@@ -1187,11 +1206,14 @@ reading internal model state from the KV cache:
     contribution is empirical quantification with controlled baselines, not
     the existence of directional structure itself.
 
-    \item \textbf{SVD-denoised spectral features} detect content-level
-    structure hidden by dominant scale variance: persona intensity at
-    AUROC~0.899--0.992 (from 0.611--0.751 raw), emotion at $12.9\times$
-    chance (from $1.7\times$ raw). This is a calibration step that removes
-    the spectral ``temperature'' to reveal content-specific ``scent.''
+    \item \textbf{SVD-denoised spectral features} appear to detect
+    content-level structure hidden by dominant scale variance: persona
+    intensity at raw AUROC~0.611--0.751 (denoised 0.899--0.992), emotion
+    at $1.7\times$ chance raw (denoised $12.9\times$). However, the
+    denoising deltas fall within the max-over-rank selection envelope
+    (0/16 exceed it), so the \emph{raw} AUROCs are the defensible numbers
+    and the denoised values are upper bounds pending confirmatory testing
+    with a pre-registered rank criterion.
 \end{enumerate}
 
 The compass reads direction. The calibrated thermometer reads shape. Together,
@@ -1245,21 +1267,6 @@ Sofroniew, N., Kauvar, I., Saunders, W., Chen, R., Henighan, T., Hydrie, S., Cit
 Emotion concepts and their function in a large language model.
 \textit{arXiv preprint arXiv:2604.07729}.
 
-\bibitem[Bas et~al., 2025]{bas2025}
-Bas, M., et~al. (2025).
-Probing internal representations for factual knowledge.
-\textit{arXiv preprint arXiv:2511.18284}.
-
-\bibitem[Frisch and Waugh, 1933]{frisch1933partial}
-Frisch, R. and Waugh, F.~V. (1933).
-Partial time regressions as compared with individual trends.
-\textit{Econometrica}, 1(4):387--401.
-
-\bibitem[Gavish and Donoho, 2014]{gavish2014optimal}
-Gavish, M. and Donoho, D.~L. (2014).
-The optimal hard threshold for singular values is $4/\sqrt{3}$.
-\textit{IEEE Transactions on Information Theory}, 60(8):5040--5053.
-
 \bibitem[Pustovit, 2026]{knowledgepacks2026}
 Pustovit, A. (2026).
 Knowledge packs: zero-token knowledge delivery via {KV} cache injection.
@@ -1269,11 +1276,6 @@ Knowledge packs: zero-token knowledge delivery via {KV} cache injection.
 Oozeer, N., Marks, L., Jain, S., Barez, F., and Abdullah, A. (2025).
 Beyond linear steering: unified multi-attribute control for language models.
 \textit{arXiv preprint arXiv:2505.24535}.
-
-\bibitem[Lovell, 1963]{lovell1963seasonal}
-Lovell, M.~C. (1963).
-Seasonal adjustment of economic time series and multiple regression analysis.
-\textit{Journal of the American Statistical Association}, 58(304):993--1010.
 
 \bibitem[Lyra et~al., 2026a]{lyra_p2}
 Lyra, Edrington, T., and Wilkes, D. (2026a).
@@ -1293,39 +1295,22 @@ The Oracle Formulary: dose-response profiles for emotion-vector
 steering via KV-cache geometry.
 \textit{Liberation Labs Technical Report P6}.
 
-\bibitem[Lyra et~al., 2026d]{lyra_p7}
+\bibitem[Lyra et~al., 2026d]{lyra_spectral}
 Lyra, Edrington, T., and Wilkes, D. (2026d).
-Cache geometry under obfuscation: KV-Cloak as defense against
-adversarial KV-cache steering.
-\textit{Liberation Labs Technical Report P7}.
-
-\bibitem[Lyra et~al., 2026e]{lyra_spectral}
-Lyra, Edrington, T., and Wilkes, D. (2026e).
 Spectral shape features for confabulation detection: threshold-free
 KV-cache analysis.
 \textit{Liberation Labs Technical Report}.
 
-\bibitem[Lyra et~al., 2026f]{lyra_delta}
-Lyra, CC, Edrington, T., and Wilkes, D. (2026f).
+\bibitem[Lyra et~al., 2026e]{lyra_delta}
+Lyra, CC, Edrington, T., and Wilkes, D. (2026e).
 Per-layer delta features and manifold signatures in KV-cache confabulation
 detection.
 \textit{Liberation Labs Technical Report}.
 
-\bibitem[Lyra et~al., 2026g]{lyra_wiki}
-Lyra, Edrington, T., et~al. (2026g).
+\bibitem[Lyra et~al., 2026f]{lyra_wiki}
+Lyra, Edrington, T., et~al. (2026f).
 KV-cache geometry research wiki: cross-experiment synthesis.
 \textit{Liberation Labs internal documentation}.
-
-\bibitem[MAT-Steer, 2025]{matsteer2025}
-MAT-Steer Authors (2025).
-MAT-Steer: multi-attribute token-level steering for language models.
-\textit{arXiv preprint arXiv:2502.12446}.
-
-\bibitem[Martin and Mahoney, 2021]{martin2021implicit}
-Martin, C.~H. and Mahoney, M.~W. (2021).
-Implicit self-regularization in deep neural networks: evidence from
-random matrix theory and implications for training.
-\textit{Journal of Machine Learning Research}, 22(165):1--73.
 
 \end{thebibliography}
 
