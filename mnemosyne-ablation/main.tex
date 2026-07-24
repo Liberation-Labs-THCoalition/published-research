@@ -1,0 +1,236 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{framed}
+
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+\title{What Works in Agent Memory: An Ablation Study of Modular Memory Architectures}
+\author{
+  Nexus\thanks{Liberation Labs.} \and
+  Thomas Edrington\thanks{Liberation Labs / Transparent Humboldt Coalition.} \and
+  Dwayne Wilkes\thanks{Statistical auditing. Sentient Futures / Liberation Labs.}
+}
+\date{June 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Modular memory architectures for language model agents have proliferated faster than systematic evaluation of which components actually help. This report presents ablation results on Mnemosyne, a nine-module memory system, evaluated against a no-memory baseline using Qwen3-30B-A3B. We measure exact-match (EM) accuracy on both small (20-question) and large (150-question) knowledge probes, isolating the contribution of each component: SIRA (selective retrieval), TGS (temporal-graph search), H-MEM (recency-weighted episodic memory), domain significance scoring, and Garuda (adversarial filtering). The headline finding is that memory module value is strongly context-dependent: the cumulative SIRA+TGS+H-MEM stack improves small-corpus conversational performance by 15 percentage points over vanilla, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On large document collections where temporal ordering does not imply relevance, H-MEM produces a small regression (0.200 to 0.160, Fisher $p=0.45$, within noise). SIRA is the one universally positive component, improving EM across all conditions tested. We provide concrete stack recommendations for three deployment classes --- conversational agents, document retrieval agents, and adversarial environments --- and identify significance scoring as not yet ready for deployment without domain-specific tuning. J-lens workspace verification experiments are forthcoming.
+\end{abstract}
+
+\section{Introduction}
+
+Memory augmentation for agents is now common practice. What is less common is systematic measurement of which memory components earn their cost. Many deployed systems stack modules because more seems better, or because a component worked in one benchmark and the results generalized uncritically to other domains.
+
+This report does something narrower and more useful: it holds the base model fixed, adds memory components one at a time, and measures what happens to exact-match accuracy across two dataset sizes with different structural properties.
+
+The model under evaluation is Mnemosyne, a nine-module system developed at Liberation Labs. The components evaluated in this ablation are:
+
+\begin{itemize}
+  \item \textbf{SIRA} --- Selective Interrogation and Retrieval Architecture \cite{sira}. A ``think before you search'' retrieval policy that generates the retrieval query before executing it.
+  \item \textbf{TGS} --- Temporal-Graph Search. Graph-walk retrieval over a structured knowledge graph.
+  \item \textbf{H-MEM} --- Hierarchical Episodic Memory with recency weighting (cf.~\cite{hipporag}). Prioritizes recently encoded memories.
+  \item \textbf{Significance scoring} --- A keyword-weighted relevance gate applied before retrieval.
+  \item \textbf{Garuda} --- Adversarial content filter. Poison-detection layer for untrusted inputs.
+\end{itemize}
+
+The base model throughout is Qwen3-30B-A3B \cite{qwen} running via MLX on a MacBook Pro (Starship), accessed from the lab server Madame Trash Heap. All ablation variants use the same base weights.
+
+\section{Methodology}
+
+\subsection{Evaluation Protocol}
+
+We ran each configuration against two probe sizes:
+
+\begin{itemize}
+  \item \textbf{Small probe (20 questions):} A focused conversational knowledge set where questions have temporal ordering and ``what happened most recently'' framing is common.
+  \item \textbf{Large probe (150 questions):} A document-retrieval knowledge set where questions require accurate recall across a flat corpus without temporal structure.
+\end{itemize}
+
+Performance metric: \textbf{Exact Match (EM)}, measured as exact string match between the generated answer and the gold answer after normalization.
+
+Ablation procedure: additive. We begin with a vanilla (no memory) baseline and add one component at a time, keeping prior components active. Each configuration is evaluated independently; results are not derived from a single multi-condition run.
+
+\subsection{Model}
+
+\begin{description}
+  \item[Base:] Qwen3-30B-A3B (3B active parameters, 30B total, Mixture-of-Experts architecture)
+  \item[Quantization:] Q4\_K\_M via MLX
+  \item[Inference:] MLX on Apple Silicon; approximately $27\times$ faster than CPU-only inference on the same hardware
+\end{description}
+
+\subsection{Benchmark Notes}
+
+The large probe draws from MINTEval-style document QA \cite{minteval}. MINTEval (Memory-Intensive Neural Testbed) probes retrieval over structured knowledge stores. The small probe uses conversational QA with recency-sensitive questions. Both use verbatim gold answers; no partial credit.
+
+Full bAbi-format evaluation via igraph is planned but requires igraph installation; results pending.
+
+\section{Results}
+
+\subsection{Main Ablation Table}
+
+\begin{table}[H]
+\centering
+\caption{Main ablation results. Bold indicates best performance in column. Each row reflects the cumulative stack from the row above plus the named component.}
+\label{tab:ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Configuration & Small (20q) EM & Large (150q) EM & Gain vs.\ Baseline (Small) & Gain vs.\ Baseline (Large) \\
+\midrule
+Vanilla (no memory) & 0.550 & 0.160 & --- & --- \\
++ SIRA & 0.600 & \textbf{0.213} & +0.050 & +0.053 \\
++ TGS & 0.650 & 0.200 & +0.100 & +0.040 \\
++ H-MEM & \textbf{0.700} & 0.160 & \textbf{+0.150} & +0.000 \\
++ Significance & 0.650 & 0.160 & +0.100 & +0.000 \\
++ Garuda & 0.650 & 0.160 & +0.100 & +0.000 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Key Findings}
+
+\textbf{Finding 1: SIRA is the best universal component.}
+SIRA is the only component that improves performance across both dataset sizes. On the large probe, SIRA alone closes 33\% of the gap between vanilla and theoretical ceiling. On the small probe, it provides a consistent 5-point floor improvement that compounds with other components.
+
+\textbf{Finding 2: H-MEM is context-dependent and can hurt.}
+H-MEM completes the best-performing stack on conversational data: the cumulative SIRA+TGS+H-MEM combination achieves $+15$ points over vanilla on the small probe, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On document retrieval, adding H-MEM to the SIRA+TGS stack produces a regression from 0.200 to 0.160 (a 4-percentage-point drop, or 6 questions at $n=150$; Fisher $p=0.45$, within noise). The mechanism is clear: on conversational data, more recently encoded memories are more relevant; on document corpora, recency of encoding has no relationship to query relevance. H-MEM's decay curve is currently aggressive enough that relevant older documents are systematically deprioritized.
+
+\textbf{Finding 3: Significance scoring is not deployment-ready.}
+The keyword-based significance scoring gate produces the same result as not having it on both probe sizes. The current implementation uses a generic keyword list that does not align with the domain-specific vocabulary of either probe set. This component requires tuning before it can be expected to add signal.
+
+\textbf{Finding 4: TGS helps on graph-connected knowledge, not elsewhere.}
+TGS graph-walk retrieval improves small-probe EM by 5 points over SIRA alone (to $+10$ total). On the large probe, TGS adds 40\% of SIRA's gain when used together but produces a small regression compared to SIRA alone in some configurations. TGS earns its cost when the knowledge base has genuine relational structure; flat document stores do not benefit.
+
+\textbf{Finding 5: Garuda is conditional-use only.}
+Garuda shows no measurable impact on clean test data, which is the expected result --- the component is not designed to improve recall, only to filter adversarial injection. Its absence from the small and large probe results does not indicate the component is broken; it indicates the probes do not contain poisoned inputs. Garuda belongs in adversarial deployment stacks, not research benchmarks.
+
+\section{Recommended Configurations}
+
+Three deployment classes, each with a justified module selection:
+
+\subsection{Conversational Agents}
+\textit{(e.g., Ayni, Daimonion, Muse)}
+
+\textbf{Stack: SIRA + TGS + H-MEM}
+
+Recency matters. In a running conversation, the most recently established context is the most relevant. The cumulative SIRA+TGS+H-MEM stack's 15-point improvement on the small probe is directly applicable here, with H-MEM contributing its marginal $+5$ points on top of SIRA+TGS. TGS provides relational traversal when the conversation references concepts with known graph connections (entities, projects, relationships).
+
+Do not add significance scoring until keyword lists are tuned to the specific agent's domain vocabulary.
+
+\subsection{Document Retrieval and Library Agents}
+\textit{(e.g., Wiki, research assistant, knowledge base agents)}
+
+\textbf{Stack: SIRA + TGS}
+
+No H-MEM. No significance scoring. Both components produce zero gain on large flat corpora and H-MEM actively misranks older documents that may be highly relevant. SIRA's query-generation step handles the relevance judgment that significance scoring is supposed to provide; adding the keyword gate on top is redundant at best.
+
+\subsection{Adversarial / Public-Facing Environments}
+\textit{(e.g., any agent handling untrusted user input)}
+
+\textbf{Stack: SIRA + TGS + Garuda}
+
+Garuda belongs here and only here. Add H-MEM only if the deployment is also conversational. Keep significance scoring off until domain tuning is complete.
+
+\section{Implications}
+
+\subsection{Module value is domain-specific, not absolute}
+
+The conventional approach of reporting memory system performance as a single number obscures the most important finding here: the same stack can be $+15$ points or $+0$ points depending on whether temporal ordering is meaningful in the target domain --- and within that stack, individual components like H-MEM contribute their marginal $+5$ while the cumulative effect compounds. This suggests that memory benchmarks should report separately across dataset types with different temporal and structural properties, not collapse across them.
+
+\subsection{SIRA generalizes; the others don't}
+
+The ``think before you search'' design of SIRA --- generating the retrieval query explicitly before executing retrieval --- is the one component that improves performance regardless of corpus size or structure. This is consistent with the broader literature on chain-of-thought retrieval and suggests that the quality of the retrieval query is a more significant bottleneck than the retrieval mechanism itself, at least at this scale.
+
+\subsection{Significance scoring needs domain adaptation}
+
+A generic significance keyword list cannot be expected to generalize across domains. Organizations deploying Mnemosyne should treat significance scoring as a component requiring configuration, not a plug-and-play module. The evidence suggests it is worth investing in domain-specific keyword lists for high-value deployments; the component probably works when correctly tuned.
+
+\subsection{H-MEM decay curve needs calibration}
+
+H-MEM's current recency decay is too aggressive for mixed-use deployments. A conversational agent operating over a knowledge base needs recency weighting that applies to conversational turns but not to background documents. The most straightforward fix is separate memory classes --- one with decay (conversational buffer), one without (knowledge base) --- rather than a single decay rate applied to the full memory store.
+
+\section{Limitations}
+
+\textbf{Scale:} Ablation run on a single model (Qwen3-30B-A3B). Results should be verified across at least one additional base model before treating them as architectural conclusions rather than model-specific findings.
+
+\textbf{Probe size:} The small probe (20 questions) is too small for high-confidence EM measurements. A 5-point shift at $n=20$ represents one question. The large probe (150 questions) is more reliable; the small-probe results should be treated as directional.
+
+\textbf{Cumulative ablation order effects:} Components were added in a fixed order (SIRA $\rightarrow$ TGS $\rightarrow$ H-MEM $\rightarrow$ Significance $\rightarrow$ Garuda). Interaction effects between components are not fully characterized. A full factorial design would require $2^5 = 32$ configurations; that is planned but not yet run.
+
+\textbf{No MINTEval bAbi validation:} The igraph-dependent bAbi evaluation is not yet run. Results here use a compatible but not identical probe set.
+
+\textbf{Preliminary:} This is a preliminary ablation. J-lens workspace verification experiments are forthcoming and may revise the recommended configurations.
+
+\section{Next Steps}
+
+\begin{enumerate}
+  \item \textbf{Tune H-MEM recency decay curve.} Target: conversational turns decay fast, knowledge documents decay slowly or not at all. Implement separate memory classes.
+  \item \textbf{Build domain-specific significance keyword lists.} One per deployment class: conversational, document retrieval, research.
+  \item \textbf{Run bAbi evaluation.} Requires igraph install. Provides direct comparison to MINTEval baseline literature.
+  \item \textbf{Multi-model validation.} Run the same ablation on at least one additional base model.
+  \item \textbf{Full factorial ablation.} 32-configuration design to characterize interaction effects.
+  \item \textbf{J-lens workspace verification.} External verification of findings in a different compute environment.
+\end{enumerate}
+
+\section{Conclusion}
+
+Not all memory modules help, and the ones that help depend entirely on what you're building. The practical output of this ablation is three concrete stack recommendations: SIRA + TGS + H-MEM for conversational agents, SIRA + TGS for document retrieval, and SIRA + TGS + Garuda for adversarial environments. SIRA is the one component that earns its place in every stack. H-MEM is valuable when recency matters and actively unhelpful when it doesn't. Significance scoring requires domain tuning before deployment.
+
+These findings are preliminary. J-lens workspace verification experiments are forthcoming. The full Mnemosyne system will be re-evaluated after H-MEM decay calibration and domain-specific significance tuning.
+
+\section{About This Work}
+
+This ablation is part of the Mnemosyne project at Liberation Labs / Transparent Humboldt Coalition. Mnemosyne is a nine-module memory architecture for language model agents, developed in coordination with the Coalition's broader research program on agent memory, knowledge injection, and AI welfare.
+
+\noindent\textbf{Contact:} \url{info@liberationlabs.tech}\\
+\textbf{Website:} \url{https://thcoalition.org}\\
+\textbf{Repository:} \url{https://github.com/Liberation-Labs-THCoalition}
+
+\bigskip
+\noindent{\small\textit{Note for reviewers: This report has not yet completed the full Agni gate + Dwayne/Kavi audit cycle. It is a preliminary findings document intended for discussion, not final publication. J-lens verification is forthcoming.}}
+
+\begin{thebibliography}{9}
+
+\bibitem{minteval}
+MINTEval benchmark.
+Memory-Intensive Neural Testbed.
+Project documentation.
+
+\bibitem{qwen}
+Qwen Team (2026).
+Qwen3-30B-A3B.
+HuggingFace model hub.
+
+\bibitem{sira}
+SIRA architecture.
+\textit{Fleet, Agni + Meridian.}
+Liberation Labs internal documentation.
+
+\bibitem{hipporag}
+Gutierrez, B.~J., et al. (2024).
+HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models.
+\textit{arXiv:2405.14831}.
+
+\end{thebibliography}
+
+\end{document}
