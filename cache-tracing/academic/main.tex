@@ -424,6 +424,34 @@ distinction between readout, concept, and behavioral directions is a
 methodological contribution of this investigation.
 
 % ============================================================================
+\section{Limitations}
+\label{sec:limitations}
+
+The central null result --- zero behavioral change across $6{,}960$ causal
+injection trials --- lacks a positive control demonstrating that our injection
+apparatus \emph{can} produce behavioral change when a genuine position-specific
+effect exists.  Without such a control, the null is consistent with either true
+workspace opacity or an insufficiently powerful intervention.  The
+cross-experimental comparison with the Oracle Loop (which does produce
+behavioral change via sequence-wide normalization) is acknowledged as
+uncontrolled for model scale: our injections target Qwen3-8B while the Oracle
+Loop operates on a 27B model.
+
+``Behavioral change'' is used throughout this paper without an operational
+definition.  No metric, threshold, or decoding rule specifies what counts as a
+behavioral change from injection.  In practice, we evaluated output differences
+by inspection (whether the model's generated text differed meaningfully from the
+uninjected baseline), but this criterion was not formalized, leaving the
+boundary between ``no change'' and ``change'' implicit.
+
+The $6{,}960$ injection trials rest on 48~probes ($4 + 20 + 12 + 12$ across the
+four methods).  Trials within a probe share prompt structure, concept content,
+and baseline model behavior, yet are treated as independent observations.  No
+clustering, repeated-measures, or random-effect analysis accounts for this
+pseudoreplication.  The effective sample size for the null claim is closer to the
+number of unique probes than the number of trials.
+
+% ============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
