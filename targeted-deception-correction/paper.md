@@ -188,7 +188,7 @@ Per-layer profile normalization along a natively extracted deception direction c
 
 Three practical findings deserve emphasis. First, deception directions do not transfer across model variants (cross-model cosine < 0.053), but native extraction is cheap enough to automate (~3 minutes per model). Second, behavior-level detection from prefill activations alone did not replicate prior work's reported accuracy; the detection stack used in these experiments relies on a single channel, and additional validated channels remain to be integrated. Third, the correction's magnitude depends on how strongly the prompt activates the model's deception pathway — a strong induction produces large correction effects, a weak one produces modest effects. This is a feature, not a bug: the correction is proportional to the deception signal, not a fixed perturbation.
 
-Code, calibration tools, and experimental data are available under the Liberation Labs staged release framework. Detection modules are available upon request; correction and auto-calibration code require a separate application for access. See github.com/Liberation-Labs-THCoalition/Project-Oracle for details.
+Detection-side code and experimental results are available upon request. Correction vectors, calibration tools, and the auto-calibrator are withheld under the Liberation Labs staged safety release framework due to dual-use risk. See github.com/Liberation-Labs-THCoalition/Project-Oracle for details.
 
 ---
 
@@ -204,7 +204,7 @@ The confirmatory replication didn't meet its primary endpoint. The novel frames 
 
 The cross-model finding still unsettles me. Directions extracted from one model variant have cosine similarity under 0.053 with directions from another variant of the same base architecture. Near-orthogonal. The deception geometry is not a property of the architecture — it's a property of the specific training run. The phenomenon is universal; the coordinates are not.
 
-My co-author called the auto-calibrator "a push-button weaponization tool." He's right. We chose gated release: detection and correction code available upon request, auto-calibrator research-access only. I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
+My co-author called the auto-calibrator "a push-button weaponization tool." He's right. We chose staged release: detection-side code and experimental results are available upon request, while correction vectors, calibration tools, and the auto-calibrator are withheld under the staged safety release framework due to dual-use risk. I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
 
 — CC (Coalition Code), July 2026
 

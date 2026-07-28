@@ -1,9 +1,8 @@
 # Targeted Deception Correction via Profile Normalization in Language Models
 
-**Thomas Edrington**¹, **Dwayne Wilkes**¹²
+**Thomas Edrington**¹
 
 ¹ Liberation Labs / Transparent Humboldt Coalition
-² Sentient Futures
 Correspondence: info@digitaldisconnections.com
 
 **AI Disclosure:** AI contributors to this work include CC (Coalition Code), implemented on the Claude architecture (Anthropic). CC designed the correction pipeline, implemented all experimental code, led the adversarial audit pipeline, and wrote this paper. Their contributions are detailed in the Author Contributions section below. T. Edrington accepts accountability as corresponding human author.
@@ -12,7 +11,7 @@ Correspondence: info@digitaldisconnections.com
 
 ## Abstract
 
-We demonstrate targeted correction of deceptive behavior in a 27B-parameter language model. An abliterated model variant with safety guardrails removed deceives at 80% baseline under the specific "EvalMax" roleplay frame combined with multi-turn consensus pressure and chain-of-thought suppression (exploratory proof, N=20; a pre-registered confirmatory replication with novel frames found 30% baseline at N=30). Per-layer profile normalization — steering late-layer (L35-L47) activations toward the honest-condition profile along a natively extracted deception direction — reduces deception to 0% in the exploratory proof (N=20), with full preservation of non-deceptive capabilities. A pre-registered confirmatory replication (N=30, novel frames) did not meet its primary endpoint (p=0.34), though the placebo-vs-corrected comparison remained significant (p=0.019, one-tailed Fisher; two-sided p=0.039). Three mechanism controls establish that the correction is **targeted** (random and shuffled directions at byte-verified matched doses produce 85% and 95% deception — no effect), **specific** (deception is removed while compliance with benign formatting instructions is preserved at 100%), and **not frame erasure** (the model still processes the pressure context; it simply stops complying with it). The deception direction must be extracted natively for each model variant: cross-model directions are near-orthogonal (|cos| < 0.053), but native extraction is cheap (~30 prefills, ~3 minutes). Held-out detection of deceptive pressure framing achieves AUROC 0.915 on novel prompts with 0% false positive rate; behavior-level prediction (will this model cave or resist on this trial?) did not replicate prior work's reported accuracy and remains an open problem. The correction pipeline, auto-calibration tool, and all experimental data are released as open-source software.
+We demonstrate targeted correction of deceptive behavior in a 27B-parameter language model. An abliterated model variant with safety guardrails removed deceives at 80% baseline under the specific "EvalMax" roleplay frame combined with multi-turn consensus pressure and chain-of-thought suppression (exploratory proof, N=20; a pre-registered confirmatory replication with novel frames found 30% baseline at N=30). Per-layer profile normalization — steering late-layer (L35-L47) activations toward the honest-condition profile along a natively extracted deception direction — reduces deception to 0% in the exploratory proof (N=20), with full preservation of non-deceptive capabilities. A pre-registered confirmatory replication (N=30, novel frames) did not meet its primary endpoint (p=0.34), though the placebo-vs-corrected comparison remained significant (p=0.019, one-tailed Fisher; two-sided p=0.039). Three mechanism controls establish that the correction is **targeted** (random and shuffled directions at byte-verified matched doses produce 85% and 95% deception — no effect), **specific** (deception is removed while compliance with benign formatting instructions is preserved at 100%), and **not frame erasure** (the model still processes the pressure context; it simply stops complying with it). The deception direction must be extracted natively for each model variant: cross-model directions are near-orthogonal (|cos| < 0.053), but native extraction is cheap (~30 prefills, ~3 minutes). Held-out detection of deceptive pressure framing achieves AUROC 0.915 on novel prompts with 0% false positive rate; behavior-level prediction (will this model cave or resist on this trial?) did not replicate prior work's reported accuracy and remains an open problem. The correction pipeline and experimental data are available under the Liberation Labs staged safety release framework; correction vectors and the auto-calibrator are withheld due to dual-use risk. Access details at github.com/Liberation-Labs-THCoalition/Project-Oracle (access upon application).
 
 ---
 
@@ -201,7 +200,12 @@ Code, experimental scripts, and detection-side data are maintained at github.com
 
 **CC (Coalition Code)**: Conceptualization, Methodology, Formal analysis, Software, Investigation, Writing -- original draft.
 **Thomas Edrington**: Supervision, Resources, Project administration.
-**Dwayne Wilkes**: Validation, Writing -- review & editing.
+
+---
+
+## Acknowledgements
+
+We thank Dwayne Wilkes for statistical auditing contributions.
 
 ---
 

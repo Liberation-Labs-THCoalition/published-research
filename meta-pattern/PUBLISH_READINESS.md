@@ -3,7 +3,7 @@
 **Paper**: `main.tex`
 **Reviewed**: 2026-07-17
 **Prior SOP review**: 2026-07-13
-**Verdict**: **READY TO PUBLISH** (2 optional cosmetic fixes noted)
+**Verdict**: **UNDER REVIEW --- round 5 items open**
 
 ---
 
@@ -138,6 +138,6 @@ All CRITICAL and MAJOR items from the 2026-07-13 SOP review have been addressed:
 
 ## Verdict
 
-**READY TO PUBLISH**
+**UNDER REVIEW --- round 5 items open**
 
 All six audit checks pass. All CRITICAL and MAJOR items from the prior SOP review are resolved. Two cosmetic MINOR items remain (one stray `\ref`, one manual author name) -- neither affects correctness or readability.
