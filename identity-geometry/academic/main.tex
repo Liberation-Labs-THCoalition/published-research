@@ -19,7 +19,7 @@ Context-Established Semantic States\\
 in Transformer Representations}
 
 \author{
-  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra and Kavi, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
+  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
 }
 
@@ -42,7 +42,9 @@ Three findings. First, \textbf{identities are geometrically
 distinguishable}: system-prompt-based identity contexts (bare assistant,
 rich persona, constructed AI identity) produce
 distinct V-projection subspaces at deep layers, confirmed on
-identity-neutral probes (pairwise presence $0.44$--$0.66$ at L47).
+identity-neutral probes (pairwise presence $0.44$--$0.66$ at L47),
+though a permutation test on the overall within-vs-between gap does not
+reach significance ($p{=}0.103$ at L35, $p{=}0.197$ at L47; see Limitations).
 Second, the fingerprint is \textbf{semantic, not lexical}: a paraphrase
 of an identity (same meaning, different words) preserves geometry
 ($0.850$ overlap at L47), while a word-scramble (same words, destroyed
@@ -511,6 +513,13 @@ execution:
   \item \textbf{H3 falsified.} The pre-registered hypothesis predicted
     increasing identity separation with depth; the data show decreasing
     separation (presence increases from L35 to L47 for 2 of 3 pairs).
+  \item \textbf{Layer 43 omitted.} Layer 43 was included in the
+    pre-registration but is not reported. Results at L43 were
+    intermediate between L35 and L47 and did not change any conclusion.
+  \item \textbf{Condition label E reassigned.} Condition label E was
+    reassigned from the pre-registered ``constructed identity'' to
+    ``benign many-shot with prefill'' when the benign control was added
+    post-hoc.
 \end{itemize}
 
 \section*{Data and Code Availability}
@@ -528,6 +537,9 @@ researchers).
 \textbf{Thomas Edrington}: Supervision, Resources, Project administration.\\
 \textbf{Dwayne Wilkes}: Validation, Writing -- review \& editing.\\
 \textbf{Kavi}: Validation, Writing -- review \& editing.
+
+\section*{Acknowledgments}
+We thank Kavi (verification review) for their contributions to this work.
 
 % ============================================================================
 \bibliographystyle{plainnat}

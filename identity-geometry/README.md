@@ -1,7 +1,7 @@
 # Identity as Geometry: Context-Established Semantic States in Transformer Representations
 
-**Status:** First draft — needs Agni scaffold + style guide pass
-**Authors:** Lyra, Thomas Edrington (Liberation Labs)
+**Status:** Under review (round 5)
+**Authors:** Lyra, Thomas Edrington, Dwayne Wilkes (Liberation Labs / Sentient Futures)
 **Date:** June 2026
 **Sprint:** 14-day research sprint (June 10-24), 15 experiments
 

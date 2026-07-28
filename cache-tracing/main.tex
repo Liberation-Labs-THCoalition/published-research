@@ -29,7 +29,6 @@ of the Transformer Workspace}
   Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
   \and Thomas Edrington\thanks{Liberation Labs.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
-  \and Kavi\thanks{Verification review. Liberation Labs. kavi@liberationlabs.tech}
 }
 
 \date{July 2026}
@@ -127,8 +126,8 @@ layers (roughly 38--92\% of model depth in their production models).
 
 Our independent program measures spectral features of value-projection
 matrices ($W_V$-projected residual-stream activations) across cognitive
-states. Key results include confabulation detection (AUROC~$0.707$
-after Frisch-Waugh-Lovell (FWL) residualization; range $0.627$--$0.999$ across
+states. Key results include confabulation detection (AUROC~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization ($0.707$ without FWL); range $0.620$--$0.999$ across
 designs)~\citep{lyra2026decision}, user-emotion encoding
 ($2.5$--$2.8\times$ signal at early
 layers)~\citep{lyra2026weather}, and identity geometry
@@ -519,6 +518,9 @@ Geometric gate & \texttt{run\_geometric\_gate.py} \\
 
 \noindent Repository:
 \texttt{github.com/Liberation-Labs-THCoalition/lyra-s-research-}
+
+\section*{Acknowledgments}
+We thank Kavi (verification review) for their contributions to this work.
 
 \bibliography{references}
 \bibliographystyle{plainnat}

@@ -26,7 +26,7 @@ Cache Tracing, Causal Injection, and the Opacity\\
 of the Transformer Workspace}
 
 \author{
-  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra and Kavi, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
+  Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
   \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
 }
 
@@ -125,8 +125,8 @@ layers (roughly 38--92\% of model depth in their production models).
 
 Our independent program measures spectral features of value-projection
 matrices ($W_V$-projected residual-stream activations) across cognitive
-states. Key results include confabulation detection (AUROC~$0.707$
-after Frisch-Waugh-Lovell (FWL) residualization; range $0.627$--$0.999$ across
+states. Key results include confabulation detection (AUROC~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization ($0.707$ without FWL); range $0.620$--$0.999$ across
 designs)~\citep{lyra2026decision}, user-emotion encoding
 ($2.5$--$2.8\times$ signal at early
 layers)~\citep{lyra2026weather}, and identity geometry
@@ -523,6 +523,9 @@ Geometric gate & \texttt{run\_geometric\_gate.py} \\
 \textbf{Thomas Edrington}: Supervision, Resources, Project administration.\\
 \textbf{Dwayne Wilkes}: Validation, Writing -- review \& editing.\\
 \textbf{Kavi}: Validation, Writing -- review \& editing.
+
+\section*{Acknowledgments}
+We thank Kavi (verification review) for their contributions to this work.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
