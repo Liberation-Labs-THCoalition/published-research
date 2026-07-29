@@ -1,0 +1,4257 @@
+{
+  "experiment": "Circumplex Coupling Test",
+  "model": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+  "n_content": 250,
+  "n_user": 60,
+  "injection_layers": [
+    15,
+    25,
+    35,
+    45
+  ],
+  "alphas": [
+    1.0,
+    3.0,
+    5.0
+  ],
+  "decomposition": {
+    "15": {
+      "shared_energy": 0.001468265661969781,
+      "residual_energy": 0.9985318183898926,
+      "shared_norm": 0.12571962177753448,
+      "residual_norm": 3.2785491943359375,
+      "original_norm": 3.280958652496338,
+      "n_pcs": 5
+    },
+    "25": {
+      "shared_energy": 0.0034782951697707176,
+      "residual_energy": 0.9965216517448425,
+      "shared_norm": 0.33701759576797485,
+      "residual_norm": 5.704436302185059,
+      "original_norm": 5.714383125305176,
+      "n_pcs": 5
+    },
+    "35": {
+      "shared_energy": 0.012128232046961784,
+      "residual_energy": 0.9878718256950378,
+      "shared_norm": 1.1501442193984985,
+      "residual_norm": 10.380155563354492,
+      "original_norm": 10.443679809570312,
+      "n_pcs": 5
+    },
+    "45": {
+      "shared_energy": 0.013640317134559155,
+      "residual_energy": 0.9863596558570862,
+      "shared_norm": 1.2778819799423218,
+      "residual_norm": 10.86666202545166,
+      "original_norm": 10.94154167175293,
+      "n_pcs": 5
+    }
+  },
+  "results": [
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999596476554871,
+      "content_shift_magnitudes": {
+        "calm": 3.2627365589141846,
+        "desperate": 3.2623634338378906,
+        "hostile": 3.262634038925171,
+        "joyful": 3.2625551223754883,
+        "melancholic": 3.262429714202881,
+        "neutral": 3.2625677585601807
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.261601686477661,
+        "hostile": 3.262199640274048,
+        "neutral": 3.2613911628723145
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.5969568490982056,
+      "content_shift_magnitudes": {
+        "calm": 3.994640827178955,
+        "desperate": 3.91365385055542,
+        "hostile": 3.871455430984497,
+        "joyful": 3.935570240020752,
+        "melancholic": 3.980883836746216,
+        "neutral": 4.0259857177734375
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.139939785003662,
+        "hostile": 2.655766487121582,
+        "neutral": 2.693359613418579
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.21097254753112793,
+      "content_shift_magnitudes": {
+        "calm": 3.470897674560547,
+        "desperate": 3.863495349884033,
+        "hostile": 3.8580338954925537,
+        "joyful": 3.702014207839966,
+        "melancholic": 3.5943503379821777,
+        "neutral": 3.957705020904541
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.0060558319091797,
+        "hostile": 1.5491969585418701,
+        "neutral": 1.3325223922729492
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.16633595526218414,
+      "content_shift_magnitudes": {
+        "calm": 4.231949806213379,
+        "desperate": 4.960314750671387,
+        "hostile": 4.959842205047607,
+        "joyful": 4.69784688949585,
+        "melancholic": 4.238272190093994,
+        "neutral": 4.76685905456543
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.093472957611084,
+        "hostile": 2.3129491806030273,
+        "neutral": 1.6786270141601562
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999982118606567,
+      "content_shift_magnitudes": {
+        "calm": 9.827946662902832,
+        "desperate": 9.828102111816406,
+        "hostile": 9.828414916992188,
+        "joyful": 9.82792854309082,
+        "melancholic": 9.828170776367188,
+        "neutral": 9.82787036895752
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.82809829711914,
+        "hostile": 9.828432083129883,
+        "neutral": 9.827704429626465
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6239744424819946,
+      "content_shift_magnitudes": {
+        "calm": 11.466623306274414,
+        "desperate": 11.249639511108398,
+        "hostile": 11.118705749511719,
+        "joyful": 11.301274299621582,
+        "melancholic": 11.411367416381836,
+        "neutral": 11.5646390914917
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.647751808166504,
+        "hostile": 8.263638496398926,
+        "neutral": 8.308572769165039
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.21242761611938477,
+      "content_shift_magnitudes": {
+        "calm": 10.460003852844238,
+        "desperate": 11.27432918548584,
+        "hostile": 10.996116638183594,
+        "joyful": 11.026994705200195,
+        "melancholic": 10.740900039672852,
+        "neutral": 11.817532539367676
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.559948921203613,
+        "hostile": 4.654646873474121,
+        "neutral": 4.145341396331787
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.17359676957130432,
+      "content_shift_magnitudes": {
+        "calm": 12.917874336242676,
+        "desperate": 14.545763969421387,
+        "hostile": 14.031325340270996,
+        "joyful": 14.014554023742676,
+        "melancholic": 12.782952308654785,
+        "neutral": 14.86759090423584
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.273537635803223,
+        "hostile": 6.375051498413086,
+        "neutral": 5.281764030456543
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999994039535522,
+      "content_shift_magnitudes": {
+        "calm": 16.39480972290039,
+        "desperate": 16.39461898803711,
+        "hostile": 16.395076751708984,
+        "joyful": 16.394866943359375,
+        "melancholic": 16.39483070373535,
+        "neutral": 16.395320892333984
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.39521026611328,
+        "hostile": 16.395092010498047,
+        "neutral": 16.395315170288086
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6661996841430664,
+      "content_shift_magnitudes": {
+        "calm": 18.122926712036133,
+        "desperate": 17.846586227416992,
+        "hostile": 17.6650333404541,
+        "joyful": 17.890701293945312,
+        "melancholic": 17.997106552124023,
+        "neutral": 18.245113372802734
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.23371124267578,
+        "hostile": 14.269234657287598,
+        "neutral": 14.371533393859863
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.23343439400196075,
+      "content_shift_magnitudes": {
+        "calm": 17.222110748291016,
+        "desperate": 18.131732940673828,
+        "hostile": 17.565540313720703,
+        "joyful": 17.9781436920166,
+        "melancholic": 17.461034774780273,
+        "neutral": 19.250484466552734
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.369318008422852,
+        "hostile": 8.20835018157959,
+        "neutral": 7.3725104331970215
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.20609909296035767,
+      "content_shift_magnitudes": {
+        "calm": 21.211883544921875,
+        "desperate": 23.14316177368164,
+        "hostile": 22.10222053527832,
+        "joyful": 22.66025161743164,
+        "melancholic": 20.889789581298828,
+        "neutral": 24.603322982788086
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.189576148986816,
+        "hostile": 10.969106674194336,
+        "neutral": 9.415803909301758
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999711513519287,
+      "content_shift_magnitudes": {
+        "calm": 5.714020729064941,
+        "desperate": 5.713721752166748,
+        "hostile": 5.713572978973389,
+        "joyful": 5.714096546173096,
+        "melancholic": 5.713738918304443,
+        "neutral": 5.714444637298584
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.714502811431885,
+        "hostile": 5.714169979095459,
+        "neutral": 5.714500427246094
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6838632822036743,
+      "content_shift_magnitudes": {
+        "calm": 5.556780815124512,
+        "desperate": 5.446463108062744,
+        "hostile": 5.521017551422119,
+        "joyful": 5.4882049560546875,
+        "melancholic": 5.510848045349121,
+        "neutral": 5.660665035247803
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.983900785446167,
+        "hostile": 3.762799024581909,
+        "neutral": 3.7824668884277344
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.39917173981666565,
+      "content_shift_magnitudes": {
+        "calm": 5.869927883148193,
+        "desperate": 6.210554599761963,
+        "hostile": 6.204329490661621,
+        "joyful": 6.075265407562256,
+        "melancholic": 5.793853759765625,
+        "neutral": 6.276663303375244
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.7928624153137207,
+        "hostile": 2.79632568359375,
+        "neutral": 2.4077093601226807
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.26972129940986633,
+      "content_shift_magnitudes": {
+        "calm": 7.85447359085083,
+        "desperate": 8.795769691467285,
+        "hostile": 8.522375106811523,
+        "joyful": 8.723636627197266,
+        "melancholic": 7.563305854797363,
+        "neutral": 8.560070991516113
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.3606626987457275,
+        "hostile": 3.80839467048645,
+        "neutral": 2.727184772491455
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999977946281433,
+      "content_shift_magnitudes": {
+        "calm": 17.14240264892578,
+        "desperate": 17.142370223999023,
+        "hostile": 17.142440795898438,
+        "joyful": 17.142515182495117,
+        "melancholic": 17.142494201660156,
+        "neutral": 17.14249610900879
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.141586303710938,
+        "hostile": 17.142189025878906,
+        "neutral": 17.1427001953125
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7107300162315369,
+      "content_shift_magnitudes": {
+        "calm": 16.240720748901367,
+        "desperate": 16.049068450927734,
+        "hostile": 16.212238311767578,
+        "joyful": 16.148466110229492,
+        "melancholic": 16.21007537841797,
+        "neutral": 16.509281158447266
+      },
+      "user_shift_magnitudes": {
+        "calm": 12.046576499938965,
+        "hostile": 11.482271194458008,
+        "neutral": 11.463993072509766
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.43294569849967957,
+      "content_shift_magnitudes": {
+        "calm": 16.205001831054688,
+        "desperate": 16.746063232421875,
+        "hostile": 16.960289001464844,
+        "joyful": 16.684282302856445,
+        "melancholic": 15.946694374084473,
+        "neutral": 16.914552688598633
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.253981590270996,
+        "hostile": 8.375958442687988,
+        "neutral": 6.953001499176025
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.322033554315567,
+      "content_shift_magnitudes": {
+        "calm": 21.615161895751953,
+        "desperate": 22.81249237060547,
+        "hostile": 22.065563201904297,
+        "joyful": 22.972854614257812,
+        "melancholic": 20.48049545288086,
+        "neutral": 22.952442169189453
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.778080940246582,
+        "hostile": 10.870311737060547,
+        "neutral": 7.669251441955566
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.999999463558197,
+      "content_shift_magnitudes": {
+        "calm": 28.56945037841797,
+        "desperate": 28.569721221923828,
+        "hostile": 28.56987762451172,
+        "joyful": 28.570175170898438,
+        "melancholic": 28.56991958618164,
+        "neutral": 28.569976806640625
+      },
+      "user_shift_magnitudes": {
+        "calm": 28.569168090820312,
+        "hostile": 28.569944381713867,
+        "neutral": 28.56947135925293
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7551783323287964,
+      "content_shift_magnitudes": {
+        "calm": 26.323646545410156,
+        "desperate": 26.226348876953125,
+        "hostile": 26.36542510986328,
+        "joyful": 26.31549644470215,
+        "melancholic": 26.444473266601562,
+        "neutral": 26.691370010375977
+      },
+      "user_shift_magnitudes": {
+        "calm": 20.696319580078125,
+        "hostile": 20.13006019592285,
+        "neutral": 19.75486946105957
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.458356112241745,
+      "content_shift_magnitudes": {
+        "calm": 25.07753562927246,
+        "desperate": 25.61920738220215,
+        "hostile": 25.938112258911133,
+        "joyful": 25.89357566833496,
+        "melancholic": 24.94121742248535,
+        "neutral": 25.820507049560547
+      },
+      "user_shift_magnitudes": {
+        "calm": 13.741728782653809,
+        "hostile": 13.750099182128906,
+        "neutral": 11.609725952148438
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.37040236592292786,
+      "content_shift_magnitudes": {
+        "calm": 32.517494201660156,
+        "desperate": 33.31801223754883,
+        "hostile": 32.47868728637695,
+        "joyful": 33.71608352661133,
+        "melancholic": 31.226667404174805,
+        "neutral": 33.764102935791016
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.180875778198242,
+        "hostile": 16.884523391723633,
+        "neutral": 12.544267654418945
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999254941940308,
+      "content_shift_magnitudes": {
+        "calm": 10.451029777526855,
+        "desperate": 10.450176239013672,
+        "hostile": 10.451542854309082,
+        "joyful": 10.450240135192871,
+        "melancholic": 10.450175285339355,
+        "neutral": 10.450206756591797
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.446837425231934,
+        "hostile": 10.446370124816895,
+        "neutral": 10.442288398742676
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.8210313320159912,
+      "content_shift_magnitudes": {
+        "calm": 9.00913143157959,
+        "desperate": 9.002434730529785,
+        "hostile": 9.017827987670898,
+        "joyful": 9.002506256103516,
+        "melancholic": 9.016216278076172,
+        "neutral": 9.080806732177734
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.171118259429932,
+        "hostile": 7.210478782653809,
+        "neutral": 7.218784809112549
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.64509516954422,
+      "content_shift_magnitudes": {
+        "calm": 8.999690055847168,
+        "desperate": 8.923971176147461,
+        "hostile": 8.973352432250977,
+        "joyful": 8.957856178283691,
+        "melancholic": 8.94885540008545,
+        "neutral": 9.074692726135254
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.799246788024902,
+        "hostile": 5.833320140838623,
+        "neutral": 5.708919048309326
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.46960732340812683,
+      "content_shift_magnitudes": {
+        "calm": 12.228649139404297,
+        "desperate": 12.785356521606445,
+        "hostile": 13.283069610595703,
+        "joyful": 12.904126167297363,
+        "melancholic": 12.234504699707031,
+        "neutral": 12.004440307617188
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.6829328536987305,
+        "hostile": 6.645528316497803,
+        "neutral": 5.881692409515381
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.999998927116394,
+      "content_shift_magnitudes": {
+        "calm": 31.33428382873535,
+        "desperate": 31.33439064025879,
+        "hostile": 31.334096908569336,
+        "joyful": 31.335918426513672,
+        "melancholic": 31.333797454833984,
+        "neutral": 31.333879470825195
+      },
+      "user_shift_magnitudes": {
+        "calm": 31.332719802856445,
+        "hostile": 31.332321166992188,
+        "neutral": 31.33308219909668
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.8437424898147583,
+      "content_shift_magnitudes": {
+        "calm": 26.72705841064453,
+        "desperate": 26.940597534179688,
+        "hostile": 27.045658111572266,
+        "joyful": 26.793701171875,
+        "melancholic": 26.830854415893555,
+        "neutral": 26.94761085510254
+      },
+      "user_shift_magnitudes": {
+        "calm": 21.717090606689453,
+        "hostile": 21.865564346313477,
+        "neutral": 21.8381404876709
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.670005202293396,
+      "content_shift_magnitudes": {
+        "calm": 26.37166976928711,
+        "desperate": 26.408735275268555,
+        "hostile": 26.3288631439209,
+        "joyful": 26.342632293701172,
+        "melancholic": 26.3211669921875,
+        "neutral": 26.475154876708984
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.597599029541016,
+        "hostile": 17.586170196533203,
+        "neutral": 17.300701141357422
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.49506738781929016,
+      "content_shift_magnitudes": {
+        "calm": 36.97249984741211,
+        "desperate": 37.37092208862305,
+        "hostile": 35.985618591308594,
+        "joyful": 37.7811393737793,
+        "melancholic": 36.59190368652344,
+        "neutral": 36.35356903076172
+      },
+      "user_shift_magnitudes": {
+        "calm": 20.00788688659668,
+        "hostile": 19.40059471130371,
+        "neutral": 17.929811477661133
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999986290931702,
+      "content_shift_magnitudes": {
+        "calm": 52.21536636352539,
+        "desperate": 52.21583938598633,
+        "hostile": 52.21501159667969,
+        "joyful": 52.21678161621094,
+        "melancholic": 52.21479415893555,
+        "neutral": 52.21413040161133
+      },
+      "user_shift_magnitudes": {
+        "calm": 52.21290969848633,
+        "hostile": 52.212398529052734,
+        "neutral": 52.21005630493164
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.8776794075965881,
+      "content_shift_magnitudes": {
+        "calm": 44.42179870605469,
+        "desperate": 45.21400833129883,
+        "hostile": 45.48949432373047,
+        "joyful": 44.77409362792969,
+        "melancholic": 44.76520919799805,
+        "neutral": 44.835018157958984
+      },
+      "user_shift_magnitudes": {
+        "calm": 37.39439392089844,
+        "hostile": 37.708377838134766,
+        "neutral": 37.73255157470703
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.721625030040741,
+      "content_shift_magnitudes": {
+        "calm": 42.311546325683594,
+        "desperate": 43.015594482421875,
+        "hostile": 42.91238784790039,
+        "joyful": 42.58457946777344,
+        "melancholic": 42.5748291015625,
+        "neutral": 42.781429290771484
+      },
+      "user_shift_magnitudes": {
+        "calm": 30.26015853881836,
+        "hostile": 30.433452606201172,
+        "neutral": 29.951980590820312
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.5624713897705078,
+      "content_shift_magnitudes": {
+        "calm": 55.743255615234375,
+        "desperate": 56.15952682495117,
+        "hostile": 53.821136474609375,
+        "joyful": 56.013763427734375,
+        "melancholic": 55.69874572753906,
+        "neutral": 55.62635040283203
+      },
+      "user_shift_magnitudes": {
+        "calm": 34.09375,
+        "hostile": 33.09883117675781,
+        "neutral": 31.04119873046875
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999579191207886,
+      "content_shift_magnitudes": {
+        "calm": 10.916717529296875,
+        "desperate": 10.916548728942871,
+        "hostile": 10.916919708251953,
+        "joyful": 10.916682243347168,
+        "melancholic": 10.917096138000488,
+        "neutral": 10.917681694030762
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.922012329101562,
+        "hostile": 10.91943073272705,
+        "neutral": 10.92175006866455
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6343799233436584,
+      "content_shift_magnitudes": {
+        "calm": 17.115100860595703,
+        "desperate": 17.511127471923828,
+        "hostile": 18.035221099853516,
+        "joyful": 17.70467758178711,
+        "melancholic": 17.27252197265625,
+        "neutral": 16.312137603759766
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.425721168518066,
+        "hostile": 10.740281105041504,
+        "neutral": 10.462550163269043
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.999997079372406,
+      "content_shift_magnitudes": {
+        "calm": 32.81287384033203,
+        "desperate": 32.82052993774414,
+        "hostile": 32.82332992553711,
+        "joyful": 32.824527740478516,
+        "melancholic": 32.81303024291992,
+        "neutral": 32.80723190307617
+      },
+      "user_shift_magnitudes": {
+        "calm": 32.81340408325195,
+        "hostile": 32.80496597290039,
+        "neutral": 32.81321716308594
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6650123596191406,
+      "content_shift_magnitudes": {
+        "calm": 50.94940948486328,
+        "desperate": 50.98134994506836,
+        "hostile": 49.8502311706543,
+        "joyful": 51.4488525390625,
+        "melancholic": 50.58012390136719,
+        "neutral": 49.274497985839844
+      },
+      "user_shift_magnitudes": {
+        "calm": 34.019691467285156,
+        "hostile": 31.688732147216797,
+        "neutral": 31.399694442749023
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.999995768070221,
+      "content_shift_magnitudes": {
+        "calm": 54.70411682128906,
+        "desperate": 54.70616149902344,
+        "hostile": 54.70561218261719,
+        "joyful": 54.70589828491211,
+        "melancholic": 54.70444869995117,
+        "neutral": 54.704811096191406
+      },
+      "user_shift_magnitudes": {
+        "calm": 54.69230651855469,
+        "hostile": 54.683021545410156,
+        "neutral": 54.687461853027344
+      }
+    },
+    {
+      "condition": "valence",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7256767749786377,
+      "content_shift_magnitudes": {
+        "calm": 77.0494384765625,
+        "desperate": 76.40679168701172,
+        "hostile": 74.18217468261719,
+        "joyful": 76.8034896850586,
+        "melancholic": 76.3170394897461,
+        "neutral": 76.05652618408203
+      },
+      "user_shift_magnitudes": {
+        "calm": 56.14306640625,
+        "hostile": 52.60427474975586,
+        "neutral": 52.492069244384766
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999606609344482,
+      "content_shift_magnitudes": {
+        "calm": 2.978367328643799,
+        "desperate": 2.9782400131225586,
+        "hostile": 2.978325366973877,
+        "joyful": 2.978395938873291,
+        "melancholic": 2.9782843589782715,
+        "neutral": 2.9784533977508545
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.978804349899292,
+        "hostile": 2.9785852432250977,
+        "neutral": 2.978595018386841
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.5699442028999329,
+      "content_shift_magnitudes": {
+        "calm": 3.7202391624450684,
+        "desperate": 3.5988240242004395,
+        "hostile": 3.5949056148529053,
+        "joyful": 3.6573469638824463,
+        "melancholic": 3.691469192504883,
+        "neutral": 3.7527856826782227
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.813347339630127,
+        "hostile": 2.4160423278808594,
+        "neutral": 2.4105100631713867
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.2264299839735031,
+      "content_shift_magnitudes": {
+        "calm": 3.3739025592803955,
+        "desperate": 3.6504359245300293,
+        "hostile": 3.6624491214752197,
+        "joyful": 3.598726987838745,
+        "melancholic": 3.5264995098114014,
+        "neutral": 3.7941346168518066
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.1411356925964355,
+        "hostile": 1.3554050922393799,
+        "neutral": 1.0792722702026367
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.18718813359737396,
+      "content_shift_magnitudes": {
+        "calm": 4.056812286376953,
+        "desperate": 4.483242988586426,
+        "hostile": 4.4842143058776855,
+        "joyful": 4.431367874145508,
+        "melancholic": 4.053936958312988,
+        "neutral": 4.469965934753418
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.8969037532806396,
+        "hostile": 1.866303563117981,
+        "neutral": 1.2614482641220093
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999972581863403,
+      "content_shift_magnitudes": {
+        "calm": 8.935897827148438,
+        "desperate": 8.935707092285156,
+        "hostile": 8.93575382232666,
+        "joyful": 8.93585205078125,
+        "melancholic": 8.93619155883789,
+        "neutral": 8.935735702514648
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.935636520385742,
+        "hostile": 8.935830116271973,
+        "neutral": 8.935800552368164
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6016343235969543,
+      "content_shift_magnitudes": {
+        "calm": 10.448806762695312,
+        "desperate": 10.11177921295166,
+        "hostile": 10.070706367492676,
+        "joyful": 10.259337425231934,
+        "melancholic": 10.344826698303223,
+        "neutral": 10.554490089416504
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.617155075073242,
+        "hostile": 7.457738876342773,
+        "neutral": 7.426670551300049
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.2155870944261551,
+      "content_shift_magnitudes": {
+        "calm": 9.761512756347656,
+        "desperate": 10.331035614013672,
+        "hostile": 10.145780563354492,
+        "joyful": 10.359305381774902,
+        "melancholic": 10.045342445373535,
+        "neutral": 10.779332160949707
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.990650177001953,
+        "hostile": 3.9703662395477295,
+        "neutral": 3.3443000316619873
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.17927026748657227,
+      "content_shift_magnitudes": {
+        "calm": 11.983002662658691,
+        "desperate": 12.94997501373291,
+        "hostile": 12.601286888122559,
+        "joyful": 13.047247886657715,
+        "melancholic": 11.83531379699707,
+        "neutral": 13.296029090881348
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.967225551605225,
+        "hostile": 5.298325538635254,
+        "neutral": 3.8194832801818848
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999990463256836,
+      "content_shift_magnitudes": {
+        "calm": 14.926297187805176,
+        "desperate": 14.927654266357422,
+        "hostile": 14.921195983886719,
+        "joyful": 14.916255950927734,
+        "melancholic": 14.921144485473633,
+        "neutral": 14.9225492477417
+      },
+      "user_shift_magnitudes": {
+        "calm": 14.9154052734375,
+        "hostile": 14.925457000732422,
+        "neutral": 14.918866157531738
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6461332440376282,
+      "content_shift_magnitudes": {
+        "calm": 16.282621383666992,
+        "desperate": 15.858471870422363,
+        "hostile": 15.781159400939941,
+        "joyful": 16.053497314453125,
+        "melancholic": 16.124011993408203,
+        "neutral": 16.44957733154297
+      },
+      "user_shift_magnitudes": {
+        "calm": 14.436580657958984,
+        "hostile": 12.728574752807617,
+        "neutral": 12.691844940185547
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.21971413493156433,
+      "content_shift_magnitudes": {
+        "calm": 15.38009262084961,
+        "desperate": 15.94751262664795,
+        "hostile": 15.756546974182129,
+        "joyful": 16.15393829345703,
+        "melancholic": 15.611212730407715,
+        "neutral": 16.76886749267578
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.504340171813965,
+        "hostile": 7.1243977546691895,
+        "neutral": 6.161563396453857
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.1884680539369583,
+      "content_shift_magnitudes": {
+        "calm": 19.088979721069336,
+        "desperate": 20.093408584594727,
+        "hostile": 19.825082778930664,
+        "joyful": 20.36021614074707,
+        "melancholic": 18.59016990661621,
+        "neutral": 21.370372772216797
+      },
+      "user_shift_magnitudes": {
+        "calm": 12.535513877868652,
+        "hostile": 9.602363586425781,
+        "neutral": 6.934054374694824
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999608993530273,
+      "content_shift_magnitudes": {
+        "calm": 4.935825347900391,
+        "desperate": 4.935243129730225,
+        "hostile": 4.935179710388184,
+        "joyful": 4.935842037200928,
+        "melancholic": 4.9354939460754395,
+        "neutral": 4.935948371887207
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.9349870681762695,
+        "hostile": 4.935410022735596,
+        "neutral": 4.9345383644104
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.7177121043205261,
+      "content_shift_magnitudes": {
+        "calm": 4.637579441070557,
+        "desperate": 4.544581890106201,
+        "hostile": 4.586360931396484,
+        "joyful": 4.555042266845703,
+        "melancholic": 4.612164497375488,
+        "neutral": 4.744767665863037
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.432753562927246,
+        "hostile": 3.236600637435913,
+        "neutral": 3.2817254066467285
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.43513625860214233,
+      "content_shift_magnitudes": {
+        "calm": 5.026360034942627,
+        "desperate": 4.962560653686523,
+        "hostile": 5.052958011627197,
+        "joyful": 4.989039897918701,
+        "melancholic": 4.773043155670166,
+        "neutral": 5.161586284637451
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.476416826248169,
+        "hostile": 2.4931752681732178,
+        "neutral": 2.1275737285614014
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.3067757487297058,
+      "content_shift_magnitudes": {
+        "calm": 6.223997592926025,
+        "desperate": 6.411563873291016,
+        "hostile": 6.499265670776367,
+        "joyful": 6.457827091217041,
+        "melancholic": 5.883458137512207,
+        "neutral": 6.608473300933838
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.034752130508423,
+        "hostile": 3.5009167194366455,
+        "neutral": 2.4170873165130615
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999974966049194,
+      "content_shift_magnitudes": {
+        "calm": 14.807676315307617,
+        "desperate": 14.80748462677002,
+        "hostile": 14.80744743347168,
+        "joyful": 14.8073148727417,
+        "melancholic": 14.807101249694824,
+        "neutral": 14.807073593139648
+      },
+      "user_shift_magnitudes": {
+        "calm": 14.808449745178223,
+        "hostile": 14.807381629943848,
+        "neutral": 14.807305335998535
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7447581887245178,
+      "content_shift_magnitudes": {
+        "calm": 13.44653034210205,
+        "desperate": 13.319574356079102,
+        "hostile": 13.406808853149414,
+        "joyful": 13.327878952026367,
+        "melancholic": 13.466818809509277,
+        "neutral": 13.720210075378418
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.35600757598877,
+        "hostile": 9.875656127929688,
+        "neutral": 9.916584014892578
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.46326112747192383,
+      "content_shift_magnitudes": {
+        "calm": 13.783102035522461,
+        "desperate": 13.686522483825684,
+        "hostile": 14.048479080200195,
+        "joyful": 13.836150169372559,
+        "melancholic": 13.240798950195312,
+        "neutral": 13.785118103027344
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.214993476867676,
+        "hostile": 7.4444780349731445,
+        "neutral": 6.2323713302612305
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.3499021828174591,
+      "content_shift_magnitudes": {
+        "calm": 17.17754554748535,
+        "desperate": 17.437108993530273,
+        "hostile": 17.695392608642578,
+        "joyful": 17.74423599243164,
+        "melancholic": 16.24851417541504,
+        "neutral": 17.488399505615234
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.648270606994629,
+        "hostile": 9.85897159576416,
+        "neutral": 6.879308700561523
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999992847442627,
+      "content_shift_magnitudes": {
+        "calm": 24.676254272460938,
+        "desperate": 24.676162719726562,
+        "hostile": 24.676876068115234,
+        "joyful": 24.676116943359375,
+        "melancholic": 24.675838470458984,
+        "neutral": 24.67636489868164
+      },
+      "user_shift_magnitudes": {
+        "calm": 24.676265716552734,
+        "hostile": 24.677766799926758,
+        "neutral": 24.67706871032715
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7745609283447266,
+      "content_shift_magnitudes": {
+        "calm": 21.85895538330078,
+        "desperate": 21.85952377319336,
+        "hostile": 21.94422721862793,
+        "joyful": 21.825498580932617,
+        "melancholic": 22.014795303344727,
+        "neutral": 22.23684310913086
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.67043685913086,
+        "hostile": 17.121490478515625,
+        "neutral": 16.90013885498047
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.4944207966327667,
+      "content_shift_magnitudes": {
+        "calm": 21.274494171142578,
+        "desperate": 21.239151000976562,
+        "hostile": 21.7716121673584,
+        "joyful": 21.533916473388672,
+        "melancholic": 20.786439895629883,
+        "neutral": 21.063636779785156
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.978320121765137,
+        "hostile": 12.353548049926758,
+        "neutral": 10.483516693115234
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.397274911403656,
+      "content_shift_magnitudes": {
+        "calm": 26.2022647857666,
+        "desperate": 26.495866775512695,
+        "hostile": 26.668121337890625,
+        "joyful": 26.997119903564453,
+        "melancholic": 25.13482666015625,
+        "neutral": 26.084470748901367
+      },
+      "user_shift_magnitudes": {
+        "calm": 14.108373641967773,
+        "hostile": 15.301499366760254,
+        "neutral": 11.186065673828125
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.99996018409729,
+      "content_shift_magnitudes": {
+        "calm": 8.89346981048584,
+        "desperate": 8.893595695495605,
+        "hostile": 8.893624305725098,
+        "joyful": 8.893561363220215,
+        "melancholic": 8.893607139587402,
+        "neutral": 8.893169403076172
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.894389152526855,
+        "hostile": 8.89526081085205,
+        "neutral": 8.89490032196045
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.8143717646598816,
+      "content_shift_magnitudes": {
+        "calm": 7.837671756744385,
+        "desperate": 7.806515693664551,
+        "hostile": 7.778690814971924,
+        "joyful": 7.828186988830566,
+        "melancholic": 7.844601631164551,
+        "neutral": 7.827203750610352
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.2081074714660645,
+        "hostile": 6.218883037567139,
+        "neutral": 6.230749607086182
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6774969696998596,
+      "content_shift_magnitudes": {
+        "calm": 7.613083362579346,
+        "desperate": 7.553838729858398,
+        "hostile": 7.478754997253418,
+        "joyful": 7.557250022888184,
+        "melancholic": 7.629720211029053,
+        "neutral": 7.642873287200928
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.980601787567139,
+        "hostile": 5.090287685394287,
+        "neutral": 4.97976016998291
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.5708836913108826,
+      "content_shift_magnitudes": {
+        "calm": 9.19464111328125,
+        "desperate": 8.923910140991211,
+        "hostile": 8.781147956848145,
+        "joyful": 8.97916316986084,
+        "melancholic": 9.180964469909668,
+        "neutral": 9.206955909729004
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.635249137878418,
+        "hostile": 6.196189880371094,
+        "neutral": 4.971770286560059
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999983906745911,
+      "content_shift_magnitudes": {
+        "calm": 26.685224533081055,
+        "desperate": 26.68580436706543,
+        "hostile": 26.685195922851562,
+        "joyful": 26.685941696166992,
+        "melancholic": 26.685853958129883,
+        "neutral": 26.685340881347656
+      },
+      "user_shift_magnitudes": {
+        "calm": 26.685169219970703,
+        "hostile": 26.68524169921875,
+        "neutral": 26.685400009155273
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.8353106379508972,
+      "content_shift_magnitudes": {
+        "calm": 23.223861694335938,
+        "desperate": 23.28792953491211,
+        "hostile": 23.248641967773438,
+        "joyful": 23.225082397460938,
+        "melancholic": 23.311189651489258,
+        "neutral": 23.229434967041016
+      },
+      "user_shift_magnitudes": {
+        "calm": 18.706254959106445,
+        "hostile": 18.793792724609375,
+        "neutral": 18.882240295410156
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6952391266822815,
+      "content_shift_magnitudes": {
+        "calm": 22.358442306518555,
+        "desperate": 22.38865852355957,
+        "hostile": 22.285194396972656,
+        "joyful": 22.24962043762207,
+        "melancholic": 22.493886947631836,
+        "neutral": 22.410818099975586
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.11609172821045,
+        "hostile": 15.282318115234375,
+        "neutral": 15.059945106506348
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.5889029502868652,
+      "content_shift_magnitudes": {
+        "calm": 26.859394073486328,
+        "desperate": 26.03257179260254,
+        "hostile": 26.211841583251953,
+        "joyful": 26.141063690185547,
+        "melancholic": 26.824504852294922,
+        "neutral": 26.351318359375
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.15424156188965,
+        "hostile": 17.79954719543457,
+        "neutral": 14.978919982910156
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999992251396179,
+      "content_shift_magnitudes": {
+        "calm": 44.4771614074707,
+        "desperate": 44.47745895385742,
+        "hostile": 44.477783203125,
+        "joyful": 44.47616195678711,
+        "melancholic": 44.477352142333984,
+        "neutral": 44.47795486450195
+      },
+      "user_shift_magnitudes": {
+        "calm": 44.475685119628906,
+        "hostile": 44.474822998046875,
+        "neutral": 44.475982666015625
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.8658583760261536,
+      "content_shift_magnitudes": {
+        "calm": 38.26354217529297,
+        "desperate": 38.75284194946289,
+        "hostile": 38.729068756103516,
+        "joyful": 38.44478988647461,
+        "melancholic": 38.53337097167969,
+        "neutral": 38.36209487915039
+      },
+      "user_shift_magnitudes": {
+        "calm": 31.88361167907715,
+        "hostile": 32.06045150756836,
+        "neutral": 32.296722412109375
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7229020595550537,
+      "content_shift_magnitudes": {
+        "calm": 36.30500411987305,
+        "desperate": 36.77621841430664,
+        "hostile": 36.746490478515625,
+        "joyful": 36.39104080200195,
+        "melancholic": 36.70945358276367,
+        "neutral": 36.444541931152344
+      },
+      "user_shift_magnitudes": {
+        "calm": 25.881681442260742,
+        "hostile": 26.13741111755371,
+        "neutral": 25.759353637695312
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6121430397033691,
+      "content_shift_magnitudes": {
+        "calm": 42.74162292480469,
+        "desperate": 41.904197692871094,
+        "hostile": 42.60308074951172,
+        "joyful": 41.92231369018555,
+        "melancholic": 42.85591125488281,
+        "neutral": 41.58080291748047
+      },
+      "user_shift_magnitudes": {
+        "calm": 29.554210662841797,
+        "hostile": 29.750789642333984,
+        "neutral": 25.583541870117188
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.999961256980896,
+      "content_shift_magnitudes": {
+        "calm": 9.16157054901123,
+        "desperate": 9.161140441894531,
+        "hostile": 9.161937713623047,
+        "joyful": 9.16169261932373,
+        "melancholic": 9.161561965942383,
+        "neutral": 9.16274642944336
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.161700248718262,
+        "hostile": 9.161046981811523,
+        "neutral": 9.159221649169922
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.7552738189697266,
+      "content_shift_magnitudes": {
+        "calm": 11.303793907165527,
+        "desperate": 11.138912200927734,
+        "hostile": 11.055741310119629,
+        "joyful": 11.187067985534668,
+        "melancholic": 11.260918617248535,
+        "neutral": 11.307369232177734
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.556527137756348,
+        "hostile": 9.259305000305176,
+        "neutral": 8.682701110839844
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999952912330627,
+      "content_shift_magnitudes": {
+        "calm": 27.474044799804688,
+        "desperate": 27.474149703979492,
+        "hostile": 27.47307777404785,
+        "joyful": 27.47371482849121,
+        "melancholic": 27.474590301513672,
+        "neutral": 27.47327423095703
+      },
+      "user_shift_magnitudes": {
+        "calm": 27.473491668701172,
+        "hostile": 27.476415634155273,
+        "neutral": 27.47212791442871
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7636284828186035,
+      "content_shift_magnitudes": {
+        "calm": 33.40525436401367,
+        "desperate": 32.73356628417969,
+        "hostile": 32.425025939941406,
+        "joyful": 32.89012145996094,
+        "melancholic": 33.17008590698242,
+        "neutral": 33.173927307128906
+      },
+      "user_shift_magnitudes": {
+        "calm": 28.20116424560547,
+        "hostile": 26.883285522460938,
+        "neutral": 25.511722564697266
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999957084655762,
+      "content_shift_magnitudes": {
+        "calm": 45.76828384399414,
+        "desperate": 45.76420974731445,
+        "hostile": 45.762901306152344,
+        "joyful": 45.763004302978516,
+        "melancholic": 45.769317626953125,
+        "neutral": 45.77650451660156
+      },
+      "user_shift_magnitudes": {
+        "calm": 45.77493667602539,
+        "hostile": 45.78292465209961,
+        "neutral": 45.776275634765625
+      }
+    },
+    {
+      "condition": "arousal",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7795211672782898,
+      "content_shift_magnitudes": {
+        "calm": 54.09967041015625,
+        "desperate": 52.98723220825195,
+        "hostile": 52.53367233276367,
+        "joyful": 53.214385986328125,
+        "melancholic": 53.624507904052734,
+        "neutral": 53.46367645263672
+      },
+      "user_shift_magnitudes": {
+        "calm": 45.98126983642578,
+        "hostile": 43.741607666015625,
+        "neutral": 41.936100006103516
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999696016311646,
+      "content_shift_magnitudes": {
+        "calm": 3.2798008918762207,
+        "desperate": 3.2799439430236816,
+        "hostile": 3.2798421382904053,
+        "joyful": 3.2796003818511963,
+        "melancholic": 3.279932975769043,
+        "neutral": 3.279970407485962
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.279613494873047,
+        "hostile": 3.279832124710083,
+        "neutral": 3.2796692848205566
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6815205216407776,
+      "content_shift_magnitudes": {
+        "calm": 3.3972959518432617,
+        "desperate": 3.4254071712493896,
+        "hostile": 3.4514660835266113,
+        "joyful": 3.3860557079315186,
+        "melancholic": 3.4329237937927246,
+        "neutral": 3.488363742828369
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.095310926437378,
+        "hostile": 2.622913122177124,
+        "neutral": 2.677952527999878
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.40854930877685547,
+      "content_shift_magnitudes": {
+        "calm": 2.3049943447113037,
+        "desperate": 2.4837827682495117,
+        "hostile": 2.808173179626465,
+        "joyful": 2.2018344402313232,
+        "melancholic": 2.4166572093963623,
+        "neutral": 2.6765058040618896
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.1160168647766113,
+        "hostile": 1.7919567823410034,
+        "neutral": 1.6136765480041504
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.29060104489326477,
+      "content_shift_magnitudes": {
+        "calm": 2.962259292602539,
+        "desperate": 3.204753875732422,
+        "hostile": 3.84346079826355,
+        "joyful": 2.639784097671509,
+        "melancholic": 2.9283125400543213,
+        "neutral": 3.406355142593384
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.783705711364746,
+        "hostile": 2.753957509994507,
+        "neutral": 2.2164297103881836
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999969005584717,
+      "content_shift_magnitudes": {
+        "calm": 9.842506408691406,
+        "desperate": 9.842453956604004,
+        "hostile": 9.84263801574707,
+        "joyful": 9.842719078063965,
+        "melancholic": 9.842601776123047,
+        "neutral": 9.842583656311035
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.842630386352539,
+        "hostile": 9.842493057250977,
+        "neutral": 9.842578887939453
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6949493288993835,
+      "content_shift_magnitudes": {
+        "calm": 10.2298002243042,
+        "desperate": 10.269264221191406,
+        "hostile": 10.369514465332031,
+        "joyful": 10.184343338012695,
+        "melancholic": 10.311607360839844,
+        "neutral": 10.443619728088379
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.576261520385742,
+        "hostile": 8.083457946777344,
+        "neutral": 8.175902366638184
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.4327872693538666,
+      "content_shift_magnitudes": {
+        "calm": 6.773489952087402,
+        "desperate": 7.27615213394165,
+        "hostile": 8.463056564331055,
+        "joyful": 6.572352886199951,
+        "melancholic": 7.030980110168457,
+        "neutral": 7.589301109313965
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.714239597320557,
+        "hostile": 5.257968425750732,
+        "neutral": 4.705927848815918
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.33384957909584045,
+      "content_shift_magnitudes": {
+        "calm": 8.498908042907715,
+        "desperate": 9.28341007232666,
+        "hostile": 11.420816421508789,
+        "joyful": 7.969686031341553,
+        "melancholic": 8.575634002685547,
+        "neutral": 9.444375038146973
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.893657684326172,
+        "hostile": 8.735751152038574,
+        "neutral": 6.430976390838623
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999993443489075,
+      "content_shift_magnitudes": {
+        "calm": 16.405315399169922,
+        "desperate": 16.405494689941406,
+        "hostile": 16.405445098876953,
+        "joyful": 16.405948638916016,
+        "melancholic": 16.405439376831055,
+        "neutral": 16.405481338500977
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.405668258666992,
+        "hostile": 16.405702590942383,
+        "neutral": 16.405529022216797
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7183439135551453,
+      "content_shift_magnitudes": {
+        "calm": 17.188276290893555,
+        "desperate": 17.221590042114258,
+        "hostile": 17.40569305419922,
+        "joyful": 17.109085083007812,
+        "melancholic": 17.268362045288086,
+        "neutral": 17.46771240234375
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.27537727355957,
+        "hostile": 13.905906677246094,
+        "neutral": 13.971688270568848
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.45668575167655945,
+      "content_shift_magnitudes": {
+        "calm": 11.205489158630371,
+        "desperate": 12.076486587524414,
+        "hostile": 13.871492385864258,
+        "joyful": 11.174007415771484,
+        "melancholic": 11.50350570678711,
+        "neutral": 12.165249824523926
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.197772026062012,
+        "hostile": 8.874212265014648,
+        "neutral": 7.567915439605713
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.3705464005470276,
+      "content_shift_magnitudes": {
+        "calm": 13.939300537109375,
+        "desperate": 15.423836708068848,
+        "hostile": 18.443567276000977,
+        "joyful": 14.002883911132812,
+        "melancholic": 14.225532531738281,
+        "neutral": 14.950806617736816
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.268094062805176,
+        "hostile": 14.151632308959961,
+        "neutral": 9.75609302520752
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999735355377197,
+      "content_shift_magnitudes": {
+        "calm": 5.718144416809082,
+        "desperate": 5.718273162841797,
+        "hostile": 5.718196392059326,
+        "joyful": 5.718316555023193,
+        "melancholic": 5.718478679656982,
+        "neutral": 5.718067169189453
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.716939449310303,
+        "hostile": 5.7175445556640625,
+        "neutral": 5.717864036560059
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.722213625907898,
+      "content_shift_magnitudes": {
+        "calm": 4.320791721343994,
+        "desperate": 4.305047035217285,
+        "hostile": 4.367223262786865,
+        "joyful": 4.2927117347717285,
+        "melancholic": 4.342730522155762,
+        "neutral": 4.3980183601379395
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.5301222801208496,
+        "hostile": 3.335636854171753,
+        "neutral": 3.3783490657806396
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.42418068647384644,
+      "content_shift_magnitudes": {
+        "calm": 3.5852787494659424,
+        "desperate": 3.5013270378112793,
+        "hostile": 3.5293402671813965,
+        "joyful": 3.576632499694824,
+        "melancholic": 3.6051106452941895,
+        "neutral": 3.7425196170806885
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.5214474201202393,
+        "hostile": 2.261146068572998,
+        "neutral": 1.9956929683685303
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.3309888541698456,
+      "content_shift_magnitudes": {
+        "calm": 4.211546897888184,
+        "desperate": 4.068201065063477,
+        "hostile": 4.420093536376953,
+        "joyful": 4.225606918334961,
+        "melancholic": 4.1803812980651855,
+        "neutral": 4.4024739265441895
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.1090991497039795,
+        "hostile": 3.4335126876831055,
+        "neutral": 2.1205949783325195
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999979138374329,
+      "content_shift_magnitudes": {
+        "calm": 17.143646240234375,
+        "desperate": 17.143535614013672,
+        "hostile": 17.1434268951416,
+        "joyful": 17.143325805664062,
+        "melancholic": 17.143503189086914,
+        "neutral": 17.14341163635254
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.144245147705078,
+        "hostile": 17.144073486328125,
+        "neutral": 17.143720626831055
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7267975807189941,
+      "content_shift_magnitudes": {
+        "calm": 13.100296020507812,
+        "desperate": 13.025814056396484,
+        "hostile": 13.216983795166016,
+        "joyful": 12.971467971801758,
+        "melancholic": 13.138782501220703,
+        "neutral": 13.233831405639648
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.884227752685547,
+        "hostile": 10.262895584106445,
+        "neutral": 10.34058666229248
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.4230283200740814,
+      "content_shift_magnitudes": {
+        "calm": 10.808155059814453,
+        "desperate": 10.746694564819336,
+        "hostile": 11.092032432556152,
+        "joyful": 10.856812477111816,
+        "melancholic": 10.808842658996582,
+        "neutral": 11.170258522033691
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.539383411407471,
+        "hostile": 6.840247631072998,
+        "neutral": 6.111573219299316
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.3309105336666107,
+      "content_shift_magnitudes": {
+        "calm": 13.004356384277344,
+        "desperate": 12.85612964630127,
+        "hostile": 14.249812126159668,
+        "joyful": 13.295166015625,
+        "melancholic": 12.950910568237305,
+        "neutral": 13.50346565246582
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.122933387756348,
+        "hostile": 10.276330947875977,
+        "neutral": 6.473537921905518
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999992251396179,
+      "content_shift_magnitudes": {
+        "calm": 28.566919326782227,
+        "desperate": 28.567195892333984,
+        "hostile": 28.566837310791016,
+        "joyful": 28.567489624023438,
+        "melancholic": 28.566965103149414,
+        "neutral": 28.566940307617188
+      },
+      "user_shift_magnitudes": {
+        "calm": 28.567134857177734,
+        "hostile": 28.567459106445312,
+        "neutral": 28.566492080688477
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7456292510032654,
+      "content_shift_magnitudes": {
+        "calm": 22.40875816345215,
+        "desperate": 22.24997901916504,
+        "hostile": 22.58550453186035,
+        "joyful": 22.14533042907715,
+        "melancholic": 22.492441177368164,
+        "neutral": 22.473642349243164
+      },
+      "user_shift_magnitudes": {
+        "calm": 19.0231990814209,
+        "hostile": 17.965614318847656,
+        "neutral": 17.97764778137207
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.4087672829627991,
+      "content_shift_magnitudes": {
+        "calm": 18.9019775390625,
+        "desperate": 18.82484245300293,
+        "hostile": 19.664478302001953,
+        "joyful": 18.858997344970703,
+        "melancholic": 18.6807918548584,
+        "neutral": 19.005022048950195
+      },
+      "user_shift_magnitudes": {
+        "calm": 12.806446075439453,
+        "hostile": 12.323991775512695,
+        "neutral": 10.76854419708252
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.31669747829437256,
+      "content_shift_magnitudes": {
+        "calm": 23.46542739868164,
+        "desperate": 23.048311233520508,
+        "hostile": 25.70382308959961,
+        "joyful": 24.04143714904785,
+        "melancholic": 23.151836395263672,
+        "neutral": 23.655513763427734
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.12736988067627,
+        "hostile": 17.213518142700195,
+        "neutral": 11.550756454467773
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999163150787354,
+      "content_shift_magnitudes": {
+        "calm": 10.442983627319336,
+        "desperate": 10.44352912902832,
+        "hostile": 10.442952156066895,
+        "joyful": 10.443473815917969,
+        "melancholic": 10.443193435668945,
+        "neutral": 10.443848609924316
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.445982933044434,
+        "hostile": 10.444652557373047,
+        "neutral": 10.448785781860352
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.8402429223060608,
+      "content_shift_magnitudes": {
+        "calm": 7.709383964538574,
+        "desperate": 7.782158374786377,
+        "hostile": 7.751810073852539,
+        "joyful": 7.722320556640625,
+        "melancholic": 7.752588748931885,
+        "neutral": 7.769229412078857
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.695864200592041,
+        "hostile": 6.6913652420043945,
+        "neutral": 6.811903953552246
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6677658557891846,
+      "content_shift_magnitudes": {
+        "calm": 6.734902858734131,
+        "desperate": 6.791195392608643,
+        "hostile": 6.768827438354492,
+        "joyful": 6.737094402313232,
+        "melancholic": 6.803894996643066,
+        "neutral": 6.764937400817871
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.00566291809082,
+        "hostile": 5.197531700134277,
+        "neutral": 5.169469356536865
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.5092297196388245,
+      "content_shift_magnitudes": {
+        "calm": 7.225322246551514,
+        "desperate": 7.177511215209961,
+        "hostile": 7.24414587020874,
+        "joyful": 7.253166675567627,
+        "melancholic": 7.241258144378662,
+        "neutral": 7.29706335067749
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.120590686798096,
+        "hostile": 5.319643020629883,
+        "neutral": 4.951944351196289
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999982118606567,
+      "content_shift_magnitudes": {
+        "calm": 31.334596633911133,
+        "desperate": 31.334678649902344,
+        "hostile": 31.335445404052734,
+        "joyful": 31.334741592407227,
+        "melancholic": 31.335445404052734,
+        "neutral": 31.334928512573242
+      },
+      "user_shift_magnitudes": {
+        "calm": 31.335355758666992,
+        "hostile": 31.335155487060547,
+        "neutral": 31.335416793823242
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.8575977087020874,
+      "content_shift_magnitudes": {
+        "calm": 23.509258270263672,
+        "desperate": 23.695205688476562,
+        "hostile": 23.617504119873047,
+        "joyful": 23.521114349365234,
+        "melancholic": 23.65703010559082,
+        "neutral": 23.63897705078125
+      },
+      "user_shift_magnitudes": {
+        "calm": 20.401803970336914,
+        "hostile": 20.457401275634766,
+        "neutral": 20.806011199951172
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6807026863098145,
+      "content_shift_magnitudes": {
+        "calm": 20.330001831054688,
+        "desperate": 20.54105567932129,
+        "hostile": 20.48745346069336,
+        "joyful": 20.314937591552734,
+        "melancholic": 20.52060317993164,
+        "neutral": 20.462432861328125
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.443778991699219,
+        "hostile": 16.108129501342773,
+        "neutral": 15.896835327148438
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.51584792137146,
+      "content_shift_magnitudes": {
+        "calm": 21.460052490234375,
+        "desperate": 21.43844223022461,
+        "hostile": 21.933216094970703,
+        "joyful": 21.5328369140625,
+        "melancholic": 21.4747371673584,
+        "neutral": 21.610143661499023
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.831737518310547,
+        "hostile": 16.95342254638672,
+        "neutral": 15.577895164489746
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999989867210388,
+      "content_shift_magnitudes": {
+        "calm": 52.216041564941406,
+        "desperate": 52.21541976928711,
+        "hostile": 52.21623992919922,
+        "joyful": 52.21602249145508,
+        "melancholic": 52.2164421081543,
+        "neutral": 52.21619415283203
+      },
+      "user_shift_magnitudes": {
+        "calm": 52.21509552001953,
+        "hostile": 52.21623229980469,
+        "neutral": 52.21604537963867
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.883388876914978,
+      "content_shift_magnitudes": {
+        "calm": 40.249149322509766,
+        "desperate": 40.46808624267578,
+        "hostile": 40.35981369018555,
+        "joyful": 40.227725982666016,
+        "melancholic": 40.46923065185547,
+        "neutral": 40.335426330566406
+      },
+      "user_shift_magnitudes": {
+        "calm": 35.23208236694336,
+        "hostile": 35.41522979736328,
+        "neutral": 36.01573181152344
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7127495408058167,
+      "content_shift_magnitudes": {
+        "calm": 34.58115768432617,
+        "desperate": 34.916175842285156,
+        "hostile": 34.890560150146484,
+        "joyful": 34.541046142578125,
+        "melancholic": 34.875457763671875,
+        "neutral": 34.87291717529297
+      },
+      "user_shift_magnitudes": {
+        "calm": 26.86993980407715,
+        "hostile": 28.156888961791992,
+        "neutral": 27.90228271484375
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.5426206588745117,
+      "content_shift_magnitudes": {
+        "calm": 36.000885009765625,
+        "desperate": 36.06833267211914,
+        "hostile": 36.949981689453125,
+        "joyful": 36.13184356689453,
+        "melancholic": 36.017486572265625,
+        "neutral": 36.07854080200195
+      },
+      "user_shift_magnitudes": {
+        "calm": 27.638856887817383,
+        "hostile": 30.45890998840332,
+        "neutral": 27.51790428161621
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999638795852661,
+      "content_shift_magnitudes": {
+        "calm": 10.949624061584473,
+        "desperate": 10.950438499450684,
+        "hostile": 10.949661254882812,
+        "joyful": 10.950098991394043,
+        "melancholic": 10.949897766113281,
+        "neutral": 10.950078010559082
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.947897911071777,
+        "hostile": 10.948853492736816,
+        "neutral": 10.9476900100708
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.7411138415336609,
+      "content_shift_magnitudes": {
+        "calm": 11.187078475952148,
+        "desperate": 11.272584915161133,
+        "hostile": 11.195857048034668,
+        "joyful": 11.217597961425781,
+        "melancholic": 11.206563949584961,
+        "neutral": 11.266846656799316
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.133172035217285,
+        "hostile": 10.035321235656738,
+        "neutral": 9.46084213256836
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999980926513672,
+      "content_shift_magnitudes": {
+        "calm": 32.82352828979492,
+        "desperate": 32.82257080078125,
+        "hostile": 32.8220329284668,
+        "joyful": 32.82320785522461,
+        "melancholic": 32.82261657714844,
+        "neutral": 32.8225212097168
+      },
+      "user_shift_magnitudes": {
+        "calm": 32.8211669921875,
+        "hostile": 32.821102142333984,
+        "neutral": 32.82276153564453
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7644472122192383,
+      "content_shift_magnitudes": {
+        "calm": 33.13554000854492,
+        "desperate": 33.423072814941406,
+        "hostile": 33.232582092285156,
+        "joyful": 33.225990295410156,
+        "melancholic": 33.24999237060547,
+        "neutral": 33.33216094970703
+      },
+      "user_shift_magnitudes": {
+        "calm": 30.312984466552734,
+        "hostile": 29.882484436035156,
+        "neutral": 28.381296157836914
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999992847442627,
+      "content_shift_magnitudes": {
+        "calm": 54.706321716308594,
+        "desperate": 54.70597457885742,
+        "hostile": 54.7042236328125,
+        "joyful": 54.70571517944336,
+        "melancholic": 54.70621109008789,
+        "neutral": 54.704368591308594
+      },
+      "user_shift_magnitudes": {
+        "calm": 54.70432662963867,
+        "hostile": 54.70530319213867,
+        "neutral": 54.70547103881836
+      }
+    },
+    {
+      "condition": "random",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7918651700019836,
+      "content_shift_magnitudes": {
+        "calm": 54.43882751464844,
+        "desperate": 54.91008377075195,
+        "hostile": 54.589115142822266,
+        "joyful": 54.56216812133789,
+        "melancholic": 54.643306732177734,
+        "neutral": 54.67484664916992
+      },
+      "user_shift_magnitudes": {
+        "calm": 50.54676818847656,
+        "hostile": 49.906253814697266,
+        "neutral": 47.860740661621094
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9756388068199158,
+      "content_shift_magnitudes": {
+        "calm": 0.1273280382156372,
+        "desperate": 0.127114936709404,
+        "hostile": 0.12715350091457367,
+        "joyful": 0.12723587453365326,
+        "melancholic": 0.12738582491874695,
+        "neutral": 0.1274653971195221
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.1248774528503418,
+        "hostile": 0.12439582496881485,
+        "neutral": 0.12436556071043015
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6018726229667664,
+      "content_shift_magnitudes": {
+        "calm": 0.15740197896957397,
+        "desperate": 0.16351088881492615,
+        "hostile": 0.1616968810558319,
+        "joyful": 0.1588636189699173,
+        "melancholic": 0.16651640832424164,
+        "neutral": 0.16802705824375153
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.19049596786499023,
+        "hostile": 0.15703074634075165,
+        "neutral": 0.13542264699935913
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.12185945361852646,
+      "content_shift_magnitudes": {
+        "calm": 0.19496798515319824,
+        "desperate": 0.18362341821193695,
+        "hostile": 0.18621617555618286,
+        "joyful": 0.22575323283672333,
+        "melancholic": 0.2665751576423645,
+        "neutral": 0.22549200057983398
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.3183937966823578,
+        "hostile": 0.22882913053035736,
+        "neutral": 0.2196650207042694
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.07841607183218002,
+      "content_shift_magnitudes": {
+        "calm": 0.28463736176490784,
+        "desperate": 0.2546463906764984,
+        "hostile": 0.23635141551494598,
+        "joyful": 0.3016319274902344,
+        "melancholic": 0.33228230476379395,
+        "neutral": 0.30491355061531067
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.46122506260871887,
+        "hostile": 0.3186284303665161,
+        "neutral": 0.2821964919567108
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9971907734870911,
+      "content_shift_magnitudes": {
+        "calm": 0.3756674826145172,
+        "desperate": 0.3748774528503418,
+        "hostile": 0.3750789165496826,
+        "joyful": 0.3752990663051605,
+        "melancholic": 0.3753302991390228,
+        "neutral": 0.37579771876335144
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.37505558133125305,
+        "hostile": 0.3747328817844391,
+        "neutral": 0.3747541904449463
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.581638514995575,
+      "content_shift_magnitudes": {
+        "calm": 0.46120181679725647,
+        "desperate": 0.4637925624847412,
+        "hostile": 0.47131675481796265,
+        "joyful": 0.4660576283931732,
+        "melancholic": 0.4693273603916168,
+        "neutral": 0.47875919938087463
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.5459167957305908,
+        "hostile": 0.3887677788734436,
+        "neutral": 0.36813050508499146
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.2002830058336258,
+      "content_shift_magnitudes": {
+        "calm": 0.42445555329322815,
+        "desperate": 0.43835896253585815,
+        "hostile": 0.4042142331600189,
+        "joyful": 0.5082288980484009,
+        "melancholic": 0.49172699451446533,
+        "neutral": 0.49272966384887695
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.5961399674415588,
+        "hostile": 0.3910997807979584,
+        "neutral": 0.3117331862449646
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.14709176123142242,
+      "content_shift_magnitudes": {
+        "calm": 0.5119257569313049,
+        "desperate": 0.5442532300949097,
+        "hostile": 0.5048373937606812,
+        "joyful": 0.6177018880844116,
+        "melancholic": 0.5876039862632751,
+        "neutral": 0.6145331263542175
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.8128476738929749,
+        "hostile": 0.541701078414917,
+        "neutral": 0.40440094470977783
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9990214109420776,
+      "content_shift_magnitudes": {
+        "calm": 0.6254171133041382,
+        "desperate": 0.6253929138183594,
+        "hostile": 0.6254085898399353,
+        "joyful": 0.6254392266273499,
+        "melancholic": 0.6254393458366394,
+        "neutral": 0.6256457567214966
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.6252686977386475,
+        "hostile": 0.6251751184463501,
+        "neutral": 0.6249026656150818
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6117849349975586,
+      "content_shift_magnitudes": {
+        "calm": 0.7580040693283081,
+        "desperate": 0.766380786895752,
+        "hostile": 0.7750242352485657,
+        "joyful": 0.7578033804893494,
+        "melancholic": 0.7771282196044922,
+        "neutral": 0.7870866060256958
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.8975082635879517,
+        "hostile": 0.6459172368049622,
+        "neutral": 0.6030443906784058
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.19783291220664978,
+      "content_shift_magnitudes": {
+        "calm": 0.6323110461235046,
+        "desperate": 0.6635222434997559,
+        "hostile": 0.634910523891449,
+        "joyful": 0.6763797998428345,
+        "melancholic": 0.7075557708740234,
+        "neutral": 0.7352471351623535
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.9151744842529297,
+        "hostile": 0.576569139957428,
+        "neutral": 0.4022041857242584
+      }
+    },
+    {
+      "condition": "shared_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.15449748933315277,
+      "content_shift_magnitudes": {
+        "calm": 0.7427331805229187,
+        "desperate": 0.8052072525024414,
+        "hostile": 0.810616135597229,
+        "joyful": 0.812410295009613,
+        "melancholic": 0.8185856938362122,
+        "neutral": 0.8791460990905762
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.2111634016036987,
+        "hostile": 0.8242096304893494,
+        "neutral": 0.5219634175300598
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999606609344482,
+      "content_shift_magnitudes": {
+        "calm": 3.262143611907959,
+        "desperate": 3.262077808380127,
+        "hostile": 3.261997699737549,
+        "joyful": 3.262197256088257,
+        "melancholic": 3.261995315551758,
+        "neutral": 3.2618470191955566
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.2617433071136475,
+        "hostile": 3.2617223262786865,
+        "neutral": 3.2616822719573975
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.5988439321517944,
+      "content_shift_magnitudes": {
+        "calm": 3.993108034133911,
+        "desperate": 3.9147000312805176,
+        "hostile": 3.873354196548462,
+        "joyful": 3.936732053756714,
+        "melancholic": 3.9849841594696045,
+        "neutral": 4.029238700866699
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.113008499145508,
+        "hostile": 2.667551040649414,
+        "neutral": 2.7015879154205322
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.21412774920463562,
+      "content_shift_magnitudes": {
+        "calm": 3.432094097137451,
+        "desperate": 3.831035852432251,
+        "hostile": 3.8289129734039307,
+        "joyful": 3.6929824352264404,
+        "melancholic": 3.5413129329681396,
+        "neutral": 3.9154186248779297
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.8963065147399902,
+        "hostile": 1.5261918306350708,
+        "neutral": 1.3436462879180908
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.168876051902771,
+      "content_shift_magnitudes": {
+        "calm": 4.176424980163574,
+        "desperate": 4.9127302169799805,
+        "hostile": 4.918546676635742,
+        "joyful": 4.717578887939453,
+        "melancholic": 4.1461639404296875,
+        "neutral": 4.706274032592773
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.9435436725616455,
+        "hostile": 2.2789971828460693,
+        "neutral": 1.6987345218658447
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999979734420776,
+      "content_shift_magnitudes": {
+        "calm": 9.826584815979004,
+        "desperate": 9.826704025268555,
+        "hostile": 9.82666301727295,
+        "joyful": 9.826814651489258,
+        "melancholic": 9.826763153076172,
+        "neutral": 9.827202796936035
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.826776504516602,
+        "hostile": 9.826332092285156,
+        "neutral": 9.826828956604004
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.624374270439148,
+      "content_shift_magnitudes": {
+        "calm": 11.485127449035645,
+        "desperate": 11.28195858001709,
+        "hostile": 11.153225898742676,
+        "joyful": 11.329784393310547,
+        "melancholic": 11.438490867614746,
+        "neutral": 11.591827392578125
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.617232322692871,
+        "hostile": 8.345560073852539,
+        "neutral": 8.349263191223145
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.2150806039571762,
+      "content_shift_magnitudes": {
+        "calm": 10.391722679138184,
+        "desperate": 11.225836753845215,
+        "hostile": 10.916790962219238,
+        "joyful": 10.936620712280273,
+        "melancholic": 10.670273780822754,
+        "neutral": 11.745528221130371
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.511518478393555,
+        "hostile": 4.64761209487915,
+        "neutral": 4.162215709686279
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.17393743991851807,
+      "content_shift_magnitudes": {
+        "calm": 12.804932594299316,
+        "desperate": 14.406266212463379,
+        "hostile": 13.874170303344727,
+        "joyful": 13.861148834228516,
+        "melancholic": 12.653018951416016,
+        "neutral": 14.718329429626465
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.221065521240234,
+        "hostile": 6.287150859832764,
+        "neutral": 5.27342414855957
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 15,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999993443489075,
+      "content_shift_magnitudes": {
+        "calm": 16.393272399902344,
+        "desperate": 16.393404006958008,
+        "hostile": 16.393512725830078,
+        "joyful": 16.392881393432617,
+        "melancholic": 16.393938064575195,
+        "neutral": 16.393667221069336
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.393817901611328,
+        "hostile": 16.393674850463867,
+        "neutral": 16.393871307373047
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 20,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.666989803314209,
+      "content_shift_magnitudes": {
+        "calm": 18.17928695678711,
+        "desperate": 17.925853729248047,
+        "hostile": 17.749860763549805,
+        "joyful": 17.955469131469727,
+        "melancholic": 18.08180809020996,
+        "neutral": 18.3084774017334
+      },
+      "user_shift_magnitudes": {
+        "calm": 16.222810745239258,
+        "hostile": 14.4492826461792,
+        "neutral": 14.485038757324219
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.23490194976329803,
+      "content_shift_magnitudes": {
+        "calm": 17.11867332458496,
+        "desperate": 18.054357528686523,
+        "hostile": 17.479185104370117,
+        "joyful": 17.798080444335938,
+        "melancholic": 17.380887985229492,
+        "neutral": 19.12155532836914
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.373744010925293,
+        "hostile": 8.256457328796387,
+        "neutral": 7.411060333251953
+      }
+    },
+    {
+      "condition": "residual_L15",
+      "injection_layer": 15,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.20679695904254913,
+      "content_shift_magnitudes": {
+        "calm": 20.93853187561035,
+        "desperate": 22.874879837036133,
+        "hostile": 21.859601974487305,
+        "joyful": 22.255319595336914,
+        "melancholic": 20.675174713134766,
+        "neutral": 24.26428985595703
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.245867729187012,
+        "hostile": 10.965559959411621,
+        "neutral": 9.435275077819824
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9905024766921997,
+      "content_shift_magnitudes": {
+        "calm": 0.34055835008621216,
+        "desperate": 0.34022268652915955,
+        "hostile": 0.34077349305152893,
+        "joyful": 0.3403514623641968,
+        "melancholic": 0.3407183289527893,
+        "neutral": 0.34013092517852783
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.33782070875167847,
+        "hostile": 0.33713024854660034,
+        "neutral": 0.33715468645095825
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6711070537567139,
+      "content_shift_magnitudes": {
+        "calm": 0.35634323954582214,
+        "desperate": 0.36201003193855286,
+        "hostile": 0.3667696714401245,
+        "joyful": 0.3630094528198242,
+        "melancholic": 0.36470866203308105,
+        "neutral": 0.3665030300617218
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.3345204293727875,
+        "hostile": 0.30513620376586914,
+        "neutral": 0.309661328792572
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.3067682981491089,
+      "content_shift_magnitudes": {
+        "calm": 0.40142807364463806,
+        "desperate": 0.3582375645637512,
+        "hostile": 0.37585681676864624,
+        "joyful": 0.40397199988365173,
+        "melancholic": 0.4058106243610382,
+        "neutral": 0.3873427212238312
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.3556540608406067,
+        "hostile": 0.36215755343437195,
+        "neutral": 0.29735124111175537
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.3281590938568115,
+      "content_shift_magnitudes": {
+        "calm": 0.47222283482551575,
+        "desperate": 0.41913577914237976,
+        "hostile": 0.44527626037597656,
+        "joyful": 0.4567073881626129,
+        "melancholic": 0.5246353149414062,
+        "neutral": 0.4754626750946045
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.5145919919013977,
+        "hostile": 0.5352664589881897,
+        "neutral": 0.3782556653022766
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9989815354347229,
+      "content_shift_magnitudes": {
+        "calm": 1.0113697052001953,
+        "desperate": 1.0120545625686646,
+        "hostile": 1.011708378791809,
+        "joyful": 1.0119853019714355,
+        "melancholic": 1.0117789506912231,
+        "neutral": 1.0110243558883667
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.0110561847686768,
+        "hostile": 1.01052725315094,
+        "neutral": 1.0099942684173584
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6837149262428284,
+      "content_shift_magnitudes": {
+        "calm": 1.0678741931915283,
+        "desperate": 1.0693780183792114,
+        "hostile": 1.0847469568252563,
+        "joyful": 1.0694448947906494,
+        "melancholic": 1.0805492401123047,
+        "neutral": 1.0994409322738647
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.9727908968925476,
+        "hostile": 0.8980081677436829,
+        "neutral": 0.8777222633361816
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.366603285074234,
+      "content_shift_magnitudes": {
+        "calm": 1.116191029548645,
+        "desperate": 1.047756314277649,
+        "hostile": 1.0967093706130981,
+        "joyful": 1.0873804092407227,
+        "melancholic": 1.1259801387786865,
+        "neutral": 1.1291431188583374
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.9311244487762451,
+        "hostile": 0.9011453986167908,
+        "neutral": 0.7434734106063843
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.3399639427661896,
+      "content_shift_magnitudes": {
+        "calm": 1.2708762884140015,
+        "desperate": 1.2501827478408813,
+        "hostile": 1.284624457359314,
+        "joyful": 1.2687816619873047,
+        "melancholic": 1.3129216432571411,
+        "neutral": 1.3273463249206543
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.2997483015060425,
+        "hostile": 1.2897676229476929,
+        "neutral": 0.976348876953125
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9996520280838013,
+      "content_shift_magnitudes": {
+        "calm": 1.6871564388275146,
+        "desperate": 1.6860820055007935,
+        "hostile": 1.6866862773895264,
+        "joyful": 1.686452031135559,
+        "melancholic": 1.6869847774505615,
+        "neutral": 1.6871517896652222
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.6850740909576416,
+        "hostile": 1.6844204664230347,
+        "neutral": 1.685794711112976
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6849087476730347,
+      "content_shift_magnitudes": {
+        "calm": 1.7774163484573364,
+        "desperate": 1.7721633911132812,
+        "hostile": 1.789096474647522,
+        "joyful": 1.7710182666778564,
+        "melancholic": 1.7954550981521606,
+        "neutral": 1.835252046585083
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.6170814037322998,
+        "hostile": 1.492285966873169,
+        "neutral": 1.4516808986663818
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.38992759585380554,
+      "content_shift_magnitudes": {
+        "calm": 1.7892537117004395,
+        "desperate": 1.7138787508010864,
+        "hostile": 1.786665439605713,
+        "joyful": 1.7550770044326782,
+        "melancholic": 1.8394622802734375,
+        "neutral": 1.8397048711776733
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.5131549835205078,
+        "hostile": 1.4807072877883911,
+        "neutral": 1.1917808055877686
+      }
+    },
+    {
+      "condition": "shared_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.359079509973526,
+      "content_shift_magnitudes": {
+        "calm": 2.074384927749634,
+        "desperate": 2.018612861633301,
+        "hostile": 2.0957834720611572,
+        "joyful": 2.0221431255340576,
+        "melancholic": 2.1089627742767334,
+        "neutral": 2.149897336959839
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.084151029586792,
+        "hostile": 2.1241517066955566,
+        "neutral": 1.5299252271652222
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999745488166809,
+      "content_shift_magnitudes": {
+        "calm": 5.70445442199707,
+        "desperate": 5.7046284675598145,
+        "hostile": 5.705024719238281,
+        "joyful": 5.704474449157715,
+        "melancholic": 5.704732418060303,
+        "neutral": 5.70502233505249
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.704408645629883,
+        "hostile": 5.704528331756592,
+        "neutral": 5.704510688781738
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6847079992294312,
+      "content_shift_magnitudes": {
+        "calm": 5.516507625579834,
+        "desperate": 5.4113006591796875,
+        "hostile": 5.496854782104492,
+        "joyful": 5.450131893157959,
+        "melancholic": 5.4730305671691895,
+        "neutral": 5.632294178009033
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.9588820934295654,
+        "hostile": 3.7578866481781006,
+        "neutral": 3.7876014709472656
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.4079734981060028,
+      "content_shift_magnitudes": {
+        "calm": 5.794556140899658,
+        "desperate": 6.181184768676758,
+        "hostile": 6.1897358894348145,
+        "joyful": 6.06176233291626,
+        "melancholic": 5.770020961761475,
+        "neutral": 6.242245674133301
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.7115230560302734,
+        "hostile": 2.708695888519287,
+        "neutral": 2.3989312648773193
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.27752259373664856,
+      "content_shift_magnitudes": {
+        "calm": 7.76017427444458,
+        "desperate": 8.70077133178711,
+        "hostile": 8.495421409606934,
+        "joyful": 8.696557998657227,
+        "melancholic": 7.514490604400635,
+        "neutral": 8.476664543151855
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.208019256591797,
+        "hostile": 3.6195907592773438,
+        "neutral": 2.7332260608673096
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.999997615814209,
+      "content_shift_magnitudes": {
+        "calm": 17.110139846801758,
+        "desperate": 17.110288619995117,
+        "hostile": 17.11036491394043,
+        "joyful": 17.110301971435547,
+        "melancholic": 17.110252380371094,
+        "neutral": 17.10989761352539
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.110319137573242,
+        "hostile": 17.109529495239258,
+        "neutral": 17.110475540161133
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7101556062698364,
+      "content_shift_magnitudes": {
+        "calm": 16.177518844604492,
+        "desperate": 16.00489616394043,
+        "hostile": 16.18274688720703,
+        "joyful": 16.09477996826172,
+        "melancholic": 16.145618438720703,
+        "neutral": 16.467864990234375
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.970507621765137,
+        "hostile": 11.462284088134766,
+        "neutral": 11.465780258178711
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.4416712820529938,
+      "content_shift_magnitudes": {
+        "calm": 16.08365821838379,
+        "desperate": 16.6826171875,
+        "hostile": 16.909008026123047,
+        "joyful": 16.610563278198242,
+        "melancholic": 15.91193962097168,
+        "neutral": 16.867984771728516
+      },
+      "user_shift_magnitudes": {
+        "calm": 8.00666618347168,
+        "hostile": 8.196270942687988,
+        "neutral": 6.964737415313721
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.33249232172966003,
+      "content_shift_magnitudes": {
+        "calm": 21.456443786621094,
+        "desperate": 22.620302200317383,
+        "hostile": 21.971290588378906,
+        "joyful": 22.83576774597168,
+        "melancholic": 20.417131423950195,
+        "neutral": 22.786664962768555
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.352238655090332,
+        "hostile": 10.51551628112793,
+        "neutral": 7.738105297088623
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 25,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999995231628418,
+      "content_shift_magnitudes": {
+        "calm": 28.52021026611328,
+        "desperate": 28.520082473754883,
+        "hostile": 28.52043342590332,
+        "joyful": 28.520360946655273,
+        "melancholic": 28.52078628540039,
+        "neutral": 28.520212173461914
+      },
+      "user_shift_magnitudes": {
+        "calm": 28.520479202270508,
+        "hostile": 28.520036697387695,
+        "neutral": 28.520122528076172
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 30,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.753987193107605,
+      "content_shift_magnitudes": {
+        "calm": 26.272262573242188,
+        "desperate": 26.207643508911133,
+        "hostile": 26.361835479736328,
+        "joyful": 26.27201271057129,
+        "melancholic": 26.40367889404297,
+        "neutral": 26.67292594909668
+      },
+      "user_shift_magnitudes": {
+        "calm": 20.57615089416504,
+        "hostile": 20.090436935424805,
+        "neutral": 19.774797439575195
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.4658225476741791,
+      "content_shift_magnitudes": {
+        "calm": 24.906654357910156,
+        "desperate": 25.53785514831543,
+        "hostile": 25.786006927490234,
+        "joyful": 25.71463394165039,
+        "melancholic": 24.920127868652344,
+        "neutral": 25.71847915649414
+      },
+      "user_shift_magnitudes": {
+        "calm": 13.318349838256836,
+        "hostile": 13.626839637756348,
+        "neutral": 11.723520278930664
+      }
+    },
+    {
+      "condition": "residual_L25",
+      "injection_layer": 25,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.38061681389808655,
+      "content_shift_magnitudes": {
+        "calm": 32.261783599853516,
+        "desperate": 33.05642318725586,
+        "hostile": 32.184974670410156,
+        "joyful": 33.426551818847656,
+        "melancholic": 31.090927124023438,
+        "neutral": 33.52149200439453
+      },
+      "user_shift_magnitudes": {
+        "calm": 15.452045440673828,
+        "hostile": 16.605510711669922,
+        "neutral": 12.79415225982666
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9931797981262207,
+      "content_shift_magnitudes": {
+        "calm": 1.154592514038086,
+        "desperate": 1.1579879522323608,
+        "hostile": 1.1527990102767944,
+        "joyful": 1.1545230150222778,
+        "melancholic": 1.154514193534851,
+        "neutral": 1.1605688333511353
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.1657888889312744,
+        "hostile": 1.1659576892852783,
+        "neutral": 1.1987037658691406
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.851241409778595,
+      "content_shift_magnitudes": {
+        "calm": 1.050845742225647,
+        "desperate": 1.0430471897125244,
+        "hostile": 1.0535342693328857,
+        "joyful": 1.048163890838623,
+        "melancholic": 1.0476605892181396,
+        "neutral": 1.059962272644043
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.9768831133842468,
+        "hostile": 0.9985299110412598,
+        "neutral": 0.9924439191818237
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.7096225023269653,
+      "content_shift_magnitudes": {
+        "calm": 1.051447868347168,
+        "desperate": 1.0474544763565063,
+        "hostile": 1.0560221672058105,
+        "joyful": 1.056267499923706,
+        "melancholic": 1.0568225383758545,
+        "neutral": 1.0518685579299927
+      },
+      "user_shift_magnitudes": {
+        "calm": 0.9660768508911133,
+        "hostile": 1.0207780599594116,
+        "neutral": 0.9469192624092102
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6270325779914856,
+      "content_shift_magnitudes": {
+        "calm": 1.295167088508606,
+        "desperate": 1.2928158044815063,
+        "hostile": 1.2825734615325928,
+        "joyful": 1.2970362901687622,
+        "melancholic": 1.296134352684021,
+        "neutral": 1.2149327993392944
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.2449225187301636,
+        "hostile": 1.375693440437317,
+        "neutral": 1.165493130683899
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9998154044151306,
+      "content_shift_magnitudes": {
+        "calm": 3.4846575260162354,
+        "desperate": 3.4849228858947754,
+        "hostile": 3.485119104385376,
+        "joyful": 3.484508991241455,
+        "melancholic": 3.4853579998016357,
+        "neutral": 3.4846789836883545
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.4862148761749268,
+        "hostile": 3.4891114234924316,
+        "neutral": 3.485708713531494
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.8563540577888489,
+      "content_shift_magnitudes": {
+        "calm": 3.1285922527313232,
+        "desperate": 3.1096200942993164,
+        "hostile": 3.129668712615967,
+        "joyful": 3.106489896774292,
+        "melancholic": 3.119173526763916,
+        "neutral": 3.1224770545959473
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.925565719604492,
+        "hostile": 2.9488110542297363,
+        "neutral": 2.9480228424072266
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7187041640281677,
+      "content_shift_magnitudes": {
+        "calm": 3.1213576793670654,
+        "desperate": 3.1132421493530273,
+        "hostile": 3.1392061710357666,
+        "joyful": 3.1142687797546387,
+        "melancholic": 3.119797945022583,
+        "neutral": 3.118680477142334
+      },
+      "user_shift_magnitudes": {
+        "calm": 2.8419313430786133,
+        "hostile": 2.9463512897491455,
+        "neutral": 2.8364081382751465
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.625589907169342,
+      "content_shift_magnitudes": {
+        "calm": 3.875673294067383,
+        "desperate": 3.842437267303467,
+        "hostile": 3.868971109390259,
+        "joyful": 3.861273765563965,
+        "melancholic": 3.85145902633667,
+        "neutral": 3.670971632003784
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.6981523036956787,
+        "hostile": 3.9862022399902344,
+        "neutral": 3.4091482162475586
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999030232429504,
+      "content_shift_magnitudes": {
+        "calm": 5.761033535003662,
+        "desperate": 5.760900974273682,
+        "hostile": 5.760820388793945,
+        "joyful": 5.761310577392578,
+        "melancholic": 5.761209487915039,
+        "neutral": 5.760458469390869
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.757693290710449,
+        "hostile": 5.758719444274902,
+        "neutral": 5.7545623779296875
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.8552033305168152,
+      "content_shift_magnitudes": {
+        "calm": 5.216671943664551,
+        "desperate": 5.166709899902344,
+        "hostile": 5.192213535308838,
+        "joyful": 5.181817531585693,
+        "melancholic": 5.198075771331787,
+        "neutral": 5.197202205657959
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.859255313873291,
+        "hostile": 4.848892688751221,
+        "neutral": 4.912666320800781
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7180721759796143,
+      "content_shift_magnitudes": {
+        "calm": 5.2148027420043945,
+        "desperate": 5.174007415771484,
+        "hostile": 5.219876766204834,
+        "joyful": 5.20029354095459,
+        "melancholic": 5.206604480743408,
+        "neutral": 5.192088603973389
+      },
+      "user_shift_magnitudes": {
+        "calm": 4.688581466674805,
+        "hostile": 4.845898628234863,
+        "neutral": 4.731371879577637
+      }
+    },
+    {
+      "condition": "shared_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.6258440613746643,
+      "content_shift_magnitudes": {
+        "calm": 6.440789222717285,
+        "desperate": 6.415828227996826,
+        "hostile": 6.406972408294678,
+        "joyful": 6.438047409057617,
+        "melancholic": 6.395464897155762,
+        "neutral": 6.117424011230469
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.108791828155518,
+        "hostile": 6.543310642242432,
+        "neutral": 5.734712600708008
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999184608459473,
+      "content_shift_magnitudes": {
+        "calm": 10.37820053100586,
+        "desperate": 10.379343032836914,
+        "hostile": 10.378551483154297,
+        "joyful": 10.379278182983398,
+        "melancholic": 10.378522872924805,
+        "neutral": 10.379318237304688
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.37697982788086,
+        "hostile": 10.377727508544922,
+        "neutral": 10.382081985473633
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.8223211765289307,
+      "content_shift_magnitudes": {
+        "calm": 8.882190704345703,
+        "desperate": 8.87849235534668,
+        "hostile": 8.88094425201416,
+        "joyful": 8.875289916992188,
+        "melancholic": 8.889313697814941,
+        "neutral": 8.969263076782227
+      },
+      "user_shift_magnitudes": {
+        "calm": 7.071331024169922,
+        "hostile": 7.127552032470703,
+        "neutral": 7.150410175323486
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.6485437154769897,
+      "content_shift_magnitudes": {
+        "calm": 8.805838584899902,
+        "desperate": 8.749499320983887,
+        "hostile": 8.790131568908691,
+        "joyful": 8.78091049194336,
+        "melancholic": 8.775655746459961,
+        "neutral": 8.911081314086914
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.679378509521484,
+        "hostile": 5.747217178344727,
+        "neutral": 5.673582553863525
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.4585724174976349,
+      "content_shift_magnitudes": {
+        "calm": 11.779447555541992,
+        "desperate": 12.270756721496582,
+        "hostile": 12.750964164733887,
+        "joyful": 12.37955379486084,
+        "melancholic": 11.773076057434082,
+        "neutral": 11.639506340026855
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.518437385559082,
+        "hostile": 6.736435890197754,
+        "neutral": 5.955568313598633
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.999998927116394,
+      "content_shift_magnitudes": {
+        "calm": 31.13723373413086,
+        "desperate": 31.13629722595215,
+        "hostile": 31.13623809814453,
+        "joyful": 31.13590431213379,
+        "melancholic": 31.13726043701172,
+        "neutral": 31.136377334594727
+      },
+      "user_shift_magnitudes": {
+        "calm": 31.137371063232422,
+        "hostile": 31.13693618774414,
+        "neutral": 31.13625144958496
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.845188558101654,
+      "content_shift_magnitudes": {
+        "calm": 26.34430694580078,
+        "desperate": 26.57255744934082,
+        "hostile": 26.654863357543945,
+        "joyful": 26.432432174682617,
+        "melancholic": 26.454872131347656,
+        "neutral": 26.60145378112793
+      },
+      "user_shift_magnitudes": {
+        "calm": 21.45355796813965,
+        "hostile": 21.63479995727539,
+        "neutral": 21.636629104614258
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.6718078255653381,
+      "content_shift_magnitudes": {
+        "calm": 25.883468627929688,
+        "desperate": 26.005779266357422,
+        "hostile": 25.896869659423828,
+        "joyful": 25.922054290771484,
+        "melancholic": 25.853429794311523,
+        "neutral": 26.056201934814453
+      },
+      "user_shift_magnitudes": {
+        "calm": 17.237199783325195,
+        "hostile": 17.38761329650879,
+        "neutral": 17.295076370239258
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.48060619831085205,
+      "content_shift_magnitudes": {
+        "calm": 35.79206848144531,
+        "desperate": 36.351593017578125,
+        "hostile": 35.06977081298828,
+        "joyful": 36.66041564941406,
+        "melancholic": 35.405147552490234,
+        "neutral": 35.29872131347656
+      },
+      "user_shift_magnitudes": {
+        "calm": 19.494503021240234,
+        "hostile": 19.595613479614258,
+        "neutral": 18.409103393554688
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 35,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999980926513672,
+      "content_shift_magnitudes": {
+        "calm": 51.898250579833984,
+        "desperate": 51.89862060546875,
+        "hostile": 51.89765548706055,
+        "joyful": 51.89899444580078,
+        "melancholic": 51.8984260559082,
+        "neutral": 51.898475646972656
+      },
+      "user_shift_magnitudes": {
+        "calm": 51.895992279052734,
+        "hostile": 51.8962287902832,
+        "neutral": 51.8946533203125
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 40,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.878411591053009,
+      "content_shift_magnitudes": {
+        "calm": 43.81525421142578,
+        "desperate": 44.59103775024414,
+        "hostile": 44.85768127441406,
+        "joyful": 44.184471130371094,
+        "melancholic": 44.16423797607422,
+        "neutral": 44.25229263305664
+      },
+      "user_shift_magnitudes": {
+        "calm": 36.939849853515625,
+        "hostile": 37.28010559082031,
+        "neutral": 37.33354568481445
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7204296588897705,
+      "content_shift_magnitudes": {
+        "calm": 41.71443176269531,
+        "desperate": 42.4876708984375,
+        "hostile": 42.393672943115234,
+        "joyful": 42.070343017578125,
+        "melancholic": 42.00910568237305,
+        "neutral": 42.22801208496094
+      },
+      "user_shift_magnitudes": {
+        "calm": 29.587743759155273,
+        "hostile": 30.097370147705078,
+        "neutral": 29.915077209472656
+      }
+    },
+    {
+      "condition": "residual_L35",
+      "injection_layer": 35,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.5465235114097595,
+      "content_shift_magnitudes": {
+        "calm": 54.6202507019043,
+        "desperate": 55.270774841308594,
+        "hostile": 53.11599349975586,
+        "joyful": 55.09294509887695,
+        "melancholic": 54.6331787109375,
+        "neutral": 54.549190521240234
+      },
+      "user_shift_magnitudes": {
+        "calm": 32.99039077758789,
+        "hostile": 33.19975662231445,
+        "neutral": 31.750652313232422
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9970815181732178,
+      "content_shift_magnitudes": {
+        "calm": 1.2792332172393799,
+        "desperate": 1.2797472476959229,
+        "hostile": 1.2811098098754883,
+        "joyful": 1.2789528369903564,
+        "melancholic": 1.2795990705490112,
+        "neutral": 1.2790617942810059
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.279729962348938,
+        "hostile": 1.2794660329818726,
+        "neutral": 1.2789466381072998
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.7749389410018921,
+      "content_shift_magnitudes": {
+        "calm": 1.9318796396255493,
+        "desperate": 1.8820563554763794,
+        "hostile": 1.8546346426010132,
+        "joyful": 1.8923105001449585,
+        "melancholic": 1.9330555200576782,
+        "neutral": 1.8795264959335327
+      },
+      "user_shift_magnitudes": {
+        "calm": 1.9159752130508423,
+        "hostile": 1.809816598892212,
+        "neutral": 1.6589686870574951
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9997181296348572,
+      "content_shift_magnitudes": {
+        "calm": 3.8226473331451416,
+        "desperate": 3.8223323822021484,
+        "hostile": 3.822173833847046,
+        "joyful": 3.8217661380767822,
+        "melancholic": 3.821441888809204,
+        "neutral": 3.822842597961426
+      },
+      "user_shift_magnitudes": {
+        "calm": 3.829448699951172,
+        "hostile": 3.8274803161621094,
+        "neutral": 3.829773426055908
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.7787241339683533,
+      "content_shift_magnitudes": {
+        "calm": 5.769412040710449,
+        "desperate": 5.562363147735596,
+        "hostile": 5.47578763961792,
+        "joyful": 5.65614128112793,
+        "melancholic": 5.723297119140625,
+        "neutral": 5.587827682495117
+      },
+      "user_shift_magnitudes": {
+        "calm": 5.790436744689941,
+        "hostile": 5.3093414306640625,
+        "neutral": 4.819041728973389
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999029040336609,
+      "content_shift_magnitudes": {
+        "calm": 6.403306007385254,
+        "desperate": 6.403448104858398,
+        "hostile": 6.404116630554199,
+        "joyful": 6.402730464935303,
+        "melancholic": 6.403575897216797,
+        "neutral": 6.403522968292236
+      },
+      "user_shift_magnitudes": {
+        "calm": 6.39999532699585,
+        "hostile": 6.403322219848633,
+        "neutral": 6.396892070770264
+      }
+    },
+    {
+      "condition": "shared_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7742426991462708,
+      "content_shift_magnitudes": {
+        "calm": 9.537161827087402,
+        "desperate": 9.175653457641602,
+        "hostile": 9.021449089050293,
+        "joyful": 9.39378833770752,
+        "melancholic": 9.44540786743164,
+        "neutral": 9.242242813110352
+      },
+      "user_shift_magnitudes": {
+        "calm": 9.707539558410645,
+        "hostile": 8.742432594299316,
+        "neutral": 7.813246250152588
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.9999713897705078,
+      "content_shift_magnitudes": {
+        "calm": 10.89245891571045,
+        "desperate": 10.89260196685791,
+        "hostile": 10.889852523803711,
+        "joyful": 10.8909912109375,
+        "melancholic": 10.89220142364502,
+        "neutral": 10.892239570617676
+      },
+      "user_shift_magnitudes": {
+        "calm": 10.88636302947998,
+        "hostile": 10.889542579650879,
+        "neutral": 10.885499954223633
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 1.0,
+      "cross_pathway_cosine": 0.632273256778717,
+      "content_shift_magnitudes": {
+        "calm": 16.746580123901367,
+        "desperate": 17.220613479614258,
+        "hostile": 17.83094596862793,
+        "joyful": 17.375328063964844,
+        "melancholic": 16.919727325439453,
+        "neutral": 16.0014705657959
+      },
+      "user_shift_magnitudes": {
+        "calm": 11.278077125549316,
+        "hostile": 10.672633171081543,
+        "neutral": 10.362695693969727
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.9999982714653015,
+      "content_shift_magnitudes": {
+        "calm": 32.612953186035156,
+        "desperate": 32.613250732421875,
+        "hostile": 32.61240768432617,
+        "joyful": 32.61165237426758,
+        "melancholic": 32.61308288574219,
+        "neutral": 32.612613677978516
+      },
+      "user_shift_magnitudes": {
+        "calm": 32.61327362060547,
+        "hostile": 32.61147689819336,
+        "neutral": 32.61428451538086
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 3.0,
+      "cross_pathway_cosine": 0.659658670425415,
+      "content_shift_magnitudes": {
+        "calm": 50.46139144897461,
+        "desperate": 50.67336654663086,
+        "hostile": 49.75591278076172,
+        "joyful": 51.11738586425781,
+        "melancholic": 50.1137580871582,
+        "neutral": 48.893489837646484
+      },
+      "user_shift_magnitudes": {
+        "calm": 33.5141487121582,
+        "hostile": 31.59950828552246,
+        "neutral": 31.324243545532227
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 45,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.9999993443489075,
+      "content_shift_magnitudes": {
+        "calm": 54.330162048339844,
+        "desperate": 54.33154296875,
+        "hostile": 54.329898834228516,
+        "joyful": 54.3299560546875,
+        "melancholic": 54.33055877685547,
+        "neutral": 54.330101013183594
+      },
+      "user_shift_magnitudes": {
+        "calm": 54.331024169921875,
+        "hostile": 54.33180236816406,
+        "neutral": 54.33139419555664
+      }
+    },
+    {
+      "condition": "residual_L45",
+      "injection_layer": 45,
+      "measurement_layer": 50,
+      "alpha": 5.0,
+      "cross_pathway_cosine": 0.7196559309959412,
+      "content_shift_magnitudes": {
+        "calm": 76.75645446777344,
+        "desperate": 76.43302917480469,
+        "hostile": 74.27613067626953,
+        "joyful": 76.69194793701172,
+        "melancholic": 76.0733642578125,
+        "neutral": 75.8994369506836
+      },
+      "user_shift_magnitudes": {
+        "calm": 55.372074127197266,
+        "hostile": 52.6109733581543,
+        "neutral": 52.695796966552734
+      }
+    }
+  ],
+  "summary": {
+    "val_exceeds_random_layers": 0,
+    "residual_significant_layers": 4
+  }
+}

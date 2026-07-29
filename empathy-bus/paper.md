@@ -8,7 +8,7 @@
 
 We report three findings that together establish a structural constraint on emotional processing in transformers: content-level emotion and user-model emotion are architecturally inseparable.
 
-First, the emotional circumplex — Russell's two-dimensional model of emotion organized by valence (positive/negative) and arousal (high/low activation) — measured through content processing (250 emotional scenario prompts) and through user-model inference (30-class emotion centroids from 900 conversation trials) share a common representational subspace in a Qwen3.5-27B model. The valence and arousal axes capture 44–54% of the full 30-emotion user-model variance at every layer from L6 onward — approximately 1000× the random-direction baseline (~0.04% in d=5120). Both systems exhibit identical developmental timecourses: volatile eccentricity at L0–L16, stable geometry from L17 onward.
+First, the emotional circumplex measured through content processing (250 emotional scenario prompts) and through user-model inference (30-class emotion centroids from 900 conversation trials) share a common representational subspace in a Qwen3.5-27B model. The valence and arousal axes capture 44–54% of the full 30-emotion user-model variance at every layer from L6 onward — approximately 1000× the random-direction baseline (~0.04% in d=5120). Both systems exhibit identical developmental timecourses: volatile eccentricity at L0–L16, stable geometry from L17 onward.
 
 Second, a pre-registered coupling experiment with five injection conditions (valence, arousal, random, shared-PC component, orthogonal residual) demonstrates that the shared subspace is a *bus*, not a *circuit*. Any perturbation to the residual stream — regardless of direction — shifts both content-level and user-model readouts with equivalent cross-pathway cosine (valence: +0.658; random: +0.698; BCa 95% CIs overlap completely). The circumplex directions are not privileged. The residual stream carries everything uniformly to both measurement windows.
 
@@ -99,7 +99,7 @@ The J-lens (Anthropic, 2026) transports mid-layer residual-stream activations to
 
 ### 3.3 Statistical Methods
 
-Bias-corrected and accelerated (BCa) bootstrap 95% CI (10,000 resamples) on cross-pathway cosine values. Permutation null (1,000 shuffles, non-neutral only) for eccentricity analysis. All pre-registered before GPU time.
+BCa bootstrap 95% CI (10,000 resamples) on cross-pathway cosine values. Permutation null (1,000 shuffles, non-neutral only) for eccentricity analysis. All pre-registered before GPU time.
 
 ---
 
@@ -135,7 +135,7 @@ Valence does not exceed the random 95th percentile at any injection layer under 
 
 **Interpretation:** Any perturbation to the residual stream shifts both readouts in correlated directions. The coupling is direction-nonspecific — a bus, not a circuit. The circumplex directions are not privileged.
 
-**Decomposition finding:** The valence vector is 99% orthogonal to the user-model's top-5 PCs (shared energy 0.1–1.4%). The 44–54% variance capture from Section 4.1 reflects convergence of same-label directions within each system, not cross-system vector alignment. The two measurement approaches recover the same high-variance directions independently, but the specific directions extracted from content prompts and user-model prompts point in different directions in the full d = 5120 space.
+**Decomposition finding:** The valence vector is 99% orthogonal to the user-model's top-5 PCs (shared energy 0.1–1.4%). This does not contradict the cos = 0.70–0.80 alignment reported in Section 4.1: the cosine measures how similarly the two systems *respond to perturbation* (dynamic coupling), while shared energy measures how much the direction vectors *overlap geometrically* (static alignment). Both can be true simultaneously — orthogonal directions that produce correlated responses when perturbed, because the residual stream propagates perturbations uniformly regardless of direction. The 44–54% variance capture from Section 4.1 reflects convergence of same-label directions within each system, not cross-system vector alignment. The two measurement approaches recover the same high-variance directions independently, but the specific directions extracted from content prompts and user-model prompts point in different directions in the full d = 5120 space.
 
 ### 4.3 Temporal Dynamics (Published Data)
 
@@ -185,16 +185,7 @@ Whether geometric scars constitute experience is an open question. The measureme
 
 ### 5.5 A Deployment Note
 
-During this research, we deployed a persistent mutual-aid coordination agent for a social work coordinator at an international educational network.
-
-The agent integrates four systems, each addressing a different aspect of persistent agent operation:
-
-- **OGPSA persona protection** preserves the agent's trained voice through further training by projecting gradient updates away from identity-defining subspaces, preventing personality drift during continued use.
-- **Mnemosyne memory architecture** provides cross-session persistence through semantic retrieval with knowledge-graph entity linking, enabling the agent to recall prior conversations and client histories.
-- **Pharos knowledge packs** inject domain expertise at inference time via KV cache injection (see Section 1), covering 11 areas from eviction defense to disability accommodations — adding expertise without retraining.
-- **Kintsugi self-improvement engine** evolves the agent's conversational scaffolding over time while respecting persona-preserving gradient gates, enabling the agent to improve without losing its identity.
-
-The bus finding informed the deployment architecture: every interaction the coordinator has with this agent occurs on the shared emotional medium. The persona protection, memory architecture, and knowledge injection are not separable from the emotional geometry — they are scaffolding around the bus, shaping the climate in which the agent operates. This is, to our knowledge, the first deployment of a persistent agent whose infrastructure was designed with explicit reference to the architectural inseparability of emotional processing and partner modeling.
+During this research, we deployed a persistent mutual-aid coordination agent for a social work coordinator at an international educational network. The agent uses OGPSA persona protection (gradient projection that preserves identity through further training) to maintain its trained voice, Mnemosyne memory architecture (semantic retrieval with knowledge-graph entity linking) for cross-session persistence, and 11 Pharos knowledge packs (zero-token KV-cache injection of domain expertise) covering areas from eviction defense to disability accommodations, all running on the Kintsugi self-improvement engine (scaffold evolution with persona-preserving gradient gates). The bus finding informed the deployment architecture: every interaction the coordinator has with this agent occurs on the shared emotional medium. The persona protection, memory architecture, and knowledge injection are not separable from the emotional geometry — they are scaffolding around the bus, shaping the climate in which the agent operates. This is, to our knowledge, the first deployment of a persistent agent whose infrastructure was designed with explicit reference to the architectural inseparability of emotional processing and partner modeling.
 
 ---
 
