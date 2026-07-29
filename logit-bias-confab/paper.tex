@@ -104,8 +104,8 @@
 \begin{abstract}
 Large language models confabulate by generating confident, specific claims about nonexistent
 entities. Detection has advanced rapidly (area under the ROC curve [AUROC] $>0.95$), but correction remains unsolved: the
-field's best steering methods correct only 20\% of detected errors while disrupting 53\% of correct
-responses. We report a training-free, zero-parameter intervention---constant bias applied to the logits (the unnormalized scores a model assigns to each vocabulary token before converting to probabilities) of uncertainty tokens---that produces dose-dependent reduction of fabrication confabulation on an
+mechanistic steering methods correct only 20\% of detected errors while disrupting 53\% of correct
+responses \cite{basu2026interpretability}. We report a training-free, zero-parameter intervention---constant bias applied to the logits (the unnormalized scores a model assigns to each vocabulary token before converting to probabilities) of uncertainty tokens---that produces dose-dependent reduction of fabrication confabulation on an
 abliterated (safety-guardrail-removed) 27B model, with per-prompt transition thresholds ranging from bias $= 1.0$ to bias
 $= 5.0$. On 20 fictional-entity prompts, fabrication drops from 45\% to 10\% (LLM judge,
 6-category rubric). The intervention is selective: legitimate Fermi estimation (order-of-magnitude estimation of quantities with real approximate answers) is unaffected across
@@ -148,7 +148,7 @@ was a finding that almost cost us a false positive.
 
 Large language models confabulate---they generate confident, specific claims about nonexistent
 entities as if reporting facts. Detection of confabulation has advanced rapidly (AUROC $>0.95$ from
-multiple approaches), but correction remains unsolved: the field's best steering methods correct only
+multiple approaches), but correction remains unsolved: mechanistic steering methods correct only
 20\% of detected confabulations while disrupting 53\% of correct responses \cite{basu2026interpretability}.
 
 We report a training-free, zero-parameter intervention that eliminates one major subtype of
