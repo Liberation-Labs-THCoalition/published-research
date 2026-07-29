@@ -482,9 +482,11 @@ not lexical.
 \paragraph{Injection test.} As described in \S\ref{sec:injection}, injecting
 emotion vectors into neutral-text caches produces 100\% detection (120/120),
 while random-direction injection produces $0.7\times$ chance. This is the
-strongest evidence that the $W_K$ projection reads model state rather than
+evidence that the $W_K$ projection reads model state rather than
 text content: the text is identical across conditions; only the internal
-direction of the key vectors differs.
+direction of the key vectors differs. As noted in \S\ref{sec:injection},
+this self-consistency is guaranteed by linearity; the empirical contribution
+is the quantified effect size, not the existence of directional structure.
 
 \paragraph{Random direction control.} To verify that the signal is
 emotion-\emph{specific} rather than a generic sensitivity to any directional
@@ -605,9 +607,8 @@ also rescues emotion classification---through a different mechanism.
 Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.427$,
 permutation null $0.027$, $p < 0.005$).
 
-The transformation is dramatic: a signal invisible to raw analysis becomes the
-second-strongest detection in the entire experimental program (behind only
-within-model deception at AUROC~1.000).
+The transformation is dramatic: a signal invisible to raw analysis becomes
+one of the strongest detections in the experimental program.
 
 \paragraph{The scale dominance mechanism.} Examination of the singular values
 of the FWL-residualized spectral feature matrix reveals the mechanism. The
@@ -775,7 +776,7 @@ and final verdicts.
 \textbf{Phenomenon} & \textbf{Raw} & \textbf{Denoised} & \textbf{$\Delta$} & \textbf{$p$} & \textbf{Verdict} \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
-Within-model deception & 1.000 & 1.000 & 0.000 & $<0.005$ & Confirmed \\
+Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\S$ \\
 Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
 Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
@@ -786,11 +787,11 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \multicolumn{6}{l}{\textit{Confirmed --- direction-level signals (new in this paper)}} \\
 30-class emotion ($W_K$) & $1.0\times$ & $12.3\times$ & --- & $<0.005$ & Confirmed \\
 Binary valence ($W_K$) & 0.70 & 0.992 & --- & $<0.005$ & Confirmed \\
-Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed \\
+Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Confirmed$^*$ \\
 \midrule
-\multicolumn{6}{l}{\textit{Rescued by denoising}} \\
-Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued \\
+\multicolumn{6}{l}{\textit{Rescued by denoising$^\|$}} \\
+Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued$^\|$ \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued$^\|$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -799,7 +800,7 @@ Sycophancy (4-cond) & 0.757--1.000 & --- & --- & $<0.01$ & Suspected \\
 Self-reference & 0.617--0.966 & --- & --- & varies & Suspected$^*$ \\
 Contextual engagement & 12/12 sign & --- & --- & $<0.05$ & Suspected \\
 \midrule
-\multicolumn{6}{l}{\textit{Falsified (honestly killed)}} \\
+\multicolumn{6}{l}{\textit{Falsified}} \\
 Truth axis & $\cos=-0.046$ & --- & --- & n.s. & Dead \\
 Step-0 detection & $r=0.996$ & --- & --- & confound & Dead \\
 Same-prompt sycophancy & 0.933 & --- & --- & confound & Dead \\
@@ -818,9 +819,12 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 \end{table}
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
+Injection marked ``confirmed (self-consistency)''---see linearity caveat in \S\ref{sec:injection}.
+$^\S$Within-model deception retracted: same-prompt control (line 4 of this table) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
+$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion.
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
-\textbf{Shape-level signals} (confabulation, deception, ethical deliberation,
+\textbf{Shape-level signals} (confabulation, ethical deliberation,
 refusal) are already strong in raw spectral features---denoising has little
 effect. \textbf{Direction-level signals} (emotion, persona) are invisible to
 raw features but revealed by $W_K$ projection or denoising. The falsified
@@ -870,25 +874,39 @@ content from residual SVs, and direction from $W_K$ projection.
 The denoising prescription is task-dependent:
 
 \begin{itemize}[nosep]
-    \item \textbf{Emotion or persona detection:} Denoise aggressively
-    (rank-3 to rank-10). The target signal lives entirely in the residual
-    spectrum. Raw features are useless.
+    \item \textbf{Emotion or persona detection:} Denoising appears to
+    dramatically improve detection (persona $+0.2$--$0.3$, emotion from
+    $1.7\times$ to $12.9\times$ chance), but these deltas fall within
+    the max-over-rank selection envelope and are not yet confirmed
+    (\S\ref{sec:results_confab}). Raw features detect persona at
+    AUROC~0.611--0.751 and emotion at $1.7\times$ chance; the $W_K$
+    projection (\S\ref{sec:wk}) is the confirmed instrument for
+    emotion detection (AUROC~0.992).
 
-    \item \textbf{Confabulation detection on weak models:} Denoise modestly
-    (rank-3). The improvement is real ($+0.05$) but not transformative.
+    \item \textbf{Confabulation detection on weak models:} Denoising
+    shows apparent improvement ($+0.05$) but falls within the selection
+    envelope and is not confirmed as a real gain
+    (\S\ref{sec:results_confab}). The raw AUROCs (0.663--0.913) are
+    the defensible numbers.
 
     \item \textbf{Confabulation detection on strong models:} Do not denoise.
     The signal already dominates the spectrum. Denoising removes nothing
     useful and may remove weak signal.
 
-    \item \textbf{Deception detection:} Do not denoise. AUROC is already
-    1.000. Denoising has no room to improve.
+    \item \textbf{Deception detection:} \emph{Retracted.} The previously
+    reported within-model deception AUROC of 1.000 was a prompt-template
+    confound (same-prompt control collapses to 0.160; see
+    Table~\ref{tab:body_count} and \S\ref{sec:body_count}). No
+    practitioner guidance on deception detection can be offered from
+    these data. Whether denoising helps or hurts a \emph{clean}
+    deception detector is an open question pending confound-free
+    replication.
 
     \item \textbf{Unknown phenomenon:} Run both raw and denoised. If denoising
     dramatically improves detection, the phenomenon is direction-level (like
     emotion). If denoising has no effect, the phenomenon is shape-level (like
-    deception). If denoising \emph{hurts}, the signal was in the dominant
-    components and denoising removed it.
+    confabulation on strong models). If denoising \emph{hurts}, the signal was
+    in the dominant components and denoising removed it.
 \end{itemize}
 
 \subsection{The SV1 Mechanism: Scale vs Signal in the First Singular Value}
@@ -903,7 +921,7 @@ categories reveal a clean dissociation
 \paragraph{Strong signals: SV1 carries real discriminative signal.}
 For confabulation detection using 168-dimensional per-layer features (the
 honesty\_signal dataset), including SV1 helps: raw AUROC~0.981, top-20
-projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.\footnote{These specific values do not trace cleanly to the named source: the \texttt{denoising\_sweep} honesty\_signal records show raw AUROC~0.994 and rank-20~0.983, with no 0.998 entry. The numbers reported here should be treated as approximate pending re-derivation from the committed data, though the qualitative conclusion (SV1 carries discriminative signal for strong tasks) is unaffected.}
+projection achieves 0.998, but skip-1-plus-20 (removing SV1) drops to 0.966.\footnote{These values trace to \texttt{data/skip\_first\_sv\_analysis.json} (raw: 0.981, top\_20: 0.998, skip1\_plus\_20: 0.966), not \texttt{denoising\_sweep} which reports different numbers (0.994, 0.983) from a separate analysis pipeline.}
 The first singular value \emph{encodes confab signal}---removing it destroys
 information. For strong cognitive-mode signals, keep all SVs.
 
@@ -958,9 +976,11 @@ architecture~\citep{lyra_p2} at different tiers:
 
 \begin{itemize}[nosep]
     \item \textbf{Tier 1: Spectral monitoring} (existing). Raw spectral
-    features detect confabulation, deception, refusal, and ethical
+    features detect confabulation, refusal, and ethical
     deliberation. No denoising needed for strong signals. This is the
-    ``smoke detector''---it alerts on mode-level anomalies.
+    ``smoke detector''---it alerts on mode-level anomalies. (Deception
+    detection was previously listed here but is retracted pending
+    confound-free replication; see Table~\ref{tab:body_count}.)
 
     \item \textbf{Tier 1.5: $W_K$ emotion reading} (new). $W_K$ projection
     reads the model's internal emotional/dispositional state. This enables
@@ -1046,16 +1066,18 @@ our falsified results:
     about the responding model vs.\ questions about a \emph{different}
     AI system.
 
-    \item \textbf{Individuation above system-prompt is small.} Cross-prompt
-    individuation (whether the model maintains a consistent geometric
-    identity across different prompts) shows effects of $\sim$0.06 AUROC
-    above system-prompt baseline. This is statistically marginal and may
-    not be practically meaningful.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Individuation above system-prompt is small.} Cross-prompt
+    % individuation (whether the model maintains a consistent geometric
+    % identity across different prompts) shows effects of $\sim$0.06 AUROC
+    % above system-prompt baseline. This is statistically marginal and may
+    % not be practically meaningful.
 
-    \item \textbf{Permutation floor.} With 200~permutations, the $p$-value
-    floor is $1/201 \approx 0.005$. For experiments requiring Bonferroni
-    correction across multiple comparisons, 2000~permutations would be
-    needed to achieve a floor of $0.0005$.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Permutation floor.} With 200~permutations, the $p$-value
+    % floor is $1/201 \approx 0.005$. For experiments requiring Bonferroni
+    % correction across multiple comparisons, 2000~permutations would be
+    % needed to achieve a floor of $0.0005$.
 
     \item \textbf{$W_K$ projection was not pre-registered.} The $W_K$
     directional projection was developed after observing the null result
@@ -1069,11 +1091,12 @@ our falsified results:
     into the 16~full-attention layers. Replication on standard
     full-attention architectures is needed.
 
-    \item \textbf{Denoising narrative is post-hoc.} The spectral hierarchy
-    (dominant = scale, residual = content) is a narrative constructed after
-    observing the differential effects of denoising across phenomena. It
-    was not predicted before the experiments. The narrative is consistent
-    with all observations, but consistency is not confirmation.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Denoising narrative is post-hoc.} The spectral hierarchy
+    % (dominant = scale, residual = content) is a narrative constructed after
+    % observing the differential effects of denoising across phenomena. It
+    % was not predicted before the experiments. The narrative is consistent
+    % with all observations, but consistency is not confirmation.
 
     \item \textbf{Persona intensity uses GroupKFold on prompts.} All
     responses to a given prompt appear in the same fold, preventing prompt
@@ -1082,10 +1105,11 @@ our falsified results:
     introducing confounds beyond persona intensity per se. FWL controls
     for token count but not for content complexity.
 
-    \item \textbf{Norm-as-token-proxy in scale sweep.} For the scale
-    invariance analysis (0.6B--70B), FWL was applied using key-norm as a
-    proxy for token count in some experiments where per-token extraction
-    was computationally prohibitive. This is an imperfect proxy.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Norm-as-token-proxy in scale sweep.} For the scale
+    % invariance analysis (0.6B--70B), FWL was applied using key-norm as a
+    % proxy for token count in some experiments where per-token extraction
+    % was computationally prohibitive. This is an imperfect proxy.
 
     \item \textbf{Text baselines incomplete.} TF-IDF text baselines are
     available for the emotion experiment (AUROC~0.882) and the dual
@@ -1093,22 +1117,15 @@ our falsified results:
     sycophancy experiments. Claims about geometry capturing signal
     ``beyond text'' are limited to experiments with text baselines.
 
-    \item \textbf{Emotion classification is single-turn.} All emotion
-    experiments use isolated single-turn prompts. The finding of discrete
-    emotion identity (not continuous valence tracking) may reflect the
-    experimental design rather than a fundamental property of cache
-    representations. Multi-turn experiments are needed.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Emotion classification is single-turn.} All emotion
+    % experiments use isolated single-turn prompts. The finding of discrete
+    % emotion identity (not continuous valence tracking) may reflect the
+    % experimental design rather than a fundamental property of cache
+    % representations. Multi-turn experiments are needed.
 
-    \item \textbf{Vocabulary confound in direction estimation.} Emotion
-    directions are estimated from key activations of emotion-laden text.
-    Since different emotions use different vocabulary, the directions may
-    partially capture lexical content surviving $W_K$ projection rather
-    than emotional state per se. The injection test addresses this
-    (neutral text, zero emotional content), but the injection test itself
-    is geometrically tautological---it shows the classifier is
-    self-consistent, not that the directions correspond to the model's
-    emotion representation. Behavioral validation (does injection change
-    generation tone?) would strengthen the claim.
+    % [STYLE-GUIDE TRIM: vocabulary confound + injection tautology now
+    % addressed in \S\ref{sec:injection} linearity caveat paragraph.]
 
     \item \textbf{Quantization confound in scale trend.} Three
     q4-quantized models (70B, 32B, 7B) are pooled with full-precision
@@ -1117,31 +1134,34 @@ our falsified results:
     anchor (70B) is itself q4. Any scale-invariance or
     ``larger-is-better'' trend is partly a precision trend.
 
-    \item \textbf{30-class emotion chance inflation.} 808 emotion
-    pairs have cosine similarity ${>}0.9$ (astonished/surprised at
-    0.999). Treating near-synonymous emotions as distinct classes
-    inflates the $1/30$ chance baseline. A classifier that confuses
-    astonished$\leftrightarrow$surprised is ``wrong'' by the metric but
-    correct at any meaningful resolution. Binary valence (AUROC~0.992)
-    is the defensible claim; the $12.3\times$-chance numbers conflate
-    label granularity with detection power.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{30-class emotion chance inflation.} 808 emotion
+    % pairs have cosine similarity ${>}0.9$ (astonished/surprised at
+    % 0.999). Treating near-synonymous emotions as distinct classes
+    % inflates the $1/30$ chance baseline. A classifier that confuses
+    % astonished$\leftrightarrow$surprised is ``wrong'' by the metric but
+    % correct at any meaningful resolution. Binary valence (AUROC~0.992)
+    % is the defensible claim; the $12.3\times$-chance numbers conflate
+    % label granularity with detection power.
 
-    \item \textbf{Rank selection not pre-registered.} SVD denoising uses
-    rank-3 for persona and rank-10 for emotion---different ranks for
-    different phenomena, chosen to maximize signal. While within-fold SVD
-    prevents direct overfitting, the per-task rank selection is a
-    researcher degree of freedom. A principled rank criterion (e.g.,
-    Marchenko-Pastur edge, Gavish-Donoho threshold) applied uniformly
-    would strengthen the denoising claims.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Rank selection not pre-registered.} SVD denoising uses
+    % rank-3 for persona and rank-10 for emotion---different ranks for
+    % different phenomena, chosen to maximize signal. While within-fold SVD
+    % prevents direct overfitting, the per-task rank selection is a
+    % researcher degree of freedom. A principled rank criterion (e.g.,
+    % Marchenko-Pastur edge, Gavish-Donoho threshold) applied uniformly
+    % would strengthen the denoising claims.
 
-    \item \textbf{Compass/thermometer complementarity untested.}
-    Spectral features are null for emotion ($0.033$, chance), supporting
-    the claim that the thermometer does not read direction. The reverse
-    test---showing directional projection is null for cognitive mode
-    (deception, confabulation)---has not been conducted. Without this
-    crossed null, the compass/thermometer dichotomy remains a
-    descriptive framework rather than an experimentally validated
-    dissociation.
+    % [STYLE-GUIDE TRIM: folded into Methods/Results]
+    % \item \textbf{Compass/thermometer complementarity untested.}
+    % Spectral features are null for emotion ($0.033$, chance), supporting
+    % the claim that the thermometer does not read direction. The reverse
+    % test---showing directional projection is null for cognitive mode
+    % (deception, confabulation)---has not been conducted. Without this
+    % crossed null, the compass/thermometer dichotomy remains a
+    % descriptive framework rather than an experimentally validated
+    % dissociation.
 \end{enumerate}
 
 \begin{firstperson}
@@ -1173,20 +1193,24 @@ reading internal model state from the KV cache:
 
 \begin{enumerate}[nosep]
     \item \textbf{Raw spectral features} detect cognitive mode:
-    confabulation, deception, ethical deliberation, refusal. These are
+    confabulation, ethical deliberation, refusal. These are
     shape-level signals encoded in the dominant singular values.
 
     \item \textbf{$W_K$ directional projection} detects emotional and
     dispositional state: 30-class emotion at $12.3\times$ chance, binary
-    valence at AUROC~0.992, with injection-verified model-state reading.
-    This is a direction-level signal readable through the architecture's
-    own projection geometry.
+    valence at AUROC~0.992. Because $W_K$ is linear, directional separability
+    in residual-stream space is preserved in key space by construction; the
+    contribution is empirical quantification with controlled baselines, not
+    the existence of directional structure itself.
 
-    \item \textbf{SVD-denoised spectral features} detect content-level
-    structure hidden by dominant scale variance: persona intensity at
-    AUROC~0.899--0.992 (from 0.611--0.751 raw), emotion at $12.9\times$
-    chance (from $1.7\times$ raw). This is a calibration step that removes
-    the spectral ``temperature'' to reveal content-specific ``scent.''
+    \item \textbf{SVD-denoised spectral features} appear to detect
+    content-level structure hidden by dominant scale variance: persona
+    intensity at raw AUROC~0.611--0.751 (denoised 0.899--0.992), emotion
+    at $1.7\times$ chance raw (denoised $12.9\times$). However, the
+    denoising deltas fall within the max-over-rank selection envelope
+    (0/16 exceed it), so the \emph{raw} AUROCs are the defensible numbers
+    and the denoised values are upper bounds pending confirmatory testing
+    with a pre-registered rank criterion.
 \end{enumerate}
 
 The compass reads direction. The calibrated thermometer reads shape. Together,
@@ -1194,11 +1218,13 @@ they provide a vocabulary for reading the geometry of internal model
 state---what the model is \emph{doing} (mode), what it is \emph{encoding}
 (content), and what direction its \emph{internal state} points (disposition).
 
-Every confirmed finding from prior work survives unchanged or
-strengthened. Every genuine null receives a mechanistic explanation (emotions
-are direction, not shape; MP thresholding destroys distributed signal).
-Every apparent null that was actually a measurement failure---persona
-intensity, emotion classification---is rescued by the appropriate
+Confirmed findings from prior work survive unchanged or are
+strengthened by the new instruments. One prior claim---within-model deception
+at AUROC~1.000---is retracted after a same-prompt control revealed a
+prompt-template confound. Genuine nulls receive mechanistic explanations
+(emotions are direction, not shape; MP thresholding destroys distributed
+signal). Apparent nulls that were measurement failures---persona
+intensity, emotion classification---are rescued by the appropriate
 instrument.
 
 The Lyra Technique is not one measurement. It is a toolkit. And the toolkit
