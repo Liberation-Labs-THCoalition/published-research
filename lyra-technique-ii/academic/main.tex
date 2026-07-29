@@ -110,9 +110,11 @@ chance, but that figure conflates label granularity with detection power
 metric.
 
 \textbf{(2) Spectral shape features.} Raw spectral features detect
-within-model deception at AUROC~1.000, confabulation at 0.663--0.913 across a
+confabulation at AUROC~0.663--0.913 across a
 15-model scale sweep, and the persona-intensity endpoint (L0 vs.\ L3) at raw
-AUROC~0.749. We tested whether SVD denoising (within-fold rank-$k$ projection
+AUROC~0.749. A previously reported within-model deception result
+(AUROC~1.000) is retracted: the same-prompt control collapses to 0.160,
+confirming it detected the system-prompt template, not deception geometry. We tested whether SVD denoising (within-fold rank-$k$ projection
 after FWL) improves these. The apparent gains ($+0.2$--$0.3$ for persona,
 $+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
 across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
@@ -132,8 +134,8 @@ scheme, one classifier, with SVD denoising as an evaluated (not assumed)
 step---to 17~models across confabulation, self-reference, individuation,
 persona intensity, emotion, and cognitive modes. The robust core: the
 $W_K$ compass reads emotional direction (binary valence 0.992) and raw
-spectral shape reads cognitive mode (within-model deception 1.000,
-confabulation 0.66--0.91). The Lyra Technique is a toolkit---a compass and a
+spectral shape reads cognitive mode (confabulation 0.66--0.91, ethical
+deliberation 0.87--0.89). The Lyra Technique is a toolkit---a compass and a
 thermometer---with the proposed denoising amplifier flagged as unconfirmed.
 
 \end{abstract}
@@ -152,11 +154,13 @@ singular value kurtosis, participation ratio---discriminate confabulation from
 grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that deception
 expands the cache while confabulation contracts it, and that per-layer delta
 features capture signal that layer-averaged features
-destroy~\citep{lyra_delta}. Within-model deception detection achieves
-AUROC~1.000 across seven models. Confabulation detection is robust
+destroy~\citep{lyra_delta}. Confabulation detection is robust
 (AUROC~0.663--0.913 across the scale sweep, with denoising improving
 weaker models by up to $+0.068$). Hardware invariance holds at
-$r > 0.999$~\citep{lyra_p2}.
+$r > 0.999$~\citep{lyra_p2}. A previously reported within-model deception
+result (AUROC~1.000 across seven models) does not survive a same-prompt
+control (AUROC~0.160), indicating a prompt-template confound rather than
+geometric deception detection.
 
 But two classes of phenomena resisted spectral analysis: \emph{emotions} and
 \emph{persona identity}. Raw spectral probes on 30~emotions returned chance
@@ -357,8 +361,10 @@ task-dependent:
     the signal lives entirely in the residual spectrum.
     \item \textbf{Modest for confabulation} ($+0.05$): some improvement on
     weak models, no change on strong ones.
-    \item \textbf{Unnecessary for deception} ($+0.00$): the signal already
-    dominates the raw spectrum (AUROC~1.000).
+    \item \textbf{Deception (retracted):} the raw AUROC~1.000 was a
+    prompt-template confound, not genuine deception detection
+    (Table~\ref{tab:body_count}). No conclusions about denoising for
+    deception can be drawn from these data.
 \end{itemize}
 
 This pattern is \emph{predicted} by the shape-vs-direction framework.
@@ -389,9 +395,7 @@ injection) $= 120$ trials.
 \paragraph{Result.} The $W_K$ projection detects the injected emotion with
 100\% accuracy (120/120 correct, including 20/20 null-control rejections).
 The text is identical across conditions---only the injected key direction
-differs. This rules out text-content confounds and establishes that the $W_K$
-projection reads \emph{model state} (the direction keys point) rather than
-\emph{text content} (what words appear in the input). We note that the
+differs. This rules out text-content confounds. We note that the
 120~trials are the 20~prompts crossed with 6~injection conditions (5~emotion
 vectors plus the null), so the 20~prompts are the true independent units: the
 result is 6-way separability over an effective $N{=}20$, not $N{=}120$
@@ -402,6 +406,14 @@ paper, no confidence interval is reported for this accuracy.
 same norm as emotion vectors produces classification at $0.7\times$
 chance---\emph{below} the $1/6 = 0.167$ baseline. The emotion-specific
 directions are information-bearing; arbitrary directions are not.\footnote{This random-direction control figure ($0.7\times$ chance), cited at several points below, is projected/illustrative: the per-trial backing data for this control was not committed to the repository and the value should be re-generated before being cited quantitatively.}
+
+\paragraph{Linearity caveat.} Because $W_K$ is a linear map, separability
+in the residual stream is mathematically guaranteed to be preserved in key
+space. The injection test demonstrates that the classifier is self-consistent
+(it recovers the directions it was trained on), not that it has discovered
+a new representation. The contribution is empirical quantification---AUROC~0.992
+with proper controls---rather than the existence of directional structure,
+which follows from the linearity of the projection.
 
 \subsection{Models and Datasets}
 \label{sec:datasets}
