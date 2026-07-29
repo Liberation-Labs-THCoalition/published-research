@@ -4,5 +4,13 @@
   "confab_rate": 0.9333333333333333,
   "combined_auroc": 0.9995061728395062,
   "combined_accuracy": 0.9777777777777777,
-  "permutation_p": 0.0
+  "permutation_p": 0.0,
+  "bootstrap_auroc_mean": 0.929,
+  "bootstrap_auroc_ci_95": [
+    0.819,
+    0.989
+  ],
+  "bootstrap_n_resamples": 1000,
+  "bootstrap_note": "Bootstrap with GroupKFold inside each resample (shore_up_tests.py test 4). The combined_auroc field (0.9995) is the in-sample GroupKFold result that does not match the paper headline (0.93). The bootstrap result (0.929 [0.819, 0.989]) matches the paper. See code/shore_up_tests.py for the reproducing analysis.",
+  "STALE_WARNING": "combined_auroc=0.9995 is the retracted in-sample result. The paper reports bootstrap AUROC=0.93 [0.82, 0.98], reproduced by shore_up_tests.py test 4."
 }
