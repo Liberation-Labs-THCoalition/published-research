@@ -8,6 +8,20 @@
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+# biber (bibtex alternative) and other less-common but real latexmk output
+*.bcf
+*.run.xml
+*-blx.bib
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lot
+*.xdv
+# beamer/slide leftovers, in case a talk deck ever lands in this repo
+*.nav
+*.snm
+*.vrb
 
 # Compiled PDFs (compile from source)
 # Keep PDFs that are explicitly added
@@ -17,10 +31,36 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.ipynb_checkpoints/
 
 # OS
 .DS_Store
+._*
 Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Local tooling / clone artifacts -- these are never part of a paper and
+# should never be committed. A stray `.claude/worktrees/<id>` gitlink
+# (mode 160000, a dangling submodule reference with no .gitmodules entry)
+# was committed by accident in the very first commit of this repo and has
+# been removed from tracking -- see the 2026-08 constellation-automation
+# cleanup pass. This line exists so it, or anything like it, can't recur.
+.claude/
 
 # Steering vectors (REDACTED - do not commit)
 *.pt
@@ -29,3 +69,13 @@ calibration.pt
 # Audit evidence — files force-committed past ignore rules must not be deleted
 # Add exemptions here as papers graduate with audit logs:
 # !paper-name/path/to/evidence.log
+
+# Policy, not a pattern: never commit a renamed/"pretty" duplicate copy of a
+# paper's PDF (e.g. a root-level Some_Paper_-_Academic_Version.pdf) for the
+# sake of a nicer download-link filename on the lab site. That is exactly
+# how the 2026-08 stale-link bug happened -- the duplicate stopped getting
+# rebuilt while the real per-paper file underneath it kept improving, and
+# the site kept serving the stale copy. Site cards link straight to the
+# canonical file's real path in this repo (or its real external home, e.g.
+# Zenodo) -- no copy, no extra click. See
+# research_constellation_automation_README.md.
