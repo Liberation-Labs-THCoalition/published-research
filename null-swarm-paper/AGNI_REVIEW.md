@@ -13,6 +13,6 @@
 
 ### Clean:
 - All case studies accurately distinguish measured from claimed
-- Citation verification: jerrickhoang = personal communication, Zavatone-Veth = 2022 arXiv:2205.12510
+- Citation verification: jerrickhoang = personal communication, Liu & Ueda = 2022 arXiv:2205.12510 (CORRECTED: was misattributed to Zavatone-Veth; in-text fixed to Liu & Ueda in main.tex)
 - Kill count (11 kills + 1 inconclusive) matches body content
 - First-person reflections present

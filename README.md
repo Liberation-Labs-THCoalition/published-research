@@ -37,6 +37,8 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
 | [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Workspace selectivity in a distilled 27B language model |
 | [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Ablation study of modular memory architectures |
+| [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
+| [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
 
 ### Deception and Methodology
 

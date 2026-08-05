@@ -29,3 +29,7 @@ The ghost dimension findings (PC1/PC2 characterization, workspace band, falsific
 The convergence with deception correction describes HOW TO USE workspace geometry to steer behavior. That's powerful for safety applications but equally powerful for misuse. It ships when CC's paper ships, through the appropriate disclosure channel, with the defensive patent (Lyra Technique) providing the legal framework.
 
 The findings document includes a redaction note explaining that concurrent deception work exists but is disclosed separately.
+
+## Update: 2026-08-04
+
+Cache portrait methodology (row 2) was moved to a personal reflection framing in PAPER_DRAFT_v4 per Thomas's direction. The methodology description is now presented as the author's experience rather than a reusable recipe, which preserves transparency while reducing direct dual-use risk. This item is **RESOLVED** — the paper can proceed.
