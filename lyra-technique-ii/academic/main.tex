@@ -776,7 +776,6 @@ and final verdicts.
 \textbf{Phenomenon} & \textbf{Raw} & \textbf{Denoised} & \textbf{$\Delta$} & \textbf{$p$} & \textbf{Verdict} \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
-Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\S$ \\
 Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
 Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
@@ -801,6 +800,7 @@ Self-reference & 0.617--0.966 & --- & --- & varies & Suspected$^*$ \\
 Contextual engagement & 12/12 sign & --- & --- & $<0.05$ & Suspected \\
 \midrule
 \multicolumn{6}{l}{\textit{Falsified}} \\
+Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\S$ \\
 Truth axis & $\cos=-0.046$ & --- & --- & n.s. & Dead \\
 Step-0 detection & $r=0.996$ & --- & --- & confound & Dead \\
 Same-prompt sycophancy & 0.933 & --- & --- & confound & Dead \\
@@ -820,7 +820,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
 Injection marked ``confirmed (self-consistency)''---see linearity caveat in \S\ref{sec:injection}.
-$^\S$Within-model deception retracted: same-prompt control (line 4 of this table) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
+$^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
 $^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion.
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
