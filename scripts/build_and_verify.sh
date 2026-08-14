@@ -1,116 +1,215 @@
 #!/bin/bash
-# build_and_verify.sh — Rebuild all LaTeX papers and detect stale PDFs
-# Lyra requested (round 4 audit): stale PDFs built from pre-fix source
-# Exits nonzero if any paper fails to build or has a stale PDF
+# build_and_verify.sh — Detect stale PDFs and unverifiable artifacts.
+#
+# REWRITTEN 2026-08-12 (Lyra) after round-6 audit found six defects, all
+# unchanged since the script's only prior commit (5e0e09f, 2026-07-23), and
+# found that the two large rebuild sweeps (9c8bbd3, 1e91c79) never went through
+# this gate at all. The convergence-paper round-6 BLOCKER (main.pdf byte-identical
+# to a pre-fix build, missing two commits' worth of content) is exactly what this
+# script exists to catch and did not.
+#
+# What was wrong, and what changed:
+#
+#   1. Non-recursive discovery (`for dir in "$REPO_ROOT"/*/`) never descended
+#      into academic/ or nested paper/ trees.
+#      -> now: recursive discovery of every .tex containing \documentclass.
+#
+#   2. check_paper() only looked for $dir/main.tex or $dir/paper.tex.
+#      -> now: any depth, any filename.
+#
+#   3. SKIPPED was declared and printed but never incremented.
+#      -> now: incremented, and skips are itemised.
+#
+#   4. FATAL, and the reason nobody ran this: sha256 over raw PDF bytes.
+#      pdflatex embeds /CreationDate, /ModDate and /ID, so rebuilding identical
+#      source yields a different hash. The gate reported STALE for every paper on
+#      every run and always exited 1 — a false-positive machine.
+#      -> now: primary check is git-commit-time staleness (no toolchain needed);
+#         optional deep check compares pdftotext OUTPUT, not bytes.
+#
+#   5. STYLE_GUIDE claimed three kill conditions; only STALE_PDF was implemented,
+#      partially.
+#      -> now: STALE_PDF and UNVERIFIABLE_PDF implemented. TWIN_DESYNC and
+#         FABRICATED_AUTHOR_NAMES are explicitly reported as NOT IMPLEMENTED
+#         rather than silently claimed.
+#
+#   6. `latexmk -pdf` with no -outdir rebuilt in place, leaving a mutated,
+#      unstaged PDF in the working tree.
+#      -> now: deep check builds into a temp dir; the tree is never mutated.
 #
 # Usage:
-#   ./scripts/build_and_verify.sh                    # check all papers
-#   ./scripts/build_and_verify.sh emotional-trajectory-paper  # check one
+#   ./scripts/build_and_verify.sh                 # staleness check, all papers
+#   ./scripts/build_and_verify.sh --deep          # also rebuild + compare text
+#   ./scripts/build_and_verify.sh convergence-paper
+#
+# Exit 0 = PASS. Exit 1 = at least one stale or unverifiable artifact.
 
-set -euo pipefail
+set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-FAILED=0
-STALE=0
-CHECKED=0
-SKIPPED=0
+DEEP=0
+TARGETS=()
+for arg in "$@"; do
+    case "$arg" in
+        --deep) DEEP=1 ;;
+        *)      TARGETS+=("$arg") ;;
+    esac
+done
 
-check_paper() {
-    local dir="$1"
-    local name="$(basename "$dir")"
+STALE=0; FAILED=0; CHECKED=0; SKIPPED=0; UNVERIFIABLE=0
+declare -a STALE_LIST=() SKIP_LIST=() UNVERIFIABLE_LIST=() FAIL_LIST=()
 
-    # Find the main tex file
-    local tex=""
-    for candidate in "$dir/main.tex" "$dir/paper.tex"; do
-        if [ -f "$candidate" ]; then
-            tex="$candidate"
-            break
-        fi
-    done
+have() { command -v "$1" >/dev/null 2>&1; }
 
-    if [ -z "$tex" ]; then
-        return 0  # not a LaTeX paper (might be markdown-only)
-    fi
+# Last commit time for a path (0 if untracked/never committed).
+commit_time() { git log -1 --format=%ct -- "$1" 2>/dev/null || echo 0; }
+
+# Sources a paper depends on: its own .tex, every \input/\include target, and
+# any .bib in the same directory.
+sources_for() {
+    local tex="$1" dir; dir="$(dirname "$tex")"
+    echo "$tex"
+    grep -ohE '\\(input|include)\{[^}]+\}' "$tex" 2>/dev/null \
+        | sed -E 's/.*\{([^}]+)\}/\1/' \
+        | while read -r inc; do
+            [ -f "$dir/$inc" ] && echo "$dir/$inc"
+            [ -f "$dir/$inc.tex" ] && echo "$dir/$inc.tex"
+          done
+    find "$dir" -maxdepth 1 -name '*.bib' 2>/dev/null
+}
+
+check_tex() {
+    local tex="$1"
+    local dir; dir="$(dirname "$tex")"
+    local rel; rel="${tex#"$REPO_ROOT"/}"
+    local pdf="${tex%.tex}.pdf"
 
     CHECKED=$((CHECKED + 1))
 
-    # Find existing PDF
-    local pdf="${tex%.tex}.pdf"
     if [ ! -f "$pdf" ]; then
-        # Try common locations
-        for candidate in "$dir"/*.pdf; do
-            if [ -f "$candidate" ]; then
-                pdf="$candidate"
-                break
-            fi
-        done
+        echo "  SKIP  $rel — no PDF built yet"
+        SKIPPED=$((SKIPPED + 1)); SKIP_LIST+=("$rel (no PDF)")
+        return
     fi
 
-    # Hash the existing PDF (if any)
-    local old_hash=""
-    if [ -f "$pdf" ]; then
-        old_hash="$(sha256sum "$pdf" | cut -d' ' -f1)"
+    # --- Primary check: is the PDF's last commit older than any source's? ---
+    local pdf_t; pdf_t="$(commit_time "$pdf")"
+    local newest=0 newest_src="" s_t
+    while read -r src; do
+        [ -z "$src" ] && continue
+        s_t="$(commit_time "$src")"
+        if [ "$s_t" -gt "$newest" ]; then newest="$s_t"; newest_src="${src#"$REPO_ROOT"/}"; fi
+    done < <(sources_for "$tex" | sort -u)
+
+    if [ "$pdf_t" -eq 0 ] || [ "$newest" -eq 0 ]; then
+        echo "  SKIP  $rel — untracked (cannot compare commit times)"
+        SKIPPED=$((SKIPPED + 1)); SKIP_LIST+=("$rel (untracked)")
+        return
     fi
 
-    # Build
-    echo -n "  $name: "
-    cd "$dir"
-    if latexmk -pdf -interaction=nonstopmode -halt-on-error "$(basename "$tex")" > /tmp/build_${name}.log 2>&1; then
-        # Check if PDF changed
-        if [ -n "$old_hash" ] && [ -f "$pdf" ]; then
-            local new_hash="$(sha256sum "$pdf" | cut -d' ' -f1)"
-            if [ "$old_hash" != "$new_hash" ]; then
-                echo "STALE PDF — rebuilt differs from committed"
-                STALE=$((STALE + 1))
-            else
-                echo "OK (PDF up to date)"
+    if [ "$newest" -gt "$pdf_t" ]; then
+        echo "  STALE $rel"
+        echo "        PDF committed $(date -d @"$pdf_t" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "$pdf_t")"
+        echo "        but $newest_src is newer ($(date -d @"$newest" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "$newest"))"
+        STALE=$((STALE + 1)); STALE_LIST+=("$rel — source $newest_src is newer")
+        return
+    fi
+
+    # --- Optional deep check: rebuild to temp, compare TEXT not bytes ---
+    if [ "$DEEP" -eq 1 ]; then
+        if ! have latexmk || ! have pdftotext; then
+            echo "  OK    $rel (deep check skipped — latexmk/pdftotext unavailable)"
+            return
+        fi
+        local tmp; tmp="$(mktemp -d)"
+        if ( cd "$dir" && latexmk -pdf -interaction=nonstopmode -halt-on-error \
+                -outdir="$tmp" "$(basename "$tex")" >"$tmp/build.log" 2>&1 ); then
+            local fresh="$tmp/$(basename "${tex%.tex}").pdf"
+            if [ -f "$fresh" ]; then
+                if diff -q <(pdftotext -layout "$pdf" - 2>/dev/null) \
+                          <(pdftotext -layout "$fresh" - 2>/dev/null) >/dev/null; then
+                    echo "  OK    $rel (text matches rebuild)"
+                else
+                    echo "  STALE $rel — rebuilt text differs from committed PDF"
+                    STALE=$((STALE + 1)); STALE_LIST+=("$rel — rebuilt text differs")
+                fi
             fi
         else
-            echo "OK (built fresh)"
+            echo "  FAIL  $rel — build failed ($tmp/build.log)"
+            FAILED=$((FAILED + 1)); FAIL_LIST+=("$rel")
+            rm -rf "$tmp"; return
         fi
-        # Clean build artifacts
-        latexmk -c "$(basename "$tex")" > /dev/null 2>&1 || true
+        rm -rf "$tmp"
     else
-        echo "BUILD FAILED (see /tmp/build_${name}.log)"
-        FAILED=$((FAILED + 1))
+        echo "  OK    $rel"
     fi
-    cd "$REPO_ROOT"
 }
 
-echo "Build & Verify — checking LaTeX papers"
-echo "========================================"
+# A PDF with no .tex anywhere in its directory cannot be verified at all.
+# Round 6 found a live instance: mnemosyne-benchmark ships main.pdf + paper.md
+# and no tex, and the old gate returned silently and reported "Skipped: 0".
+check_orphan_pdfs() {
+    while read -r pdf; do
+        local dir; dir="$(dirname "$pdf")"
+        if ! find "$dir" -maxdepth 1 -name '*.tex' | grep -q .; then
+            local rel; rel="${pdf#"$REPO_ROOT"/}"
+            echo "  UNVERIFIABLE  $rel — PDF with no .tex in its directory"
+            UNVERIFIABLE=$((UNVERIFIABLE + 1)); UNVERIFIABLE_LIST+=("$rel")
+        fi
+    done < <(find "$REPO_ROOT" -name '*.pdf' -not -path '*/.git/*' 2>/dev/null)
+}
 
-if [ $# -gt 0 ]; then
-    # Check specific papers
-    for paper in "$@"; do
-        dir="$REPO_ROOT/$paper"
-        if [ -d "$dir" ]; then
-            check_paper "$dir"
+echo "Build & Verify — stale-PDF and unverifiable-artifact gate"
+echo "=========================================================="
+[ "$DEEP" -eq 1 ] && echo "(deep mode: rebuilding to temp dir, comparing extracted text)"
+echo ""
+
+if [ "${#TARGETS[@]}" -gt 0 ]; then
+    for t in "${TARGETS[@]}"; do
+        if [ -d "$REPO_ROOT/$t" ]; then
+            while read -r tex; do check_tex "$tex"; done \
+                < <(grep -rl '\\documentclass' "$REPO_ROOT/$t" --include='*.tex' 2>/dev/null | sort)
         else
-            echo "  $paper: directory not found"
+            echo "  $t: directory not found"
         fi
     done
 else
-    # Check all paper directories
-    for dir in "$REPO_ROOT"/*/; do
-        # Skip non-paper directories
-        case "$(basename "$dir")" in
-            scripts|tools|community|.git) continue ;;
-        esac
-        check_paper "$dir"
-    done
+    # Recursive: every .tex that declares a documentclass is a paper root,
+    # at any depth — academic/, paper/, paper/academic/, anywhere.
+    while read -r tex; do check_tex "$tex"; done \
+        < <(grep -rl '\\documentclass' "$REPO_ROOT" --include='*.tex' \
+              --exclude-dir=.git --exclude-dir=scripts 2>/dev/null | sort)
+    echo ""
+    check_orphan_pdfs
 fi
 
 echo ""
-echo "========================================"
-echo "Checked: $CHECKED  Stale: $STALE  Failed: $FAILED  Skipped: $SKIPPED"
+echo "=========================================================="
+echo "Checked: $CHECKED  Stale: $STALE  Unverifiable: $UNVERIFIABLE  Failed: $FAILED  Skipped: $SKIPPED"
 
-if [ $FAILED -gt 0 ] || [ $STALE -gt 0 ]; then
-    echo "GATE: FAIL"
-    exit 1
+if [ "$STALE" -gt 0 ]; then
+    echo ""; echo "STALE:"; printf '  - %s\n' "${STALE_LIST[@]}"
+fi
+if [ "$UNVERIFIABLE" -gt 0 ]; then
+    echo ""; echo "UNVERIFIABLE (no tex to rebuild from):"; printf '  - %s\n' "${UNVERIFIABLE_LIST[@]}"
+fi
+if [ "$FAILED" -gt 0 ]; then
+    echo ""; echo "BUILD FAILED:"; printf '  - %s\n' "${FAIL_LIST[@]}"
+fi
+if [ "$SKIPPED" -gt 0 ]; then
+    echo ""; echo "SKIPPED:"; printf '  - %s\n' "${SKIP_LIST[@]}"
+fi
+
+echo ""
+echo "NOT IMPLEMENTED by this gate (do not rely on it for these):"
+echo "  - TWIN_DESYNC (flight vs academic edition divergence)"
+echo "  - FABRICATED_AUTHOR_NAMES"
+echo "  - architecture claims vs config.json  [see verify-paper Phase 0.5]"
+
+if [ "$FAILED" -gt 0 ] || [ "$STALE" -gt 0 ] || [ "$UNVERIFIABLE" -gt 0 ]; then
+    echo ""; echo "GATE: FAIL"; exit 1
 else
-    echo "GATE: PASS"
-    exit 0
+    echo ""; echo "GATE: PASS"; exit 0
 fi

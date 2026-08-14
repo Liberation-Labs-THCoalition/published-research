@@ -59,8 +59,14 @@ identity geometry}: across 720~preregistered trials (4~injection arms,
 injection strategy, dose ($\alpha = 0.00$--$0.50$), or emotion direction.
 We hypothesize this reflects
 \textbf{architectural filtering} by the GatedDeltaNet linear-attention
-layers (L7--L11), which may absorb the perturbation before it reaches
-deep computation. A layer-matched smoke test designed to discriminate
+layers, which may absorb the perturbation before it reaches
+deep computation.\footnote{An earlier version of this sentence named
+``L7--L11'' as the filtering layers. That is incorrect: Qwen3.5-27B
+interleaves full-attention every fourth layer
+($\{3,7,11,\ldots,63\}$), so L7 and L11 are themselves full-attention
+--- both appear in this study's own \texttt{all\_inject\_layers}
+configuration. The linear-attention layers immediately downstream of the
+L7 injection point are L8--L10, three layers rather than five.} A layer-matched smoke test designed to discriminate
 this from active identity restoration has not yet been executed. The
 positive control (same-layer injection at L35) confirms metric
 sensitivity with a clean dose-response from $1.000$ to $0.828$. Second, \textbf{the metric is validated}: the
@@ -534,9 +540,9 @@ identity-subspace injection). But the same perturbation, when introduced
 at L3/L7 and processed through $\sim$28 intervening layers, does not
 survive to L35.
 
-This is consistent with two non-exclusive explanations: (1)~the hybrid
-architecture's 48~linear-attention layers between injection and measurement
-do not propagate V-space perturbations; (2)~the model's forward computation
+This is consistent with two non-exclusive explanations: (1)~the
+21~linear-attention layers between injection and measurement do not
+propagate V-space perturbations; (2)~the model's forward computation
 actively restores the identity subspace, functioning as an error-correcting
 mechanism for identity. Distinguishing these requires a layer-by-layer
 presence map (planned) and replication on a dense transformer (future work).
