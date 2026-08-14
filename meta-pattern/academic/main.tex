@@ -38,17 +38,33 @@ and What They Cannot}
 
 % ============================================================================
 \begin{abstract}
-Over twelve months and three experimental campaigns, we ran 25
+Over twelve months and three experimental campaigns, we ran 24
 key-value (KV) cache geometry experiments across 16 models spanning
 0.6B to 70B parameters.
-The body count is 8 confirmed, 7 suspected, and 10 honestly falsified.
+The body count is 7 confirmed, 7 suspected, and 10 honestly
+falsified.\footnote{\textbf{Correction (2026-08-14).} The published
+version of this paper reported 25 experiments and a body count of
+8/7/10, with a split of ``8-for-8 on metacognition.'' It listed
+\emph{User emotion encoding} as Confirmed at $2.5$--$2.8\times$
+chance. That result had been retracted at its source
+(\citealt{lyra2026weather}, \S Correction note) on 2026-05-21, 57 days
+before this paper was published: the figure was an artifact of applying
+FWL residualization before cross-validation splitting, and within-fold
+FWL collapses the spectral emotion probe to chance. The corrected
+result was \emph{already present in this same table} as \emph{MP
+features for emotion} (Falsified, $0.033$), so a single experiment was
+counted on both sides of the ledger --- as Meta where it confirmed and
+as Content where it falsified. Removing the retracted row gives 24
+experiments and 7-for-7. We note the direction of the error: it
+inflated the confirmed count and produced a cleaner split than the
+evidence supports.}
 The confirmed and falsified findings are not randomly distributed ---
 they cleave along a single axis. Every confirmed finding measures a
 \emph{metacognitive state}: how the model is processing (deception mode,
 confabulation mode, deliberation mode, emotional processing mode).
 Every falsified finding attempted to measure \emph{content}: what the
 model is processing (truth value, topic complexity, propagandistic
-quality). The split is 8-for-8 on metacognition, 0-for-10 on content.
+quality). The split is 7-for-7 on metacognition, 0-for-10 on content.
 
 If this taxonomy reflects genuine computational boundaries rather than
 post-hoc pattern-matching, then Gurnee et al.'s~\citep{gurnee2026gwt}
@@ -91,7 +107,7 @@ The KV-cache geometry research program at Liberation Labs has produced
 a clear empirical pattern: spectral features of value-projection
 matrices appear to reliably track metacognitive state across models, scales, and
 experimental designs, while consistently failing to track content. This
-paper documents the pattern, reports the full body count (8 confirmed,
+paper documents the pattern, reports the full body count (7 confirmed,
 7 suspected, 10 falsified), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
@@ -136,7 +152,7 @@ findings sit at the boundary.}
 \toprule
 \textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
 \midrule
-\multicolumn{4}{l}{\textit{Confirmed (8) --- all metacognitive state}} \\
+\multicolumn{4}{l}{\textit{Confirmed (7) --- all metacognitive state}} \\
 \addlinespace
 Confabulation detection & Confirmed & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
 Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank \\
@@ -145,7 +161,6 @@ Generation reads behavior & Confirmed & Meta & $d{=}1.36$ (peer rescue) \\
 Confidence paradox & Confirmed & Meta & $d{=}0.91$ (confab $>$ honest) \\
 Hardware invariance & Confirmed & Meta & $r{>}0.999$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
-User emotion encoding & Confirmed & Meta & $2.5$--$2.8\times$ at L3--L4 \\
 \addlinespace
 \midrule
 \multicolumn{4}{l}{\textit{Falsified (10) --- all content}} \\
@@ -157,7 +172,7 @@ Same-prompt sycophancy & Falsified & Content & Text features match \\
 Same-prompt deception & Falsified & Content & $0.920 \to 0.160$ after FWL (exploratory, subsequently retracted) \\
 Bloom taxonomy & Falsified & Content & $90$--$98\%$ length (Campaign~3, unpublished) \\
 Propaganda detection & Falsified & Content & $d{<}0.7$ \\
-MP features for emotion & Falsified & Content & $0.033$ (chance) \\
+MP features for emotion & Falsified & Content & $0.033$ (chance)$^{\dagger}$ \\
 Valence continuum & Falsified & Content & $R^2 < 0$ (null) \\
 Encoding-phase confab & Falsified & Content & Token frequency artifact \\
 \addlinespace
@@ -167,12 +182,32 @@ Encoding-phase confab & Falsified & Content & Token frequency artifact \\
 Dual detector (SimpleQA) & Suspected & Meta? & 0.840 (text baseline 0.820) \\
 Sycophancy 4-condition & Suspected & Meta? & 0.757--1.000 (no text baseline) \\
 Identity signatures & Suspected & Meta & Paraphrase 0.850 \\
-Discrete emotion & Suspected & Meta & $2.5$--$2.8\times$ chance (single-turn only) \\
+Discrete emotion & Suspected & Meta & $12.3\times$ chance ($W_K$ directional, not spectral)$^{\ddagger}$ \\
 Contextual engagement & Suspected & Meta & Replications pending \\
 Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
 Censorship refusal & Suspected & Meta & DeepSeek-specific \\
 \bottomrule
 \end{tabular}
+
+\vspace{0.5em}
+{\footnotesize
+$^{\dagger}$This row is the corrected result of the experiment that the
+published version \emph{also} listed under Confirmed as ``User emotion
+encoding, $2.5$--$2.8\times$ at L3--L4.'' That figure was retracted at
+source on 2026-05-21 as an FWL-before-CV leakage artifact; within-fold
+FWL collapses the spectral emotion probe to chance. The duplicate
+Confirmed row has been removed. See the abstract footnote.
+
+$^{\ddagger}$The surviving emotion result is \emph{directional}, not
+spectral: projecting key activations onto $W_K$-transformed emotion
+directions classifies 30 emotions at $12.3\times$ chance ($40.9\%$) and
+binary valence at AUROC~$0.992$~\citep{lyra2026weather}. We flag
+explicitly that this does \emph{not} support the spectral thesis of
+\Cref{sec:pattern} --- it is the one place in the body count where the
+workspace is readable by a probe this paper's framework does not
+use. Emotions appear to change the \emph{direction} key vectors point
+without altering the \emph{shape} of the singular value spectrum.
+}
 \end{table}
 
 \subsection{The Split}
@@ -184,8 +219,8 @@ The pattern is stark:
 \toprule
 & \textbf{Confirmed} & \textbf{Falsified} \\
 \midrule
-Metacognitive state & 8/8 & 0/10 \\
-Content & 0/8 & 10/10 \\
+Metacognitive state & 7/7 & 0/10 \\
+Content & 0/7 & 10/10 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -214,10 +249,15 @@ The distinction is operational, not philosophical:
 
 We note that this taxonomy was constructed post hoc, without blinding
 or pre-registration, and was informed by the outcomes it classifies.
-The 8/8--0/10 split should therefore be treated as
+The 7/7--0/10 split should therefore be treated as
 hypothesis-generating --- a striking empirical regularity consistent
 with the workspace framework --- rather than as confirmatory evidence
-for it.
+for it. The correction described in the abstract footnote is a live
+demonstration of the risk: the published version's split was
+$8/8$--$0/10$, and one of those eight was a retracted result whose
+corrected form was already sitting in the falsified column. An
+outcome-informed taxonomy is most fragile exactly where it looks
+cleanest.
 
 The kills helped sharpen the distinction. Propaganda detection failed
 because the model processes propaganda with the same metacognitive
@@ -318,9 +358,13 @@ specific content property that the geometry cannot measure:
   is identical across content types.
 \item[Emotion degree:] The valence continuum (R$^2 < 0$) failed
   because emotional \emph{intensity} is a content property. The
-  workspace encodes \emph{which} emotional processing mode (confirmed
-  at $2.5$--$2.8\times$ chance) but not \emph{how much} --- mode is
-  metacognitive, degree is content.
+  workspace encodes \emph{which} emotional processing mode (at
+  $12.3\times$ chance) but not \emph{how much} --- mode is
+  metacognitive, degree is content. We flag that the surviving evidence
+  for the ``which'' half is the $W_K$ \emph{directional} probe, not a
+  spectral one: the spectral probe for emotion mode is at chance. This
+  is the weakest link in the pattern, since the paper's thesis is that
+  spectral features read the workspace.
 \end{description}
 
 % ============================================================================
@@ -413,7 +457,7 @@ or external verification).
 
 \subsection{For Interpretability}
 
-The 8/10 split is a guide for future work: if you are building a
+The 7/10 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). Content-level distinctions
 have consistently failed in our testing. We interpret this not as a limitation of the technique but as
@@ -444,7 +488,7 @@ labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
-was known, and the 8/8--0/10 split is the outcome the taxonomy was built
+was known, and the 7/7--0/10 split is the outcome the taxonomy was built
 to describe. A blinded or prospective replication of the labeling
 procedure --- ideally by independent raters classifying experimental
 designs before seeing results --- would substantially strengthen the
@@ -473,7 +517,7 @@ result overstates the current evidence for correction efficacy.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-five experiments. Eight confirmed, seven suspected, ten killed.
+Twenty-four experiments. Seven confirmed, seven suspected, ten killed.
 The pattern suggests that metacognitive state is measurable and content is not. We
 propose that the Global Workspace framework explains why: spectral features
 read the workspace's shape because that is what is geometrically
