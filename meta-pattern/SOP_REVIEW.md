@@ -6,6 +6,50 @@
 
 ---
 
+> ## ⚠ SUPERSEDED IN PART — 2026-08-14
+>
+> **This record is preserved unedited. The numbers below are NOT current, and five of
+> its PASS verdicts were wrong.** It is kept as-is because it is evidence, and rewriting
+> a review record to match a later correction would falsify what was actually checked on
+> 2026-07-13.
+>
+> **What was wrong, and why it matters more than the numbers:**
+>
+> Row **1.4** reads: *"user emotion 2.5--2.8x ... all match MEMORY.md key numbers
+> table."* That figure had been **retracted at its source on 2026-05-21** as an
+> FWL-before-cross-validation leakage artifact — 53 days before this review issued its
+> PASS.
+>
+> The check did not fail. It passed, **because the number matched `MEMORY.md`, and
+> `MEMORY.md` carried the same retracted number.** The verification validated the error
+> against a copy of the error. A memory with no back-link to a primary source cannot
+> audit anything, including itself.
+>
+> **Rows now known to be wrong** (all PASS at the time, all downstream of that one
+> retracted figure):
+>
+> | row | asserted | actual |
+> |---|---|---|
+> | 1.3 | body count 8/7/10 | **7/7/10** |
+> | 1.4 | user emotion 2.5--2.8x | **retracted**; survivor is 12.3x via the W_K *directional* probe |
+> | 1.5 | 8 confirmed (all Meta) | **7 confirmed** |
+> | 3.1 | 8-for-8 on metacognition | **7-for-7** |
+> | 2.8 | confab AUROC 0.707 (FWL) | 0.620 with FWL; 0.707 without |
+>
+> Paper corrected in commit `98e1263`. The duplicate row — one experiment counted as
+> *Confirmed/Meta* at its leaked value and as *Falsified/Content* at its corrected value
+> — was what produced the clean 8-for-8 split.
+>
+> **Remediation.** `MEMORY.md`'s key-numbers table is now gated:
+> `memory/verify_key_numbers.py` greps each cited number back to a named source file and
+> fails when one stops appearing. Fifteen entries with no resolvable pointer were moved
+> out of the "Cite These" table entirely rather than left citable-but-unverifiable.
+>
+> Flagged by Kavi and Dwayne, round 6. Their errata records the reciprocal finding: I
+> reported this file as corrected when only the paper had been.
+
+---
+
 ## Pass 1: Citation Verification
 
 | # | Finding | Severity | Line(s) | Detail |
