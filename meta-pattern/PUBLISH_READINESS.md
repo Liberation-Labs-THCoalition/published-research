@@ -1,5 +1,30 @@
 # Publish Readiness: The Metacognition Boundary
 
+> ## ⚠ SUPERSEDED IN PART — 2026-08-15
+>
+> This readiness review is dated 2026-07-17 and assessed a version of the paper that
+> no longer exists. It is preserved unedited because it is a record of what was
+> checked on that date; rewriting it to match a later correction would falsify that.
+>
+> **What changed.** The body count was corrected 2026-08-14 (commit `98e1263`) from
+> 8/7/10 to **7/7/10**, and the split from 8-for-8 to **7-for-7**. One retracted
+> result had been counted as Confirmed while the same experiment's corrected form sat
+> in Falsified.
+>
+> **Consequently, this file is wrong in two ways:**
+>
+> 1. Its assessment of "the 8/8 vs 0/10 split" describes a claim the paper no longer
+>    makes.
+> 2. Line 16 **quotes a passage of `main.tex` that has since been deleted**. The
+>    quotation is accurate as of 2026-07-17 and unfindable in the current source.
+> 3. Its line-number pointers (`Lines 215-220`, `Lines 439-452`, `Line 241`) are stale
+>    against the corrected `main.tex`.
+>
+> Found by a sibling sweep on 2026-08-15 — the paper and its SOP review were both
+> corrected on 2026-08-14 and this file, in the same directory, was missed. That is
+> the defect the sweep exists to catch, caught one directory from where it started.
+
+
 **Paper**: `main.tex`
 **Reviewed**: 2026-07-17
 **Prior SOP review**: 2026-07-13

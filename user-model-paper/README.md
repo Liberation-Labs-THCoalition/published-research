@@ -36,6 +36,10 @@ Key findings:
 
 ## Key Numbers (Verified Against Source JSON)
 
+> **⚠ RETRACTED ROW — corrected 2026-08-15.** The `Enc peak accuracy` row below (`0.094 (2.8x)` / `0.084 (2.5x)`) is the **retracted** spectral emotion result. It was an artifact of applying FWL residualization *before* cross-validation splitting; within-fold FWL collapses the spectral emotion probe to chance (0.033). See the Correction note in `paper/main.tex`. The surviving result is the **W_K directional** probe at **12.3x chance (40.9% on 30 classes)**, valence AUROC 0.992 — a different probe, not a revision of this one.
+>
+> The row is left in place rather than deleted so the retraction is legible. **Do not cite it.** This README carried it under a "Verified" heading for 86 days after the paper itself published the retraction.
+
 | Metric | Qwen | Mistral |
 |--------|------|---------|
 | Enc peak layer | L3 (depth 0.05) | L4 (depth 0.13) |

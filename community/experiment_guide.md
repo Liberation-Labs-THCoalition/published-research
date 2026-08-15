@@ -41,7 +41,7 @@ MP correction is essential: it separates genuine geometric structure from random
 
 ## Before You Start: The Rules
 
-These were learned the hard way. 50+ experiments, 8 falsified findings, and a Kavi adversarial audit of 135 claims.
+These were learned the hard way — across 50+ experiments, a long list of honestly falsified findings, and a Kavi adversarial audit of 135 claims. (An earlier version gave a count here; see the note under Rule 7 on why this guide no longer restates one.)
 
 ### Rule 1: FWL Everything
 
@@ -113,7 +113,9 @@ We use Dwayne Wilkes' red team pipeline (available to community researchers). Th
 
 ### Rule 7: Report What Died
 
-Our body count: 9 confirmed, 7 suspected, **8 falsified**. The falsified findings are as important as the confirmed ones. If your experiment produces a null result, that's a finding. Report it.
+The falsified findings matter as much as the confirmed ones. If your experiment produces a null result, that's a finding. Report it.
+
+> **On body counts.** This guide used to state one here ("9 confirmed, 7 suspected, 8 falsified"). It was written on 2026-04-28 and never updated, and when we traced it on 2026-08-15 we could not find any enumerated ledger that totals those numbers — it corresponded to no list we could locate. The current audited count lives in the meta-pattern paper's body-count table, which carries its own correction history. **A count restated in a second document is a count that will go stale.** We are not putting a new one here; follow the paper.
 
 ## Your First Experiment (Template)
 
@@ -338,7 +340,7 @@ These are experiments from our queue that community researchers could take on:
 | Red team pipeline (Dwayne's playbook + agents) | On request | Dwayne |
 | Beast GPU (3× RTX 3090) | Scheduled access | Thomas |
 | Research wiki (178 nodes, 97 experiments indexed) | MTH Tailscale | Lyra |
-| Key numbers and body count | Wiki or this guide | — |
+| Key numbers and body count | The relevant paper's own table (NOT this guide) | — |
 
 ## How to Submit Findings
 
