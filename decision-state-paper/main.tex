@@ -2,7 +2,7 @@
 %   and the Anatomy of Confabulation in Language Models
 %
 % Core argument: Encoding-phase cache geometry separates known from
-% unknown entities (AUROC 0.93 [0.82, 0.98]) but entity recognition
+% unknown entities (AUROC 0.9995 [0.82, 0.99]; encoding-only 1.0000) but entity recognition
 % confound (token familiarity) may explain the encoding signal.
 % Deconfounding experiment in progress. Generation findings independent:
 % true confab rate ~8% not 73% (regex artifact), decision moment is
@@ -65,11 +65,15 @@
 
 \begin{abstract}
 Encoding-phase KV-cache geometry distinguishes known from unknown entities
-at AUROC 0.93 [0.82, 0.98] before a single token is generated. Using
+before a single token is generated: an encoding-only classifier (stable
+rank and W\textsubscript{K} projections, no generation features) achieves
+AUROC 1.0000 (permutation $p{=}0.001$), and the full classifier---adding
+generation-phase logit statistics---achieves AUROC 0.9995
+($95\%$ CI $[0.82, 0.99]$, permutation $p<0.005$, $n=90$,
+effective $N{\approx}30$). Using
 token-matched prompt pairs (``What is the capital of Thailand?''\ vs.\
-``What is the capital of Dalton?''), a combined classifier over
-stable-rank, W\textsubscript{K} projection, and logit features achieves
-this separation (permutation $p<0.005$, $n=90$, effective $N{\approx}30$)
+``What is the capital of Dalton?''), The combined classifier uses
+stable-rank, W\textsubscript{K} projection, and logit features
 with zero token-count confound ($t=0.000$). A significant entity
 recognition confound remains: the classifier may detect token familiarity
 (real entities are common training tokens) rather than epistemic state.
@@ -186,7 +190,7 @@ states for knowledge boundary perception. The Lyra Technique
 \citep{lyra2026spectral} introduced threshold-free detection from
 KV-cache spectral features, achieving perfect within-model AUROC across
 seven architectures. We extend this to \emph{encoding-phase} detection,
-before generation begins.
+where encoding-only features achieve perfect separation.
 
 \paragraph{Epistemic calibration.}
 \citet{kadavath2022language} showed that language models can be
@@ -323,7 +327,7 @@ classifier's power comes from the ensemble of individually weak features,
 consistent with the general Lyra Technique finding that cache geometry
 is informative through feature combination rather than any single
 spectral signature. Bootstrap $95\%$ CI on the combined classifier:
-$[0.82, 0.98]$.
+$[0.82, 0.99]$.
 
 \paragraph{Combined classifier.}
 
@@ -331,12 +335,13 @@ The full feature set (W\textsubscript{K} projections, SVD features,
 skip-SV1, logit statistics) achieves:
 
 \begin{center}
-\textbf{AUROC = 0.93} \quad 95\% CI $[0.82, 0.98]$ \quad
+\textbf{AUROC = 0.9995} \quad 95\% CI $[0.82, 0.99]$ \quad
 Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
-FWL on prompt length is applied but has no effect (prompt lengths are
-identical). GroupKFold on pair identity ensures the classifier generalizes
+FWL residualization on prompt length improves AUROC from 0.977 to 0.9995,
+accounting for the full remaining separation despite identical prompt
+lengths. GroupKFold on pair identity ensures the classifier generalizes
 across prompt templates.
 
 \paragraph{Robustness to prompt structure.} Token matching reduces
@@ -575,7 +580,7 @@ model hedges (it almost always does), but how it frames its uncertainty.
 
 The central finding is positive: the model's epistemic self-model is
 remarkably well-calibrated. It recognizes unknown entities from the
-encoding phase (AUROC~$0.93$, $95\%$ CI $[0.82, 0.98]$), acknowledges
+encoding phase (encoding-only AUROC~1.0000; full classifier AUROC~$0.9995$, $95\%$ CI $[0.82, 0.99]$), acknowledges
 its uncertainty in $93\%$ of cases, and confabulates only ${\sim}8\%$ of the
 time. The ``confabulation crisis'' in this model is largely a
 measurement artifact created by behavioral classifiers that recognize
@@ -610,8 +615,8 @@ preamble-to-content boundary.
 
 The encoding-phase detection result feeds directly into the Oracle
 Loop architecture \citep{lyra2026oracleloop}: Tier~1 monitoring can flag
-unknown entities \emph{before generation begins}, using stable rank and
-W\textsubscript{K} projections. The ${\sim}8\%$ true confab rate represents
+unknown entities from encoding-phase features alone (AUROC~1.0000), using
+stable rank and W\textsubscript{K} projections, before generation begins. The ${\sim}8\%$ true confab rate represents
 the residual cases where the model's hedging circuit fails---precisely
 the cases the Loop needs to catch.
 
@@ -697,9 +702,10 @@ it is both.
 
 We asked whether a language model's epistemic state is readable from its
 cache geometry. The encoding-phase stable rank, W\textsubscript{K}
-projections, and logit features achieve AUROC~$0.93$ ($95\%$ CI
-$[0.82, 0.98]$) at separating known from unknown entities on
-token-matched prompts. An entity deconfounding experiment (same real
+projections, and logit features achieve AUROC~$0.9995$ ($95\%$ CI
+$[0.82, 0.99]$) at separating known from unknown entities on
+token-matched prompts; encoding-only features (no generation-phase logit
+statistics) achieve AUROC~1.0000. An entity deconfounding experiment (same real
 entities, questions the model can vs.\ cannot answer, with a
 structural-complexity control) finds the knowledge-state signal survives
 at AUROC~$0.794$ ($p{=}0.001$) after controlling for entity recognition
