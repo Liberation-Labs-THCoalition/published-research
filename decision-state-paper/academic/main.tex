@@ -661,11 +661,23 @@ the cases the Loop needs to catch.
           sidestepping the judge-reliability problem. Human validation
           remains the gold standard for the rate; the geometry is the
           stable signal.
-    \item \textbf{Encoding-phase confound residual.} Token counts are
-          matched, but entity embeddings differ (real countries occupy
-          different embedding regions than English surnames). The
-          encoding-phase signal may partially reflect vocabulary
-          familiarity rather than epistemic state.
+    \item \textbf{Entity recognition confound.} Token counts are
+          matched, but real entities (Thailand, France) are high-frequency
+          training tokens while fabricated entities (Dalton, Bolton) are
+          not. An encoding-only reanalysis (dropping all generation-phase
+          features) achieves AUROC~1.0000---\emph{higher} than the full
+          classifier---with permutation $p{=}0.001$. This perfection is
+          consistent with entity recognition (the model detecting token
+          familiarity) rather than epistemic state detection. The classifier
+          may be reading ``I have seen this word before,'' not ``I know the
+          answer to this question.'' A 2$\times$2 entity deconfounding
+          experiment (30~entities, knowledge $\times$ complexity) finds
+          the knowledge-state signal survives at AUROC~$0.794$
+          ($p{=}0.001$) when complexity is controlled. A complexity
+          residual remains (AUROC~$0.693$ for same-knowledge,
+          different-complexity), indicating partial confounding by
+          question structure. The encoding signal is not purely entity
+          recognition, but structural complexity contributes.
     \item \textbf{Deterministic cache on MPS.} The $d{=}0.000$
           pre-branch finding relies on Apple MPS determinism. CUDA
           implementations with non-deterministic cuDNN operations may
