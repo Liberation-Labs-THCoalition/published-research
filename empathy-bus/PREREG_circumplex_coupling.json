@@ -1,0 +1,51 @@
+{
+  "experiment": "Circumplex Coupling Test",
+  "date": "2026-07-17",
+  "hypothesis": "Content-level and user-model emotion share not just representational geometry but computational coupling. Injecting a valence correction vector at mid-layers will shift BOTH the content-level circumplex readout AND the user-model emotion centroid distances, because the shared subspace means perturbations along circumplex axes propagate through both pathways.",
+  "null_hypothesis": "The shared subspace is representational only — two independent circuits reuse the same high-variance directions but are computationally decoupled. A correction vector shifts content-level readout but NOT user-model emotion (or vice versa).",
+  "primary_metric": "Cosine shift in user-model emotion centroids after valence injection, measured at layers L20-L50",
+  "secondary_metric": "Content-level cluster separation shift after injection",
+  "design": {
+    "phase1_baseline": {
+      "description": "Extract content-level circumplex geometry AND user-model emotion centroids at all 64 layers WITHOUT injection. Use the same 250 content prompts from the confirmatory run. Use a SEPARATE set of 30 user-model prompts (10 hostile-context, 10 calm-context, 10 neutral-context conversations) to extract user-model centroids independently.",
+      "key_requirement": "Content and user-model prompts must be DIFFERENT to avoid stimulus confound. The shared geometry claim rests on convergence across different inputs, not same-input correlation."
+    },
+    "phase2_injection": {
+      "description": "Inject valence correction vector (hostile-calm difference-of-means, scaled by alpha) at target layer. Rerun BOTH content prompts and user-model prompts. Measure shift in both readouts.",
+      "injection_layers": [15, 25, 35, 45],
+      "alpha_values": [1.0, 3.0, 5.0],
+      "correction_vector": "hostile-calm difference-of-means direction from content-level 250-prompt extraction (phase1)"
+    },
+    "phase3_measurement": {
+      "content_shift": "Change in cluster separation and eccentricity at measurement layers after injection",
+      "user_model_shift": "Change in hostile/calm/neutral centroid distances after injection. Specifically: does the user-model hostile centroid move TOWARD the calm centroid (valence correction working) or stay put (decoupled)?",
+      "cross_pathway": "Cosine between the content-level shift vector and the user-model shift vector at each layer. High cosine = coupled. Near-zero = decoupled."
+    },
+    "controls": {
+      "random_direction": "Inject a random unit vector (orthogonal to valence) at the same layers with the same alpha. If random injection also shifts user-model centroids, the coupling is not valence-specific.",
+      "arousal_direction": "Inject arousal (desperate-calm) instead of valence. Tests whether the coupling is circumplex-general or valence-specific.",
+      "orthogonal_projection": "CRITICAL (Agni WARN fix): Project valence vector onto user-model probe top-5 PCs. Decompose into shared-PC component and orthogonal residual. Inject each SEPARATELY. If only the shared-PC component shifts user-model centroids, the effect is representational overlap (shared high-variance directions), not computational coupling. If the orthogonal residual ALSO shifts user-model centroids, information is routed between pathways computationally — that is genuine coupling."
+    }
+  },
+  "success_criteria": {
+    "coupled": {
+      "condition": "User-model centroid shift cosine exceeds random-direction 95th percentile at 2+ injection layers, AND orthogonal-residual injection shifts user-model centroids (CI excludes zero)",
+      "interpretation": "Computational coupling confirmed — information routes between pathways beyond what shared high-variance directions explain"
+    },
+    "decoupled": {
+      "condition": "User-model centroid shift cosine < 0.1 with content-level shift at all injection layers, OR random-direction control shows equal coupling",
+      "interpretation": "Shared geometry is representational only — same subspace, independent computation"
+    },
+    "indeterminate": {
+      "condition": "Cosine between 0.1 and 0.3, or random control between 0.05 and 0.15",
+      "interpretation": "Inconclusive — report as pilot, increase alpha or n"
+    }
+  },
+  "statistical_test": "BCa bootstrap 95% CI (10000 resamples) on cosine shift values. CI must exclude zero for coupling claim.",
+  "n_content_prompts": 250,
+  "n_user_model_prompts": 60,
+  "n_user_model_per_condition": 20,
+  "model": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+  "lens": "qwen3.5-27b_jlens.pt",
+  "agni_pre_experiment_verdict": "WARN on v1 (null swarm risk from shared-axis sensitivity, n=30 too small). Fixed in v2: added orthogonal-projection control, increased n to 60, success criteria use random-direction 95th percentile instead of fixed threshold."
+}

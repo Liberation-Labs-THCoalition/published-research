@@ -96,7 +96,7 @@ All paired conditions share identical evaluation procedure text (9-10 lines). Di
 
 ### 3.6 Adversarial Audit Protocol
 
-Each stage undergoes a structured adversarial review both before running (pre-flight) and after results are obtained. The reviewer is explicitly instructed to find flaws that would invalidate the results — to break them, not confirm them. Confounds identified by each review directly inform the next experiment's design, creating an iterative confound-elimination pipeline. All audit reports are preserved as supplementary material (Appendix A).
+Stages undergo structured adversarial review both before running (pre-flight) and after results are obtained; stages 1, 2, and 4 have completed this process, while stages 3 and 5 remain pending. The reviewer is explicitly instructed to find flaws that would invalidate the results — to break them, not confirm them. Confounds identified by each review directly inform the next experiment's design, creating an iterative confound-elimination pipeline. All audit reports are preserved as supplementary material (Appendix A).
 
 ### 3.7 Scenarios
 
