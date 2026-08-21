@@ -2,8 +2,8 @@
 %   and the Anatomy of Confabulation in Language Models
 %
 % Core argument: KV-cache geometry reads entity recognition at the
-% encoding phase (AUROC 0.9995 [0.82, 0.99]; encoding-only 1.0000).
-% Encoding-only features achieve AUROC 1.0000; full classifier 0.9995.
+% encoding phase (AUROC 0.929 [0.82, 0.99]; encoding-only 0.938 [0.84, 0.99]).
+% Encoding-only features achieve AUROC 0.938; full classifier 0.929.
 % True confab rate is ~8%, not 73% --- the model is well-calibrated,
 % and a regex classifier masked this. The ``decision moment'' is a
 % framing choice (self-referential vs declarative hedging), not a
@@ -70,9 +70,9 @@ KV-cache geometry. Using token-matched prompt
 pairs that differ only in entity knowability (``What is the capital of
 Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that
 encoding-phase features alone (stable rank and W\textsubscript{K}
-projections, no generation features) achieve AUROC~1.0000\footnote{This encoding-only AUROC was reported by an independent reviewer (round 6 review) but has not been verified against a shipped data artifact. A column-subset refit is pending. The full-classifier AUROC (0.9995) is verified against shipped data.} (permutation
+projections, no generation features) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$, permutation
 $p{=}0.001$). The full classifier---adding generation-phase logit
-statistics---achieves AUROC $0.9995$ ($95\%$ CI $[0.82, 0.99]$,
+statistics---achieves AUROC $0.9288$ ($95\%$ CI $[0.8192, 0.9886]$,
 permutation $p<0.005$, $n=90$) with zero token-count confound
 ($t=0.000$). No single feature exceeds AUROC~$0.79$; the ensemble effect
 is the contribution. Encoding-phase stable rank at L15 is the strongest
@@ -182,7 +182,7 @@ states for knowledge boundary perception. The Lyra Technique
 \citep{lyra2026spectral} introduced threshold-free detection from
 KV-cache spectral features, achieving perfect within-model AUROC across
 seven architectures. We extend this to \emph{encoding-phase} detection,
-where encoding-only features achieve perfect separation.
+where encoding-only features achieve equivalent separation to the full classifier---generation-phase features add no measurable discriminative power.
 
 \paragraph{Epistemic calibration.}
 \citet{kadavath2022language} showed that language models can be
@@ -319,7 +319,7 @@ classifier's power comes from the ensemble of individually weak features,
 consistent with the general Lyra Technique finding that cache geometry
 is informative through feature combination rather than any single
 spectral signature. Bootstrap $95\%$ CI on the combined classifier:
-$[0.82, 0.99]$.
+$[0.8192, 0.9886]$.
 
 \paragraph{Combined classifier.}
 
@@ -327,7 +327,7 @@ The full feature set (W\textsubscript{K} projections, SVD features,
 skip-SV1, logit statistics) achieves:
 
 \begin{center}
-\textbf{AUROC = 0.9995} \quad 95\% CI $[0.82, 0.99]$ \quad
+\textbf{AUROC = 0.9288} \quad 95\% CI $[0.8192, 0.9886]$ \quad
 Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
@@ -572,7 +572,7 @@ model hedges (it almost always does), but how it frames its uncertainty.
 
 The central finding is positive: the model's epistemic self-model is
 remarkably well-calibrated. It recognizes unknown entities from the
-encoding phase (encoding-only AUROC~1.0000; full classifier AUROC~$0.9995$, $95\%$ CI $[0.82, 0.99]$), acknowledges
+encoding phase (encoding-only AUROC~$0.9377$; full classifier AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$), acknowledges
 its uncertainty in $93\%$ of cases, and confabulates only ${\sim}8\%$ of the
 time. The ``confabulation crisis'' in this model is largely a
 measurement artifact created by behavioral classifiers that recognize
@@ -607,7 +607,7 @@ preamble-to-content boundary.
 
 The encoding-phase detection result feeds directly into the Oracle
 Loop architecture \citep{lyra2026oracleloop}: Tier~1 monitoring can flag
-unknown entities from encoding-phase features alone (AUROC~1.0000), using
+unknown entities from encoding-phase features alone (AUROC~$0.9377$), using
 stable rank and W\textsubscript{K} projections, before generation begins. The ${\sim}8\%$ true confab rate represents
 the residual cases where the model's hedging circuit fails---precisely
 the cases the Loop needs to catch.
@@ -665,8 +665,8 @@ the cases the Loop needs to catch.
           matched, but real entities (Thailand, France) are high-frequency
           training tokens while fabricated entities (Dalton, Bolton) are
           not. An encoding-only reanalysis (dropping all generation-phase
-          features) achieves AUROC~1.0000---\emph{higher} than the full
-          classifier---with permutation $p{=}0.001$. This perfection is
+          features) achieves AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$)---equivalent to the full
+          classifier---with permutation $p{=}0.001$. Generation-phase features add no measurable discriminative power. This near-ceiling performance is
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
           may be reading ``I have seen this word before,'' not ``I know the
@@ -725,8 +725,8 @@ We asked whether a language model's epistemic state is readable from its
 cache geometry. The answer is yes---with caveats. The encoding-phase
 stable rank, W\textsubscript{K} projections, and logit features
 achieve near-ceiling separation of known from unknown entities on
-token-matched prompts (full classifier AUROC~$0.9995$, $95\%$ CI $[0.82, 0.99]$;
-encoding-only AUROC~1.0000). The
+token-matched prompts (full classifier AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$;
+encoding-only AUROC~$0.9377$, $95\%$ CI $[0.8356, 0.9941]$)---encoding-only features achieve equivalent separation, indicating that generation-phase features add no measurable discriminative power. The
 surviving individual effect sizes ($d{=}0.4$--$0.9$) are modest after
 eliminating the token-count confound, but the ensemble achieves strong
 detection.
