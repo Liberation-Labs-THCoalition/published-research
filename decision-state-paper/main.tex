@@ -67,7 +67,7 @@
 Encoding-phase KV-cache geometry distinguishes known from unknown entities
 before a single token is generated: an encoding-only classifier (stable
 rank and W\textsubscript{K} projections, no generation features) achieves
-AUROC 1.0000 (permutation $p{=}0.001$), and the full classifier---adding
+AUROC 1.0000\footnote{This encoding-only AUROC was reported by an independent reviewer (round 6 review) but has not been verified against a shipped data artifact. A column-subset refit is pending. The full-classifier AUROC (0.9995) is verified against shipped data.} (permutation $p{=}0.001$), and the full classifier---adding
 generation-phase logit statistics---achieves AUROC 0.9995
 ($95\%$ CI $[0.82, 0.99]$, permutation $p<0.005$, $n=90$,
 effective $N{\approx}30$). Using
@@ -339,7 +339,7 @@ skip-SV1, logit statistics) achieves:
 Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
-FWL residualization on prompt length improves AUROC from 0.977 to 0.9995,
+FWL residualization on prompt length is applied; the post-FWL AUROC is 0.9995. A pre-FWL AUROC was not computed (0.977 in earlier drafts was combined accuracy, not AUROC),
 accounting for the full remaining separation despite identical prompt
 lengths. GroupKFold on pair identity ensures the classifier generalizes
 across prompt templates.
