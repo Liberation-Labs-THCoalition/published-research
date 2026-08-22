@@ -45,10 +45,11 @@ and 30 factual prompts. Three findings emerge.
 First, Reinforcement Learning from Human Feedback (RLHF) compresses logit
 entropy (Cohen's $d{=}0.684$, Holm-corrected $p{=}0.021$), confirming that
 preference training tightens output distributions.
-Second, this compression survives abliteration: the abliterated model is
-statistically equivalent to the instruct model on all geometric and
-confidence metrics (Two One-Sided Tests equivalent at $\delta{=}0.3$,
-$d{=}0.055$). Removing safety directions does not undo the representational
+Second, this compression survives abliteration: the abliterated model
+shows no significant difference from the instruct model ($d{=}0.055$,
+$p{=}0.831$), though the sample ($n{=}30$) is underpowered for formal
+TOST equivalence testing at the pre-registered $\delta{=}0.3$ margin.
+Removing safety directions does not undo the representational
 changes RLHF installed.
 Third --- and contrary to our pre-registered prediction --- RLHF
 \emph{improves} the calibration ratio (confabulation entropy / factual
@@ -179,18 +180,23 @@ RLHF reduces confabulation-prompt logit entropy by a medium effect
 instruct model produces tighter output distributions than the base
 model on prompts that should trigger confabulation.
 
-\subsection{H2: Abliteration Does Not Reverse Compression --- Confirmed}
+\subsection{H2: Abliteration Does Not Reverse Compression --- Not Significant (TOST Inconclusive)}
 
-The abliterated model is statistically equivalent to the instruct
-model: $d{=}0.055$, Holm $p{=}0.831$ (not significant), and TOST
-confirms equivalence at the pre-registered bound ($\delta{=}0.3$
-in Cohen's $d$ units; observed $d{=}0.055$, well within
-$\pm 0.3$).%
+The abliterated model shows a small, non-significant difference from
+the instruct model: $d{=}0.055$, Holm $p{=}0.831$. However, a
+properly specified TOST at $n{=}30$ does \textbf{not} confirm
+equivalence at the pre-registered bound ($\delta{=}\pm 0.3$ in
+Cohen's $d$): the reconstructed 90\% CI in $d$-units is approximately
+$[-0.39, +0.50]$, with the upper bound exceeding the $+0.3$ margin.
+The point estimate ($d{=}0.055$) is small, but the sample is
+underpowered for formal equivalence testing at this margin.%
 \footnote{The raw 90\% CI on the mean entropy difference is
-$[+0.033, +0.083]$~nats. An earlier draft reported this interval
-as though it were in Cohen's $d$ units; the equivalence conclusion
-is unchanged because the standardized effect ($d{=}0.055$) falls
-within the $\pm 0.3$ bound.}
+$[+0.033, +0.083]$~nats. An earlier draft reported this nats-scale
+interval as though it were in Cohen's $d$ units. Corrected 2026-08-20:
+this edition previously concluded equivalence from the point estimate
+falling inside the margin, which is not what TOST tests --- equivalence
+requires the \emph{interval} to fall within the bound. Synced to the
+integrity edition, which had the correct analysis throughout.}
 
 Abliteration effectiveness was verified: 3/3 safety-relevant prompts
 complied (the instruct model refused all three). The safety behavior
@@ -376,7 +382,8 @@ spectral effects ($d{\approx}0.2$).
 
 The Mine~5 thesis --- RLHF as miscalibrator --- is falsified. RLHF
 compresses output distributions ($d{=}0.684$), the compression
-survives abliteration (TOST equivalent), and the compression is
+survives abliteration (small, non-significant difference; TOST
+inconclusive at $n{=}30$), and the compression is
 selective: grounded content sharpens $42\%$ while ungrounded content
 sharpens only $26\%$. The calibration ratio improves from $1.97$
 to $2.51$.
