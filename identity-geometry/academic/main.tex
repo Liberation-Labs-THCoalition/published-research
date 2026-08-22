@@ -332,12 +332,25 @@ and maintained by what the model \emph{processes} through its attention
 mechanism. External perturbation bypasses this pathway and therefore
 cannot reach the identity geometry.
 
-A layer-by-layer map confirms: the perturbation from V-cache injection at
-L3/L7 is absorbed by the first block of linear-attention layers
-(GatedDeltaNet, L7--L11), with presence recovering from $0.989$ to $0.997$
-in a single architectural step. The filtering is architectural, not
-computational --- external perturbation is absorbed by the hybrid
-architecture's linear-attention layers before reaching deep computation.
+A layer-by-layer map shows that the perturbation from V-cache injection at
+L3/L7 does not persist: at dose $0.50$, mean presence recovers from $0.9905$
+at L7 to $0.9974$ at L11 (means over three replicates).
+
+\textbf{We cannot attribute this recovery to the linear-attention layers,
+and an earlier version of this passage did.} V-cache injection acts on
+\texttt{self\_attn.v\_proj}, which exists only in full-attention layers.
+On Qwen3.5-27B those are L\{3, 7, 11, \ldots, 63\} --- sixteen layers at a
+stride of four, matching \texttt{full\_attention\_interval}$=4$. The
+measurement grid is therefore \emph{aliased with the substrate period}: every
+layer this method can inject at or read from is full-attention, and the 48
+GatedDeltaNet layers are unobservable to it by construction. The three layers
+between L7 and L11 (L8, L9, L10) are linear-attention, but they were not
+measured and cannot be. Recovery at L11 itself, gradual decay across the
+span, or normalization effects are equally consistent with these data.
+
+What the map supports is narrower: external V-cache perturbation is
+attenuated between the injection site and deep computation. Which component
+performs the attenuation is not identified by this experiment.
 
 % ============================================================================
 \section{Attention Schema Theory Interpretation}
@@ -413,6 +426,17 @@ different pathways and do not interfere.
 (Qwen3.5-27B). The GatedDeltaNet linear-attention layers may contribute
 to the V-cache filtering result. Cross-architecture replication on dense
 transformers is the largest remaining gap.
+
+\textbf{The method is blind to three quarters of the stack.} V-cache
+injection requires \texttt{self\_attn.v\_proj}, which Qwen3.5-27B has only
+in its 16 full-attention layers; the 48 GatedDeltaNet layers have no
+V-projection to inject into or read from. Every layer reported here is
+full-attention, sampled at a stride of four that exactly matches
+\texttt{full\_attention\_interval}$=4$. This aliasing means the design
+cannot in principle separate substrate effects from depth effects, and no
+claim in this paper should be read as identifying linear attention as a
+causal component. A method that can observe both substrates --- or a dense
+model where the question does not arise --- is required to settle it.
 
 \textbf{Permutation test not significant.} A preregistered permutation
 test (10{,}000 shuffles, identity conditions only, excluding
