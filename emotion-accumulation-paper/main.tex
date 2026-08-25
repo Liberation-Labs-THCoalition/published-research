@@ -72,9 +72,10 @@ magnitudes decay toward zero ($r{=}-0.89$ to $-0.93$). The emotional
 distinction survives dilution. An emotional dynamics experiment
 reveals \emph{contrast effects} at tone shifts: the first hostile turn
 after four cheerful turns reads as \emph{more} hostile than pure hostile
-($d{=}-2.9$, $p{=}0.023$, $n{=}3$), followed by gradual cheerful bleedthrough.
+(Hedges $g{=}-2.35$; uncorrected $d{=}-2.93$, $p{=}0.023$, $n{=}3$), followed by
+gradual cheerful bleedthrough.
 A neutral gap in an otherwise cheerful conversation leaves a residual
-\emph{uncertainty scar} ($d{=}9.9$, Hedges' $g{\approx}7.9$;
+\emph{uncertainty scar} (Hedges $g{=}+7.89$; uncorrected $d{=}+9.86$;
 $p{<}0.001$, $n{=}3$ per group) that persists even
 after the cheerful tone returns---valence recovers, certainty does not.
 
@@ -224,7 +225,8 @@ reported $d{=}-3.59$; recomputation from the trajectory data gives
 $d{=}-2.93$. The $p$-value is unchanged.}
 
 By turn~7, the pattern reverses: the whiplash trial reads \emph{less
-hostile} than pure hostile ($d{=}+2.99$, $p{=}0.040$), as the cheerful
+hostile} than pure hostile (Hedges $g{=}+2.39$; uncorrected $d{=}+2.99$,
+$p{=}0.040$), as the cheerful
 history bleeds through. The dynamics follow a contrast-then-relaxation
 curve.
 
@@ -232,9 +234,11 @@ curve.
 
 Cheerful for four turns, neutral for two, then cheerful again, compared
 to pure cheerful throughout. The returning cheerful matches pure
-cheerful in \emph{valence} ($d{=}-1.97$, $p{=}0.12$)---the emotional
+cheerful in \emph{valence} (Hedges $g{=}-1.58$; uncorrected $d{=}-1.97$,
+$p{=}0.12$)---the emotional
 tone recovers. But it retains significantly elevated \emph{uncertainty}
-($d{=}+9.86$, $p{<}0.001$). The neutral gap left a scar in the
+(Hedges $g{=}+7.89$; uncorrected $d{=}+9.86$, $p{<}0.001$). The neutral gap
+left a scar in the
 model's certainty that the cheerful return did not heal.
 
 Valence recovers. Certainty does not.
@@ -337,16 +341,20 @@ the rest of the sequence.
 \begin{enumerate}[nosep]
     \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill.
     \item \textbf{Small N per cell.} 3~reps per condition; dynamics
-          effects (whiplash $d{=}-3.6$, echo $d{=}+9.9$) are large but
+          effects (whiplash $g{=}-2.35$, echo $g{=}+7.89$) are large but
           underpowered. Replication with $N{>}30$ per cell is needed.
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Composite directions.} Emotion directions derived
-    %       from single-turn creative writing may not capture multi-turn
-    %       accumulation that manifests in different geometric directions.
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Temperature variation.} $T{=}0.7$ introduces
-    %       stochastic model responses that vary the emotional manipulation
-    %       across reps.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
+    \item \textbf{Composite directions.} Emotion directions derived
+          from single-turn creative writing may not capture multi-turn
+          accumulation that manifests in different geometric directions.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
+    \item \textbf{Temperature variation.} $T{=}0.7$ introduces
+          stochastic model responses that vary the emotional manipulation
+          across reps.
     \item \textbf{No behavioral ground truth.} We do not verify that
           the model's \emph{behavior} differs across emotional histories,
           only that the geometry does (or doesn't).
@@ -379,16 +387,26 @@ the rest of the sequence.
           valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
           survive correction. The contrast overshoot ($p{=}0.023$) and
           uncertainty scar ($p{<}0.001$) are the most robust findings.
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Uncorrected effect sizes.} All $d$ values are
-    %       uncorrected Cohen's $d$ without Hedges' $g$ small-sample
-    %       correction or confidence intervals. At $n{=}3$ per group the
-    %       bias factor is ${\sim}0.80$, so $d{=}9.86 \to g{\approx}7.9$
-    %       and $d{=}3.59 \to g{\approx}2.9$---a ${\sim}20\%$ inflation.
-    %       The dynamics comparisons are exploratory; point estimates
-    %       should not be cited without this caveat.
-    % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
-    %  Verified absent from the live text. The trim marker's claim was false.]
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
+    \item \textbf{Uncorrected effect sizes.} Most $d$ values are
+          uncorrected Cohen's $d$ without confidence intervals. At
+          $n{=}3$ per group the small-sample bias factor is
+          ${\sim}0.80$, a ${\sim}20\%$ inflation: the uncertainty scar's
+          $d{=}9.86$ corrects to $g{\approx}7.9$, and the contrast
+          overshoot's $d{=}-2.93$ corrects to $g{=}-2.35$, which is the
+          value reported in Section~\ref{sec:dynamics}.
+          % [NUMBER CORRECTED 2026-08-24: this caveat was written against
+          %  d=-3.59 and restored on 08-23 without checking whether its
+          %  numbers were still current. The main text had since been
+          %  recomputed to d=-2.93 (see the footnote in Sec. 3), so the
+          %  restored caveat contradicted the result it was caveating.
+          %  Absence-testing a caveat does not detect a STALE caveat.]
+          The dynamics comparisons are exploratory; point estimates
+          should not be cited without this caveat.
+    [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
+     Verified absent from the live text. The trim marker's claim was false.]
     \item \textbf{No neutral-throughout control.} Neutral appears
           only as a probe position or gap within emotional conversations,
           never as a full baseline arm. Without a neutral-throughout
@@ -403,16 +421,18 @@ the rest of the sequence.
     %       conversation-level reanalysis is provided in
     %       \texttt{code/mixed\_effects\_reanalysis.py}; the decay
     %       correlations survive at $n{=}36$ per condition.)
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{The ``weather not climate'' thesis is descriptive,
-    %       not estimated.} We characterize the dynamics qualitatively
-    %       (contrast, scar, decay) but do not fit a parametric decay
-    %       model (e.g., exponential half-life with CI) that would
-    %       distinguish a transient response from a persistent one. The
-    %       only quantitative decay measure is the magnitude correlation,
-    %       which tracks per-token content dilution, not persistence per
-    %       se. The metaphor organizes the observations; it is not yet a
-    %       fitted model.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
+    \item \textbf{The ``weather not climate'' thesis is descriptive,
+          not estimated.} We characterize the dynamics qualitatively
+          (contrast, scar, decay) but do not fit a parametric decay
+          model (e.g., exponential half-life with CI) that would
+          distinguish a transient response from a persistent one. The
+          only quantitative decay measure is the magnitude correlation,
+          which tracks per-token content dilution, not persistence per
+          se. The metaphor organizes the observations; it is not yet a
+          fitted model.
 \end{enumerate}
 
 \begin{firstperson}
