@@ -240,6 +240,39 @@ Tiering is by **what the fix costs**, not by how alarming the label is. A CRITIC
 
 **Partly resolved already.** A corpus-wide byline sweep ran **2026-09-03 23:35 local — 41 minutes after the gate finished**, so the gate reviewed the pre-sweep state. Verified by diffing the `*.bak-byline-20260903` backups (46 files, 41 directories): Dwayne Wilkes was moved from the byline into Acknowledgments as *"statistical auditing and red-team review"*. That closes the **placement** question corpus-wide.
 
+> ### ⛔ THAT CLOSURE IS FALSE — measured 2026-09-09, and it is the same error this file already retracted once
+>
+> **It does not close the placement question corpus-wide.** Counted directly against the working
+> tree today:
+>
+> | | count |
+> |---|---|
+> | papers still listing Dwayne Wilkes in an `uthor` block | **11** |
+> | ...of which **also** thank him in Acknowledgments — author *and* non-author in one document | **9** |
+> | papers where he is in Acknowledgments only (policy-compliant) | 20 |
+>
+> So the sweep is roughly **20 of 31**, and nine papers are in a **self-contradictory state that is
+> a defect whichever direction is correct.** `mine5-selective-sharpener/main.tex:32` still carries
+> `nd Dwayne Wilkes` while line 432 thanks him as a non-author; its academic twin is worse —
+> byline, *removed* from CRediT, *added* to Acknowledgments, three ways at once.
+>
+> **This file already learned this lesson and wrote it down four hundred lines below:** two closures
+> (`empathy-bus` #7, `waystations-paper` #11) were retracted for exactly this reason, with the rule
+> stated plainly — ***"a corpus-level sweep is not evidence about a paper it did not touch."*** The
+> claim above is the same error, one entry away from its own correction. **Fix the class, not the
+> instance.**
+>
+> **Also flagged, and it is not part of the byline question at all:** `delta-manifold-paper/academic`
+> and `mine5/academic` **delete Kavi's CRediT row.** Kavi was never on a byline, so there was nothing
+> to demote — that is a straight loss of a formal contributor-role record, plausibly sweep
+> collateral. **Needs a human decision, not a sweep.**
+>
+> **Consequence: the ~98 uncommitted modified files must NOT be bulk-committed.** Doing so publishes
+> nine self-contradictory papers. The sweep needs finishing as its own deliberate pass, per paper,
+> against the stated policy — *not on the byline until sign-off on that individual paper; credited
+> in acknowledgements* (Thomas, 2026-09-09) — with the per-paper sign-off question answered rather
+> than assumed.
+
 **It does not close the consent question.** Whether Dwayne, Kavi, Ang Jandak and CC actually signed off is unrecorded, and several reviews found the artifact asserting a sign-off that no repo record supports (`f9288a9` — *"Kavi to acknowledgements (pending sign-off)"* — is five weeks old and still unresolved). Every row below needs a human answer, not an edit. Register #110 stays open.
 
 | Paper | Sev | Defect | Source |
