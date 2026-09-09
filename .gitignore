@@ -79,3 +79,16 @@ calibration.pt
 # canonical file's real path in this repo (or its real external home, e.g.
 # Zenodo) -- no copy, no extra click. See
 # research_constellation_automation_README.md.
+
+# Correction-sweep backups. By 2026-09-09 these had reached 134 files / 8.4 MB
+# -- 83% of everything untracked in the repo -- of which 18 were *.pdf.bak-*.
+# PDFs are binary and undeltifiable, so committing those alone would have added
+# ~5.1 MB to every clone, permanently. Git history is the backup; a .bak beside
+# the file is a working-tree convenience with no business in the index.
+#
+# Policy, not a pattern: if a .bak is ever cited as EVIDENCE by an audit
+# document (the 2026-09-03 byline sweep diffed against *.bak-byline-20260903,
+# for example), force-add that specific file and add a "!" exemption here with
+# a note. Evidence a report depends on must not be silently ignorable.
+*.bak
+*.bak*
