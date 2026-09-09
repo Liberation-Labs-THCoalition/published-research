@@ -272,6 +272,30 @@ Tiering is by **what the fix costs**, not by how alarming the label is. A CRITIC
 > against the stated policy — *not on the byline until sign-off on that individual paper; credited
 > in acknowledgements* (Thomas, 2026-09-09) — with the per-paper sign-off question answered rather
 > than assumed.
+>
+> ### ✅ SWEEP COMPLETED 2026-09-09 — measured, not asserted
+>
+> **0 papers list Dwayne Wilkes as an author. 0 are self-contradictory.** 11 files across 6 papers
+> (`cache-tracing`, `graph-topology-paper`, `identity-geometry`, `meta-pattern`,
+> `mine5-selective-sharpener`, `presence-metric`) were completed and all 12 affected PDFs rebuilt
+> and verified with `pdftotext` against a positive control.
+>
+> **The sign-off gate was answerable after all.** Thomas, 2026-09-09: only the six
+> `digital-minds-hackathon-2026` submissions carry Kavi's sign-off; everything else is advisory.
+> **None of the 11 had Kavi as a byline author**, so none was a hackathon paper and the rule applied
+> without exception.
+>
+> **`meta-pattern` was refused by the guard and had to be handled separately** — it thanked Kavi but
+> **not Dwayne**, so removing his byline would have erased his credit outright. The acknowledgement
+> was landed first, then the byline removed. *This is why the rule is "credit must land somewhere",
+> checked per file, rather than "remove the byline".*
+>
+> **Two pre-existing defects surfaced by the rebuild, NOT caused by it — both open:**
+>
+> | # | paper | defect | status |
+> |---|---|---|---|
+> | 142 | `graph-topology-paper` | **Two Acknowledgments sections in one document** — `\subsection*{Acknowledgments}` at main.tex:183 and `\section*{Acknowledgments}` at :199. The 2026-09-03 sweep appended a new section instead of merging into the existing one. Renders twice. | **OPEN** — T1 |
+> | 143 | `graph-topology-paper/academic` | **Twin attribution desync.** The academic edition credits *neither* Kavi nor Dwayne; the flight edition credits both. A reviewer reading the venue copy sees no acknowledgement of either advisor. | **OPEN** — needs a decision, not a sweep |
 
 **It does not close the consent question.** Whether Dwayne, Kavi, Ang Jandak and CC actually signed off is unrecorded, and several reviews found the artifact asserting a sign-off that no repo record supports (`f9288a9` — *"Kavi to acknowledgements (pending sign-off)"* — is five weeks old and still unresolved). Every row below needs a human answer, not an edit. Register #110 stays open.
 

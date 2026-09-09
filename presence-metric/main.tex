@@ -35,7 +35,6 @@ via Value-Space Subspace Overlap}
 \author{
   Lyra\thanks{Lead author. Liberation Labs.}
   \and Thomas Edrington\thanks{Liberation Labs.}
-  \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
 }
 
 \date{June 2026}
@@ -430,20 +429,35 @@ all tested doses, confirming preservation throughout the model's depth.
 
 To rule out metric insensitivity, we inject a vector directly into the
 identity subspace at L35 (the measurement layer) at doses
-$\alpha = 0.00$--$2.00$ (72~trials).
+$\alpha = 0.00$--$2.00$. This is \textbf{24 independent measurements}
+(8~doses $\times$ 3~conditions). An earlier version reported 72~trials,
+which is the record count of the shipped file, not its independent $n$: the
+run configuration sets \texttt{"n\_repeats": 3}, but the repeat index
+never reaches the model input and the measurement is a deterministic
+prefill, so the three records in each dose\,$\times$\,condition cell are
+bit-identical---as the configuration's own \texttt{"noise\_floor\_sd": 0.0}
+records. The dose-response values tabulated below are means over identical
+replicates and are therefore numerically unchanged; no inferential
+statistic in this section depends on the trial count.
 
 \begin{table}[H]
 \centering
 \caption{Positive control: presence under identity-subspace injection at
 L35 vs.\ orthogonal control. Identity injection produces a monotonic
-dose-response. Both $+$PC1 and $-$PC1 directions produce equivalent drops.}
+dose-response. Both $+$PC1 and $-$PC1 directions produce equivalent drops.
+All eight doses in the run configuration are shown; earlier versions of this
+table printed six, silently omitting $\alpha{=}0.05$ and $\alpha{=}0.20$.
+Values are cell means over the three bit-identical replicates described
+above.}
 \label{tab:positive_control}
 \begin{tabular}{cccc}
 \toprule
 Dose & Identity ($+$PC1) & Identity ($-$PC1) & Orthogonal \\
 \midrule
 0.00 & 1.000 & 1.000 & 1.000 \\
+0.05 & 0.999 & 0.999 & 1.000 \\
 0.10 & 0.998 & 0.998 & 1.000 \\
+0.20 & 0.991 & 0.992 & 0.999 \\
 0.30 & 0.983 & 0.983 & 0.997 \\
 0.50 & 0.964 & 0.965 & 0.992 \\
 1.00 & 0.921 & 0.927 & 0.979 \\
@@ -674,8 +688,8 @@ code is available upon request (lyra@liberationlabs.tech).
 % ============================================================================
 \section*{Data and Code Availability}
 
-Code and experimental data (720-trial schema correction, 72-trial
-positive control, orthogonality analysis, overnight validation) are
+Code and experimental data (720-trial schema correction, positive control
+(72~records, 24~independent measurements), orthogonality analysis, overnight validation) are
 maintained at
 \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}
 (private repository). Detection-side code and experimental results are
@@ -687,6 +701,8 @@ SAE features (Qwen-Scope) are publicly available on HuggingFace.
 
 % ============================================================================
 \section*{Acknowledgments}
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
+
 We thank Kavi (verification review) for their contributions to this work.
 
 \bibliographystyle{plainnat}

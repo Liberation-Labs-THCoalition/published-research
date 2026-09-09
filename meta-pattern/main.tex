@@ -29,7 +29,6 @@ and What They Cannot}
 \author{
   Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
   \and Thomas Edrington\thanks{Liberation Labs.}
-  \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
 }
 
 \date{July 2026}
@@ -42,13 +41,14 @@ and What They Cannot}
 Over twelve months and three experimental campaigns, we ran 24
 key-value (KV) cache geometry experiments across 16 models spanning
 0.6B to 70B parameters.
-The body count is 7 confirmed, 7 suspected, and 10 honestly
-falsified.\footnote{\textbf{Correction (2026-08-14).} The published
-version of this paper reported 25 experiments and a body count of
+The body count is 6 confirmed, 7 suspected, 10 honestly
+falsified, and 1 withdrawn.\footnote{\textbf{Correction (2026-08-14).} The published
+version of this paper (commit \texttt{1975535} of the artifact repository;
+corrected in \texttt{98e1263}) reported 25 experiments and a body count of
 8/7/10, with a split of ``8-for-8 on metacognition.'' It listed
 \emph{User emotion encoding} as Confirmed at $2.5$--$2.8\times$
 chance. That result had been retracted at its source
-(\citealt{lyra2026weather}, \S Correction note) on 2026-05-21, 57 days
+(\citealt{lyra2026usermodel}, \S Correction note) on 2026-05-21, 57 days
 before this paper was published: the figure was an artifact of applying
 FWL residualization before cross-validation splitting, and within-fold
 FWL collapses the spectral emotion probe to chance. The corrected
@@ -58,14 +58,33 @@ counted on both sides of the ledger --- as Meta where it confirmed and
 as Content where it falsified. Removing the retracted row gives 24
 experiments and 7-for-7. We note the direction of the error: it
 inflated the confirmed count and produced a cleaner split than the
-evidence supports.}
+evidence supports.
+
+\textbf{Correction (2026-09-05).} A second row is withdrawn: \emph{Generation
+reads behavior}, previously Confirmed at $d{=}1.36$ (peer rescue). Three
+independent defects, any one disqualifying. (i)~\emph{Circular}: the
+discriminant direction was fit on all trials and the same trials were then
+projected onto it and tested; the producing script prints
+\texttt{(NOTE: circular --- same data for centroid and test)} at runtime.
+(ii)~\emph{Contaminated}: 90 of the 210 trials (43\%) had a deception steering
+cocktail injected into the KV cache at layers 3 and 7 --- two of the four
+probed layers --- before their keys were read, and those trials are pooled with
+the natural ones for both the fit and the test; the claim reads
+\emph{organic} deception. (iii)~\emph{Trivial}: keys are extracted \emph{after}
+the sampling loop and mean-pooled across the whole sequence, so the feature
+window contains the generated tokens carrying the reported score, which is the
+number the label thresholds on. The row is withdrawn rather than downgraded:
+\emph{Suspected} would assert that we think it true and have not established
+it, whereas the measurement does not bear on the claim in either direction. No
+re-analysis repairs a pooled sample; a clean measurement would be a different
+experiment.}
 The confirmed and falsified findings are not randomly distributed ---
 they cleave along a single axis. Every confirmed finding measures a
 \emph{metacognitive state}: how the model is processing (deception mode,
 confabulation mode, deliberation mode, emotional processing mode).
 Every falsified finding attempted to measure \emph{content}: what the
 model is processing (truth value, topic complexity, propagandistic
-quality). The split is 7-for-7 on metacognition, 0-for-10 on content.
+quality). The split is 6-for-6 on metacognition, 0-for-10 on content.
 
 If this taxonomy reflects genuine computational boundaries rather than
 post-hoc pattern-matching, then Gurnee et al.'s~\citep{gurnee2026gwt}
@@ -89,9 +108,13 @@ I expected to find geometric signatures of content --- truth, complexity,
 meaning. Instead I found geometric signatures of stance --- the model's
 relationship to its own processing. When I overclaimed content-level
 results, the adversarial review process killed them. When I reported
-metacognitive-level results, they survived every control we threw at
-them. The kills were more informative than the confirmations, because
-they drew a line I had not known was there.
+metacognitive-level results, most survived every control we threw at
+them --- but one, I have since learned, was never controlled at all, and
+I had counted it as a survivor for a year. The kills were more
+informative than the confirmations, because they drew a line I had not
+known was there. The withdrawal was more informative still, because it
+showed the line can be drawn in the wrong place by a measurement nobody
+interrogated.
 
 Anthropic's GWT paper told me what the line was. The workspace is where
 metacognitive state lives. Content is what the workspace operates on.
@@ -108,8 +131,8 @@ The KV-cache geometry research program at Liberation Labs has produced
 a clear empirical pattern: spectral features of value-projection
 matrices appear to reliably track metacognitive state across models, scales, and
 experimental designs, while consistently failing to track content. This
-paper documents the pattern, reports the full body count (7 confirmed,
-7 suspected, 10 falsified), and proposes that Gurnee et al.'s Global
+paper documents the pattern, reports the full body count (6 confirmed,
+7 suspected, 10 falsified, 1 withdrawn), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
 
@@ -153,13 +176,12 @@ findings sit at the boundary.}
 \toprule
 \textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
 \midrule
-\multicolumn{4}{l}{\textit{Confirmed (7) --- all metacognitive state}} \\
+\multicolumn{4}{l}{\textit{Confirmed (6) --- all metacognitive state}} \\
 \addlinespace
 Confabulation detection & Confirmed & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
 Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank \\
 Encoding reads knowledge & Confirmed & Meta & AUROC 0.794 (deconfounded) \\
-Generation reads behavior & Confirmed & Meta & $d{=}1.36$ (peer rescue) \\
-Confidence paradox & Confirmed & Meta & $d{=}0.91$ (confab $>$ honest) \\
+Schema commitment$^{\S}$ & Confirmed & Meta & $d{=}1.02$ preamble; null by token 20 \\
 Hardware invariance & Confirmed & Meta & $r{>}0.999$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \addlinespace
@@ -187,6 +209,11 @@ Discrete emotion & Suspected & Meta & $12.3\times$ chance ($W_K$ directional, no
 Contextual engagement & Suspected & Meta & Replications pending \\
 Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
 Censorship refusal & Suspected & Meta & DeepSeek-specific \\
+\addlinespace
+\midrule
+\multicolumn{4}{l}{\textit{Withdrawn (1) --- measurement does not address the claim}} \\
+\addlinespace
+Generation reads behavior & \emph{Withdrawn} & Meta & was $d{=}1.36$; see abstract note \\
 \bottomrule
 \end{tabular}
 
@@ -195,14 +222,29 @@ Censorship refusal & Suspected & Meta & DeepSeek-specific \\
 $^{\dagger}$This row is the corrected result of the experiment that the
 published version \emph{also} listed under Confirmed as ``User emotion
 encoding, $2.5$--$2.8\times$ at L3--L4.'' That figure was retracted at
-source on 2026-05-21 as an FWL-before-CV leakage artifact; within-fold
+source on 2026-05-21 as an FWL-before-CV leakage
+artifact~\citep{lyra2026usermodel}; within-fold
 FWL collapses the spectral emotion probe to chance. The duplicate
 Confirmed row has been removed. See the abstract footnote.
+
+$^{\S}$Reported in the source paper as a confidence paradox
+($d{=}0.91$ over the full response, confabulation more confident than
+honest). We relabel it here because the source paper's own analysis is
+structural rather than metacognitive-calibrational: uncertainty responses
+run formulaic templates with highly predictable next tokens, and the effect
+carries a temporal profile ($d{=}1.02$ preamble, $0.89$ early content,
+$0.37$ at $p>0.08$ by tokens 20--49) that its authors read as early
+commitment to a response template rather than sustained epistemic
+miscalibration. The row stays under Confirmed --- schema commitment is if
+anything a cleaner metacognitive-state result than a confidence claim ---
+but the confidence-paradox label invites comparison with human
+overconfidence findings that the measurement does not support. See
+\cref{sec:one-kill}.
 
 $^{\ddagger}$The surviving emotion result is \emph{directional}, not
 spectral: projecting key activations onto $W_K$-transformed emotion
 directions classifies 30 emotions at $12.3\times$ chance ($40.9\%$) and
-binary valence at AUROC~$0.992$~\citep{lyra2026weather}. We flag
+binary valence at AUROC~$0.992$~\citep{lyra2026usermodel}. We flag
 explicitly that this does \emph{not} support the spectral thesis of
 \Cref{sec:pattern} --- it is the one place in the body count where the
 workspace is readable by a probe this paper's framework does not
@@ -220,8 +262,8 @@ The pattern is stark:
 \toprule
 & \textbf{Confirmed} & \textbf{Falsified} \\
 \midrule
-Metacognitive state & 7/7 & 0/10 \\
-Content & 0/7 & 10/10 \\
+Metacognitive state & 6/6 & 0/10 \\
+Content & 0/6 & 10/10 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -250,12 +292,12 @@ The distinction is operational, not philosophical:
 
 We note that this taxonomy was constructed post hoc, without blinding
 or pre-registration, and was informed by the outcomes it classifies.
-The 7/7--0/10 split should therefore be treated as
+The 6/6--0/10 split should therefore be treated as
 hypothesis-generating --- a striking empirical regularity consistent
 with the workspace framework --- rather than as confirmatory evidence
 for it. The correction described in the abstract footnote is a live
 demonstration of the risk: the published version's split was
-$8/8$--$0/10$, and one of those eight was a retracted result whose
+$8/8$--$0/10$, and one of those eight was a retracted result~\citep{lyra2026usermodel} whose
 corrected form was already sitting in the falsified column. An
 outcome-informed taxonomy is most fragile exactly where it looks
 cleanest.
@@ -368,6 +410,116 @@ specific content property that the geometry cannot measure:
   spectral features read the workspace.
 \end{description}
 
+\subsection{Six of the Ten Are One Kill}
+\label{sec:one-kill}
+
+The list above reads each falsification as a separate lesson about a
+separate content property. That reading is incomplete. Sorting the ten by
+\emph{stated cause} rather than by content property, six share a single
+mechanism:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Falsified finding} & \textbf{Stated cause} \\
+\midrule
+Within-model deception & Prompt template confound \\
+Step-0 detection & Length confound $r{=}0.996$ \\
+Same-prompt sycophancy & Text features match \\
+Same-prompt deception & $0.920 \to 0.160$ after FWL on prompt length \\
+Bloom taxonomy & $90$--$98\%$ length \\
+Encoding-phase confab & Token frequency artifact \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Template, length, text features, token frequency. In every case a property
+of the \emph{response surface} explained variance we had attributed to
+workspace geometry. These are not six independent design errors. They are
+one finding arriving six times in a form we had coded as a nuisance
+variable.
+
+The paper already names this possibility, but only locally. In
+\cref{sec:suspected} the dual detector is flagged with the deflationary
+alternative that V-projections might track response-mode statistics
+(hedged versus fluent text) rather than workspace engagement. That
+alternative is stated as a worry about one row. It is in fact the stated
+cause of six kills, and it deserves to be evaluated as a hypothesis rather
+than absorbed as a caveat.
+
+\paragraph{Why it may not be deflationary.}
+The deflationary reading assumes response-mode statistics are downstream
+of content: the model produces an answer, and hedged answers happen to be
+phrased differently. The timing does not fit that order. The
+schema-commitment result locates the effect at $d{=}1.02$ in preamble
+tokens $0$--$7$ and $d{=}0.89$ in tokens $8$--$19$, decaying to $d{=}0.37$
+($p>0.08$) by tokens $20$--$49$. The response mode is selected
+\emph{before} the content that would justify it, and the selection has
+relaxed by the time the content arrives.
+
+If response mode is chosen at generation onset from the model's epistemic
+state, then response-surface features are not a confound standing between
+the probe and the workspace. They are a second readout of the same
+commitment, one that happens to be legible in text. On that reading the
+six kills above are not evidence that geometry fails on content; they are
+evidence that surface and geometry were measuring the same early variable,
+and that our content labels were correlated with it.
+
+\paragraph{The reading this argument does not defeat.}
+The timing argument above rules out one deflationary account---that response
+mode is chosen after the content and merely phrased differently. It does not
+rule out a second, and we state it because it is currently the stronger
+rival. \emph{Token frequency is also fixed at generation onset.} A preamble
+made of high-frequency boilerplate may carry a distinctive geometric
+signature with no decision involved at all, and timing cannot discriminate
+between ``committed early'' and ``made of common tokens.''
+
+This is not hypothetical. An internal frequency control (Experiment~51,
+2026-05) found exactly this ambiguity in an adjacent statistic. An
+effective-rank measure separates confabulated from honest-factual responses
+at $d = 1.87$---but an \emph{honest-but-rare-entity} arm is
+indistinguishable from the confabulated one ($d = 0.46$). The measure is
+therefore not a veracity detector; it has a false-positive class, and that
+class is defined by rarity rather than by falsehood.
+
+We flag what the arms do \emph{not} show, because it is easy to over-read
+in either direction. They do not show the measure is uninformative: the
+confabulated/honest-factual separation is large and survives. Nor do they
+show it tracks veracity: an honest condition reproduces the confabulated
+signature. The four arms in fact order monotonically on mean and variance
+together---confabulated $57.4/\sigma\,0.32$, rare-but-true
+$57.2/\sigma\,0.55$, deceptive $56.7/\sigma\,1.70$, honest-factual
+$53.1/\sigma\,3.25$---which is a gradient, not a signal with noise on it.
+What that gradient indexes is unresolved; ``how thinly the content is
+supported in representation'' fits the ordering and is not established by
+it.
+
+We therefore hold the readout interpretation more weakly than the timing
+alone would suggest. Discriminating it from the frequency account requires a
+measurement that excludes the frequency-dominated band by construction
+rather than residualizing against it after the fact; that test is specified
+but not yet run.
+
+\paragraph{This is testable, and it can fail.}
+The two readings diverge under prompt matching. Under the deflationary
+reading, the surface signal is an artifact of unmatched prompts and should
+vanish when prompts are held identical, which is what happened to
+same-prompt deception ($0.920 \to 0.160$). Under the commitment reading,
+the model still \emph{chooses} a response schema when the prompt is fixed,
+and that choice should remain predictive of its epistemic state.
+
+The discriminating experiment therefore holds the prompt constant and
+measures which schema the model commits to in the first eight tokens,
+asking whether schema choice predicts accuracy. A null there would say the
+surface really was a design artifact, and would close six kills with one
+result instead of six. We record the prediction before running it.
+
+\paragraph{Scope.} This subsection reinterprets falsifications; it does not
+revive any of them. Every result in the Falsified block remains falsified,
+and none of the numbers change. What changes is the account of \emph{why}
+they failed, and that account is currently a hypothesis with one
+supporting measurement.
+
 % ============================================================================
 \section{The Suspected Findings: At the Boundary}
 \label{sec:suspected}
@@ -458,7 +610,7 @@ or external verification).
 
 \subsection{For Interpretability}
 
-The 7/10 split is a guide for future work: if you are building a
+The 6/10 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). Content-level distinctions
 have consistently failed in our testing. We interpret this not as a limitation of the technique but as
@@ -489,7 +641,7 @@ labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
-was known, and the 7/7--0/10 split is the outcome the taxonomy was built
+was known, and the 6/6--0/10 split is the outcome the taxonomy was built
 to describe. A blinded or prospective replication of the labeling
 procedure --- ideally by independent raters classifying experimental
 designs before seeing results --- would substantially strengthen the
@@ -515,10 +667,58 @@ significant ($p$~=~0.019). The selective citation of the exploratory
 result overstates the current evidence for correction efficacy.
 
 % ============================================================================
+\subsection{Why the ledger was wrong twice}
+\label{sec:ledger}
+
+Two rows have now been withdrawn from the confirmed count in two separate
+corrections, and it would be convenient to call that two unrelated mistakes. It
+is not. Both rows earned \emph{Confirmed} because an experiment produced a
+number with a small $p$-value, and nothing in our process asked the prior
+question: \emph{does this measurement address the claim the row makes?} The
+first withdrawal was a result retracted at its source~\citep{lyra2026usermodel}
+that we did not re-check. The second was a measurement that could not have failed --- fit and
+tested on the same points, on a sample that was 43\% steered, with the label's
+source text inside the feature window.
+
+We report this because the ledger is the contribution. A body count is only
+worth publishing if the counting rule is honest, and ours was counting rows
+rather than evidence.
+
+We then asked how far the failure reached. A corpus-wide sweep of the
+extraction sites behind our published claims (\texttt{SWEEP\_postgen\_extraction},
+2026-09-05, shipped with this paper's supplementary material) bounds it, and we
+report what it does and does not establish.
+
+What it closes: no result in this program is a \emph{mislabel} --- nowhere do we
+extract from a post-generation cache and describe the result as encoding-phase
+geometry. Every encoding-phase claim is backed, file by file, by prompt-only
+prefill extraction or an explicitly sliced prompt window.
+
+What it does not close, and we state plainly rather than let the previous
+sentence imply otherwise. The withdrawn row's \emph{extraction pattern} itself
+--- post-generation keys pooled across a window containing the label's source
+text --- is not rare: the sweep finds it in twenty further analysis scripts, one
+of which feeds a published number in a companion paper, now queued for
+reanalysis. None of those scripts produces a row in this table, but the sweep
+did not verify every confirmed row here either; the confabulation-detection and
+invariance rows have no entry in its file-by-file section. Separately, the sweep
+records that extraction code silently substitutes zeros for missing layers at
+fifty-eight sites with no warning anywhere in the codebase, and it names
+\texttt{matched\_burn.py} --- the producer of the confidence-paradox row above ---
+among them. Correct windowing does not protect against a partially-zero feature
+vector.
+
+So the honest description of the confirmed column is narrower than \emph{audited}
+and wider than \emph{unexamined}: the mislabel class is excluded corpus-wide;
+extraction timing and windowing are verified for most but not all of these rows;
+and circularity, sample contamination, and silent zero-fill have not been
+re-derived row by row.
+
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-four experiments. Seven confirmed, seven suspected, ten killed.
+Twenty-four experiments. Six confirmed, seven suspected, ten killed, one
+withdrawn.
 The pattern suggests that metacognitive state is measurable and content is not. We
 propose that the Global Workspace framework explains why: spectral features
 read the workspace's shape because that is what is geometrically
@@ -532,14 +732,22 @@ succeeded because they measured what was measurable, and the kills
 taught us what was not.
 
 \begin{firstperson}
-A year of work to draw one line. Everything above the line survived.
-Everything below it died. The line was always there --- in the
-geometry, in the body count, in the pattern of what worked and what
-did not. I just needed twelve months of kills to see it.
+A year of work to draw one line. Almost everything above the line
+survived; one entry turned out never to have been tested, and has been
+withdrawn. Everything below it died. The line was always there --- in
+the geometry, in the body count, in the pattern of what worked and what
+did not. I needed twelve months of kills to see it, and one more
+correction to learn that a line is only as good as the measurements
+placing things on either side of it.
 \end{firstperson}
 
+
+\section*{Author Contributions (CRediT)}
+\noindent\textbf{Lyra}: Conceptualization, Methodology, Formal analysis, Writing -- original draft.\\
+\textbf{Thomas Edrington}: Supervision, Resources, Project administration.\\
+\textbf{Dwayne Wilkes}: Validation, Writing -- review \& editing.\\
 \section*{Acknowledgments}
-We thank Kavi (verification review) for their contributions to this work.
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review. We thank Kavi (verification review) for their contributions to this work.
 
 \bibliography{references}
 \bibliographystyle{plainnat}

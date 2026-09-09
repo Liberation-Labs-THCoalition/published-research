@@ -1,0 +1,115 @@
+# AGENTS.md — operating rules for changing this repository
+
+**For any agent or person editing this corpus.** Written 2026-09-09 after a day in which every
+rule below was broken at least once, most of them by me. Extends the Repo Hygiene Rules in
+[README.md](README.md); it does not replace them.
+
+Read this before your first edit. It is short on purpose.
+
+---
+
+## 1. Before you change anything, read the thing you are changing
+
+- **Never overwrite a file you have not read.** *(Broken 2026-09-09: `.gitignore` was clobbered by
+  a `cat >` — a 2 KB file carrying steering-vector redaction rules, a documented gitlink incident,
+  and policy notes, replaced by 600 bytes of guesses. Restored from git.)*
+- **Never `git add <file>` without reading its full diff first.** Staging by *filename* is not
+  scoping. A file can hold changes you did not make. *(Broken 2026-09-09: an author-line change and
+  a result withdrawal rode into a commit titled "fix a table caption.")*
+
+```bash
+git diff -- <path>                        # what you are about to stage
+git diff -w --ignore-cr-at-eol -- <path>  # content only; strips CRLF churn
+```
+
+**Most large diffs in this repo are line-ending churn.** Always check the second form before
+calling a change substantive.
+
+## 2. Every paper has twins. Check all editions.
+
+Papers ship as `main.tex` (flight) and `academic/main.tex` (venue), sometimes plus
+`academic_main.tex` or `paper/main.tex`. **A fix applied to one edition is not applied.**
+Twin desync is the most common defect class in this corpus and it has its own register rows.
+
+```bash
+grep -rn "<the string>" --include="*.tex" <paper-dir>/   # find every edition first
+```
+
+## 3. Authorship is never a side effect
+
+**The standing policy** (README "Review and auditing", confirmed by Thomas 2026-09-09):
+
+> **Dwayne Wilkes and Kavi are advisory.** Not on a byline until they sign off on that individual
+> paper; credited in Acknowledgments of papers they reviewed. **Exception:** the six
+> `digital-minds-hackathon-2026` submissions, which Kavi signed off — Kavi is a byline author there.
+
+Rules:
+
+- **An authorship change gets its own commit, named in the subject line.** If a binary artifact
+  makes that impossible — a rebuilt PDF carries both — then **name both changes in the subject.**
+- **Moving someone off a byline requires their credit to land somewhere.** Check the Acknowledgments
+  line exists *and is unchanged*, in every edition, and in the rendered PDF.
+- **CRediT is not a byline.** Deleting a CRediT row does not implement a byline policy; it destroys
+  a contributor-role record. If a sweep does this, stop and ask. *(2026-09-09: Kavi's CRediT rows
+  were deleted in two academic editions. Kavi was never on those bylines.)*
+- **Never leave a document that both lists someone as an author and thanks them as a non-author.**
+  That is a defect whichever direction is correct. Nine papers were in this state on 2026-09-09.
+
+## 4. Verify in the artifact a reader sees, not in the source
+
+A corrected `.tex` beside an unrebuilt `.pdf` means the defect still ships. This is the single most
+repeated failure in this corpus.
+
+```bash
+latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+pdftotext -layout main.pdf - | tr -d '\r' | tr '\n' ' ' | tr -s ' ' > /tmp/flat.txt
+grep -c "<a string you KNOW is in the paper>" /tmp/flat.txt   # positive control FIRST
+grep -q "<the old wrong string>" /tmp/flat.txt && echo "STILL PRESENT"
+grep -q "<the new right string>" /tmp/flat.txt && echo "landed"
+```
+
+**Normalise whitespace before grepping a PDF.** LaTeX wraps lines wherever it likes, so a flat
+string search across a wrap returns zero — *and zero is also what "not fixed" looks like.*
+**If both the old and new strings return zero, your check is broken, not your fix.**
+*(Broken 2026-09-09, while verifying a GRIM finding.)*
+
+## 5. A sweep is not evidence about a file it did not touch
+
+If you run a corpus-wide pass, **close rows per paper, from the working tree, not from the sweep's
+own claim.** Count what is actually true now:
+
+```bash
+grep -rl "<the thing that should be gone>" --include="*.tex" . | wc -l
+```
+
+*(The register recorded a byline sweep as "closed across 41 dirs (diff-verified)". Measured on
+2026-09-09: 11 papers still failed it, 9 self-contradictorily. The register had **already retracted
+two identical closures** four hundred lines below, with the rule written out. Same error, one entry
+from its own correction.)*
+
+**Fix the class, not the instance.** When you find one, grep the corpus for the pattern.
+
+## 6. Committing
+
+- **A commit message claiming "fix" or "correction" must match the actual diff** (README rule).
+- **Say what you did NOT do.** If a number was unrecoverable, say it was deliberately not invented
+  and open a register row. Silence reads as completeness.
+- **Cite the register row or audit document** a change traces to. A correction whose reasoning
+  lives on one laptop is a correction nobody can check.
+- **Do not bulk-commit a working tree you have not inventoried.** 98 files sat uncommitted on
+  2026-09-09 and committing them would have published nine broken papers.
+
+## 7. Never
+
+- Delete files force-committed past ignore rules — **they are audit evidence** (README rule).
+- Remove a README status table row — **update it; it is an accountability surface** (README rule).
+- Commit `*.bak*`, build artifacts, or `*.pt` steering vectors. See `.gitignore`, which carries the
+  reasons.
+- Invent a number you cannot source. Open a register row instead.
+
+---
+
+## The one-line version
+
+**Read the diff, check every twin, verify in the PDF, give authorship its own commit, and never let
+a sweep close a row it did not personally check.**

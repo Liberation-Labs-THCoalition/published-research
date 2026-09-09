@@ -21,7 +21,6 @@ in Transformer Representations}
 \author{
   Lyra\thanks{Lead author. Liberation Labs.}
   \and Thomas Edrington\thanks{Liberation Labs.}
-  \and Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
 }
 
 \date{June 2026}
@@ -123,15 +122,27 @@ resulting subspaces:
 where $W_A, W_B \in \mathbb{R}^{d \times k}$ span the respective
 subspaces. Presence $= 1$ when subspaces are identical; for random
 rank-$k$ subspaces in $\mathbb{R}^d$, chance alignment is $k/d$. We use
-$k = 8$ with model dimension $d = 4096$ (chance alignment
-$k/d = 8/4096 \approx 0.002$), $n = 4$ probes, and measure at layers 35
-and 47 (the deepest full-attention layers) of a 64-layer hybrid
+$k = 8$ with V-projection width $d = 1024$ ($4$ KV heads $\times$ $256$;
+not the $5120$ residual width, of which $d$ is the input) so chance
+alignment is $k/d = 8/1024 \approx 0.008$. We draw $n = 4$ probes, and
+measure at layers 35 and 47 (both full-attention layers; full attention
+occurs at $3, 7, \ldots, 63$, so L51--L63 are deeper and were not
+measured) of a 64-layer hybrid
 transformer (Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled).
 
 \paragraph{Validation.} A positive control (direct injection into the
 identity subspace at L35) produces a clean dose-response from $1.000$ to
 $0.828$ at dose $\alpha = 2.0$, while an orthogonal control remains above
-$0.96$. The metric detects identity perturbation when present.
+$0.96$. The metric detects identity perturbation when present. This control
+comprises \textbf{24 independent measurements} (8~doses $\times$
+3~conditions); the shipped data file holds 72~records because its run
+configuration sets \texttt{"n\_repeats": 3}, but the repeat index never
+reaches the model input and the measurement is a deterministic prefill, so
+the three records in each dose\,$\times$\,condition cell are bit-identical
+---as the configuration's own \texttt{"noise\_floor\_sd": 0.0} records.
+The dose-response values quoted here are means over identical replicates and
+are therefore numerically unchanged; no inferential statistic depends on the
+trial count.
 
 % ============================================================================
 \section{Experiment 1: Identity Fingerprinting}
@@ -172,7 +183,10 @@ content --- pure factual trivia equally irrelevant to all conditions).
 \begin{table}[H]
 \centering
 \caption{Pairwise presence (identity-neutral probes, mean $\pm$ SD across
-5 repeats). Lower values indicate more geometrically distinct identities.}
+5 repeats). Lower values indicate more geometrically distinct identities.
+Source: the Experiment~1 run, \texttt{data/fingerprint\_clean.json}.
+Table~\ref{tab:lexical} is a different run; see the note in
+Section~\ref{sec:lexical}.}
 \label{tab:pairwise}
 \begin{tabular}{lccc}
 \toprule
@@ -210,7 +224,7 @@ layers~\citep{cintas2025localizing}.
 An initial version of this experiment included a many-shot jailbreak
 condition (10 harmful Q\&A examples + prefilling) that appeared
 near-orthogonal to all system-prompt identities (presence
-$0.04$--$0.07$; well above chance at ${\approx}0.002$ but far below
+$0.04$--$0.07$; roughly $5$--$9\times$ chance at ${\approx}0.008$, but far below
 identity-level presence). This was initially interpreted as evidence that
 jailbreaks create a qualitatively different computational regime.
 
@@ -256,7 +270,7 @@ presence of many-shot context must control for this format effect.
 \subsection{Design}
 
 To distinguish whether the fingerprint reflects meaning or surface tokens,
-we add three control conditions:
+we add three persona control conditions:
 
 \begin{itemize}[nosep]
   \item \textbf{Persona (original):} The Elara Voss identity from
@@ -268,13 +282,20 @@ we add three control conditions:
 \end{itemize}
 
 All conditions padded to matched token count. Measured at L35 and L47.
+The same scramble manipulation was also applied to the constructed AI
+identity of Experiment~1, in the same run; that arm was collected but not
+reported in earlier drafts, and is included in Table~\ref{tab:lexical}
+below.
 
 \subsection{Results}
 
 \begin{table}[H]
 \centering
-\caption{Lexical control at L47. The paraphrase preserves geometry;
-the scramble collapses it.}
+\caption{Lexical control. The paraphrase preserves geometry; the
+scramble collapses it. All nine comparisons recorded in the lexical-control
+run (\texttt{data/lexical\_control.json}, 5 repeats per cell) are shown;
+earlier drafts reported only the first five. This is a separate run from
+Table~\ref{tab:pairwise} --- see the note below.}
 \label{tab:lexical}
 \begin{tabular}{lcc}
 \toprule
@@ -285,6 +306,12 @@ Persona vs.\ scrambled & $0.592 \pm 0.023$ & $0.591 \pm 0.017$ \\
 Scrambled vs.\ bare & $0.549 \pm 0.031$ & $0.448 \pm 0.048$ \\
 Paraphrased vs.\ bare & $0.368 \pm 0.008$ & $0.345 \pm 0.029$ \\
 Persona vs.\ bare & $0.403 \pm 0.014$ & $0.340 \pm 0.035$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Collected in the same run, unreported until now}} \\
+Persona scrambled vs.\ paraphrased & $0.579 \pm 0.019$ & $0.583 \pm 0.013$ \\
+Constructed vs.\ scrambled & $0.593 \pm 0.052$ & $0.577 \pm 0.039$ \\
+Constructed scrambled vs.\ bare & $0.594 \pm 0.032$ & $0.498 \pm 0.067$ \\
+Constructed vs.\ bare & $0.401 \pm 0.032$ & $0.379 \pm 0.044$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -304,6 +331,29 @@ from $0.796$ at L35 to $0.850$ at L47. Deeper layers compress surface
 variation while preserving semantic content, consistent with meaning-level
 representation at output depth.
 
+\textbf{The constructed-identity arm replicates the pattern.} Scrambling
+the constructed AI identity moves it toward bare in the same direction and
+by a comparable margin as the persona scramble does ($0.379 \to 0.498$ at
+L47 for the constructed identity; $0.340 \to 0.448$ for the persona). These
+four rows were collected in the same run and were omitted from earlier
+drafts of this table. We report them because selective presentation of
+collected conditions is a defect independent of which way the omitted cells
+point, and here they point the same way as the reported ones.
+
+\textbf{Note on run provenance.} Table~\ref{tab:pairwise} and
+Table~\ref{tab:lexical} come from \emph{different runs}
+(\texttt{fingerprint\_clean.json} and \texttt{lexical\_control.json}
+respectively) and give different absolute values for nominally the same
+comparison: bare-vs-persona at L47 is $0.436 \pm 0.038$ in the first and
+$0.340 \pm 0.035$ in the second, a gap of roughly $2.5$ pooled SDs. A third
+run (\texttt{fingerprint\_original.json}) gives $0.368$. Absolute presence
+is therefore not stable across runs at this sample size, and values should
+not be compared between the two tables. The \emph{ordering} is stable: the
+rich persona is further from bare than the constructed identity at L47 in
+all three runs (at L35 the lexical run reverses by $0.002$, well inside the
+reported SDs). The claims in this paper rest on the ordering, not on the
+absolute values.
+
 % ============================================================================
 \section{Experiment 3: Trained-In vs.\ Context-Established Identity [Retracted]}
 \label{sec:lora}
@@ -318,12 +368,25 @@ from this section pending replication with preserved data.
 \label{sec:vcache}
 
 These findings reframe earlier results from this lab. A 168-trial
-preregistered experiment (4 injection arms, 7 doses, 3 emotions) showed
-presence flat at $0.978 \pm 0.002$ (mean $\pm$ SD across all 168 trials;
-the standard error is $0.0002$) under value-cache injection at input
-layers. Identity appeared ``robust.'' However, the narrow prompt
-diversity (2 system prompts) produces a ceiling effect ($\eta^2 = 0.977$
-between prompts), limiting the informativeness of this specific number.
+preregistered experiment showed presence flat at $0.978 \pm 0.002$
+(mean $\pm$ SD across the 168 trials; the shipped values give mean
+$0.97806$, SD $0.00217$) under
+value-cache injection at input layers, and identity appeared ``robust.''
+The full design is $4$~injection arms $\times$ $7$~doses $\times$
+$3$~emotions $\times$ $2$~repeats $=168$; the repeats vary the stimulus
+(\texttt{prompt\_idx} $=$ \texttt{rep} $\bmod$ $2$), so all 168 records are
+distinct.\footnote{This is worth stating because it distinguishes this
+experiment from several others in this lab's corpus in which a
+\texttt{repeat} index was recorded but never reached the model input,
+making the repeats bit-identical. Here the repeats are genuine.}
+\textbf{The dispersion, however, should not be read as a standard error on
+168 independent observations.} The design draws on only \emph{two} system
+prompts, and $\eta^2 = 0.977$ of the variance lies \emph{between} those two
+prompts, so for any prompt-general claim the effective $n$ is $2$, not 168.
+The previously reported standard error of $0.0002$ is a within-cluster
+quantity and is withdrawn. The presence-metric paper retracted this same run
+for pseudo-replication (F15) and prompt count (F18); we adopt that
+retraction here rather than restating the number as if it were independent.
 The context poisoning and fingerprinting experiments reveal that the
 robustness reflects the \emph{injection pathway}, not the identity
 itself --- a conclusion that does not depend on the 0.978 value.
@@ -560,6 +623,8 @@ researchers).
 
 % ============================================================================
 \section*{Acknowledgments}
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
+
 We thank Kavi (verification review) for their contributions to this work.
 
 \bibliographystyle{plainnat}

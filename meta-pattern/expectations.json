@@ -1,0 +1,25 @@
+{
+  "required_strings": [
+    "body count is 6 confirmed, 7 suspected, 10 honestly falsified, and 1 withdrawn",
+    "Withdrawn (1)",
+    "Why the ledger was wrong twice",
+    "twenty further analysis scripts",
+    "the producer of the confidence-paradox row",
+    "fifty-eight sites with no warning",
+    "Author Contributions (CRediT)",
+    "Dwayne Wilkes: Validation, Writing",
+    "review & editing"
+  ],
+  "forbidden_strings": [
+    "7 confirmed, 7 suspected, and 10 honestly",
+    "Confirmed (7)",
+    "7/7--0/10",
+    "results, they survived every control",
+    "line. Everything above the line survived.",
+    "occurs nowhere else",
+    "extraction methodology has been verified"
+  ],
+  "min_pages": 9,
+  "_note": "Forbidden strings must match the CLAIM BEING ASSERTED, not a correction that quotes it. A withdrawal normally restates the thing it withdraws, so an unanchored substring will fire on the fix and read as a defect.",
+  "_note_needles": "Needles target SEMANTIC content, not typography. 'matched_burn.py' was rejected as a needle: pdftotext extracts the \texttt underscore as a space, so the check failed on a correct document. Assert that the disclosure reached the reader, not that a glyph survived extraction."
+}
