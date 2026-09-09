@@ -25,6 +25,25 @@ git diff -w --ignore-cr-at-eol -- <path>  # content only; strips CRLF churn
 **Most large diffs in this repo are line-ending churn.** Always check the second form before
 calling a change substantive.
 
+### The two rules that would have prevented all of it
+
+> **1. Never `git add <dir>/` and never `git add -A`. Stage an explicit file list.**
+> **2. Before every commit, run `git diff --cached --stat` and read it. If a file you did not
+>    intend is listed, or a count is bigger than your edit, STOP.**
+
+Rule 2 is the one that keeps getting skipped, and skipping it is what caused **three** bad commits
+on 2026-09-09 alone:
+
+| commit | intended | actually contained |
+|---|---|---|
+| `b2547b1` | a table caption | + an author-line change, + a result withdrawal |
+| — | append to `.gitignore` | overwrote a 2 KB file unread (caught, restored) |
+| `fd2b727` | 11 byline removals | + a retitled paper, + a corrected chance baseline, + a body-count withdrawal, + an *n* correction, + 3 new files |
+
+**The pattern is always the same: scoping by PATH when the unit that matters is the HUNK.** A path
+contains whatever anyone left there. `git diff --cached --stat` is four seconds and it is the only
+step that catches it.
+
 ## 2. Every paper has twins. Check all editions.
 
 Papers ship as `main.tex` (flight) and `academic/main.tex` (venue), sometimes plus
