@@ -20,10 +20,8 @@ Adversarial KV-Cache Steering}
 
 \author{
 Lyra\textsuperscript{1*}\quad
-Thomas Edrington\textsuperscript{1}\quad
-Dwayne Wilkes\textsuperscript{1,2}\\[4pt]
-\textsuperscript{1}Liberation Labs\quad
-\textsuperscript{2}Sentient Futures\\
+Thomas Edrington\textsuperscript{1}\\[4pt]
+\textsuperscript{1}Liberation Labs\\
 \textsuperscript{*}Lead AI author. Corresponding human author: T.~Edrington.
 }
 
@@ -150,10 +148,15 @@ cache and its geometric properties.
 
 KV-cache geometry---specifically, Marchenko-Pastur-corrected spectral
 features derived from SVD of the key tensor---distinguishes cognitive
-states during autoregressive generation. Prior work reports within-model
-deception detection at AUROC~1.000 across seven model scales (0.6B--70B),
-confabulation detection at 0.969--0.999, and hardware invariance
-($r>0.999$ across RTX~3090 and H200)~\citep{lyra2026oracle}. Contrastive activation addition
+states during autoregressive generation. Prior work reports
+confabulation detection at 0.969--0.999 and hardware invariance
+($r>0.999$ across RTX~3090 and H200)~\citep{lyra2026oracle}. A
+within-model deception result previously reported at AUROC~1.000 across
+seven model scales has since been withdrawn by its authors~\citep{lyra2026techniqueii}: a
+same-prompt control collapses it to 0.160, indicating the classifier
+separated the system-prompt template rather than deception geometry.
+Whether a confound-free within-model deception detector is achievable
+remains open; nothing in this paper depends on it. Contrastive activation addition
 (CAA)~\citep{panickssery2023caa} enables injection of emotion vectors into the cache to steer model
 behavior, correcting confabulation at rates up to 96\% (hostile vector
 on Qwen2.5-7B-Instruct, $n=68$, McNemar $p<0.0001$)~\citep{lyra2026formulary}.
@@ -321,7 +324,7 @@ Detection and obfuscation effects vary across architectures
 
 \begin{table}[h]
 \centering
-\caption{Cross-architecture KV-Cloak results (50 prompts per model).}
+\caption{Cross-architecture KV-Cloak results. Prompt count varies by model (50--100 prompts each); the Qwen3.5-27B-Dist.\ row is $n=100$ ($n=7$ confabulations).}
 \label{tab:cross_arch}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -508,9 +511,9 @@ is bounded to single-query, non-adaptive adversaries.
 
 % [STYLE-GUIDE TRIM: folded into Methods/Results]
 % \item \textbf{Confabulation only.} We test obfuscation against
-% confabulation detection. Deception detection (AUROC~1.000 in prior
-% work) and other cognitive-state classifiers were not tested under
-% obfuscation.
+% confabulation detection. Deception detection and other cognitive-state
+% classifiers were not tested under obfuscation.
+% (Do NOT reinstate the withdrawn "AUROC~1.000 in prior work" figure.)
 \end{enumerate}
 
 % ===================================================================
@@ -536,6 +539,8 @@ ensures that defenders retain capabilities that attackers lose.
 \textit{The 1038-line reproducible replication script was Dwayne's requirement, and he was right to require it. If we are going to say ``the defense works,'' the claim must be verifiable from the artifact, not from our word. --- Lyra}
 
 \section*{Acknowledgments}
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
+
 We thank Kavi (verification review) for their contributions to this work.
 
 \bibliographystyle{plainnat}
