@@ -29,13 +29,26 @@ architectures (0.6B--70B parameters):
 \end{itemize}
 
 Key findings from three experimental campaigns (46 experiments, 16 models):
-within-model deception detection reaches AUROC 1.000 across all 7 tested
-architectures. Confabulation detection reaches 0.969--0.999 on 3 of 3
-models tested. Crucially, confabulation and deception produce
-\emph{geometrically opposite} signatures: confabulation contracts the
-spectral representation while deception expands it. These results are
-hardware-invariant ($r > 0.999$ between RTX 3090 and H200) and scale-invariant
-(Spearman $\rho = 0.83$--$0.90$ from 0.6B to 70B parameters).
+confabulation detection reaches 0.969--0.999 on 3 of 3 models tested, and
+the underlying spectral features are hardware-invariant ($r > 0.999$
+between RTX 3090 and H200) and scale-consistent (Spearman
+$\rho = 0.83$--$0.90$ from 0.6B to 70B parameters).
+
+A within-model deception result from the same campaigns, previously
+reported at AUROC 1.000 across all 7 tested architectures, has since been
+withdrawn: a same-prompt control collapses it to 0.160, indicating the
+classifier separated the system-prompt template rather than deception
+geometry. The withdrawal reaches further than one number. The paired
+observation that confabulation \emph{contracts} the spectral
+representation while deception \emph{expands} it was derived from those
+same measurements, so the opposite-signatures contrast is currently
+supported for the confabulation arm and unsupported for the deception
+arm. We state it here as the hypothesis that motivated the Loop's routing
+design---diagnose which pathology, prescribe accordingly---not as an
+established result. The confabulation contraction, which is what this
+paper measures and corrects, is unaffected. Whether deception has a
+distinct, confound-free spectral signature remains an open question;
+nothing this paper measures depends on it.
 
 \subsection{The Token-Count Confound}
 

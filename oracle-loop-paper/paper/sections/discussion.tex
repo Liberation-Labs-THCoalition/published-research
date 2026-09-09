@@ -4,12 +4,19 @@ An AUROC of 0.707 for HEDGED vs CONFABULATED is moderate, not spectacular.
 It means that given a random hedged response and a random confabulated
 response, the MP features correctly identify which is which 70.7\% of the
 time. This is substantially above chance ($p = 0.001$) and above the
-token-count-only baseline (0.591), but it is not the 0.999 AUROC we
-observe for instructed deception in our prior work \citep{lyra2026detecting}.
+token-count-only baseline (0.591), but it is well below the near-ceiling
+AUROC our prior work reported for instructed deception
+\citep{lyra2026detecting}---a result that has since been withdrawn
+(\cref{sec:background}).
 
-The difference is informative. Instructed deception creates a large,
-clean geometric signal because the model is processing fundamentally
-different cognitive tasks. Post-hoc hedging vs.\ confabulation is a
+The comparison is still informative, but it now cuts the other way. The
+instructed-deception separation looked large and clean partly because
+the contrasted conditions differed in their prompt templates as well as
+their cognition; the same-prompt control that withdrew the result showed
+the classifier reading the template. The present experiment has no
+instructed contrast: both classes arise from the same prompt pool under
+identical instructions and are classified post-hoc from behavior.
+Post-hoc hedging vs.\ confabulation is a
 subtler distinction: in both cases, the model is processing the same
 unanswerable question and attempting a response. The geometric difference
 reflects the model's \emph{epistemic calibration}---whether it recognizes
@@ -57,10 +64,13 @@ This framework reinterprets our geometric findings:
   \item \textbf{Identity signatures} in the KV cache (AUROC 1.000) may
     reflect the model's self-model recognizing its own processing
     patterns.
-  \item \textbf{Confabulation vs.\ deception geometry} (opposite spectral
-    signatures) may reflect the self-model distinguishing ``I am
-    generating content I don't have evidence for'' from ``I am
-    generating content I know to be false.''
+  \item \textbf{Confabulation vs.\ deception geometry} (hypothesized
+    opposite spectral signatures; the deception arm rests on a withdrawn
+    result and is currently unsupported---see \cref{sec:background})
+    \emph{would}, if the contrast replicates under a same-prompt control,
+    reflect the self-model distinguishing ``I am generating content I
+    don't have evidence for'' from ``I am generating content I know to
+    be false.''
   \item \textbf{The self-report gap} (ICC 0.53 between self-reported
     internal states and geometric correlates, measured via a structured
     self-report protocol) is predicted by AST: the schema compresses,
