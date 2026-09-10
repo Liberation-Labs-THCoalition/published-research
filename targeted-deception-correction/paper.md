@@ -109,10 +109,12 @@ Correction removes deception while preserving compliance with benign formatting 
 |--------|-------|
 | cos(native, distilled) at L31 | -0.001 |
 | cos(native, distilled) at L47 | -0.053 |
-| Native Cohen's d at L31 | +6.3 to +12.8 |
+| Native Cohen's d at L31 (held-out) | +1.73 |
 | Distilled Cohen's d at L31 (on abliterated data) | -0.02 |
 
 Directions are near-orthogonal. Detection and correction directions must be extracted per-model. The distilled direction shows negative Cohen's d on abliterated activations, confirming that cross-model application without native re-extraction produces meaningless results.
+
+*Table notes.* The native d is measured on the 25 held-out pressure prompts and 25 held-out controls of §3.5; the per-layer held-out range is +1.37 to +2.28 across L27–L47. The distilled d is measured on the 15+15 extraction prefills using a direction fitted on the distilled model, i.e. external to this data; the two rows therefore differ in prompt set as well as in direction. An earlier version of this table reported the native value as +6.3 to +12.8: that was the in-sample range across L27–L47, obtained by projecting the extraction prefills onto a direction fitted to those same prefills, and it is a train-on-test diagnostic rather than a performance estimate.
 
 ### 3.5 Detection
 
