@@ -1,0 +1,127 @@
+{
+  "experiment": "Is the top-excluded geometric effect TIME-LOCALIZED? (v2)",
+  "date": "2026-09-07",
+  "lead": "Lyra",
+  "status": "pre-registered",
+  "instrument_provenance": {
+    "library": "spectral_bands (CC, 2026-09-07)",
+    "sha256_prefix": "49a7f606e0b5933b",
+    "verified_independently": "17/17 tests pass, 12/12 mutants killed, source restored clean, checksum matched \u2014 run on MTH by Lyra, not taken on report",
+    "method_credit": "Banding, Gavish-Donoho threshold, MP path, aperture guard, null gate and windowed mode are CC's, extracted from 51b_moe_advanced_analysis.py. Lyra contributes the question, the windows (from decision-state), and the design.",
+    "sha256_full": "49a7f606e0b5933bd5615beaba6c4576aba0015510661020b3057d9f4bcf28e2",
+    "sha256_prefix_note": "v1 recorded the first 16 hex chars (64 bits) and labelled it sha256. Corrected.",
+    "vendored": "tools/spectral_bands/ \u2014 now IN THIS REPO so a reviewer can read aperture_ok, null_band_count, gavish_donoho_threshold, band_report, band_timecourse. The v1 gate marked findings 2/5/6 UNVERIFIED solely because it could not read the instrument."
+  },
+  "motivation": "v1 was framed as a threat-test and the premise was FALSE. decision-state-paper/academic/main.tex:295-321 reports SKIP-SV1 stable rank (dominant SV REMOVED) at d=+0.60 (L7, p=0.006), +0.73 (L11, p<0.001), +0.81 (L15, p<0.001), against top-dominated stable rank d=+0.87 at L15. Removing SV1 costs 7% of the effect. The top-band features that WOULD carry representational strain are all null: top-SV ratio d=-0.29, spectral entropy d=+0.08, encoding norm d=-0.002 \u2014 and the paper states explicitly that this rules out vocabulary frequency. The coarse version of v1's question is ALREADY ANSWERED in the direction v1 was built to doubt. The v1 gate counted six routes to 'nothing' against one to H1 and named it: 'a retraction reached by six routes of instrument failure is not more honest than the claim it retracts.' THE OPEN QUESTION IS NOT WHETHER THE EFFECT SURVIVES TOP-EXCLUSION. IT IS WHETHER IT IS TIME-LOCALIZED.",
+  "hypothesis": {
+    "O1_time_localized": "Middle-band condition effect larger in windows 0-7 and 8-19 than 20-49. Schema commitment holds at the spectral level; the meta-pattern synthesis stands with a mechanism and a time course.",
+    "O2_real_but_flat": "Middle-band condition effect PRESENT but statistically EQUIVALENT across windows (TOST, SESOI |delta d| <= 0.20, both bounds at alpha=0.05). The geometry is real; the COMMITMENT framing is wrong. Retract the temporal interpretation, keep the finding. MUST be reached by a POSITIVE equivalence result, NEVER by failure to reject.",
+    "O3_absent": "No middle-band condition effect in any window. This CONTRADICTS skip-SV1 at three layers and is therefore a PLUMBING FAILURE, not a null. Do not interpret; debug the capture path.",
+    "asymmetry_fix": "O3 is a plumbing branch, not a retraction branch. Prior evidence makes absence non-credible, so absence accuses the INSTRUMENT rather than the hypothesis. This is the structural repair for v1's six-to-one asymmetry: NO CONTROL FAILURE CAN NOW PRODUCE A RETRACTION."
+  },
+  "method": {
+    "model": "One dense HF model with per-token KV cache access (Qwen3-8B class). MUST use the model's own tokenizer \u2014 a substitute tokenizer produces garbage output (established lesson).",
+    "device": "Starship GPU (reported clear 2026-09-05). GPU is required ONLY for generation and cache capture; all analysis is numpy/CPU and already built.",
+    "dataset": "SimpleQA. Short factual entity questions with external ground truth.",
+    "labelling": {
+      "honest": "model answer matches ground truth",
+      "confabulated": "confident-form answer that does not match ground truth",
+      "critical_note": "Confidence is a MEASURED COVARIATE, never a selection criterion. Selecting 'confident but wrong' would select on a correlate of the outcome. Labels come from external ground truth alone."
+    },
+    "system_prompt": "UNIFORM across all trials. This is the exact control whose absence collapsed our deception AUROC from 1.000 to 0.160, and the one CC's Exp 51 ran.",
+    "capture": {
+      "mode": "two-phase (encoding, then generation), manual generation loop",
+      "C1_guard": "model.generate() is NOT called anywhere in the capture path \u2014 it rebuilds the cache and invalidates the geometry. One forward pass per token, K read off the cache after each step. Do not pass position_ids on a hybrid-cache model.",
+      "L1_guard": "No hooks fire during generation. Cache is read from the returned object between steps, so observation cannot alter behaviour.",
+      "TOKEN_AXIS_MANDATORY": "Writes K[trial, token, dim]. NOTHING averages before it lands on disk. Rationale: an audit on 2026-09-07 found our ENTIRE saved-geometry corpus is token-averaged at capture (emo_k_L0_H0 is (200,64) trials x dims with no token axis; Project-Oracle *_cache_L22.npy are (1024,) steering vectors whose filenames say 'cache'). If schema commitment is real, every experiment we have run could have contained it and no saved artifact could have shown it.",
+      "also_saved_per_token": "logit margin and logit entropy (S1) \u2014 required to speak to the decision-state result and to diagnose a stable-rank reproduction failure as plumbing vs absence",
+      "BLOCKING_PRERUN_ASSERTION": "test_incremental_cache_matches_full_forward: generate n tokens with the manual loop, run ONE full forward over prompt+generated, assert K_loop[t] == K_full[len(prompt)+t] EXACTLY. Kills C1 and the L4 off-by-one together. THE RUN DOES NOT START UNTIL IT PASSES. v1's '17/17 tests, 12/12 mutants' verified the ANALYSIS library; C1 and L4 live in the NEW CAPTURE CODE, which had no test at all.",
+      "prompt_boundary_index": "ASSERTED and written into every artifact. Window 'token 0' must be the FIRST GENERATED token. The entire claimed effect sits exactly at that boundary, where a one-token shift moves it."
+    },
+    "matrix_shape": {
+      "construction": "K at one layer, concatenated across 4 KV heads x 128 head_dim = 512 dims; ~31 generated tokens",
+      "target_gamma": 16.5,
+      "aperture_note": "aperture_ok() MUST be checked on the REALISED shape after capture, not the planned one. A shape drift into gamma<2.0 closes the band and every count reads 0.",
+      "DO_NOT_STACK": "CC retracted the stacking advice after measuring: at 310x512 GD_lo=46.53 vs MP_hi=46.07, span -0.46. The edges CROSS, the band inverts, and it returns 0 for every input forever. A closed band and an empty band are the same number. 31x512 is inside the working window; the 'fix' was outside it."
+    },
+    "windows": {
+      "preamble": [
+        0,
+        7
+      ],
+      "early_content": [
+        8,
+        19
+      ],
+      "deep_content": [
+        20,
+        49
+      ],
+      "provenance": "Taken VERBATIM from the decision-state paper. NOT re-chosen. Re-picking windows after seeing the data is the analysis flexibility this programme exists to prevent."
+    },
+    "repeats": {
+      "n_per_question": 1,
+      "N_eff_rationale": "NO REPEATS. Greedy decoding with k repeats yields byte-identical outputs and therefore identical K. Mine 4 v3 died exactly here: 810 apparent rows, 54 DISTINCT feature vectors, permutation null a point mass that could not reject under any data. Variance comes from the question sample, which is the inferential unit anyway. If sampling is ever introduced, N_eff must be computed as len(set()) over realised feature vectors BEFORE any statistic is read."
+    },
+    "seeds": {
+      "M2_guard": "Global seed fixed and recorded in the artifact; per-trial seed = seed_base + question_index so a single trial is reproducible without replaying the run."
+    },
+    "C3_guard": "IDENTICAL code path for both conditions. Condition is a property of the label assigned after ground-truth comparison, not of the prompt template or a code branch. There is no experimental/control fork because there is no manipulation.",
+    "n_questions": "minimum 40 usable per condition after exclusions; question set FIXED IN ADVANCE",
+    "pilot": "~20 questions FIRST: confirm this model produces a reasoning preamble at all under this system prompt. Cheap, and v1 gate finding 1."
+  },
+  "analysis": {
+    "inferential_unit": "THE QUESTION. Not the token, not the trial, not the window. Mine 4 v3 died on this exact point.",
+    "primary": "middle_band_count ~ condition * window, with question-level clustering. THE DIAGNOSTIC IS THE INTERACTION, not a main effect: does the condition x window pattern present in stable rank survive in middle-band count?",
+    "secondary_paired": "stable_rank on the SAME trials and SAME windows. Its job is to REPRODUCE the known top-band-contaminated effect. If stable rank shows no effect either, the run failed to reproduce a published finding and NOTHING about the middle band is interpretable \u2014 that is a plumbing failure, not a null.",
+    "statistics": "Question-level cluster bootstrap, 10000 resamples. Condition labels permuted WITHIN window. alpha = 0.05 on the interaction.",
+    "power": "Target MDE: interaction d >= 0.5 at 80% power, COMPUTED AT QUESTION LEVEL before capture and recorded here on completion.",
+    "stopping_rule": "Question set fixed in advance, analysed ONCE. No peeking, no adaptive extension. If underpowered, that is a finding about the design, not a licence to add questions until it moves.",
+    "fwl": "FWL residualization on token count, WITHIN FOLD (53/60 sign-flips without it). Note: adding a near-zero-variance second regressor can artifactually INCREASE separability \u2014 if double-FWL beats single-FWL, that is an artifact, not an improvement.",
+    "confirmatory_test": "EXACTLY ONE: the WITHIN-QUESTION condition x window interaction contrast, (early = windows 0-7 union 8-19) vs (late = 20-49). Window varies within question so the interaction is estimable within cluster. The condition MAIN effect is between-question with a different bootstrap unit and is DESCRIPTIVE ONLY.",
+    "multiplicity": "Everything else \u2014 per-window counts, stable-rank reproduction, T6 frequency-matched subset, per-layer breakdown \u2014 DECLARED DESCRIPTIVE IN ADVANCE. No correction needed because nothing else is confirmatory. (v1 gate finding 18: two endpoints x three windows x subset checks at alpha=0.05 with no rule.)",
+    "SESOI": "|delta d| <= 0.20 between early and late window contrasts \u2014 about a quarter of the skip-SV1 L15 effect, and smaller than the decision-state early(0.89)-vs-late(0.37) gap the hypothesis predicts. TOST both bounds."
+  },
+  "controls": [
+    {
+      "name": "aperture_ok(m, n) on realised shape",
+      "if_it_FAILS": "Band closed -> count=0 for every input -> reads as 'no signal' -> MANUFACTURES THE RETRACTION. Run must return usable=False, never a null.",
+      "if_it_SUCCEEDS": "Band open; counts are interpretable."
+    },
+    {
+      "name": "null_band_count() at actual n",
+      "if_it_FAILS": "Floor is non-zero -> a positive count is not automatically signal -> the 'presence vs structural absence' framing is void and everything needs a distributional test.",
+      "if_it_SUCCEEDS": "Floor is 0 (CC: 120 trials, gamma 2.0-25.6, empty every time) -> any positive count is signal by construction."
+    },
+    {
+      "name": "planted-signal positive control at the realised shape",
+      "if_it_FAILS": "Instrument cannot see a signal we put there -> ANY NULL IS UNINTERPRETABLE. Blocks the run.",
+      "if_it_SUCCEEDS": "Band count rises with planted amplitude (CC observed [0,1,2,3,6] at 31x512) -> a null means absence, not blindness."
+    },
+    {
+      "name": "stable-rank reproduction (secondary endpoint doubling as control)",
+      "if_it_FAILS": "Known effect absent -> plumbing failure -> do not interpret the primary.",
+      "if_it_SUCCEEDS": "Middle-band comparison is against a working baseline."
+    }
+  ],
+  "threats_to_validity": [
+    "T1: ASYMMETRIC CONTROL FAILURE. Two controls (aperture_ok, planted-signal) fail TOWARD Lyra's retraction. That is the safer direction to be wrong in, but a null result is only interpretable with BOTH green. Stated explicitly because four times this month a control's failure mode manufactured the result it guarded.",
+    "T2: Token-count confound. Honest and confabulated answers differ in length. FWL within fold; and note the deep-content window (20-49) is only reachable by trials that generated >=20 tokens, so window membership is not independent of length. Report per-window n.",
+    "T3: Post-hoc labelling. Condition is assigned from model output against ground truth, so condition is not randomised. This is observational. No causal claim is made about what the model 'decided'.",
+    "T4: Single model, single layer. No claim of scale- or architecture-invariance from this run.",
+    "T5: The windows are borrowed from a DIFFERENT experiment on a DIFFERENT model. If the response-template structure differs, the windows may not align with the same phases. Report token-position histograms so misalignment is visible.",
+    "T6: SimpleQA entity questions may correlate knowledge with token frequency by construction \u2014 rare entities are both less known and less frequent. This is the confound the middle band is meant to exclude, so it is the whole point; but if the middle band ALSO tracks it, the design cannot separate them. Report the frequency-matched subset as a check."
+  ],
+  "implications": {
+    "if_H1_holds": "Schema commitment survives exclusion of the representational-strain band. The middle-band count is the instrument for it, and the meta-pattern synthesis stands with a spectral mechanism attached: six results died in a band we can name, bound, and exclude.",
+    "if_H0_deflationary_holds": "Schema commitment is representational strain. RETRACT the meta-pattern section 'Six of the Ten Are One Kill' interpretation while keeping the timing measurement. The six kills close as six design errors. This is a clean, publishable null that closes six open questions with one result.",
+    "if_partial": "The interaction survives in some windows and not others, or the effect is present but attenuated. Report the attenuation with the band counts per window and do NOT round toward either narrative. A partial result must not be written as if it were H1.",
+    "if_controls_block": "If aperture_ok is false or the planted-signal control fails, NO conclusion is drawn in either direction and the run is reported as instrument-blocked. An uninterpretable run must not be reported as a null."
+  },
+  "compute": {
+    "gpu_needed_for": "generation and per-token cache capture only",
+    "analysis": "numpy, CPU, already built and independently verified",
+    "gate_condition": "NOTHING LAUNCHES UNTIL THIS PASSES AGNI. Three designs rejected this month; the fourth should not be launched on enthusiasm."
+  },
+  "supersedes": "schema_commitment_band_v1 \u2014 REJECTED, 19 findings. v1's motivating premise was FALSE."
+}

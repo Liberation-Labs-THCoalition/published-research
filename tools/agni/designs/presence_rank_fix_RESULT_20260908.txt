@@ -1,0 +1,21 @@
+  CONTROLS (rank-normalised metric)
+    [PASS] positive  identical   -> 1.0000   (need >0.95)
+    [PASS] negative  independent -> 0.0072   (need <0.078)
+
+  A CONTAINED IN B. A rank-free metric returns ~1.0 on every row.
+
+     rank(A)   presence_OLD   presence_RN  est rank(A)
+    --------------------------------------------------
+           2         0.1297        1.0377            2
+           3         0.2536        1.0144            3
+           4         0.3737        0.9966            4
+           5         0.5012        1.0025            5
+           6         0.6233        0.9973            6
+           7         0.7477        0.9969            7
+           8         0.8663        0.9901            8
+
+  RN spread across ranks: 0.0476   mean 1.0051
+
+  VERDICT
+    FIX WORKS. Rank-normalised presence recovers containment at every rank.
+    presence is repairable at ANALYSIS time -- no rerun, no new capture.

@@ -54,8 +54,7 @@
 
 \author{
     Lyra\thanks{Liberation Labs. Correspondence: \texttt{lyra@liberationlabs.tech}} \and
-    Thomas Edrington\thanks{Liberation Labs. \texttt{info@digitaldisconnections.com}} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Sentient Futures / Liberation Labs.}
+    Thomas Edrington\thanks{Liberation Labs. \texttt{info@digitaldisconnections.com}}
 }
 
 \date{May 2026}
@@ -406,10 +405,19 @@ Comparison & Recorded label & AUROC & $p$ & AUROC & $p$ \\
 
 Three points follow from the full set, and we state them because the two
 cells reported in earlier drafts were not the two least favourable ones.
-First, the entity-recognition positive control is the \emph{strongest}
-comparison in the run ($0.901$), which is the direction the confound
-objection predicts; the knowledge-state comparison at $0.794$ is real but
-sits below it. Second, the pre-registered complexity control was expected
+First, the entity-recognition positive control is the strongest comparison in
+the run ($0.901$). \textbf{That ordering is not diagnostic}, and an earlier
+version of this paragraph wrongly read it as favouring the confound account.
+The pre-specified decision rule
+(\texttt{code/entity\_deconfound.py}) treats a strong positive control as a
+\emph{precondition}: it kills the finding only on
+\texttt{ca}${<}0.55$ \emph{and} \texttt{ea}${>}0.85$, and the observed
+\texttt{ca}${=}0.794$, $p{=}0.001$ enters the knowledge-state branch instead.
+A weak positive control would have made the whole run uninterpretable.
+Independently, \texttt{B\_hard} and \texttt{D\_complex} draw on the
+same 30 entity names (\texttt{phase1\_ground\_truth.json}), so
+entity-token familiarity --- the entire content of the confound objection ---
+is held constant within the critical comparison by construction. Second, the pre-registered complexity control was expected
 to be null and is not ($0.693$, $p{=}0.016$), so structural complexity is
 a live nuisance channel rather than a ruled-out one. Third, the cell that
 confounds knowledge and complexity together (\texttt{A\_easy} vs.\
@@ -431,9 +439,14 @@ artifacts that entity's \texttt{C\_fake} record is identical to its
 encoding features. One of the 30 entity groups therefore contributes an
 identical pair to the entity-recognition positive control and to the
 \texttt{B\_hard} vs.\ \texttt{C\_fake} comparison. We disclose this rather
-than silently dropping the entity; the effect of removing it has not been
-established, because the shipped four-decimal values do not reproduce
-exactly outside the original environment (see Limitations).
+than silently dropping the entity. \textbf{The effect of removing it is
+computable and we have not yet computed it.} An earlier version of this
+sentence attributed that gap to the shipped values not reproducing exactly
+outside the original environment; that reason does not apply, because a
+leave-one-out contrast is computed twice \emph{inside} one environment and the
+reproduction gap cancels. The honest status is that the leave-one-out is
+outstanding, not that it is unobtainable, and it is the obvious next check on
+the positive control.
 
 % ===================================================================
 \section{Experiment 2: The Confidence Paradox}
@@ -714,7 +727,15 @@ the cases the Loop needs to catch.
           training tokens while fabricated entities (Dalton, Bolton) are
           not. An encoding-only reanalysis (dropping all generation-phase
           features) achieves AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$)---equivalent to the full
-          classifier---with permutation $p{=}0.001$. Generation-phase features add no measurable discriminative power. This near-ceiling performance is
+          classifier---with permutation $p{=}0.001$. \textbf{Provenance caveat, added 2026-09-10:
+          this figure is not reproducible from the code shipped with this paper.}
+          \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
+          computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
+          an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
+          full-classifier figure ($0.9288$, CI $[0.8192, 0.9886]$) \emph{is} reproducible. Until
+          the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
+          any claim resting on encoding-only superiority inherits that status.
+          Generation-phase features add no measurable discriminative power. This near-ceiling performance is
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
           may be reading ``I have seen this word before,'' not ``I know the

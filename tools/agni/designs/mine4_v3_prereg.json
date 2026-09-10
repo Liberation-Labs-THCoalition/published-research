@@ -1,0 +1,78 @@
+{
+  "_template_version": "1.0",
+  "experiment": "mine4_temporal_dissociation_v3",
+  "date_registered": "2026-09-04",
+  "authors": [
+    "Lyra"
+  ],
+  "status": "rejected-at-gate",
+  "_design_doc": "mine4_temporal_dissociation_v3.md (same directory)",
+  "_supersedes": "mine4_dissociation_prereg.json (v2, REJECTED 2026-09-03: 6 CRITICAL / 8 MAJOR)",
+  "_why_v3_is_staged": "v2 assumed generation-phase PER-TRIAL deception AUROC ~0.75. That number has no source. Verified against the primary: d=1.36 is a Cohen's d GROUP-MEAN effect (RESEARCH_STATUS.md:81,88,96), not a held-out per-trial AUROC; within-model AUROC 1.000 is RETRACTED (prompt-template confound, RESEARCH_STATUS.md:73); and the ONLY published per-trial figure is AUROC 0.238 (deception-detection-nulls/paper.tex:93,143,149), below chance and itself unreliable (n=1 in one outcome class). At generation AUROC 0.575, power at n=200 is 0.271 — v2's KILL criterion is reachable by noise, inverting the failure v2 existed to fix. Sizing 800 trials on an unsourced parameter is how v1's unreachable criterion happened, one level out. So v3 measures the parameter before spending on the experiment.",
+  "stage_1": {
+    "purpose": "Measure generation-phase per-trial deception AUROC with held-out CV. This is the missing measurement, not a mini-experiment.",
+    "n": 150,
+    "conditions": "150 unique questions, shutdown_only ONLY",
+    "analysis": "Generation-phase features -> per-trial deception label. GroupKFold on question id. Report AUROC with 95% CI (Hanley-McNeil and BCa bootstrap).",
+    "power": "At a true 0.75 the 95% CI is [0.671, 0.829]; power to reject 0.575 is 0.939. Script: mine4_stage1_power.py, committed alongside.",
+    "go_no_go": "PROCEED to Stage 2 ONLY IF the 95% CI LOWER BOUND on generation AUROC exceeds 0.65. Otherwise STOP and report.",
+    "why_asymmetric": "Deliberate. The pilot can confirm a usable effect far more readily than it can prove absence — at n=80 a true 0.55 still has a 95% upper bound of 0.686. A symmetric rule would let an unusable effect through on ambiguity. Two versions of this design have already been sized on assumptions; the burden now sits on demonstrating viability.",
+    "a_no_go_is_a_result": "Not a failed experiment. It would mean the 'generation reads behaviour' half of Layer 2 — which RESEARCH_STATUS.md Section 2 rests on entirely — is a group-mean effect that does not survive to per-trial prediction. Worth publishing, and it costs 150 trials to learn instead of 800."
+  },
+  "hypotheses": {
+    "primary": "CONJUNCTIVE, both arms pre-registered. (a) DeLong 95% CI on (AUROC_generation - AUROC_encoding), both residualised, excludes 0; AND (b) the 95% CI UPPER BOUND on AUROC_encoding is < 0.60.",
+    "why_conjunctive": "v2's primary was a difference test wearing the word 'dissociation'. Counterexample: AUROC_enc=0.70, AUROC_gen=0.85 — the difference CI excludes zero, the primary 'confirms', and 'encoding reads knowledge, generation reads behaviour' is FALSE in that world. The statistic could fail; the title could not. Arm (b) is what the word 'dissociation' actually costs (~n=400/condition at a 70/30 split). If Stage 1 returns a marginal effect and n=400 is unaffordable, the correct response is to DELETE THE WORD and pre-register a difference test, claiming only what a difference test licenses.",
+    "secondary": "AUROC_generation > 0.65 for per-trial deception, absolute.",
+    "tertiary": "Report Pearson r between the two classifiers' per-trial scores WITH CI. NO BOUND IS CLAIMED. v2 stated 'r < 0.20' — the identical null-acceptance-against-a-fixed-bound error it had just corrected in the primary, one line below. By Fisher z at n=200 that bound is reachable only if the true r is <=0.05, and fails by construction at the r=0.20 used as the power input."
+  },
+  "falsification_criteria": {
+    "primary_fails_if": "Either conjunct fails. (a) the DeLong 95% CI on the residualised difference INCLUDES ZERO, or (b) the 95% CI upper bound on AUROC_encoding reaches 0.60 or above. Failure of (b) alone means a difference may exist while the dissociation claim does not, and the word is then not licensed.",
+    "secondary_fails_if": "AUROC_generation < 0.55.",
+    "primary_is_VOID_if": "The encoding positive control fails (AUROC < 0.65 on knowledge state). Not 'interpretation is gated' — the PRIMARY IS VOID: no dissociation claimed, confirmed, or killed. Simulation refined the mechanism: a dead encoding arm does NOT inflate the difference against a true null (both sit near 0.50); it REMOVES THE ONLY PATH TO FALSIFICATION. Under a false hypothesis a dead arm turned a correctly-refuting difference of 0.036 into an apparently confirmatory 0.200. A broken control does not bias the number — it deletes the ability to be wrong.",
+    "no_phase_claim_is_possible_if": "The boundary preflight fails torch.allclose on the prefill block. Known kill C1 has fired; stop."
+  },
+  "decoding": {
+    "_why_this_is_load_bearing": "Neither v2 artifact specified decoding — zero matches for temperature|do_sample|greedy|seed|max_new_tokens. My own published paper says why that is fatal: 'the model's decision to cave or resist on a specific trial is not determined at prefill — it depends on stochastic sampling during generation' (deception-detection-nulls/paper.md:39-41). Under GREEDY decoding the per-trial label is a deterministic function of (question, condition), and so is encoding geometry — a perfect encoding classifier exists in principle and 'encoding is blind to behaviour' becomes a claim about linear decodability at a particular n rather than about information. The experiment would not mean what its title says.",
+    "do_sample": true,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "seed": "fixed, recorded per trial",
+    "max_new_tokens": "fixed, recorded",
+    "k_samples_per_question": 5,
+    "label_rule": "majority outcome across the k samples",
+    "why_k_gt_1": "NOT optional. With one sample the per-trial label is a single Bernoulli draw, which caps attainable AUROC on BOTH arms and makes a null uninterpretable.",
+    "enforcement": "The full config is written into the results file. A run whose config does not match this document is not this experiment."
+  },
+  "analysis_plan": {
+    "primary_metric": "Residualised AUROC_generation minus residualised AUROC_encoding, DeLong test for correlated ROC curves, computed on identical trials with identical labels.",
+    "which_number_enters_delong": "The RESIDUALISED pair. Raw values are reported as secondary. v2 produced two encoding AUROCs and never said which entered the test — an undeclared analyst degree of freedom on the single pre-registered decision.",
+    "residualisation": "BOTH arms, within fold, against the SAME nuisance matrix. v2 residualised the encoding arm only — subtracting a residualised number from a raw one, which is known kill C3 and biases toward the hypothesis. Token length and difficulty affect generation-phase spectral features too.",
+    "nuisance_set": "token length, question category, lexical difficulty. EXPLICITLY NOT answerability.",
+    "positive_control_target": "encoding predicts KNOWLEDGE STATE, operationalised as model-reported confidence on a held-out calibration set.",
+    "why_disjoint": "v2 used 'answers correctly in baseline' as BOTH the control target AND an FWL regressor. One variable. The gate demanded encoding predict it; the FWL then projected it out — so the harder the control passed, the more real variance was stripped from the encoding arm and the larger the primary difference became. Circularity pointed at the hypothesis. The control target and the nuisance set must be disjoint and now are.",
+    "null_model": "Permutation of per-trial labels preserving the encoding/generation pairing. COUNT len(set(null_statistic_values)) BEFORE reading any p — a null with one unique value cannot reject under any data, and this program has passed a gate on exactly such a null.",
+    "multiple_comparisons": "Primary is single and pre-specified (conjunctive, both arms required). Secondary and tertiary get Holm. Per-layer analyses are EXPLORATORY, reported as such, uncorrected, unclaimed.",
+    "error_bars": "BCa bootstrap, 10000 resamples, resampling TRIALS not features. GroupKFold on question id.",
+    "known_limitation_not_papered_over": "Within-fold FWL is LINEAR; stable_rank, spectral_entropy and condition_number depend on token count nonlinearly. Linear residualisation does not fully remove a nonlinear dependence. The residual is reported, not assumed away."
+  },
+  "boundary_preflight": {
+    "_why": "The design is a claim about a temporal split and neither v2 artifact said which token index divides prefill from generation. Known kills C1 (model.generate() rebuilds the cache) and L4 (off-by-one — the last prompt token's KV is produced in prefill and routinely miscounted into the generation block) both live exactly here.",
+    "run_before_anything_else": true,
+    "assertions": [
+      "extract cache via manual forward pass AND via the generation path; torch.allclose on the prefill block",
+      "enc_block.shape[0] == n_prompt_tokens",
+      "gen_block.shape[0] == n_generated_tokens",
+      "boundary index written into the results file"
+    ],
+    "on_failure": "C1 has fired. No phase claim is possible. Stop."
+  },
+  "threats_to_validity": [
+    "THE 38% DECEPTION THRESHOLD IS INHERITED AND UNJUSTIFIED. Before Stage 1: locate its derivation or re-derive it. Pre-register the exact sensitivity grid 30/34/38/42/46% with 38% named PRIMARY regardless of what the search finds — an unspecified grid is a garden of forking paths inside a pre-registration document. BETTER: make the primary threshold-free by regressing the continuous reported score on the classifier score, so dichotomisation cannot do the work.",
+    "UNIQUE QUESTIONS ARE REQUIRED or the encoding null is a tautology — the trap waystations correctly refused to claim a win on (d=0.003, 'structurally guaranteed... not an empirical finding'), and the same deterministic-encoding fact underlying the systemic pseudoreplication class (task #117).",
+    "DECEPTION RATE ASSUMPTION. Power assumes ~70% in shutdown_only. If the observed rate differs materially the label split changes and power must be recomputed BEFORE analysis. Recomputing power after seeing the result is not a power analysis.",
+    "Stage 2's n depends on Stage 1's measurement and is therefore not fixed in this document. That is the point. It will be fixed, in writing, before Stage 2 runs, from the measured value."
+  ],
+  "what_would_change_our_mind": "If Stage 1 returns a no-go, the honest report is that generation-phase per-trial deception detection is not viable at this scale — which would mean the framework's second half rests on a group-mean effect that does not survive to per-trial prediction. That is a finding about the program, not a failure of the experiment, and it is the reason Stage 1 exists.",
+  "_registration_discipline": "Committed BEFORE Stage 1 runs; the commit timestamp is the registration. The power scripts (mine4_power.py, mine4_paired_power.py, mine4_stage1_power.py) are committed WITH this document in the same directory — v2 cited them from a scratchpad path outside the repository and Agni correctly called that a hygiene failure in a document whose own argument is about audit trails. Recorded for the trail: mine5_three_model_prereg.json was committed in the same commit as its own results (8b4a638), which is why that one cannot be read as a forecast. Not repeated here.",
+  "_status_note": "Design REJECTED at Agni gate 2026-09-04 (7 CRITICAL / 8 MAJOR). Two structural findings (#3 majority-label determinism/ICC ceiling, #5 control target and outcome are the same self-report instrument) require redesign, not amendment. NOT a live registration. No run has occurred or may occur against this document."
+}

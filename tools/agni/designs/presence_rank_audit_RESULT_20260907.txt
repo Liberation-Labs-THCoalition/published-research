@@ -1,0 +1,29 @@
+  presence: k=8, d=1024, chance=k/d=0.0078
+
+  CONTROLS
+    [PASS] positive: identical data -> 1.0000  (need >0.99)
+    [PASS] negative: independent data -> 0.0075  (need <0.078)
+
+  A IS ENTIRELY CONTAINED IN B. Shared structure is 100% at every row.
+  If presence is rank-free it stays ~1.0. If rank-bounded it tracks r/k.
+
+     rank(A)   presence(A,B)       r/k    |diff|
+    --------------------------------------------
+           1          0.0059     0.125     0.119
+           2          0.1318     0.250     0.118
+           3          0.2563     0.375     0.119
+           4          0.3776     0.500     0.122
+           5          0.4877     0.625     0.137
+           6          0.6242     0.750     0.126
+           7          0.7400     0.875     0.135
+           8          0.8663     1.000     0.134
+
+  corr(rank(A), presence) = +1.000
+  presence at rank 1 = 0.0059   at rank 8 = 0.8663
+
+  VERDICT
+    RANK-BOUNDED — CONFIRMED.
+    A is 100% inside B at every row, yet presence falls with rank(A).
+    The metric conflates 'lower effective rank' with 'different identity'.
+    Any cross-condition presence comparison where the conditions differ in
+    effective rank is confounded, and prompt length/richness drives rank.

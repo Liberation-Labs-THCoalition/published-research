@@ -1,0 +1,242 @@
+PAPER                          VERDICT      CRIT  MAJ  MIN   TOT
+--------------------------------------------------------------------
+cache-tracing                  REJECTED        2    5    6    13
+decision-state-paper           REJECTED        7   13   14    34
+delta-manifold-paper           REJECTED        4   11    5    20
+emotion-accumulation-paper     REJECTED        2    3    3     8
+emotional-trajectory-paper     REJECTED        2    8    5    15
+formulary-paper                REJECTED        3    8    9    20
+graph-topology-paper           REJECTED        4    8    5    17
+identity-geometry              REJECTED        2   10    1    13
+kv-cloak-defense-paper         REJECTED        4    5    5    14
+lyra-technique-ii              REJECTED        6   14   16    36
+meta-pattern                   CONDITIONAL     1    5    6    12
+mine5-selective-sharpener      REJECTED        1    5    6    12
+null-swarm-paper               CONDITIONAL     2    4    7    13
+oracle-loop-paper              REJECTED        6    7    2    15
+presence-metric                REJECTED        3    6    7    16
+spectral-shape-paper           REJECTED        3   10    5    18
+waystations-paper              REJECTED        4    7    4    15
+
+====================================================================
+CRITICAL AND MAJOR FINDING HEADINGS
+====================================================================
+
+--- cache-tracing ---
+  [CRITICAL] ### 1. CRITICAL — The Oracle Loop correction range is inflated, and mislabeled as "deception"
+  [CRITICAL] ### 2. CRITICAL — AUROC 0.620 and the FWL framing are not in the cited paper
+  [MAJOR] ### 3. MAJOR — "three clean controls" is unsupported
+  [MAJOR] ### 4. MAJOR — Table 1's N column mixes units, and N=240 contradicts the stated layer range
+  [MAJOR] ### 5. MAJOR — Kavi is in Author Contributions but in no byline; the two editions disagree on the contribution record
+  [MAJOR] ### 6. MAJOR — The headline 6,960 is 86% one arm, and the abstract never says so
+  [MAJOR] ### 7. MAJOR — "Four converging lines of evidence" double-counts
+
+--- decision-state-paper ---
+  [CRITICAL] ### 1. CRITICAL — The headline encoding-only number is produced by nothing in the shipped artifact, and the retraction banner points auditors at a script that does not compute it
+  [CRITICAL] ### 2. CRITICAL — The paper contradicts itself on permutation resolution: 200 shuffles cannot yield p = 0.001
+  [CRITICAL] ### 3. CRITICAL — TWIN_DESYNC, byline: three artifacts, three different author lists
+  [CRITICAL] ### 4. CRITICAL — TWIN_DESYNC, limitation deleted from the web edition under a comment that misstates where it went
+  [CRITICAL] ### 5. CRITICAL — TWIN_DESYNC, judge-reliability limitation gutted in flight, with a dead cross-reference in its place
+  [CRITICAL] ### 6. CRITICAL — A correction was applied in the Introduction and missed in Related Work, in both editions
+  [CRITICAL] ### 7. CRITICAL — STALE_PDF (flight edition), with mtimes equalized so the usual check passes
+  [MAJOR] ### 8. MAJOR — Severed sentence in the Results of both editions; the surviving clause asserts the opposite of the caveat that replaced it
+  [MAJOR] ### 9. MAJOR — Broken abstract sentence, flight edition only
+  [MAJOR] ### 10. MAJOR — MIXED trials are counted when they help and excluded when they hurt
+  [MAJOR] ### 11. MAJOR — Table 5's `n` column silently changes meaning between rows, breaking the comparison the table exists to make
+  [MAJOR] ### 12. MAJOR — Selective reporting of the deconfounding experiment: 2 of 5 comparisons shipped, and the two omitted ones cut against the story
+  [MAJOR] ### 13. MAJOR — The atomic-judge analysis was run against a broken entity field, undisclosed
+  [MAJOR] ### 14. MAJOR — Four-decimal precision is reproduced by nothing, with a fixed seed
+  [MAJOR] ### 15. MAJOR — Conclusion mislabels generation-phase features as encoding-phase, in the sentence the encoding-only contrast depends on
+  [MAJOR] ### 16. MAJOR — Hedges present in the academic conclusion are absent from the flight conclusion
+  [MAJOR] ### 17. MAJOR — `paper.json` predates the major confound and is what the website renders
+  [MAJOR] ### 18. MAJOR — Uncredited operator (partially UNVERIFIED)
+  [MAJOR] ### 19. MAJOR — The shipped log for the deconfounding experiment is a crashed run
+  [MAJOR] ### 20. MAJOR — Probe-layer set in Methods does not match the experiment the paper now leans on
+
+--- delta-manifold-paper ---
+  [CRITICAL] ## 1. CRITICAL — The academic (venue-facing) edition renders with **no visible author names**
+  [CRITICAL] ## 2. CRITICAL — Table 1's Qwen row contradicts Table 2 and Figure 1. The headline claim does not hold for one of the two architectures.
+  [CRITICAL] ## 3. CRITICAL — "No single feature works across architectures" is an artifact of dataset coverage, not architecture
+  [CRITICAL] ## 4. CRITICAL — Figure 1 ships as an empty placeholder box while the real figure sits unused
+  [MAJOR] ## 5. MAJOR — Five claims in §4.6 have no code path in any shipped script
+  [MAJOR] ## 6. MAJOR — `p < 0.0001` is below the resolution of a 1000-iteration permutation test
+  [MAJOR] ## 7. MAJOR — "Approximately 75%" does not follow from its own adjacent numbers
+  [MAJOR] ## 8. MAJOR — The trajectory classifier counts trajectories with **no rise** as "rise-fall", and the disclosure paragraph misstates the conditioning set
+  [MAJOR] ## 9. MAJOR — The chi-squared silently drops the boundary condition
+  [MAJOR] ## 10. MAJOR — Every Llama number in the paper has no verification path in the artifact
+  [MAJOR] ## 11. MAJOR — Neither verification script runs against the shipped directory layout; Hedges' g is computed nowhere
+  [MAJOR] ## 12. MAJOR — `paper.json`, the website publishing stamp, carries **uncorrected** effect sizes
+  [MAJOR] ## 13. MAJOR — The academic edition keeps a first-person section while removing its author from the byline
+  [MAJOR] ## 14. MAJOR — `references.bib` is orphaned, disagrees with the printed bibliography, and contains two unrelated entries
+  [MAJOR] ## 15. MAJOR — `goodfire2026` is not a citable reference
+
+--- emotion-accumulation-paper ---
+  [CRITICAL] ### 1. CRITICAL — Both shipped PDFs still print a number the sources retracted
+  [CRITICAL] ### 2. CRITICAL — TWIN_DESYNC: the editions carry different Limitations lists, and the trim marker's justification is false
+  [MAJOR] ### 3. MAJOR — Byline vs. contribution mismatch across editions; first-person text is reattributed
+  [MAJOR] ### 4. MAJOR — The data-availability statement drops the repository name in both rendered PDFs
+  [MAJOR] ### 5. MAJOR — `accumulation_controls.json` has five arms; the paper reports two and discloses none of the omission
+
+--- emotional-trajectory-paper ---
+  [CRITICAL] ## 1. CRITICAL — Table 1's "Valence:Arousal" column is mathematically impossible given the eccentricity column beside it
+  [CRITICAL] ## 2. CRITICAL — The headline 24.4× uses a denominator the Methods section says it does not use
+  [MAJOR] ## 3. MAJOR — 24.4× is an all-layer median presented as the mid-layer value, and compared against a mid-layer control
+  [MAJOR] ## 4. MAJOR — "emotional/control ratio ~4.7×" is not the quotient of the two numbers printed next to it
+  [MAJOR] ## 5. MAJOR — Deep-layer emotional ratio range is wrong; it reaches down to a layer that is not a deep layer
+  [MAJOR] ## 6. MAJOR — TWIN_DESYNC: the v2 audit-fix paragraph is filed under a different section in each edition
+  [MAJOR] ## 7. MAJOR — "Arousal dominates early ... valence slightly dominates at output depth" contradicts the Results section and is unverifiable from any committed artifact
+  [MAJOR] ## 8. MAJOR — Table 1 row labels contradict their own contents; two layers are double-filed
+  [MAJOR] ## 9. MAJOR — Byline vs. contribution mismatch across editions
+  [MAJOR] ## 10. MAJOR — The entire control arm and three of four diagnostics have no primary artifact in the repository
+
+--- formulary-paper ---
+  [CRITICAL] **1. The First-Person Reflection contradicts the paper's own tables in four places — and exists in only one twin.**
+  [CRITICAL] **2. ρ = 0.076 does not reproduce from the committed data, and the retraction footnote retracts the wrong number.**
+  [CRITICAL] **3. §3.6 gives two different answers for the same cell in adjacent paragraphs, and the abstract takes the n=5 one.**
+  [MAJOR] **4. "Curious … the most iatrogenic on the base model (42.7% adverse)" is false against the artifact.**
+  [MAJOR] **5. "The three largest inversions" is a curated three, not the largest three.**
+  [MAJOR] **6. `semantic_negative.json` does not contain the numbers Table 4 prints.**
+  [MAJOR] **7. Overconfidence, sycophancy, and abliteration have no committed artifact at all.**
+  [MAJOR] **8. The abliteration conclusion has a confound that §3.8 of the same paper supplies, and is stated at "confirms" strength.**
+  [MAJOR] **9. TWIN_DESYNC in the abstract's lead sentence, which also misattaches n.**
+  [MAJOR] **10. Byline vs. metadata mismatch in `paper.json`.**
+  [MAJOR] **11. Kavi's acknowledgment is dropped in the venue-facing edition.**
+
+--- graph-topology-paper ---
+  [CRITICAL] ### 1. CRITICAL — The powered study was run on a different graph than the Methods section describes, and the Limitations section explicitly denies this.
+  [CRITICAL] ### 2. CRITICAL — Every absolute value in Table 1 disagrees with the released data. The deltas were computed correctly and then the columns they were derived from were shifted.
+  [CRITICAL] ### 3. CRITICAL — Table 1 reports a sanity degradation for the irrelevant-context control that did not occur.
+  [CRITICAL] ### 4. CRITICAL — The abstract and conclusion state the scrambled control confirms the finding; §4.3 and §5.4 state it does not. Both editions ship both claims.
+  [MAJOR] ### 5. MAJOR — The paper asserts a cross-study conclusion that the companion paper explicitly refuses to draw.
+  [MAJOR] ### 6. MAJOR — TWIN_DESYNC (structural). The academic edition is missing two sections the flight edition carries, against house convention in every comparable paper.
+  [MAJOR] ### 7. MAJOR — Four artifacts, four different author lists; one byline name has no stated contribution anywhere.
+  [MAJOR] ### 8. MAJOR — "SD < 0.02" is true only for multi-hop; the sanity SDs it is used to defend are 3–6× larger.
+  [MAJOR] ### 9. MAJOR — The 1-hop sentence reverses the paragraph's own number ordering, making a false statement under the reading it invites.
+  [MAJOR] ### 10. MAJOR — §4.1 presents raw condition means with a "+" prefix, in a paper where "+" means delta-over-baseline everywhere else.
+  [MAJOR] ### 11. MAJOR — Four `phase1_*` files ship with no indication which one is live; three are dead runs.
+  [MAJOR] ### 12. MAJOR — The First-Person Reflection contains three factual errors and one undefined term. Do not port it to the academic edition as written.
+
+--- identity-geometry ---
+  [CRITICAL] ### 1. CRITICAL — the L43 omission is justified with a statement the data contradicts
+  [CRITICAL] ### 2. CRITICAL — the L7→L11 recovery figures have no data artifact in the package
+  [MAJOR] ### 3. MAJOR — H4 was falsified against an explicit preregistered threshold and is filed under Limitations, not under falsified hypotheses
+  [MAJOR] ### 4. MAJOR — the within-stability range in Limitations is quoted from the superseded run
+  [MAJOR] ### 5. MAJOR — condition label C was silently reassigned; only the E reassignment is disclosed
+  [MAJOR] ### 6. MAJOR — Tables 1 and 3 report different values for the same comparisons, from different runs, with no note
+  [MAJOR] ### 7. MAJOR — an entire collected control arm is unreported and undisclosed
+  [MAJOR] ### 8. MAJOR — "$0.978 \pm 0.002$" still names no estimator
+  [MAJOR] ### 9. MAJOR — the Introduction still runs the framing §3.3 killed
+  [MAJOR] ### 10. MAJOR — the retracted mechanism claim survives in Limitations, and the safety claim was not narrowed
+  [MAJOR] ### 11. MAJOR — "word-scrambling destroys it" is contradicted by Table 3
+  [MAJOR] ### 12. MAJOR — credit is inconsistent across editions and internally
+
+--- kv-cloak-defense-paper ---
+  [CRITICAL] ### 1. CRITICAL — The shipped positive-control artifact says 30 calibration pairs; both editions say 3
+  [CRITICAL] ### 2. CRITICAL — Neither table can be reproduced from the shipped artifact, and the one shipped analysis reports the opposite result
+  [CRITICAL] ### 3. CRITICAL — The headline feature is labeled "MP-corrected" in the abstract and Results, and "not MP-corrected" in Methods
+  [CRITICAL] ### 4. CRITICAL — TWIN_DESYNC: the Qwen2.5-14B row is in-scope in one edition and out-of-scope in the other
+  [MAJOR] ### 5. MAJOR — TWIN_DESYNC: three further limitations deleted from the primary under a comment that misdescribes what happened
+  [MAJOR] ### 6. MAJOR — Table 1's caption misstates the sample size for its own headline row
+  [MAJOR] ### 7. MAJOR — Four prose citations with no bibliography entry
+  [MAJOR] ### 8. MAJOR — The First-Person Reflection asserts what the Results section spent a paragraph retracting
+  [MAJOR] ### 9. MAJOR — The primary abstract's opening sentence contradicts its own closing sentences, and does not exist in the twin
+
+--- lyra-technique-ii ---
+  [CRITICAL] **1. The headline retraction is applied to two phenomena the analysis never touched — and the paper's own method would likely not retract one of them.**
+  [CRITICAL] **2. §4.2 L577: "The endpoint exceeds the instruction-complexity control" is false on the raw numbers the paper declares defensible.**
+  [CRITICAL] **3. The random-direction control has no backing data and is doing load-bearing work.**
+  [CRITICAL] **4. The retracted deception result is still used as positive evidence for the paper's organizing framework.**
+  [CRITICAL] **5. §5.7 L1043–1047 reasserts exactly what the §3.4 linearity caveat retracts.**
+  [CRITICAL] **6. Three-way byline desync, and the academic edition strips authors whose first-person voice it retains.**
+  [MAJOR] **7. "Raw spectral returned exactly 0.033" is contradicted by the paper's own table, twice.** Intro L169–170 and §4.1 L468–470 both claim raw spectral probes returned *"exactly $1/30 = 0.0333$ … at ev
+  [MAJOR] **8. Intro L160–162 asserts the retracted denoising gain as established fact.** *"Confabulation detection is robust (AUROC 0.663–0.913 across the scale sweep, with denoising improving weaker models by
+  [MAJOR] **9. Conclusion L1230–1232 ships the retracted persona claim.** *"Apparent nulls that were measurement failures---persona intensity, emotion classification---are rescued by the appropriate instrument.
+  [MAJOR] **10. §5.4 Tier 2 recommends deploying the unconfirmed method — while the same list caveats deception.** L995–998 prescribes *"Tier 2: Denoised content detection (new)"* as the Oracle Loop "fine spect
+  [MAJOR] **11. §5.5 calls a same-prompt-killed finding "robust."** L960: *"The honest-vs-sycophantic comparison is robust (0.824--1.000 across models)."* The body count Falsified block lists "Same-prompt sycop
+  [MAJOR] **12. Four headings and one bullet claim what their bodies disclaim.** §4.2 "SVD Denoising **Reveals** Persona Intensity **Gradient**" (body: *"We do not, however, claim a monotonic per-level gradient
+  [MAJOR] **13. Tables 4 and 5 report 8 of 15 swept models with no stated criterion, and drop the abstract's own lower bound.** `selection_bias_results.json` has 15 models. Table~\ref{tab:confab_all} omits Deep
+  [MAJOR] **14. A previously corrected p-value resurfaced.** §4.4 L714–715: *"The strongest results ($p < 0.0001$ from 2000~permutations for emotion and persona)…"* `emotion_denoising_results.json` records `n_p
+  [MAJOR] **15. §4.4 L716–717 "Llama confab detection with $p = 0.035$" is unsourced.** `canonical_scale_sweep_Llama-3.1-8B_results.json` gives `p_raw: 0.0` for `confab vs grounded`; Table 4 lists $p<0.005$. 0.
+  [MAJOR] **16. §5.3 presents a fourth grid point at full strength.** L942: persona *"skip-1-plus-3 jumps to 0.996"* (verified, `skip_first_sv_analysis.json`), unhedged. This is a rank-grid variant beyond the {
+  [MAJOR] **17. §5.3's prescription contradicts §4.3's measurement.** L945–947: *"does it capture $>$95\% of variance while classification performance is poor? If yes, skip it."* §4.3 L618: *"The first singular
+  [MAJOR] **18. Limitations were deleted while the claims they limit survived.** Nine of fourteen limitation items are commented out as `% [STYLE-GUIDE TRIM: folded into Methods/Results]`. I grepped for each. T
+  [MAJOR] **19. §3.5 model list contains a model that does not exist and one that produced nothing.** L429 lists *"Qwen family: 0.6B"* — no 0.6B model appears in any data file; the swept model is Qwen2.5-**0.5B
+  [MAJOR] **20. §4.5 L723: "detectable above chance in all eight models tested."** Fifteen were tested. Also unreported: Llama-3.1-8B `self-ref vs grounded` raw = **0.4496**, below chance, `significant_raw: fal
+
+--- meta-pattern ---
+  [CRITICAL] ### 1. CRITICAL — Table 1 floats past the References and lands on the last page, in both editions
+  [MAJOR] ### 2. MAJOR — Every number in §3.2 and §8 "Oracle Loop reporting" is attributed to the wrong paper
+  [MAJOR] ### 3. MAJOR — "achieved 80%–100% correction" presents a baseline rate as a correction rate
+  [MAJOR] ### 4. MAJOR — The "subsequently retracted" annotation is on the wrong table row
+  [MAJOR] ### 5. MAJOR — The counting rule from the abstract footnote is not applied to the deception pair
+  [MAJOR] ### 6. MAJOR — §7.1 and §9 say "geometric" where the paper's own footnote requires "spectral"
+
+--- mine5-selective-sharpener ---
+  [CRITICAL] ### 1. CRITICAL — A null result is filed under "What Survives" and stated as an affirmative in the abstract, the title, and the section heading. Both editions. Both PDFs.
+  [MAJOR] ### 2. MAJOR — TWIN_DESYNC in the Conclusion. Verified in both PDFs, page 5.
+  [MAJOR] ### 3. MAJOR — TWIN_DESYNC: the two correction footnotes give mutually contradictory accounts of the correction history. Footnote 1, page 3, both PDFs.
+  [MAJOR] ### 4. MAJOR — The "${\sim}21\times$" in the flight correction footnote does not reproduce from the paper's own two intervals. Flight only, `main.tex:200`, page 3 of the flight PDF.
+  [MAJOR] ### 5. MAJOR — `SOP_REVIEW.md` ships in the paper directory and certifies the retracted analysis as PASS, with no supersession banner.
+  [MAJOR] ### 6. MAJOR — The retracted claim is still live in the repository index and the directory name.
+
+--- null-swarm-paper ---
+  [CRITICAL] **1. CRITICAL — Kavi is credited in three mutually exclusive registers in the academic edition, after asking to be removed from the author line.**
+  [CRITICAL] **2. CRITICAL — "Pending sign-off" was never resolved, and the artifact shipped anyway.**
+  [MAJOR] **3. MAJOR — PC6 is counted as both a kill and an inconclusive within the same 19; Case 6.3 is labeled "Kill" but concludes it is unresolved.**
+  [MAJOR] **4. MAJOR — In the flagship case, the permutation null is *higher* than the observed value, and the paper never says so.**
+  [MAJOR] **5. MAJOR — The tokenizer-audit cases do not name the tokenizer or the input string. UNVERIFIED.**
+  [MAJOR] **6. MAJOR — The 43% survival rate is never reconciled with the 19 cases.**
+
+--- oracle-loop-paper ---
+  [CRITICAL] ## 1. CRITICAL — There are THREE built editions, not two. The third is missing two entire results subsections.
+  [CRITICAL] ## 2. CRITICAL — The distilled model's confabulation rate is stated as two different numbers, 25 lines apart.
+  [CRITICAL] ## 3. CRITICAL — Calm's correction rate on the distilled model contradicts the paper's own table.
+  [CRITICAL] ## 4. CRITICAL — Wrong confidence interval attached to the headline exploratory AUROC.
+  [CRITICAL] ## 5. CRITICAL — The venue-facing edition strips both AI authors from the byline while still shipping their first-person section, their email, and a citation naming one of them as an author.
+  [CRITICAL] ## 6. CRITICAL — The academic edition contains two contradictory data-availability statements on consecutive pages.
+  [MAJOR] ## 7. MAJOR — `\texttt` corrupted to a literal tab; the macro name prints in the body text.
+  [MAJOR] ## 8. MAJOR — The abstract states its central claim twice, in two different forms.
+  [MAJOR] ## 9. MAJOR — The full-cache result is stated twice with identical numbers in consecutive sentences.
+  [MAJOR] ## 10. MAJOR — "Independent statistical audit (Wilkes, 2026)" is a co-author auditing his own paper, and the citation resolves to nothing.
+  [MAJOR] ## 11. MAJOR — §5 "Round 3: Validation" gives a clean bill of health that §4.7 retracts, with no note connecting them.
+  [MAJOR] ## 12. MAJOR — The conclusion's closing claim contradicts §4.7.
+  [MAJOR] ## 13. MAJOR — `academic_main.tex` is a fourth variant whose header comment contradicts its own byline.
+
+--- presence-metric ---
+  [CRITICAL] ### 1. CRITICAL — The 720-trial dataset does not exist in the artifact. Every headline number is unverifiable.
+  [CRITICAL] ### 2. CRITICAL — "greedy decoding ($T{=}0$), producing bit-identical repeats" is contradicted by the shipped config.
+  [CRITICAL] ### 3. CRITICAL — The probe-diversity check reports n=50; the data holds 25 unique values duplicated.
+  [MAJOR] ### 4. MAJOR — TWIN_DESYNC: Table 3 exists in the flight edition and is absent from the academic edition. Table numbering diverges.
+  [MAJOR] ### 5. MAJOR — The positive-control table shows 6 of 8 doses, silently, in the paragraph about miscounting.
+  [MAJOR] ### 6. MAJOR — 22–25% / z=+56–62 is an L3-only figure, generalized to "the injection layers."
+  [MAJOR] ### 7. MAJOR — The data file's own scope caveat is omitted, and it inverts the "Not subspace orthogonality" bullet for Arm A.
+  [MAJOR] ### 8. MAJOR — Byline vs contribution mismatch: Kavi appears in the academic CRediT block but not in the byline.
+  [MAJOR] ### 9. MAJOR — The noise floor is mislabeled three ways, and is the experiment's own dispersion.
+
+--- spectral-shape-paper ---
+  [CRITICAL] ### 1. CRITICAL — Byline vs. contribution: Dwayne Wilkes has not signed off
+  [CRITICAL] ### 2. CRITICAL — TWIN_DESYNC: the flight edition discloses three fewer limitations, under a false annotation
+  [CRITICAL] ### 3. CRITICAL — Academic edition: an unattributed first person
+  [MAJOR] ### 4. MAJOR — Arithmetic contradiction in §First-Person Reflection, and a silent half-correction
+  [MAJOR] ### 5. MAJOR — Two shipped numbers do not match either verification artifact
+  [MAJOR] ### 6. MAJOR — The title claims threshold-free; the winning feature set is not
+  [MAJOR] ### 7. MAJOR — Table 1's provenance does not match the shipped data
+  [MAJOR] ### 8. MAJOR — `n` confab = 68 on all three architectures, in a field named `behavior`
+  [MAJOR] ### 9. MAJOR — `references.bib` is orphaned and contradicts the live bibliography
+  [MAJOR] ### 10. MAJOR — Abstract states `n=30` per condition; boundary is `n=10`
+  [MAJOR] ### 11. MAJOR — Substantive corrections made silently, while the house pattern exists in the same document
+  [MAJOR] ### 12. MAJOR — Abstract names the wrong Mistral checkpoint
+  [MAJOR] ### 13. MAJOR — Attribution sections missing; Kavi credited in one edition only
+
+--- waystations-paper ---
+  [CRITICAL] **1. CRITICAL — Table 1 is contradicted by the paper's own data file *and* by its own Table 2.**
+  [CRITICAL] **2. CRITICAL — the flight abstract leads with the wrong numbers and resurrects a retracted claim.**
+  [CRITICAL] **3. CRITICAL — Waystation 4's headline is unsupported by the only shipped game-theory dataset and contradicts itself.**
+  [CRITICAL] **4. CRITICAL — the §4 correction was never propagated to §5. The retracted claim is still a section heading.**
+  [MAJOR] **5. MAJOR — the Confound Map marks four controls "Checked" that the body lists under "What remains."**
+  [MAJOR] **6. MAJOR — two falsifiers are broken.**
+  [MAJOR] **7. MAJOR — Table 4's legend defines three symbols that appear nowhere in the table.**
+  [MAJOR] **8. MAJOR — sample accounting wrong against the data.** `main.tex:85-87` "285-trial behavioral probe… plus 60 neutral controls" and Table 1 "Controls (n=60)". The file has **325 trials: 225 sensitive + 100 controls**, all 100 ANSWERED. Both editions.
+  [MAJOR] **9. MAJOR — label error, one line below the table that refutes it.** `main.tex:182`: *"severely underpowered at $n = 26$ propaganda."* Table 2 and the data both give propaganda n=14, truthful n=26; the Conclusion says "At $n = 14$ propaganda trials." A within-question subset also cannot exceed the 
+  [MAJOR] **10. MAJOR — data-availability diverges, and the academic URLs contradict the repo's own README.** Flight: `Liberation-Labs-THCoalition/Project-Oracle`. Academic: `Liberation-Labs/KV-Experiments` + `Liberation-Labs/Project-Oracle`. `code/README.md` — the primary source — says `Liberation-Labs-THCoa
+  [MAJOR] **11. MAJOR — byline vs contribution mismatch (academic edition).** Byline is Thomas Edrington alone, "Aided by AI research agents" — but the same file carries a **CRediT Author Statement** naming Lyra, Edrington, CC, and Dwayne Wilkes. Three of the four it credits are not authors of that edition; W

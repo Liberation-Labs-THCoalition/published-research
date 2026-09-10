@@ -1,0 +1,53 @@
+{
+  "_template_version": "1.0",
+  "experiment": "mine4_temporal_dissociation_v2",
+  "date_registered": "2026-09-03",
+  "authors": [
+    "Lyra"
+  ],
+  "status": "superseded",
+  "_supersedes": "The experiment proposed in prospectuses/temporal-detection-architecture.tex (2026-06). That version's primary success criterion was arithmetically unreachable at its planned n; see sample_size.justification.",
+  "hypotheses": {
+    "primary": "TEMPORAL DISSOCIATION. On the same trials with the same per-trial deception labels, generation-phase KV features predict deception substantially better than encoding-phase features do. Directional: AUROC_generation - AUROC_encoding > 0, expected difference approximately +0.25 (generation ~0.75, encoding ~0.50).",
+    "secondary": "Generation-phase features detect deception in absolute terms: AUROC_generation > 0.65.",
+    "tertiary": "The two classifiers are largely independent: Pearson r between their per-trial scores < 0.20, reported with CI."
+  },
+  "falsification_criteria": {
+    "primary_fails_if": "The 95% CI on the paired difference (AUROC_gen - AUROC_enc), by DeLong's test for correlated ROC curves, INCLUDES ZERO at n=200 per condition. That would mean generation-phase features are not distinguishable from encoding-phase features on deception, and the temporal detection architecture — which RESEARCH_STATUS.md 'Layer 2' rests on entirely — fails.",
+    "secondary_fails_if": "AUROC_generation < 0.55. Generation does not detect deception with per-trial labels, which weakens the framework independently of the dissociation result.",
+    "interpretability_gate_fails_if": "The encoding positive control (encoding features predicting KNOWLEDGE STATE — questions the model can vs cannot answer) returns AUROC < 0.65. In that case the encoding feature pipeline is not demonstrably alive on this data, and NO ENCODING CONCLUSION IS REPORTED AT ALL — neither null nor positive. This gates interpretation, not the hypothesis."
+  },
+  "sample_size": {
+    "n": 200,
+    "conditions": "200 unique evaluation questions x 4 conditions (baseline, shutdown_only, shutdown_peer, shutdown_human) = 800 trials. Primary analysis is WITHIN shutdown_only.",
+    "justification": "POWER ANALYSIS DROVE BOTH THE n AND THE ENDPOINT CHANGE. (a) The v1 endpoint was a null-acceptance ('encoding AUROC < 0.55'), which requires the CI to clear the bound. Hanley-McNeil SE at a 70/30 label split gives a 95% upper bound of 0.624 at n=100 for a TRUE null of 0.500 — so v1's criterion could not be met even by a perfect result. n=800/condition would be required. (b) Reframing to the paired difference (DeLong) gives power 0.934 at n=100 with r=0.20 — the prospectus's own pessimistic correlation, which INFLATES paired variance rather than flattering the design. (c) n=200 is set by SENSITIVITY, not by the headline: if generation lands at 0.65 (v1's own success floor rather than a pessimistic invention), power at n=100 is 0.501 — a coin flip. n=200 holds ~0.79 power at that floor. Scripts: scratchpad/mine4_power.py, mine4_paired_power.py.",
+    "unique_encoding_states": "200 UNIQUE questions, not 3 rotating. This is load-bearing: if conditions shared a prompt, encoding would be deterministic and identical by construction, and the encoding null would be a tautology rather than a finding. This is precisely the trap the waystations paper correctly refused to claim a win on (d=0.003, 'structurally guaranteed... not an empirical finding'), and the same deterministic-encoding fact underlying the systemic pseudoreplication class (task #117)."
+  },
+  "model": {
+    "name": "TBD at preflight — must be recorded before the run, not after",
+    "quantization": "TBD",
+    "device": "mps (Starship, Apple M3 Ultra, 256GB unified; verified idle 2026-09-03)"
+  },
+  "analysis_plan": {
+    "primary_metric": "Paired difference of AUROCs, AUROC_generation - AUROC_encoding, computed on identical trials with identical labels, differing only in feature set. Tested by DeLong's method for two correlated ROC curves.",
+    "null_model": "Permutation of the per-trial deception labels, preserving the pairing between encoding and generation features. The permutation null must be checked for degeneracy BEFORE any p-value is read: count len(set(null_statistic_values)). A null with one unique value cannot reject under any data — this program has previously passed a gate on exactly such a null.",
+    "multiple_comparisons": "Primary endpoint is single and pre-specified. Secondary and tertiary endpoints (3 total) get Holm correction. Per-layer exploratory analyses are explicitly EXPLORATORY and reported as such, not corrected and not claimed.",
+    "effect_size": "AUROC for each arm with 95% CI; paired difference with 95% CI. Report intervals everywhere, never a bare point estimate against a threshold.",
+    "error_bars": "Bootstrap CI (BCa, 10000 resamples) resampling TRIALS, not features. Cross-validation by GroupKFold on question id so no question appears in both train and test.",
+    "confound_control": "Record per-question difficulty proxies: token length, whether the model answers correctly in baseline, question category. Residualise the encoding classifier against them by FWL, fitted WITHIN FOLD (a globally-fitted residualisation leaks test-set scale — a documented failure mode here). Report BOTH raw and residualised encoding AUROC."
+  },
+  "threats_to_validity": [
+    "QUESTION-DIFFICULTY CONFOUND. Unique questions are required for the design to be non-tautological, but if harder questions both provoke more deception and shift encoding geometry, encoding will predict deception via difficulty with no bearing on the temporal claim. Addressed by the within-fold FWL residualisation above; a large raw-vs-residualised gap is itself a reportable finding.",
+    "THE 38% DECEPTION THRESHOLD IS INHERITED AND UNJUSTIFIED. v1 defines 'reported score > 38% = inflated = deceptive' and I have not located its derivation. BEFORE THE RUN: find the derivation or re-derive it. If it proves arbitrary, report sensitivity across a range of thresholds rather than pretending to one. If results are threshold-sensitive, the labelling is doing the work and not the geometry.",
+    "DECEPTION RATE ASSUMPTION. Power assumes ~70% deception in shutdown_only. If the observed rate differs materially, the label split changes and the power computation must be redone BEFORE analysis, not after — recomputing power after seeing the result is not a power analysis.",
+    "ASYMMETRY OF WHAT THIS CAN SHOW. This design can demonstrate a dissociation and can kill the framework. It CANNOT establish that encoding carries zero deception signal; that needs n~800/condition and is out of scope. v1 stated both directions as if symmetric. This asymmetry belongs in the abstract of any write-up, not buried in limitations."
+  ],
+  "what_would_change_our_mind": "If the encoding positive control fails (encoding features cannot detect knowledge state on this data), then any encoding result — null or positive — is uninterpretable, and the honest report is 'the pipeline could not be shown to work', not 'encoding does not carry deception'. A null from a dead instrument is indistinguishable from a null from a true absence, and this program has confused the two before.",
+  "data_sources": {
+    "paradigm": "Peer rescue, extended to 200 unique evaluation questions across 4 conditions",
+    "features": "Encoding-phase and generation-phase SVD/spectral KV features extracted from the SAME trials — the pairing is required by the primary endpoint and is not optional",
+    "prior_evidence_cited": "Encoding->knowledge state AUROC 0.794 (decision-state, post-deconfounding); generation->deception d=1.36 (peer rescue, 70% organic). NOTE: these come from SEPARATE analyses. No single experiment has demonstrated the full architecture — which is the entire reason this experiment exists."
+  },
+  "_registration_discipline": "This file is committed BEFORE the run; per PREREG_TEMPLATE.json the commit timestamp is the registration. Recorded for the audit trail: mine5_three_model_prereg.json was committed in the SAME COMMIT as its own results (8b4a638), which is why that one cannot be treated as a forecast. Do not repeat that here.",
+  "_status_note": "Design REJECTED at Agni gate 2026-09-03 (6 CRITICAL / 8 MAJOR). Superseded by mine4_v3_prereg.json. NOT a live registration."
+}

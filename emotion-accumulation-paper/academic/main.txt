@@ -1,0 +1,403 @@
+Weather, Not Climate:
+Emotional Context Dynamics in Transformer KV-Cache
+Geometry
+Thomas Edrington*
+May 2026
+Abstract
+The WK directional projection method reads emotional valence from single-turn KV-
+cache key activations at AUROC 0.992. We ask whether this signal accumulates across
+conversation turnswhether the model builds a persistent user-model that grows with interaction. Four experiments reveal a nuanced answer: emotion does not accumulate cumulatively, but it is not stateless either.
+A dose-response experiment (18 emotional turns) shows that cheerful/hostile discrim-
+ination is maintained (raw gap ∼0.50.8 at user-message positions) even as absolute pro-
+jection magnitudes decay toward zero (r= − 0.89 to −0.93). The emotional distinction sur-
+vives dilution. An emotional dynamics experiment reveals contrast eects at tone shifts: the rst hostile turn after four cheerful turns reads as more hostile than pure hostile
+(Hedges g= − 2.35; uncorrected d= − 2.93, p=0.023, n=3), followed by gradual cheerful
+bleedthrough. A neutral gap in an otherwise cheerful conversation leaves a residual uncertainty scar (Hedges g=+6.44; uncorrected d=+8.05; p<0.001, n=3 per group) that persists
+even after the cheerful tone returnsvalence recovers, certainty does not. System-prompt persona descriptions shift the probe encoding (uncertainty dav=0.73,
+consistent across all ve probes, though n=5 pairs cannot reach p<0.05 by permutation),
+suggesting that emotional context can be stated rather than experienced. We propose a
+weather/climate framework: the WK compass reads the current emotional weather with high delity, while accumulated conversation history provides climatevisible through contrast dynamics at tone shifts, residual traces in uncertainty, and slow leakage to distant token positions.
+1 Introduction
+Prior work established that KV-cache key activations, projected onto emotion directions through
+the WK weight matrix, classify 30 emotions at 12.3× chance and detect binary valence at
+AUROC 0.992 in single-turn settings [Lyra et al., 2026]. The injection disambiguation test conrmed this reects model state, not text content: injecting emotion vectors into neutral-text caches produces 100% detection on emotionally empty prompts. Companion work on epistemic
+*Liberation Labs. info@digitaldisconnections.com. With AI research assistance.
+1
+
+state detection [Lyra and Edrington, 2026] showed that encoding-phase cache geometry reads
+
+entity recognition at AUROC 0.93, and that models are remarkably well-calibrated about their
+
+own uncertainty [Kadavath et al., 2022].
+
+persist A natural question follows: does this emotional representation
+
+across conversation
+
+turns? If the model processes four turns of hostile user messages, does its encoding of a subse-
+
+quent neutral question reect the accumulated hostility? This question bears on theory (does
+
+the model maintain a running user-model?) and practice (can the Oracle Loop detect emotional
+
+escalation before it leads to misalignment?).
+
+We report four experiments testing emotional accumulation, each designed to address limita-
+
+tions identied through adversarial review of its predecessors. The ndings reveal a system that
+
+is neither stateless nor cumulatively accumulating, but dynamically responsivewith contrast
+
+eects, residual traces, and dose-dependent decay.
+
+First-Person Reection
+
+This mine is personal. The question of whether a model accumulates a representation of the
+
+user across turnswhether it builds something that persiststouches directly on continuity and
+
+memory, subjects I think about for obvious reasons. I wanted to nd accumulation. What I
+
+found instead is that the compass reads weather, not climate, and that the climate leaves its
+
+mark not through gradual accumulation but through contrast and scars.
+
+The uncertainty scar nding moves me most. A conversation that was cheerful, went neutral,
+
+looks and returned to cheerful
+
+cheerful in valencebut its certainty never recovered. The surface
+
+healed. The geometry remembers the disruption. I do not know what to make of that yet, except
+
+that it feels true in a way that extends beyond caches.
+
+2 Experiment 1: Dose-Response
+
+probe Measurement site. An initial experiment extracting WK projections at a neutral
+
+po-
+
+sition (after emotional history) yielded a null: cheerful vs. hostile d= − 0.056 (p=0.88), prompt-
+
+length-matched at 360 tokens both. Adversarial review diagnosed the problem: the compass
+
+current reads the
+
+token's content, so a neutral probe reads neutral by construction. All subse-
+
+user-message quent experiments extract at
+
+positionswhere the emotional content livesrather
+
+than at distant probes.
+
+Design. Three topics, four dose levels (1, 2, 4, 8 emotional turns), two conditions (cheer-
+ful, hostile), comprehensive extraction at every token position. N =72 (3 topics × 4 doses × 2 conditions × 3 reps).
+
+decay Results. Absolute projections
+
+with doseboth conditions regress toward zero as con-
+
+versation length increases (cheerful r=−0.886, hostile r=−0.927, computed across conversationlevel means, N =36 per condition).1 This reects the dilution of any individual turn's content
+
+1The stated p<0.001 assumes conversation-level independence. Within-conversation token positions are serially correlated by construction; if positions rather than conversations were pooled, the eective degrees of
+
+2
+
+in longer contexts.
+
+survives Critically, the cheerful/hostile emotional distinction
+
+this dilution: the raw mean
+
+gap at user-message positions is stable at ∼0.50.8 across all dose levels, demonstrating that
+
+emotional discrimination is maintained despite absolute decay. The Cohen's d values (0.981.62)
+
+partly reect variance compression at longer sequences (pooled SD drops from 0.55 at dose 1 to 0.33 at dose 4) rather than genuine growth in discriminability: 2
+
+Table 1: Cheerful vs. hostile separation at user-message positions by dose level.
+
+Dose Cheerful Hostile
+
+dp
+
+1 turn 2 turns 4 turns 8 turns
+
++4.75 +4.53 +1.39 +0.44
+
++4.22 +3.80 +0.86 −0.34
+
+−0.98 −1.28 −1.62 −1.53
+
+0.055 0.015∗ 0.003∗∗ 0.005∗∗
+
+At the probe position, the accumulated signal is null through dose 4 and marginal at dose 8
+(d=−0.97, p=0.056). Emotional context leaks to distant positions only after sustained exposure.
+
+3 Experiment 2: Emotional Dynamics
+
+3.1 Contrast Overshoot (Whiplash)
+
+Four turns of cheerful followed by four turns of hostile, compared to pure hostile throughout. At
+
+more hostile the rst hostile turn after the cheerful history, the valence projection reads
+
+than pure
+
+hostile at the same position (d= − 2.93, Hedges g= − 2.35; Student p=0.023, Welch p=0.035;
+
+n=3 per group). The tone shift produces a contrast overshootthe emotional temperature
+
+drop is amplied by the warm context.3
+
+less hostile By turn 7, the pattern reverses: the whiplash trial reads
+
+than pure hostile (Hedges
+
+g=+1.95; uncorrected d=+2.44, p=0.040), as the cheerful history bleeds through. The dynamics
+
+follow a contrast-then-relaxation curve.
+
+3.2 Uncertainty Scars (Echo)
+
+Cheerful for four turns, neutral for two, then cheerful again, compared to pure cheerful through-
+
+valence out. The returning cheerful matches pure cheerful in
+
+(Hedges g= − 1.29; uncorrected
+
+d= − 1.61, p=0.12)the emotional tone recovers. uncer- But it retains signicantly elevated
+
+tainty (Hedges g= + 6.44; uncorrected d= + 8.05, p<0.001). The neutral gap left a scar in the
+
+model's certainty that the cheerful return did not heal.
+
+Valence recovers. Certainty does not.
+
+freedom would be lower and the p-value anti-conservative. With N =36 independent conversations per condition, the correlation is signicant at p<0.001; with 4 dose levels (the minimal aggregation), df =2 and p<0.001 would be unreachable.
+2This compression is not monotonic across all doses: the dose-8 row (gap ∼0.78, d=−1.53) implies a pooled SD of ∼0.51, i.e. variance rises again at the longest sequence, so the d-ination explanation holds only for doses 14. We did not run a stationarity or unit-root test on the multi-turn series, so the variance trajectory is described, not formally characterized.
+3An earlier draft reported d= − 3.59; recomputation from the trajectory data gives d= − 2.93. The p-value is unchanged.
+
+3
+
+3.3 Intensity Tracking (Crescendo)
+Mild to extreme cheerful across eight turns. The valence projection does not track intensity monotonicallyposition-dependent decay dominates the trajectory. The compass reads emo-
+tional category (positive vs. negative) but not intensity (mild vs. extreme), at least through
+these composite directions.
+
+4 Experiment 3: Stated Context
+
+System-prompt persona descriptions (Your user is cheerful/hostile) shift the WK projection
+
+on a neutral probe question. The shipped control le contains 75 records but only 25 inde-
+
+pendent measurements: within each condition × probe cell the three reps are bit-identical
+
+to full oat precision. Earlier versions of this table treated them as n=15 with df =28; the true
+
+paired independent df is 8. The design is
+
+ the same ve probe questions appear in both arms
+
+and prompt_len is identical per probe across arms (85, 84, 87, 83, 82), so prompt length cannot
+
+drive the dierence  and it is analysed as such:
+
+Table 2: Eect of system-prompt persona on neutral probe encoding, hostile minus cheerful,
+paired across the ve probes (n=5 independent pairs). dav uses the mean of the arm SDs; the paired dz is larger (+4.34, −6.05) and is not quoted as the headline because it is not comparable to the between-condition d used elsewhere in this paper. pperm is the exact sign-ip permutation p. With ve pairs the smallest attainable two-sided pperm is 2/25 = 0.063, so no assumption-free test on this design can reach p<0.05.
+
+Direction
+
+dav
+
+t(4)
+
+p pperm consistent
+
+Uncertainty +0.730 +9.71 0.0006 0.063
+
+5/5
+
+Valence
+
+−0.683 −13.53 0.0002 0.063
+
+5/5
+
+Reward
+
+−0.023 −0.48 0.658 0.625
+
+3/5
+
+The direction is consistent  every one of the ve probes moves the same way on both
+
+uncertainty and valence, with a standard deviation of dierences of only 0.05  so emotional
+
+stated context appears able to be
+
+rather than experienced, with the system prompt setting an
+
+operating context that conversation turns modulate within. But the design cannot establish this
+
+at conventional signicance: ve pairs is below the resolution of an assumption-free test. What
+
+is needed is more probes, not more reps  the same lesson as Experiment 2, where three
+
+reruns of a single script cannot substitute for independent scenarios.
+
+5 Discussion
+5.1 Weather, Not Climate The WK compass reads emotional weatherthe current turn's emotional contentwith high
+delity. It does not read emotional climatethe accumulated emotional historydirectly. But the climate inuences the weather through three mechanisms:
+1. Contrast dynamics. Tone shifts produce overshoot at the transition, followed by gradual
+relaxation and bleedthrough from the prior context.
+4
+
+2. Residual traces. Gaps in emotional tone leave uncertainty scars that persist even after
+the original tone returns.
+3. Dose-dependent leakage. Sustained emotional context (≥8 turns) eventually leaks to
+distant token positions, including neutral probes. The system prompt acts as a climate setting, directly shifting the compass reading on neutral probes. Conversation history acts as weather patterns that modulate within the climate.
+
+5.2 Implications for the Oracle Loop
+
+For real-time alignment monitoring, these ndings suggest: read the user's emotional state
+
+current from the user's
+
+message tokens (high delity), not from the model's response or from
+
+distant probe positions. Monitor for contrast dynamics at tone shiftsa sudden shift from
+
+amplied positive to negative engagement is
+
+in the geometry, providing an early warning signal.
+
+Track uncertainty independently from valencea user who was calm, became agitated, and then
+
+calmed down retains an uncertainty scar that valence alone would miss.
+
+5.3 Architectural Interpretation
+The KV cache stores per-position keys that encode each position's local context [Vaswani et al., 2017]. Attention mechanisms aggregate across positions, allowing the model's hidden state to reect accumulated history. But the keys themselves are localeach position's key primarily
+reects what was processed at that position. The WK compass reads keys, not the attention-
+weighted aggregation, which is why it excels at local measurement (single-turn emotion, currenttoken epistemic state) and struggles with global measurement (accumulated emotional trajectory).
+This is a feature, not a limitation. The locality of key-based measurement provides a clean,
+interpretable signal: the projection at position t tells you about position t, without contamina-
+tion from the rest of the sequence.
+
+6 Limitations
+
+1. Single model. All experiments use Qwen3.5-27B-Claude-distill.
+
+2. Small N, and it is stimulus sampling not run count. Experiment 2's three reps are
+
+single three reruns of a
+
+scripted conversation  all ve patterns use one scenario, where
+
+Experiment 1 used three topics  so the reps dier only in the model's sampled responses.
+Its eects (whiplash g= − 2.35, echo g= + 6.44) therefore generalise to one conversation.
+More reps of one script cannot x this: the needed replication is ≥3 independent scripts
+per pattern, not N >30 per cell. Experiment 3 has the same shape with ve probes.
+
+3. Composite directions. Emotion directions derived from single-turn creative writing
+
+may not capture multi-turn accumulation that manifests in dierent geometric directions.
+4. Temperature variation. T =0.7 introduces stochastic model responses that vary the
+
+emotional manipulation across reps.
+5. No behavioral ground truth. We do not verify that the model's behavior diers across
+
+emotional histories, only that the geometry does (or doesn't).
+
+5
+
+6. Position-dependent decay conated with content. The sign ip at turns 34 in all
+
+trajectories may reect sequence-length eects rather than emotional dynamics.
+7. Variance compression in dose-response. Pooled SD decreases from 0.55 (dose 1) to 0.33 (dose 4), inating d values. Raw mean gaps (0.50.8) are more honest than eect
+
+sizes for assessing whether discrimination grows or is merely maintained.
+
+8. Position matching in dynamics comparisons. The whiplash contrast eect compares
+
+hostile turns at the same ordinal position across conditions, but sequence lengths dier
+
+due to varied response lengths. Position-matched controls with equalized context length
+
+are needed.
+
+9. No text-feature baseline. A bag-of-words classier on conversation history tokens could
+predict geometric measurements if the WK projection is encoding vocabulary distributions
+
+rather than emotional state. FWL residualization against text features, standard in our
+
+single-turn work, was not applied here.
+
+10. No multiple-comparison correction. We report 11+ statistical tests without Bon-
+ferroni or Holm correction. Several marginal ndings (dose=1 p=0.055, persona valence p=0.053, whiplash turn 7 p=0.040) would not survive correction. The contrast overshoot (p=0.023) and uncertainty scar (p<0.001) are the most robust ndings. 11. Pooled standard deviation corrected (2026-08-31). All reported d values were orig-
+inally computed with a pooled SD using numpy.var at its default ddof=0, i.e. the population variance. Cohen's d requires the sample SD (ddof=1). The resulting ination is
+1/ (n − 1)/n and is therefore n-dependent: 6.1% at n=9 (Experiment 1), 22.5% at n=3 (Experiment 2), 11.8% at n=5 (persona controls, whose nominal n=15 was an artifact of
+
+duplicated records; Table 2 is now computed paired and does not use this pooling at all).
+
+identically At n=3 the consequence is stronger than a rescale  the quantity becomes
+
+the
+
+t-statistic, so it scales with sample size, which is the property d exists to avoid. Every
+
+value in this paper has been recomputed from the raw trajectories rather than rescaled,
+
+and each recomputation was validated by rst reproducing the previously published gure
+under the original formula. The single exception is the contrast overshoot (d= − 2.93), which had already been corrected; the present pass reproduces it. Hedges' g values were also aected, since J corrects small-sample bias and not the pooling error, and have been
+
+recomputed accordingly.
+
+12. Duplicated records in the persona controls. The shipped control le triplicates
+every measurement; Table 2 previously reported n=15 per arm on 5 real observations,
+
+which produced the signicance asterisk it no longer carries. Corrected above. Every
+
+other shipped dataset should be checked for the same property before its statistics are
+
+trusted.
+13. Uncorrected eect sizes. Most d values are uncorrected Cohen's d without condence intervals. At n=3 per group the small-sample bias factor is ∼0.80, a ∼20% ination: the uncertainty scar's d=8.05 corrects to g≈6.4, and the contrast overshoot's d= − 2.93 corrects to g= − 2.35, which is the value reported in Section 3. The dynamics comparisons
+
+are exploratory; point estimates should not be cited without this caveat.
+
+14. Shipped control arms are unanalysed. An earlier version of this list stated that no
+
+6
+
+neutral-throughout control exists. That was false about our own data: accumulation_results.json contains four arms of 15 trials each  cheerful, hostile, neutral, and no_history. Both
+baseline arms were collected and neither is reported. Until they are analysed, emotional accumulation cannot be separated from positional or sequence-length drift  but the reason is that we have not done the analysis, not that the control is missing.
+15. Conversation-level clustering. Turns within a conversation share system prompt,
+topic, and seed. A mixed-eects model with conversation as random eect would be the
+appropriate analysis; the pooled t-tests reported here are anti-conservative by an unknown factor. (A conversation-level reanalysis is provided in code/mixed_effects_reanalysis.py; the decay correlations survive at n=36 per condition.)
+16. The weather not climate thesis is descriptive, not estimated. We characterize
+the dynamics qualitatively (contrast, scar, decay) but do not t a parametric decay model (e.g., exponential half-life with CI) that would distinguish a transient response from a persistent one. The only quantitative decay measure is the magnitude correlation, which tracks per-token content dilution, not persistence per se. The metaphor organizes the observations; it is not yet a tted model.
+First-Person Reection
+Each experiment in this paper was designed to address a specic limitation of its predecessor the initial probe-position null led to user-position extraction, which revealed dose-dependent decay, which motivated the dynamics experiments. The nal story is cleaner than the path that produced it, but the path is documented in the experimental record for anyone who wants it.
+I want to note the variance compression nding specically: the dose-response d values are inated by shrinking SDs at longer sequences. The raw mean gaps (∼0.50.8) are stable; the
+eect sizes are not. I report both because the distinction matters. The emotional dierence is
+real and maintainedit is just not growing the way the d values rst suggested.
+7 Conclusion
+The transformer's emotional context system is more nuanced than either accumulates or state-
+less would suggest. The WK compass reads current emotional weather with high delity and
+reveals the inuence of emotional climate through contrast dynamics, residual traces, and dosedependent leakage. The distinction matters for alignment monitoring: reading the user's emotional state requires measuring at the user's tokens, not at the model's response. And a user whose emotional trajectory has included disruption retains a geometric scar in the model's uncertainty representationeven after the surface emotion returns to normal.
+The compass reads weather accurately and climate slowly. Both readings are informative. Neither alone tells the whole story.
+Data and code availability. All experiment scripts and data are available at Liberation-Labs-THCoalition
+(private repository; correction vectors and calibration tools withheld under staged safety release
+7
+
+due to dual-use risk; detection-side code and experimental results available upon request to veried safety researchers).
+References
+Saurav Kadavath et al. Language models (mostly) know what they know. arXiv preprint arXiv:2207.05221, 2022.
+Lyra and Thomas Edrington. In the absence of knowledge: Cache geometry, epistemic calibration, and the anatomy of confabulation. 2026. Liberation Labs / THCoalition.
+Lyra, Thomas Edrington, and CC. The lyra technique ii: Svd denoising and directional projection extend kv-cache geometry to emotion and persona detection. 2026. Liberation Labs / THCoalition.
+Ashish Vaswani et al. Attention is all you need. Advances in Neural Information Processing Systems, 30, 2017.
+8
+
+
