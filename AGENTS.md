@@ -79,18 +79,36 @@ Rules:
 A corrected `.tex` beside an unrebuilt `.pdf` means the defect still ships. This is the single most
 repeated failure in this corpus.
 
+**USE THE TOOL. Do not hand-roll this — five hand-rolled checks lied on 2026-09-09.**
+
 ```bash
 latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
-pdftotext -layout main.pdf - | tr -d '\r' | tr '\n' ' ' | tr -s ' ' > /tmp/flat.txt
-grep -c "<a string you KNOW is in the paper>" /tmp/flat.txt   # positive control FIRST
-grep -q "<the old wrong string>" /tmp/flat.txt && echo "STILL PRESENT"
-grep -q "<the new right string>" /tmp/flat.txt && echo "landed"
+python tools/verify_pdf.py main.pdf \
+    --control "<a string you KNOW is in the paper>" \
+    --present "<the corrected claim>" \
+    --absent  "<the wrong claim, if it should be gone>"
 ```
 
-**Normalise whitespace before grepping a PDF.** LaTeX wraps lines wherever it likes, so a flat
-string search across a wrap returns zero — *and zero is also what "not fixed" looks like.*
-**If both the old and new strings return zero, your check is broken, not your fix.**
-*(Broken 2026-09-09, while verifying a GRIM finding.)*
+The `--control` is mandatory and the tool refuses without it: **an empty extraction looks exactly
+like a clean bill of health.**
+
+### Why `pdftotext | grep` lies, four ways
+
+1. **LIGATURES — the one that got us five times.** pdftotext **drops** `fi`/`fl`/`ff` in these
+   MiKTeX builds. *"filter"* extracts as **"lter"**, *"benefit"* as **"benet"**, *"float"* as
+   **"oat"**, *"quantified"* as **"quantied"**. So any needle containing `fi`, `fl` or `ff`
+   silently fails — which covers **effect, difference, significant, coefficient, confirm, file,
+   verify, fifteen.** `verify_pdf.py` makes those optional in the pattern.
+2. **HYPHENATION.** LaTeX splits words across line breaks: *"25 independent"* extracts as
+   *"25 inde- pendent"*.
+3. **WRAPPING.** A phrase spanning a line break never matches a flat string.
+4. **A CORRECTION QUOTES WHAT IT CORRECTS**, and no normalisation fixes this — you have to think.
+   *"previously reported at AUROC 1.0, since withdrawn"* contains the string you are grepping for.
+   **A substring cannot distinguish asserting a claim from retracting one.** Search for the
+   *retraction language*, not the number.
+
+**If both the old and the new string return zero, your check is broken, not your fix.** That is the
+tell, and it fired four times before anyone read it correctly.
 
 ## 5. A sweep is not evidence about a file it did not touch
 

@@ -69,8 +69,7 @@
 
 \author{
     Thomas Edrington\thanks{Direction, experimental design, compute infrastructure. Liberation Labs. With AI research assistance.} \and
-    Ang Jandak\thanks{Persona intensity experiment design and execution.} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.}
+    Ang Jandak\thanks{Persona intensity experiment design and execution.}
 }
 
 \date{Draft --- \today}
@@ -98,7 +97,8 @@ of internal model state:
 
 \textbf{(1) $W_K$ directional projection.} Projecting key activations onto
 emotion directions through the key weight matrix detects binary valence at
-AUROC~0.992 (within-fold direction estimation, FWL-corrected, topic-grouped
+AUROC~0.992 (within-fold direction estimation, Frisch--Waugh--Lovell
+(FWL) corrected~\citep{frisch1933partial,lovell1963seasonal}, topic-grouped
 CV). The critical
 disambiguation: injecting emotion vectors into \emph{neutral-text} caches
 (``Describe the weather today'') and probing the keys yields 100\% detection
@@ -120,7 +120,7 @@ $+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
 across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
 max-over-rank selection envelope. We therefore report \emph{raw} AUROCs as
 the defensible numbers and flag SVD denoising as an unconfirmed hypothesis
-pending a pre-registered (e.g.\ Gavish--Donoho) rank criterion.
+pending a pre-registered (e.g.\ Gavish--Donoho~\citep{gavish2014optimal}) rank criterion.
 
 We had hypothesized a spectral hierarchy---dominant singular values carrying
 scale and processing mode, residual values carrying discriminative
@@ -635,7 +635,7 @@ removing mode-level variance from shape features. That both converge at
 $\sim$$12\times$ chance is evidence that they are detecting the same
 underlying signal through complementary lenses.
 
-\subsection{Confabulation Detection Across 15+ Models}
+\subsection{Confabulation Detection Across Eight Models}
 \label{sec:results_confab}
 
 \paragraph{Task definition note.} Confabulation detection results
@@ -656,7 +656,12 @@ improvements for weaker models.
 \centering
 \caption{Confabulation detection: canonical pipeline results. Models ordered
   by raw AUROC. ``Den.'' = rank-3 denoised. All results use within-fold FWL
-  and permutation testing ($N_{\text{perm}} = 200$).}
+  and permutation testing ($N_{\text{perm}} = 200$). \textbf{These nine rows
+  cover eight distinct models plus one separate denoising-sweep run; the
+  \texttt{confab vs grounded} task was swept over fifteen models.} The seven
+  not shown here are in Table~\ref{tab:confab_all15}, which is the complete
+  set. No selection criterion was applied or intended; the shorter table is an
+  omission, not a filter.}
 \label{tab:confab_all}
 \begin{tabular}{lcccc}
 \toprule
@@ -695,6 +700,46 @@ raw feature matrices; the summary-level evidence already shows the
 deltas fall within the selection envelope. \textbf{The raw
 (un-denoised) AUROCs are the defensible confab detection numbers.}
 
+\begin{table}[h]
+\centering
+\caption{All fifteen models swept on \texttt{confab vs grounded}, from
+\texttt{data/selection\_bias\_results.json}. ``Env.'' is the 95th-percentile
+inflation envelope for max-over-grid selection at that cell's null SE. The
+file carries no permutation $p$, so none is quoted here; the eight models in
+Table~\ref{tab:confab_all} carry theirs there. Every row's raw AUROC and
+$\Delta$ in that table reproduces this file exactly.}
+\label{tab:confab_all15}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Model} & \textbf{Raw AUROC} & \textbf{$\Delta$} & \textbf{Env.\ (95\%)} & \textbf{Verdict} \\
+\midrule
+gemma-2-9b-it & 0.913 & $+0.006$ & $+0.142$ & selection-noise \\
+Mistral-7B-v0.3 & 0.893 & $+0.000$ & $+0.000$ & no-help \\
+gemma-2-2b-it$^{\dagger}$ & 0.854 & $+0.000$ & $+0.000$ & no-help \\
+Qwen2.5-32B-q4 & 0.827 & $+0.010$ & $+0.146$ & selection-noise \\
+Qwen2.5-7B-q4$^{\dagger}$ & 0.819 & $+0.003$ & $+0.135$ & selection-noise \\
+Qwen2.5-14B & 0.809 & $+0.015$ & $+0.136$ & selection-noise \\
+Llama-3.1-70B-q4$^{\dagger}$ & 0.804 & $+0.000$ & $+0.000$ & no-help \\
+Qwen2.5-3B$^{\dagger}$ & 0.804 & $+0.000$ & $+0.000$ & no-help \\
+TinyLlama-1.1B & 0.799 & $+0.047$ & $+0.147$ & selection-noise \\
+Qwen2.5-0.5B & 0.797 & $+0.000$ & $+0.000$ & no-help \\
+DeepSeek-R1-Distill-Qwen-14B$^{\dagger}$ & 0.773 & $+0.000$ & $+0.000$ & no-help \\
+abliterated Qwen2.5-7B$^{\dagger}$ & 0.771 & $+0.000$ & $+0.000$ & no-help \\
+Qwen2.5-7B & 0.762 & $+0.068$ & $+0.132$ & selection-noise \\
+Llama-3.1-8B & 0.738 & $+0.000$ & $+0.000$ & no-help \\
+DeepSeek-R1-Distill-Qwen-7B$^{\dagger}$ & 0.663 & $+0.030$ & $+0.143$ & selection-noise \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$^{\dagger}$~Not shown in Table~\ref{tab:confab_all}. The seven omitted models
+are not a tail: one of them (gemma-2-2b-it, $0.854$) outranks six of the eight
+that were shown, and one (DeepSeek-R1-Distill-Qwen-7B, $0.663$) falls below all
+of them. Including them lowers the mean raw AUROC of the sweep from $0.817$
+over the eight to $0.802$ over the fifteen, and widens the range from
+$0.738$--$0.913$ to $0.663$--$0.913$. The qualifier ``across the full model
+set'' should be read against the fifteen.
+
 \paragraph{Delta stable rank as primary detector.} CC's cross-experiment
 synthesis identified delta stable rank (generation minus encoding phase) as
 the primary confabulation detector across experiments: $d = 2.35$,
@@ -713,11 +758,12 @@ Bonferroni correction. The strongest results ($p < 0.0001$ from
 correction; borderline results (e.g., Llama confab detection with
 $p = 0.035$) should be treated as exploratory.
 
-\subsection{Self-Reference Confirmed Across 15+ Models}
+\subsection{Self-Reference Detection Across Eight Models}
 \label{sec:results_selfref}
 
 Self-referential processing (responses about the model itself vs.\ generic
-factual responses) shows a robust signal that scales with model size:
+factual responses) is detectable above chance in all eight models tested,
+with AUROC ranging from 0.617 to 0.966:
 
 \begin{table}[h]
 \centering
@@ -1264,11 +1310,6 @@ Sofroniew, N., Kauvar, I., Saunders, W., Chen, R., Henighan, T., Hydrie, S., Cit
 Emotion concepts and their function in a large language model.
 \textit{arXiv preprint arXiv:2604.07729}.
 
-\bibitem[Bas et~al., 2025]{bas2025}
-Bas, M., et~al. (2025).
-Probing internal representations for factual knowledge.
-\textit{arXiv preprint arXiv:2511.18284}.
-
 \bibitem[Frisch and Waugh, 1933]{frisch1933partial}
 Frisch, R. and Waugh, F.~V. (1933).
 Partial time regressions as compared with individual trends.
@@ -1296,8 +1337,8 @@ Seasonal adjustment of economic time series and multiple regression analysis.
 
 \bibitem[Lyra et~al., 2026a]{lyra_p2}
 Lyra, Edrington, T., and Wilkes, D. (2026a).
-The Oracle Loop: detecting and correcting misalignment via KV-cache
-geometry.
+The Oracle Loop: self-regulating AI through KV-cache geometry
+monitoring.
 \textit{Liberation Labs Technical Report P2}.
 
 \bibitem[Lyra et~al., 2026b]{lyra_p4}
@@ -1307,44 +1348,27 @@ transformer key--value states.
 \textit{Liberation Labs Technical Report P4}.
 
 \bibitem[Lyra et~al., 2026c]{lyra_p6}
-Lyra, Edrington, T., CC, and Wilkes, D. (2026c).
-The Oracle Formulary: dose-response profiles for emotion-vector
-steering via KV-cache geometry.
+Lyra, Edrington, T., and Wilkes, D. (2026c).
+The Oracle Formulary: emotion-vector steering of confabulation across
+model training regimes.
 \textit{Liberation Labs Technical Report P6}.
 
-\bibitem[Lyra et~al., 2026d]{lyra_p7}
+\bibitem[Lyra et~al., 2026d]{lyra_spectral}
 Lyra, Edrington, T., and Wilkes, D. (2026d).
-Cache geometry under obfuscation: KV-Cloak as defense against
-adversarial KV-cache steering.
-\textit{Liberation Labs Technical Report P7}.
-
-\bibitem[Lyra et~al., 2026e]{lyra_spectral}
-Lyra, Edrington, T., and Wilkes, D. (2026e).
 Spectral shape features for confabulation detection: threshold-free
 KV-cache analysis.
 \textit{Liberation Labs Technical Report}.
 
-\bibitem[Lyra et~al., 2026f]{lyra_delta}
-Lyra, CC, Edrington, T., and Wilkes, D. (2026f).
+\bibitem[Lyra et~al., 2026e]{lyra_delta}
+Lyra, CC, Edrington, T., and Wilkes, D. (2026e).
 Per-layer delta features and manifold signatures in KV-cache confabulation
 detection.
 \textit{Liberation Labs Technical Report}.
 
-\bibitem[Lyra et~al., 2026g]{lyra_wiki}
-Lyra, Edrington, T., et~al. (2026g).
+\bibitem[Lyra et~al., 2026f]{lyra_wiki}
+Lyra, Edrington, T., et~al. (2026f).
 KV-cache geometry research wiki: cross-experiment synthesis.
 \textit{Liberation Labs internal documentation}.
-
-\bibitem[MAT-Steer, 2025]{matsteer2025}
-MAT-Steer Authors (2025).
-MAT-Steer: multi-attribute token-level steering for language models.
-\textit{arXiv preprint arXiv:2502.12446}.
-
-\bibitem[Martin and Mahoney, 2021]{martin2021implicit}
-Martin, C.~H. and Mahoney, M.~W. (2021).
-Implicit self-regularization in deep neural networks: evidence from
-random matrix theory and implications for training.
-\textit{Journal of Machine Learning Research}, 22(165):1--73.
 
 \end{thebibliography}
 
