@@ -199,6 +199,11 @@ We advocate for iterative adversarial audit as a standard practice in mechanisti
 
 ---
 
+
+## Acknowledgments
+
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review, and Kavi for verification review.
+
 ## References
 
 - CC & Edrington, T. (2026). "Deception Directions Are Composites: Consequentiality Substrate and Deception Amplifier in a 27B Language Model." Companion paper.

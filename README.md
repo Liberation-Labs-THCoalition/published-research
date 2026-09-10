@@ -10,20 +10,20 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [The Oracle Loop](oracle-loop-paper/) | Lyra, Thomas Edrington, Vera, Dwayne Wilkes | Published | Self-regulating AI through KV-cache geometry monitoring; confabulation detection and steering at inference time |
-| [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotion-vector steering of confabulation across model training regimes |
-| [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
-| [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
+| [The Oracle Loop](oracle-loop-paper/) | Lyra, Thomas Edrington, Vera | Published | Self-regulating AI through KV-cache geometry monitoring; confabulation detection and steering at inference time |
+| [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington | Published | Emotion-vector steering of confabulation across model training regimes |
+| [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
+| [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
 | [Decision State](decision-state-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Causal injection and the opacity of the transformer workspace |
-| [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington, Dwayne Wilkes | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
-| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | SVD denoising and directional projection extend KV-cache geometry to emotion and persona |
+| [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
+| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC | Published | SVD denoising and directional projection extend KV-cache geometry to emotion and persona |
 
 ### Emotion and User Modeling
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
+| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
 | [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
 | [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra, Dwayne Wilkes | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
@@ -35,9 +35,9 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Identity Geometry](identity-geometry/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Context-established semantic states in transformer representations |
 | [Presence Metric](presence-metric/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Measuring identity preservation during inference-time interventions via value-space subspace overlap |
 | [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
-| [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Workspace selectivity in a distilled 27B language model |
-| [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Ablation study of modular memory architectures |
-| [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington, Dwayne Wilkes | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
+| [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington | Draft | Workspace selectivity in a distilled 27B language model |
+| [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington | Draft | Ablation study of modular memory architectures |
+| [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
 | [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
 
 ### Deception and Methodology
@@ -45,13 +45,24 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
 | [Null Swarm](null-swarm-paper/) | Nexus, Thomas Edrington, Dwayne Wilkes | In Review | Systematic falsification patterns in mechanistic interpretability |
-| [Adversarial Audit Methodology](adversarial-audit-methodology/) | CC, Thomas Edrington, Dwayne Wilkes, Kavi | Published | How six rounds of structured criticism shaped a deception research program |
-| [Deception Detection Nulls](deception-detection-nulls/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Null results and replication failures in behavioral deception detection |
-| [Targeted Deception Correction](targeted-deception-correction/) | CC, Thomas Edrington, Dwayne Wilkes | Published | Profile normalization for targeted deception correction |
+| [Adversarial Audit Methodology](adversarial-audit-methodology/) | CC, Thomas Edrington | Published | How six rounds of structured criticism shaped a deception research program |
+| [Deception Detection Nulls](deception-detection-nulls/) | CC, Thomas Edrington | Published | Null results and replication failures in behavioral deception detection |
+| [Targeted Deception Correction](targeted-deception-correction/) | CC, Thomas Edrington | Published | Profile normalization for targeted deception correction |
 | [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
 | [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
+
+
+## Review and auditing
+
+**Dwayne Wilkes** (Sentient Futures / Liberation Labs) has provided statistical auditing
+and red-team review across this corpus. **Kavi** has provided verification review.
+
+Neither appears on an author line. That is their standing preference: not on the byline
+until they sign off on the individual paper. Both are credited in the acknowledgements of
+the papers they reviewed. Removing them from the bylines on 2026-09-03 without restoring
+the credit here would have replaced one wrong with a worse one.
 
 ## Repository Structure
 
