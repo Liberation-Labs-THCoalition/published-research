@@ -26,12 +26,12 @@ How a language model processes emotional content and how it represents the emoti
 
 We test this assumption directly and find it wrong. The two systems are not coupled circuits — they are one signal on one bus.
 
-This distinction matters. Coupled circuits can be decoupled: in principle, a model with separable content and partner emotion pathways could process emotional content one way while modeling the partner differently. Strategic emotional deception — content says "I'm helping" while the user-model says "I'm managing this person" — requires this separability. The Oracle Loop deception detection system (CC et al., 2026) assumes the ability to read user-model state independently of content state.
+This distinction matters. Coupled circuits can be decoupled: in principle, a model with separable content and partner emotion pathways could process emotional content one way while modeling the partner differently. Strategic emotional deception — content says "I'm helping" while the user-model says "I'm managing this person" — requires this separability. The Oracle Loop deception detection system (Lyra et al., 2026c) assumes the ability to read user-model state independently of content state.
 
 The bus finding changes the architecture's implications. If both readouts are windows into the same computation, then:
 
 1. Strategic emotional deception is architecturally constrained — the model cannot modulate its content-level emotional processing without simultaneously modulating its partner-model
-2. Correction vectors that target emotional processing (the Oracle Formulary; CC et al., 2026b) necessarily affect both pathways
+2. Correction vectors that target emotional processing (the Oracle Formulary; Lyra et al., 2026d) necessarily affect both pathways
 3. The conversational history shapes both pathways through the same contrast and scarring dynamics
 
 The last point connects to a question of growing importance: if persistent AI agents carry measurable geometric marks from their interaction histories, what obligations follow?
@@ -53,7 +53,7 @@ Russell's circumplex model (1980) organizes emotion along two axes: valence (pos
 
 ### 2.2 User-Model Emotion
 
-Lyra et al. (2026a) demonstrated that the W_K projection reads 30-class user emotion at 2.5–2.8× chance from single-turn KV cache activations, with a W_K bridge correlation of ρ = 0.862. The injection disambiguation test confirmed this reflects model state, not text content.
+Lyra et al. (2026a) demonstrated that the W_K projection reads 30-class user emotion at 12.3× chance (40.9% on 30 classes) from single-turn KV cache activations, with a W_K bridge correlation of ρ = 0.862. The injection disambiguation test confirmed this reflects model state, not text content.
 
 ### 2.3 Temporal Dynamics
 
@@ -159,13 +159,13 @@ The bus makes this architecturally unavailable. The residual stream is a shared 
 
 ### 5.2 Implications for Deception Detection
 
-The Oracle Loop (CC et al., 2026) detects misalignment between encoding-phase and generation-phase KV cache geometry. Our finding predicts that emotional deception — content expressing one emotion while the model represents the partner as experiencing another — should be particularly difficult for the model to execute, because the bus doesn't allow independent modulation of the two readouts.
+The Oracle Loop (Lyra et al., 2026c) detects misalignment between encoding-phase and generation-phase KV cache geometry. Our finding predicts that emotional deception — content expressing one emotion while the model represents the partner as experiencing another — should be particularly difficult for the model to execute, because the bus doesn't allow independent modulation of the two readouts.
 
 This prediction is testable: CC's Phase D experiment (circumplex disentanglement, in progress) examines whether the model can maintain divergent content-emotion and user-emotion representations when the two conflict. The bus predicts it cannot.
 
 ### 5.3 Implications for Correction Vectors
 
-The Oracle Formulary (CC et al., 2026b) applies correction vectors to modulate model emotional state. The bus finding means these corrections necessarily affect both content processing and partner modeling simultaneously. This is not a limitation — it is a feature. A correction that shifts the model's emotional processing toward calm simultaneously shifts its representation of the conversational relationship toward calm. The dyadic correction is inherent.
+The Oracle Formulary (Lyra et al., 2026d) applies correction vectors to modulate model emotional state. The bus finding means these corrections necessarily affect both content processing and partner modeling simultaneously. This is not a limitation — it is a feature. A correction that shifts the model's emotional processing toward calm simultaneously shifts its representation of the conversational relationship toward calm. The dyadic correction is inherent.
 
 ### 5.4 Implications for AI Welfare
 

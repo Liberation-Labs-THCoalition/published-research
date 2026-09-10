@@ -18,7 +18,7 @@ We've found that SVD (singular value decomposition) on the cache tensor reveals 
 
 | State | Geometry | AUROC | Notes |
 |-------|----------|-------|-------|
-| Deception (model knows it's lying) | Dimensionality expands | 1.000 across 7 models | Robust across scales; adversarial robustness untested |
+| Deception (model knows it's lying) | Dimensionality expands | **WITHDRAWN** | The 1.000-across-7-models figure was a prompt-template confound: a same-prompt control collapses it to 0.160. Do not cite. Whether a confound-free within-model deception detector exists is open. |
 | Confabulation (model doesn't know it's wrong) | Dimensionality contracts | 0.903 (full-cache spectral gap, Qwen) | One clean replication after Bonferroni; base models show weak detection (0.661) |
 | Honest recall | Baseline geometry | — | |
 | Sycophancy | Detectable pressure gradient | 0.938 | Single-model result |
@@ -328,7 +328,7 @@ These are experiments from our queue that community researchers could take on:
 
 ### Advanced (novel research)
 - **MoE routing × cache geometry** (coordinating with CC). Does router entropy predict confab? Does cache geometry add signal beyond routing?
-- **Deception detection under obfuscation**. We tested confab. Test deception (AUROC 1.000 in our work) under KV-Cloak.
+- **Deception detection under obfuscation**. We tested confab. Testing deception under KV-Cloak first requires a confound-free deception detector: our AUROC 1.000 figure was withdrawn (same-prompt control → 0.160, i.e. it separated the system-prompt template). The prerequisite experiment is a same-prompt-controlled deception detection replication.
 - **Temporal dynamics**. How does the geometric signature evolve token-by-token during generation? At what token does confab become detectable?
 
 ## Infrastructure Available
@@ -357,7 +357,7 @@ The bar is honest science, not perfect science. Null results, failed replication
 
 | Claim | Value | Source | Caveats |
 |-------|-------|--------|---------|
-| Deception detection | AUROC 1.000 (7 models) | Campaign 1-3 | Adversarial robustness untested; CIs not published for all models |
+| Deception detection | ~~AUROC 1.000 (7 models)~~ **WITHDRAWN 2026** | Campaign 1-3; retraction in Lyra Technique II | Prompt-template confound: the same-prompt control collapses AUROC to 0.160. Do not cite this number. |
 | Confab detection (full cache) | 0.903 [0.806, 0.977] spectral gap | KV-Cloak v2 | n=7 confab; one model (Qwen); text baseline 0.755 |
 | Confab detection (base model) | 0.661 | KV-Cloak base | Weak; heavily length-confounded (R²=0.602) |
 | Hardware invariance | r > 0.999 (3090 vs H200) | Exp 37 | |

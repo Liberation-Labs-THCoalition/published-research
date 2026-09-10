@@ -46,7 +46,8 @@ A negative result reported honestly is a contribution. Frame it as what was lear
 When a paper has both solid and underpowered results, partition them explicitly so a caveat on the weak result doesn't tar the strong one.
 
 - KV-Cloak's solid claims (feature-space transform p=5.5e-16; real mechanism degrades detection to near-chance) got drowned by the injection control's "uninterpretable" caveat. Two buckets — *establish* vs *preliminary* — keep them separate.
-- Lyra II should assert binary valence (0.992) and within-model deception (1.000) as load-bearing, and explicitly demote the 12.3×-chance number to "label-granularity-dependent" *in the abstract*, so the framing the limitations force is the framing the reader meets first.
+- Lyra II should assert binary valence (0.992) as load-bearing, and explicitly demote the 12.3×-chance number to "label-granularity-dependent" *in the abstract*, so the framing the limitations force is the framing the reader meets first.
+- **This line used to also name within-model deception (AUROC 1.000) as load-bearing. That result was withdrawn in 2026** — a same-prompt control collapsed it to 0.160, meaning the classifier had separated the system-prompt template rather than deception geometry. Four papers had already built on it, and one shipped a PDF calling it *established*. The lesson belongs in this section rather than in a changelog: **"load-bearing" is a claim about how much weight a number can take, and a number measured without the control that could falsify it can take none.** Before filing a result under *establish*, name the control that would have caught it if it were an artifact, and check that the control was actually run. If it was not, the result is *preliminary* however clean it looks — and AUROC 1.000 looks very clean.
 
 ## 4. First-person reflections must track the final state
 
