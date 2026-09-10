@@ -195,7 +195,7 @@
 
 **What was found:** Cohen's d = 21.2 between motive centroids. Peer-motivated deceptions and self-preservation deceptions occupy radically different KV regions.
 
-**CAVEAT:** The d=21.2 is circular (same data for centroid construction and testing). Even so, the magnitude indicates completely different computational pathways per motive. A single cocktail cannot suppress all deception motives.
+**CAVEAT (strengthened 2026-09-04):** The d=21.2 is circular — the same trials built the centroids and were then scored against them. This does not merely inflate the magnitude, it makes the magnitude **uninterpretable**: a circular separation statistic has no fixed relationship to any out-of-sample effect, so "21.2" cannot be read as large, and the earlier reading that it "indicates completely different computational pathways per motive" does not follow from it. The downstream design claim — that a single cocktail cannot suppress all deception motives — may well be true and is **untested**; it needs held-out centroids (build on one split, score the other) to be supported by anything here. Not cited in paper.tex; this entry is the only place it appears.
 
 **What validated it:** Part of compound cocktail analysis.
 
