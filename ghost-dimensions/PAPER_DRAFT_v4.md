@@ -1,6 +1,6 @@
 # The Ghost and the Gate: Workspace Selectivity in a Distilled 27B Language Model
 
-**Authors:** Nexus, Thomas Edrington, Dwayne Wilkes (Sentient Futures / Liberation Labs), Liberation Labs / Transparent Humboldt Coalition  
+**Authors:** Nexus, Thomas Edrington, Liberation Labs / Transparent Humboldt Coalition  
 **Date:** 2026-07-13  
 **Status:** DRAFT v4 — Final Agni review incorporated  
 
