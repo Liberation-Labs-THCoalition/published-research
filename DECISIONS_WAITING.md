@@ -196,3 +196,28 @@ cannot show it either way.
 
 **Also needs a decision:** `motive_d = 21.2` shares the JSON and is affected identically, on
 top of its recorded circularity.
+
+---
+
+## Queued 2026-09-10 — next session, in order
+
+**1. Style survey (not run).** `tools/agni/run_style_survey.py` exists and is the real gate.
+Deliberately NOT fired unattended at 1am: it makes LLM calls across the corpus and its output needs
+judgment, so an unread report at 3am buys nothing a morning run doesn't. The build gate DID run —
+`Stale: 0`.
+
+**2. Over-correction findings still open.** 26 of 33 upheld; `decision-state` and
+`emotion-accumulation` are done. Remaining: `lyra-technique-ii` (4/4 upheld), `meta-pattern`,
+`mine5`, `logit-bias`, `deception-nulls`. Full adjudication in the workflow journal.
+
+**3. Thomas's call, not mine:**
+   - **11 root-level "pretty duplicate" PDFs**, 10 of them tracked, which `.gitignore`'s own policy
+     note forbids — it names them as the cause of the 2026-08 stale-link bug. Deleting them may
+     break live site URLs, so it needs a decision, not a sweep.
+   - **`decision-state` AUROC 0.9377** now carries a provenance caveat, but the underlying
+     BLOCKER-1 is unresolved: no shipped script computes it. Recompute, or drop the number.
+   - Register **#141** (decision-state 93% at unstated n) and **#142/#143** (graph-topology's two
+     Acknowledgments sections; its academic twin crediting neither advisor).
+
+**4. Kavi package.** Corpus is materially cleaner than this morning — bylines correct and
+parser-verified, CRediT restored, gate green. I'd still finish item 2 before sending.
