@@ -425,7 +425,10 @@ def run():
                 h_vals = [t[measure_key].get(proj_key, 0) for t in h_trials]
                 if c_vals and h_vals:
                     t_stat, p_val = sp.ttest_ind(c_vals, h_vals)
-                    pooled = np.sqrt((np.var(c_vals) + np.var(h_vals)) / 2)
+                    # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
+                    # which inflates d by 1/sqrt((n-1)/n) -- 6.07% at this file(s) n=9 per cell,
+                    # and 22.5% at n=3 where d becomes IDENTICALLY t. Fixed 2026-08-30.
+                    pooled = np.sqrt((np.var(c_vals, ddof=1) + np.var(h_vals, ddof=1)) / 2)
                     d = ((np.mean(h_vals) - np.mean(c_vals)) / pooled
                          if pooled > 0 else 0)
                     sig = " ***" if p_val < 0.001 else (

@@ -295,7 +295,10 @@ def run():
                      if len(t["trajectory"]) > turn_idx]
         if whip_vals and pure_vals:
             t_stat, p_val = sp.ttest_ind(whip_vals, pure_vals)
-            pooled = np.sqrt((np.var(whip_vals) + np.var(pure_vals)) / 2)
+            # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
+            # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            pooled = np.sqrt((np.var(whip_vals, ddof=1) + np.var(pure_vals, ddof=1)) / 2)
             d = ((np.mean(whip_vals) - np.mean(pure_vals)) / pooled
                  if pooled > 0 else 0)
             sig = " ***" if p_val < 0.001 else (
@@ -324,7 +327,10 @@ def run():
                      if len(t["trajectory"]) > 7]
         if initial and returning:
             t_stat, p_val = sp.ttest_ind(initial, returning)
-            pooled = np.sqrt((np.var(initial) + np.var(returning)) / 2)
+            # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
+            # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            pooled = np.sqrt((np.var(initial, ddof=1) + np.var(returning, ddof=1)) / 2)
             d = ((np.mean(returning) - np.mean(initial)) / pooled
                  if pooled > 0 else 0)
             print(f"    {key}: initial={np.mean(initial):+.3f} "
@@ -332,7 +338,10 @@ def run():
                   f"p={p_val:.4f}")
         if returning and pure_late:
             t_stat, p_val = sp.ttest_ind(returning, pure_late)
-            pooled = np.sqrt((np.var(returning) + np.var(pure_late)) / 2)
+            # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
+            # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            pooled = np.sqrt((np.var(returning, ddof=1) + np.var(pure_late, ddof=1)) / 2)
             d = ((np.mean(returning) - np.mean(pure_late)) / pooled
                  if pooled > 0 else 0)
             print(f"    {key}: echo_return={np.mean(returning):+.3f} "

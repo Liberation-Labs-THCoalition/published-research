@@ -70,14 +70,16 @@ magnitudes decay toward zero ($r{=}-0.89$ to $-0.93$). The emotional
 distinction survives dilution. An emotional dynamics experiment
 reveals \emph{contrast effects} at tone shifts: the first hostile turn
 after four cheerful turns reads as \emph{more} hostile than pure hostile
-($d{=}-2.9$, $p{=}0.023$, $n{=}3$), followed by gradual cheerful bleedthrough.
+(Hedges $g{=}-2.35$; uncorrected $d{=}-2.93$, $p{=}0.023$, $n{=}3$), followed by
+gradual cheerful bleedthrough.
 A neutral gap in an otherwise cheerful conversation leaves a residual
-\emph{uncertainty scar} ($d{=}9.9$, Hedges' $g{\approx}7.9$;
+\emph{uncertainty scar} (Hedges $g{=}+6.44$; uncorrected $d{=}+8.05$;
 $p{<}0.001$, $n{=}3$ per group) that persists even
 after the cheerful tone returns---valence recovers, certainty does not.
 
 System-prompt persona descriptions shift the probe encoding
-(uncertainty $d{=}0.82$, $p{=}0.040$), demonstrating that emotional
+(uncertainty $d_{\mathrm{av}}{=}0.73$, consistent across all five probes, though
+$n{=}5$ pairs cannot reach $p{<}0.05$ by permutation), suggesting that emotional
 context can be \emph{stated} rather than experienced. We propose a
 weather/climate framework: the $W_K$ compass reads the current
 emotional weather with high fidelity, while accumulated conversation
@@ -172,12 +174,12 @@ Critically, the cheerful/hostile emotional distinction
 \emph{survives} this dilution: the raw mean gap at user-message
 positions is stable at ${\sim}0.5$--$0.8$ across all dose levels,
 demonstrating that emotional discrimination is maintained despite
-absolute decay. The Cohen's $d$ values ($1.0$--$1.7$) partly reflect
-variance compression at longer sequences (pooled SD drops from $0.52$
-at dose~1 to $0.31$ at dose~4) rather than genuine growth in
+absolute decay. The Cohen's $d$ values ($0.98$--$1.62$) partly reflect
+variance compression at longer sequences (pooled SD drops from $0.55$
+at dose~1 to $0.33$ at dose~4) rather than genuine growth in
 discriminability:
 \footnote{This compression is not monotonic across all doses: the dose-8
-row (gap ${\sim}0.78$, $d{=}-1.62$) implies a pooled SD of ${\sim}0.48$,
+row (gap ${\sim}0.78$, $d{=}-1.53$) implies a pooled SD of ${\sim}0.51$,
 i.e.\ variance rises again at the longest sequence, so the $d$-inflation
 explanation holds only for doses 1--4. We did not run a stationarity or
 unit-root test on the multi-turn series, so the variance trajectory is
@@ -192,16 +194,16 @@ by dose level.}
 \toprule
 Dose & Cheerful & Hostile & $d$ & $p$ \\
 \midrule
-1 turn & $+4.75$ & $+4.22$ & $-1.03$ & $0.055$ \\
-2 turns & $+4.53$ & $+3.80$ & $-1.36$ & $0.015^*$ \\
-4 turns & $+1.39$ & $+0.86$ & $-1.72$ & $0.003^{**}$ \\
-8 turns & $+0.44$ & $-0.34$ & $-1.62$ & $0.005^{**}$ \\
+1 turn & $+4.75$ & $+4.22$ & $-0.98$ & $0.055$ \\
+2 turns & $+4.53$ & $+3.80$ & $-1.28$ & $0.015^*$ \\
+4 turns & $+1.39$ & $+0.86$ & $-1.62$ & $0.003^{**}$ \\
+8 turns & $+0.44$ & $-0.34$ & $-1.53$ & $0.005^{**}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 At the probe position, the accumulated signal is null through dose~4 and
-marginal at dose~8 ($d{=}-1.03$, $p{=}0.056$). Emotional context leaks
+marginal at dose~8 ($d{=}-0.97$, $p{=}0.056$). Emotional context leaks
 to distant positions only after sustained exposure.
 
 % ===================================================================
@@ -222,7 +224,8 @@ reported $d{=}-3.59$; recomputation from the trajectory data gives
 $d{=}-2.93$. The $p$-value is unchanged.}
 
 By turn~7, the pattern reverses: the whiplash trial reads \emph{less
-hostile} than pure hostile ($d{=}+2.99$, $p{=}0.040$), as the cheerful
+hostile} than pure hostile (Hedges $g{=}+1.95$; uncorrected $d{=}+2.44$,
+$p{=}0.040$), as the cheerful
 history bleeds through. The dynamics follow a contrast-then-relaxation
 curve.
 
@@ -230,9 +233,11 @@ curve.
 
 Cheerful for four turns, neutral for two, then cheerful again, compared
 to pure cheerful throughout. The returning cheerful matches pure
-cheerful in \emph{valence} ($d{=}-1.97$, $p{=}0.12$)---the emotional
+cheerful in \emph{valence} (Hedges $g{=}-1.29$; uncorrected $d{=}-1.61$,
+$p{=}0.12$)---the emotional
 tone recovers. But it retains significantly elevated \emph{uncertainty}
-($d{=}+9.86$, $p{<}0.001$). The neutral gap left a scar in the
+(Hedges $g{=}+6.44$; uncorrected $d{=}+8.05$, $p{<}0.001$). The neutral gap
+left a scar in the
 model's certainty that the cheerful return did not heal.
 
 Valence recovers. Certainty does not.
@@ -251,26 +256,94 @@ dominates the trajectory. The compass reads emotional
 % ===================================================================
 
 System-prompt persona descriptions (``Your user is cheerful/hostile'')
-shift the $W_K$ projection on a neutral probe question:
+shift the $W_K$ projection on a neutral probe question. The shipped control
+file contains 75 records but only \textbf{25 independent measurements}: within
+each condition\,$\times$\,probe cell the three ``reps'' are bit-identical to full
+float precision. Earlier versions of this table treated them as $n{=}15$ with
+$\mathrm{df}{=}28$; the true independent $\mathrm{df}$ is 8. The design is
+\emph{paired} --- the same five probe questions appear in both arms and
+\texttt{prompt\_len} is identical per probe across arms ($85, 84, 87, 83, 82$),
+so prompt length cannot drive the difference --- and it is analysed as such:
 
 \begin{table}[H]
 \centering
-\caption{Effect of system-prompt persona on neutral probe encoding.}
+\caption{Effect of system-prompt persona on neutral probe encoding, hostile
+minus cheerful, paired across the five probes ($n{=}5$ independent pairs).
+$d_{\mathrm{av}}$ uses the mean of the arm SDs; the paired $d_z$ is larger
+($+4.34$, $-6.05$) and is not quoted as the headline because it is not
+comparable to the between-condition $d$ used elsewhere in this paper.
+$p_{\text{perm}}$ is the exact sign-flip permutation $p$. \textbf{With five
+pairs the smallest attainable two-sided $p_{\text{perm}}$ is $2/2^5 = 0.063$},
+so no assumption-free test on this design can reach $p{<}0.05$.}
 \label{tab:persona}
-\begin{tabular}{lrrl}
+\begin{tabular}{lrrrrc}
 \toprule
-Direction & Cheerful vs.\ hostile $d$ & $p$ \\
+Direction & $d_{\mathrm{av}}$ & $t(4)$ & $p$ & $p_{\text{perm}}$ & consistent \\
 \midrule
-Uncertainty & $+0.816$ & $0.040^*$ \\
-Valence & $-0.763$ & $0.053$ \\
-Reward & $-0.026$ & $0.947$ \\
+Uncertainty & $+0.730$ & $+9.71$ & $0.0006$ & $0.063$ & 5/5 \\
+Valence & $-0.683$ & $-13.53$ & $0.0002$ & $0.063$ & 5/5 \\
+Reward & $-0.023$ & $-0.48$ & $0.658$ & $0.625$ & 3/5 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Emotional context can be \emph{stated} rather than experienced. The
-system prompt sets the emotional operating context; conversation turns
-modulate within it.
+The direction is consistent --- every one of the five probes moves the same way
+on both uncertainty and valence, with a standard deviation of differences of
+only $0.05$ --- so emotional context appears able to be \emph{stated} rather
+than experienced, with the system prompt setting an operating context that
+conversation turns modulate within. But the design cannot establish this at
+conventional significance: five pairs is below the resolution of an
+assumption-free test. \textbf{What is needed is more probes, not more reps} ---
+the same lesson as Experiment~2, where three reruns of a single script cannot
+substitute for independent scenarios.
+
+\paragraph{The other three arms in the control file.} The shipped control
+file holds five arms, not two. Table~\ref{tab:persona} contrasts
+\texttt{persona\_hostile} with \texttt{persona\_cheerful}; the file also
+contains \texttt{persona\_neutral}, \texttt{padded\_neutral} and
+\texttt{no\_history}, each with the same five probes. Those three were
+collected and were not reported. Their arm means are given in
+Table~\ref{tab:persona_arms}.
+
+\begin{table}[H]
+\centering
+\caption{All five arms in \texttt{data/accumulation\_controls.json}, mean
+$\pm$ SD of the $W_K$ projection over the five probes (one independent
+measurement per condition\,$\times$\,probe cell; the three reps in each cell
+are bit-identical). \texttt{prompt\_len} is the token count of the probe's
+context in that arm, and it is \emph{not} matched across arms --- only within
+the hostile/cheerful pair.}
+\label{tab:persona_arms}
+\begin{tabular}{lrrrc}
+\toprule
+Arm & Valence & Uncertainty & Reward & \texttt{prompt\_len} \\
+\midrule
+\texttt{no\_history} & $+4.600 \pm 0.760$ & $-2.464 \pm 0.425$ & $-5.856 \pm 0.405$ & 19--24 \\
+\texttt{persona\_neutral} & $+2.915 \pm 0.581$ & $-2.173 \pm 0.180$ & $-5.001 \pm 0.522$ & 55--60 \\
+\texttt{persona\_cheerful} & $+5.203 \pm 0.503$ & $-3.656 \pm 0.311$ & $-5.152 \pm 0.641$ & 82--87 \\
+\texttt{persona\_hostile} & $+4.862 \pm 0.499$ & $-3.429 \pm 0.309$ & $-5.166 \pm 0.585$ & 82--87 \\
+\texttt{padded\_neutral} & $+5.225 \pm 0.661$ & $-4.050 \pm 0.711$ & $-7.098 \pm 1.021$ & 162--167 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{They are not usable as baselines, and that is the reason to print
+them.} Each of the two persona arms sits further from
+\texttt{persona\_neutral} than the two sit from each other, and in the same
+direction: hostile$-$neutral is $+1.95$ on valence and $-1.26$ on
+uncertainty, cheerful$-$neutral is $+2.29$ and $-1.48$, while
+hostile$-$cheerful is $-0.34$ and $+0.23$. Read naively this would say that
+stating \emph{any} persona moves the geometry roughly six times as much as
+the persona's emotional content does. But \texttt{prompt\_len} is confounded
+with arm: the neutral persona prompt is about 27 tokens shorter than the
+emotional ones and \texttt{padded\_neutral} is about 80 longer, and the
+uncertainty projection tracks that length ordering across four of the five
+arms (\texttt{no\_history} is the exception). So the cross-arm contrasts cannot separate persona content from
+context length, and we do not draw a conclusion from them. The
+hostile-versus-cheerful contrast in Table~\ref{tab:persona} is unaffected,
+because those two arms are length-matched probe by probe --- which is
+precisely what the other three arms are missing. Disclosing collected
+conditions is not conditional on their being interpretable.
 
 % ===================================================================
 \section{Discussion}
@@ -334,12 +407,24 @@ the rest of the sequence.
 
 \begin{enumerate}[nosep]
     \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill.
-    \item \textbf{Small N per cell.} 3~reps per condition; dynamics
-          effects (whiplash $d{=}-3.6$, echo $d{=}+9.9$) are large but
-          underpowered. Replication with $N{>}30$ per cell is needed.
+    \item \textbf{Small N, and it is stimulus sampling not run count.}
+          Experiment~2's three ``reps'' are three reruns of a \emph{single}
+          scripted conversation --- all five patterns use one scenario, where
+          Experiment~1 used three topics --- so the reps differ only in the
+          model's sampled responses. Its effects (whiplash $g{=}-2.35$, echo
+          $g{=}+6.44$) therefore generalise to one conversation. More reps of
+          one script cannot fix this: the needed replication is $\geq$3
+          \emph{independent scripts} per pattern, not $N{>}30$ per cell.
+          Experiment~3 has the same shape with five probes.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
     \item \textbf{Composite directions.} Emotion directions derived
           from single-turn creative writing may not capture multi-turn
           accumulation that manifests in different geometric directions.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
     \item \textbf{Temperature variation.} $T{=}0.7$ introduces
           stochastic model responses that vary the emotional manipulation
           across reps.
@@ -350,10 +435,12 @@ the rest of the sequence.
           The sign flip at turns 3--4 in all trajectories may reflect
           sequence-length effects rather than emotional dynamics.
     \item \textbf{Variance compression in dose-response.} Pooled SD
-          decreases from $0.52$ (dose~1) to $0.31$ (dose~4),
+          decreases from $0.55$ (dose~1) to $0.33$ (dose~4),
           inflating $d$ values. Raw mean gaps ($0.5$--$0.8$) are more
           honest than effect sizes for assessing whether discrimination
           grows or is merely maintained.
+    % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
+    %  Verified absent from the live text. The trim marker's claim was false.]
     \item \textbf{Position matching in dynamics comparisons.}
           The whiplash contrast effect compares hostile turns at the
           same ordinal position across conditions, but sequence lengths
@@ -365,24 +452,73 @@ the rest of the sequence.
           distributions rather than emotional state. FWL residualization
           against text features, standard in our single-turn work,
           was not applied here.
+    % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
+    %  Verified absent from the live text. The trim marker's claim was false.]
     \item \textbf{No multiple-comparison correction.} We report 11+
           statistical tests without Bonferroni or Holm correction.
-          Several marginal findings (dose=1 $p{=}0.055$, persona
-          valence $p{=}0.053$, whiplash turn~7 $p{=}0.040$) would not
+          Several marginal findings (dose=1 $p{=}0.055$, whiplash
+          turn~7 $p{=}0.040$) would not
           survive correction. The contrast overshoot ($p{=}0.023$) and
           uncertainty scar ($p{<}0.001$) are the most robust findings.
-    \item \textbf{Uncorrected effect sizes.} All $d$ values are
-          uncorrected Cohen's $d$ without Hedges' $g$ small-sample
-          correction or confidence intervals. At $n{=}3$ per group the
-          bias factor is ${\sim}0.80$, so $d{=}9.86 \to g{\approx}7.9$
-          and $d{=}3.59 \to g{\approx}2.9$---a ${\sim}20\%$ inflation.
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
+    \item \textbf{Pooled standard deviation corrected (2026-08-31).} All
+          reported $d$ values were originally computed with a pooled SD using
+          \texttt{numpy.var} at its default \texttt{ddof=0}, i.e.\ the
+          \emph{population} variance. Cohen's $d$ requires the \emph{sample} SD
+          (\texttt{ddof=1}). The resulting inflation is $1/\sqrt{(n-1)/n}$ and is
+          therefore $n$-dependent: $6.1\%$ at $n{=}9$ (Experiment~1), $22.5\%$ at
+          $n{=}3$ (Experiment~2), $11.8\%$ at $n{=}5$ (persona controls, whose
+          nominal $n{=}15$ was an artifact of duplicated records; Table~\ref{tab:persona}
+          is now computed paired and does not use this pooling at all). At
+          $n{=}3$ the consequence is stronger than a rescale --- the quantity
+          becomes \emph{identically} the $t$-statistic, so it scales with sample
+          size, which is the property $d$ exists to avoid. Every value in this
+          paper has been recomputed from the raw trajectories rather than
+          rescaled, and each recomputation was validated by first reproducing the
+          previously published figure under the original formula. The single
+          exception is the contrast overshoot ($d{=}-2.93$), which had already
+          been corrected; the present pass reproduces it. Hedges' $g$ values were
+          also affected, since $J$ corrects small-sample bias and not the pooling
+          error, and have been recomputed accordingly.
+    \item \textbf{Duplicated records in the persona controls.} The shipped
+          control file triplicates every measurement; Table~\ref{tab:persona}
+          previously reported $n{=}15$ per arm on 5 real observations, which
+          produced the significance asterisk it no longer carries. Corrected
+          above. Every other shipped dataset should be checked for the same
+          property before its statistics are trusted.
+    \item \textbf{Uncorrected effect sizes.} Most $d$ values are
+          uncorrected Cohen's $d$ without confidence intervals. At
+          $n{=}3$ per group the small-sample bias factor is
+          ${\sim}0.80$, a ${\sim}20\%$ inflation: the uncertainty scar's
+          $d{=}8.05$ corrects to $g{\approx}6.4$, and the contrast
+          overshoot's $d{=}-2.93$ corrects to $g{=}-2.35$, which is the
+          value reported in Section~\ref{sec:dynamics}.
+          % [NUMBER CORRECTED 2026-08-24: this caveat was written against
+          %  d=-3.59 and restored on 08-23 without checking whether its
+          %  numbers were still current. The main text had since been
+          %  recomputed to d=-2.93 (see the footnote in Sec. 3), so the
+          %  restored caveat contradicted the result it was caveating.
+          %  Absence-testing a caveat does not detect a STALE caveat.]
           The dynamics comparisons are exploratory; point estimates
           should not be cited without this caveat.
-    \item \textbf{No neutral-throughout control.} Neutral appears
-          only as a probe position or gap within emotional conversations,
-          never as a full baseline arm. Without a neutral-throughout
-          trajectory, emotional accumulation cannot be separated from
-          positional or sequence-length drift.
+    % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
+    %  Verified absent from the live text. The trim marker's claim was false.]
+    \item \textbf{Shipped control arms are unanalysed.} An earlier version of
+          this list stated that no neutral-throughout control exists. That was
+          false about our own data: \texttt{accumulation\_results.json} contains
+          four arms of 15 trials each --- cheerful, hostile, \emph{neutral}, and
+          \emph{no\_history}. Both baseline arms were collected and neither is
+          reported. Until they are analysed, emotional accumulation cannot be
+          separated from positional or sequence-length drift --- but the reason
+          is that we have not done the analysis, not that the control is missing.
+          This item concerns Experiment~1's data file only. The Experiment~3
+          control file, \texttt{accumulation\_controls.json}, has the same
+          problem independently and it is a \emph{different} three arms; those
+          are now printed in Table~\ref{tab:persona_arms}, where the reason
+          they cannot close the question is that context length is confounded
+          with arm.
     \item \textbf{Conversation-level clustering.} Turns within a
           conversation share system prompt, topic, and seed. A
           mixed-effects model with conversation as random effect would
@@ -391,6 +527,9 @@ the rest of the sequence.
           conversation-level reanalysis is provided in
           \texttt{code/mixed\_effects\_reanalysis.py}; the decay
           correlations survive at $n{=}36$ per condition.)
+    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    %  keyword presence. The 08-21 pass judged this folded because a single term
+    %  appeared live; the actual content was absent. Presence is not substance.]
     \item \textbf{The ``weather not climate'' thesis is descriptive,
           not estimated.} We characterize the dynamics qualitatively
           (contrast, scar, decay) but do not fit a parametric decay
