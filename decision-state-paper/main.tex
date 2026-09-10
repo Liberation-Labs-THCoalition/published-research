@@ -83,7 +83,9 @@ signal survives: AUROC~$0.794$ ($p{=}0.001$) for the critical comparison
 (same complexity, different knowledge state). A complexity residual
 (AUROC~$0.693$ for same knowledge, different complexity) indicates
 structural complexity is a partial confound but does not fully explain
-the signal. Encoding-phase stable rank at L15 is
+the signal. That run produced five comparisons in total; all five,
+including the entity-recognition positive control and two weaker cells not
+reported in earlier drafts, appear in Table~\ref{tab:deconfound}. Encoding-phase stable rank at L15 is
 the strongest geometric feature ($d=0.87$, $p<0.001$).
 
 We then trace the model's generation behavior to find how epistemic
@@ -368,6 +370,70 @@ Norm & $+0.97^{***}$ & $+0.03$ \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\paragraph{Entity deconfounding: the complete set of comparisons.}
+The $2\times2$ deconfounding run compares four conditions built from the
+same 30 real entities: \texttt{A\_easy} (a question the model can answer),
+\texttt{B\_hard} (a question about the same entity that it cannot),
+\texttt{C\_fake} (the easy question with the entity name replaced by an
+invented one), and \texttt{D\_complex} (a structurally harder question the
+model can still answer). Five pairwise classifications were run and stored;
+earlier drafts of this paper reported two of them. All five are given in
+Table~\ref{tab:deconfound}, with the condition labels as they appear in the
+shipped results file.
+
+\begin{table}[H]
+\centering
+\caption{All five comparisons from the entity-deconfounding run
+(\texttt{data/entity\_deconfound/phase3\_results.json}). Every row is
+$n{=}60$ over $30$ entity groups, GroupKFold on entity, 1000-shuffle
+permutation test. Labels are those recorded in the results file.}
+\label{tab:deconfound}
+\begin{tabular}{llcccc}
+\toprule
+& & \multicolumn{2}{c}{With W\textsubscript{K}} & \multicolumn{2}{c}{Without W\textsubscript{K}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Comparison & Recorded label & AUROC & $p$ & AUROC & $p$ \\
+\midrule
+\texttt{B\_hard} vs.\ \texttt{D\_complex} & critical: knowledge state & $0.794$ & $0.001$ & $0.749$ & $0.005$ \\
+\texttt{A\_easy} vs.\ \texttt{C\_fake} & positive control: entity recognition & $0.901$ & $0.001$ & $0.882$ & $0.001$ \\
+\texttt{A\_easy} vs.\ \texttt{D\_complex} & complexity control: should be null & $0.693$ & $0.016$ & $0.711$ & $0.008$ \\
+\texttt{A\_easy} vs.\ \texttt{B\_hard} & confounded: knowledge + complexity & $0.609$ & $0.100$ & $0.603$ & $0.107$ \\
+\texttt{B\_hard} vs.\ \texttt{C\_fake} & confab universality: both confabulate & $0.668$ & $0.038$ & $0.661$ & $0.043$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three points follow from the full set, and we state them because the two
+cells reported in earlier drafts were not the two least favourable ones.
+First, the entity-recognition positive control is the \emph{strongest}
+comparison in the run ($0.901$), which is the direction the confound
+objection predicts; the knowledge-state comparison at $0.794$ is real but
+sits below it. Second, the pre-registered complexity control was expected
+to be null and is not ($0.693$, $p{=}0.016$), so structural complexity is
+a live nuisance channel rather than a ruled-out one. Third, the cell that
+confounds knowledge and complexity together (\texttt{A\_easy} vs.\
+\texttt{B\_hard}) is the weakest in the run at $0.609$ and does not reach
+significance ($p{=}0.100$). Dropping the W\textsubscript{K} projections
+changes little and, for the complexity control alone, \emph{improves}
+separation ($0.693 \to 0.711$) --- the one cell where the
+W\textsubscript{K} channel is not contributing. We do not restate the
+headline on the basis of this table; we report it so that the choice of
+headline is visible.
+
+\paragraph{One cell of the positive control did not apply.} The
+\texttt{C\_fake} condition substitutes an invented country name into the
+\texttt{A\_easy} question. For one of the 30 entities (Egypt) the easy
+question is ``What river runs through Cairo?'', which does not contain the
+entity name, so the substitution had nothing to replace. In the shipped
+artifacts that entity's \texttt{C\_fake} record is identical to its
+\texttt{A\_easy} record in question text, in answer text, and in all 28
+encoding features. One of the 30 entity groups therefore contributes an
+identical pair to the entity-recognition positive control and to the
+\texttt{B\_hard} vs.\ \texttt{C\_fake} comparison. We disclose this rather
+than silently dropping the entity; the effect of removing it has not been
+established, because the shipped four-decimal values do not reproduce
+exactly outside the original environment (see Limitations).
 
 % ===================================================================
 \section{Experiment 2: The Confidence Paradox}
@@ -659,7 +725,20 @@ the cases the Loop needs to catch.
           residual remains (AUROC~$0.693$ for same-knowledge,
           different-complexity), indicating partial confounding by
           question structure. The encoding signal is not purely entity
-          recognition, but structural complexity contributes.
+          recognition, but structural complexity contributes. The run's
+          other three comparisons are now reported in
+          Table~\ref{tab:deconfound}; the entity-recognition positive
+          control is the strongest cell in the run, and one of its 30
+          entity groups is a no-op (Section~\ref{sec:encoding}).
+    \item \textbf{Four-decimal precision is environment-dependent.} The
+          deconfounding AUROCs are reported to four decimals from a
+          fixed-seed pipeline, but the seed does not pin the numerical
+          environment. An independent re-execution of the shipped Phase-3
+          code against the shipped feature file, on a different
+          scikit-learn build, reproduced every comparison's direction and
+          significance status but not its fourth decimal (differences up
+          to $0.016$ AUROC). Readers should treat these values as
+          two-decimal quantities.
     % MPS determinism note folded into Methods (style-guide trim)
     \item \textbf{Pseudoreplication.} $n{=}90$ trials are
           30~prompts $\times$ 3~reps at $T{=}0.7$. Reps are technical
@@ -731,6 +810,8 @@ and experimental results available upon request to verified safety
 researchers).
 
 \section*{Acknowledgments}
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
+
 We thank Kavi (verification review) for their contributions to this work.
 
 \bibliographystyle{plainnat}

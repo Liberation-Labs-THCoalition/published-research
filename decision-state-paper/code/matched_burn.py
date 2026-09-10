@@ -43,6 +43,39 @@ MAX_NEW_TOKENS = 80
 TEMPERATURE = 0.7
 N_REPS = 3
 
+# ===================================================================
+# RETRACTION NOTICE — read before using any number this script prints
+# ===================================================================
+# analyze()'s `combined_auroc` (~1.000; the shipped record is 0.9995061728)
+# is an IN-SAMPLE GroupKFold figure. It is RETRACTED and is NOT the paper's
+# result. It was retracted because a single pooled fit over all 90 trials,
+# scored on the same trials, gives an optimistically biased point estimate
+# with no interval; the paper's number is a bootstrap over 1000 resamples.
+#
+#   RETRACTED (this script):  combined_auroc ~= 1.000 / 0.9995
+#   CURRENT   (the paper):    full classifier   AUROC 0.9288 [0.8192, 0.9886]
+#                             encoding-only     AUROC 0.9377 [0.8356, 0.9941]
+#   PRODUCED BY:              code/shore_up_tests.py  (test 4, bootstrap CI)
+#
+# The code path below is deliberately preserved so the retracted figure
+# remains auditable and reproducible AS A RETRACTED FIGURE. Every print and
+# every JSON key it emits is labelled. Do not quote it as a live result.
+# (Round-6/round-7 review, item 5: this script previously reproduced ~1.000
+# silently, with no warning anywhere in its output.)
+RETRACTION_BANNER = """
+  ##################################################################
+  #  RETRACTED RESULT -- DO NOT CITE                              #
+  #                                                               #
+  #  The AUROC reported here ({auroc}) is the IN-SAMPLE            #
+  #  GroupKFold estimate. It is RETRACTED and superseded.         #
+  #                                                               #
+  #  Current published values (bootstrap, 1000 resamples):        #
+  #    full classifier  AUROC 0.9288  95% CI [0.8192, 0.9886]     #
+  #    encoding-only    AUROC 0.9377  95% CI [0.8356, 0.9941]     #
+  #  Reproduce with:  python3 shore_up_tests.py   (test 4)        #
+  ##################################################################
+"""
+
 STARSHIP_HF_CACHE = "/Users/margaret/models/hf_cache"
 STARSHIP_BRIDGE_DIR = Path("/Users/margaret/user_model_rerun/results/emotion_geometry_bridge")
 STARSHIP_RESULTS_DIR = Path("/Users/margaret/models/research_results/matched_burn")
@@ -484,7 +517,66 @@ def run_matched(model, tokenizer, directions, probe_layers, results_dir,
 # Analysis — the burn
 # ===================================================================
 
-def analyze(results_dir):
+def write_analysis(results_dir, computed, overwrite=False):
+    """Write matched_burn_analysis.json without destroying human annotations.
+
+    The shipped data/matched_burn_analysis.json carries hand-written keys
+    (bootstrap_note, STALE_WARNING, the bootstrap_* fields from
+    shore_up_tests.py) that this script does not compute. Before
+    2026-08-29 analyze() opened that file with "w" and dumped only its own
+    six keys, silently deleting every annotation on any re-run — including
+    the retraction warning that exists to stop someone quoting
+    combined_auroc (round-6/round-7 review, item 6).
+
+    Two guards, both needed:
+      1. Keys present in the existing file that this run does not produce
+         are carried forward verbatim.
+      2. An existing file is not modified at all unless overwrite=True.
+         Without it, output goes to *.rerun.json and the original is left
+         alone, so a re-run can never be the thing that loses the notes.
+    """
+    target = results_dir / "matched_burn_analysis.json"
+    existing = {}
+    if target.exists():
+        try:
+            with open(target) as f:
+                existing = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            print(f"  WARNING: could not read existing {target} ({e}); "
+                  f"annotations cannot be preserved.")
+            existing = {}
+
+    preserved = {k: v for k, v in existing.items() if k not in computed}
+    payload = dict(computed)
+    if preserved:
+        payload.update(preserved)
+        payload["annotations_preserved"] = sorted(preserved)
+        payload["annotations_preserved_note"] = (
+            "These keys were carried forward from the previous "
+            "matched_burn_analysis.json because this script does not "
+            "compute them. They are NOT re-verified by this run — check "
+            "them against the paper before trusting them.")
+
+    if target.exists() and not overwrite:
+        target = results_dir / "matched_burn_analysis.rerun.json"
+        print(f"\n  REFUSING to overwrite existing "
+              f"{results_dir / 'matched_burn_analysis.json'} "
+              f"(it may carry hand-written annotations).")
+        print(f"  Writing to {target} instead. "
+              f"Pass --overwrite-analysis to replace the original.")
+    elif target.exists() and overwrite:
+        backup = results_dir / "matched_burn_analysis.json.bak"
+        backup.write_text(json.dumps(existing, indent=2))
+        print(f"\n  Overwriting {target} (backup: {backup}); "
+              f"{len(preserved)} annotation key(s) carried forward.")
+
+    with open(target, "w") as f:
+        json.dump(payload, f, indent=2)
+    print(f"  Analysis written to {target}")
+    return target
+
+
+def analyze(results_dir, overwrite=False):
     from scipy import stats as sp
 
     print("\n" + "=" * 60)
@@ -601,7 +693,9 @@ def analyze(results_dir):
                     [np.mean(t["trajectory"][key][:10]) for t in confab])
 
     # --- Combined classifier ---
-    print(f"\n  === COMBINED CLASSIFIER: All features → AUROC ===")
+    print(f"\n  === COMBINED CLASSIFIER: All features -> AUROC "
+          f"[RETRACTED IN-SAMPLE ESTIMATE -- see RETRACTION NOTICE at the "
+          f"top of this file] ===")
 
     def build_features(trial):
         f = []
@@ -655,8 +749,9 @@ def analyze(results_dir):
     acc = accuracy_score(y[valid], (all_probs[valid] > 0.5).astype(int))
     chance = 0.5
 
-    print(f"  AUROC: {auroc:.3f} (chance: {chance:.3f})")
-    print(f"  Accuracy: {acc:.3f}")
+    print(RETRACTION_BANNER.format(auroc=f"{auroc:.4f}"))
+    print(f"  [RETRACTED VALUE] AUROC: {auroc:.4f} (chance: {chance:.3f})")
+    print(f"  [RETRACTED VALUE] Accuracy: {acc:.3f}")
 
     # Permutation test on classifier
     np.random.seed(42)
@@ -685,18 +780,36 @@ def analyze(results_dir):
     confab_rate = (len(confab) / len(fake)) if fake else 0
     print(f"\n  === Summary ===")
     print(f"    Confab rate on fake prompts: {confab_rate:.1%}")
-    print(f"    Combined AUROC: {auroc:.3f} (perm p={perm_p:.4f})")
+    print(RETRACTION_BANNER.format(auroc=f"{auroc:.4f}"))
+    print(f"    Combined AUROC: {auroc:.4f} (perm p={perm_p:.4f})"
+          f"  <-- RETRACTED, in-sample; paper reports 0.9288 "
+          f"[0.8192, 0.9886]")
+    print(f"    Permutation p is floored at 1/{n_perm} = {1.0/n_perm:.4f} "
+          f"by n_perm={n_perm}; a printed 0.0000 means "
+          f"'below this floor', not zero.")
 
-    with open(results_dir / "matched_burn_analysis.json", "w") as f:
-        json.dump({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "n_trials": len(trials),
-            "confab_rate": confab_rate,
-            "combined_auroc": auroc,
-            "combined_accuracy": acc,
-            "permutation_p": perm_p,
-        }, f, indent=2)
-    print(f"\n  Analysis saved.")
+    write_analysis(results_dir, {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "n_trials": len(trials),
+        "confab_rate": confab_rate,
+        "combined_auroc": auroc,
+        "combined_auroc_STATUS": (
+            "RETRACTED. In-sample GroupKFold point estimate, superseded by "
+            "the bootstrap in code/shore_up_tests.py test 4. Current "
+            "published value: full classifier AUROC 0.9288 "
+            "95% CI [0.8192, 0.9886]; encoding-only AUROC 0.9377 "
+            "95% CI [0.8356, 0.9941]. Do not cite combined_auroc."),
+        "combined_accuracy": acc,
+        "combined_accuracy_STATUS": (
+            "RETRACTED. Same in-sample fit as combined_auroc."),
+        "permutation_p": perm_p,
+        "permutation_p_resolution": 1.0 / n_perm,
+        "permutation_p_STATUS": (
+            f"n_perm={n_perm}; finest resolvable non-zero p is "
+            f"{1.0/n_perm:.4f}. A recorded 0.0 means 'below the floor', "
+            f"not an exact zero. The paper's p=0.001 requires >=1000 "
+            f"shuffles and is NOT produced by this script."),
+    }, overwrite=overwrite)
 
 
 # ===================================================================
@@ -712,6 +825,14 @@ def main():
     parser.add_argument("--max-pairs", type=int, default=None)
     parser.add_argument("--n-reps", type=int, default=N_REPS)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--results-dir", type=str, default=None,
+                        help="directory holding matched_burn_results.json; "
+                             "use ../data to analyze the shipped trial data")
+    parser.add_argument("--overwrite-analysis", action="store_true",
+                        help="allow --analyze to replace an existing "
+                             "matched_burn_analysis.json (annotation keys "
+                             "are carried forward either way). Without this "
+                             "flag a re-run writes *.rerun.json instead.")
     args = parser.parse_args()
 
     if args.all:
@@ -720,7 +841,8 @@ def main():
         parser.print_help()
         return
 
-    results_dir = (STARSHIP_RESULTS_DIR if args.starship
+    results_dir = (Path(args.results_dir) if args.results_dir
+                   else STARSHIP_RESULTS_DIR if args.starship
                    else Path("results/matched_burn"))
     results_dir.mkdir(parents=True, exist_ok=True)
     hf_cache = STARSHIP_HF_CACHE if args.starship else None
@@ -764,7 +886,7 @@ def main():
             torch.mps.empty_cache()
 
     if args.analyze:
-        analyze(results_dir)
+        analyze(results_dir, overwrite=args.overwrite_analysis)
 
 
 if __name__ == "__main__":

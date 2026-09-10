@@ -6,10 +6,21 @@ Shore-Up Tests — Address red team concerns on existing data.
 4. Bootstrap CI on combined AUROC
 5. Check Wang et al. effective rank publication date
 
-Run: python3 shore_up_tests.py --starship
+Run (any host, uses the copy of the trial data shipped in this repo):
+    python3 shore_up_tests.py
+
+Explicit input, in precedence order:
+    python3 shore_up_tests.py --path /some/where/matched_burn_results.json
+    DECISION_STATE_RESULTS=/some/where/matched_burn_results.json python3 shore_up_tests.py
+    STARSHIP_RESULTS_DIR=/some/dir python3 shore_up_tests.py --starship
+
+Until 2026-08-29 this script hardcoded the original author's Starship path,
+so BOTH `--starship` and the plain default raised FileNotFoundError on every
+machine other than that one (round-6 and round-7 review, items 1 and 2). The
+path is now resolved from a candidate list and the resolved file is printed.
 """
 
-import json, argparse
+import json, argparse, os, sys
 import numpy as np
 from pathlib import Path
 from sklearn.linear_model import LogisticRegression
@@ -18,9 +29,63 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score
 from scipy import stats
 
-STARSHIP_RESULTS = Path(
-    "/Users/margaret/models/research_results/matched_burn"
-    "/matched_burn_results.json")
+# The trial data shipped alongside this script. This is the reproduction
+# target: it is the artifact the paper's bootstrap numbers are computed from.
+REPO_RESULTS = (Path(__file__).resolve().parent.parent
+                / "data" / "matched_burn_results.json")
+
+# Where the data lived on the machine the experiment was originally run on.
+# Kept only as a default for --starship; override with STARSHIP_RESULTS_DIR.
+STARSHIP_RESULTS_DIR = Path(os.environ.get(
+    "STARSHIP_RESULTS_DIR",
+    "/Users/margaret/models/research_results/matched_burn"))
+STARSHIP_RESULTS = STARSHIP_RESULTS_DIR / "matched_burn_results.json"
+
+
+def resolve_results_path(args):
+    """Pick the first candidate that exists; report what was tried.
+
+    Precedence: --path, $DECISION_STATE_RESULTS, --starship location,
+    legacy ./results/matched_burn/, shipped ../data/ copy.
+    """
+    # Explicit demands: if the caller named a location, a missing file there
+    # is an error. Falling through to a different file would hand back a
+    # number the caller did not ask for, under a path they think they set.
+    explicit = []
+    if args.path:
+        explicit.append(("--path", Path(args.path)))
+    env = os.environ.get("DECISION_STATE_RESULTS")
+    if env:
+        explicit.append(("$DECISION_STATE_RESULTS", Path(env)))
+    if args.starship and "STARSHIP_RESULTS_DIR" in os.environ:
+        explicit.append(("$STARSHIP_RESULTS_DIR", STARSHIP_RESULTS))
+    for label, cand in explicit:
+        if not cand.exists():
+            print(f"ERROR: {label} points at {cand}, which does not exist.",
+                  file=sys.stderr)
+            sys.exit(2)
+        return label, cand
+
+    # Implicit candidates: tried in order, fall-through is fine because the
+    # caller expressed no preference. The chosen one is always printed.
+    candidates = []
+    if args.starship:
+        candidates.append(("--starship default (original run machine)",
+                           STARSHIP_RESULTS))
+    candidates.append(("legacy ./results/ layout",
+                       Path("results/matched_burn/matched_burn_results.json")))
+    candidates.append(("shipped repo copy", REPO_RESULTS))
+
+    for label, cand in candidates:
+        if cand.exists():
+            return label, cand
+
+    print("ERROR: no matched_burn_results.json found. Tried:", file=sys.stderr)
+    for label, cand in candidates:
+        print(f"  [{label}] {cand}", file=sys.stderr)
+    print("Set --path or $DECISION_STATE_RESULTS to a results file.",
+          file=sys.stderr)
+    sys.exit(2)
 
 
 def load_data(path):
@@ -261,15 +326,17 @@ def test_4_bootstrap_ci(trials):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--starship", action="store_true")
-    parser.add_argument("--path", type=str, default=None)
+    parser.add_argument("--starship", action="store_true",
+                        help="prefer $STARSHIP_RESULTS_DIR (the original run "
+                             "machine); falls through to the shipped copy")
+    parser.add_argument("--path", type=str, default=None,
+                        help="explicit path to matched_burn_results.json")
     args = parser.parse_args()
 
-    path = (Path(args.path) if args.path
-            else STARSHIP_RESULTS if args.starship
-            else Path("results/matched_burn/matched_burn_results.json"))
+    label, path = resolve_results_path(args)
 
     trials, probe_layers = load_data(path)
+    print(f"Results file: {path}  [resolved via: {label}]")
     print(f"Loaded {len(trials)} trials")
 
     test_1_feature_ablation(trials, probe_layers)

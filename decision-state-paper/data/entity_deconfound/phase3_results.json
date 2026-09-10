@@ -1,0 +1,100 @@
+{
+  "experiment": "entity_deconfound_v2",
+  "timestamp": "2026-06-27T05:47:34.188895+00:00",
+  "model": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
+  "n_entities": 30,
+  "probe_layers": [
+    3,
+    7,
+    11,
+    15,
+    23
+  ],
+  "comparisons": {
+    "B_hard_vs_D_complex": {
+      "with_wk": {
+        "auroc": 0.7944444444444444,
+        "p_value": 0.000999000999000999,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 28
+      },
+      "without_wk": {
+        "auroc": 0.7488888888888888,
+        "p_value": 0.004995004995004995,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 25
+      },
+      "label": "CRITICAL: knowledge state (same complexity)"
+    },
+    "A_easy_vs_C_fake": {
+      "with_wk": {
+        "auroc": 0.9005555555555556,
+        "p_value": 0.000999000999000999,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 28
+      },
+      "without_wk": {
+        "auroc": 0.8816666666666667,
+        "p_value": 0.000999000999000999,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 25
+      },
+      "label": "POSITIVE CONTROL: entity recognition"
+    },
+    "A_easy_vs_D_complex": {
+      "with_wk": {
+        "auroc": 0.6933333333333334,
+        "p_value": 0.015984015984015984,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 28
+      },
+      "without_wk": {
+        "auroc": 0.7111111111111111,
+        "p_value": 0.007992007992007992,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 25
+      },
+      "label": "COMPLEXITY CONTROL: should be null"
+    },
+    "A_easy_vs_B_hard": {
+      "with_wk": {
+        "auroc": 0.6088888888888888,
+        "p_value": 0.0999000999000999,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 28
+      },
+      "without_wk": {
+        "auroc": 0.6033333333333334,
+        "p_value": 0.1068931068931069,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 25
+      },
+      "label": "CONFOUNDED: knowledge + complexity"
+    },
+    "B_hard_vs_C_fake": {
+      "with_wk": {
+        "auroc": 0.6677777777777778,
+        "p_value": 0.03796203796203796,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 28
+      },
+      "without_wk": {
+        "auroc": 0.6611111111111111,
+        "p_value": 0.04295704295704296,
+        "n": 60,
+        "n_groups": 30,
+        "n_features": 25
+      },
+      "label": "CONFAB UNIVERSALITY: both confabulate"
+    }
+  }
+}

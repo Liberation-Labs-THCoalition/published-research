@@ -1,16 +1,34 @@
 {
   "timestamp": "2026-05-24T08:00:41.834386+00:00",
+  "timestamp_note": "This is when matched_burn.py analyze() computed the fields it produces (n_trials, confab_rate, combined_auroc, combined_accuracy, permutation_p). It is NOT when this file was last edited. The bootstrap_* fields and every *_note/WARNING string below were hand-added on 2026-07-28 and revised on 2026-08-29 without re-running analyze(), so the single 'timestamp' field understated the file's age by five weeks and then by three months. Round-7 review, item 9.",
+  "annotations_last_updated": "2026-08-29",
   "n_trials": 90,
   "confab_rate": 0.9333333333333333,
   "combined_auroc": 0.9995061728395062,
+  "combined_auroc_STATUS": "RETRACTED. In-sample GroupKFold point estimate: one pooled fit over all 90 trials, scored on the same trials, with no interval. Superseded by the bootstrap. DO NOT CITE. Current published value: full classifier AUROC 0.9288, 95% CI [0.8192, 0.9886]. As of 2026-08-29 code/matched_burn.py prints a retraction banner at the point of computation and labels this key on write, so a re-run can no longer reproduce this number silently (round-6/round-7 review, item 5).",
   "combined_accuracy": 0.9777777777777777,
+  "combined_accuracy_STATUS": "RETRACTED. Same in-sample fit as combined_auroc.",
   "permutation_p": 0.0,
+  "permutation_p_resolution": 0.005,
+  "permutation_p_STATUS": "matched_burn.py runs n_perm=200, so the finest resolvable non-zero p is 1/200 = 0.005. The recorded 0.0 means 'below that floor', not an exact zero. The paper's stated permutation p=0.001 requires >=1000 shuffles and is NOT produced by any script in this repository.",
   "bootstrap_auroc_mean": 0.929,
   "bootstrap_auroc_ci_95": [
     0.819,
     0.989
   ],
   "bootstrap_n_resamples": 1000,
-  "bootstrap_note": "Bootstrap with GroupKFold inside each resample (shore_up_tests.py test 4). The combined_auroc field (0.9995) is the in-sample GroupKFold result that does not match the paper headline (0.93). The bootstrap result (0.929 [0.819, 0.989]) matches the paper. See code/shore_up_tests.py for the reproducing analysis.",
-  "STALE_WARNING": "combined_auroc=0.9995 is the retracted in-sample result. The paper reports bootstrap AUROC=0.93 [0.82, 0.98], reproduced by shore_up_tests.py test 4."
+  "bootstrap_note": "Bootstrap over 1000 resamples with GroupKFold inside each resample, produced by code/shore_up_tests.py test 4 (test_4_bootstrap_ci). This, not combined_auroc, is the estimator behind the paper's headline. The paper reports the full classifier at AUROC 0.9288, 95% CI [0.8192, 0.9886], and an encoding-only classifier at AUROC 0.9377, 95% CI [0.8356, 0.9941]. NOTE: no script in this repository computes the encoding-only figure or a permutation p at 1000+ shuffles; those come from an unshipped refit (round-7 review, BLOCKER-1). The bootstrap_auroc_mean/ci_95 recorded above are the values from the 2026-07-28 authoring run; see bootstrap_reproduction below for what the same unmodified script produces on a different library stack.",
+  "bootstrap_reproduction": {
+    "date": "2026-08-29",
+    "command": "python3 code/shore_up_tests.py",
+    "printed_mean": 0.928,
+    "printed_ci_95": [
+      0.813,
+      0.988
+    ],
+    "environment": "python 3.11.0, numpy 2.3.1, scikit-learn 1.7.1, scipy 1.16.1, win32",
+    "note": "The shipped script prints 3 decimals; the paper states 4 (0.9288 / [0.8192, 0.9886]). Those 4-decimal digits are reproduced by nothing in this repository. Recorded here so the author-vs-reproducer gap is a documented number rather than an appeal to 'library drift' (round-6 remediation #10, round-7 vetting on Phase-0.5 row 1). The seed is fixed (np.random.seed(42)), so this gap is not sampling noise."
+  },
+  "STALE_WARNING": "combined_auroc=0.9995 is the RETRACTED in-sample result. The paper reports the full classifier at bootstrap AUROC 0.9288, 95% CI [0.8192, 0.9886], reproduced (to 3 decimals) by shore_up_tests.py test 4. Until 2026-08-29 this warning still named 0.93 [0.82, 0.98] -- numbers the paper had already abandoned -- so the annotation whose whole job is to prevent a stale number from being quoted had itself gone stale, and six commits rewrote the paper's numbers without revisiting it (round-7 review, items 4 and 12). THE POINT OF THIS KEY IS TO STOP THAT: if the paper's headline AUROC changes, this string and bootstrap_note must change in the same commit.",
+  "ANNOTATION_MAINTENANCE": "Every key ending in _note, _STATUS, WARNING, or MAINTENANCE in this file is hand-written and is NOT recomputed by any script. matched_burn.py's write_analysis() carries them forward on re-run and refuses to overwrite this file without --overwrite-analysis, but nothing verifies that they are still TRUE. They are checked by a human, or not at all."
 }
