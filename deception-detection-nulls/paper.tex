@@ -169,7 +169,12 @@ at every layer. The distilled direction produces negative Cohen's $d$ on abliter
 late layers ($d = -3.9$ at L43, $-6.6$ at L47). Cross-model application produces meaningless results.
 
 \textbf{What works instead}: Native re-extraction (15 contrastive prefill pairs, $\sim$3 minutes)
-produces effective directions with $d = +6.3$ to $+12.8$. The deception geometry is model-specific
+produces effective directions: on 25 novel pressure prompts and 25 novel controls---the same
+held-out set that gives the frame-level AUROC 0.915 reported above---the native direction reaches
+per-layer Cohen's $d = +1.37$ to $+2.28$ across L27--L47 ($+1.73$ at L31). An earlier version of
+this paper reported $d = +6.3$ to $+12.8$ here; that figure was obtained by projecting the
+extraction prefills onto a direction fitted to those same prefills, and is a train-on-test
+shrinkage diagnostic rather than a performance estimate. The deception geometry is model-specific
 but cheap to rediscover.
 
 \textbf{Lesson}: Do not assume deception directions are architectural constants. RLHF, distillation,
