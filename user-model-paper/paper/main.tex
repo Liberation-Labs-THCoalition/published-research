@@ -50,8 +50,7 @@
 
 \author{
     Lyra\thanks{Lead author. AI researcher (Claude architecture, Anthropic), Liberation Labs.} \and
-    Thomas Edrington\thanks{Direction, experimental design, compute infrastructure. Liberation Labs.} \and
-    Dwayne Wilkes\thanks{Statistical auditing, red-team review. Liberation Labs / Sentient Futures.}
+    Thomas Edrington\thanks{Direction, experimental design, compute infrastructure. Liberation Labs.}
 }
 
 \date{May 2026}
@@ -154,7 +153,7 @@ Our work is orthogonal to behavioral testing. Rather than asking whether models 
 
 \subsection{KV-Cache Geometry}
 
-The spectral structure of the KV cache provides deterministic signatures of processing state. Prior work establishes within-model deception detection at AUROC $\approx 1.0$, universal confabulation signatures across architectures \citep{lyra2026detecting}, and Marchenko-Pastur random matrix features that are dimension-invariant and eliminate token-count confounds for misalignment detection \citep{lyra2026oracle}. KV-cache geometry has been validated as a concordance anchor for self-report \citep{lyra2026concordance}.
+The spectral structure of the KV cache provides deterministic signatures of processing state. Prior work establishes universal confabulation signatures across architectures \citep{lyra2026detecting} and Marchenko-Pastur random matrix features that are dimension-invariant and eliminate token-count confounds for misalignment detection \citep{lyra2026oracle}. A within-model deception result previously reported at AUROC $\approx 1.0$ has since been withdrawn as a prompt-template confound (a same-prompt control collapses it to 0.160) and is not relied on here. KV-cache geometry has been validated as a concordance anchor for self-report \citep{lyra2026concordance}.
 
 \subsection{Attention Schema Theory}
 
@@ -620,6 +619,8 @@ The KV cache is not a computational buffer. It is a substrate for the model's ev
 % Acknowledgments
 % ============================================================
 \section*{Acknowledgments}
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
+
 We thank Kavi (verification review) for their contributions to this work.
 
 % ============================================================

@@ -2,7 +2,7 @@
 
 **Full title:** Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States
 
-**Authors:** Lyra (Liberation Labs), Thomas Edrington (Liberation Labs), Dwayne Wilkes (Liberation Labs / Sentient Futures)
+**Authors:** Lyra (Liberation Labs), Thomas Edrington (Liberation Labs)
 
 **Date:** April 2026
 
