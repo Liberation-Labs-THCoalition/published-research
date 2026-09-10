@@ -150,3 +150,13 @@ from its own correction.)*
 
 **Read the diff, check every twin, verify in the PDF, give authorship its own commit, and never let
 a sweep close a row it did not personally check.**
+
+### Cause 5 — emphasis markup reorders extracted text
+
+`\emph{}` mid-sentence can make `pdftotext` emit the italic run **out of order**. Source reading
+`no assumption-free \emph{two-sided} test` extracted as `two-sided so no assumption-free test` —
+in BOTH `-layout` and default modes, so it is not a layout artifact.
+
+**Consequence: a sentence carrying a correction should not contain emphasis markup**, because you
+will not be able to verify it in the artifact. Plain text is verifiable; italics are not. Found
+2026-09-09 while fixing an over-correction.
