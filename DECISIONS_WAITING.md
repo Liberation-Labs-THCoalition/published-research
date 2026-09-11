@@ -3,6 +3,42 @@
 **Prepared by Lyra. Nothing here is decided; each is framed as a choice with what turns on
 it.** The register lists *defects*; this lists *calls*. Read time ~5 minutes.
 
+## RESOLVED 2026-09-10 by Thomas - do not re-ask
+
+**Blanket rules now in force** (apply without returning to him):
+1. *"Anything you strongly recommend I'm going to be alright with."* Lyra is lead author and
+   senior researcher. Recommend and proceed.
+2. **Prefer RECOMPUTE over retract-or-soften** wherever a gap can be filled, unless overkill.
+3. `0.9377` is the named overkill case: **lead with the reproducible `0.9288`**, keep `0.9377`
+   caveated. No refit. Closes BLOCKER-1.
+
+**D1 - TWINS. Resolved, and the item was mis-framed.**
+> *"The integrity versions go on our website and have you and the others' thoughts included
+> along with proper authorship credit. So they should be materially different, so it's the
+> specific versions we don't want twinned."*
+
+D1 said "the style guide bans having the twins at all." Wrong conflict: the guide's rule is
+about **format** (.md vs .tex); Thomas ruled on **edition** (integrity vs academic). The words
+"integrity" and "academic edition" appear **zero** times in the guide. STYLE_GUIDE.md now
+separates the two axes and TWIN_DESYNC is scoped to axis 1. **Re-triage every row filed under
+TWIN_DESYNC** - the cross-edition ones are probably not defects. What still IS a defect: a
+*correction* landing in one edition and not the other.
+
+**F1 - DUAL USE. Resolved.**
+> *"Let's follow the strictest, least transparent versions possible when it comes to safety."*
+
+Applied to `targeted-deception-correction` (3 editions, 17 edits, `ffbb9a7`): detection-side
+code on request to verified safety researchers; correction vectors, calibration tools and the
+auto-calibrator **withheld with no advertised access route**. Fixed the self-contradiction in
+all three editions ("is provided" two sections above "is withheld") and marked Appendix D's
+calibrator documentation withheld. Verified in the rebuilt PDF.
+**Still open under F1:** `ghost-dimensions`' dropped redaction note, and the remaining 4 rows.
+
+**A1 / D2 / 11 duplicate PDFs** - all turn on external exposure; a Zenodo lookup on MTH is
+running. Not a Thomas decision any more, just a fact to establish.
+
+---
+
 Source: `REMEDIATION_REGISTER.md` T4 (18) plus the flagged classes F1 (6), F2 (45), F4 (31).
 Every item cites its gate JSON in the register if you want the full finding.
 
