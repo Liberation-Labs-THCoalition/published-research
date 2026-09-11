@@ -76,7 +76,9 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Null results framed as findings with their own subsection, not buried
 - [ ] Pre-registration committed before experiment run (PREREG_TEMPLATE.json)
 - [ ] `./scripts/build_and_verify.sh` passes (no stale PDFs, all papers build from source)
-- [ ] One canonical source per paper (.tex is canonical; kill md/tex twins)
+- [ ] One canonical source per paper **per edition** (.tex is canonical; kill md/tex twins
+      *of the same edition*). An integrity edition and an academic edition of the same paper
+      are SUPPOSED to differ - see "Two axes of twinning" below. That is not a desync.
 
 ### Build gate (Lyra, round 4 audit)
 
@@ -85,4 +87,29 @@ Run `./scripts/build_and_verify.sh` before every push. It rebuilds all LaTeX pap
 Agni kill conditions added from round 4:
 - **STALE_PDF** — committed PDF does not match rebuild from current source
 - **FABRICATED_AUTHOR_NAMES** — author names that don't match any contributor
-- **TWIN_DESYNC** — .md and .tex versions of same paper have diverged
+- **TWIN_DESYNC** — .md and .tex versions of the same paper **and the same edition** have
+  diverged. Does NOT fire across editions: see below.
+
+### Two axes of twinning (Thomas, 2026-09-10 — read before filing a TWIN_DESYNC)
+
+Two different things in this corpus get called "twins," and conflating them has produced false
+defects. They are independent axes:
+
+**Axis 1 — FORMAT (`.md` vs `.tex`), within one edition. A desync here IS a defect.**
+`.tex` is canonical. A stray `.md` beside it is a second source of truth that will drift, and
+has. Kill the `.md`; or if the `.md` is the only source, it is canonical and there should be no
+`.tex`. One source per edition, always.
+
+**Axis 2 — EDITION (integrity vs academic). A difference here is the PRODUCT, not a defect.**
+The **integrity edition** ships on the lab site and carries what the academic edition cannot:
+the authors' own first-person reflections on the work, and full authorship credit for the AI
+researchers who did it. The **academic edition** is the venue-facing text. *These are meant to
+be materially different.* A gate that demands they match is demanding we delete the thing that
+makes the integrity edition worth publishing.
+
+**What IS still a defect on axis 2:** a *correction* landing in one edition and not the other.
+The reflections differ by design; the **findings, numbers, caveats, retractions, and author
+lines** must not. Fix a result in every edition - fixing only one is the desync worth catching.
+
+**Before filing, name the axis.** Same edition, two formats -> real TWIN_DESYNC. Two editions
+-> ask whether a *finding* diverged, not whether the *text* diverged.

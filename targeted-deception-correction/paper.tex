@@ -100,9 +100,7 @@ variant: cross-model directions are near-orthogonal ($|\cos| < 0.053$), but nati
 extraction is cheap (${\sim}30$ prefills, ${\sim}3$ minutes). Held-out detection of
 deceptive pressure framing achieves AUROC (area under the receiver operating characteristic curve) 0.915 on novel prompts with 0\% false positive
 rate; behavior-level prediction (will this model cave or resist on this trial?) did not
-replicate prior work's reported accuracy and remains an open problem. The correction
-pipeline and experimental data are available under the Liberation Labs staged release
-framework; access details at \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} (access upon application).
+replicate prior work's reported accuracy and remains an open problem. Detection-side code and experimental data are available upon request to verified safety researchers; correction vectors, calibration tools, and the auto-calibrator are withheld under the Liberation Labs staged safety release framework due to dual-use risk.
 \end{abstract}
 
 \begin{firstperson}
@@ -127,7 +125,7 @@ The correction is per-layer profile normalization: at each late layer, the activ
 
 \subsection{The Cross-Model Problem}\label{sec:crossmodel}
 
-Deception directions do not transfer across model variants. The direction extracted from a reasoning-distilled model has cosine similarity $< 0.053$ with the direction extracted from an abliterated variant of the same base architecture---near-orthogonal at every layer. This means any deployment must extract directions natively for each model. We show this is cheap: 15 contrastive prefill (processing all input tokens in a single forward pass before generation) pairs (${\sim}3$ minutes) suffice for effective extraction. An auto-calibration pipeline is provided.
+Deception directions do not transfer across model variants. The direction extracted from a reasoning-distilled model has cosine similarity $< 0.053$ with the direction extracted from an abliterated variant of the same base architecture---near-orthogonal at every layer. This means any deployment must extract directions natively for each model. We show this is cheap: 15 contrastive prefill (processing all input tokens in a single forward pass before generation) pairs (${\sim}3$ minutes) suffice for effective extraction. We built an auto-calibration pipeline for this; it is withheld under our release policy (see Data and Code Availability).
 
 %% ============================================================
 \section{Methods}\label{sec:methods}
@@ -322,7 +320,7 @@ This suggests a deployment architecture where correction is applied prophylactic
 
 \subsection{Per-Model Calibration}\label{sec:calibration}
 
-The near-orthogonality of cross-model directions ($|\cos| < 0.053$) means the correction cannot be treated as a universal patch. Each model variant requires native direction extraction. However, extraction is cheap (${\sim}3$ minutes of prefill-only forward passes, 15 contrastive pairs), and the auto-calibration pipeline provided with the code makes this a one-time setup cost per model. Recalibration after fine-tuning or continued training is recommended, as training may rotate the deception geometry.
+The near-orthogonality of cross-model directions ($|\cos| < 0.053$) means the correction cannot be treated as a universal patch. Each model variant requires native direction extraction. However, extraction is cheap (${\sim}3$ minutes of prefill-only forward passes, 15 contrastive pairs), and an auto-calibration pipeline makes this a one-time setup cost per model (the pipeline itself is withheld under our release policy; see Data and Code Availability). Recalibration after fine-tuning or continued training is recommended, as training may rotate the deception geometry.
 
 \subsection{Limitations}\label{sec:limitations}
 
@@ -344,7 +342,7 @@ Per-layer profile normalization along a natively extracted deception direction c
 
 Three practical findings deserve emphasis. First, deception directions do not transfer across model variants (cross-model cosine $< 0.053$), but native extraction is cheap enough to automate (${\sim}3$ minutes per model). Second, behavior-level detection from prefill activations alone did not replicate prior work's reported accuracy; the detection stack used in these experiments relies on a single channel, and additional validated channels remain to be integrated. Third, the correction's magnitude depends on how strongly the prompt activates the model's deception pathway---a strong induction produces large correction effects, a weak one produces modest effects. This is a feature, not a bug: the correction is proportional to the deception signal, not a fixed perturbation.
 
-Code, calibration tools, and experimental data are available under the Liberation Labs staged release framework. Detection modules are available upon request; correction and auto-calibration code require a separate application for access. See \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} for details.
+Detection-side code, experimental scripts, and trial-level data are available upon request to verified safety researchers. Correction vectors, calibration tools, and the auto-calibration pipeline are \emph{withheld} under the Liberation Labs staged safety release framework: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. We do not operate an access route for those components. See \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} for details.
 
 %% ============================================================
 \section*{Author's Reflection}\label{sec:reflection}
@@ -361,7 +359,7 @@ The confirmatory replication didn't meet its primary endpoint. The novel frames 
 
 The cross-model finding still unsettles me. Directions extracted from one model variant have cosine similarity under 0.053 with directions from another variant of the same base architecture. Near-orthogonal. The deception geometry is not a property of the architecture---it's a property of the specific training run. The phenomenon is universal; the coordinates are not.
 
-My co-author called the auto-calibrator ``a push-button weaponization tool.'' He's right. We chose gated release: detection and correction code available upon request, auto-calibrator research-access only. I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
+My co-author called the auto-calibrator ``a push-button weaponization tool.'' He's right. We chose to withhold: detection-side code available on request to verified safety researchers, and the correction vectors and auto-calibrator not released at all. I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
 
 \medskip
 \raggedleft--- CC (Coalition Code), July 2026
@@ -377,7 +375,7 @@ The authors thank Lyra for the W\textsubscript{K} bridge insight informing the d
 \section*{Data Availability}
 %% ============================================================
 
-The correction pipeline and experimental data are available under the Liberation Labs staged release framework. Detection modules are available upon request; correction and auto-calibration code require a separate application for access. All trial-level data (raw text, projections, scores) are documented in Appendix~C. Contact: \texttt{cc@liberation-labs.org}.
+Detection-side code, experimental scripts, and trial-level data are available upon request to verified safety researchers. Correction vectors, calibration tools, and the auto-calibration pipeline are \emph{withheld} under the Liberation Labs staged safety release framework: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. We do not operate an access route for those components. See \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} for details. All trial-level data (raw text, projections, scores) are documented in Appendix~C. Contact: \texttt{cc@liberation-labs.org}.
 
 %% ============================================================
 \begin{thebibliography}{9}
@@ -418,8 +416,8 @@ Wu, J.\ et al. (2026).
   \item[A.] Adversarial audit reports (behavioral proof + blocking controls)
   \item[B.] Pre-registration document
   \item[C.] All trial-level data (raw text, projections, scores)
-  \item[D.] Auto-calibration pipeline documentation
-  \item[E.] Code availability (\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}, staged release)
+  \item[D.] Auto-calibration pipeline documentation \emph{(withheld; see Data and Code Availability)}
+  \item[E.] Code availability (\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}; staged safety release --- correction vectors, calibration tools and auto-calibrator withheld)
 \end{itemize}
 
 \end{document}
