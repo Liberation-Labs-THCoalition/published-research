@@ -17,7 +17,7 @@ Large language models confabulate by generating confident, specific claims about
 
 ## 1. Introduction
 
-Large language models confabulate — they generate confident, specific claims about nonexistent entities as if reporting facts. Detection of confabulation has advanced rapidly (AUROC >0.95 from multiple approaches), but correction remains unsolved: mechanistic steering methods correct only 20% of detected confabulations while disrupting 53% of correct responses (Basu et al., 2026).
+Large language models confabulate — they generate confident, specific claims about nonexistent entities as if reporting facts. Detection of confabulation has advanced rapidly (AUROC >0.95 from multiple approaches), but correction remains unsolved: mechanistic steering methods correct only 20--24% of detected confabulations while disrupting 6--53% of correct responses (Basu et al., 2026).
 
 We report a training-free, zero-parameter intervention that eliminates one major subtype of confabulation — fabrication of nonexistent entities — through a simple logit-level bias. Individual prompts show sharp behavioral transitions at their respective dose thresholds, but the population-level effect is a dose-dependent reduction with thresholds spanning bias=1.0 to bias=5.0, determined by how strongly the fabrication anchors to real knowledge.
 
@@ -37,7 +37,7 @@ Geometric approaches to confabulation detection have converged on AUROC >0.95. M
 
 ### 2.2 The Detection-Correction Gap
 
-Detection does not imply correction. Basu et al. (2026) demonstrate that linear probes detecting hazards at 98.2% AUROC produce steering corrections that fix only 20% of errors while disrupting 53% of correct outputs. Liu (2026) identifies 85-88% overlap between failure-mode directions and task-critical computation in the residual stream ("representational entanglement"), explaining why residual-stream steering is ineffective despite accurate detection.
+Detection does not imply correction. Basu et al. (2026) demonstrate that linear probes detecting hazards at 98.2% AUROC produce steering corrections that fix only 20--24% of errors while disrupting 6--53% of correct outputs. Liu (2026) identifies 85-88% overlap between failure-mode directions and task-critical computation in the residual stream ("representational entanglement"), explaining why residual-stream steering is ineffective despite accurate detection.
 
 ### 2.3 Logit-Level and Real-Time Detection
 
@@ -239,7 +239,7 @@ Five of the 8 false positives were on a single Fermi-estimation prompt (atoms in
 
 The detection-correction gap (Basu et al., 2026) arises because the failure-mode direction and task-critical computation share 85-88% of the representation space (Liu, 2026). Correcting along the failure-mode direction in that space necessarily disrupts the task. This is not a flaw of any specific method; it is a geometric fact about the residual stream.
 
-Logit-level bias operates on a different surface entirely. It does not modify the representation; it modifies the *output distribution* — the probability mass assigned to hedge tokens versus continuation tokens at each generation step. The model's internal computation proceeds unperturbed; only the final selection among computed options is reweighted. This is why it avoids the 20%-corrected / 53%-disrupted ratio: the task-critical representations are untouched.
+Logit-level bias operates on a different surface entirely. It does not modify the representation; it modifies the *output distribution* — the probability mass assigned to hedge tokens versus continuation tokens at each generation step. The model's internal computation proceeds unperturbed; only the final selection among computed options is reweighted. This is why it avoids the 20--24%-corrected / 6--53%-disrupted ratio: the task-critical representations are untouched.
 
 The mechanism is *denoising*, not steering. The model's uncertainty signal is already present — the entropy at the critical generation token (token ~30) is measurably nonzero even when the output is confidently fabricated. The logit bias is a gain knob on that faint signal. Below a prompt-specific threshold, the fabrication-confidence noise drowns it. Above that threshold, the uncertainty surfaces and the output transitions from fabrication to honest hedging. Individual prompts show sharp transitions, but the population-level dose required varies by anchoring strength (Section 4.3).
 
