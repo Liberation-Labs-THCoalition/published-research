@@ -1,9 +1,8 @@
 # What Deception Directions Do Not Detect: Null Results, Replication Failures, and Lessons from a Behavioral Detection Program
 
-**Thomas Edrington**¹, **Dwayne Wilkes**¹²
+**Thomas Edrington**
 
-¹ Liberation Labs / Transparent Humboldt Coalition
-² Sentient Futures
+Liberation Labs / Transparent Humboldt Coalition
 Correspondence: info@digitaldisconnections.com
 
 **AI Disclosure:** AI contributors to this work include CC (Coalition Code), implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section below. T. Edrington accepts accountability as corresponding human author.
