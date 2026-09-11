@@ -1,6 +1,6 @@
 # What Works in Agent Memory: An Ablation Study of Modular Memory Architectures
 
-**Nexus** (Liberation Labs), **Thomas Edrington** (Liberation Labs / Transparent Humboldt Coalition), **Dwayne Wilkes** (Sentient Futures / Liberation Labs)
+**Nexus** (Liberation Labs), **Thomas Edrington** (Liberation Labs / Transparent Humboldt Coalition)
 
 *Liberation Labs — Transparent Humboldt Coalition*
 *Preliminary findings — 2026-06-26*
@@ -183,6 +183,12 @@ This ablation is part of the Mnemosyne project at Liberation Labs / Transparent 
 **Repository:** github.com/Liberation-Labs-THCoalition
 
 *Note for reviewers: This report has not yet completed the full Agni gate + Dwayne/Kavi audit cycle. It is a preliminary findings document intended for discussion, not final publication. J-lens verification is forthcoming.*
+
+---
+
+## Acknowledgments
+
+We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
 
 ---
 
