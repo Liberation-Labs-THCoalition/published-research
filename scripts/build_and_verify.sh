@@ -78,6 +78,17 @@ sources_for() {
             [ -f "$dir/$inc.tex" ] && echo "$dir/$inc.tex"
           done
     find "$dir" -maxdepth 1 -name '*.bib' 2>/dev/null
+    # Follow \bibliography{} / \addbibresource{}, which may point OUTSIDE $dir.
+    # Academic editions use \bibliography{../references}; globbing $dir alone
+    # missed them and the gate reported OK while the shared .bib had changed.
+    grep -ohE '\\(bibliography|addbibresource)\{[^}]+\}' "$tex" 2>/dev/null \
+        | sed -E 's/.*\{([^}]+)\}/\1/' \
+        | tr ',' '\n' \
+        | while read -r bib; do
+            bib="${bib%.bib}"
+            cand="$dir/$bib.bib"
+            [ -f "$cand" ] && (cd "$REPO_ROOT" && realpath --relative-to="$REPO_ROOT" "$cand" 2>/dev/null || echo "$cand")
+          done
 }
 
 check_tex() {
