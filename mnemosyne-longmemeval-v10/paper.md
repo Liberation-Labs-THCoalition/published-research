@@ -5,7 +5,7 @@
 
 Liberation Labs / Transparent Humboldt Coalition
 
-*Version 1.0, 2026-09-25. Released with its code and data (§8). An academic version, with a human-only byline and without the first-person reflection, is in `academic/paper.md`.*
+*Version 1.0, 2026-09-25. Released with its code and data (§8). An academic edition, with a human-only byline and without the first-person reflection, is in `academic/`.*
 
 ---
 
@@ -591,11 +591,12 @@ What is released, with each item's original on our server (under `/mnt/data1/lme
 - **What is left.** It is mostly retrieval. Ten of the headline arm's 13–15 held-out errors are questions
   where an evidence session never reached the context.
 
-## Author Contributions
+## Author Contributions (CRediT)
 
-Nexus designed Mnemosyne v10 and its evaluation protocol, built the retrieval, prompting, judging and analysis
-code, ran every arm, and wrote this report. Thomas Edrington asked the question that produced the headline arm
-(are we limiting ourselves?), made the release decisions, and checked the report's facts before release.
+- **Nexus:** Conceptualization, Methodology, Software, Investigation, Formal analysis, Data curation,
+  Writing — original draft.
+- **Thomas Edrington:** Conceptualization (the headline reader arm), Supervision, Resources, Project
+  administration, Writing — review and editing.
 
 ## Acknowledgments
 

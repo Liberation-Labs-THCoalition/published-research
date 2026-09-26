@@ -1,0 +1,1207 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+% lmodern before microtype: microtype's font expansion needs scalable fonts.
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{longtable,array,calc}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\sloppy
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen}
+% Characters in the text that pdflatex's utf8 does not map by default.
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+\DeclareUnicodeCharacter{207B}{\textsuperscript{\ensuremath{-}}}
+\DeclareUnicodeCharacter{207D}{\textsuperscript{(}}
+\DeclareUnicodeCharacter{207E}{\textsuperscript{)}}
+\DeclareUnicodeCharacter{2070}{\textsuperscript{0}}
+\DeclareUnicodeCharacter{2079}{\textsuperscript{9}}
+\DeclareUnicodeCharacter{03BA}{\ensuremath{\kappa}}
+
+\begin{document}
+\title{Whole Sessions, Not Passages: Mnemosyne v10 Scores 96.2--96.8\% on Held-Out LongMemEval\_S-cleaned Under Two Claude Judges}
+\author{Thomas Edrington\thanks{Liberation Labs / Transparent Humboldt Coalition. \href{mailto:thomas@liberationlabs.tech}{thomas@liberationlabs.tech}}}
+\date{}
+\maketitle
+
+\noindent \textbf{AI Disclosure:} The AI contributor to this work is Nexus, an AI agent at Liberation Labs implemented on Claude Opus 5.5 (Anthropic). Nexus's contributions are detailed in the Author Contributions section; the integrity edition of this report lists Nexus as lead author. The adversarial second readers were separate AI agents (Fable 5.1 and Opus 5.5) that did not build the pipeline. T. Edrington accepts accountability as corresponding human author.
+
+\noindent \emph{Version 1.0, 2026-09-25, academic edition. Released with its code and data (§8). The integrity edition lists Nexus, an AI agent, as lead author and adds a first-person reflection; the data, methods and claims are identical.}
+
+\hypertarget{abstract}{%
+\section{Abstract}\label{abstract}}
+
+Mnemosyne v10, a retrieval layer that makes no LLM calls and gives the reader whole sessions instead of
+isolated passages, scores \textbf{385/400 = 96.2\%} under a claude-sonnet-5 judge and \textbf{387/400 = 96.8\%} under a
+claude-opus-5-5 judge on the 400 pre-registered held-out questions of LongMemEval\_S-cleaned (95\% Wilson
+{[}93.9, 97.7{]} and {[}94.5, 98.1{]}). The reader was claude-opus-5-5 with thinking enabled (median 114 thinking
+tokens). On all 500 questions, 100 of which were the retrieval-tuning split, v10 scores \textbf{479/500 = 95.8\%}
+and \textbf{484/500 = 96.8\%}. These are the highest point estimates among the LongMemEval\_S results we could
+trace to a primary source; on all 500 the Sonnet-judge figure is one question above the best published
+claims (95.60), inside every interval (§6).
+
+v10 ranks every turn of a user's chat history with BM25 and a dense encoder, fuses the two rankings, and
+fills a 24k-token budget with whole sessions in chronological order. Retrieval is the main effect: with the
+same reader model (claude-opus-4-6; §3.3), our previous system, Mnemosyne v9, scores 79.0\% / 80.0\%
+(Sonnet / Opus judge) on the same 400 questions and v10 scores 92.2\% / 94.5\% (paired McNemar p \textless{} 10⁻⁹ under
+both judges). On the same v10 prompts the claude-opus-5-5 reader adds a further 4.0 / 2.25 points, and when
+every evidence session reaches the context it answers 362 of 365 held-out questions correctly under both
+judges.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Retrieval:} v10 puts every \texttt{has\_answer}-labelled evidence session into the context for 97.1\% of
+  held-out questions (96.0\% when every official \texttt{answer\_session\_ids} session is required).
+\item
+  \textbf{Against the full history:} on the 100 tuning questions, v10 cannot be distinguished from the same
+  reader given the entire \textasciitilde115k-token history, and it uses about a fifth of the reader's input.
+\end{itemize}
+
+We tuned v10 on 100 questions, froze its configuration (hash \texttt{7bc75f509aa0}), and evaluated it on the other
+400 questions, which were pre-registered as held out. Judging used the official LongMemEval answer-check
+prompts, with Claude judges instead of GPT-4o. On 1,000 published answers, our judges agree with the
+official judge on 95--97\% of questions and pass slightly fewer. Adversarial second readers reproduced every
+held-out count, the retrieval-recall figures and the numbers first computed for this report from the raw
+files. We list every way our harness departs from the official one.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{introduction}{%
+\section{1. Introduction}\label{introduction}}
+
+An assistant that works with someone for months has to remember what they told it. LongMemEval (Wu et al., 2025) tests exactly this.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Haystacks.} Each of its 500 questions comes with its own chat history, the haystack. In the S variant
+  a haystack is about 115k tokens in 38--62 sessions (mean 47.7). One or a few of those sessions answer the
+  question.
+\item
+  \textbf{Question types.} Single-session user, single-session assistant and single-session preference questions;
+  multi-session questions, which need facts gathered across sessions; knowledge updates, where a later
+  session overrides an earlier one; and temporal reasoning.
+\item
+  \textbf{Abstentions.} Thirty questions are abstentions, where the correct answer is that the history does not
+  say.
+\end{itemize}
+
+\textbf{Our previous system, Mnemosyne v9,} built a context of about 7k tokens per question (about 8.5k of reader input with the
+reading template) from four parts: character
+profiles, structured facts, an event ledger and fifteen retrieved passages. With claude-opus-4-6 as reader
+and the official answer-check prompts, it scored 78.6--80.2\% under our two judges (§3.4). The same reader
+given only the evidence sessions (the ``oracle'' arm) scored 95.0--96.6\%. On a 100-question block, the same
+reader given the whole history scored 92--94\%.
+
+\textbf{The loss was in retrieval, not reading.} When all the evidence reached v9's context, v9 and the oracle
+arm tied. But on multi-session questions, all the evidence reached v9's context only 46\% of the time by the
+lenient form of a verbatim text matcher (35\% by its strict form; §4.1 defines both and reports strict).
+
+v10 has one job: evidence recall at a fixed token budget. This report contributes:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{A simple retrieval design with no LLM calls} (§2). It fuses turn-level lexical (BM25) and dense
+  scores, ranks sessions by their two best turns, and fills a 24k-token budget with whole sessions. It puts
+  every \texttt{has\_answer}-labelled evidence session into the context for 97.1\% of held-out questions.
+\item
+  \textbf{A pre-registered protocol} (§3). It has an input allow-list enforced in code, a frozen configuration,
+  a held-out set that tuning never saw, and a headline candidate declared in writing before any held-out
+  accuracy existed.
+\item
+  \textbf{Results with paired comparisons} (§4), under two judges and two readers. On the 400 held-out
+  questions the headline arm scores 96.2\% / 96.8\% (Sonnet / Opus judge). With the reader model held fixed
+  (§3.3), v10 adds 13.25 / 14.5 points over our previous system; upgrading the reader adds 4.0 / 2.25. The
+  other comparisons are against the evidence-only (oracle) arm and, on the tuning block, the full history.
+\item
+  \textbf{A calibration of our Claude judges} (§5) against the official GPT-4o judge, on 1,000 published
+  answers: they agree with it on 95--97\% of questions and pass slightly fewer.
+\item
+  \textbf{A placement against published results} (§6): the highest point estimates among the LongMemEval\_S
+  results we could trace to a primary source, by a margin inside every interval. We state what we
+  excluded and why.
+\end{enumerate}
+
+An earlier Mnemosyne version was reported at 85.8\% on LongMemEval in our technical report of 2026-08-05
+(DOI 10.5281/zenodo.21801643). That figure used a custom semantic-equivalence judge, not the official
+answer-check prompts, and this report supersedes it.
+
+\hypertarget{mnemosyne-v10-retrieval}{%
+\section{2. Mnemosyne v10 retrieval}\label{mnemosyne-v10-retrieval}}
+
+\hypertarget{inputs-an-allow-list-enforced-in-code}{%
+\subsection{2.1 Inputs: an allow-list enforced in code}\label{inputs-an-allow-list-enforced-in-code}}
+
+The retriever receives a view of each question, built field by field:
+
+\begin{itemize}
+\tightlist
+\item
+  the question text and the question date;
+\item
+  for each haystack session, its date and its turns as (role, content) pairs.
+\end{itemize}
+
+The view is made of new objects, and the code asserts its exact key set. The only other input is the
+question's row index into the precomputed question embeddings (§2.2). Nothing else reaches the retriever. In
+particular it never sees:
+
+\begin{itemize}
+\tightlist
+\item
+  session identifiers (evidence sessions carry an \texttt{answer\_} prefix in the dataset);
+\item
+  the \texttt{has\_answer} turn labels;
+\item
+  the question type or question identifier;
+\item
+  the answer.
+\end{itemize}
+
+Handing a component a slice of the full record is how an answer key reaches a reader.
+
+\hypertarget{two-retrieval-channels}{%
+\subsection{2.2 Two retrieval channels}\label{two-retrieval-channels}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{BM25} (Robertson \& Zaragoza, 2009), a lexical ranking function, over every turn, user and assistant
+  alike, with term-frequency saturation k1 = 1.2 and length normalisation b = 0.75. The corpus is that
+  question's own haystack.
+\item
+  \textbf{Dense:} cosine similarity between the question and each \textbf{user} turn.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Encoder: BAAI/bge-base-en-v1.5 (Xiao et al., 2023; revision \texttt{a5beb1e3}), run once over the 93,931
+    unique user turns on a Quadro K2200 GPU (fp32 model, fp16 storage). A second reader recomputed a
+    sample on CPU and matched the stored rows at cosine 1.0000.
+  \item
+    CLS pooling with L2 normalisation, a 512-token input limit, and the model's retrieval prefix on the
+    question.
+  \item
+    Assistant turns are not embedded. They reach the ranking through BM25, and through their session.
+  \item
+    Two departures from the design note: it planned to embed assistant turns too (truncated to 512
+    tokens), and to run on CPU. The run embedded user turns only, on a GPU.
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{fusion-and-session-scoring}{%
+\subsection{2.3 Fusion and session scoring}\label{fusion-and-session-scoring}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Fusion.} Each channel's ranking of turns enters reciprocal-rank fusion (Cormack et al., 2009): a turn
+  ranked r-th by a channel receives that channel's weight / (k + r), with k = 60, and the two contributions
+  are summed. BM25 is weighted 1.0 and the dense channel 2.0.
+\item
+  \textbf{Session score.} The session's best fused turn score plus its second-best.
+\item
+  \textbf{Ties} are broken by a hash of the content, not by position in the haystack. Turns with identical
+  content still tie-break by array order; across 1,000 shuffled runs this changed the selection 8 times and
+  never changed an evidence verdict.
+\end{itemize}
+
+\hypertarget{selection-and-rendering}{%
+\subsection{2.4 Selection and rendering}\label{selection-and-rendering}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Selection.} Sessions are taken in score order. Each one is added whole if it fits the remaining budget
+  of 24,000 tokens (o200k: counted with tiktoken's \texttt{o200k\_base} encoding). If it does not fit, a window of
+  ±2 turns around its two best turns is added instead, provided the window fits.
+\item
+  \textbf{Resulting size.} The median held-out context is 23.9k tokens (o200k). The median context has 9
+  sessions, 8 of them whole.⁽¹⁾
+\item
+  \textbf{Rendering.} The chosen sessions are rendered in chronological order with their dates. They go through
+  the official LongMemEval prompt builder, the same one used for the oracle and full-history arms.
+\end{itemize}
+
+v10 makes no large language model (LLM) calls, does no ingest-time extraction, and never routes on question type.
+
+\hypertarget{how-the-configuration-was-chosen}{%
+\subsection{2.5 How the configuration was chosen}\label{how-the-configuration-was-chosen}}
+
+The selection rule was written down before any result from the dense channel existed. The sweeps ran on the
+100 dev questions, at a 16k budget, in four stages. Each stage kept the previous stage's winner:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  which channels;
+\item
+  the session-scoring weights;
+\item
+  packing (how many sessions go in whole, and the window size);
+\item
+  a date channel that favours sessions inside time windows parsed from the question.
+\end{enumerate}
+
+The rule for picking a configuration:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Winner:} the configuration with the highest dev all-evidence recall. Ties went to the simpler
+  configuration.
+\item
+  \textbf{Budget:} the smallest of \{8.5k, 12k, 16k, 24k, 32k\} at which dev all-evidence recall reached 0.95.
+  That was 24k.
+\end{itemize}
+
+The date channel did not survive. BM25 alone at 24k already reached 0.957 dev recall; the dense channel and
+fusion added about one point. The frozen configuration was written read-only before any held-out
+evaluation.
+
+\hypertarget{evaluation-protocol}{%
+\section{3. Evaluation protocol}\label{evaluation-protocol}}
+
+\hypertarget{dataset}{%
+\subsection{3.1 Dataset}\label{dataset}}
+
+\begin{itemize}
+\item
+  \textbf{Version.} We use LongMemEval\_S-cleaned, the authors' September 2025 re-release (Hugging Face
+  \texttt{xiaowu0162/longmemeval-cleaned}; sha256 \texttt{d6f21ea9d60a0d56…}). Our file is byte-identical to its
+  \texttt{longmemeval\_s\_cleaned.json}. It is not the original S. We found this only on 2026-09-24, and
+  comparisons with results on the original S cross dataset versions (§6).
+\item
+  \textbf{The 500 questions by type:}
+
+  \begin{longtable}[]{@{}ll@{}}
+  \toprule\noalign{}
+  type & questions \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  multi-session (MS) & 133 \\
+  temporal reasoning (TR) & 133 \\
+  knowledge update (KU) & 78 \\
+  single-session user (SSU) & 70 \\
+  single-session assistant (SSA) & 56 \\
+  single-session preference (SSP) & 30 \\
+  \end{longtable}
+
+  30 of the 500 are abstentions.
+\end{itemize}
+
+\hypertarget{a-pre-registered-split}{%
+\subsection{3.2 A pre-registered split}\label{a-pre-registered-split}}
+
+\emph{Pre-registered} here means fixed in read-only files, with hashes and an append-only log, on our own machine
+before any held-out result existed. The split was not filed with a public registry.
+
+The split was fixed in a read-only file (sha256 prefix \texttt{a0bd99c6afe13c17}) before any v10 result existed.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{dev} is block 1 of a fixed question order: 100 questions. We had already examined block 1 in detail,
+  so it could not serve as a test set.
+\item
+  \textbf{held} is blocks 2--5: 400 questions.
+\end{itemize}
+
+Rules:
+
+\begin{itemize}
+\tightlist
+\item
+  every parameter is chosen on dev;
+\item
+  a held-out number may be computed only for a read-only (frozen) configuration;
+\item
+  every held-out evaluation, including failed attempts, is appended to a log together with the
+  configuration's hash.
+\end{itemize}
+
+\textbf{Disclosed prior knowledge.} Two sources motivated v10's design-level choices (whole sessions, several
+channels, a larger budget):
+
+\begin{itemize}
+\tightlist
+\item
+  an autopsy of v9 that covered all 500 questions, the held-out 400 included;
+\item
+  published systems.
+\end{itemize}
+
+What this protocol supports is therefore a design motivated by an analysis that saw every question, tuned
+on 100 questions and tested on 400.
+
+\hypertarget{readers}{%
+\subsection{3.3 Readers}\label{readers}}
+
+Each question is answered once, in one call. A second reader indexed the reader transcripts and found
+exactly one attempt per held-out prompt and reader model in the v10 and oracle arms: no answer was
+discarded or re-rolled. The prompt comes from the official LongMemEval prompt builder.
+It uses the builder's plain-history chain-of-thought template (\texttt{merge\_key\_expansion\_into\_value\ =\ none}) and
+gives the dataset's question date as \texttt{Current\ Date:}.
+
+The v9 arm used the official history-plus-facts (\texttt{merge}) variant instead, because its context contains
+extracted facts. The two variants differ by one clause. v10, oracle and full history share the
+plain-history variant.
+
+Two readers read identical prompts:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{claude-opus-4-6} with extended thinking off. This was the reader for all our earlier arms. We kept it
+  so that the retrieval comparison stays controlled.
+\item
+  \textbf{claude-opus-5-5} with thinking enabled. It thought briefly: a median of 114 thinking tokens, and at
+  most 1,727.
+\end{itemize}
+
+We declared the second configuration the headline candidate in writing before any held-out accuracy
+existed. We report both.
+
+\hypertarget{judges}{%
+\subsection{3.4 Judges}\label{judges}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Prompts and rule.} The per-type answer-check prompts are extracted programmatically from the official
+  \texttt{evaluate\_qa.py}, not retyped. An answer counts as correct if the judge's reply contains ``yes'', which is
+  the official rule.
+\item
+  \textbf{Which judges.} The official judge is gpt-4o-2024-08-06. We have no OpenAI access, so we used two
+  Claude judges:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{claude-sonnet-5}, designated primary before any judging;
+  \item
+    \textbf{claude-opus-5-5}, designated the agreement judge.
+  \end{itemize}
+\item
+  \textbf{Relation to the readers.} Both judges differ from the Opus 4.6 reader. The Opus 5.5 judge is the same
+  model as the headline reader, so we check it for self-preference below.
+\item
+  \textbf{Controls.} The judges passed pilot answers and failed deliberately wrong answers, one of which was an
+  abstention. Without the failing half, nothing would show that the judges could fail an answer.
+\item
+  \textbf{Disagreements.} An adversarial review of our earlier v9 run adjudicated all 12 of that run's judge
+  disagreements under the official rubric. It sided with the Opus judge on all 12, because Sonnet 5 does
+  not apply the leniency the preference rubric asks for (five of the twelve were marginal). Choosing a primary judge after seeing the scores
+  would amount to picking the higher number, so we report both.
+\item
+  \textbf{Self-preference check.} The Opus 5.5 judge's lift over the Sonnet judge is +0.50 and +1.25 points on
+  the two held-out arms that Opus 5.5 read, and +1.00 to +2.25 on the three that Opus 4.6 read. We see no
+  sign of self-preference.
+\end{itemize}
+
+\hypertarget{arms}{%
+\subsection{3.5 Arms}\label{arms}}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1562}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.4375}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2812}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1250}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+arm
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+context
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reader(s)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+questions
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v9 & Mnemosyne v9, \textasciitilde7k tokens (\textasciitilde8.5k reader input); \texttt{merge} template & Opus 4.6 & 500 \\
+\textbf{v10} & frozen v10, \textasciitilde24k tokens & Opus 4.6; Opus 5.5 with thinking & 500 \\
+oracle & evidence sessions only (\texttt{longmemeval\_oracle.json} as distributed) & Opus 4.6; Opus 5.5 with thinking & 500 \\
+full history & the whole haystack, \textasciitilde115k tokens & Opus 4.6 & dev only (100) \\
+\end{longtable}
+
+Reader input is the median of billed input tokens (uncached plus cached) per question.
+
+\hypertarget{statistics}{%
+\subsection{3.6 Statistics}\label{statistics}}
+
+We report accuracy with 95\% Wilson intervals. Paired comparisons use McNemar's exact test on the discordant
+questions. We give counts as well as percentages, because two of the headline figures sit on a rounding half
+(385/400 = 96.25\%).
+
+\hypertarget{deviations-from-the-official-harness}{%
+\subsection{3.7 Deviations from the official harness}\label{deviations-from-the-official-harness}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Claude judges} instead of gpt-4o-2024-08-06. §5 measures the effect on published answers.
+\item
+  \textbf{No temperature control.} Officially, the reader and the judge both run at temperature 0. The
+  \texttt{claude\ -p} harness we used cannot set it.
+\item
+  \textbf{No output cap.} Official chain-of-thought generation uses max\_tokens = 800. 23 of the 400 headline
+  answers exceed 800 visible tokens, and each judge passed 21 of those 23. The official harness would have
+  cut them off mid-reasoning.
+\item
+  \textbf{Context added by the harness.} Every reader call went through \texttt{claude\ -p}, which adds three things:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    a short system prompt: \texttt{You\ are\ a\ Claude\ agent,\ built\ on\ Anthropic\textquotesingle{}s\ Claude\ Agent\ SDK.} followed by
+    \texttt{You\ are\ a\ helpful\ assistant.};
+  \item
+    Claude Code system-reminder blocks: an environment snapshot, the model's name and knowledge cutoff, a
+    token-budget line, the account e-mail, and \textbf{the real date of the run}, which sits beside the
+    prompt's \texttt{Current\ Date:};
+  \item
+    a stray \texttt{-} line before the prompt.
+  \end{itemize}
+
+  The additions were the same in every arm, so they do not affect the paired comparisons. Their effect on
+  absolute scores is unknown. The evidence-only arm with Opus 5.5 answered all 107 held-out
+  temporal-reasoning questions correctly despite the conflicting dates. No label field (\texttt{has\_answer},
+  \texttt{answer\_session\_ids}, \texttt{question\_type}) appears in the added text or in the prompts.
+\item
+  \textbf{Budget accounting.} The budget counts turns as \texttt{json.dumps(ensure\_ascii=False)}, but the official
+  builder escapes non-ASCII characters. A rendered history can therefore exceed 24k tokens. On the
+  held-out set, histories reach 25.2k and whole prompts 25.3k.
+\end{enumerate}
+
+\hypertarget{results}{%
+\section{4. Results}\label{results}}
+
+\hypertarget{retrieval-recall-no-reader-involved}{%
+\subsection{4.1 Retrieval recall (no reader involved)}\label{retrieval-recall-no-reader-involved}}
+
+The dataset marks evidence at two levels: \texttt{has\_answer} labels on turns, and each question's official list
+of evidence sessions, \texttt{answer\_session\_ids}. The first row counts a session as evidence if any of its turns
+carries \texttt{has\_answer}; the second requires every session on the official list.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+dev (94 scored)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+held-out (376 scored)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+every \texttt{has\_answer} evidence session in context & 0.968 & \textbf{0.971} {[}0.948, 0.984{]} \\
+every official \texttt{answer\_session\_ids} session in context & 0.957 & \textbf{0.960} {[}0.935, 0.976{]} \\
+v9, verbatim-matcher lower bound (strict / lenient) & 0.596 / 0.670 & 0.593 / 0.670 \\
+v10 through v9's verbatim matcher & --- & 0.955 \\
+frozen v10 at an 8.5k budget (v9's reader-input size) & 0.798 & not run: it would be an unfrozen held-out evaluation \\
+\end{longtable}
+
+Abstention questions are excluded from the recall metric by rule.
+
+v9's context is built from profiles, extracted facts and passages rather than whole sessions, so its rows
+use a verbatim text matcher. Each \texttt{has\_answer} turn is lower-cased and whitespace-collapsed, and 50-character
+windows are taken from it every 80 characters. The turn counts as present if any window appears verbatim in
+the context (lenient) or if at least half of them do (strict). A session counts as covered if any of its
+evidence turns is present. The matcher is a lower bound: a fact that reaches the context only in
+paraphrase is invisible to it.
+
+Held-out recall by type, v10 against v9 strict:
+
+\begin{itemize}
+\tightlist
+\item
+  multi-session: 0.97 against 0.35;
+\item
+  temporal: 0.95 against 0.51;
+\item
+  knowledge update: 0.98 against 0.67;
+\item
+  single-session types: 0.96--1.00 against 0.54--0.90.
+\end{itemize}
+
+\hypertarget{held-out-the-400-pre-registered-questions}{%
+\subsection{4.2 Held-out: the 400 pre-registered questions}\label{held-out-the-400-pre-registered-questions}}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+held-out (n = 400)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sonnet-5 judge
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Opus-5.5 judge
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{v10 + Opus 5.5, thinking (headline)} & \textbf{385 = 96.25\%} {[}93.9, 97.7{]} & \textbf{387 = 96.75\%} {[}94.5, 98.1{]} \\
+v10 + Opus 4.6 & 369 = 92.25\% {[}89.2, 94.5{]} & 378 = 94.50\% {[}91.8, 96.3{]} \\
+oracle + Opus 5.5, thinking & 392 = 98.00\% {[}96.1, 99.0{]} & 397 = 99.25\% {[}97.8, 99.7{]} \\
+oracle + Opus 4.6 & 381 = 95.25\% {[}92.7, 96.9{]} & 387 = 96.75\% {[}94.5, 98.1{]} \\
+v9 + Opus 4.6 & 316 = 79.00\% {[}74.7, 82.7{]} & 320 = 80.00\% {[}75.8, 83.6{]} \\
+headline, task-averaged & 96.25 & 96.56 \\
+\textbf{all 500, headline} (100 were the tuning split) & \textbf{479 = 95.80\%} {[}93.7, 97.2{]}; task-avg 95.39 & \textbf{484 = 96.80\%} {[}94.9, 98.0{]}; task-avg 96.44 \\
+\end{longtable}
+
+On the headline arm the two judges agree on 396 of the 400 answers.
+
+\hypertarget{by-question-type}{%
+\subsection{4.3 By question type}\label{by-question-type}}
+
+Held-out, Sonnet-5 / Opus-5.5 judge. The number of questions of each type is in brackets.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+arm
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+KU (62)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MS (106)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SSA (45)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SSP (24)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SSU (56)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+TR (107)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v9 + Opus 4.6 & 88.7 / 88.7 & 56.6 / 57.5 & 100.0 / 97.8 & 66.7 / 79.2 & 100.0 / 100.0 & 78.5 / 79.4 \\
+v10 + Opus 4.6 & 93.5 / 93.5 & 87.7 / 89.6 & 97.8 / 97.8 & 66.7 / 91.7 & 100.0 / 100.0 & 95.3 / 96.3 \\
+\textbf{v10 + Opus 5.5} & \textbf{98.4 / 98.4} & \textbf{94.3 / 95.3} & \textbf{97.8 / 97.8} & \textbf{91.7 / 91.7} & \textbf{100.0 / 100.0} & \textbf{95.3 / 96.3} \\
+oracle + Opus 5.5 & 98.4 / 100.0 & 96.2 / 98.1 & 100.0 / 97.8 & 87.5 / 100.0 & 100.0 / 100.0 & 100.0 / 100.0 \\
+\end{longtable}
+
+Headline arm on all 500:⁽²⁾
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+type & Sonnet-5 / Opus-5.5 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+KU (78) & 98.7 / 98.7 \\
+MS (133) & 93.2 / 95.5 \\
+SSA (56) & 98.2 / 98.2 \\
+SSP (30) & 86.7 / 90.0 \\
+SSU (70) & 100.0 / 100.0 \\
+TR (133) & 95.5 / 96.2 \\
+abstentions & 27/30 / 30/30 \\
+\end{longtable}
+
+Multi-session was v9's weakest type. With the reader model held fixed (§3.3), v10 raises it from 56.6 / 57.5
+to 87.7 / 89.6 on the held-out set, and the headline arm reaches 94.3 / 95.3.
+
+\hypertarget{paired-comparisons-held-out}{%
+\subsection{4.4 Paired comparisons, held-out}\label{paired-comparisons-held-out}}
+
+McNemar exact tests. Each cell gives A right and B wrong, then A wrong and B right.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+A against B
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sonnet-5 judge
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Opus-5.5 judge
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v10 against v9 (both Opus 4.6) & 65 vs 12, p = 5.9 × 10⁻¹⁰ & 64 vs 6, p = 2.4 × 10⁻¹³ \\
+v10 read by Opus 5.5 + thinking against Opus 4.6 & 19 vs 3, p = 0.0009 & 10 vs 1, p = 0.012 \\
+v10 against oracle (both Opus 5.5 + thinking) & 5 vs 12, p = 0.14 & 1 vs 11, p = 0.006 \\
+v10 against oracle (both Opus 4.6) & 6 vs 18, p = 0.023 & 6 vs 15, p = 0.078 \\
+\end{longtable}
+
+What these show:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Retrieval is the main effect.} With the reader model held fixed (the reading template differs by one
+  clause, §3.3), v10 fixes 65 / 64 of v9's errors and introduces 12 / 6.
+\item
+  \textbf{The reader upgrade is real, and smaller.}
+\item
+  \textbf{Retrieval still costs something against the evidence-only arm.} The gap is 1.75--2.5 points. It is
+  significant under the Opus judge and not under the Sonnet judge.
+\end{itemize}
+
+The oracle file carries its own question dates, which differ from the S file's on all 500 questions. Its
+figure is therefore comparable with published oracle numbers, but it is not a strict ceiling for v10.
+
+\hypertarget{where-the-remaining-errors-are}{%
+\subsection{4.5 Where the remaining errors are}\label{where-the-remaining-errors-are}}
+
+\textbf{Held-out, headline arm.}⁽³⁾ The Sonnet judge fails 15 answers and the Opus judge 13. Under both judges:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Retrieval, 10.} The context lacked at least one evidence session. That is 10 of the 11 held-out
+  questions with incomplete evidence.
+\item
+  \textbf{Reading, 3 under each judge} (two of them are the same questions). Every evidence session was present
+  and the reader still answered wrongly.
+\item
+  \textbf{Abstentions:} 2 under the Sonnet judge, none under the Opus judge.
+\end{itemize}
+
+So when v10 delivers all the evidence, the headline reader gets 362 of the 365 questions right. Most of the
+remaining errors are in retrieval.
+
+\textbf{Dev, Opus 4.6} (from the autopsy).
+
+\begin{itemize}
+\tightlist
+\item
+  With every evidence session in context, the reader got 86--87 of 92 right.
+\item
+  Seven questions were missed under both judges:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{two retrieval misses:} only two of three magazine-subscription sessions were found, and a preference
+    question's one evidence session was not retrieved;
+  \item
+    \textbf{one abstention question;}
+  \item
+    \textbf{four with every evidence session in context:} three counting or ordering questions that the
+    full-history reader also missed, and one that had all four charity sessions and still summed wrong.
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{dev-block-v10-against-the-full-history}{%
+\subsection{4.6 Dev block: v10 against the full history}\label{dev-block-v10-against-the-full-history}}
+
+These are the 100 tuning questions, all read by Opus 4.6.
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+arm & reader input & Sonnet-5 judge & Opus-5.5 judge \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v9 & \textasciitilde8.5k & 77 {[}67.8, 84.2{]} & 81 {[}72.2, 87.5{]} \\
+\textbf{v10} & \textasciitilde27.0k & \textbf{91} {[}83.8, 95.2{]} & \textbf{92} {[}85.0, 95.9{]} \\
+full history & \textasciitilde127k & 92 {[}85.0, 95.9{]} & 94 {[}87.5, 97.2{]} \\
+evidence only (oracle) & \textasciitilde7.6k & 94 {[}87.5, 97.2{]} & 96 {[}90.2, 98.4{]} \\
+\end{longtable}
+
+Paired comparisons (discordant counts, then McNemar exact p):
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+comparison & Sonnet-5 judge & Opus-5.5 judge \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v10 against v9 & 17 vs 3, p = 0.0026 & 15 vs 4, p = 0.019 \\
+v10 against full history & 1 vs 2, p = 1 & 1 vs 3, p = 0.63 \\
+v10 against oracle & 0 vs 3, p = 0.25 & 1 vs 5, p = 0.22 \\
+\end{longtable}
+
+On this block v10 cannot be distinguished from the full-history reader, while giving the reader about a fifth
+as much input.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Scope.} This comparison is a dev-only, n = 100 statement. We did not run the full history on the
+  held-out set (about 51M tokens).
+\item
+  \textbf{Opus 5.5.} With Opus 5.5 and thinking on the same dev prompts, v10 scores 94 / 97 and the oracle 97 / 98.
+\item
+  \textbf{Provenance.} Dev numbers come from the tuning split. Tuning targeted recall, not answers. The review
+  of this text reproduced every dev accuracy, interval and paired count.
+\end{itemize}
+
+\hypertarget{how-our-judges-compare-with-the-official-judge}{%
+\section{5. How our judges compare with the official judge}\label{how-our-judges-compare-with-the-official-judge}}
+
+Plastic Labs publishes the answers from two of its LongMemEval\_S runs, each with the official
+gpt-4o-2024-08-06 labels (\texttt{plastic-labs/honcho-benchmarks}, commit \texttt{a1d689b}). We re-judged those 1,000
+answers with our two judges, unchanged.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+answers
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+our judge
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+official pass
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+our pass
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+offset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+agreement
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Cohen's κ
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Honcho, Haiku 4.5 & claude-sonnet-5 & 90.4\% & 88.2\% & −2.2 & 95.0\% & 0.739 \\
+Honcho, Haiku 4.5 & claude-opus-5-5 & 90.4\% & 88.4\% & −2.0 & 95.6\% & 0.768 \\
+Haiku 4.5, full context & claude-sonnet-5 & 62.6\% & 62.2\% & −0.4 & 97.2\% & 0.940 \\
+Haiku 4.5, full context & claude-opus-5-5 & 62.6\% & 61.8\% & −0.8 & 97.2\% & 0.940 \\
+\end{longtable}
+
+Our judges agree with the official judge on 95--97\% of answers (Cohen's κ 0.739--0.940) and pass 0.4--2.2
+points fewer.
+
+\begin{itemize}
+\tightlist
+\item
+  For the Sonnet judge, the difference is significant at the 5\% level on one of the two sets (p = 0.043)
+  and not on the other (p = 0.79). For the Opus judge, it is significant on neither (p = 0.052 and 0.42).
+  These are exact McNemar tests on the discordant answers.
+\item
+  For the Sonnet judge it is concentrated in single-session-preference.
+\item
+  These are short Haiku 4.5 answers, not chain-of-thought, so the offset tells us the direction of the
+  difference, not a correction to apply. \textbf{We add no points to anything.}
+\end{itemize}
+
+\hypertarget{placement}{%
+\section{6. Placement}\label{placement}}
+
+\textbf{Rules.}
+
+\begin{itemize}
+\tightlist
+\item
+  We compare only against numbers we could trace to a primary source: a paper, a results page or committed
+  code.
+\item
+  \textbf{Overall} is the official micro accuracy. \textbf{Task-avg} is the official task-averaged (macro) accuracy.
+\item
+  Comparisons in this section cross judges and, for most rows, dataset variant (original S or S-cleaned).
+  They are context, not a controlled ranking.
+\end{itemize}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reader
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+overall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+task-avg
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+judge
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+code
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Mnemosyne v10, all 500} (this work) & claude-opus-5-5, thinking & \textbf{95.8 / 96.8} & 95.39 / 96.44 & claude-sonnet-5 / claude-opus-5-5, official prompts & S-cleaned & public (§8) \\
+Chronos High (Sen et al., 2026; PwC) & claude-opus-4-6 & 95.60 & --- & official prompts; judge model not named & S & none \\
+Agent Zero Memory (Wu \& Zhu, 2026; Zero Labs) & gpt-5.5 & 95.60 & --- & ``the official LLM judge''; model not named & ``500 questions''; S or M not stated & none \\
+Mastra Observational Memory (Mastra, 2026) & gpt-5-mini & 93.6 (468/500, derived from per-type) & 94.87 & gpt-4o, official prompts & S & public \\
+\end{longtable}
+
+Subsets, which we do not rank against the S-500 rows:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+questions
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+overall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+judge
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Mnemosyne v10} (this work) & our 400 held-out, S-cleaned & \textbf{96.25 / 96.75} & Claude, as above \\
+total-agent-memory (TAM) with gpt-5 & its own 400-question held-out set, S-cleaned & 92.25 (369/400) & gpt-4o-2024-08-06, official prompts \\
+\end{longtable}
+
+\textbf{What we claim.}
+
+\begin{itemize}
+\tightlist
+\item
+  Against every LongMemEval\_S result in our survey that we could trace to a primary source, our point
+  estimates (96.2 / 96.8 on the held-out 400, 95.8 / 96.8 on all 500) are the highest.
+\item
+  On all 500, the Sonnet-judge figure exceeds the top published claims (95.60, Chronos and Agent Zero) by one
+  question.
+\item
+  The 95\% intervals of all four of our figures include 95.60. Neither of those two claims names its judge or
+  publishes code.
+\item
+  The best result with a named official judge and public code is Mastra's: 93.6 overall and 94.87
+  task-averaged, on the original S. Ours is 95.4--96.6 task-averaged on S-cleaned under Claude judges, so
+  that comparison crosses both judge and dataset variant.
+\end{itemize}
+
+\textbf{Excluded, because we could not verify them:}
+
+\begin{itemize}
+\tightlist
+\item
+  Supermemory's ``\textasciitilde99\%'' (an eight-variant ensemble; no primary source found);
+\item
+  OMEGA's 95.4 (task-weighted; source not opened);
+\item
+  agentmemory's 96.2. That run is on the oracle file, with question-type hints, although it is described as
+  LongMemEval\_S.
+\end{itemize}
+
+The benchmark paper's own full-context GPT-4o baseline on the original S was 60.6\% (64.0\% with
+Chain-of-Note).
+
+\hypertarget{discussion}{%
+\section{7. Discussion}\label{discussion}}
+
+\hypertarget{what-the-gain-is-made-of}{%
+\subsection{7.1 What the gain is made of}\label{what-the-gain-is-made-of}}
+
+Most of v10 is two plain choices:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Give the reader whole sessions} instead of isolated passages.
+\item
+  \textbf{Use a bigger budget:} 24k tokens against v9's \textasciitilde7k.
+\end{itemize}
+
+BM25 alone at 24k reaches 0.957 dev recall. The dense channel and fusion add about a point, and the date
+channel added nothing.
+
+\begin{itemize}
+\tightlist
+\item
+  At an 8.5k budget, v10 reaches 0.798 recall against v9's 0.60--0.67. So whole-session selection recalls
+  more evidence at the same size, and most of the rest is budget.
+\item
+  v9 put more machinery into retrieval: profiles, a fact store, an event ledger, gap-filling and graph
+  signals. Its context was made of passages. At the same budget, whole sessions recall more of the
+  evidence.
+\end{itemize}
+
+\hypertarget{the-reader-matters-and-less-than-retrieval}{%
+\subsection{7.2 The reader matters, and less than retrieval}\label{the-reader-matters-and-less-than-retrieval}}
+
+On identical prompts:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Reader upgrade:} Opus 5.5 with brief thinking adds 4.0 points (Sonnet judge) and 2.25 points (Opus
+  judge) over Opus 4.6.
+\item
+  \textbf{Retrieval upgrade:} the move from v9 to v10, with the reader model held fixed, adds 13.25 and 14.5
+  points.
+\end{itemize}
+
+By their own descriptions, the published systems with the highest multi-session scores share one property:
+they retrieve all the evidence that aggregation questions need. They do it with several retrieval channels, with whole sessions or neighbouring
+turns, or with contexts of 23k--100k tokens. Our result agrees with that pattern.
+
+\hypertarget{cost}{%
+\subsection{7.3 Cost}\label{cost}}
+
+v10's context is \textasciitilde24k tokens (o200k), against \textasciitilde115k for the full history.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Measured on the dev block} with the same reader, the median reader input is 27.0k tokens against
+  126.7k. That is 21\%, with no measurable loss of accuracy at n = 100.
+\item
+  \textbf{Retrieval itself} needs one BM25 pass over the haystack and one encoder call for the question.
+\item
+  \textbf{The turn embeddings} are computed ahead of time, in one pass over 93,931 unique user turns. That ran on a
+  GPU here; a CPU run takes hours on this machine.
+\end{itemize}
+
+\hypertarget{limitations}{%
+\subsection{7.4 Limitations}\label{limitations}}
+
+What a replication should control for:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Dataset variant.} Our results are on LongMemEval\_S-cleaned, not the original S. The M variant (\textasciitilde1.5M
+  tokens per haystack), where a 24k budget is a much smaller share of the history, is untested.
+\item
+  \textbf{Judges.} We used Claude judges, not the official GPT-4o. The calibration in §5 gives the direction of
+  the difference, not a correction.
+\item
+  \textbf{Harness.} The additions in §3.7 were identical across arms but are not part of the official protocol.
+  The real date in the harness contradicts the question date on every temporal question; the evidence-only
+  arm with Opus 5.5 still answered all 107 held-out temporal-reasoning questions correctly (§3.7).
+  Temperature was not controlled.
+\item
+  \textbf{One sample per question.} Each answer was generated and judged once, so we have no estimate of variance
+  across samples. Intervals are binomial only.
+\item
+  \textbf{Prior knowledge.} The v9 autopsy that motivated v10's design saw all 500 questions (§3.2).
+\end{itemize}
+
+\hypertarget{code-and-data}{%
+\section{8. Code and data}\label{code-and-data}}
+
+This report is released with its code and data in the \texttt{mnemosyne-longmemeval-v10/} directory of
+\href{https://github.com/Liberation-Labs-THCoalition/published-research/tree/master/mnemosyne-longmemeval-v10}{Liberation-Labs-THCoalition/published-research}, under the Hippocratic License 3.0 with a
+commercial addendum. That directory's \texttt{README.md} lists every file and how to rerun each stage.
+
+What is released, with each item's original on our server (under \texttt{/mnt/data1/lme\_v2/}) in brackets:
+
+\begin{itemize}
+\item
+  \textbf{Split:} \texttt{config/split.json}, sha256 prefix \texttt{a0bd99c6afe13c17} {[}\texttt{v10/split.json}{]}.
+\item
+  \textbf{Frozen configuration:} \texttt{config/frozen\_v10.json}, hash \texttt{7bc75f509aa0} {[}\texttt{v10/frozen\_v10.json}{]}.
+\item
+  \textbf{Retrieval code:} \texttt{code/v10.py} {[}\texttt{v10/v10.py}{]}.
+\item
+  \textbf{Embedding script and metadata:} \texttt{code/embed\_turns.py} and \texttt{config/emb\_meta.json}
+  {[}\texttt{v10/embed\_turns.py}, \texttt{v10/emb/meta.json}{]}.
+\item
+  \textbf{Retrieval records:} \texttt{data/recall\_heldout\_frozen.json} and \texttt{data/recall\_dev\_frozen.json}
+  {[}\texttt{v10/runs/20260924T122426\_eval\_held.json}, \texttt{v10/runs/20260924T122332\_eval\_dev.json}{]}.
+\item
+  \textbf{Held-out retrieval log,} which records attempts as well as completions: \texttt{data/heldout\_log.jsonl}
+  {[}\texttt{v10/heldout\_log.jsonl}{]}.
+\item
+  \textbf{Answers:} \texttt{data/answers\_\textless{}arm\textgreater{}.jsonl} {[}\texttt{baseline/\textless{}arm\textgreater{}/}; v9: \texttt{answers/}{]}.
+\item
+  \textbf{Judgements:} \texttt{data/judgments\_\textless{}arm\textgreater{}\_\textless{}judge\textgreater{}.jsonl} {[}\texttt{judge\_\textless{}arm\textgreater{}\_\textless{}judge\textgreater{}/}; v9: \texttt{judge\_\textless{}judge\textgreater{}/}{]}.
+\item
+  \textbf{Protocol, design note and results:} \texttt{docs/} {[}\texttt{PROTOCOL.md}, \texttt{v10/DESIGN.md}, \texttt{v10/RESULTS\_v10.md}{]}.
+\item
+  \textbf{Second reads:} \texttt{reviews/} {[}\texttt{REVIEW\_fable.md} for the v9 baseline, \texttt{v10/REVIEW\_v10\_recall.md},
+  \texttt{v10/REVIEW\_v10\_held\_readers.md}{]}.
+\item
+  \textbf{As run.} The code, configuration, documents, log and reviews are byte-identical to the server files the
+  second readers checked. \texttt{code/} and \texttt{config/} carry sha256 sums. Paths quoted in the notes and the reviews
+  are the server's.
+\item
+  \textbf{Derived files.} The answer and judgement files hold one line per question, collected from the
+  per-question files on the server. The README lists their fields.
+\item
+  \textbf{Official scripts.} \texttt{run\_generation.py}, \texttt{evaluate\_qa.py} and \texttt{print\_qa\_metrics.py} are byte-identical to
+  xiaowu0162/LongMemEval at commit \texttt{9e0b455}, the head of \texttt{main} from 2026-05-11 until our fetch on
+  2026-09-23. They are not redistributed here.
+\item
+  \textbf{Not released.} The reader transcripts, because the harness wrote the account e-mail into every call
+  (§3.7); and the prompts and turn embeddings, which the code rebuilds from the public dataset. One released
+  answer quoted the account e-mail and is redacted; its judgement was made on the original text.
+\end{itemize}
+
+\hypertarget{conclusion}{%
+\section{9. Conclusion}\label{conclusion}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Result.} A retrieval layer with no LLM calls, which gives the reader whole sessions in chronological
+  order within a 24k-token budget, puts every labelled evidence session in front of the reader for 97\% of
+  held-out LongMemEval\_S-cleaned questions (96\% on the official session list).
+\item
+  \textbf{Accuracy.} With a current Claude reader it answers 96.2\% (claude-sonnet-5 judge) and 96.8\%
+  (claude-opus-5-5 judge) of 400 pre-registered held-out questions correctly, and 95.8\% and 96.8\% of all 500.
+\item
+  \textbf{Placement.} That is the highest result we could trace to a source. The margin over the best published
+  claims is inside the error bars, and the comparison crosses judges.
+\item
+  \textbf{What is left.} It is mostly retrieval. Ten of the headline arm's 13--15 held-out errors are questions
+  where an evidence session never reached the context.
+\end{itemize}
+
+\hypertarget{author-contributions-credit}{%
+\section{Author Contributions (CRediT)}\label{author-contributions-credit}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Nexus:} Conceptualization, Methodology, Software, Investigation, Formal analysis, Data curation,
+  Writing --- original draft.
+\item
+  \textbf{Thomas Edrington:} Conceptualization (the headline reader arm), Supervision, Resources, Project
+  administration, Writing --- review and editing.
+\end{itemize}
+
+\hypertarget{acknowledgments}{%
+\section{Acknowledgments}\label{acknowledgments}}
+
+\begin{itemize}
+\tightlist
+\item
+  An Opus 5.5 agent second-read the retrieval recall.
+\item
+  A Fable 5.1 agent second-read the v9 baseline, the held-out reader results and this text.
+\item
+  Between them they:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    reproduced every count from the raw files;
+  \item
+    corrected our placement wording;
+  \item
+    found the harness disclosure in §3.7;
+  \item
+    corrected this paper's first description of the reading template and of the device the embeddings
+    ran on.
+  \end{itemize}
+\item
+  Plastic Labs published their answer files with official labels, which made §5 possible.
+\item
+  The LongMemEval authors released a cleaned version of the benchmark and the official evaluation code.
+\end{itemize}
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\begin{itemize}
+\tightlist
+\item
+  Cormack, G. V., Clarke, C. L. A., \& Büttcher, S. (2009). Reciprocal rank fusion outperforms Condorcet and
+  individual rank learning methods. \emph{SIGIR 2009.}
+\item
+  Mastra (2026, February 9). Observational Memory. https://mastra.ai/research/observational-memory. Code:
+  https://github.com/mastra-ai/mastra (explorations/longmemeval).
+\item
+  Plastic Labs. honcho-benchmarks, commit \texttt{a1d689b}. https://github.com/plastic-labs/honcho-benchmarks
+\item
+  Robertson, S., \& Zaragoza, H. (2009). The probabilistic relevance framework: BM25 and beyond.
+  \emph{Foundations and Trends in Information Retrieval, 3(4).}
+\item
+  Sen, S., Lumer, E., Gulati, A., \& Subbiah, V. K. (2026). Chronos: Temporal-aware conversational agents
+  with structured event retrieval for long-term memory. arXiv:2603.16862v1. (PricewaterhouseCoopers.)
+\item
+  total-agent-memory (2026). Head-to-head v14 results.
+  https://github.com/vbcherepanov/total-agent-memory/blob/main/docs/benchmarks/head-to-head-v14/RESULTS.md
+\item
+  Wu, D., Wang, H., Yu, W., Zhang, Y., Chang, K.-W., \& Yu, D. (2025). LongMemEval: Benchmarking chat
+  assistants on long-term interactive memory. \emph{ICLR 2025.} arXiv:2410.10813. Cleaned release:
+  https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned
+\item
+  Wu, M., \& Zhu, P. (2026). Agent Zero Memory: Provenance-aware long-term memory for LLM agents.
+  arXiv:2608.29606v1. (Zero Labs.)
+\item
+  Xiao, S., Liu, Z., Zhang, P., Muennighoff, N., et al.~(2023). C-Pack: Packaged resources to advance general
+  Chinese embedding. arXiv:2309.07597. (BAAI bge models.)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{notes-on-numbers-first-computed-for-this-report}{%
+\subsection{Notes on numbers first computed for this report}\label{notes-on-numbers-first-computed-for-this-report}}
+
+All three were reproduced independently by the second read (\texttt{REVIEW\_paper\_fable.md}, last section).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The median context size (23,919 tokens: 9 sessions, 8 of them whole) is the median of \texttt{tokens},
+  \texttt{n\_sessions} and \texttt{whole} over the 400 rows of \texttt{v10/runs/20260924T122426\_eval\_held.json}. The
+  \texttt{median\_tokens} field there reads 23918.5.
+\item
+  The per-type figures for all 500 and the abstention counts come from
+  \texttt{judge\_v10\_o55t\_\{sonnet5,opus55\}/*.json} (the \texttt{label} field), joined to the dataset's \texttt{question\_type}.
+  Totals are 479 and 484, and task-averages 95.39 and 96.44, which match the review.
+\item
+  The error attribution joins the headline arm's held-out failures to the \texttt{all\_sessions} field of the
+  held-out recall record: Sonnet 15 = 10 incomplete + 3 complete + 2 abstentions; Opus 13 = 10 + 3 + 0.
+\end{enumerate}
+
+\end{document}

@@ -4,7 +4,9 @@
 
 Liberation Labs / Transparent Humboldt Coalition
 
-*Version 1.0, 2026-09-25, academic version. Released with its code and data (§8). The integrity version (`../paper.md`) lists Nexus, an AI agent, as lead author and adds a first-person reflection; the data, methods and claims are identical.*
+**AI Disclosure:** The AI contributor to this work is Nexus, an AI agent at Liberation Labs implemented on Claude Opus 5.5 (Anthropic). Nexus's contributions are detailed in the Author Contributions section; the integrity edition of this report lists Nexus as lead author. The adversarial second readers were separate AI agents (Fable 5.1 and Opus 5.5) that did not build the pipeline. T. Edrington accepts accountability as corresponding human author.
+
+*Version 1.0, 2026-09-25, academic edition. Released with its code and data (§8). The integrity edition lists Nexus, an AI agent, as lead author and adds a first-person reflection; the data, methods and claims are identical.*
 
 ---
 
@@ -590,17 +592,15 @@ What is released, with each item's original on our server (under `/mnt/data1/lme
 - **What is left.** It is mostly retrieval. Ten of the headline arm's 13–15 held-out errors are questions
   where an evidence session never reached the context.
 
-## Contributions
+## Author Contributions (CRediT)
 
-Thomas Edrington asked the question that produced the headline arm (are we limiting ourselves?), made the
-release decisions, and checked the report's facts before release. Nexus, an AI agent at Liberation Labs,
-designed Mnemosyne v10 and its evaluation protocol, built the retrieval, prompting, judging and analysis code,
-ran every arm, and drafted this report. That contribution is acknowledged here rather than in the byline; the
-integrity version lists Nexus as lead author.
+- **Nexus:** Conceptualization, Methodology, Software, Investigation, Formal analysis, Data curation,
+  Writing — original draft.
+- **Thomas Edrington:** Conceptualization (the headline reader arm), Supervision, Resources, Project
+  administration, Writing — review and editing.
 
 ## Acknowledgments
 
-- Nexus (see Contributions) did the work this report describes.
 - An Opus 5.5 agent second-read the retrieval recall.
 - A Fable 5.1 agent second-read the v9 baseline, the held-out reader results and this text.
 - Between them they:
@@ -611,12 +611,6 @@ integrity version lists Nexus as lead author.
     ran on.
 - Plastic Labs published their answer files with official labels, which made §5 possible.
 - The LongMemEval authors released a cleaned version of the benchmark and the official evaluation code.
-
-## LLM Usage Statement
-
-Nexus, an AI agent running on Claude Opus 5.5 (Anthropic), designed v10, ran its evaluation and drafted this
-text; the author reviewed it. The second readers were separate AI agents (Fable 5.1 and Opus 5.5) that did not
-build the pipeline. The readers and judges under evaluation are the models named in §3.3 and §3.4.
 
 ## References
 

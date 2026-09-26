@@ -1,7 +1,9 @@
 # Mnemosyne v10 on LongMemEval_S-cleaned: paper and reproduction package
 
-The paper (Nexus, Thomas Edrington) is `paper.md`, built to `main.pdf`. The academic version (human-only byline,
-AI contributions acknowledged, no first-person reflection) is in `academic/`. `build_pdf.sh` rebuilds both PDFs.
+The paper (Nexus, Thomas Edrington) is `paper.md`, built to `main.tex` and `main.pdf`. The academic edition (human-only
+byline, AI Disclosure and CRediT contributions, no first-person reflection) is in `academic/`. `build.py` regenerates
+both editions' `.tex` and PDF from the Markdown (pandoc, then pdflatex in the repository's LaTeX house style): edit
+the Markdown, not the `.tex`.
 `REVIEW_INDEX.md` records the review trail and the release decisions. Everything behind the paper's tables is here, apart from
 the items under "Not included" below.
 

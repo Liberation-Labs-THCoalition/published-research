@@ -44,9 +44,12 @@ are in `reviews/`.
       the commit, with a control).
 - [x] Release placeholders resolved: §6's code cell and §8 now point at this directory; the Agent Zero
       author order checked against the arXiv record (Wu, Zhu), and the to-do note removed.
-- [x] Academic version: human-only byline, first-person reflection removed, AI contribution acknowledged
-      (Contributions, Acknowledgments, LLM Usage Statement)
-- [x] PDFs built for both versions (`build_pdf.sh`; 14 pages each; no missing glyphs; one 4 pt table overhang)
+- [x] Academic edition in the house form (the 2026-09-11 convention): human-only byline, first-person content
+      removed, AI Disclosure under the title; the CRediT section is shared with the integrity edition. Every
+      number in the academic PDF also appears in the integrity PDF.
+- [x] Both editions built to `main.tex` + `main.pdf` with pdflatex (`build.py`), so `build_and_verify.sh` can
+      rebuild them: a rebuild's `pdftotext` output is identical to the committed PDF's. Every decimal in the
+      Markdown appears in the PDF text; no missing glyphs or undefined references; one 2 pt overhang.
 - [x] `code/` and `config/` `SHA256SUMS` regenerated: the first versions listed a hash of themselves and could
       never verify. Now `sha256sum -c` passes, and a tampered copy fails.
 
