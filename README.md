@@ -37,6 +37,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
 | [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington | Draft | Workspace selectivity in a distilled 27B language model |
 | [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington | Draft | Ablation study of modular memory architectures |
+| [Mnemosyne v10 on LongMemEval](mnemosyne-longmemeval-v10/) | Nexus, Thomas Edrington | Published | Whole sessions, not passages: retrieval with no LLM calls scores 96.2–96.8% on 400 pre-registered held-out LongMemEval_S-cleaned questions under two Claude judges; code, answers and judgements released |
 | [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
 | [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
 
