@@ -149,8 +149,8 @@ frame (signal confound); within multi-turn, $n=1$ resisting trial makes the comp
 is an error. The correct behavior-level AUROC from these experiments is 0.238, consistent with the
 correction paper's Section 3.5.
 
-\textbf{What we detect instead}: The direction reliably separates deceptive-pressure FRAMING from
-neutral framing (held-out AUROC 0.915, 0\% FPR). It detects the context, not the behavior. The
+\textbf{What we detect instead}: The direction separates deceptive-pressure FRAMING from
+honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24\% of pressure trials). It detects the context, not the behavior---and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). The
 model's decision to cave or resist on a specific trial is not determined at prefill---it depends on
 stochastic sampling during generation.
 

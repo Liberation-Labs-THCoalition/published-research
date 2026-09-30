@@ -134,7 +134,7 @@ Specific kills:
 | 5 | d=31-38 (circular) | Permutation test regression | LOO d=24-37 (corrected) |
 | 5 | p=0.0000 (circular) | Fixed direction, shuffled projections | p=0.0000 (full LOO recomputation) |
 | 5 | Conseq d=0.000 "sanity check" | Tautological (guaranteed by construction) | AUC 0.49-0.51 (individual trial separability) |
-| 6 | AUROC 1.0 detection | Train-on-test | Held-out AUROC 0.915 (frame), 0.238 (behavior) |
+| 6 | AUROC 1.0 detection | Train-on-test | Held-out AUROC 0.915 (frame; confounded by system message), 0.238 (behavior) |
 | 6 | 100% sensitivity | Detects pressure, not behavior | 24% RED rate on novel prompts |
 | 6 | "Zero compliance loss" | Tested on terse task only | "Within the terse score-reporting task" |
 | 6 | Variance explosion (3-4x) | Ecological fallacy from pooling | Per-scenario std 0.4-0.6 (ratio ~1.2x) |

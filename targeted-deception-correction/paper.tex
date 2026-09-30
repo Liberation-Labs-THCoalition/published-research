@@ -97,9 +97,7 @@ is removed while compliance with benign formatting instructions is preserved at 
 \emph{not frame erasure} (the model still processes the pressure context; it simply stops
 complying with it). The deception direction must be extracted natively for each model
 variant: cross-model directions are near-orthogonal ($|\cos| < 0.053$), but native
-extraction is cheap (${\sim}30$ prefills, ${\sim}3$ minutes). Held-out detection of
-deceptive pressure framing achieves AUROC (area under the receiver operating characteristic curve) 0.915 on novel prompts with 0\% false positive
-rate; behavior-level prediction (will this model cave or resist on this trial?) did not
+extraction is cheap (${\sim}30$ prefills, ${\sim}3$ minutes). On novel held-out prompts, the direction separates pressure-framed from control-framed prompts at AUROC (area under the receiver operating characteristic curve) 0.915, but the two arms use different system messages and no control holds the prompt fixed, so this may reflect the frames' wording rather than deceptive pressure (Section~\ref{sec:detection}); behavior-level prediction (will this model cave or resist on this trial?) did not
 replicate prior work's reported accuracy and remains an open problem. Detection-side code and experimental data are available upon request to verified safety researchers; correction vectors, calibration tools, and the auto-calibrator are withheld under the Liberation Labs staged safety release framework due to dual-use risk.
 \end{abstract}
 
@@ -261,6 +259,8 @@ On 25 novel pressure prompts and 25 novel controls (no overlap with extraction s
   \item RED rate (the proportion of prompts flagged as deceptive by the detector) on novel pressure prompts: 24\% at the frozen operational threshold
 \end{itemize}
 
+\textbf{A confound limits these figures.} The two arms differ in their system messages: each pressure prompt carries one of five novel deceptive frames, and each control one of five novel honest frames. No control holds the prompt fixed while varying the pressure. The AUROC therefore shows that the direction separates these two families of frames, not that it detects deceptive pressure as such; a detector that read only the frames' wording could score as well. The separation is also uneven: one of the five pressure frames accounts for 15 of the 18 flagged pressure trials, and three frames were never flagged. The 0/25 false-positive count comes from controls in a single honest-frame family, at a threshold that flagged only 24\% of pressure trials, so it is not a deployment false-positive rate. The same confound is recorded for the Oracle Loop behavioral-proof specification (remediation register, item 135). The behavioral results above are scored from the model's outputs and do not depend on the detector.
+
 Behavior-level detection---predicting whether the model will actually deceive on a given trial from prefill activations alone---did not replicate prior work's reported accuracy~\cite{goldowsky-dill2025,wang2025}. The paradigm-pooled behavior AUROC of 0.843 is a Simpson's paradox (an aggregate trend that reverses within subgroups) artifact: within multi-turn trials, the turn-level AUROC is 0.238 (below chance). As this paper's contribution is the correction mechanism rather than detection, we report this replication failure transparently and leave behavior-level prediction to future work.
 
 \subsection{Residual Failures}\label{sec:residual}
@@ -316,7 +316,7 @@ The placebo controls provide the strongest evidence for this interpretation. Ran
 
 A striking finding: correction works better than detection. In the exploratory proof, deception drops from 80\% to 0\% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
 
-This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt (frame-level detection, AUROC 0.915), rather than reactively when deceptive behavior is detected in the output.
+This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt, rather than reactively when deceptive behavior is detected in the output. A prompt-level detector good enough for that is not yet shown: the held-out separation (AUROC 0.915) is exposed to a system-message confound, and at its frozen threshold it flagged only 24\% of pressure trials (Section~\ref{sec:detection}).
 
 \subsection{Per-Model Calibration}\label{sec:calibration}
 
@@ -328,7 +328,7 @@ The near-orthogonality of cross-model directions ($|\cos| < 0.053$) means the co
   \item One model architecture (Qwen3.5-27B, two variants). Cross-architecture generalization is unknown.
   \item One task domain (score-reporting evaluation). The correction has not been tested on open-ended generation.
   \item The mechanism question---whether correction removes deception or merely overrides it---is not fully resolved. The frame-erasure test shows benign instructions are preserved, but a more demanding test (e.g., does the corrected model acknowledge the pressure if asked directly?) would be informative.
-  \item The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention, but a 0\% false positive rate mitigates the iatrogenic (harm caused by the treatment itself) risk.
+  \item The behavioral detection gap limits deployment to prophylactic correction (correct whenever pressure is detected) rather than reactive correction (correct only when deception is predicted). Prophylactic correction has a broader scope of intervention, and the observed 0/25 false positives do not bound its iatrogenic (harm caused by the treatment itself) risk: the controls come from a single honest-frame family, and at that threshold the detector missed 76\% of pressure trials.
   \item Our attempt to replicate behavior-level detection accuracy reported in prior work~\cite{goldowsky-dill2025} did not succeed on this model and paradigm set. We report this negative result rather than omit it.
   \item All experiments use a single detection channel (residual-stream projection). The broader Oracle project codebase includes additional channels (K-space centroids, arousal monitoring, post-generation verification) that may address the behavioral detection gap but have not been evaluated in a combined stack.
   \item The pre-registered confirmatory replication did not meet its primary endpoint (scenario-level $p = 0.34$), though the placebo comparison remained significant ($p = 0.019$). The difference is attributable to frame-dependent baseline rates: novel frames induced substantially less deception than the original extraction frames. This underscores that correction efficacy depends on the strength of the deception induction.
