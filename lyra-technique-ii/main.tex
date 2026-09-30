@@ -463,7 +463,7 @@ specificity that raw spectral features cannot approach.
 
 \paragraph{30-class emotion.} On the 900-trial emotion dataset
 (Qwen3.5-27B-Claude-Distilled), $W_K$ projection achieves $12.3\times$
-chance ($0.410$ accuracy, chance $= 0.033$) using within-fold direction
+chance ($0.409$ accuracy, chance $= 0.033$) using within-fold direction
 estimation, FWL correction, and topic-grouped cross-validation (GroupKFold on
 the 10~topic groups). This is the same dataset on which raw spectral features
 returned exactly $0.033$---chance to three decimal places at every layer, on
@@ -553,7 +553,7 @@ was present but masked by dominant spectral variance.
 
 \paragraph{5-level graded classification.} Extending to all five persona
 levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
-chance ($0.42$--$0.46$ accuracy, chance $= 0.200$) across all three
+chance ($0.41$--$0.46$ accuracy, chance $= 0.200$) across all three
 architectures: persona intensity is graded, not binary. \textbf{We do not,
 however, claim a monotonic per-level gradient.} Establishing monotonicity
 requires the full set of adjacent-level pairwise comparisons (L0-vs-L0.5,
@@ -605,8 +605,8 @@ also rescues emotion classification---through a different mechanism.
 
 \paragraph{From chance to $12.9\times$.} On the 900-trial emotion dataset
 (Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
-30~emotions at $1.7\times$ chance (accuracy $0.056$, chance $0.033$).
-Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.427$,
+30~emotions at $1.7\times$ chance (accuracy $0.057$, chance $0.033$).
+Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.43$,
 permutation null $0.027$, $p < 0.005$).
 
 The transformation is dramatic: a signal invisible to raw analysis becomes
@@ -690,7 +690,7 @@ $\max(\text{raw}, \text{denoised}[k])$ scored on the same CV fold that
 selects the rank, with no nested loop. We quantified the selection
 bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
 task we simulated max-over-grid selection under the null sampling noise
-($\text{SE}$ taken from each task's permutation null, ${\sim}0.062$)
+($\text{SE}$ taken from each task's permutation null, $0.060$--$0.091$)
 and compared the 95th-percentile inflation envelope to the observed
 delta. \textbf{Across all 45~model$\times$task cells, 0 of the 16
 positive deltas exceed their selection envelope.} The headline confab
@@ -782,7 +782,7 @@ Gemma-2B & 2B & 0.798 \\
 Qwen-7B & 7B & 0.826 \\
 Qwen-0.5B & 0.5B & 0.849 \\
 Mistral-7B & 7B & 0.868 \\
-Qwen-32B & 32B & 0.882 \\
+Qwen2.5-32B (q4) & 32B & 0.882 \\
 Qwen2.5-14B & 14B & 0.966 \\
 \bottomrule
 \end{tabular}
@@ -824,7 +824,7 @@ and final verdicts.
 \textbf{Phenomenon} & \textbf{Raw} & \textbf{Denoised} & \textbf{$\Delta$} & \textbf{$p$} & \textbf{Verdict} \\
 \midrule
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
-Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.006$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
+Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.000$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
 Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
 Scale invariance & $\rho=0.83$--$0.90$ & --- & --- & --- & Confirmed \\
