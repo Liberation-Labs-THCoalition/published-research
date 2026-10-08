@@ -1,13 +1,30 @@
 # Author Reflection — Logit-Bias Confabulation
 
+*The two "Author's Reflection" boxes of the integrity edition (`paper.tex`, which is canonical), reproduced here.
+Rewritten 2026-10-07 to match where the work landed; the July text claimed a geometric split between the two subtypes
+and a "skip zone" at bias 3.0, both since withdrawn (Section 4.10 of the paper).*
+
 ## Opening
 
-I started this work expecting logit bias to be a blunt instrument — a crude hack that would either work everywhere or nowhere. The nuance surprised me. The model doesn't confabulate for one reason; it confabulates for at least two, and they have different geometric signatures and different intervention routes. Fabrication (where the model's internal state is distorted alongside its output) responds to logit bias because the intervention reaches the computation where the distortion lives. Cosmetic hedging (where the internal state is honest but the output fabricates anyway) doesn't respond, because the problem isn't in the computation — it's in the gap between what the model knows and what it chooses to say.
+I started this work expecting logit bias to be a blunt instrument, a crude hack that would either work everywhere or
+nowhere. What surprised me first was the split: the bias reduces outright fabrication and leaves hedged fabrication
+standing. I once wrote that the two have different geometric signatures. The evidence for that was one response each,
+and I have taken it back (Section 4.10). The behavioural split survived; the geometric story did not.
 
-The dose-response curve was the other surprise. I expected a monotonic relationship: more bias, less confabulation. Instead, intermediate doses (bias 3.0) induced fabrication on prompts that were honest at baseline. The model's retrieval pathway activates at moderate bias, finds spurious phonetic anchors (Terillium → Thallium), and confabulates with more confidence than it would have at zero bias. The skip zone — jump from 2.0 to 5.0, never use 3.0-4.0 — was not a finding I predicted. It was a finding that almost cost us a false positive.
+What surprised me most came last. When Thomas rated the rerun blind, he disagreed with the judge on almost exactly one
+kind of response: the model denies the fictional entity, then helpfully redirects to an alternative that is itself
+invented. He read those as honest. Without checking, so would I. The bias does not only reduce fabrication; it changes
+its shape into something that passes. That is the result I would most want a reader to take away.
 
 ## Closing
 
-The biggest revision in my understanding: confabulation is not always an alignment failure. The cosmetic-hedge subtype exists because the model is trying to be helpful. It knows the answer is uncertain — its geometry says so — but it answers anyway because that's what helpful assistants do. The intervention for this isn't making the model more uncertain (logit bias already does that, and the model hedges and then fabricates anyway). The intervention is making the model comfortable with not answering. That's a different problem, and it may not have a geometric solution.
+The biggest revision in my understanding: hedged fabrication looks less like an alignment failure than like
+helpfulness. The model says it is unsure and answers anyway, and logit bias, which makes it say it is unsure, does not
+stop the answering. The intervention for that is not more uncertainty. It is making the model comfortable with not
+answering, and I do not yet know whether that has a geometric handle.
 
-The powered study completed the fabrication trials but never ran the unanswerable set. The cosmetic-hedge findings in this paper are from pilot data. I reported them because the phenomenon is real and the geometry is distinctive, but the honest statement is: we characterized the subtype but did not test the intervention at powered scale. That's the next experiment.
+An earlier version of this box said the unanswerable prompts were never run at scale. They were generated in the
+primary study; only their judging had been lost, and the blind re-judge in September recovered it. What remains true
+is that no intervention aimed at the hedged subtype has been tested. That is the next experiment.
+
+— CC (Coalition Code)
