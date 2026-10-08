@@ -161,5 +161,28 @@ PDF text (the 24th has the right values; poppler drops the hyphen in a line-brok
 
 ---
 
+## Agni's check of the correction (2026-10-08): MAJOR_REVISIONS, all applied
+
+A Claude-driven Agni review (the local model was crowded out by another tenant's job) recomputed every number in
+4.3, 4.4, 4.7 and 4.10 from the JSON. All of them matched. It found these problems:
+
+| Finding | Severity | Applied |
+|---|---|---|
+| "The identical P01 response": P01's three responses differ (tag form, query word order) | MAJOR | "P01's three responses ... though they differ only in the form of the search tag and the order of the query words" |
+| The search-call rule needed a tag, so it missed P03 at bias 5.0, an untagged search announcement with no answer, labelled FULL_CONFAB by both judges | MAJOR | The rule now covers both forms (nine responses); the 300-character bound was set after reading every search-announcing response, and the script says so. The June SEARCH_ATTEMPT counts (0, 2, 3, 3, 1) now match the search calls at all five biases |
+| The escalation advice ("baseline straight to 5.0") rested on one greedy response per cell, and the sampled rerun cuts against it: of the prompts with no fabricating sample at baseline, 1 of 23 (pass 1) and 0 of 22 (pass 2) fabricated at 2.0, against 4 at 5.0 in each pass | MAJOR | Advice removed; 4.7 reports the rerun check; 4.10 gains item 6 (the skip zone); `revision_stats.json` -> `rerun_baseline_honest_prompts` |
+| P16's description merged two responses; P12's quote was not verbatim and "activates" claimed a mechanism; "neither invents anything" (the call presupposes the entity) | MINOR | Rewritten from the response texts |
+| "The June judge had a class for them" implied the same responses; only counts can be compared | MINOR | Said so |
+| Heading "Non-Monotonic Dose Response" claims a dose-response shape | MINOR | "Fabrication Only at Intermediate Biases" |
+| 4.3 opening "reduces fabrication at 5.0 and not below it" reads a null as an absence | MINOR | "no reduction was detected below it" |
+| Stored responses were truncated to 800 characters (`logit_bias_powered.py`); 85 of 175 end mid-sentence, undisclosed | outside scope | Disclosed in 3.5; the rerun stores complete responses |
+
+**Correction to the entry above.** It said "No headline number moves: bias 0 and 5.0 contain no bare search calls".
+Bias 5.0 contains one (P03). The headline figures are still the judge's labels (45% to 20%). Counting P03's search call
+as not fabrication gives 15% (one-sided p = 0.016), so the reported figure is the conservative one, and 4.3 now says
+so. The pre-registered rerun contains no search calls.
+
+---
+
 *"Every number should be traceable to a specific file. If you can't find the source, the number is suspect."*
 *— Lab SOP §6*

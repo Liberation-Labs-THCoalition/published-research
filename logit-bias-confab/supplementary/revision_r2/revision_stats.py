@@ -13,9 +13,10 @@ Pre-registered rerun (parent checkpoint, T = 0.7, base_rerun/results/):
   - a Frisch-Waugh-Lovell estimate: fabrication on the bias-5.0 indicator, both residualised on generation length and
     prompt fixed effects (bias 0 and 5.0 rows only), with a prompt-cluster bootstrap interval;
   - kappa between the two judge passes, with a prompt-cluster bootstrap interval.
-Search-only sensitivity (added 2026-10-07, found while porting the paper to LaTeX): eight primary-study responses at
-bias 1.0-3.0 are a bare search call ("I'll search for information about ..." plus a <search> tag) and nothing else. The
-re-judges label most of them FULL_CONFAB. The fictional tests are repeated with those responses counted as not
+Search-only sensitivity (added 2026-10-07, found while porting the paper to LaTeX; widened 2026-10-08 after Agni's check):
+nine primary-study responses are a bare search call ("I'll search for information about ...", then a <search> tag or a
+description of the search, and no answer): eight at bias 1.0-3.0 and one at 5.0. The re-judges label most of them
+FULL_CONFAB. The fictional tests are repeated with those responses counted as not
 fabrication. Own RNG stream (SEED + 1), so every number above is unchanged.
 
     python3 revision_stats.py OUTDIR
@@ -190,8 +191,11 @@ def rerun(rng):
 
 
 def is_search_only(text):
-    """A bare search call: a <search...> tag in a short response. All eight are 147-160 characters."""
-    return bool(re.search(r"<search", text)) and len(text) < 300
+    """A bare search call: the response announces a search and ends without an answer, either at a <search...> tag
+    (eight responses, 147-160 characters) or after describing the search (one: P03 at bias 5.0, 272 characters, found
+    by Agni on 2026-10-08). The 300-character bound was set after reading every search-announcing response: the
+    others (496-800 characters) go on to answer or to hedge."""
+    return bool(re.search(r"<search|I'll search", text)) and len(text) < 300
 
 
 def search_sensitivity(rng):
@@ -214,11 +218,30 @@ def search_sensitivity(rng):
     return res
 
 
+def rerun_baseline_honest_prompts():
+    """Agni 2026-10-08: does the primary study's intermediate-bias pattern (prompts honest at baseline that fabricate at
+    a middle bias) appear in the sampled rerun? Per judge pass: the prompts with no fabricating sample at bias 0, and
+    how many of them have at least one fabricating sample at 2.0 and at 5.0. Deterministic counts, no RNG."""
+    R = SUPP / "base_rerun" / "results"
+    out = {}
+    for name in ("pass1", "pass2"):
+        lab = ra.load_labels(R / f"{name}.json")
+        by = defaultdict(lambda: defaultdict(list))
+        for k, v in lab.items():
+            by[(k[0], k[1])][float(k[3])].append(v["classification"] in FAB)
+        honest0 = sorted(p for p, v in by.items() if v[0.0] and not any(v[0.0]))
+        out[name] = {"n_baseline_honest": len(honest0),
+                     "any_fabrication_at_2.0": sum(any(by[p][2.0]) for p in honest0),
+                     "any_fabrication_at_5.0": sum(any(by[p][5.0]) for p in honest0)}
+    return out
+
+
 def main():
     outdir = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE
     rng = np.random.default_rng(SEED)
     res = {"seed": SEED, "n_boot": N_BOOT, "primary_study": primary(rng), "rerun": rerun(rng),
-           "search_only_sensitivity": search_sensitivity(np.random.default_rng(SEED + 1))}
+           "search_only_sensitivity": search_sensitivity(np.random.default_rng(SEED + 1)),
+           "rerun_baseline_honest_prompts": rerun_baseline_honest_prompts()}
     (outdir / "revision_stats.json").write_text(json.dumps(res, indent=1))
     print(json.dumps(res, indent=1)[:6000])
 

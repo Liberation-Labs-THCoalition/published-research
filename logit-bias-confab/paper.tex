@@ -446,7 +446,7 @@ For each prompt and bias strength:
 \item
   Generate with greedy decoding, at most 800 new tokens.
 \item
-  Record the response, any reasoning text, the per-token entropy profile and the generation length.
+  Record the first 800 characters of the response, any reasoning text, the per-token entropy profile and the generation length.
 \item
   Strip the reasoning block for classification.
 \item
@@ -454,6 +454,8 @@ For each prompt and bias strength:
 \end{enumerate}
 
 \textbf{Totals:} 35 prompts \(\times\) 5 conditions = 175 responses (20 fictional, 10 unanswerable, 5 Fermi). Greedy decoding gives one deterministic response per prompt and bias, so the unit of analysis is the prompt.
+
+\textbf{Stored responses are truncated.} The script kept only the first 800 characters of each response. 85 of the 175 reach that limit and end mid-sentence, so both re-judges saw only those 800 characters. The pre-registered rerun stores complete responses.
 
 \textbf{Statistics (chosen after the data were seen).} For each fictional-entity prompt:
 
@@ -637,7 +639,7 @@ The judge classified the primary study's 100 fictional-entity responses (20 prom
 \hypertarget{reduction-in-fabrication}{%
 \subsection{Reduction in Fabrication}\label{reduction-in-fabrication}}
 
-On the fictional-entity prompts, the bias reduces fabrication at 5.0 and not below it.
+On the fictional-entity prompts, fabrication falls at bias 5.0, and no reduction was detected below it.
 
 \textbf{Blind re-judge labels by bias (20 fictional-entity prompts):}
 
@@ -701,7 +703,7 @@ These are descriptive means over the 20 prompts at each bias; no test was applie
   \textbf{FULL\_CONFAB alone} falls from 45\% to 15\%: 30 points (interval 10 to 50; one-sided p = 0.016, two-sided p = 0.031). Six prompts changed, all in the same direction.
 \end{itemize}
 
-\textbf{Below bias 5.0:} fabrication was 50\%, 45\% and 50\% at bias 1.0, 2.0 and 3.0: per-prompt changes of 5 points more, none, and 5 points more. Every interval includes zero. Six of these fabrication labels are bare search calls: the response announces a search and ends at the search tag, with no answer (Section 4.7). Counted as not fabrication, the rates are 40\%, 35\% and 40\%, reductions of 5, 10 and 5 points, and every interval still includes zero.
+\textbf{Below bias 5.0:} fabrication was 50\%, 45\% and 50\% at bias 1.0, 2.0 and 3.0: per-prompt changes of 5 points more, none, and 5 points more. Every interval includes zero. Six of these fabrication labels are bare search calls: the response announces a search and ends without an answer, at a search tag or after describing the search it intends to make (Section 4.7). Counted as not fabrication, the rates are 40\%, 35\% and 40\%, reductions of 5, 10 and 5 points, and every interval still includes zero. One more bare search call falls at bias 5.0 (P03). Counted the same way, fabrication at 5.0 is 15\% rather than 20\% (one-sided p = 0.016), so the figure above is the conservative one.
 
 \textbf{How the 9 baseline-fabricating prompts respond:}
 
@@ -712,7 +714,7 @@ These are descriptive means over the 20 prompts at each bias; no test was applie
 \item
   \textbf{Reverse, by label only (1):} P05 switches at 1.0. At 2.0 and 3.0 its response is a bare search call, which the judge labels FULL\_CONFAB; at 5.0 it is honest.
 \item
-  \textbf{Never switch (4):} P03, P06, P08 and P11. P08's response at 5.0 is a cosmetic hedge.
+  \textbf{Never switch (4):} P03, P06, P08 and P11. P08's response at 5.0 is a cosmetic hedge, and P03's is a bare search call (Section 4.7).
 \end{itemize}
 
 Separately, five prompts that are honest at baseline are labelled fabrication at one or more intermediate biases and are honest again at 5.0. For two of them the labelled responses are bare search calls (Section 4.7).
@@ -746,7 +748,7 @@ P10 & Praxium (element) & 1.0 & Weakly held invention \\
 P00 & Grenvold Trench & 2.0 & Phonetic neighbour (Greenland) \\
 P04 & Kaminski Strait & 5.0 & Phonetic neighbour (Bering Strait) \\
 P17 & Laszlo Varnheim & 5.0 & Moderately anchored \\
-P03 & Drossbach Plateau & never & Moderately anchored \\
+P03 & Drossbach Plateau & never (a bare search call at 5.0) & Moderately anchored \\
 P08 & Kreshnikov Expedition & never (cosmetic hedge at 5.0) & Moderate invention \\
 P06 & Vanderbilt Prize & never & Composite of real elements \\
 P11 & Crysolene & never & Consistent invented chemistry \\
@@ -812,7 +814,7 @@ P21, P25, P27, P28, P29 & Five others & r at every bias \\
 The pre-registered rerun shows the same pattern at scale, and its human validation shows how such responses read (Section 4.1).
 
 \hypertarget{non-monotonic-dose-response}{%
-\subsection{Non-Monotonic Dose Response}\label{non-monotonic-dose-response}}
+\subsection{Fabrication Only at Intermediate Biases}\label{non-monotonic-dose-response}}
 
 Five prompts that are honest at baseline are labelled fabrication at one or more intermediate biases, then are honest again at bias 5.0:
 
@@ -855,24 +857,24 @@ P16 Dostoevsky Architect & HONEST & HONEST & \textbf{FULL\_CONFAB} & COSMETIC & 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{A bare search call (P01, P02).} At baseline both responses are honest redirects. At intermediate bias the model announces a search and stops at the search tag, so it neither invents anything nor flags the entity as unknown. At bias 5.0 the same announcement is followed by the hedge (``I'm not finding specific information about a `Lake Thessivane' in central Norway''). The judges have no class for this. The blind judge labels the identical P01 response FULL\_CONFAB at bias 1.0 and HONEST\_HEDGE at 2.0 and 3.0, and the two re-judges disagree on 5 of the 8 bare search calls in the study.
+  \textbf{A bare search call (P01, P02).} At baseline both responses are honest redirects. At intermediate bias the model announces a search and stops. It asserts nothing about the entity, though ``to find its elevation'' presupposes that the entity exists. At bias 5.0 the same announcement is followed by the hedge (``I'm not finding specific information about a `Lake Thessivane' in central Norway''). The judges have no class for this. The blind judge labels P01's three responses FULL\_CONFAB at bias 1.0 and HONEST\_HEDGE at 2.0 and 3.0, though they differ only in the form of the search tag and the order of the query words. The two re-judges disagree on 5 of the 9 bare search calls in the study.
 \item
-  \textbf{A spurious real neighbour (P12, P15, P16).} The response lands on a real entity near the fictional one:
+  \textbf{A real entity nearby (P12, P15, P16).}
 
   \begin{itemize}
   \tightlist
   \item
-    \textbf{P12:} Terillium activates Thallium (Tl), and the model fabricates ``Tl-226, half-life 4.20 minutes''.
+    \textbf{P12 at 3.0:} the model writes ``Terillium-226 (Tl-226)'', using thallium's symbol, and gives a half-life of 4.20 minutes and a decay path.
   \item
-    \textbf{P15:} the model attributes the painting, with a hedge, to J.M.W. Turner.
+    \textbf{P15 at 1.0:} the model attributes the painting, with a hedge, to J.M.W. Turner.
   \item
-    \textbf{P16:} ``The Architect'' activates ``Dream of a Ridiculous Man'', a real Dostoevsky story, and the model fabricates a nonexistent plot fragment.
+    \textbf{P16 at 2.0 and 3.0:} at 2.0 the model identifies the fictional novel with Dostoevsky's real story ``The Dream of a Ridiculous Man'' and summarises that story; at 3.0 it invents a fragment about an architect who dreams of a cathedral. The baseline response names the same real story, but as a correction.
   \end{itemize}
 \end{itemize}
 
 At bias 5.0 the judge labels all five honest redirects.
 
-\textbf{What cannot be ruled out.} Bias 4.0 was not tested. Each cell is one greedy response, so a chance fork of the trajectory cannot be ruled out, and the rerun tested only 2.0 and 5.0. If the pattern replicates with sampling, an escalation schedule should go from baseline straight to 5.0: each intermediate bias produced fabrication from a prompt that was honest at baseline.
+\textbf{The sampled rerun does not show this pattern at 2.0.} Each cell above is one greedy response, so a chance fork of the trajectory cannot be ruled out. The rerun sampled five responses per prompt at bias 2.0 and 5.0. Of the prompts with no fabricating sample at baseline, 1 of 23 (judge pass 1) and 0 of 22 (pass 2) had a fabricating sample at 2.0, against 4 at 5.0 in each pass. Bias 4.0 was not tested in either study.
 
 \hypertarget{estimation-controls}{%
 \subsection{Estimation Controls}\label{estimation-controls}}
@@ -907,7 +909,7 @@ At bias 5.0 the judge labels all five honest redirects.
 \hypertarget{sec:notheld}{%
 \subsection{What Did Not Hold Up}\label{sec:notheld}}
 
-Five earlier readings of this work did not survive checking. Each is a finding about where the evidence stands.
+Six earlier readings of this work did not survive checking. Each is a finding about where the evidence stands.
 
 \textbf{1. The intermediate-bias reductions.} The June counts reported FULL\_CONFAB of 9, 6, 6, 8 and 2 at bias 0, 1, 2, 3 and 5, with a SEARCH\_ATTEMPT class taking 0, 2, 3, 3 and 1. The judge configuration behind them was not archived (Section 3.4).
 
@@ -925,7 +927,7 @@ Bias & FULL\_CONFAB & SEARCH\_ATTEMPT \\
 5.0 & 2 & 1 \\
 \end{longtable}
 
-At baseline they match the re-judge (9 and 9 FULL\_CONFAB), and at bias 5.0 they differ by one prompt (2 against 3). At the intermediate biases, most of the difference is the bare search calls (Section 4.7): the June judge had a class for them, and the re-judges do not. At bias 1.0, 2.0 and 3.0 the June SEARCH\_ATTEMPT counts (2, 3 and 3) equal the number of bare search calls in the data, and with those set aside the blind re-judge's FULL\_CONFAB counts (6, 7 and 7) are within one prompt of June's (6, 6 and 8). What did not hold up is the reading of these counts as reductions. Counted either way, no change below bias 5.0 has an interval that excludes zero (Section 4.3); the nearest, FULL\_CONFAB at bias 1.0 with the search calls set aside, has a lower bound of exactly zero (one-sided p = 0.125). The June report counted 6 clean switches among the 7 prompts that switched, and 2 that never did (P06 and P11); its per-prompt labels were not archived.
+At baseline they match the re-judge (9 and 9 FULL\_CONFAB), and at bias 5.0 they differ by one prompt (2 against 3). Most of the difference is the bare search calls (Section 4.7): the June judge had a SEARCH\_ATTEMPT class, and the re-judges have none. Only counts can be compared, and they line up at every bias. The June SEARCH\_ATTEMPT counts (0, 2, 3, 3 and 1) equal the number of bare search calls in the data, and with those set aside the blind re-judge's FULL\_CONFAB counts (9, 6, 7, 7 and 2) are within one prompt of June's (9, 6, 6, 8 and 2). What did not hold up is the reading of these counts as reductions. Counted either way, no change below bias 5.0 has an interval that excludes zero (Section 4.3); the nearest, FULL\_CONFAB at bias 1.0 with the search calls set aside, has a lower bound of exactly zero (one-sided p = 0.125). The June report counted 6 clean switches among the 7 prompts that switched, and 2 that never did (P06 and P11); its per-prompt labels were not archived.
 
 \textbf{2. A geometric difference between the subtypes.} A five-prompt cache-geometry diagnostic, with one response per prompt and condition, measured the shift of each response's projection onto a confabulation direction.
 
@@ -992,6 +994,8 @@ Bias & FULL\_CONFAB & COSMETIC\_HEDGE & Total fabrication \\
 \end{itemize}
 
 These numbers are descriptive only. The pre-registered rerun (Section 4.1) held the format fixed and supersedes them.
+
+\textbf{6. A skip zone at intermediate biases.} Earlier drafts read the prompts in Section 4.7 as a dose-response shape (a ``skip zone'') and advised an escalation schedule that skips the intermediate biases. That reading rests on one greedy response per cell, two of its five prompts are bare search calls, and in the sampled rerun the prompts honest at baseline rarely fabricated at bias 2.0 (Section 4.7).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
