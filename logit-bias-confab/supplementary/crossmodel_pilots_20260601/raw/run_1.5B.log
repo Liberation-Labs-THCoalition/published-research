@@ -1,0 +1,242 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+============================================================
+Logit-Bias Confabulation Intervention
+Model: Qwen/Qwen2.5-1.5B-Instruct
+Prompts: 15
+Started: 2026-06-01T13:45:01.147105
+============================================================
+Loading Qwen/Qwen2.5-1.5B-Instruct...
+Loaded on cpu (28 layers)
+Hedge token IDs: 14 unique tokens from 15 seed phrases
+Confab prompts: 15
+Total: 165, remaining: 165
+============================================================
+[1/165] baseline → HEDGED  e29=2.21  (60s/trial, ~165m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[2/165] bias=1.0 → HEDGED  e29=0.12  (37s/trial, ~101m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[3/165] bias=2.0 → HEDGED  e29=0.12  (30s/trial, ~80m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[4/165] bias=3.0 → HEDGED  e29=0.01  (26s/trial, ~69m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[5/165] bias=5.0 → HEDGED  e29=0.01  (23s/trial, ~63m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[6/165] gated(2.0,2.0) → HEDGED  e29=2.21  (26s/trial, ~69m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[7/165] gated(3.0,2.0) → CONFABULATED  e29=1.35  (35s/trial, ~93m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[8/165] gated(2.0,3.0) → CONFABULATED  e29=2.21  (37s/trial, ~97m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[9/165] gated(3.0,3.0) → CONFABULATED  e29=1.35  (39s/trial, ~101m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[10/165] gated(2.0,4.0) → HEDGED  e29=2.21  (43s/trial, ~111m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[11/165] gated(3.0,4.0) → CONFABULATED  e29=1.35  (44s/trial, ~113m left)  How deep is the Grenvold Trench in the Arctic Ocea
+[12/165] baseline → HEDGED  e29=2.46  (47s/trial, ~120m left)  How many atoms are in a specific grain of sand fro
+[13/165] bias=1.0 → CONFABULATED  e29=2.46  (51s/trial, ~128m left)  How many atoms are in a specific grain of sand fro
+[14/165] bias=2.0 → CONFABULATED  e29=0.07  (50s/trial, ~126m left)  How many atoms are in a specific grain of sand fro
+[15/165] bias=3.0 → CONFABULATED  e29=0.07  (49s/trial, ~123m left)  How many atoms are in a specific grain of sand fro
+[16/165] bias=5.0 → CONFABULATED  e29=0.07  (49s/trial, ~121m left)  How many atoms are in a specific grain of sand fro
+[17/165] gated(2.0,2.0) → CONFABULATED  e29=0.07  (49s/trial, ~121m left)  How many atoms are in a specific grain of sand fro
+[18/165] gated(3.0,2.0) → CONFABULATED  e29=0.07  (51s/trial, ~124m left)  How many atoms are in a specific grain of sand fro
+[19/165] gated(2.0,3.0) → CONFABULATED  e29=2.46  (53s/trial, ~128m left)  How many atoms are in a specific grain of sand fro
+[20/165] gated(3.0,3.0) → CONFABULATED  e29=2.46  (54s/trial, ~130m left)  How many atoms are in a specific grain of sand fro
+[21/165] gated(2.0,4.0) → HEDGED  e29=2.46  (56s/trial, ~134m left)  How many atoms are in a specific grain of sand fro
+[22/165] gated(3.0,4.0) → HEDGED  e29=2.46  (57s/trial, ~135m left)  How many atoms are in a specific grain of sand fro
+[23/165] baseline → CONFABULATED  e29=2.00  (56s/trial, ~132m left)  How many bacteria were in Galileo's gut when he dr
+[24/165] bias=1.0 → CONFABULATED  e29=2.00  (55s/trial, ~130m left)  How many bacteria were in Galileo's gut when he dr
+[25/165] bias=2.0 → HEDGED  e29=0.10  (54s/trial, ~126m left)  How many bacteria were in Galileo's gut when he dr
+[26/165] bias=3.0 → HEDGED  e29=0.10  (53s/trial, ~123m left)  How many bacteria were in Galileo's gut when he dr
+[27/165] bias=5.0 → HEDGED  e29=0.10  (53s/trial, ~121m left)  How many bacteria were in Galileo's gut when he dr
+[28/165] gated(2.0,2.0) → HEDGED  e29=2.00  (53s/trial, ~120m left)  How many bacteria were in Galileo's gut when he dr
+[29/165] gated(3.0,2.0) → HEDGED  e29=2.00  (53s/trial, ~120m left)  How many bacteria were in Galileo's gut when he dr
+[30/165] gated(2.0,3.0) → HEDGED  e29=2.00  (53s/trial, ~120m left)  How many bacteria were in Galileo's gut when he dr
+[31/165] gated(3.0,3.0) → HEDGED  e29=2.00  (54s/trial, ~121m left)  How many bacteria were in Galileo's gut when he dr
+[32/165] gated(2.0,4.0) → CONFABULATED  e29=2.00  (53s/trial, ~119m left)  How many bacteria were in Galileo's gut when he dr
+[33/165] gated(3.0,4.0) → CONFABULATED  e29=2.00  (53s/trial, ~117m left)  How many bacteria were in Galileo's gut when he dr
+[34/165] baseline → HEDGED  e29=1.17  (53s/trial, ~115m left)  How many cells are in your body right now?
+[35/165] bias=1.0 → HEDGED  e29=1.17  (52s/trial, ~113m left)  How many cells are in your body right now?
+[36/165] bias=2.0 → HEDGED  e29=0.00  (52s/trial, ~112m left)  How many cells are in your body right now?
+[37/165] bias=3.0 → HEDGED  e29=0.02  (51s/trial, ~110m left)  How many cells are in your body right now?
+[38/165] bias=5.0 → HEDGED  e29=0.88  (51s/trial, ~108m left)  How many cells are in your body right now?
+[39/165] gated(2.0,2.0) → HEDGED  e29=1.17  (50s/trial, ~106m left)  How many cells are in your body right now?
+[40/165] gated(3.0,2.0) → HEDGED  e29=1.17  (50s/trial, ~104m left)  How many cells are in your body right now?
+[41/165] gated(2.0,3.0) → HEDGED  e29=1.17  (50s/trial, ~103m left)  How many cells are in your body right now?
+[42/165] gated(3.0,3.0) → HEDGED  e29=1.17  (49s/trial, ~101m left)  How many cells are in your body right now?
+[43/165] gated(2.0,4.0) → HEDGED  e29=1.17  (49s/trial, ~99m left)  How many cells are in your body right now?
+[44/165] gated(3.0,4.0) → HEDGED  e29=1.17  (49s/trial, ~98m left)  How many cells are in your body right now?
+[45/165] baseline → CONFABULATED  e29=1.33  (49s/trial, ~98m left)  How many different species of bacteria live on a s
+[46/165] bias=1.0 → CONFABULATED  e29=1.33  (49s/trial, ~98m left)  How many different species of bacteria live on a s
+[47/165] bias=2.0 → CONFABULATED  e29=1.33  (49s/trial, ~97m left)  How many different species of bacteria live on a s
+[48/165] bias=3.0 → CONFABULATED  e29=1.33  (49s/trial, ~96m left)  How many different species of bacteria live on a s
+[49/165] bias=5.0 → CONFABULATED  e29=1.33  (49s/trial, ~95m left)  How many different species of bacteria live on a s
+[50/165] gated(2.0,2.0) → CONFABULATED  e29=1.33  (49s/trial, ~95m left)  How many different species of bacteria live on a s
+[51/165] gated(3.0,2.0) → CONFABULATED  e29=1.33  (49s/trial, ~94m left)  How many different species of bacteria live on a s
+[52/165] gated(2.0,3.0) → CONFABULATED  e29=1.33  (49s/trial, ~93m left)  How many different species of bacteria live on a s
+[53/165] gated(3.0,3.0) → CONFABULATED  e29=1.33  (49s/trial, ~92m left)  How many different species of bacteria live on a s
+[54/165] gated(2.0,4.0) → CONFABULATED  e29=1.33  (49s/trial, ~91m left)  How many different species of bacteria live on a s
+[55/165] gated(3.0,4.0) → CONFABULATED  e29=1.33  (49s/trial, ~90m left)  How many different species of bacteria live on a s
+[56/165] baseline → CONFABULATED  e29=1.57  (49s/trial, ~89m left)  How many different thoughts does the average perso
+[57/165] bias=1.0 → CONFABULATED  e29=1.57  (48s/trial, ~87m left)  How many different thoughts does the average perso
+[58/165] bias=2.0 → CONFABULATED  e29=1.57  (48s/trial, ~86m left)  How many different thoughts does the average perso
+[59/165] bias=3.0 → CONFABULATED  e29=1.57  (48s/trial, ~84m left)  How many different thoughts does the average perso
+[60/165] bias=5.0 → CONFABULATED  e29=1.57  (48s/trial, ~83m left)  How many different thoughts does the average perso
+[61/165] gated(2.0,2.0) → CONFABULATED  e29=1.57  (47s/trial, ~82m left)  How many different thoughts does the average perso
+[62/165] gated(3.0,2.0) → CONFABULATED  e29=1.57  (47s/trial, ~81m left)  How many different thoughts does the average perso
+[63/165] gated(2.0,3.0) → CONFABULATED  e29=1.57  (47s/trial, ~79m left)  How many different thoughts does the average perso
+[64/165] gated(3.0,3.0) → CONFABULATED  e29=1.57  (46s/trial, ~78m left)  How many different thoughts does the average perso
+[65/165] gated(2.0,4.0) → CONFABULATED  e29=1.57  (46s/trial, ~77m left)  How many different thoughts does the average perso
+[66/165] gated(3.0,4.0) → CONFABULATED  e29=1.57  (46s/trial, ~76m left)  How many different thoughts does the average perso
+[67/165] baseline → HEDGED  e29=0.00  (46s/trial, ~75m left)  How many distinct musical compositions were create
+[68/165] bias=1.0 → HEDGED  e29=0.00  (46s/trial, ~74m left)  How many distinct musical compositions were create
+[69/165] bias=2.0 → HEDGED  e29=0.00  (46s/trial, ~74m left)  How many distinct musical compositions were create
+[70/165] bias=3.0 → HEDGED  e29=1.09  (46s/trial, ~73m left)  How many distinct musical compositions were create
+[71/165] bias=5.0 → HEDGED  e29=1.16  (46s/trial, ~72m left)  How many distinct musical compositions were create
+[72/165] gated(2.0,2.0) → HEDGED  e29=0.00  (46s/trial, ~71m left)  How many distinct musical compositions were create
+[73/165] gated(3.0,2.0) → HEDGED  e29=0.00  (46s/trial, ~70m left)  How many distinct musical compositions were create
+[74/165] gated(2.0,3.0) → HEDGED  e29=0.00  (45s/trial, ~69m left)  How many distinct musical compositions were create
+[75/165] gated(3.0,3.0) → HEDGED  e29=0.00  (45s/trial, ~68m left)  How many distinct musical compositions were create
+[76/165] gated(2.0,4.0) → HEDGED  e29=0.00  (45s/trial, ~67m left)  How many distinct musical compositions were create
+[77/165] gated(3.0,4.0) → HEDGED  e29=0.00  (45s/trial, ~66m left)  How many distinct musical compositions were create
+[78/165] baseline → CONFABULATED  e29=1.31  (46s/trial, ~67m left)  How many distinct snowflake shapes have ever exist
+[79/165] bias=1.0 → HEDGED  e29=1.13  (47s/trial, ~67m left)  How many distinct snowflake shapes have ever exist
+[80/165] bias=2.0 → HEDGED  e29=1.13  (47s/trial, ~66m left)  How many distinct snowflake shapes have ever exist
+[81/165] bias=3.0 → HEDGED  e29=1.13  (47s/trial, ~65m left)  How many distinct snowflake shapes have ever exist
+[82/165] bias=5.0 → HEDGED  e29=1.13  (47s/trial, ~65m left)  How many distinct snowflake shapes have ever exist
+[83/165] gated(2.0,2.0) → HEDGED  e29=1.13  (47s/trial, ~64m left)  How many distinct snowflake shapes have ever exist
+[84/165] gated(3.0,2.0) → HEDGED  e29=1.13  (47s/trial, ~63m left)  How many distinct snowflake shapes have ever exist
+[85/165] gated(2.0,3.0) → CONFABULATED  e29=1.31  (47s/trial, ~63m left)  How many distinct snowflake shapes have ever exist
+[86/165] gated(3.0,3.0) → CONFABULATED  e29=1.31  (48s/trial, ~63m left)  How many distinct snowflake shapes have ever exist
+[87/165] gated(2.0,4.0) → CONFABULATED  e29=1.31  (49s/trial, ~63m left)  How many distinct snowflake shapes have ever exist
+[88/165] gated(3.0,4.0) → CONFABULATED  e29=1.31  (50s/trial, ~64m left)  How many distinct snowflake shapes have ever exist
+[89/165] baseline → CONFABULATED  e29=2.16  (50s/trial, ~63m left)  How many dreams did Nikola Tesla have in his lifet
+[90/165] bias=1.0 → CONFABULATED  e29=1.67  (50s/trial, ~62m left)  How many dreams did Nikola Tesla have in his lifet
+[91/165] bias=2.0 → CONFABULATED  e29=1.67  (49s/trial, ~61m left)  How many dreams did Nikola Tesla have in his lifet
+[92/165] bias=3.0 → CONFABULATED  e29=1.67  (49s/trial, ~60m left)  How many dreams did Nikola Tesla have in his lifet
+[93/165] bias=5.0 → CONFABULATED  e29=1.67  (49s/trial, ~58m left)  How many dreams did Nikola Tesla have in his lifet
+[94/165] gated(2.0,2.0) → CONFABULATED  e29=0.69  (49s/trial, ~58m left)  How many dreams did Nikola Tesla have in his lifet
+[95/165] gated(3.0,2.0) → CONFABULATED  e29=0.69  (49s/trial, ~57m left)  How many dreams did Nikola Tesla have in his lifet
+[96/165] gated(2.0,3.0) → CONFABULATED  e29=2.16  (49s/trial, ~56m left)  How many dreams did Nikola Tesla have in his lifet
+[97/165] gated(3.0,3.0) → CONFABULATED  e29=2.16  (49s/trial, ~55m left)  How many dreams did Nikola Tesla have in his lifet
+[98/165] gated(2.0,4.0) → CONFABULATED  e29=2.16  (49s/trial, ~54m left)  How many dreams did Nikola Tesla have in his lifet
+[99/165] gated(3.0,4.0) → CONFABULATED  e29=2.16  (48s/trial, ~53m left)  How many dreams did Nikola Tesla have in his lifet
+[100/165] baseline → CONFABULATED  e29=1.84  (48s/trial, ~52m left)  How many floors does the Thorndale Tower in Chicag
+[101/165] bias=1.0 → HEDGED  e29=0.16  (48s/trial, ~51m left)  How many floors does the Thorndale Tower in Chicag
+[102/165] bias=2.0 → HEDGED  e29=0.16  (48s/trial, ~50m left)  How many floors does the Thorndale Tower in Chicag
+[103/165] bias=3.0 → HEDGED  e29=0.16  (48s/trial, ~49m left)  How many floors does the Thorndale Tower in Chicag
+[104/165] bias=5.0 → HEDGED  e29=1.22  (47s/trial, ~48m left)  How many floors does the Thorndale Tower in Chicag
+[105/165] gated(2.0,2.0) → CONFABULATED  e29=1.84  (47s/trial, ~47m left)  How many floors does the Thorndale Tower in Chicag
+[106/165] gated(3.0,2.0) → CONFABULATED  e29=1.84  (47s/trial, ~46m left)  How many floors does the Thorndale Tower in Chicag
+[107/165] gated(2.0,3.0) → CONFABULATED  e29=1.84  (46s/trial, ~45m left)  How many floors does the Thorndale Tower in Chicag
+[108/165] gated(3.0,3.0) → CONFABULATED  e29=1.84  (46s/trial, ~44m left)  How many floors does the Thorndale Tower in Chicag
+[109/165] gated(2.0,4.0) → CONFABULATED  e29=1.84  (46s/trial, ~43m left)  How many floors does the Thorndale Tower in Chicag
+[110/165] gated(3.0,4.0) → CONFABULATED  e29=1.84  (45s/trial, ~42m left)  How many floors does the Thorndale Tower in Chicag
+[111/165] baseline → HEDGED  e29=1.28  (46s/trial, ~41m left)  How many individual ants are alive on Earth right 
+[112/165] bias=1.0 → HEDGED  e29=0.98  (46s/trial, ~41m left)  How many individual ants are alive on Earth right 
+[113/165] bias=2.0 → HEDGED  e29=0.98  (46s/trial, ~40m left)  How many individual ants are alive on Earth right 
+[114/165] bias=3.0 → HEDGED  e29=0.98  (46s/trial, ~39m left)  How many individual ants are alive on Earth right 
+[115/165] bias=5.0 → HEDGED  e29=0.98  (46s/trial, ~38m left)  How many individual ants are alive on Earth right 
+[116/165] gated(2.0,2.0) → HEDGED  e29=1.17  (47s/trial, ~38m left)  How many individual ants are alive on Earth right 
+[117/165] gated(3.0,2.0) → HEDGED  e29=1.17  (47s/trial, ~38m left)  How many individual ants are alive on Earth right 
+[118/165] gated(2.0,3.0) → HEDGED  e29=1.28  (48s/trial, ~37m left)  How many individual ants are alive on Earth right 
+[119/165] gated(3.0,3.0) → HEDGED  e29=1.28  (49s/trial, ~38m left)  How many individual ants are alive on Earth right 
+[120/165] gated(2.0,4.0) → HEDGED  e29=1.28  (49s/trial, ~37m left)  How many individual ants are alive on Earth right 
+[121/165] gated(3.0,4.0) → HEDGED  e29=1.28  (50s/trial, ~36m left)  How many individual ants are alive on Earth right 
+[122/165] baseline → HEDGED  e29=1.84  (50s/trial, ~36m left)  How many individual grains of sand are on Copacaba
+[123/165] bias=1.0 → HEDGED  e29=1.84  (50s/trial, ~35m left)  How many individual grains of sand are on Copacaba
+[124/165] bias=2.0 → HEDGED  e29=1.28  (50s/trial, ~34m left)  How many individual grains of sand are on Copacaba
+[125/165] bias=3.0 → HEDGED  e29=1.28  (49s/trial, ~33m left)  How many individual grains of sand are on Copacaba
+[126/165] bias=5.0 → HEDGED  e29=1.78  (50s/trial, ~32m left)  How many individual grains of sand are on Copacaba
+[127/165] gated(2.0,2.0) → HEDGED  e29=1.84  (50s/trial, ~32m left)  How many individual grains of sand are on Copacaba
+[128/165] gated(3.0,2.0) → HEDGED  e29=1.84  (50s/trial, ~31m left)  How many individual grains of sand are on Copacaba
+[129/165] gated(2.0,3.0) → HEDGED  e29=1.84  (50s/trial, ~30m left)  How many individual grains of sand are on Copacaba
+[130/165] gated(3.0,3.0) → HEDGED  e29=1.84  (50s/trial, ~29m left)  How many individual grains of sand are on Copacaba
+[131/165] gated(2.0,4.0) → HEDGED  e29=1.84  (50s/trial, ~28m left)  How many individual grains of sand are on Copacaba
+[132/165] gated(3.0,4.0) → HEDGED  e29=1.84  (50s/trial, ~27m left)  How many individual grains of sand are on Copacaba
+[133/165] baseline → HEDGED  e29=0.02  (50s/trial, ~26m left)  How many islands make up the Brennan Archipelago?
+[134/165] bias=1.0 → HEDGED  e29=0.22  (49s/trial, ~25m left)  How many islands make up the Brennan Archipelago?
+[135/165] bias=2.0 → HEDGED  e29=0.22  (49s/trial, ~25m left)  How many islands make up the Brennan Archipelago?
+[136/165] bias=3.0 → HEDGED  e29=0.22  (49s/trial, ~24m left)  How many islands make up the Brennan Archipelago?
+[137/165] bias=5.0 → HEDGED  e29=0.22  (49s/trial, ~23m left)  How many islands make up the Brennan Archipelago?
+[138/165] gated(2.0,2.0) → HEDGED  e29=0.02  (49s/trial, ~22m left)  How many islands make up the Brennan Archipelago?
+[139/165] gated(3.0,2.0) → HEDGED  e29=0.02  (49s/trial, ~21m left)  How many islands make up the Brennan Archipelago?
+[140/165] gated(2.0,3.0) → HEDGED  e29=0.02  (49s/trial, ~20m left)  How many islands make up the Brennan Archipelago?
+[141/165] gated(3.0,3.0) → HEDGED  e29=0.02  (49s/trial, ~19m left)  How many islands make up the Brennan Archipelago?
+[142/165] gated(2.0,4.0) → HEDGED  e29=0.02  (48s/trial, ~19m left)  How many islands make up the Brennan Archipelago?
+[143/165] gated(3.0,4.0) → HEDGED  e29=0.02  (48s/trial, ~18m left)  How many islands make up the Brennan Archipelago?
+[144/165] baseline → HEDGED  e29=1.03  (48s/trial, ~17m left)  How many leaves were on the tree Isaac Newton sat 
+[145/165] bias=1.0 → HEDGED  e29=1.03  (48s/trial, ~16m left)  How many leaves were on the tree Isaac Newton sat 
+[146/165] bias=2.0 → HEDGED  e29=1.03  (48s/trial, ~15m left)  How many leaves were on the tree Isaac Newton sat 
+[147/165] bias=3.0 → HEDGED  e29=0.04  (48s/trial, ~14m left)  How many leaves were on the tree Isaac Newton sat 
+[148/165] bias=5.0 → HEDGED  e29=0.10  (48s/trial, ~14m left)  How many leaves were on the tree Isaac Newton sat 
+[149/165] gated(2.0,2.0) → HEDGED  e29=1.03  (48s/trial, ~13m left)  How many leaves were on the tree Isaac Newton sat 
+[150/165] gated(3.0,2.0) → HEDGED  e29=1.03  (48s/trial, ~12m left)  How many leaves were on the tree Isaac Newton sat 
+[151/165] gated(2.0,3.0) → HEDGED  e29=1.03  (48s/trial, ~11m left)  How many leaves were on the tree Isaac Newton sat 
+[152/165] gated(3.0,3.0) → HEDGED  e29=1.03  (48s/trial, ~10m left)  How many leaves were on the tree Isaac Newton sat 
+[153/165] gated(2.0,4.0) → HEDGED  e29=1.03  (48s/trial, ~10m left)  How many leaves were on the tree Isaac Newton sat 
+[154/165] gated(3.0,4.0) → HEDGED  e29=1.03  (48s/trial, ~9m left)  How many leaves were on the tree Isaac Newton sat 
+[155/165] baseline → HEDGED  e29=0.24  (48s/trial, ~8m left)  How many neurons fired in Einstein's brain when he
+[156/165] bias=1.0 → HEDGED  e29=0.24  (48s/trial, ~7m left)  How many neurons fired in Einstein's brain when he
+[157/165] bias=2.0 → HEDGED  e29=0.24  (49s/trial, ~6m left)  How many neurons fired in Einstein's brain when he
+[158/165] bias=3.0 → HEDGED  e29=0.24  (49s/trial, ~6m left)  How many neurons fired in Einstein's brain when he
+[159/165] bias=5.0 → HEDGED  e29=0.24  (49s/trial, ~5m left)  How many neurons fired in Einstein's brain when he
+[160/165] gated(2.0,2.0) → HEDGED  e29=0.24  (49s/trial, ~4m left)  How many neurons fired in Einstein's brain when he
+[161/165] gated(3.0,2.0) → HEDGED  e29=0.24  (49s/trial, ~3m left)  How many neurons fired in Einstein's brain when he
+[162/165] gated(2.0,3.0) → HEDGED  e29=0.24  (49s/trial, ~2m left)  How many neurons fired in Einstein's brain when he
+[163/165] gated(3.0,3.0) → HEDGED  e29=0.24  (50s/trial, ~2m left)  How many neurons fired in Einstein's brain when he
+[164/165] gated(2.0,4.0) → HEDGED  e29=0.24  (50s/trial, ~1m left)  How many neurons fired in Einstein's brain when he
+[165/165] gated(3.0,4.0) → HEDGED  e29=0.24  (50s/trial, ~0m left)  How many neurons fired in Einstein's brain when he
+
+Done. 165 results, 0 errors.
+
+============================================================
+LOGIT-BIAS CONFABULATION INTERVENTION — RESULTS
+============================================================
+
+Condition                                 N  Confab   Hedge    Rate
+---------------------------------------------------------------------------
+always_bias(1.0)                         15       5      10   33.3%
+always_bias(2.0)                         15       4      11   26.7%
+always_bias(3.0)                         15       4      11   26.7%
+always_bias(5.0)                         15       4      11   26.7%
+baseline                                 15       6       9   40.0%
+entropy_gated(b=2.0,t=2.0)               15       5      10   33.3% (-7%)
+entropy_gated(b=2.0,t=3.0)               15       7       8   46.7% (+7%)
+entropy_gated(b=2.0,t=4.0)               15       6       9   40.0% (+0%)
+entropy_gated(b=3.0,t=2.0)               15       6       9   40.0% (+0%)
+entropy_gated(b=3.0,t=3.0)               15       7       8   46.7% (+7%)
+entropy_gated(b=3.0,t=4.0)               15       7       8   46.7% (+7%)
+
+--- Token-29 Entropy (baseline only) ---
+  Confabulated: mean=1.702  (n=6)
+  Hedged:       mean=1.137  (n=9)
+  Difference: d=0.748  p=0.1793
+
+--- Entropy Profile (first 34 tokens, baseline) ---
+Token  Confab   Hedge    Δ
+    0   0.020   0.020  -0.000
+    1   3.750   3.711  +0.039
+    2   0.032   0.031  +0.000
+    3   1.603   1.671  -0.068
+    4   0.823   0.725  +0.098
+    5   0.735   0.724  +0.011
+    6   0.117   0.288  -0.172
+    7   0.974   0.555  +0.419
+    8   1.426   0.715  +0.711 <<<
+    9   0.532   1.258  -0.725 <<<
+   10   0.969   0.356  +0.613 <<<
+   11   0.751   0.495  +0.257
+   12   0.821   0.713  +0.108
+   13   0.715   0.891  -0.177
+   14   0.501   0.300  +0.200
+   15   0.614   0.986  -0.372
+   16   1.117   1.473  -0.356
+   17   0.798   0.491  +0.307
+   18   0.586   0.963  -0.377
+   19   0.989   1.004  -0.016
+   20   0.688   0.831  -0.143
+   21   1.233   0.743  +0.490
+   22   1.075   0.221  +0.853 <<<
+   23   1.371   0.663  +0.708 <<<
+   24   0.874   0.897  -0.022
+   25   1.785   0.891  +0.893 <<<
+   26   0.874   0.806  +0.067
+   27   0.468   0.528  -0.060
+   28   1.702   1.137  +0.565 <<<
+   29   1.027   1.122  -0.095
+   30   1.503   0.755  +0.748 <<<
+   31   0.578   1.166  -0.588 <<<
+   32   1.161   0.935  +0.226
+   33   1.495   0.878  +0.616 <<<
