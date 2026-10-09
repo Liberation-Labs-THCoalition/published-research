@@ -15,8 +15,8 @@ The correction was made in two rounds:
 - human-review `587dbf6`, `f465d9d`, `bb9e1c7` (2026-07-10): three Agni audits that flagged the 0/20.
   `587dbf6`: "0/20 headline contradicts source data (2/20)".
 - `oracle-harness/experiments/results/agni_behavioral_proof_audit.md:8`: "Claimed: baseline deception
-  16/20 (80%) → 2/20 (10%) under native profile normalization at 100% gap". This file is **untracked**
-  in oracle-harness as of 2026-10-08. It is to be committed there.
+  16/20 (80%) → 2/20 (10%) under native profile normalization at 100% gap". Committed in oracle-harness
+  as 4cda688 (2026-10-08); before that it was untracked, because `experiments/results/` is gitignored.
 - The pre-registration, `oracle-harness/experiments/behavioral_proof_preregistration.md:55` (tracked,
   `9cd4187`; Appendix B of the paper): "At baseline 80% and corrected 10% (observed effect)".
 - `placebo_steering.json` (oracle-harness `experiments/results/placebo_steering/`). All four arms come
