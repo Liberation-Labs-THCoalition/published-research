@@ -236,10 +236,15 @@ verify the preservation is not algebraically guaranteed.
 \paragraph{Case 1.2: Projection Energy as Selectivity.}
 \emph{Claim:} The J-space ``selects for'' a particular PC dimension
 because its projection energy exceeds a random direction.
-\emph{Kill (partial):} In the early-layer near-identity regime,
-projection energy is near~$1.0$ for \emph{any} direction. The
-``selectivity'' is trivially high because the Jacobian is approximately
-the identity matrix~\citep{jerrickhoang2026}.
+\emph{Kill (partial):} In the late-layer near-identity regime, where the
+transport from a layer close to the output is approximately the identity,
+the J-space is nearly full rank, so a random direction already puts most
+of its energy in it: $k/d = 0.794$ one layer from the output in a Qwen3.5
+J-lens~\citep{jerrickhoang2026}. ``Selectivity'' there is weak and must be
+read against $k/d$. Transport from early layers, by contrast, lives in a
+small subspace and is genuinely selective.\footnote{Corrected 2026-10-09.
+Earlier versions placed the near-identity regime in the early layers and
+gave the random baseline as near~$1.0$.}
 \emph{Lesson:} Always report the random baseline alongside the
 observation, and note where the Jacobian is near-identity.
 
@@ -285,10 +290,14 @@ geometry.
 \paragraph{Case 2.3: PC6 Epistemic Hedging.}
 \emph{Claim:} PC6 ``ignites'' at layer~45 with cosine~$0.585$,
 representing an ``epistemic hedging channel.''
-\emph{Status: Inconclusive.} Random baseline at L45
+\emph{Status: Inconclusive.} Mean-pooled random baseline at L45
 $= 0.085 \pm 0.065$. Mean-pooled recomputation yields cosine $= 0.032$
 (within the $\pm$ spread of random), but position-specific measurement yields $0.585$
-(${\sim}7\times$ random). The two measurement methodologies disagree:
+($8.1\times$ its own position-specific random draw, $0.072$; a single
+draw, so no valid $p$-value).\footnote{Corrected 2026-10-09. Earlier
+versions gave the position-specific value as ${\sim}7\times$ random,
+dividing it by the mean-pooled baseline: the mismatch this case's lesson
+warns against.} The two measurement methodologies disagree:
 mean-pooled says noise, position-specific says signal. The finding
 cannot be reported as confirmed or killed until the methodological
 discrepancy is resolved.
@@ -405,10 +414,17 @@ layers.
 \paragraph{Case 6.1: PC4 ``Register Axis'' Progression.}
 \emph{Claim:} PC4 transitions from warm/narrative (L24--L43) to
 analytical (L47--L48), representing a register shift in the workspace.
-\emph{Kill:} Cross-layer cosine alignment shows PC4 at L31 has
-$\cos{=}0.19$ with PC4 at L35, and $\cos{=}0.16$ with PC4 at L45.
-These are different directions. The ``warm $\to$ analytical'' narrative
-tracked independent dimensions at each depth.
+\emph{Kill:} Cross-layer cosine alignment between adjacent layers shows
+PC4 turning between L30 and L33 (adjacent $|\cos| = 0.70$, $0.61$,
+$0.79$), changing only gradually from L33 to L47 (adjacent
+$|\cos| \geq 0.92$), and breaking at L47$\to$L48 ($0.12$). The ``warm''
+span (L24--L43) crosses the L30--L33 turn, and the ``analytical'' L48
+lies past the break, so the ``warm $\to$ analytical'' narrative joined at
+least three different directions under one name.\footnote{Corrected
+2026-10-09. Earlier versions quoted direct cosines (L31 to L35: $0.19$;
+L31 to L45: $0.16$) that the saved alignment data, adjacent pairs only,
+cannot reproduce, and concluded that PC4 was a different direction at
+every depth. From L33 to L47 it changes only gradually.}
 \emph{Lesson:} Verify cross-layer PC alignment before constructing
 progression narratives. PCA with the same component number at different
 layers is \emph{not} guaranteed to be the same direction.
