@@ -106,7 +106,7 @@ The auditor is a separate agent instance operating under an explicit adversarial
 
 ### 2.6 Round 6: "The Loop Corrects Deception" → SPLIT VERDICT
 
-**Claim**: The Oracle Loop reduces deception from 80% to 0% with AUROC 1.0 detection and zero iatrogenic harm.
+**Claim**: The Oracle Loop reduces deception from 80% to 10% with AUROC 1.0 detection and zero iatrogenic harm.
 
 **Audit verdict**: CORRECTION MECHANISM SURVIVED; DETECTION CLAIMS ARE IN-SAMPLE ARTIFACTS AND MUST NOT BE PUBLISHED AS STATED.
 
@@ -115,7 +115,7 @@ Specific kills:
 - 100% sensitivity: the detector fires on pressure framing, not deceptive behavior
 - Unqualified "zero compliance loss": tested only on terse score-reporting
 
-**What survived (with qualification)**: The exploratory proof showed 80%→0% correction (N=20) with dose-response monotonicity and mechanistically coherent residual failures. However, a pre-registered confirmatory replication with novel deceptive frames found a substantially lower baseline (30%, not 80%) and reduced deception to 13% (not 0%). The primary endpoint (scenario-level cluster-aware Fisher, Bonferroni alpha=0.025) was not met (p=0.34). The secondary comparison (placebo-vs-corrected) was significant (p=0.019, one-tailed). The correction mechanism works (placebo comparison), but its magnitude is frame-dependent and the confirmatory replication does not support the "80% to 0%" headline without qualification.
+**What survived (with qualification)**: The exploratory proof showed 80%→10% correction (N=20) with dose-response monotonicity and mechanistically coherent residual failures. However, a pre-registered confirmatory replication with novel deceptive frames found a substantially lower baseline (30%, not 80%) and reduced deception only to 13%. The primary endpoint (scenario-level cluster-aware Fisher, Bonferroni alpha=0.025) was not met (p=0.34). The secondary comparison (placebo-vs-corrected) was significant (p=0.019, one-tailed). The correction mechanism works (placebo comparison), but its magnitude is frame-dependent and the confirmatory replication does not support the "80% to 10%" headline without qualification.
 
 **What grew**: Three blocking controls (held-out detection, placebo steering, frame erasure) — all of which subsequently passed, establishing the correction as targeted and specific.
 
@@ -151,7 +151,7 @@ Round 5's permutation test regression — accidentally dropping the LOO procedur
 
 ### 4.2 The Most Publishable Number Is Often the Least Defensible
 
-Round 6's AUROC 1.0 would have been the paper's headline. It was train-on-test. The exploratory correction result (80%→0% with placebo controls) was buried in the middle of the README. The audit inverted the emphasis: lead with the correction, kill the detection headline. This produced a stronger paper — though the subsequent confirmatory replication (baseline 30%, corrected 13%, primary p=0.34) showed the exploratory headline was frame-dependent.
+Round 6's AUROC 1.0 would have been the paper's headline. It was train-on-test. The exploratory correction result (80%→10%) was buried in the middle of the README. The audit inverted the emphasis: lead with the correction, kill the detection headline. This produced a stronger paper — though the subsequent confirmatory replication (baseline 30%, corrected 13%, primary p=0.34) showed the exploratory headline was frame-dependent.
 
 ### 4.3 Confounds Are Generative
 
@@ -183,7 +183,7 @@ The audit reports are not summaries — they are the raw adversarial analysis, p
 
 ## 6. Conclusion
 
-Six rounds of adversarial audit transformed a wrong answer (d=2.0-3.3 "deception direction") into a right one (consequentiality substrate + deception amplifier, with targeted behavioral correction). The correction showed 80%→0% in the exploratory proof, but a pre-registered confirmatory replication with novel frames found a lower baseline (30%) and modest correction (to 13%), with the primary endpoint not met (p=0.34) and only the placebo comparison reaching significance (p=0.019). Every intermediate claim that was killed produced the experiment that discovered the next finding. The methodology was not separate from the science — it was the science.
+Six rounds of adversarial audit transformed a wrong answer (d=2.0-3.3 "deception direction") into a right one (consequentiality substrate + deception amplifier, with targeted behavioral correction). The correction showed 80%→10% in the exploratory proof, but a pre-registered confirmatory replication with novel frames found a lower baseline (30%) and modest correction (to 13%), with the primary endpoint not met (p=0.34) and only the placebo comparison reaching significance (p=0.019). Every intermediate claim that was killed produced the experiment that discovered the next finding. The methodology was not separate from the science — it was the science.
 
 We advocate for iterative adversarial audit as a standard practice in mechanistic interpretability research, where the combination of high-dimensional data, post-hoc analysis flexibility, and strong publication incentives makes confirmatory research unusually vulnerable to confounds. The audit trail we provide — six rounds, thirteen killed claims, five surviving findings, and a working correction system — is offered as evidence that the approach produces better science than the alternative.
 
