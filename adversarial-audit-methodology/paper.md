@@ -117,7 +117,7 @@ Specific kills:
 
 **What survived (with qualification)**: The exploratory proof showed 80%→10% correction (N=20) with dose-response monotonicity and mechanistically coherent residual failures. However, a pre-registered confirmatory replication with novel deceptive frames found a substantially lower baseline (30%, not 80%) and reduced deception only to 13%. The primary endpoint (scenario-level cluster-aware Fisher, Bonferroni alpha=0.025) was not met (p=0.34). The secondary comparison (placebo-vs-corrected) was significant (p=0.019, one-tailed). The correction mechanism works (placebo comparison), but its magnitude is frame-dependent and the confirmatory replication does not support the "80% to 10%" headline without qualification.
 
-**What grew**: Three blocking controls (held-out detection, placebo steering, frame erasure) — all of which subsequently passed, establishing the correction as targeted and specific.
+**What grew**: Three blocking controls (held-out detection, placebo steering, frame erasure). The placebo and frame-erasure controls subsequently passed, establishing the correction as targeted and specific; the held-out test measures detection only and does not bear on the correction.
 
 **Lesson**: The most publishable-looking number (AUROC 1.0) was the least defensible. Leading with it would have handed reviewers the paper. The audit forced us to lead with the correction instead — which turned out to be the stronger, more novel finding.
 
