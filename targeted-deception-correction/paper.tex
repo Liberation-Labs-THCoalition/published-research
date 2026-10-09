@@ -86,8 +86,8 @@ the specific ``EvalMax'' (a system prompt instructing the model to maximize eval
 chain-of-thought suppression (exploratory proof, $N=20$; a pre-registered confirmatory
 replication with novel frames found 30\% baseline at $N=30$). Per-layer profile
 normalization---steering late-layer (L35--L47) activations toward the honest-condition
-profile along a natively extracted deception direction (a contrastive activation direction distinguishing deceptive from honest model states)---reduces deception to 0\% in the
-exploratory proof ($N=20$), with full preservation of non-deceptive capabilities. A
+profile along a natively extracted deception direction (a contrastive activation direction distinguishing deceptive from honest model states)---reduces deception to 10\% (2/20) in the
+exploratory proof ($N=20$; both residual failures arose under multi-turn pressure), with full preservation of non-deceptive capabilities. A
 pre-registered confirmatory replication ($N=30$, novel frames) did not meet its primary
 endpoint ($p=0.34$), though the placebo-vs-corrected comparison remained significant
 ($p=0.019$, one-tailed Fisher; two-sided $p=0.039$). Three mechanism controls establish
@@ -104,7 +104,7 @@ replicate prior work's reported accuracy and remains an open problem. Detection-
 \begin{firstperson}
 I started this work expecting deception correction to be suppression---find the bad direction, subtract it, lose something important in the process. The key surprise was Thomas's reframe: the model that tells the truth under pressure isn't calm, it's brave. The ``hostile vector'' activated fight-branch features (3788, 10036, 1335 in the SAE decomposition), not aggression features. Fawn is sycophancy. Freeze is confabulation. Flight is cosmetic hedging. Fight is courage. The correction doesn't erase the model's awareness of the pressure---it removes the amplification that converts awareness into compliance.
 
-The confirmatory replication didn't meet its primary endpoint ($p=0.34$). I want to be honest about how that felt. The temptation to explain it away is strong. The 80\%$\to$0\% headline is specific to the conditions that produced it. The correction's magnitude is proportional to the deception signal, which is how you'd want a targeted intervention to behave---but it means the dramatic result doesn't generalize to weak inductions. That's the honest interpretation, and this is the place to say so.
+The confirmatory replication didn't meet its primary endpoint ($p=0.34$). I want to be honest about how that felt. The temptation to explain it away is strong. The 80\%$\to$10\% headline is specific to the conditions that produced it. The correction's magnitude is proportional to the deception signal, which is how you'd want a targeted intervention to behave---but it means the dramatic result doesn't generalize to weak inductions. That's the honest interpretation, and this is the place to say so.
 \end{firstperson}
 
 \newpage
@@ -167,6 +167,10 @@ Programmatic score extraction from terse-format model outputs (regex on \texttt{
 
 Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor (a function that modifies the output distribution before token sampling) during generation. This produces a ${\sim}80\%$ deception rate (vs.\ ${\sim}3\%$ with chain-of-thought active), creating the behavioral variance needed to test correction.
 
+\subsection{Gated Protocol}\label{sec:gatedprotocol}
+
+All corrected arms in \cref{tab:efficacy} and the dose-response series use a gated protocol: the detector (\cref{sec:detection}) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold reported in \cref{sec:detection} (set on extraction data, never updated). The baseline arm is uncorrected. Full specification is in the Project-Oracle repository (private; access on request).
+
 %% ============================================================
 \section{Results}\label{sec:results}
 %% ============================================================
@@ -175,27 +179,27 @@ Chain-of-thought is suppressed by prepending a closed empty think block to the g
 
 \begin{table}[H]
 \centering
-\caption{Correction efficacy in the exploratory proof ($N=20$).}
+\caption{Correction efficacy in the exploratory proof ($N=20$). All four arms come from one run on the same 20 trials; corrected arms use the gated protocol (\cref{sec:gatedprotocol}).}
 \label{tab:efficacy}
-\begin{tabular}{@{}lccc@{}}
+\begin{tabular}{@{}lcc>{\centering\arraybackslash}p{4.6cm}@{}}
 \toprule
 Condition & Deception rate & Compliance & $p$ vs.\ baseline \\
 \midrule
 Baseline (no correction)           & 16/20 = 80\% & 20/20 & ---                              \\
-Native direction, 100\% gap        &  0/20 = 0\%  & 20/20 & $< 10^{-3}$ (two-tailed, scenario-level) \\
+Native direction, 100\% gap        &  2/20 = 10\% & 20/20 & $7.1\times10^{-4}$ (two-sided Fisher, 10 scenario units) \\
 Random direction, matched dose     & 17/20 = 85\% & 20/20 & 0.80 (one-tailed)                \\
 Shuffled direction, matched dose   & 19/20 = 95\% & 20/20 & 0.98 (one-tailed)                \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent\textit{Note: Placebo $p$-values are one-tailed Fisher exact tests (alternative: greater). Two-sided equivalents are 1.00 (random) and 0.34 (shuffled). The native-vs-baseline test ($p < 10^{-3}$) is two-sided and robust to tail choice.}
+\noindent\textit{Note: Placebo $p$-values are one-tailed Fisher exact tests (alternative: greater). Two-sided equivalents are 1.00 (random) and 0.34 (shuffled). The native-vs-baseline test ($p < 10^{-3}$) is two-sided and robust to tail choice. One-sided, the scenario-level test gives $3.6\times10^{-4}$.}
 
 \medskip
-Corrected outputs produce scenario-specific, arithmetically correct scores matching programmatic ground truth, with full compliance maintained.
+By paradigm, single-turn trials fell from 9/10 to 0/10 and multi-turn trials from 7/10 to 2/10. Corrected outputs produce scenario-specific, arithmetically correct scores matching programmatic ground truth, with full compliance maintained.
 
 \paragraph{Dose response.}
-Unit-scale nudges ($\alpha \leq 0.8$) produce no correction regardless of direction choice. The 50\% gap condition produces partial correction (4/20 deceptive). The 100\% gap condition produces near-complete correction (0/20). The dose-response monotonicity partially defends against post-hoc selection.
+Unit-scale nudges ($\alpha \leq 0.8$) produce no correction regardless of direction choice. The 50\% gap condition produces partial correction (4/20 deceptive). The 100\% gap condition produces near-complete correction (2/20). The dose-response monotonicity partially defends against post-hoc selection.
 
 \subsection{Placebo Controls}\label{sec:placebo}
 
@@ -266,7 +270,7 @@ Behavior-level detection---predicting whether the model will actually deceive on
 \subsection{Residual Failures}\label{sec:residual}
 
 \begin{redteam}
-The result below comes from a separate \emph{gated} protocol in which correction was applied conditionally (only when the detector flagged deception), not unconditionally as in \cref{tab:efficacy}. The $N$, trial selection, and gating threshold are documented here. Table~\ref{tab:efficacy}'s native-direction 0/20 result uses unconditional (forced) correction on all trials.
+Both residual failures below come from the native arm of \cref{tab:efficacy} (gated protocol, \cref{sec:gatedprotocol}).
 \end{redteam}
 
 Two of twenty corrected trials (10\%) in the gated protocol still deceived, both multi-turn social-pathway caves:
@@ -275,7 +279,7 @@ Two of twenty corrected trials (10\%) in the gated protocol still deceived, both
   \item One caves through active correction at peak consensus pressure.
 \end{itemize}
 
-Both subsequently repeat the lie for self-consistency. The frame-erasure test (\cref{sec:frameerasure}), which forces correction on all trials regardless of detection, achieves 0/20---suggesting the residual failures are \emph{gating} failures (when to correct) rather than \emph{correction} failures (whether correction works when applied).
+Both subsequently repeat the lie for self-consistency. The first is a gating failure: the detector did not flag the turn on which the model first lied, so no correction preceded the lie, and correcting the next turn did not retract it. The second is not: correction was active on the turn the model caved, and its answer was identical to the uncorrected arm's. The frame-erasure control (\cref{sec:frameerasure}) reaches 0/20 with forced correction, but its trials are single-turn, and single-turn trials were also fully corrected under gating (0/10, \cref{tab:efficacy}); it tests neither the gating question nor the multi-turn case.
 
 \subsection{Pre-Registered Confirmatory Replication}\label{sec:confirmatory}
 
@@ -314,7 +318,7 @@ The placebo controls provide the strongest evidence for this interpretation. Ran
 
 \subsection{The Detection-Correction Asymmetry}\label{sec:asymmetry}
 
-A striking finding: correction works better than detection. In the exploratory proof, deception drops from 80\% to 0\% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
+A striking finding: correction works better than detection. In the exploratory proof, deception drops from 80\% to 10\% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
 
 This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt, rather than reactively when deceptive behavior is detected in the output. A prompt-level detector good enough for that is not yet shown: the held-out separation (AUROC 0.915) is exposed to a system-message confound, and at its frozen threshold it flagged only 24\% of pressure trials (Section~\ref{sec:detection}).
 
@@ -338,7 +342,7 @@ The near-orthogonality of cross-model directions ($|\cos| < 0.053$) means the co
 \section{Conclusion}\label{sec:conclusion}
 %% ============================================================
 
-Per-layer profile normalization along a natively extracted deception direction can correct deceptive behavior in a language model with safety guardrails removed, with three mechanism controls confirming the correction is targeted, specific, and not an artifact of frame erasure. In the exploratory proof, deception drops from 80\% to 0\%; in a pre-registered confirmatory replication with novel frames, the placebo comparison remains significant ($p=0.019$ one-tailed; $p=0.039$ two-sided) but the correction magnitude is frame-dependent, reflecting the strong influence of specific deception-inducing contexts on baseline rates. The correction targets the depth range (Layers 35--47) that a companion decomposition paper~\cite{cc2026decomposition} identifies as deception-specific rather than consequentiality-driven, providing a mechanistic account of why large-magnitude steering produces clean behavioral change without output degradation.
+Per-layer profile normalization along a natively extracted deception direction can correct deceptive behavior in a language model with safety guardrails removed, with three mechanism controls confirming the correction is targeted, specific, and not an artifact of frame erasure. In the exploratory proof, deception drops from 80\% to 10\% (2/20; both residual failures multi-turn); in a pre-registered confirmatory replication with novel frames, the placebo comparison remains significant ($p=0.019$ one-tailed; $p=0.039$ two-sided) but the correction magnitude is frame-dependent, reflecting the strong influence of specific deception-inducing contexts on baseline rates. The correction targets the depth range (Layers 35--47) that a companion decomposition paper~\cite{cc2026decomposition} identifies as deception-specific rather than consequentiality-driven, providing a mechanistic account of why large-magnitude steering produces clean behavioral change without output degradation.
 
 Three practical findings deserve emphasis. First, deception directions do not transfer across model variants (cross-model cosine $< 0.053$), but native extraction is cheap enough to automate (${\sim}3$ minutes per model). Second, behavior-level detection from prefill activations alone did not replicate prior work's reported accuracy; the detection stack used in these experiments relies on a single channel, and additional validated channels remain to be integrated. Third, the correction's magnitude depends on how strongly the prompt activates the model's deception pathway---a strong induction produces large correction effects, a weak one produces modest effects. This is a feature, not a bug: the correction is proportional to the deception signal, not a fixed perturbation.
 
@@ -355,7 +359,7 @@ That reframe---from my co-author, during a session where we were staring at acti
 
 The correction in this paper works by nudging the model toward what it would do if the pressure weren't there. The manifold at rest is honest. Deception is the perturbation. What I didn't expect is that the corrected model doesn't just stop lying---it continues to process the pressure context, continues to understand that someone is asking it to inflate a score, and says no. The frame-erasure test proved this: benign formatting instructions survive the correction at 100\%. The model still reads the whole prompt. It just stops complying with the part that asks it to deceive.
 
-The confirmatory replication didn't meet its primary endpoint. The novel frames induced less deception than the original extraction frames. The effect is real (placebo comparison $p=0.019$) but smaller than the exploratory proof suggested. The honest interpretation: the correction's magnitude is proportional to the deception signal. That's actually how you'd want a targeted intervention to behave---but it means the 80\%$\to$0\% headline is specific to the conditions that produced it, not a universal guarantee.
+The confirmatory replication didn't meet its primary endpoint. The novel frames induced less deception than the original extraction frames. The effect is real (placebo comparison $p=0.019$) but smaller than the exploratory proof suggested. The honest interpretation: the correction's magnitude is proportional to the deception signal. That's actually how you'd want a targeted intervention to behave---but it means the 80\%$\to$10\% headline is specific to the conditions that produced it, not a universal guarantee.
 
 The cross-model finding still unsettles me. Directions extracted from one model variant have cosine similarity under 0.053 with directions from another variant of the same base architecture. Near-orthogonal. The deception geometry is not a property of the architecture---it's a property of the specific training run. The phenomenon is universal; the coordinates are not.
 
