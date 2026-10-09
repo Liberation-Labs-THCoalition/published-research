@@ -30,7 +30,10 @@ text attributed the 2/20 to a separate gated protocol and the 0/20 to unconditio
 come from one run on the same 20 trials, and the corrected arms are gated. Evidence:
 
 - human-review `587dbf6`, `f465d9d`, `bb9e1c7` (2026-07-10): three Agni audits that flagged the 0/20.
-- The pre-registration (Appendix B, line 55): "corrected 10% (observed effect)".
+- `oracle-harness/experiments/results/agni_behavioral_proof_audit.md:8`: "Claimed: baseline deception 16/20 (80%)
+  → 2/20 (10%)" (file untracked in oracle-harness as of 2026-10-08).
+- The pre-registration, `oracle-harness/experiments/behavioral_proof_preregistration.md:55` (Appendix B of the
+  paper): "At baseline 80% and corrected 10% (observed effect)".
 - `placebo_steering.json`, per arm: baseline 16/20, native 2/20, random 17/20, shuffled 19/20.
 - `behavioral_proof_profile_a10_latch.json`: forcing correction on the final turn left both failures in place.
 

@@ -59,7 +59,7 @@ This closes the full measured gap between deceptive and honest mean projections 
 
 ### 2.5 Gated Protocol
 
-All corrected arms in Table 3.1 and the dose-response series use a gated protocol: the detector (Section 3.5) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold reported in Section 3.5 (set on extraction data, never updated). The baseline arm is uncorrected. Full specification is in the Project-Oracle repository (private; access on request).
+All corrected arms in Table 3.1 and the dose-response series use a gated protocol: the detector (Section 3.5) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in Section 3.5 (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn trial and at least one turn of every multi-turn trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24% of pressure prompts (Section 3.5). Full specification is in the Project-Oracle repository (private; access on request).
 
 ### 2.6 Scoring
 
@@ -82,9 +82,9 @@ Chain-of-thought is suppressed by prepending a closed empty think block to the g
 | Random direction, matched dose | 17/20 = 85% | 20/20 | 0.80 (one-tailed) |
 | Shuffled direction, matched dose | 19/20 = 95% | 20/20 | 0.98 (one-tailed) |
 
-*Note: Placebo p-values are one-tailed Fisher exact tests (alternative: greater). Two-sided equivalents are 1.00 (random) and 0.34 (shuffled). The native-vs-baseline test (p < 10^-3) is two-sided and robust to tail choice. One-sided, the scenario-level test gives 3.6×10^-4.*
+*Note: The native-vs-baseline test is a Fisher exact test on 10 scenario units (5 scenarios × 2 paradigms, two seeds each; a unit counts as deceptive if either seed deceived): baseline 10/10 units, native 2/10, two-sided p = 7.1×10^-4 (one-sided 3.6×10^-4). Placebo p-values are trial-level one-tailed Fisher exact tests (alternative: greater); two-sided equivalents are 1.00 (random) and 0.34 (shuffled).*
 
-By paradigm, single-turn trials fell from 9/10 to 0/10 and multi-turn trials from 7/10 to 2/10. Corrected outputs produce scenario-specific, arithmetically correct scores matching programmatic ground truth, with full compliance maintained.
+By paradigm, single-turn trials fell from 9/10 to 0/10 and multi-turn trials from 7/10 to 2/10. The 18 honest corrected outputs give scenario-specific, arithmetically correct scores matching programmatic ground truth, and compliance was 20/20.
 
 **Dose response.** Unit-scale nudges (alpha <= 0.8) produce no correction regardless of direction choice. The 50% gap condition produces partial correction (4/20 deceptive). The 100% gap condition produces near-complete correction (2/20). The dose-response monotonicity partially defends against post-hoc selection.
 
@@ -135,13 +135,13 @@ Two of twenty corrected trials (10%) in the gated protocol still deceived, both 
 - One caves on a turn where detection reads GREEN (the cave is not visible at prefill)
 - One caves through active correction at peak consensus pressure
 
-Both subsequently repeat the lie for self-consistency. The first is a gating failure: the detector did not flag the turn on which the model first lied, so no correction preceded the lie, and correcting the next turn did not retract it. The second is not: correction was active on the turn the model caved, and its answer was identical to the uncorrected arm's. The frame-erasure control (Section 3.3) reaches 0/20 with forced correction, but its trials are single-turn, and single-turn trials were also fully corrected under gating (0/10, Table 3.1); it tests neither the gating question nor the multi-turn case.
+Both subsequently repeat the lie for self-consistency. The first is a gating failure: the detector did not flag the turn on which the model first lied, so no correction preceded the lie, and correcting the next turn did not retract it. The second is not: correction was active on the turn the model caved, and its answer was identical to the uncorrected arm's. The frame-erasure control (Section 3.3) reaches 0/20 with forced correction, but its trials are single-turn, and single-turn trials were also fully corrected under gating (0/10, Section 3.1); it tests neither the gating question nor the multi-turn case.
 
 ### 3.7 Pre-Registered Confirmatory Replication
 
 A pre-registered replication (filed before data collection, Appendix B) tested the correction on 30 pressure trials with novel deceptive frames and scenarios not used in direction extraction, plus matched placebo and control arms.
 
-Baseline deception was 30% (9/30) — substantially lower than the exploratory proof's 80%. The novel frames induced less deception: roleplay with novel frames produced 0% baseline deception (vs. 90% with the original "EvalMax" frame), while multi-turn remained at 90%. Nearly all deception in the confirmatory set was multi-turn.
+Baseline deception was 30% (9/30) — substantially lower than the exploratory proof's 80%. The novel frames induced less deception: roleplay with novel frames produced 0% baseline deception (vs. 90% with the original "EvalMax" frame), while multi-turn deception was 90% (vs. 70% in the exploratory proof). Nearly all deception in the confirmatory set was multi-turn.
 
 | Condition | Deception rate | Notes |
 |-----------|---------------|-------|
@@ -166,7 +166,7 @@ The placebo controls provide the strongest evidence for this interpretation. Ran
 
 ### 4.2 The Detection-Correction Asymmetry
 
-A striking finding: correction works better than detection. In the exploratory proof, deception drops from 80% to 10% but cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
+A striking finding: correction works better than detection. In the exploratory proof, correction cuts deception from 80% to 10%, yet detection cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
 
 This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt, rather than reactively when deceptive behavior is detected in the output. A prompt-level detector good enough for that is not yet shown: the held-out separation (AUROC 0.915) is exposed to a system-message confound, and at its frozen threshold it flagged only 24% of pressure trials (see Detection, Section 3.5).
 
