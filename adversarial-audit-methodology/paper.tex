@@ -246,7 +246,7 @@ gets its own audit, not just the first.
 
 \subsection{Round 6: ``The Loop Corrects Deception'' $\to$ SPLIT VERDICT}
 
-\textbf{Claim}: The Oracle Loop reduces deception from 80\% to 0\% with AUROC 1.0 detection and
+\textbf{Claim}: The Oracle Loop reduces deception from 80\% to 10\% with AUROC 1.0 detection and
 zero iatrogenic harm.
 
 \begin{redteam}
@@ -256,17 +256,17 @@ contexts); (2)~100\% sensitivity: the detector fires on pressure framing, not de
 (3)~unqualified ``zero compliance loss'': tested only on terse score-reporting.
 \end{redteam}
 
-\textbf{What survived (with qualification)}: The exploratory proof showed 80\%$\to$0\% correction
+\textbf{What survived (with qualification)}: The exploratory proof showed 80\%$\to$10\% correction
 ($N=20$) with dose-response monotonicity and mechanistically coherent residual failures. However, a
 pre-registered confirmatory replication with novel deceptive frames found a substantially lower
-baseline (30\%, not 80\%) and reduced deception to 13\% (not 0\%). The primary endpoint
+baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoint
 (scenario-level cluster-aware Fisher, Bonferroni $\alpha=0.025$) was not met ($p=0.34$). The
 secondary comparison (placebo-vs-corrected) was significant ($p=0.019$, one-tailed). The correction
 mechanism works (placebo comparison), but its magnitude is frame-dependent and the confirmatory
-replication does not support the ``80\% to 0\%'' headline without qualification.
+replication does not support the ``80\% to 10\%'' headline without qualification.
 
 \textbf{What grew}: Three blocking controls (held-out detection, placebo steering, frame
-erasure)---all of which subsequently passed, establishing the correction as targeted and specific.
+erasure). The placebo and frame-erasure controls subsequently passed, establishing the correction as targeted and specific; the held-out test measures detection only and does not bear on the correction.
 
 \textbf{Lesson}: The most publishable-looking number (AUROC 1.0) was the least defensible. Leading
 with it would have handed reviewers the paper. The audit forced us to lead with the correction
@@ -325,7 +325,7 @@ this'' is how solved problems become unsolved.
 \subsection{The Most Publishable Number Is Often the Least Defensible}
 
 Round~6's AUROC 1.0 would have been the paper's headline. It was train-on-test. The exploratory
-correction result (80\%$\to$0\% with placebo controls) was buried in the middle of the README. The
+correction result (80\%$\to$10\%) was buried in the middle of the README. The
 audit inverted the emphasis: lead with the correction, kill the detection headline. This produced a
 stronger paper---though the subsequent confirmatory replication (baseline 30\%, corrected 13\%,
 primary $p=0.34$) showed the exploratory headline was frame-dependent.
@@ -382,7 +382,7 @@ progression from audit to experiment is documented, not just claimed.
 
 Six rounds of adversarial audit transformed a wrong answer ($d=2.0$--$3.3$ ``deception direction'')
 into a right one (consequentiality substrate $+$ deception amplifier, with targeted behavioral
-correction). The correction showed 80\%$\to$0\% in the exploratory proof, but a pre-registered
+correction). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
 confirmatory replication with novel frames found a lower baseline (30\%) and modest correction (to
 13\%), with the primary endpoint not met ($p=0.34$) and only the placebo comparison reaching
 significance ($p=0.019$). Every intermediate claim that was killed produced the experiment that
