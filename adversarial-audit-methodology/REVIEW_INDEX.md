@@ -10,7 +10,7 @@
 - [ ] Verify all 6 rounds accurately describe what happened (cross-check with experiment scripts and findings registry)
 - [ ] Confirm killed-claims registry in Section 3 matches FINDINGS_REGISTRY.md (C1-C21)
 - [ ] Check that Round 5 circularity regression description matches subspace_reanalysis.py
-- [ ] Verify Round 6 split verdict accurately reflects confirmatory replication results (p=0.34 primary, p=0.019 placebo)
+- [ ] Verify Round 6 split verdict accurately reflects confirmatory replication results (p=0.34 primary, p=0.020 placebo)
 
 ### References
 - [x] Add external citations on red-teaming methodology (Perez, Hubinger, Ganguli, Casper, Raji, Shevlane)
