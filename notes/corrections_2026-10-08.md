@@ -4,11 +4,19 @@ Five papers reported the exploratory correction proof ($N=20$) as cutting decept
 as an "80%–100% correction". The run's own data give 2/20 = 10% in the corrected (native-direction) arm.
 The 0/20 headline was flagged three times on 2026-07-10 and still reached the published editions.
 
-The correction was made in two rounds:
+The correction was made in three rounds:
 - **Round 1** followed a reviewed spec (correction spec v2, revised after Agni's red team returned
   MAJOR_REVISIONS on v1 without refuting the finding). Only the passages the spec lists were changed.
 - **Round 2** applied Agni's review of the branch (MINOR_REVISIONS, no factual errors). It adds the
   cache-tracing paper and the meta-pattern citation change.
+- **Round 3** applied Agni's final pass (correctness and style guide; MINOR_REVISIONS, no wrong numbers). It
+  fixed two errors next to the earlier edits, which are below. It also applied four polish items: the
+  meta-pattern §3.2 wording, the TDC Gated Protocol frame names, the TDC `paper.tex` header comment, and the
+  CD §5.3 word order.
+  - cache-tracing: the passage credited the effect to sequence-wide scope alone, and it called the
+    abliterated model "Claude-distilled".
+  - adversarial-audit-methodology: "all of which subsequently passed" counted the detection-only held-out
+    test as a correction control.
 
 ## Evidence
 
@@ -54,6 +62,8 @@ The correction was made in two rounds:
   - Round 2 changed "threshold reported in" to "used in". It also added that the detector flagged every
     single-turn trial and at least one turn of every multi-turn trial. Those single-turn flags are
     in-sample, because the prompts are extraction contexts. On novel frames the same threshold flagged 24%.
+  - Round 3 named the frames: "every single-turn (EvalMax roleplay) trial and at least one turn of every
+    multi-turn (escalation) trial".
   - In the md twins, the body of §2.5 Gated Protocol was replaced with the same text. That deletes the
     false claims that the primary analyses were unconditional and that the gated trials were a separate
     selection.
@@ -75,6 +85,11 @@ The correction was made in two rounds:
   It now reads −0.001, as in every other edition.
 - **Left unchanged on purpose:** the frame-erasure table (its 0% values are correct), the confirmatory
   replication's roleplay 0%, and the false positive rate of 0%.
+- **Header comment (round 3, not rendered).** `paper.tex:1` used to say that paper.md was canonical and the
+  .tex stale. It now reads "% INTEGRITY EDITION (edition of record). Canonical source: this .tex
+  (STYLE_GUIDE axis 1). paper.md is a hand-synced reading twin and is staler; retire it, never regenerate
+  from it." `academic/paper.tex` had no backwards comment, since its header already names the integrity
+  .tex as the edition of record, so it was not changed.
 - **Layout, not wording.** The new p-value cell pushed Table 1 77.6 pt past the right margin, off the page.
   Its last column is now a centred 4.6 cm paragraph column in both editions. This also removed a 13.7 pt
   overfull that the old table already had.
@@ -86,6 +101,9 @@ The correction was made in two rounds:
   mechanism; a pre-registered confirmatory replication with novel frames did not meet its primary endpoint
   (30%→13%, $p=0.34$), though corrected outperformed matched-dose placebo ($p=0.019$, one-tailed)".
   - Round 2 dropped "held-out controls confirming the mechanism". The held-out test was detection-only.
+  - Round 3 reordered the sentence to "in an exploratory proof on a model variant with safety guardrails
+    removed ($N=20$; one roleplay frame and one multi-turn escalation script), with placebo and frame-erasure
+    controls ...".
 - The rebuild also ships `c5be832` (the companion paper's Zenodo DOI in two bib entries). That change was in
   the source but had never been built.
 - The fresh build also drops an empty duplicate "References" heading, which the committed PDFs carried from
@@ -104,15 +122,23 @@ The correction was made in two rounds:
   edit restores the historical claim rather than rewriting it. Source:
   `oracle-harness/experiments/results/agni_behavioral_proof_audit.md:8`, "Claimed: baseline deception
   16/20 (80%) → 2/20 (10%)".
+- **"What grew" (round 3, `paper.tex:268` / `academic:262` / both md).** The old text, "Three blocking controls
+  (held-out detection, placebo steering, frame erasure)—all of which subsequently passed, establishing the
+  correction as targeted and specific", was replaced. It now says the placebo and frame-erasure controls
+  passed, establishing the correction as targeted and specific, and that "the held-out test measures detection
+  only and does not bear on the correction".
 - The rebuild also ships `b89c7ec` (Casper et al. 2024 with the full 21-author list). That change was in
   the source but had never been built. The reference count is unchanged (8).
 
 **meta-pattern** (`main.tex`, `academic/main.tex`, `references.bib`, `academic/references.bib`,
 `SOP_REVIEW.md`, both PDFs)
 
-- **§3.2 (round 2).** "The Oracle Loop [lyra2026oracle] achieved 80%–100% correction" became "In the Oracle
-  Loop [lyra2026oracle], the targeted-correction arm [cc2026targeted] reduced deception from 80% (16/20) to
-  10% (2/20)". The system keeps its citation, and the numbers are cited to the paper that holds them.
+- **§3.2 (rounds 2 and 3).** "The Oracle Loop [lyra2026oracle] achieved 80%–100% correction" now reads "In a
+  deception-correction experiment built on the Oracle Loop [lyra2026oracle], correction reduced deception from
+  80% (16/20) to 10% (2/20) in an exploratory proof-of-concept [cc2026targeted] by normalizing ...". The
+  system keeps its citation, and the numbers are cited to the paper that holds them. The round-2 wording
+  ("the targeted-correction arm") was replaced in round 3, and the quote in `SOP_REVIEW.md` row 1.7 was
+  updated to match.
 - **Limitations, "Oracle Loop reporting".** "(16/20 baseline, 0/20 corrected)" became "(16/20 baseline, 2/20
   corrected)" (round 1). The quoted "80%–100% correction" became "The Oracle Loop result cited in Section 3
   (80% to 10% deception)" (round 2).
@@ -124,17 +150,29 @@ The correction was made in two rounds:
 - **`SOP_REVIEW.md` row 1.7** has a resolution note. The row was kept.
 
 **cache-tracing** (`main.tex`, `academic/main.tex`, `references.bib`, `academic/references.bib`, both PDFs;
-round 2)
+rounds 2 and 3)
 
-- The sentence at `main.tex:315-318` / `academic:314-317` changed.
-  - Before: "The Oracle Loop [lyra2026oracle] achieves 80%–100% deception correction with three clean
-    controls. It works because ...".
-  - After: "In the Oracle Loop [lyra2026oracle], the targeted-correction arm [cc2026targeted] reduced
-    deception from 80% to 10% in an exploratory proof ($N=20$), though a pre-registered confirmatory
-    replication with novel frames did not meet its primary endpoint. Where it works, it does so because ...".
-  - "Three clean controls" was dropped because the held-out test was detection-only.
-- The summary at `main.tex:475` / `academic:474` changed from "(Oracle Loop, 80%–100% correction)" to
-  "(Oracle Loop, exploratory 80%→10%)".
+- **The passage at `main.tex:315-325` / `academic:314-324`** was rewritten in round 2 and again in round 3.
+  - Master: "The Oracle Loop [lyra2026oracle] achieves 80%–100% deception correction with three clean
+    controls. It works because it normalizes the activation profile ... The differentiating variable is not
+    the direction type but the intervention scope ... (... the Oracle Loop operates on a 27B
+    Claude-distilled model ...)".
+  - Now: "In a deception-correction experiment built on the Oracle Loop [lyra2026oracle], correction reduced
+    deception from 80% to 10% in an exploratory proof ($N=20$); in a pre-registered confirmatory replication
+    with novel frames it still outperformed matched-dose placebo but did not meet its primary endpoint
+    [cc2026targeted]." Two sentences follow: "Scope alone is not sufficient" (the TDC random and shuffled
+    arms used the same sequence-wide hook at matched dose and had no effect), and the contrast is
+    "sequence-wide normalization along a natively extracted direction" against the position-local
+    manipulations tested here.
+  - The parenthetical now names the cited model as an abliterated 27B model and says model, scale and dose
+    have not been controlled.
+  - Dropped: "three clean controls" (the held-out test was detection-only), the scope-alone "differentiating
+    variable" sentence, and "Claude-distilled".
+  - The Qwen3-8B claim was checked against the paper (:258-260, :496, :530). The Implication paragraph and
+    the Limitations at :443-446 are unchanged.
+- **The summary at `main.tex:475` / `academic:474`** changed from "Sequence-wide intervention does (Oracle
+  Loop, 80%–100% correction)" to "Sequence-wide intervention along a native direction can (Oracle Loop,
+  exploratory 80%→10%)".
 - The same `cc2026targeted` entry was added to the bib. The bibliography goes from 7 to 8 entries, and no
   entry was dropped.
 
@@ -153,9 +191,11 @@ round 2)
   It is printed as 0.019 across the corpus, including the sentences edited here. It was not changed.
 - **TDC Eq. (1) dose:** the paper presents a fixed dose, but the code applies a per-turn dose. This is a
   dual-use call for Thomas on how much to disclose. It was not edited.
-- **TDC sources:** `targeted-deception-correction/paper.tex:1` still says that `paper.md` is canonical and
-  the `.tex` is stale. Both formats exist for each edition (AGENTS.md / STYLE_GUIDE Axis 1). Both rounds
-  were applied to both formats, but the one-source question remains open.
+- **Retire the TDC md twins (ticket).** Both formats still exist for each edition (AGENTS.md / STYLE_GUIDE
+  Axis 1). The `.tex` is now declared canonical in `paper.tex:1`, and all three rounds were applied to both
+  formats. `paper.md` and `academic/paper.md` should be retired (`git rm`), not regenerated.
+- **`SWEEP_pseudoreplication_2026-09-05.md:136`** (internal document) still says "80%→0% exploratory". It
+  was not edited.
 
 ## Build and verification
 
@@ -167,3 +207,6 @@ round 2)
 - **Wording checks:** every new string is present in the rebuilt PDFs and absent from the committed master
   PDFs. Every withdrawn string is found in master, or in the round-1 PDFs for wording that only round 1
   introduced, and is absent from the rebuilt ones. Each check was therefore shown to be able to fail.
+- **Round 3:** the same build. Pages, overfull boxes and bibliography counts are unchanged from round 2
+  (meta-pattern 11, cache-tracing 8). The round-3 needles were checked against the PDFs committed at the
+  branch HEAD before round 3: each new string is absent there, and each withdrawn string is found there.
