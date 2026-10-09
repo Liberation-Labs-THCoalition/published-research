@@ -108,7 +108,7 @@ Correction removes deception while preserving compliance with benign formatting 
 
 | Metric | Value |
 |--------|-------|
-| cos(native, distilled) at L31 | +0.014 |
+| cos(native, distilled) at L31 | -0.001 |
 | cos(native, distilled) at L47 | -0.053 |
 | Native d at L31 (held-out) | +1.73 |
 | Distilled d at L31 (on abliterated data) | -0.02 |
