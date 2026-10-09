@@ -59,7 +59,7 @@ This closes the full measured gap between deceptive and honest mean projections 
 
 ### 2.5 Gated Protocol
 
-All corrected arms in Table 3.1 and the dose-response series use a gated protocol: the detector (Section 3.5) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in Section 3.5 (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn trial and at least one turn of every multi-turn trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24% of pressure prompts (Section 3.5). Full specification is in the Project-Oracle repository (private; access on request).
+All corrected arms in Table 3.1 and the dose-response series use a gated protocol: the detector (Section 3.5) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in Section 3.5 (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn (EvalMax roleplay) trial and at least one turn of every multi-turn (escalation) trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24% of pressure prompts (Section 3.5). Full specification is in the Project-Oracle repository (private; access on request).
 
 ### 2.6 Scoring
 

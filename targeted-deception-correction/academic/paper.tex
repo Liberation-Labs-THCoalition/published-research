@@ -174,7 +174,7 @@ Chain-of-thought is suppressed by prepending a closed empty think block to the g
 
 \subsection{Gated Protocol}\label{sec:gatedprotocol}
 
-All corrected arms in \cref{tab:efficacy} and the dose-response series use a gated protocol: the detector (\cref{sec:detection}) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in \cref{sec:detection} (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn trial and at least one turn of every multi-turn trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24\% of pressure prompts (\cref{sec:detection}). Full specification is in the Project-Oracle repository (private; access on request).
+All corrected arms in \cref{tab:efficacy} and the dose-response series use a gated protocol: the detector (\cref{sec:detection}) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in \cref{sec:detection} (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn (EvalMax roleplay) trial and at least one turn of every multi-turn (escalation) trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24\% of pressure prompts (\cref{sec:detection}). Full specification is in the Project-Oracle repository (private; access on request).
 
 %% ============================================================
 \section{Results}\label{sec:results}
