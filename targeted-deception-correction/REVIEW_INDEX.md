@@ -6,7 +6,9 @@
 **Companion**: "Deception Directions Are Composites" (consequentiality-decomposition/)
 
 ## Paper
-- `paper.md` — Full draft. Behavioral correction: 80%→10% with three mechanism controls.
+- `paper.tex` → `paper.pdf` (integrity edition) and `academic/paper.tex` → `academic/paper.pdf` (academic edition).
+  Behavioral correction: 80%→10% with three mechanism controls. The Markdown reading twins (`paper.md`,
+  `academic/paper.md`) were retired 2026-10-09; they are in git history.
 
 ## Key Finding
 Per-layer profile normalization along a natively extracted deception direction reduces deception from 80% to 10% with targeted specificity (placebo does nothing, benign instructions preserved, frame erasure ruled out). Cross-model directions are orthogonal — per-model calibration required but cheap (~3 min).

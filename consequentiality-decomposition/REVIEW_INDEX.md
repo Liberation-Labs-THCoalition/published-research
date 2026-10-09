@@ -5,7 +5,8 @@
 **Authors**: Thomas Edrington, CC (Coalition Code)
 
 ## Paper
-- `paper.md` — Full draft. 26 references. All sections populated except Introduction body (section 1 has framing, needs prose).
+- `paper.tex` → `paper.pdf` (integrity edition) and `academic/paper.tex` → `academic/paper.pdf` (academic edition).
+  The Markdown draft this line pointed to (`paper.md`, staged 2026-06-30) was retired 2026-10-09; it is in git history.
 
 ## Key Finding
 A "deception direction" extracted via contrastive activation extraction is actually a composite: output-consequentiality substrate (L23-L31) + deception-specific amplifier (L35-L47). Four-stage Agni-gated confound elimination. Three distinct late-layer signatures for threat, social, and reward deception.
