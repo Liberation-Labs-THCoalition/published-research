@@ -177,11 +177,13 @@ We analyze two datasets from the KV-cache research program:
 
 \subsection{Feature Extraction}
 
-All features extracted using \texttt{lyra\_features.py}, computing
-per-layer singular values via GPU SVD
-(\texttt{torch.linalg.svdvals}). Features include stable rank,
-participation ratio, sv\_kurtosis, spectral entropy, condition number,
-and MP/GD threshold-based features.
+All features were extracted with \texttt{lyra\_features.py}, which
+computes per-layer singular values via GPU SVD
+(\texttt{torch.linalg.svdvals}) and derives a range of spectral
+features from them, condition number among them. The analyses reported
+here use six: stable rank, participation ratio, sv\_kurtosis, spectral
+entropy, and two Marchenko--Pastur threshold features (signal fraction
+and norm per token). The Llama persona analysis uses spectral entropy.
 
 \paragraph{Per-layer features.} Raw feature values at each layer,
 without aggregation. This is the key methodological change from prior
