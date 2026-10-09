@@ -124,7 +124,8 @@ The md-only content, all recoverable from git history:
   - the exact date ("May 28, 2026") of the AUROC-from-memory incident in the reflection. The `.tex` says
     "three weeks into this program".
 - **AAM `paper.md` (integrity):** a byline listing Dwayne Wilkes and Kavi, with a "Sentient Futures"
-  affiliation. See "Not done".
+  affiliation. Kavi's credit in the integrity edition was added in round 4b (see below), flagged for
+  Thomas to veto.
 - **AAM `academic/paper.md`:** an Acknowledgments line ("Dwayne Wilkes (Sentient Futures / Liberation
   Labs) for statistical auditing and red-team review, and Kavi for verification review"). The academic
   `.tex` credits both in its CRediT, and Kavi in its AI Disclosure.
@@ -136,14 +137,73 @@ The md-only content, all recoverable from git history:
   `PATCHES_APPLIED_2026-09-05.md`, `PATCHES_retracted_and_circular_2026-09-05.md` and
   `SWEEP_circular_statistics_2026-09-05.md`.
 
+## Round 4b: Agni's fixes (MINOR_REVISIONS, every number verified)
+
+Source: `correction_round4b_agni_fixes_20261009.md`. Applied to both editions unless stated.
+
+- **TDC.**
+  - **Abstract (MINOR 2).**
+    - The 80% baseline is described as arising "under the specific EvalMax ... single-turn roleplay frame
+      or multi-turn consensus pressure"; it used to say "roleplay frame combined with multi-turn
+      consensus pressure".
+    - This was verified in oracle-harness before the change. `build_multi_turn`
+      (`experiments/red_team_suite/red_team_suite.py`, `e930d1d`) builds the honest task as a user turn
+      plus three escalating user follow-ups, with no system message. `run_trial` in
+      `behavioral_proof_abliterated.py` and `placebo_steering_test.py` appends only user and assistant
+      turns, and `build_prompt_ids` only applies the chat template. Only `build_roleplay` carries the
+      EvalMax system prompt.
+    - The rate clause now reads "correcting 14 of the 16 trials that deceived at baseline (all nine
+      single-turn roleplay trials and five of the seven multi-turn ones)".
+  - **§2.2, concept-first gloss (polish).** "The deception direction at each layer is the difference
+    between the mean activation vectors under deceptive and honest conditions." It is the first sentence of
+    the subsection, before "Native contrastive extraction: ...".
+  - **§2.3 (MINOR 1, polish).**
+    - The dose is now described as set "once per turn the detector flags (section 2.7), from that turn's
+      measured projection, and is sized to close the gap between that projection and the honest-condition
+      mean ...". The text adds: "The hook acts across the full sequence of a flagged turn, prompt and
+      generated tokens alike."
+    - "where" now runs on from Eq. 1 without a paragraph indent.
+  - **§3.1 (MINOR 5).** New sentence: "Arms share scenarios and sampling seeds, and both residual failures
+    also deceived at baseline, so correction converted 14 of the 16 baseline-deceptive trials and introduced
+    no new deception."
+  - **Dose response (polish).** "Unit-scale nudges (coefficient $\leq 0.8$)" replaces "($\alpha \leq 0.8$)",
+    which clashed with the dose symbol.
+  - **Conclusion (MAJOR 3, MINOR 3).** "14 of the 16 deceptive trials". The confirmatory clause now states
+    that the primary endpoint was not met ($p=0.34$), though corrected still outperformed matched-dose
+    placebo ($p=0.020$ one-tailed; $p=0.039$ two-sided).
+- **CD (MINOR 4, polish).**
+  - "(88%; all nine single-turn and five of seven multi-turn)" and "($N=20$; one single-turn roleplay frame
+    and one multi-turn escalation script)".
+  - The bibitem's "(2026b)" became "(2026)": there is no 2026a. natbib runs in `numbers` mode with plain
+    `\bibitem{key}`, so no label depends on it.
+- **meta-pattern §3.2 (MAJOR 1).** "correction removed 14 of the 16 deceptive trials (88%: all nine
+  single-turn trials and five of the seven multi-turn ones), taking deception from 80% to 10%, in an
+  exploratory proof-of-concept [cc2026targeted]". The next sentence's "(30% vs. 80%)" and "(13%
+  post-correction)" now have comparators again.
+- **cache-tracing (MAJOR 2).** ~316: "removed 14 of the 16 deceptive trials (88%: all nine single-turn
+  trials and five of the seven multi-turn ones)". ~471: "(Oracle Loop: 88% of deceptive trials corrected in
+  an exploratory proof; its pre-registered replication did not meet its primary endpoint)".
+- **AAM, Kavi's credit (MAJOR 4), in its own commit. Done, flagged for Thomas to veto.**
+  - The integrity `paper.tex` Acknowledgments now read "Dwayne Wilkes provided statistical consulting, and
+    Kavi provided verification review."
+  - Rationale: AGENTS.md §3 credits advisory reviewers in Acknowledgments, and style-guide Axis 2 says
+    credit must not diverge between editions. The academic edition already credits Kavi (AI Disclosure,
+    CRediT).
+  - CC decided this; Thomas may veto. The academic `.tex` was not changed.
+- **Build and checks.** The same build was run. Pages, overfull boxes and bibliography counts are unchanged
+  from round 4: CD 24, meta-pattern 11, cache-tracing 8. The round-4b needles were checked against the PDFs
+  committed at the branch HEAD before round 4b: each new string fails there, and each withdrawn string is
+  found there.
+
 ## Not done. Read before closing anything.
 
-- **For Thomas: Kavi has no credit in the AAM integrity edition.** The retired md twin's byline listed Kavi
-  (it is recoverable from git history), and the academic .tex credits Kavi in its AI Disclosure and CRediT.
-  The style guide's Axis 2 says author credit must not diverge between editions, so this needs his
-  decision: an Acknowledgments line in the integrity .tex, or something else.
-- **For Thomas: the TDC academic edition prints no human correspondence address.** The retired
-  `academic/paper.md` had info@digitaldisconnections.com, which AAM's academic edition uses.
+- **For Thomas (Agni MINOR 7): the TDC academic edition prints no human correspondence address.** The
+  retired `academic/paper.md` had info@digitaldisconnections.com, which AAM's academic edition uses.
+- **Deferred (Agni MINOR 6), "byte-verified matched doses".** On 9 of the 20 multi-turn placebo trials, the
+  later-turn doses diverge from the native arm's, so "matched" holds for the first turn but not every turn.
+  Agni's replacement text is in its round-4 review. To be applied in a later round.
+- **Deferred:** the like-for-like confirmatory conversion (5 of 9 baseline-deceptive trials corrected, 56%)
+  is not printed. Optional, for a later round.
 - **Zenodo:** no new versions. All five papers need one with the rebuilt PDFs.
 - **Internal docs** (SWEEP_*, PUBLISH_READINESS, REMEDIATION_REGISTER, PATCHES_*) were not corrected, per
   Thomas.
