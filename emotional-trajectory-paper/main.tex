@@ -62,7 +62,7 @@
 
 \begin{abstract}
 We trace the geometry of emotional representation through all 24 layers
-of a Qwen2 transformer and find three things. First, the mid-layer
+of oracle-tiny, a fine-tune of Qwen2.5-0.5B (Qwen2 architecture), and find three things. First, the mid-layer
 emotional signal is strong and emotion-specific: 24.4$\times$ above
 permutation baselines (median ratio, 23/24 significant layers, corrected
 permutation with non-neutral-only shuffle, fixed PCA, median statistics)
@@ -310,9 +310,11 @@ distinction.
 
 \subsection{Activation Extraction}
 
-We used a Qwen2 model (24 layers, 896-dimensional hidden state, 2
+We used oracle-tiny: Qwen2.5-0.5B fine-tuned in our Oracle project, with a
+LoRA from continued pretraining merged into the weights. It has the Qwen2
+architecture (24 layers, 896-dimensional hidden state, 2
 Grouped-Query Attention (GQA) key-value heads with 64-dimensional head
-space) for pipeline validation experiments. GQA shares key-value heads
+space), and we used it for pipeline validation experiments. GQA shares key-value heads
 across multiple query heads; each KV head serves 7 query heads in this
 model.
 
@@ -413,6 +415,13 @@ pipeline validation. The methodology is designed for and will be applied
 to larger models (30B+ parameters). Specific limitations:
 
 \begin{itemize}[nosep]
+    \item \textbf{Fine-tuned checkpoint:} oracle-tiny is a fine-tune, not
+          the Qwen2.5-0.5B base model, so the geometry reported here may
+          reflect its training as well as the base model's. Which of the
+          Oracle training stages the merged checkpoint includes beyond
+          continued pretraining is not recorded. The base model has not
+          been measured. (Corrected 2026-10-09: earlier versions said only
+          ``a Qwen2 model''.)
     \item \textbf{RMSNorm linearity:} The projection
           $K = W_K \cdot \text{RMSNorm}(x)$ is not purely linear. For
           small corrections this is approximately linear, but the
@@ -434,7 +443,7 @@ to larger models (30B+ parameters). Specific limitations:
 \label{sec:results}
 % ===================================================================
 
-\emph{Results below are from Qwen2 (24 layers, 896-dim, 2 KV heads).
+\emph{Results below are from oracle-tiny (Qwen2.5-0.5B architecture: 24 layers, 896-dim, 2 KV heads).
 Large-model validation is pending.}
 
 \subsection{Emotional Trajectory}
