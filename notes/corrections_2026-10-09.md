@@ -223,3 +223,11 @@ Source: `correction_round4b_agni_fixes_20261009.md`. Applied to both editions un
     (16/20) to 10% (2/20)", ...) is found on master and absent here.
   - Retained strings ("(16/20 baseline, 2/20 corrected)", "80% to 10% with AUROC 1.0", "Scope alone is not
     sufficient") pass on both.
+
+## 2026-10-10: decisions on the two deferred items (Thomas)
+- **Agni MINOR 7: done.** The TDC academic edition's author footnote now reads "Correspondence:
+  thomas@liberationlabs.tech", following the AAM academic convention. CC's address stays in Data Availability.
+  - Rebuilt on MTH: 13 pages, clean.
+  - verify_pdf: the address is present in the new PDF and FAILS on master's PDF (negative control).
+- **Kavi's acknowledgment (bd28a6f): kept.** It stays in Acknowledgments while we wait for Kavi's blessing on
+  anything more prominent.
