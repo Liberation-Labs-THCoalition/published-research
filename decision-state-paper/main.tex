@@ -63,15 +63,17 @@
 \maketitle
 
 \begin{abstract}
-Encoding-phase KV-cache geometry distinguishes known from unknown entities
-before a single token is generated: the full classifier---adding
-generation-phase logit statistics---achieves AUROC $0.9288$
+KV-cache geometry distinguishes known from unknown entities. A classifier
+combining encoding-phase features (stable rank and W\textsubscript{K}
+projections) with generation-phase logit statistics achieves AUROC $0.9288$
 ($95\%$ CI $[0.8192, 0.9886]$, permutation $p<0.005$, $n=90$,
-effective $N{\approx}30$), and an encoding-only classifier (stable rank and
-W\textsubscript{K} projections, no generation features) achieves
-AUROC $0.9377$ ($95\%$ CI $[0.8356, 0.9941]$, permutation $p{=}0.001$). Using
+effective $N{\approx}30$). The encoding-phase features alone, which would
+separate the two before a single token is generated, reached AUROC $0.9377$
+($95\%$ CI $[0.8356, 0.9941]$, permutation $p{=}0.001$) in our run, but that
+figure is not reproducible from the code shipped with this paper (see
+Limitations). Using
 token-matched prompt pairs (``What is the capital of Thailand?''\ vs.\
-``What is the capital of Dalton?''), The combined classifier uses
+``What is the capital of Dalton?''), the combined classifier uses
 stable-rank, W\textsubscript{K} projection, and logit features
 with zero token-count confound ($t=0.000$). A significant entity
 recognition confound remains: the classifier may detect token familiarity

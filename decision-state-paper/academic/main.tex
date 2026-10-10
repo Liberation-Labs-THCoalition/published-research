@@ -69,13 +69,14 @@ We investigate whether a language model's epistemic state---whether it
 KV-cache geometry. Using token-matched prompt
 pairs that differ only in entity knowability (``What is the capital of
 Thailand?''\ vs.\ ``What is the capital of Dalton?''), we show that
-the full classifier---adding generation-phase logit
-statistics---achieves AUROC $0.9288$ ($95\%$ CI $[0.8192, 0.9886]$,
+a classifier combining encoding-phase features (stable rank and
+W\textsubscript{K} projections) with generation-phase logit
+statistics achieves AUROC $0.9288$ ($95\%$ CI $[0.8192, 0.9886]$,
 permutation $p<0.005$, $n=90$) with zero token-count confound
-($t=0.000$). The encoding-phase features alone (stable rank and
-W\textsubscript{K} projections, no generation features) achieve
+($t=0.000$). The encoding-phase features alone reached
 AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$, permutation
-$p{=}0.001$). A significant entity
+$p{=}0.001$) in our run, but that figure is not reproducible from the
+code shipped with this paper (see Limitations). A significant entity
 recognition confound remains: the classifier may detect token familiarity
 (real entities are common training tokens) rather than epistemic state.
 An entity deconfounding experiment (30~entities, 4-condition 2$\times$2
