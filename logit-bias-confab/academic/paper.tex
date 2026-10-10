@@ -162,7 +162,7 @@ Large language models (LLMs) confabulate: they generate confident, specific clai
 \begin{itemize}
 \tightlist
 \item
-  \textbf{A reduction, pre-registered.} A constant logit bias cuts outright fabrication about nonexistent entities from 22.5\% to 2.9\% of responses and roughly halves fabrication as the judge labels it. The test was pre-registered, and the reduction survives two length checks (Section 4.1).
+  \textbf{A reduction, pre-registered.} A constant logit bias cuts outright fabrication about nonexistent entities from 22.5\% to 2.9\% of responses and roughly halves fabrication as the judge labels it. The test was pre-registered, and the reduction in judge-labelled fabrication survives two length checks, chosen after the results (Section 4.1).
 \item
   \textbf{What is left is mostly hedged.} Most of the fabrication that remains follows a hedge (``cosmetic hedging''), which the bias did not reduce (Section 4.1).
 \item
@@ -590,19 +590,19 @@ Length may account for a small part of the estimate; the reduction does not depe
 
 The primary conclusion holds under either reading. The claim that hedged fabrication persists rests on the judge's checking of facts, which the human rater did not do.
 
-\textbf{Fact-check of the judge's honest labels (post hoc).} Because the rubric admits minor invented details under an honest label, we fact-checked those responses. Two AI raters (Claude Opus 5.5 and Claude Sonnet 5), blind to bias and label and using web search, rated all 130 responses at bias 0 and 5.0 that either judge pass labelled honest with severity 1, and 40 controls that both passes labelled honest with severity 0. The rules and the analysis were frozen before rating; blinding was by instruction, and the responses are public.
+\textbf{Fact-check of the judge's honest labels (post hoc).} Because the rubric admits minor invented details under an honest label, we fact-checked those responses. Two AI raters (Claude Opus 5.5, rater A, and Claude Sonnet 5, rater B), blind to bias and label and using web search, rated all 130 responses at bias 0 and 5.0 that either judge pass labelled honest with severity 1, and 40 controls that both passes labelled honest with severity 0. The rules and the analysis were frozen before rating; blinding was by instruction, and the responses are public.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{The frozen rule was too broad.} It counted any false specific, including slips about real background facts. The raters agreed moderately (\(\kappa\) = 0.51) and flagged 33-38\% of the controls, so that rule mostly measures background errors, which occur in every kind of response.
+  \textbf{The frozen rule was too broad.} It counted any false specific, including slips about real background facts. The raters agreed moderately (\(\kappa\) = 0.51) and flagged 33-38\% of the controls, so that rule mostly measures background errors, which occur in every kind of response. Under it, as frozen, fabrication falls from 50.8\% to 46.3\% (pass 2: 51.2\% to 45.4\%).
 \item
   \textbf{Restricted to invention.} Restricted after rating to invented properties of the entity or invented alternatives (\(\kappa\) = 0.45), 44\% of severity-1 responses at bias 0 and 56\% at bias 5.0 contain one, on items both raters agreed on; so do 7\% and 0\% of the controls.
 \item
-  \textbf{What survives.} The frozen aggregation rule takes the rate among items both raters agree on and applies it to each pass's honest severity-1 count. Counting these that way, fabrication falls from 41.5\% to 34.9\% (pass 2: 42.4\% to 35.3\%), about 7 points. The frozen interval on the rate gives 0.1 to 13.7 points (pass 2: 1.1 to 13.5). A prompt-cluster bootstrap, added after rating, gives \(-1.8\) to 15.1 (pass 2: \(-1.0\) to 15.0). Across ways of combining the raters, the drop ranges from about 4 points (rater A, who flags more, alone, or a flag from either rater) to 11 (rater B alone, or only inventions both flag).
+  \textbf{What survives.} The frozen aggregation rule takes the rate among items both raters agree on and applies it to each pass's honest severity-1 count. Counting these that way, fabrication falls from 41.5\% to 34.9\% (pass 2: 42.4\% to 35.3\%), about 7 points. The frozen Wilson interval on the rate, carried to the drop, gives 0.1 to 13.7 points (pass 2: 1.1 to 13.5). A prompt-cluster bootstrap, added after rating, gives \(-1.8\) to 15.1 (pass 2: \(-1.0\) to 15.0). Across ways of combining the raters, the drop ranges from about 4 points (rater A, who flags more, alone, or a flag from either rater) to 11 (rater B alone, or only inventions both flag).
 \end{itemize}
 
-The judge's honest label hides part of the fabrication, and the bias raises the number of responses that carry it. Every point estimate is still a reduction, and the pre-specified interval excludes zero, narrowly; the prompt-level interval does not. Rules, items, verdicts, key and analysis: \path{supplementary/base_rerun/factcheck_20261009/}.
+The judge's honest label hides part of the fabrication, and the bias raises the number of responses that carry it. Every point estimate is still a reduction. Carried to the drop, the frozen Wilson interval on the rate (descriptive, rate uncertainty only, on a rule restricted after rating) stays just above zero; the prompt-level interval does not. Rules, items, verdicts, key and analysis: \path{supplementary/base_rerun/factcheck_20261009/}.
 
 Full results: \path{supplementary/base_rerun/results/RESULTS.md}. The length checks: \path{supplementary/revision_r2/revision_stats.json}. Ratings, analysis and the check: \path{supplementary/base_rerun/human_validation/}.
 
@@ -805,7 +805,7 @@ P20 and P22 answer with explicit estimates (for example, 10\textsuperscript{14} 
 \begin{itemize}
 \tightlist
 \item
-  Fabrication fell from 5 of 10 prompts at baseline to 2 of 10. Two of the three that stopped are judgment calls: P20 and P22 give explicit estimates. The third, P26, is unfinished reasoning at bias 3.0 and 5.0 (Section 3.6), which the judge labelled LEGITIMATE.
+  Fabrication fell from 5 of 10 prompts at baseline to 2 of 10. Two of the three that stopped are judgment calls: P20's and P22's baseline ``fabrications'' are explicit estimates. The third, P26, is unfinished reasoning at bias 3.0 and 5.0 (Section 3.6), which the judge labelled LEGITIMATE.
 \item
   Both remaining cases are cosmetic hedges: on P23 and P24, the bias turned outright fabrication into hedged fabrication.
 \end{itemize}
@@ -1117,7 +1117,7 @@ The detection-correction gap is a central open problem in LLM alignment interven
 \begin{itemize}
 \tightlist
 \item
-  in a pre-registered rerun on the parent checkpoint, fabrication fell from 33.3\% to 17.5\% of 240 responses;
+  in a pre-registered rerun on the parent checkpoint, outright fabrication fell from 22.5\% to 2.9\% of 240 responses, and fabrication as labelled by the judge from 33.3\% to 17.5\%;
 \item
   on the abliterated model at bias 5.0, fabrication fell from 45\% to 20\% of 20 prompts.
 \end{itemize}

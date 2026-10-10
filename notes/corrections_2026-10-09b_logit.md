@@ -438,3 +438,26 @@ All were run read-only before the text was written. Scripts: `scratchpad/round5c
 - The closing reflection box is unchanged.
 - The frozen pre-registration and the fact-check's frozen `RULES.md`, `items.json` and `FROZEN.sha256` are unchanged.
 - Not pushed, not merged. Zenodo is held for the batch.
+
+## Round 5d (2026-10-09, CC): the focused Agni re-gate's minor findings (verdict MINOR_REVISIONS)
+The re-gate confirmed M2, M3 and minors 1–7 and 9–11 resolved, and every new number matching the data. M1 and minor 8
+were partly resolved; N2 and N4 finish them. Applied in both editions with an anchor-asserting script
+(`scratchpad/round5d/apply_round5d.py`, 7 anchors, each found once per file):
+- **N1.** The interval on the drop is "the frozen Wilson interval on the rate, carried to the drop". The closing
+  sentence now says it is descriptive, covers rate uncertainty only, and applies to a rule restricted after rating.
+  It no longer says "the pre-specified interval excludes zero".
+- **N2.** The Conclusion's "The result" list now leads with outright fabrication, 22.5% → 2.9%, then gives the
+  judge-labelled 33.3% → 17.5%.
+- **N3.** Introduction: "the reduction in judge-labelled fabrication survives two length checks, chosen after the
+  results".
+- **N4.** §4.1 now maps the raters: Claude Opus 5.5 is rater A and Claude Sonnet 5 is rater B.
+- **N5.** §4.6: "P20's and P22's baseline 'fabrications' are explicit estimates".
+- **N6.** §4.1 now reports the frozen rule's own Analysis-4 result: 50.8% → 46.3% (pass 2: 51.2% → 45.4%), from
+  analysis.py part 1.
+
+**Build** (MTH, 3 passes): 0 errors, 0 undefined references, 0 missing characters, no "??". Pages: integrity 29,
+academic 28.
+
+**verify_pdf** (control "Data Availability"):
+- On the new PDFs, all 7 present and 3 absent needles hold in both editions.
+- Negative control: all 10 fail on round 5c's PDFs.
