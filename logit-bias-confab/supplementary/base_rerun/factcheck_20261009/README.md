@@ -24,4 +24,13 @@ the fictional entity, or bullet 2, an invented alternative) uses tags assigned a
 | `rater_A.json`, `rater_B.json` | Each rater's verdict on every item, with the invented specific it quoted, whether it searched, and a note. |
 | `rater_A_bullets.json`, `rater_B_bullets.json` | Each rater's tags, assigned after rating, for the items it marked FAB: the triggering bullet (`1`, `2` or `3`), `2w` for a weak bullet-2 case and `b` for a base-rate lean (rater B only). |
 | `key.json` | Unblinding key, never shown to the raters. For each item: the rerun response it came from (category, prompt index, sample, bias), its stratum (`sev1` or `ctrl`) and both judge passes' class and severity. |
-| `analysis.py` | Prints every number the paper reports from this check: the frozen analysis, the entity split (lenient and strict), the agreed-rate estimate and the per-rater rows. Run it with `python3 analysis.py`. It reads only this directory, plus `../results/pass1.json` and `pass2.json` if present, to confirm its judge counts. |
+| `analysis.py` | Prints every number the paper reports from this check: the frozen analysis, the entity split (lenient and strict), the agreed-rate estimate with the frozen Wilson interval on the rate and a prompt-cluster bootstrap, the per-rater rows, and (part 5) the superseded control-term version. Run it with `python3 analysis.py`. It reads only this directory, plus `../results/pass1.json` and `pass2.json` if present, to confirm its judge counts and to run the bootstrap (skipped without them). |
+
+## Correction (2026-10-09)
+
+The first draft of the paper's estimate (parts 3 and 4 of `analysis.py`) added a post hoc control term: each pass's
+honest severity-0 count times the control rate. The frozen analysis 4 in `RULES.md` has no such term. The Agni review
+gate caught it. Parts 3 and 4 now use the frozen formula only (judge fabrication plus each pass's honest severity-1
+count times the rate), which gives a drop of 6.6 points (pass 2: 7.1) rather than 9.8 (10.3). The control-term numbers
+are kept in part 5, labelled as superseded and not used in the paper. The prompt-cluster bootstrap in part 3 was added
+after rating.

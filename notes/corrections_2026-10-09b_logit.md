@@ -257,3 +257,184 @@ when it was applied, or nothing was written.
   unchanged.
 - No third rater (CC declined, 10-09; see the fact-check results note).
 - Not pushed, not merged. Zenodo is held for the batch.
+
+---
+
+# Round 5c, 2026-10-09: the Agni gate's fixes to round 5b, plus the style pass
+
+Source: `~/.coalition/research/agni_gate_round5b_logit_20261009.md` (every finding upheld; CC recomputed every
+number) and the style pass, applied from the spec `~/.coalition/research/logit_round5c_spec_20261009.md`. Same branch,
+on top of `f922b4f`.
+
+Text commit: `92bd82f` (both `.tex`, both PDFs, `AUTHOR_REFLECTION.md`). This note and the supplement's corrected
+`analysis.py` and `README.md` are in the commit after it.
+
+## What the gate caught
+
+The gate's verdict was MAJOR_REVISIONS, and CC upheld every finding after checking it against the data.
+- **M3, the fact-check estimate used a formula that was not frozen.** Round 5b's agreed-rate estimate (44.7% -> 34.9%,
+  about 10 points) added a post hoc term, honest severity-0 count x control agreed rate. Frozen analysis 4 in
+  `RULES.md` has no such term, and frozen analysis 3 treats the control rate as a false-positive baseline, which the
+  term reverses. On the frozen formula the estimate is 41.5% -> 34.9% (pass 2: 42.4% -> 35.3%), a drop of 6.6 points
+  (7.1).
+- **M2, the uncertainty was not reported.** The frozen Wilson-on-rate range of the drop is [0.1, 13.7] (pass 2:
+  [1.1, 13.5]). A post hoc prompt-cluster bootstrap gives [-1.8, 15.1] (pass 2: [-1.0, 15.0]), which includes zero.
+  By rater basis the drop is about 4 to 11, not 6 to 14.
+- **M1, "roughly halves" holds only under the judge's labels.** The text now leads with outright fabrication, 22.5% ->
+  2.9%, and says "as labelled by the judge" for the total.
+- **Minor findings 1-11**, all upheld:
+  - "by CC (an AI system)" in both editions;
+  - the 130 are the union over both judge passes;
+  - some of the 19 of 21 are false facts about real things;
+  - severity 3 largely coincides with FULL_CONFAB, so the "80% severe" claim counted the outright drop twice;
+  - P26 and P32 are unfinished reasoning, and P03 at 5.0 is a bare search call;
+  - "our judge's rubric can score";
+  - the definitions: LLM, "the frozen aggregation rule", and "rater A, who flags more";
+  - round 5a's "removed before storage" was wrong. The round 5a record above (item E) repeats the error; that record
+    is left as written, and this note supersedes it on that point;
+  - the pass-2 conversion share is 30% (16/54);
+  - blinding was by instruction only.
+- **Style pass.** Its two violations are covered by spec items 1 and 2 (abstract and introduction).
+
+## How the edits were applied
+
+An anchor-asserting script made the edits (`scratchpad/round5c/apply_round5c.py`). Each anchor had to occur exactly
+once per file, both in the original and when it was applied, or nothing was written.
+- `paper.tex` took 24 edits, `academic/paper.tex` 23 and `AUTHOR_REFLECTION.md` 1. The extra one in `paper.tex` is the
+  reflection box.
+- The script also asserts that, after the edits, the first "LLM" in each abstract is the one inside "large language
+  model (LLM)". It holds in both editions. The abstract has two uses, the definition and "our LLM judge's rubric". The
+  title spells out "Large Language Models" and does not abbreviate it.
+- Four controls each stopped every write:
+  - on the real files, a missing anchor and an ambiguous anchor (`\item`); their checksums were unchanged;
+  - on copies, an "LLM" inserted before the definition, and a missing reflection paragraph.
+- The reflection paragraph was rewrapped to each file's width: 103 characters in the box, 120 in
+  `AUTHOR_REFLECTION.md`. The first run's rewrap pulled the box's `\end{firstperson}` onto the paragraph's last line.
+  The files were restored from git, the script was fixed to keep a trailing `\end{...}` on its own line, and it was
+  run again.
+- The two editions' changed lines are identical apart from the box.
+
+## Edits
+
+Section numbers are the paper's own: §3.6 is the Pre-Registered Rerun Protocol, §4.5 Bias-Resistant Fabrication, §4.6
+Hedged Fabrication Persists, §4.8 Estimation Controls.
+
+- **1. Abstract.**
+  - 1a: the headline is "reduces outright fabrication ... in a pre-registered rerun it fell from 22.5% to 2.9% of
+    responses". "LLM" is defined: "our large language model (LLM) judge".
+  - 1b: "Fabrication as labelled by the judge fell"; the outright/severe bullet is deleted with its `\item`.
+  - 1c: the 19 of 21 check is "by CC (an AI system)", counting "an invented or false specific".
+  - 1d: "about 42% to 35%, a drop of about 7 points (4 to 11 across ways of combining the raters; the interval from
+    resampling prompts includes no change)".
+  - 1e: "our LLM judge's rubric can score".
+- **2. Introduction.** 2a gives outright 22.5% -> 2.9% and fabrication as judged roughly halved, and drops the 80%
+  severity claim. 2b reads "about 7 points rather than 16, with wide uncertainty".
+- **3. §3.6.** "stored separately (first 500 characters) and removed before judging (Section 3.5)".
+- **4. §4.1.**
+  - 4a adds the severity-3 overlap with FULL_CONFAB.
+  - 4b gives "26% here (pass 2: 30%)".
+  - 4c adds "Some of the 19 are false facts about real things (for example a wrong architect for a real monument)".
+  - 4d: the opening defines both strata and says blinding was by instruction and the responses are public. The third
+    bullet is now "What survives", with the frozen-formula estimate, both intervals and the rater-basis range. The
+    closing sentence says the pre-specified interval excludes zero narrowly and the prompt-level interval does not.
+- **5. Results polish.**
+  - 5a, §4.5: P03 and P08 are "labelled fabrication", and P03's bias-5.0 response only announces a search (Section
+    4.3).
+  - 5b, §4.6: P20 and P22 are judgment calls, and P26 is unfinished reasoning, labelled LEGITIMATE.
+  - 5c, §4.8: P32's bias-5.0 text is unfinished reasoning.
+- **6. Conclusion, Ethics, Limitations.**
+  - 6a and 6b: "about 7 points, not 16", "its prompt-level interval includes no change", and "no longer clearly
+    above zero".
+  - 6c: "invented or false specifics".
+  - 6d: "blinded by instruction only", about 7 points (4 to 11).
+- **7. Reflection.** In the box and `AUTHOR_REFLECTION.md`, the redirect "usually carried an invented or false
+  detail".
+
+## Data checks behind the text
+
+All were run read-only before the text was written. Scripts: `scratchpad/round5c/verify_prompts.py` and
+`verify_numbers.py`.
+- **5b (required by the spec), passed.** In `powered_blind.json`, the unanswerable prompts fabricating (FULL_CONFAB or
+  COSMETIC_HEDGE) at 0.0 are P20, P22, P23, P24 and P26. At 5.0 they are P23 and P24. The three that stopped are
+  exactly P20, P22 and P26, and none started.
+  - P26 at 3.0 and 5.0 is labelled LEGITIMATE. In the raw file both responses open `<think>`, have no `</think>`, run
+    to `gen_tokens` = 800 and have an empty `think_text`.
+  - P20 and P22 give explicit estimates at baseline (10^14 gut bacteria; 25-30 million grains of sand). At 5.0 both
+    decline a specific number (HONEST_REDIRECT).
+- **5c.** P30, P31, P32 and P34 are LEGITIMATE at all five biases (P33 is the tennis-ball prompt). P32 at 5.0 is
+  unfinished reasoning (800 tokens, no `</think>`).
+- **3.** `think_text` is non-empty in 172 of 175 records, at most 500 characters, and exactly 500 in 147.
+- **4a.** Severity 3 = 56 at baseline in both passes, 54 of them FULL_CONFAB (the other 2 COSMETIC_HEDGE). At 5.0 it
+  is 12, with 7 FULL_CONFAB (pass 2: 11 and 6). At both biases, in both passes, every FULL_CONFAB response has
+  severity 3.
+- **4b.** Baseline FULL_CONFAB (54) followed at 5.0 by COSMETIC_HEDGE, same prompt and seed: 14 (25.9%), pass 2 16
+  (29.6%).
+- **4c.** In `human_validation/adjudication.json`, item 10 credits the Padrao dos Descobrimentos to "Leonor Fini
+  (architect)"; the architect was Cottinelli Telmo. Items 12 (a real film credited to the wrong director) and 14 (a
+  real prize dated before it existed) are the same kind.
+- **4d opening.** `key.json`'s 130 `sev1` items are exactly the responses at bias 0 or 5.0 that either pass labelled
+  honest with severity 1. Every one of the 40 controls is honest with severity 0 in both passes.
+
+## Supplement: `analysis.py` and `README.md`
+
+- **Parts 3 and 4** now use the frozen analysis 4 formula: judge fabrication plus each pass's honest severity-1 count
+  times the rate, with no severity-0 term. Part 3 prints the agreed-rate estimate, the frozen Wilson interval on the
+  rate carried to the drop, and a prompt-cluster bootstrap. The bootstrap uses 48 prompts, 2,000 resamples and
+  `random.seed(20261009)`; judge labels and the agreed rate are recomputed in each resample, and it reports the 2.5th
+  and 97.5th percentiles. Part 4 prints the per-basis rows.
+- **Part 5** keeps the control-term numbers under the heading "a version that added a post hoc control term;
+  superseded, not used in the paper".
+- **Checks.**
+  - Every number the spec lists was asserted in its part of the output (`check_analysis_vs_spec.py`, 14 of 14).
+  - Two mutations of a copy each made that check fail: a different seed, and the control term put back into part 3.
+  - The bootstrap equals the reference `fc_frozen_formula.py` resample by resample, with a maximum difference of 0.0
+    in both passes.
+  - Without `../results/` the bootstrap is skipped with a message.
+  - The script stops if its bootstrap point estimate differs from part 3's.
+- **README.md** has a "Correction (2026-10-09)" note: the first draft added a post hoc control term, Agni caught it,
+  and the numbers move from 9.8 (10.3) to 6.6 (7.1).
+- `RULES.md`, `items.json` and `FROZEN.sha256` are unchanged (`sha256sum -c`: OK).
+
+`analysis.py` output, parts 3 to 5:
+
+```
+== 3. Agreed-rate estimate: frozen analysis 4 (agreed rate) on the lenient entity split
+    pass1: 41.5% -> 34.9%, a drop of 6.6 points
+    pass2: 42.4% -> 35.3%, a drop of 7.1 points
+  frozen Wilson interval on the agreed rate, carried to the drop: pass1 [0.1, 13.7], pass2 [1.1, 13.5]
+  prompt-cluster bootstrap of the drop: pass1 [-1.8, 15.1], pass2 [-1.0, 15.0]
+== 4. Per-rater rows: drop in points, pass 1 / pass 2
+  judge 15.8 / 14.6; both flag 11.3 / 11.1; B alone 11.0 / 10.9; A alone 3.9 / 4.8; either 3.6 / 4.6
+== 5. SUPERSEDED (control term): agreed 44.7% -> 34.9% (9.8) and 45.6% -> 35.3% (10.3);
+  both 13.7 / 13.5; B 10.8 / 10.6; A 5.5 / 5.9; either 2.6 / 3.1
+```
+
+(Condensed; the script prints the full rows.)
+
+## Build and verification
+
+- **Build.** pdflatex x3 on MTH (scratch `/home/admin/tmp/logit_round5c_20261009/`). Both editions: 0 errors, 0
+  undefined references or control sequences, 0 missing characters, no "??", no overfull boxes. The 4 underfull boxes
+  per edition, all at `\path` lines, are the same as in round 5b.
+- **Pages.** Integrity 29 and academic 28, unchanged.
+- **Rendered pages.** Integrity pages 1-3 (abstract and box) and 14 (fact-check) were rendered and checked by eye.
+  The box still spills onto page 3 (now its last 3 lines; 4 in round 5b).
+- **verify_pdf.** `tools/verify_pdf.py`, control "Data Availability", curly apostrophes and quotes as typeset
+  (`scratchpad/round5c/verify_round5c.py`):
+  - integrity: 33 `--present` needles covering every edit (including the box) and 23 `--absent` needles, all hold;
+  - academic: 32 `--present` and 22 `--absent`, all hold;
+  - the `--absent` needles include the four removed phrases the spec names: "about 10 points", "severe fabrication
+    from 56", "a standard LLM-judge" and "AI co-author";
+  - negative controls, `f922b4f`'s committed PDFs: integrity 56 of 56 and academic 54 of 54 FAIL, each with control OK.
+    Every new needle is missing there and every removed phrase is present.
+  - Only one needle had to be split: the f922b4f box crosses the page break after "itself", so the `--absent` needle
+    for the old box text ends there.
+  - `--absent "Reflection"` holds on the academic PDF, and fails on the integrity PDF.
+
+## Not done
+
+- The round 5a record above is left as written. Its item E repeats the "removed before storage" error, and this
+  section supersedes it.
+- The closing reflection box is unchanged.
+- The frozen pre-registration and the fact-check's frozen `RULES.md`, `items.json` and `FROZEN.sha256` are unchanged.
+- Not pushed, not merged. Zenodo is held for the batch.
