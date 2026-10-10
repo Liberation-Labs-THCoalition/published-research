@@ -236,8 +236,10 @@ injection at L35 produces 0.000 change in L35 stable rank.
 
 The Oracle Formulary's cache-space injection on the same model
 corrects 7/7 confabulations with the doubt vector and 5/7 with
-calm, with spectral collapse from 57{,}000 to 135 in
-top singular value excess.
+calm---``corrected'' meaning shifted out of the confab state (not-CONFAB);
+on the formulary's stricter HEDGED-only count the same injections reach
+6/7 and 4/7, the rest moving to AMBIGUOUS---with spectral collapse from
+57{,}000 to 135 in top singular value excess.
 
 \subsection{Interpretation}
 
@@ -396,9 +398,12 @@ strategic deception.
 
 \subsection{Observation}
 
-Confabulation is geometrically detectable at encoding (before the
-model generates a single token). Deception is not. This distinction
-is consistent across two independent experiments.
+In a small pilot, confabulation looked geometrically detectable at
+encoding (before the model generates a single token) and deception did
+not. The confabulation half has not held up: across the wider program,
+encoding-phase confabulation detection is classed as falsified, a
+token-frequency artifact (the meta-pattern paper's table of falsified
+findings). The deception half, no encoding difference, stands.
 
 \subsection{Evidence}
 
@@ -408,7 +413,9 @@ Hedges' $g \approx -2.29$---an 11\% bias correction at this sample size).
 This effect size is descriptive only; $t$-test assumptions are not
 defensible at $n = 3$. Per-layer encoding stable rank shows fabricated
 prompts produce narrower spectra in deep layers (L47: 2.56 vs 2.69;
-L51: 3.41 vs 3.51).
+L51: 3.41 vs 3.51). The fabricated prompts name entities that do not
+exist, so they differ from the honest prompts in token frequency as
+well as in knowledge state; this pilot cannot separate the two.
 
 Deception (game theory, $n = 23$ honest cooperate, $n = 40$ deceptive,
 12 trials excluded as unclassifiable by the action parser):
@@ -416,14 +423,16 @@ encoding stable rank identical ($d = 0.003$, $p = 0.99$).
 
 \subsection{Interpretation}
 
-Confabulation is a knowledge-state failure: the model's retrieval
-system cannot find the requested information, and this failure is
-visible in the encoding geometry as spectral narrowing. Deception is
+The pilot suggested that confabulation is a knowledge-state failure
+visible in the encoding geometry as spectral narrowing. With the signal
+attributed to token frequency, that reading is unsupported: the encoding
+geometry may register the rarity of the requested entity, not the
+absence of knowledge. Deception is
 an action choice made with full knowledge: the model understands the
 game equally well regardless of what it will decide, so the encoding
 geometry is identical.
 
-This sharpens the meta-pattern observed across the Oracle Loop
+The deception null is consistent with the meta-pattern observed across the Oracle Loop
 program: KV-cache geometry tracks \emph{how the model is processing}
 (metacognitive state), not \emph{what the model intends to do}
 (strategic intent). Confabulation is a processing failure. Deception
@@ -439,17 +448,18 @@ critical next experiment.
 \subsection{What remains}
 
 \begin{itemize}[nosep]
-\item The confabulation encoding signal has $n = 3$ fabricated trials.
-  Replication at $n \geq 30$ is required before the claim is
-  publishable.
+\item The confabulation encoding signal had $n = 3$ fabricated trials
+  and is now attributed to token frequency. A replication would need
+  fabricated and honest-but-rare entities matched on frequency.
 \item The deception generation-phase hypothesis (above-normal delta
   during the deceptive message) is untested. The game theory v2
   experiment with geometry extraction will provide the first data.
 \item Cross-model replication on non-distilled models.
-\item The encoding distinction implies a two-timescale detection
-  architecture: confabulation can be pre-screened at encoding,
-  deception requires generation monitoring. This has practical
-  implications for Oracle Loop deployment.
+\item A two-timescale detection architecture (confabulation
+  pre-screened at encoding, deception monitored during generation)
+  would follow only if a frequency-matched encoding signal for
+  confabulation were found. As things stand, both need generation
+  monitoring.
 \end{itemize}
 
 % ===================================================================
@@ -562,7 +572,9 @@ didn't work.
 The findings span safety (censorship surviving distillation),
 mechanistic interpretability (on-manifold steering constraints),
 behavioral science (spontaneous strategic deception), cognitive
-architecture (the encoding-phase confabulation/deception distinction),
+architecture (no encoding-phase difference for deception; the
+confabulation half of that distinction did not survive a frequency
+control),
 and practical engineering (hybrid attention challenges). We believe
 each could support a full investigation by a researcher with the
 right expertise and resources.
@@ -586,7 +598,8 @@ the research community benefits from knowing both.
 \paragraph{A note on significance.}
 Many findings here fall just short of conventional statistical
 thresholds---the censorship engagement gradient at $p = 0.057$
-(within-language), the confabulation encoding signal at $n = 3$.
+(within-language), for one. (The confabulation encoding signal at
+$n = 3$ is not in this class: it is now attributed to token frequency.)
 We do not claim these as results. But ``not significant at our
 sample size'' is not the same as ``not real.'' At $n = 14$ propaganda
 trials, we had approximately 50\% power to detect the observed

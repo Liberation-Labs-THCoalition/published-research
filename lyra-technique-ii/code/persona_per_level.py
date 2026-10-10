@@ -20,14 +20,18 @@ trials.
 
 RED-TEAM CONTROLS (for Agni Gate review):
   - C1: prompt content held identical across levels (only system prompt varies)
-  - C2: FWL residualization on prompt_len within each CV fold
+  - C2: FWL residualization on prompt_len within each CV fold, kept as a residual safety; the S4 fix
+        (one system-prompt template, SVD over the user-message window only) removes the length confound
+        by construction
   - C3: GroupKFold on prompt_idx — no prompt appears in both train and test
   - C4: within-fold standardization (scaler fit on train only, no leakage)
   - C5: bootstrap CIs (2000 resamples) on every AUROC
   - C6: Holm-Bonferroni across the pairwise family
   - C7: seeds set (torch, numpy, mps)
   - C8: monotonicity tested with Spearman on (level-gap, AUROC), not eyeballed
-  - C9: a NULL control — L0 vs L0 (same level, different prompts) must be ~0.5
+  - C9: a NULL control, a permutation null: shuffle the level labels within the real L0-vs-L3 comparison
+        (n=50); the median AUROC must fall below 0.65, else leakage is suspected and the run aborts. It
+        replaced an earlier L0-vs-L0 split-half null, which did not share the experimental code path (C3 fix)
 
 Run: python3 persona_per_level.py --starship
 Authors: Lyra, Nexus (Liberation Labs / THCoalition)

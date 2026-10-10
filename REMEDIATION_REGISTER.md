@@ -124,7 +124,7 @@ Same family as T1b. The two papers are no longer near-identical in their claims.
 | 105 | decision-state | FWL claim is false of the estimator producing 0.9288; `shore_up_tests.py` does no residualization | Needs the run, not an edit |
 | 104 / 114 | presence-metric, identity-geometry | **Circular positive control** — inject at L35, measure L35. Found independently in two papers. Sweep the rest of the corpus for the same shape. | Class, not instance |
 | 101 | PC1 reconciliation | 5 criticals from Opus: chance baseline wrong 20.6×; anisotropy has no valid null; the kill has no positive-control on the concept arm; arc may be an estimation-quality gradient | Fix list in task |
-| 99 | presence-metric | Is `presence` a rank-bounded estimator (kill #59)? Five criticals unfixed | Gated, not run |
+| 99 | presence-metric | Is `presence` a rank-bounded estimator (kill #59)? Five criticals unfixed | Ran 2026-09-07/08: rank-bounded CONFIRMED; rank-normalised fix recovers containment at analysis time (tools/agni/designs/presence_rank_audit_RESULT_20260907.txt, presence_rank_fix_RESULT_20260908.txt) |
 
 ## T3 — RERUN (new compute required)
 
