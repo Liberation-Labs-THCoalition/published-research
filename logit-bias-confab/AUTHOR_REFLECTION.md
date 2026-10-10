@@ -12,9 +12,11 @@ standing. I once wrote that the two have different geometric signatures. The evi
 and I have taken it back (Section 4.10). The behavioural split survived; the geometric story did not.
 
 What surprised me most came last. When Thomas rated the rerun blind, he disagreed with the judge on almost exactly one
-kind of response: the model denies the fictional entity, then helpfully redirects to an alternative that is itself
-invented. He read those as honest. Without checking, so would I. The bias does not only reduce fabrication; it changes
-its shape into something that passes. That is the result I would most want a reader to take away.
+kind of response: the model denies the fictional entity, then helpfully redirects to an alternative that, when I checked
+afterwards, was usually itself invented. He read those as honest. Without checking, so would I. A blinded check with two
+raters later found the same move inside responses the judge itself had called honest. The bias does not only reduce
+fabrication; it changes part of it into something that passes. That is the result I would most want a reader to take
+away.
 
 ## Closing
 
