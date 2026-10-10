@@ -278,7 +278,7 @@ PC10 & 0.016 & 0.146 & $0.1\times$ & investigations, publications & Below random
 {\scriptsize \textsuperscript{*}Single-sample random baseline per PC. Per-PC baselines vary (0.002--0.291 range across PCs at L45), reflecting high variance of individual random draws. The below-random ratios are preliminary observations that require multi-sample null estimation (20+) before they can be interpreted as evidence of selective exclusion. PCs 3+ are also statistically unreliable at 30 prompts in 5120D by Marchenko--Pastur criteria.}
 
 \vspace{2pt}
-{\scriptsize \textsuperscript{\dag}PC6: position-specific $\cos = 0.585$ ($8.1\times$ random) but mean-pooled recomputation gives $\cos = 0.032$ ($0.44\times$ random). Inconclusive --- requires position-resolved investigation.}
+{\scriptsize \textsuperscript{\dag}PC6: position-specific $\cos = 0.585$ ($8.1\times$ the table's random draw, 0.072), but mean-pooled recomputation gives $\cos = 0.032$, within the spread of a mean-pooled random baseline ($0.085 \pm 0.065$). Each value is compared with the baseline from its own measurement. Inconclusive --- requires position-resolved investigation.}
 \end{table}
 
 Within the aligned L35--L45 range, PCs 3--5 carry: analytical formalism (PC3), positive affect / informal register (PC4), and mixed scientific/grief content (PC5). The ghost dimensions also show structured secondary J-lens vocabulary at late layers (PC3: gratitude; PC4: forensic/legal; each at $p = 0.01$--$0.08$) --- observations requiring the same multi-sample confirmation as PC1's shadow vocabulary.
@@ -320,7 +320,7 @@ At ignition (L45), the workspace shows PC2 (emotional entity evaluation) above i
 
   \item \textbf{30 prompts for 5120D PCA.} PCs 3+ are statistically unreliable by Marchenko--Pastur criteria. Claims restricted to PCs 1--2 for progression narratives; PCs 3--5 characterized only within the aligned L35--L45 range as qualitative observations.
 
-  \item \textbf{No causal evidence.} All findings are correlational (Jacobian transport). Injection/ablation experiments are designed (\Cref{sec:active-filtering}) but not performed. ``Below random'' observations may reflect Jacobian structure rather than selective exclusion.
+  \item \textbf{No causal evidence.} All findings are correlational (Jacobian transport). No injection or ablation result is reported: a single-prompt injection pilot was run (\Cref{sec:active-filtering}), but its readout metric was unsound, so it gives no evidence either way. ``Below random'' observations may reflect Jacobian structure rather than selective exclusion.
 
   \item \textbf{Single model for primary results.} The 8B comparison addresses architecture but introduces scale and training confounds. Generalization to other architectures, scales, and training procedures is unknown.
 
@@ -366,7 +366,7 @@ The 31-layer validated workspace band on the 27B compares to substantially fewer
 \subsection{Active Filtering Test}
 \label{sec:active-filtering}
 
-The below-random pattern for PCs 3--5 at L45, if confirmed, raises the question: does the workspace pull content in to evaluate and filter it, or is the exclusion passive? An injection experiment --- adding controlled activation along PC3/PC4/PC5 directions at pre-ignition layers and measuring J-lens readout at L45 --- would distinguish active filtering (content appears briefly then vanishes) from passive exclusion (content never appears). This experiment is designed and staged.
+The below-random pattern for PCs 3--5 at L45, if confirmed, raises the question: does the workspace pull content in to evaluate and filter it, or is the exclusion passive? An injection experiment --- adding controlled activation along PC3/PC4/PC5 directions at pre-ignition layers and measuring J-lens readout at L45 --- would distinguish active filtering (content appears briefly then vanishes) from passive exclusion (content never appears). A single-prompt pilot was run (2026-07-16: one prompt, $\alpha = 5$, injection at L35--L46, readout at L40--L50). Its readout metric was unsound, so the pilot gives no evidence either way. It summed target-word probability only within the readout's top 20 tokens, so a target word outside them read as exactly zero. One PC's target list included the prompt's own dominant words. Duplicate token strings collapsed into one entry. A properly instrumented test, with matched baselines and many prompts, remains to be run.\footnote{Corrected 2026-10-09. Earlier versions said this experiment was designed and staged, not run.}
 
 \subsection{Distillation Attribution}
 
