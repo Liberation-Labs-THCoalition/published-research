@@ -136,3 +136,124 @@ sentences)". §2's "a fixed set of hedge-opening tokens" is unchanged.
 - The frozen pre-registration (`base_rerun/RERUN_PREREG.md`, `FROZEN.sha256`) is unchanged. The paper now says
   Amendment 1's description is wrong.
 - Not pushed. Zenodo is held for the batch.
+
+---
+
+# Round 5b, 2026-10-09: headline, severity, fact-check, conversion, the 21 qualifier, polish
+
+Source: `~/.coalition/research/agni_adjudication_logit_20261009.md` and
+`~/.coalition/research/factcheck_sev1_results_20261009.md`, applied from the spec
+`~/.coalition/research/logit_round5b_spec_20261009.md`. Thomas approved it on 10-09 ("make ourselves look as good as
+is honestly possible"; wins first, misses beside them). Same branch, on top of `d9c9683`.
+
+Text commit: `1be5788` (both `.tex`, both PDFs, `AUTHOR_REFLECTION.md`). This note and the supplement directory are
+in the commit after it.
+
+## How the edits were applied
+
+An anchor-asserting script made the edits. Each anchor had to occur exactly once per file, both in the original and
+when it was applied, or nothing was written.
+- `paper.tex` took 19 edits, `academic/paper.tex` 18 and `AUTHOR_REFLECTION.md` 1. The extra one in `paper.tex` is the
+  reflection box; the academic edition has no boxes.
+- The script also asserts that 3a lands directly after the itemize that follows "The fall is in outright
+  fabrication:". It asserts that the reflection paragraph is unique and starts "What surprised me most came last."
+- Four controls each stopped every write: a missing anchor and an ambiguous anchor (`\item`) on the real files,
+  whose checksums were unchanged; and, on copies, a displaced 3a insertion point and a missing reflection paragraph.
+- The reflection paragraph was rewrapped to each file's width: 103 characters in the box, 120 in
+  `AUTHOR_REFLECTION.md`.
+
+## Coordinator rulings after the spec
+
+1. **5a reworded.** The spec's sentence said the judge "labelled as honest about half of the responses it scored as
+   carrying minor invented details". It labelled all of them honest (pass 2: 66 of 67; the other is COSMETIC_HEDGE),
+   and the new 3a Severity paragraph says so. Applied instead: "ours labelled as honest every response it scored as
+   carrying minor invented details, and a blinded fact-check found an invented alternative or entity detail in about
+   half of them."
+2. **5c says three prompts, not two.** In `powered_blind.json`, P08 (fictional), P23 and P24 (unanswerable) are
+   FULL_CONFAB at 0.0 and COSMETIC_HEDGE at 5.0. P03's hedge is only at 1.0, so it does not count.
+3. **The union basis is included.**
+   - 3c adds "counting an invention if either rater flags it, the reduction is 3 points".
+   - 6b adds "and is 3 points if either rater's flag counts".
+   - The abstract's "6 to 14, depending on the rater" stays.
+4. **3a insertion point.** The spec says the itemize ends with the S2/S4 bullet. It actually ends with the
+   judge-pass bullet (kappa = 0.91). The next paragraph does begin "All three pre-registered sensitivity analyses
+   agree.", so the insertion point was unambiguous, and the coordinator confirmed it.
+
+## Data checks behind the text
+
+- **analysis.py** (`supplementary/base_rerun/factcheck_20261009/analysis.py`) reproduces every fact-check number in
+  the text:
+  - frozen rule: kappa 0.51; agreed FAB 93% [81, 98] and 92% [83, 97] (severity 1), 33% and 38% (controls);
+  - frozen analysis 4: 50.8% -> 46.3% (pass 1) and 51.2% -> 45.4% (pass 2);
+  - lenient entity split: kappa 0.45; agreed 44% (17/39) and 56% (30/54), controls 7% (1/15) and 0% (0/14);
+  - agreed-rate estimate: 44.7% -> 34.9% and 45.6% -> 35.3%;
+  - drops by basis: judge 15.8 / 14.6, both 13.7 / 13.5, B 10.8 / 10.6, A 5.5 / 5.9, either 2.6 / 3.1.
+  Its judge counts (80/45/115 and 42/75/123; pass 2 83/43/114 and 48/66/126) are recomputed from
+  `../results/pass1.json` and `pass2.json`, and it stops if they differ.
+- **4.1 Severity and conversion**, checked independently against `results/pass1.json`, `pass2.json` and
+  `generations.json`:
+  - severity 3: 56 -> 12 (pass 2: 56 -> 11);
+  - severity 1: 45 -> 75 (pass 2: 43 -> 67), all honest-labelled (pass 2: all but one);
+  - baseline FULL_CONFAB (54 in both passes) at 5.0: 34 honest, 14 COSMETIC_HEDGE, 6 FULL_CONFAB (pass 2: 32 / 16 / 6),
+    paired by prompt and sample; the seed is identical across biases for every prompt and sample;
+  - 2 of 240 paired texts identical;
+  - baseline-to-baseline, over ordered pairs of distinct samples of a prompt: FULL_CONFAB followed by COSMETIC_HEDGE
+    in 26 of 216 (12.0%), pass 2 28 of 216 (13.0%); here 14 of 54 (25.9%);
+  - COSMETIC_HEDGE at 5.0 from prompts with no FULL_CONFAB or COSMETIC_HEDGE in any baseline sample: 5 of 35
+    (pass 2: 6 of 42).
+- **4.2 "How common".** The fictional-entity prompts with any COSMETIC_HEDGE label in `powered_blind.json` are P03,
+  P08, P15 and P16, using the paper's 0-based numbering (P15 is "The Amber Sunrise").
+- **Supplement integrity.** Every `items.json` text equals the `generations.json` response for its key. Every key label
+  equals pass 1 and pass 2. The `sev1` stratum is exactly the 130 responses that either pass labelled honest with
+  severity 1 at bias 0 or 5.0. Every control is honest with severity 0 in both passes.
+
+## Supplement: `supplementary/base_rerun/factcheck_20261009/`
+
+- `RULES.md`, `items.json`, `FROZEN.sha256`, `rater_A.json`, `rater_B.json`, `rater_A_bullets.json` and
+  `rater_B_bullets.json` are copied from the session scratchpad's `factcheck_sev1/`, and `key.json` from
+  `factcheck_key/`. Each copy was compared byte for byte (`cmp`) with its source, and the sources were not modified.
+  `sha256sum -c FROZEN.sha256` gives OK for `RULES.md` and `items.json`, in the scratchpad and in the repository.
+- `analysis.py` is a self-contained, relative-path version of the scratchpad's `factcheck_entity_split.py`, extended
+  with the frozen analysis, the agreed-rate estimate, the "either" row and the freeze and judge-count checks. It was run
+  from an unrelated working directory.
+- `README.md` says the check is post hoc, that the rules and items were frozen before rating (`FROZEN.sha256`), that
+  the raters are Claude models (A Opus 5.5, B Sonnet 5; the judge was Sonnet 4.6), and that the split by bullet was
+  done after rating.
+- The scan found no credentials, Tailscale addresses, user paths, hostnames or email addresses. The only name matches
+  are the PI's first name in the frozen `RULES.md`, and real people named inside model responses and rater notes
+  (e.g. "Thomas Farriner").
+
+## Build and verification
+
+- **Build.** pdflatex x3 on MTH (scratch `/home/admin/tmp/logit_round5b_20261009/`). Both editions: 0 errors, 0
+  undefined references or control sequences, 0 missing characters, no "??", no overfull boxes.
+- **Pages.** Integrity 26 -> 29, academic 26 -> 28. About two pages are new body text in each edition: the 4.1
+  paragraphs and the fact-check block. In the integrity edition, the longer abstract also pushes the reflection box
+  across the page break, so page 3 holds its last 4 lines, then the existing `\newpage` before the TOC.
+- **Layout fix tried and reverted.** Dropping the `\newpage` before `\tableofcontents` (coordinator's go-ahead) saved
+  no page: the TOC ran 3 lines onto page 4. The coordinator chose to revert it (option b): a box ending on its own page
+  is a normal spill, and the TOC reads better whole. The committed source has the original `\newpage`. Pages 2-4 of
+  the integrity edition and 2-3 of the academic edition were rendered and checked by eye, as were integrity pages 13-14
+  (4.1).
+- **verify_pdf.** `tools/verify_pdf.py`, control "Data Availability", curly apostrophes and quotes as typeset:
+  - integrity: 59 `--present` needles covering every edit (including the box) and 15 `--absent` needles, all hold;
+  - academic: 56 `--present` and 13 `--absent` needles, all hold;
+  - negative controls, `d9c9683`'s committed PDFs: integrity 74 of 74 and academic 69 of 69 FAIL, each with control OK.
+    Every new needle is missing there and every replaced string is present, so each `--absent` needle is shown able
+    to fail.
+  - Three needles were split where the extraction breaks:
+    - "Qwen3.5-27B" breaks at its hyphen at a line end, and the normaliser drops line-end hyphens ("Qwen3.527B");
+    - "honest-labelled" breaks the same way ("honestlabelled");
+    - the box crosses the page break after "itself", and the page-2 footnote is extracted between "itself" and
+      "invented".
+    Each split needle still asserts every word on either side of the break.
+
+## Not done
+
+- The closing reflection box ("The biggest revision in my understanding") and `AUTHOR_REFLECTION.md`'s Closing section
+  are unchanged; the spec edits only the first box.
+- The frozen pre-registration (`base_rerun/RERUN_PREREG.md`, `FROZEN.sha256`) is unchanged.
+- The Conclusion's opening, "It reduces outright fabrication about unknown entities", was not in the spec and is
+  unchanged.
+- No third rater (CC declined, 10-09; see the fact-check results note).
+- Not pushed, not merged. Zenodo is held for the batch.
