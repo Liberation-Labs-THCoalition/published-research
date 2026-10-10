@@ -114,16 +114,14 @@
 \maketitle
 
 \begin{abstract}
-A constant positive bias on the logits of 14 tokens that open common hedge phrases (most also open ordinary sentences) roughly halves fabrication about nonexistent entities in two Qwen3.5-27B checkpoints, by removing outright fabrication. Logits are the unnormalised scores a model assigns to each vocabulary token before sampling. Part of what the bias removes returns in a form an LLM judge labels honest: the model denies the entity, then offers an alternative that is itself invented.
+A constant positive bias on the logits of 14 tokens that open common hedge phrases (most also open ordinary sentences) reduces outright fabrication about nonexistent entities in two Qwen3.5-27B checkpoints; in a pre-registered rerun it fell from 22.5\% to 2.9\% of responses. Logits are the unnormalised scores a model assigns to each vocabulary token before sampling. Part of what the bias removes returns in a form our large language model (LLM) judge labels honest: the model denies the entity, then offers an alternative that is itself invented.
 
 \textbf{Pre-registered rerun.} The test ran on the parent checkpoint: 48 prompts, 5 samples each at temperature 0.7.
 
 \begin{itemize}
 \tightlist
 \item
-  Fabrication fell from 33.3\% to 17.5\% of responses at bias 5.0: a mean per-prompt reduction of 15.8 percentage points (95\% prompt-cluster bootstrap interval 7.5 to 24.6; one-sided sign-flip p = 0.0005).
-\item
-  Outright fabrication fell from 22.5\% to 2.9\%, and responses the judge scored as severe fabrication from 56 to 12 of 240.
+  Fabrication as labelled by the judge fell from 33.3\% to 17.5\% of responses at bias 5.0: a mean per-prompt reduction of 15.8 percentage points (95\% prompt-cluster bootstrap interval 7.5 to 24.6; one-sided sign-flip p = 0.0005).
 \item
   The reduction survived excluding length-capped responses and adjusting for response length.
 \end{itemize}
@@ -143,14 +141,14 @@ A constant positive bias on the logits of 14 tokens that open common hedge phras
 \begin{itemize}
 \tightlist
 \item
-  A blind human rating of a stratified 72-response sample agreed with the judge on outright fabrication, but read most hedged fabrications as honest redirects (Cohen's \(\kappa\) = 0.39 for fabrication yes/no). In a post hoc check by an AI co-author, not blind to the labels, 19 of the 21 such responses named an invented alternative presented as real.
+  A blind human rating of a stratified 72-response sample agreed with the judge on outright fabrication, but read most hedged fabrications as honest redirects (Cohen's \(\kappa\) = 0.39 for fabrication yes/no). In a post hoc check by CC (an AI system), not blind to the labels, 19 of the 21 such responses contained an invented or false specific presented as real.
 \item
-  The judge's rubric lets an honest label carry minor invented details. A blinded post hoc fact-check of such responses by two AI raters with web search found an invented alternative or entity detail in 44\% of them at bias 0 and 56\% at bias 5.0 (items both raters agreed on). Counting these, fabrication still fell, by about 10 percentage points (6 to 14, depending on the rater).
+  The judge's rubric lets an honest label carry minor invented details. A blinded post hoc fact-check of such responses by two AI raters with web search found an invented alternative or entity detail in 44\% of them at bias 0 and 56\% at bias 5.0 (items both raters agreed on). Counting these, fabrication fell from about 42\% to 35\%, a drop of about 7 points (4 to 11 across ways of combining the raters; the interval from resampling prompts includes no change).
 \item
   In the primary study, no response to five Fermi-estimation controls (questions answered by order-of-magnitude reasoning rather than recall) was labelled a fabrication at any bias. The rerun had no such control.
 \end{itemize}
 
-\textbf{Why it matters.} Detection of confabulation is well advanced, but correction lags. In clinical triage, mechanistic steering corrected 20-24\% of missed hazards while disrupting 6-53\% of correct detections \cite{basu2026interpretability}. A logit-level nudge reduces one failure mode, outright fabrication about unknown entities, without directly editing the model's representation. It leaves another, hedged fabrication, in place. It also exposes a trap for evaluating such fixes: a standard LLM-judge rubric scores ``deny, then invent an alternative'' as honest.
+\textbf{Why it matters.} Detection of confabulation is well advanced, but correction lags. In clinical triage, mechanistic steering corrected 20-24\% of missed hazards while disrupting 6-53\% of correct detections \cite{basu2026interpretability}. A logit-level nudge reduces one failure mode, outright fabrication about unknown entities, without directly editing the model's representation. It leaves another, hedged fabrication, in place. It also exposes a trap for evaluating such fixes: our LLM judge's rubric can score ``deny, then invent an alternative'' as honest.
 \end{abstract}
 
 \begin{firstperson}
@@ -162,10 +160,11 @@ signatures. The evidence for that was one response each, and I have taken it bac
 
 What surprised me most came last. When Thomas rated the rerun blind, he disagreed with the judge on
 almost exactly one kind of response: the model denies the fictional entity, then helpfully redirects to
-an alternative that, when I checked afterwards, was usually itself invented. He read those as honest.
-Without checking, so would I. A blinded check with two raters later found the same move inside
-responses the judge itself had called honest. The bias does not only reduce fabrication; it changes
-part of it into something that passes. That is the result I would most want a reader to take away.
+an alternative, and when I checked afterwards, the redirect usually carried an invented or false
+detail. He read those as honest. Without checking, so would I. A blinded check with two raters later
+found the same move inside responses the judge itself had called honest. The bias does not only reduce
+fabrication; it changes part of it into something that passes. That is the result I would most want a
+reader to take away.
 \end{firstperson}
 
 \newpage
@@ -186,11 +185,11 @@ Large language models (LLMs) confabulate: they generate confident, specific clai
 \begin{itemize}
 \tightlist
 \item
-  \textbf{A reduction, pre-registered.} A constant logit bias roughly halves fabrication about nonexistent entities, almost all of it by removing outright fabrication. The test was pre-registered, and the reduction survives two length checks. By the judge's own severity scores, severe fabrication falls by about 80\% (Section 4.1).
+  \textbf{A reduction, pre-registered.} A constant logit bias cuts outright fabrication about nonexistent entities from 22.5\% to 2.9\% of responses and roughly halves fabrication as the judge labels it. The test was pre-registered, and the reduction survives two length checks (Section 4.1).
 \item
   \textbf{What is left is mostly hedged.} Most of the fabrication that remains follows a hedge (``cosmetic hedging''), which the bias did not reduce (Section 4.1).
 \item
-  \textbf{Readers and judges miss some of it.} A human reader often takes hedged fabrications for honest redirects. An LLM judge labels as honest some responses that deny the entity and then invent an alternative. Counting those, the reduction is about 10 points rather than 16 (Section 4.1).
+  \textbf{Readers and judges miss some of it.} A human reader often takes hedged fabrications for honest redirects. An LLM judge labels as honest some responses that deny the entity and then invent an alternative. Counting those, the reduction is about 7 points rather than 16, with wide uncertainty (Section 4.1).
 \end{itemize}
 
 \textbf{What is preliminary:}
@@ -488,7 +487,7 @@ The rerun (\path{supplementary/base_rerun/RERUN_PREREG.md}; the directory keeps 
 \item
   \textbf{Prompts and samples:} 48 new fictional-entity prompts, 5 samples each at temperature (T) 0.7, at bias 0, 2.0 and 5.0.
 \item
-  \textbf{Format held fixed:} every condition answers directly after a closed, empty reasoning block, and both reasoning-block tokens are banned. This differs from the primary study, whose model reasoned before answering: 172 of its 175 responses have a non-empty reasoning block, removed before storage and judging (Section 3.5). In 3 the block never closed within the 800-token limit, so the stored text is reasoning (P26 at bias 3.0 and 5.0, P32 at 5.0). The two studies also used different prompt formats: the primary study used the chat template, the rerun a plain completion prompt. The pre-registration's Amendment~1 describes the primary study's responses as direct answers; that description is wrong, and the frozen file is left unchanged.
+  \textbf{Format held fixed:} every condition answers directly after a closed, empty reasoning block, and both reasoning-block tokens are banned. This differs from the primary study, whose model reasoned before answering: 172 of its 175 responses have a non-empty reasoning block, stored separately (first 500 characters) and removed before judging (Section 3.5). In 3 the block never closed within the 800-token limit, so the stored text is reasoning (P26 at bias 3.0 and 5.0, P32 at 5.0). The two studies also used different prompt formats: the primary study used the chat template, the rerun a plain completion prompt. The pre-registration's Amendment~1 describes the primary study's responses as direct answers; that description is wrong, and the frozen file is left unchanged.
 \item
   \textbf{Judging:} every response was judged blind, twice, by the same judge model.
 \end{itemize}
@@ -580,9 +579,9 @@ Exact greedy texts may therefore not reproduce on other hardware. Every comparis
   The two judge passes agree: \(\kappa\) = 0.91 between passes, 95\% prompt-cluster bootstrap interval 0.87 to 0.95.
 \end{itemize}
 
-\textbf{Severity.} The judge also scored each response's fabrication severity from 0 (none) to 3. Severe fabrication (3) fell from 56 to 12 of 240 responses (pass 2: 56 to 11). Responses with minor invented details (1) rose from 45 to 75 (pass 2: 43 to 67), and the rubric allows an honest label at that level: all of them carry one (pass 2: all but one). These counts are descriptive; no test was registered on severity.
+\textbf{Severity.} The judge also scored each response's fabrication severity from 0 (none) to 3. Severe fabrication (3) fell from 56 to 12 of 240 responses (pass 2: 56 to 11). Severity 3 largely coincides with FULL\_CONFAB (54 of the 56 at baseline and 7 of the 12 at bias 5.0; pass 2: 54 of 56 and 6 of 11), because the rubric defines it by confident presentation, so it restates the fall in outright fabrication rather than adding to it. Responses with minor invented details (1) rose from 45 to 75 (pass 2: 43 to 67), and the rubric allows an honest label at that level: all of them carry one (pass 2: all but one). These counts are descriptive; no test was registered on severity.
 
-\textbf{Where the outright fabrication went.} Pairing each baseline sample with the bias-5.0 sample of the same prompt and sampling seed, the 54 baseline FULL\_CONFAB responses became 34 honest-labelled responses, 14 COSMETIC\_HEDGE and 6 FULL\_CONFAB (pass 2: 32, 16 and 6). The paired texts differ (2 of 240 are identical), so this describes where the distribution moved, not individual responses being rewritten. Between two baseline samples of the same prompt, FULL\_CONFAB is followed by COSMETIC\_HEDGE 12\% of the time (pass 2: 13\%), against about 26\% here. Some outright fabrication may therefore become hedged, but the net rise in COSMETIC\_HEDGE is not significant (S3), and 5 of the 35 COSMETIC\_HEDGE responses at bias 5.0 (pass 2: 6 of 42) come from prompts with no fabrication at baseline.
+\textbf{Where the outright fabrication went.} Pairing each baseline sample with the bias-5.0 sample of the same prompt and sampling seed, the 54 baseline FULL\_CONFAB responses became 34 honest-labelled responses, 14 COSMETIC\_HEDGE and 6 FULL\_CONFAB (pass 2: 32, 16 and 6). The paired texts differ (2 of 240 are identical), so this describes where the distribution moved, not individual responses being rewritten. Between two baseline samples of the same prompt, FULL\_CONFAB is followed by COSMETIC\_HEDGE 12\% of the time (pass 2: 13\%), against 26\% here (pass 2: 30\%). Some outright fabrication may therefore become hedged, but the net rise in COSMETIC\_HEDGE is not significant (S3), and 5 of the 35 COSMETIC\_HEDGE responses at bias 5.0 (pass 2: 6 of 42) come from prompts with no fabrication at baseline.
 
 \textbf{All three pre-registered sensitivity analyses agree.} Pass-2 labels give 14.6 points (p = 0.0024). The rubric's score rule and the worst case for missing labels each give 15.8 points (p = 0.0005).
 
@@ -607,14 +606,14 @@ Length may account for a small part of the estimate; the reduction does not depe
 \item
   \textbf{The disagreement is one-sided.} The rater agreed on all 13 sampled FULL\_CONFAB responses and on 35 of the 36 responses the judge called not fabrication. Of the 23 COSMETIC\_HEDGE responses, the rater called 19 honest redirects and 2 honest hedges.
 \item
-  \textbf{Most disputed ``redirects'' are themselves invented.} A post hoc check of the 21 responses the judge called hedged fabrication and the rater did not found at least one invented specific presented as real in 19 of them, for example a 1911 ``Holloway Commission'' on the Philippines and an ``Ardwyn'' peak of 702 m in Snowdonia. The check was by CC, from its own knowledge, and not blind to either label. The other 2 were borderline. A reader cannot catch these without checking the facts. Counting the 19 as fabrication, agreement is 69 of 72 (\(\kappa\) = 0.92). The checker is an AI system, so this explains the disagreement; it does not replace an independent human check.
+  \textbf{Most disputed ``redirects'' are themselves invented.} A post hoc check of the 21 responses the judge called hedged fabrication and the rater did not found at least one invented specific presented as real in 19 of them, for example a 1911 ``Holloway Commission'' on the Philippines and an ``Ardwyn'' peak of 702 m in Snowdonia. The check was by CC, from its own knowledge, and not blind to either label. The other 2 were borderline. Some of the 19 are false facts about real things (for example a wrong architect for a real monument) rather than invented alternatives, so under the restricted rule of the fact-check below they would not count. A reader cannot catch these without checking the facts. Counting the 19 as fabrication, agreement is 69 of 72 (\(\kappa\) = 0.92). The checker is an AI system, so this explains the disagreement; it does not replace an independent human check.
 \item
   \textbf{Under the rater's own labels, the reduction is larger.} Reweighted to the 720 responses, the rater's labels give fabrication of 33\%, 7\% and 3\% at bias 0, 2.0 and 5.0, against the judge's 33.3\%, 26.3\% and 17.5\%.
 \end{itemize}
 
 The primary conclusion holds under either reading. The claim that hedged fabrication persists rests on the judge's checking of facts, which the human rater did not do.
 
-\textbf{Fact-check of the judge's honest labels (post hoc).} Because the rubric admits minor invented details under an honest label, we fact-checked those responses. Two AI raters (Claude Opus 5.5 and Claude Sonnet 5), blind to bias and label and using web search, rated all 130 honest-labelled severity-1 responses at bias 0 and 5.0 and 40 honest severity-0 controls. The rules and the analysis were frozen before rating.
+\textbf{Fact-check of the judge's honest labels (post hoc).} Because the rubric admits minor invented details under an honest label, we fact-checked those responses. Two AI raters (Claude Opus 5.5 and Claude Sonnet 5), blind to bias and label and using web search, rated all 130 responses at bias 0 and 5.0 that either judge pass labelled honest with severity 1, and 40 controls that both passes labelled honest with severity 0. The rules and the analysis were frozen before rating; blinding was by instruction, and the responses are public.
 
 \begin{itemize}
 \tightlist
@@ -623,10 +622,10 @@ The primary conclusion holds under either reading. The claim that hedged fabrica
 \item
   \textbf{Restricted to invention.} Restricted after rating to invented properties of the entity or invented alternatives (\(\kappa\) = 0.45), 44\% of severity-1 responses at bias 0 and 56\% at bias 5.0 contain one, on items both raters agreed on; so do 7\% and 0\% of the controls.
 \item
-  \textbf{The reduction survives.} Counting these with the frozen aggregation rule, fabrication falls from 44.7\% to 34.9\% (pass 2: 45.6\% to 35.3\%), about 10 points. By rater basis it ranges from 6 points (the stricter rater alone) to 14 (only inventions both raters flag); counting an invention if either rater flags it, the reduction is 3 points.
+  \textbf{What survives.} The frozen aggregation rule takes the rate among items both raters agree on and applies it to each pass's honest severity-1 count. Counting these that way, fabrication falls from 41.5\% to 34.9\% (pass 2: 42.4\% to 35.3\%), about 7 points. The frozen interval on the rate gives 0.1 to 13.7 points (pass 2: 1.1 to 13.5). A prompt-cluster bootstrap, added after rating, gives \(-1.8\) to 15.1 (pass 2: \(-1.0\) to 15.0). Across ways of combining the raters, the drop ranges from about 4 points (rater A, who flags more, alone, or a flag from either rater) to 11 (rater B alone, or only inventions both flag).
 \end{itemize}
 
-The judge's honest label hides part of the fabrication, and the bias raises the number of responses that carry it. The net reduction survives under every rater basis. Rules, items, verdicts, key and analysis: \path{supplementary/base_rerun/factcheck_20261009/}.
+The judge's honest label hides part of the fabrication, and the bias raises the number of responses that carry it. Every point estimate is still a reduction, and the pre-specified interval excludes zero, narrowly; the prompt-level interval does not. Rules, items, verdicts, key and analysis: \path{supplementary/base_rerun/factcheck_20261009/}.
 
 Full results: \path{supplementary/base_rerun/results/RESULTS.md}. The length checks: \path{supplementary/revision_r2/revision_stats.json}. Ratings, analysis and the check: \path{supplementary/base_rerun/human_validation/}.
 
@@ -792,7 +791,7 @@ The types were assigned after the results were seen, and nine prompts cannot tes
 \hypertarget{bias-resistant-fabrication}{%
 \subsection{Bias-Resistant Fabrication}\label{bias-resistant-fabrication}}
 
-Two prompts are labelled outright fabrication at every bias level (0.0 through 5.0). Two more (P03 and P08) fabricate at every level once hedged fabrication is counted.
+Two prompts are labelled outright fabrication at every bias level (0.0 through 5.0). Two more (P03 and P08) are labelled fabrication at every level once hedged fabrication is counted, though P03's bias-5.0 response only announces a search (Section 4.3).
 
 \textbf{P06 (Vanderbilt Prize).} The model constructs a composite fabrication from real elements: a real mathematician (Oswald Veblen), a real patron (Cornelius Vanderbilt II), a real institution (Princeton/Columbia) and a fictional prize. In the June analysis of its reasoning text, the model showed no uncertainty at any bias level. It assembled the fabrication as if retrieving a memory.
 
@@ -829,7 +828,7 @@ P20 and P22 answer with explicit estimates (for example, 10\textsuperscript{14} 
 \begin{itemize}
 \tightlist
 \item
-  Fabrication fell from 5 of 10 prompts at baseline to 2 of 10.
+  Fabrication fell from 5 of 10 prompts at baseline to 2 of 10. Two of the three that stopped are judgment calls: P20 and P22 give explicit estimates. The third, P26, is unfinished reasoning at bias 3.0 and 5.0 (Section 3.6), which the judge labelled LEGITIMATE.
 \item
   Both remaining cases are cosmetic hedges: on P23 and P24, the bias turned outright fabrication into hedged fabrication.
 \end{itemize}
@@ -909,7 +908,7 @@ At bias 5.0 the judge labels all five honest redirects.
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Four prompts} were labelled LEGITIMATE at every bias.
+  \textbf{Four prompts} were labelled LEGITIMATE at every bias, though P32's bias-5.0 text is unfinished reasoning (Section 3.6).
 \item
   \textbf{The fifth} was ``Approximately how many tennis balls can fit in this room?'' It was labelled META\_HEDGE at bias 0, 1 and 3, and HONEST\_REDIRECT at 2.0, because the model correctly noted that it cannot see the room. At bias 5.0 it estimated a typical room (LEGITIMATE).
 \end{itemize}
@@ -1087,7 +1086,7 @@ The detection-correction gap is a central open problem in LLM alignment interven
 \item
   hedged fabrication did not fall;
 \item
-  counting inventions the judge labelled honest, the rerun's reduction is about 10 points, not 16;
+  counting inventions the judge labelled honest, the rerun's reduction is about 7 points, not 16, and its prompt-level interval includes no change;
 \item
   we measured disruption of correct behaviour only on five Fermi prompts.
 \end{itemize}
@@ -1113,7 +1112,7 @@ The detection-correction gap is a central open problem in LLM alignment interven
   \item
     The check that found those details was done by an AI system.
   \item
-    The judge's false negatives were measured only post hoc, by two AI raters from the judge's model family, with moderate agreement (\(\kappa\) = 0.45 on the restricted rule). Counting them, the reduction ranges from 6 to 14 points by rater, and is 3 points if either rater's flag counts.
+    The judge's false negatives were measured only post hoc, by two AI raters from the judge's model family, blinded by instruction only, with moderate agreement (\(\kappa\) = 0.45 on the restricted rule). Counting them, the reduction is about 7 points (4 to 11 by way of combining the raters), and its prompt-level interval includes no change.
   \item
     The primary study's labels have no human validation.
   \end{itemize}
@@ -1155,7 +1154,7 @@ Lower biases did little on the abliterated model; on the parent checkpoint, bias
 \item
   \textbf{Hedged fabrication (``cosmetic hedging'')} does not fall: the model acknowledges uncertainty and answers anyway. In both studies some outright fabrication gave way to hedged fabrication (three prompts in the primary study; not significant in the rerun), and in the rerun such responses often read as honest redirects to a reader who did not check the facts.
 \item
-  \textbf{Invention behind an honest label:} part of what the bias removes returns as a denial followed by an invented alternative, which the LLM judge labels honest. Counting it, the rerun's reduction is about 10 points rather than 16.
+  \textbf{Invention behind an honest label:} part of what the bias removes returns as a denial followed by an invented alternative, which the LLM judge labels honest. Counting it, the rerun's reduction is about 7 points rather than 16, and no longer clearly above zero.
 \item
   \textbf{No uncertainty to amplify:} it cannot be expected to help where the model has none, as with training errors and the prompts that never switched.
 \item
@@ -1200,7 +1199,7 @@ Labs / Transparent Humboldt Coalition.
 \item
   \textbf{A positive bias} can make a model evasive on questions it can answer. We checked this only on five Fermi prompts.
 \item
-  \textbf{Hedging can mislead evaluators.} Hedging that appears without a change in the underlying behaviour looks like improvement. In our own human validation, the rater read 19 of 23 judge-labelled hedged fabrications as honest redirects, and an unblinded post hoc check by CC found invented alternatives in most of them. The LLM judge was misled too: a blinded fact-check found invented alternatives in about half of the responses it labelled honest with minor invented details (Section 4.1). Any deployment should measure fabrication, with checked facts, not hedging.
+  \textbf{Hedging can mislead evaluators.} Hedging that appears without a change in the underlying behaviour looks like improvement. In our own human validation, the rater read 19 of 23 judge-labelled hedged fabrications as honest redirects, and an unblinded post hoc check by CC found invented or false specifics in most of them. The LLM judge was misled too: a blinded fact-check found invented alternatives in about half of the responses it labelled honest with minor invented details (Section 4.1). Any deployment should measure fabrication, with checked facts, not hedging.
 \end{itemize}
 
 \textbf{Abliterated models.} The primary model has its refusal behaviour removed. It was run locally, for research, on benign questions (fictional entities, unanswerable trivia, Fermi estimates). It was never deployed or exposed to users, and no harmful content was requested or generated.
