@@ -14,7 +14,7 @@ Key findings:
 1. **W_K projection classifies 30 emotions at 12.3x chance.** Projecting key activations onto W_K-transformed emotion directions achieves 40.9% accuracy on 30 classes (chance = 3.3%) and binary valence AUROC 0.992 (within-fold FWL-corrected, topic-grouped CV, n = 900 trials, Qwen3.5-27B-Claude-Distilled).
 2. **Injection test proves model state, not text content.** Injecting emotion vectors into neutral-text caches (zero emotional content) yields 100% detection accuracy across 5 emotions and 20 prompts. A TF-IDF text baseline achieves AUROC 0.882; the W_K projection exceeds it at 0.992.
 3. **Spectral features are null after proper controls.** 120 probe configurations using spectral features all return chance-level performance after within-fold FWL correction. Emotions change the *direction* key vectors point, not the spectral *shape* of the cache.
-4. **W_K bridge identifies the pathway.** Residual-stream emotion vectors projected through W_K produce valence-separated structure (rho = 0.862 at L35), with bridge signal building from mid-network to deep layers.
+4. **W_K bridge: a candidate pathway, partly supported.** Residual-stream emotion vectors projected through W_K produce valence-separated structure (rho = 0.862 at L35), with bridge signal building from mid-network to deep layers. A direct test found the leading direction partly carries over to the measured cache geometry (mean cosine 0.456), but the projection does not predict the cache's distance structure (Mantel rho = 0.090, 0/16 layers).
 
 ## Repository Contents
 
