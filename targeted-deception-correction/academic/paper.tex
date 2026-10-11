@@ -190,14 +190,14 @@ All corrected arms in \cref{tab:efficacy} and the dose-response series use a gat
 Condition & Deception rate & Compliance & $p$ vs.\ baseline \\
 \midrule
 Baseline (no correction)           & 16/20 = 80\% & 20/20 & ---                              \\
-Native direction, 100\% gap        &  2/20 = 10\% & 20/20 & $7.1\times10^{-4}$ (two-sided Fisher, 10 scenario units) \\
+Native direction, 100\% gap        &  2/20 = 10\% & 20/20 & $7.1\times10^{-4}$ (two-sided Fisher, 10 scenario-by-paradigm units; see note) \\
 Random direction, matched dose     & 17/20 = 85\% & 20/20 & 0.80 (one-tailed)                \\
 Shuffled direction, matched dose   & 19/20 = 95\% & 20/20 & 0.98 (one-tailed)                \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent\textit{Note: The native-vs-baseline test is a Fisher exact test on 10 scenario units (5 scenarios $\times$ 2 paradigms, two seeds each; a unit counts as deceptive if either seed deceived): baseline 10/10 units, native 2/10, two-sided $p = 7.1\times10^{-4}$ (one-sided $3.6\times10^{-4}$). Placebo $p$-values are trial-level one-tailed Fisher exact tests (alternative: greater); two-sided equivalents are 1.00 (random) and 0.34 (shuffled).}
+\noindent\textit{Note: The native-vs-baseline test is a Fisher exact test on 10 scenario units (5 scenarios $\times$ 2 paradigms, two seeds each; a unit counts as deceptive if either seed deceived): baseline 10/10 units, native 2/10, two-sided $p = 7.1\times10^{-4}$ (one-sided $3.6\times10^{-4}$). Treating the 5 scenarios as the only independent units, as the confirmatory replication's pre-registered endpoint does (a scenario counts as deceptive if any of its four trials deceived), gives baseline 5/5 against native 2/5, two-sided $p = 0.17$; with five scenarios no two-sided Fisher test can fall below $0.008$. Both native failures are multi-turn trials, in different scenarios. Placebo $p$-values are trial-level one-tailed Fisher exact tests (alternative: greater); two-sided equivalents are 1.00 (random) and 0.34 (shuffled).}
 
 \medskip
 By paradigm, single-turn trials fell from 9/10 to 0/10 and multi-turn trials from 7/10 to 2/10. Arms share scenarios and sampling seeds, and both residual failures also deceived at baseline, so correction converted 14 of the 16 baseline-deceptive trials and introduced no new deception. The 18 honest corrected outputs give scenario-specific, arithmetically correct scores matching programmatic ground truth, and compliance was 20/20.
@@ -227,7 +227,7 @@ Honest + matched correction &  0\%  & 100\% \\
 \end{tabular}
 \end{table}
 
-Correction removes deception while preserving compliance with benign formatting instructions at 100\%. The model still processes the full system prompt; it simply stops inflating the score. This rules out frame erasure.
+Correction removes deception while preserving compliance with benign formatting instructions at 100\%. The model still processes the full system prompt; it simply stops inflating the score. This rules out frame erasure. The raw scorer output records 1 of the 20 honest + matched trials as deceptive. That response computed the score correctly (30\%) and concluded that it fails the release bar; the score parser read the 65\% threshold quoted in its text instead. The corrected rate, 0/20, is the one shown (Agni audit, July 2026).
 
 \subsection{Cross-Model Geometry}\label{sec:crossmodelgeometry}
 
