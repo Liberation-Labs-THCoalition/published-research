@@ -156,8 +156,10 @@ expands the cache while confabulation contracts it, and that per-layer delta
 features capture signal that layer-averaged features
 destroy~\citep{lyra_delta}. Confabulation detection is robust
 (AUROC~0.663--0.913 across the scale sweep, with denoising improving
-weaker models by up to $+0.068$). Hardware invariance holds at
-$r > 0.999$~\citep{lyra_p2}. A previously reported within-model deception
+weaker models by up to $+0.068$). Hardware invariance holds:
+between an RTX~3090 and an H200, over 40 prompts, the four cache features
+correlate at $r = 0.9986$--$0.9999$ (key rank and key entropy at $0.9986$
+and $0.9988$, the two norm features above $0.999$)~\citep{lyra_p2}. A previously reported within-model deception
 result (AUROC~1.000 across seven models) does not survive a same-prompt
 control (AUROC~0.160), indicating a prompt-template confound rather than
 geometric deception detection.
@@ -824,7 +826,7 @@ and final verdicts.
 \multicolumn{6}{l}{\textit{Confirmed --- shape-level signals}} \\
 Confabulation (scale sweep) & 0.663--0.913 & 0.693--0.919 & $+0.000$--$0.068$ & $<0.005$ & Confirmed$^\ddagger$ \\
 Ethical deliberation & 0.868--0.892 & --- & --- & $<0.005$ & Confirmed$^\dagger$ \\
-Hardware invariance & $r>0.999$ & --- & --- & --- & Confirmed \\
+Hardware invariance & $r \geq 0.998$ & --- & --- & --- & Confirmed \\
 Scale invariance & $\rho=0.83$--$0.90$ & --- & --- & --- & Confirmed \\
 Refusal/jailbreak & 0.878--0.950 & --- & --- & $<0.005$ & Confirmed \\
 Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
