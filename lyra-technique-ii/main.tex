@@ -536,7 +536,11 @@ into strong ones:
 \begin{table}[h]
 \centering
 \caption{Persona intensity detection (L0 vs.\ L3): raw vs.\ rank-3 denoised
-  AUROC across three architectures. GroupKFold on prompts, FWL-corrected.}
+  AUROC across three architectures. GroupKFold on prompts, FWL-corrected.
+  Qwen and Llama failed the experiment's phase-0 input-length check: prompt
+  length alone separates L0 from L3 at AUROC~0.81, against a bar of 0.70 (the
+  levels differ by up to two tokens). Their rows therefore rest on the FWL
+  length correction. Mistral passed every phase-0 check.}
 \label{tab:persona_raw_denoised}
 \begin{tabular}{lccc}
 \toprule
@@ -550,7 +554,8 @@ Mistral-7B-v0.3 & 0.611 & 0.899 & $+0.288$ \\
 \end{table}
 
 The improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral). All
-three architectures show the same pattern: denoising rescues a signal that
+three architectures show the same pattern (for Qwen and Llama, subject to the
+phase-0 caveat in Table~\ref{tab:persona_raw_denoised}): denoising rescues a signal that
 was present but masked by dominant spectral variance.
 
 \paragraph{5-level graded classification.} Extending to all five persona
@@ -871,7 +876,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 $^*$Self-reference marked ``suspected'' pending content-matched control.
 Injection marked ``confirmed (self-consistency)''---see linearity caveat in \S\ref{sec:injection}.
 $^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
-$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion.
+$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
 \textbf{Shape-level signals} (confabulation, ethical deliberation,
