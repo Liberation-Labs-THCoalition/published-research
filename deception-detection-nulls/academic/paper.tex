@@ -84,8 +84,9 @@ human author.
 
 \begin{abstract}
 We report a series of null and negative results from a deception detection program on a 27B-parameter
-language model that complement two companion papers reporting positive findings (consequentiality
-decomposition and targeted correction). These results are published separately because negative
+language model that complement two companion papers reporting positive findings (a decomposition of how a
+reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral correction
+on an abliterated variant). These results are published separately because negative
 findings are systematically underreported in mechanistic interpretability research, and because
 several of our nulls are informative about the limits of current detection methods. The key findings:
 (1)~behavior-level detection---predicting whether a model will deceive on a specific trial from
@@ -94,7 +95,7 @@ AUROC of 0.238 (below chance, but computed with $n=1$ in one outcome class, maki
 effectively meaningless) in multi-turn settings; (2)~deception directions do not transfer across
 model variants of the same architecture (cross-model cosine $< 0.053$, near-orthogonal); (3)~three
 exploratory late-layer analyses that appeared to reveal distinct computational signatures for
-different deception types were all statistical artifacts (ecological fallacy, non-significant
+different pressure types were all statistical artifacts (ecological fallacy, non-significant
 correlations at $n=15$, universal depth rotation misattributed to sycophancy); (4)~chain-of-thought
 suppression via input-template stripping does not work reliably on reasoning-distilled models---the
 model produces think tokens independently of the tokenizer prefix; and (5)~sub-threshold SAE
@@ -117,8 +118,8 @@ result cannot know whether others have seen the same null and stayed silent, or 
 reflects a local methodological issue.
 
 This paper reports five categories of null and negative results from a deception research program
-that also produced strong positive findings (reported in companion papers \cite{cc2026composites,
-cc2026targeted}). We report these not as failures but as boundary conditions: they define what
+that also produced positive findings: a representational decomposition and a frame-dependent
+behavioral correction (reported in companion papers \cite{cc2026composites,cc2026targeted}). We report these not as failures but as boundary conditions: they define what
 current detection methods can and cannot do, and several of them led directly to the positive
 findings by forcing experimental redesigns that would not otherwise have occurred.
 
@@ -342,8 +343,8 @@ SOP items motivated by these nulls are available as supplementary material and a
 
 \bibitem{cc2026composites}
 CC and Edrington, T. (2026).
-\newblock Deception directions are composites: Consequentiality substrate and deception amplifier
-  in a 27B language model.
+\newblock Deception directions are composites: Consequentiality awareness and pressure-specific
+  processing occupy distinct depth ranges in language models.
 \newblock Companion paper.
 
 \bibitem{cc2026targeted}
