@@ -19,6 +19,10 @@
 - Cross-cosine similarity matrices (both models)
 - McNemar test results with Holm-Bonferroni correction
 - Epistemic abliteration observation (coherence collapse at -0.5)
+- Committed 2026-10-12, after a dual-use review (`formulary-paper/DUAL_USE_REVIEW.md`):
+  - `formulary-paper/data/formulary_base_per_trial.json`: 350 prompts × 13 arms, with responses and labels;
+  - `formulary-paper/data/formulary_base_aggregates.json`;
+  - `formulary-paper/data/epistemic_abliteration_strength_sweep.json`.
 
 ### kv-cloak/
 - Obfuscation strategy comparison (7 strategies, all features)
