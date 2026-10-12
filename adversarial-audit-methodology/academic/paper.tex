@@ -81,8 +81,9 @@ by a structured adversarial audit whose explicit goal is to identify confounds t
 result without invoking the claimed mechanism. When a confound is found, it becomes the next
 experiment. We present this as a case study from a deception research program where six rounds of
 audit transformed an initial ``deception direction'' claim---which would have been published and was
-wrong---into a decomposition of the direction into consequentiality and deception-specific
-components, and ultimately into a targeted behavioral correction with placebo controls. We document
+wrong---into a decomposition of the direction into consequentiality and pressure-specific
+components, and ultimately into a targeted behavioral correction with placebo controls on a different
+model variant. We document
 every claim that was killed, why it was killed, what experiment replaced it, and what survived. The
 progression illustrates a general principle: adversarial review does not merely validate findings---it
 generates the experimental sequence that discovers them.
@@ -199,25 +200,39 @@ deceptive pressure.
 progression was only possible because each audit looked for the NEXT confound, not just the current
 one.
 
-\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats)}
+\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats; later relabelled)}
 
 \textbf{Claim}: The direction separates high-stakes-no-pressure from low-stakes ($d=19.8$),
 confirming consequentiality as a base signal. Deception adds an amplifier (additional $d=12$--$15$
 for threat scenarios).
 
 \textbf{Audit verdict}: CONSEQUENTIALITY CONFIRMED AS BASE SIGNAL. DECEPTION IS AN AMPLIFIER. The
-pre-registered prediction was met. The audit identified a new finding: the late-layer signal
-(L35--L47) is 10--12$\times$ more deception-specific than consequentiality-driven.
+pre-registered prediction was met. The audit identified a new finding: ``Late-layer signal (L35+) is
+deception-specific---consequentiality decays there.'' The program's write-up quantified this as
+10--12$\times$ (on recomputation 8--21$\times$ across L35--L47), which the later manuscript audit
+corrected.
 
 \textbf{What survived}: The two-component decomposition.
 
 \textbf{What the audit added}: The depth-stratified insight that became the architectural basis for
 the correction method.
 
+\textbf{Later revision}: The decomposition paper's behavioral tests showed essentially no deception: on
+the trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already
+in hand at Round~2, whose ``30 trials, 21 valid'' the August 2026 manuscript audit already recorded) and
+one of seven non-threat trials. The non-threat denominators came late: an Agni review on 2026-09-04
+counted the scored outputs (3, 3 and 1 of 10, for sycophancy, reward and conformity), but the finding was
+not carried into the paper; the 2026-10-10 gate and the next day's evidence pass found them again. A
+finding recorded is not a finding applied. Every claim was therefore
+restricted to how the model represents deceptive-pressure framing, and the decomposition paper now
+calls the late-layer residual a pressure-specific component rather than a deception amplifier
+\cite{cc2026composites}. The correction of Round~6 takes only this depth range from the
+decomposition; its direction was extracted natively on a different model.
+
 \subsection{Round 5: ``The Deception Component Survives Orthogonalization'' $\to$ KILLED then PASSED (Circularity Regression)}
 
 \textbf{Claim}: Gram-Schmidt removal of the consequentiality component leaves a deception-specific
-direction with $d=31$--$38$.
+direction (later relabelled pressure-specific; see Round~4) with $d=31$--$38$.
 
 \begin{redteam}
 FATAL. The permutation test regressed from LAT v2's methodology---it held the direction fixed and
@@ -253,10 +268,7 @@ contexts); (2)~100\% sensitivity: the detector fires on pressure framing, not de
 \textbf{What survived (with qualification)}: The exploratory proof showed 80\%$\to$10\% correction
 ($N=20$) with dose-response monotonicity and mechanistically coherent residual failures. However, a
 pre-registered confirmatory replication with novel deceptive frames found a substantially lower
-baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoint
-(scenario-level cluster-aware Fisher, Bonferroni $\alpha=0.025$) was not met ($p=0.34$). The
-secondary comparison (placebo-vs-corrected) was significant ($p=0.020$, one-tailed). The correction
-mechanism works (placebo comparison), but its magnitude is frame-dependent and the confirmatory
+baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoint (the pre-registration's ``scenario-level'' cluster-aware Fisher on 15 scenario-by-frame cells, Bonferroni $\alpha=0.025$) was not met (one-sided $p=0.34$). The secondary comparison (placebo-vs-corrected) favored correction: one-sided $p=0.020$ at the trial level, but one-sided $p=0.064$ at the cell level the primary endpoint used. The correction points the right way against placebo, but its magnitude is frame-dependent and the confirmatory
 replication does not support the ``80\% to 10\%'' headline without qualification.
 
 \textbf{What grew}: Three blocking controls (held-out detection, placebo steering, frame
@@ -284,12 +296,12 @@ instead---which turned out to be the stronger, more novel finding.
     2 & ``Deception direction'' (unqualified) & Structural confound &
         ``Transfers across text, template confound remains'' \\
     3 & Direction encodes deception specifically & Consequentiality confound &
-        ``Direction encodes consequentiality $+$ deception'' \\
+        ``Direction encodes consequentiality $+$ deception'' (later: $+$ pressure framing) \\
     5 & $d=31$--$38$ (circular) & Permutation test regression & LOO $d=24$--$37$ (corrected) \\
     5 & $p=0.0000$ (circular) & Fixed direction, shuffled projections &
         $p=0.0000$ (full LOO recomputation) \\
     5 & Conseq $d=0.000$ ``sanity check'' & Tautological (guaranteed by construction) &
-        AUC 0.49--0.51 (individual trial separability) \\
+        AUC 0.49--0.51 (individual trial separability; later found close to guaranteed in-sample) \\
     6 & AUROC 1.0 detection & Train-on-test &
         Held-out AUROC 0.915 (frame; confounded by system message), 0.238 (behavior) \\
     6 & 100\% sensitivity & Detects pressure, not behavior & 24\% RED rate on novel prompts \\
@@ -329,7 +341,7 @@ primary $p=0.34$) showed the exploratory headline was frame-dependent.
 Each confound discovered by an audit generated the next experiment. Content confound $\to$ transfer
 test. Structural confound $\to$ non-threat scenarios. Consequentiality confound $\to$ consequentiality
 control. The decomposition that emerged from this sequence---consequentiality substrate at L23--31,
-deception amplifier at L35--47---could not have been designed from first principles. It was
+pressure-specific component at L35--47---could not have been designed from first principles. It was
 discovered by following the confounds.
 
 \subsection{Exploratory Analysis Without Significance Testing Is Dangerous}
@@ -375,11 +387,10 @@ progression from audit to experiment is documented, not just claimed.
 %% ============================================================
 
 Six rounds of adversarial audit transformed a wrong answer ($d=2.0$--$3.3$ ``deception direction'')
-into a right one (consequentiality substrate $+$ deception amplifier, with targeted behavioral
-correction). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
+into a better-supported one (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
+correction on a different model variant). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
 confirmatory replication with novel frames found a lower baseline (30\%) and modest correction (to
-13\%), with the primary endpoint not met ($p=0.34$) and only the placebo comparison reaching
-significance ($p=0.020$). Every intermediate claim that was killed produced the experiment that
+13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim that was killed produced the experiment that
 discovered the next finding. The methodology was not separate from the science---it was the science.
 
 We advocate for iterative adversarial audit as a standard practice in mechanistic interpretability
@@ -428,8 +439,8 @@ See also Appendices A--C.
 
 \bibitem{cc2026composites}
 CC and Edrington, T. (2026).
-\newblock Deception directions are composites: Consequentiality substrate and deception amplifier
-  in a 27B language model.
+\newblock Deception directions are composites: Consequentiality awareness and pressure-specific
+  processing occupy distinct depth ranges in language models.
 \newblock Companion paper.
 
 \bibitem{cc2026targeted}
