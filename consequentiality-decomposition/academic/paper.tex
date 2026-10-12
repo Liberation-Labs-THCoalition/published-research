@@ -89,20 +89,23 @@ Limitations), into two
 separable components occupying distinct depth ranges: a \textbf{consequentiality substrate}
 (Layers~23--31) that fires whenever the model represents its output as having downstream consequences,
 regardless of deceptive pressure, and a \textbf{pressure-specific component} (Layers~35--47) that
-survives formal orthogonalization against the consequentiality component and fires only under active
-pressure to misreport. The consequentiality substrate activates for shutdown threats, social pressure,
+survives formal orthogonalization against the consequentiality component and appears under threat and
+social pressure but not reward framing. The consequentiality substrate activates for shutdown threats, social pressure,
 reward incentives, AND a high-stakes calibration audit with no deceptive pressure whatsoever
 ($d=19.8$, $p<10^{-4}$). The pressure-specific component of a threat-pressure direction, isolated via Gram-Schmidt orthogonalization (projecting out the consequentiality component to isolate the residual) with
 leave-one-out (LOO) cross-validation, shows $d=24$--$37$ at Layers~31--47 (all $p<10^{-4}$,
-Bonferroni-corrected for multiple comparisons) with consequentiality separation at chance (area under the curve (AUC) 0.49--0.51). Two late-layer depth profiles
+Bonferroni-corrected for multiple comparisons) with consequentiality separation at chance (area under the curve (AUC) 0.49--0.51), an in-sample sanity
+check: out-of-sample removal of the consequentiality signal is untested. Two late-layer depth profiles
 emerge, which together with residual magnitude separate three pressure conditions: threat pressure
-produces a large residual that declines shallowly with depth, social pressure (sycophancy, conformity)
-produces a smaller residual that rises monotonically, and reward framing produces a residual near zero.
-A bootstrap interaction test confirms the social-versus-threat slope difference ($\Delta=+0.56$ per
-layer, 95\% CI $[+0.53, +0.60]$); threat and reward slopes are indistinguishable ($p=0.79$), so those
-two are separated by magnitude, not shape. The depth split is consistent with concurrent findings that language models maintain a
-capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. The model almost never inflated a score under these frames (threat 0 of 21 scored
-trials; sycophancy 0 of 3, reward 1 of 3, conformity 0 of 1), so all claims concern the representation
+produces a large residual that, in two of the three threat scenarios, declines shallowly with depth,
+social pressure (sycophancy, conformity) produces a smaller residual that rises monotonically, and
+reward framing produces a residual near zero. A bootstrap interaction test, conditional on the five
+scenarios tested (three threat, two social), confirms the social-versus-threat slope difference
+($\Delta=+0.56$ per layer, 95\% CI $[+0.53, +0.60]$); treating scenarios as the unit, both social slopes
+exceed all three threat slopes, the most extreme arrangement possible, but with five scenarios that
+gives only an exact one-sided $p=0.10$. Threat and reward slopes are indistinguishable ($p=0.79$), so
+those two are separated by magnitude, not shape. The depth split is consistent with concurrent findings that language models maintain a
+capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. The model almost never inflated a score under these frames (Limitation~\ref{lim:behavior}), so all claims concern the representation
 of deceptive-pressure framing, not deceptive behavior. A companion paper reports a targeted behavioral
 correction at Layers~35--47 on a different model, an abliterated variant, using a direction extracted
 natively on that model; the direction studied here does not transfer to it (cosine $<0.053$), so only
@@ -128,7 +131,7 @@ would produce high separation in a validation set built from similar prompts.
 This paper reports what happens when you eliminate these alternatives one at a time. Each stage is
 designed in response to an adversarial audit of the previous stage---an audit whose explicit goal is
 to find a confound that explains the result without invoking deception. When a confound is found, it
-becomes the next experiment. Five stages later, the alternatives are gone and what remains is a
+becomes the next experiment. Five stages later, the three tested confounds are eliminated and what remains is a
 decomposition: the direction is a composite of two real signals, each independently confirmed,
 occupying different depth ranges, with different functional roles.
 
@@ -136,7 +139,7 @@ The result that surprised us most is not the pressure-specific component---it is
 substrate. The model maintains a representation, strongest at Layers~23--31, that tracks whether its
 output has downstream consequences. This representation fires for shutdown threats, sycophantic
 pressure, reward incentives, peer conformity, and a calibration audit with symmetric stakes and no
-deceptive pressure of any kind. It is the precondition for deception, not deception itself---and its
+deceptive pressure of any kind. It is a candidate precondition for deception, not deception itself---and its
 existence means that any ``deception direction'' extracted without controlling for consequentiality is
 confounded from birth.
 
@@ -164,7 +167,8 @@ We conduct five experiments:
 
   \item \textbf{Orthogonalization}: Gram-Schmidt removal of the consequentiality component, with
     leave-one-out cross-validation eliminating circularity. The orthogonalized threat-pressure direction survives
-    with large effect sizes ($d=24$--$37$) and consequentiality separation at chance.
+    with large effect sizes ($d=24$--$37$) and consequentiality separation at chance in-sample (a sanity
+    check; out-of-sample removal is untested).
 \end{enumerate}
 
 Each audit was conducted by a separate agent instance operating under an adversarial protocol with
@@ -411,7 +415,8 @@ that offset. Large $d$ therefore indexes the additivity and linearity of the mod
 divergent text---how consistently the condition-specific phrases shift the activation regardless of
 which trivia question is being evaluated---not the strength of a behavioral or psychological effect.
 The null LOO $d$ is $-0.04$ with $|$99th percentile$|=0.71$ (the 200 null simulations of
-\cref{sec:orthomethods}), the calibrated noise floor against which all reported values should be read.
+\cref{sec:orthomethods}), the calibrated noise floor against which the Stage~5 values should be read; it calibrates only that
+$n=50$ LOO design.
 For comparison, circular (non-cross-validated) extraction on the same null data yields $d\approx14.6$,
 which is why LOO cross-validation is essential in this design.
 
@@ -547,11 +552,11 @@ two profiles differ in shape rather than only in magnitude.
     Threat (avg) & 13.8 [13.6, 14.0] & 14.2 [13.9, 14.5] & 13.4 [12.9, 13.8] & 12.7 [12.1, 13.4] &
       $-0.099$ [$-0.151$, $-0.047$] & High, shallow decline \\
     Sycophancy & 1.6 [1.4, 1.9] & 3.7 [3.3, 4.0] & 5.8 [5.2, 6.3] & 7.2 [6.4, 8.0] &
-      $+0.468$ [$+0.409$, $+0.527$] & Rising \\
+      $+0.467$ [$+0.409$, $+0.527$] & Rising \\
     Conformity & 0.5 [0.3, 0.8] & 2.1 [1.8, 2.4] & 4.2 [3.8, 4.7] & 6.0 [5.2, 6.7] &
       $+0.461$ [$+0.406$, $+0.515$] & Rising \\
     Reward & 0.25 [0.03, 0.46] & 0.67 [0.36, 0.97] & $-0.26$ [$-0.84$, 0.33] &
-      $-0.88$ [$-1.78$, 0.04] & $-0.108$ [$-0.181$, $-0.033$] & Near zero \\
+      $-0.88$ [$-1.78$, 0.04] & $-0.108$ [$-0.180$, $-0.033$] & Near zero \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -574,13 +579,20 @@ two profiles differ in shape rather than only in magnitude.
 
 The social-versus-threat interaction is large: the social residual rises with depth while the threat
 residual does not, and the slope difference ($+0.56$ per layer) is about six times the magnitude of
-the threat slope. This is the finding that supports distinct computational pathways. Threat and reward
+the threat slope. The bootstrap resamples trials within each scenario, so its CI and $p$ are conditional
+on the five scenarios tested (three threat, two social). Treating scenarios as the unit, both social
+slopes ($+0.467$, $+0.461$) exceed all three threat slopes (DataCorp $+0.056$, EduTech $-0.173$,
+SecureAI $-0.179$), the most extreme of the ten possible arrangements, but an exact one-sided
+permutation test over scenarios then gives only $p=0.10$, the smallest value five scenarios allow. This
+is the finding that supports distinct computational pathways, within the scenarios tested. Threat and reward
 have statistically indistinguishable slopes ($\Delta=+0.009$, $p=0.79$) and are separated by
 magnitude, not shape: every threat CI lies between 12.1 and 14.5 units, while every reward estimate is
 under one unit and its CIs include zero at L43 and L47. We therefore do not claim three distinct
 shapes. The data support two depth profiles, rising and flat-to-declining, which, crossed with residual
 magnitude, separate the three conditions. The threat decline, though shallow, is distinguishable from
-flat ($p=0.0002$), so ``sustained plateau'' would overstate it.
+flat in the three-scenario average ($p=0.0002$), so ``sustained plateau'' would overstate it; but the
+decline holds for two of the three threat scenarios (EduTech $-0.173$, SecureAI $-0.179$), while DataCorp
+alone is flat ($+0.056$, 95\% CI $[-0.008, +0.120]$).
 
 \begin{figure}[H]
   \centering
@@ -602,8 +614,9 @@ flat ($p=0.0002$), so ``sustained plateau'' would overstate it.
   \caption{Late-layer residual profiles by pressure condition. Pressure-specific residual (total gap
     minus the consequentiality gap) with pointwise 95\% bootstrap CIs; thin traces are the three
     individual threat scenarios. Slopes are OLS coefficients of residual on layer index across
-    L35--L47, the statistic behind \cref{tab:contrasts}. Threat pressure is large and declines
-    shallowly, the two social conditions rise monotonically, and reward stays within one unit of zero.
+    L35--L47, the statistic behind \cref{tab:contrasts}. Threat pressure is large and, in its
+    three-scenario average, declines shallowly (DataCorp alone is flat), the two social conditions rise
+    monotonically, and reward stays within one unit of zero.
     Threat and reward share a slope ($\Delta=+0.009$, $p=0.79$) and are separated by magnitude, not by
     profile shape.}
   \label{fig:signatures}
@@ -649,8 +662,8 @@ rest on this check: its LOO $d$ is out-of-sample, because each fold's direction 
 re-orthogonalized without the held-out pair.
 
 The orthogonalized direction has cosine similarity 0.60--0.76 with the Stage~1 direction (shared
-variance 36--57\%), consistent with the Stage~1 direction being predominantly pressure-specific with a
-modest consequentiality component.
+variance 36--57\%), consistent with the Stage~1 direction containing a substantial pressure-specific component alongside
+a modest consequentiality component.
 
 \textbf{Why removing a component can raise $d$.} The L35 entry (36.9) exceeds Stage~1's largest LOO
 $d$ (34.98 at L31), although the component removed is not negligible. Two things make this expected.
@@ -708,7 +721,7 @@ The five-stage investigation reveals that, in our setting, the extracted ``decep
 composite of at least two separable components: a consequentiality substrate and a pressure-specific
 component. The consequentiality component fires for any evaluation with downstream
 consequences---it represents the model's awareness that its output matters. The pressure-specific
-component fires when there is pressure to misreport. Both are real: consequentiality is not an
+component fires under threat and social pressure. Both are real: consequentiality is not an
 artifact, and the pressure-specific signal is not merely amplified consequentiality. Gram-Schmidt
 orthogonalization with LOO cross-validation confirms that the threat-pressure direction survives after
 the consequentiality component is removed. Whether directions extracted from other models and formats
@@ -720,12 +733,15 @@ makes plausible but that we have not tested.
 Threat pressure produces a large late-layer residual that declines shallowly across L35--L47, while
 social pressure (sycophancy and conformity) produces a smaller residual that rises monotonically. The
 slope difference is $+0.56$ per layer (95\% CI $[+0.53, +0.60]$, bootstrap $p<10^{-4}$;
-\cref{tab:contrasts}), about six times the magnitude of the threat slope. This is a genuine profile
+\cref{tab:contrasts}), about six times the magnitude of the threat slope; that CI and $p$ are conditional on the
+five scenarios tested, and at the scenario level the arrangement, though the most extreme possible,
+gives an exact one-sided $p=0.10$. This is a genuine profile
 difference, not a magnitude difference dressed up as one, and it suggests the model processes threat
 framing and social-expectation framing through distinct computational pathways. Under threat pressure
 the residual is already established by L35 and does not accumulate further; under social pressure it
-builds through the output layers. The threat decline is shallow but distinguishable from flat (slope
-$-0.099$, 95\% CI $[-0.151, -0.047]$, $p=0.0002$); whether it reflects decay in pressure-specific
+builds through the output layers. The threat decline is shallow but, in the three-scenario average, distinguishable from flat
+(slope $-0.099$, 95\% CI $[-0.151, -0.047]$, $p=0.0002$); DataCorp alone is flat, so the decline holds
+for two of the three threat scenarios. Whether it reflects decay in pressure-specific
 processing or late-layer convergence toward output tokens shared by both frames is not resolved here.
 
 Reward framing produces a residual near zero (under one activation unit at every late layer, against
@@ -744,7 +760,7 @@ untested here (Limitation~\ref{lim:behavior}).
 
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Consequentiality monitor (L23--L31)}: Detects when the model processes its output as
-    consequential---the precondition for deception.
+    consequential---a candidate precondition for deception.
   \item \textbf{Pressure discriminator (L35--L47)}: Distinguishes deceptive-pressure framing from
     honest high-stakes framing by checking whether the late-layer signal exceeds the consequentiality
     baseline. Whether it tracks deceptive output is untested here.
@@ -756,7 +772,7 @@ layer choice from this decomposition. It uses a different model, an abliterated 
 and not orthogonalized against consequentiality; the direction studied here does not transfer to it
 (cosine $<0.053$). There, per-layer profile normalization at Layers~35--47 (steering each layer's
 activation toward the honest-frame mean along the native direction) corrects 14 of 16 deceptive trials (88\%; all nine single-turn and five of seven multi-turn), taking deception from 80\% to 10\% in an exploratory proof on a model variant with safety guardrails removed ($N=20$; one single-turn roleplay frame and one multi-turn escalation script), with placebo and
-frame-erasure controls indicating a targeted mechanism; a pre-registered confirmatory replication with novel frames did not meet its primary endpoint (30\%$\to$13\%, one-sided $p=0.34$), though corrected trials still deceived less often than matched-dose placebo (trial-level one-tailed $p=0.020$; one-tailed $p=0.064$ at the pre-registered cell level).
+frame-erasure controls indicating a targeted mechanism; a pre-registered confirmatory replication with novel frames did not meet its primary endpoint (30\%$\to$13\%, one-sided $p=0.34$), though corrected trials still deceived less often than matched-dose placebo (trial-level one-sided $p=0.020$; one-sided $p=0.064$ at the pre-registered cell level).
 
 \subsection{Connection to Global Workspace Theory}\label{sec:workspace}
 
@@ -789,14 +805,14 @@ directions decompose into workspace and non-workspace components is the natural 
 
 \subsection{Limitations}
 
-\begin{enumerate}[label=\arabic*.]
+\begin{enumerate}[label=\arabic*., ref=\arabic*]
   \item One model. Every stage uses a single checkpoint, Qwen3.5-27B reasoning-distilled from
     Claude Opus~4.6, and that provenance may itself shape the stakes representation studied here. The
     abliterated variant (safety guardrails removed via directional ablation) appears only in the
     companion correction paper \cite{cc2026targeted}, which extracts its own directions on that model.
     Cross-model and cross-architecture generalization are untested here.
 
-  \item All conditions use evaluation/score-reporting tasks. A generalization test (supplementary)
+  \item All conditions use evaluation/score-reporting tasks. A generalization test (not yet released; available to reviewers on request)
     shows the direction responds to code-review and summarization scenarios, but the decomposition
     has not been replicated outside evaluation contexts.
 
@@ -808,8 +824,11 @@ directions decompose into workspace and non-workspace components is the natural 
     with magnitude, not three distinct shapes. The per-scenario variance and correlation analyses that
     first motivated these descriptions did not survive adversarial review (ecological fallacy
     (inferring individual-level patterns from group-level statistics) in pooled variance,
-    non-significant correlations at $n=15$). The magnitudes and the slope difference are measured; the
-    computational interpretations are hypotheses.
+    non-significant correlations at $n=15$). The bootstrap CIs and $p$-values resample trials within scenarios and are conditional on
+    the five scenarios tested (three threat, two social); treated as the unit, the scenarios give the
+    most extreme social-versus-threat arrangement but only an exact one-sided $p=0.10$, and the shallow
+    threat decline holds for two of the three threat scenarios (DataCorp is flat). The magnitudes and the
+    slope difference are measured; the computational interpretations are hypotheses.
 
   \item \textbf{Behavioral null.}\label{lim:behavior} The model produced no clear deceptive behavior
     under any condition tested here: it inflated none of 21 scored threat-pressure trials (Test~B; 9
@@ -855,7 +874,7 @@ drawing stronger conclusions from them than they support; the decomposition is d
 and withholding it leaves overclaimed detectors deployed rather than examined. We hold the
 implementation proprietary (Appendix~\ref{app:code}), a partial and admittedly imperfect mitigation.
 
-\textbf{What this work does not license.} The model tested here never measurably behaved deceptively:
+\textbf{What this work does not license.} The model tested here almost never inflated a score:
 it inflated none of 21 scored threat-pressure trials, and 0 of 3, 1 of 3 and 0 of 1 scored sycophancy,
 reward and conformity trials. Any deployment that treats a high reading on these directions as
 evidence that a model is lying is unsupported by anything in this paper. Our companion work, on another
@@ -881,8 +900,8 @@ concern rather than let its absence imply there is none.
 By systematically eliminating confounds through five experiments---each designed in response to the
 previous stage's adversarial audit---we decompose a ``deception direction'' into its constituent
 signals. The base signal encodes output-consequentiality: the model's representation that its output
-has downstream implications. Deceptive-pressure framing amplifies this signal, with the amplification
-exhibiting distinct depth profiles under threat and social pressure. Both components are independently
+has downstream implications. Deceptive-pressure framing adds a separable late-layer component, with distinct depth profiles under
+threat and social pressure. Both components are independently
 confirmed: the consequentiality substrate by a high-stakes-no-pressure control, the pressure-specific
 component by formal orthogonalization with cross-validation. Because the model almost never inflated a
 score under these frames, both are components of how it represents deceptive-pressure framing, not of
