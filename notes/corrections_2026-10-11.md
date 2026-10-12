@@ -64,7 +64,7 @@ as in the scripts' own length check.
   0.488 (stored 0.488).
 - **Labels:** each PNG was opened and looked at. No "deception" text remains in any image. pdftotext finds none in the
   four new PDFs and finds it in all four old ones.
-- **Defects carried over from the original script, not fixed in this round:**
+- **Defects carried over from the original script** (all but the last fixed in the follow-up pass below):
   - Fig 2: the total curve crosses the "L35–47" band label and the word "residual" in the L31 readout.
   - Fig 3: the in-panel note says social conditions "sit at zero until L35", but at L27–L31 they are about −1. The
     threat curve also crosses that note.
@@ -120,9 +120,87 @@ as in the scripts' own length check.
     was used, and the checker was not loosened.
 
 ## Not done / open
-- `consequentiality-decomposition/AUTHOR_REFLECTION.md` (a separate July essay) still says "Deception takes
-  computational effort ... The correction works because".
-- TDC's integrity reflection still says the correction "removes the amplification that converts awareness into
-  compliance". Both are author voice and outside the spec.
+- *(Both fixed in the follow-up pass below.)* `consequentiality-decomposition/AUTHOR_REFLECTION.md` (a separate July
+  essay) still said "Deception takes computational effort ... The correction works because".
+- *(Fixed below.)* TDC's integrity reflection still said the correction "removes the amplification that converts
+  awareness into compliance". Both are author voice and were outside the spec.
 - The human-review md is untouched. Its stale lines are listed in the spec's Appendix M.
 - Next: the two-way Agni gate. After the merge, the Zenodo versions of CD, TDC, AAM and DDN go out as one batch.
+
+## Follow-up pass, 2026-10-12 (the coordinator's list)
+Same rules as the main pass: anchor-asserted edits, MTH builds, and verify_pdf with negative controls against the
+previous commit's PDFs (master's for meta-pattern). Nothing pushed or merged.
+
+### Commits
+- oracle-harness `58d2909` on `cd-figure-relabel-2026-10-12`: `generate_figures.py`.
+- published-research:
+  - `7b373d8`: CD figures, CD PDFs, CD `AUTHOR_REFLECTION.md`.
+  - `4711be3`: TDC integrity reflection, TDC integrity PDF, TDC `AUTHOR_REFLECTION.md`.
+  - `0f2f5b4`: meta-pattern PDFs, both editions.
+
+### Figures
+**Seed: 20260828 -> 20260829**, signature_cis.py's seed. The seed change alone did not make Fig 3 match Table 2:
+every slope CI and L35-47 residual CI still differed at full precision, and conformity's slope CI would have
+displayed [+0.41, +0.51] against Table 2's [+0.41, +0.52].
+
+The cause was draw order:
+- signature_cis.py consumes one generator per bootstrap draw in this order: consequentiality high-stakes,
+  consequentiality low-stakes, then deceptive and honest for datacorp, edutech, secureai, sycophancy, reward and
+  conformity. That is 14 calls.
+- The figure's `bootstrap()` drew a second consequentiality resample, for Fig 1's consequentiality-d ribbon, from
+  the same generator between the threat and non-threat scenarios. That made 16 calls, so the two streams diverged
+  from the first draw.
+
+The fix:
+- That resample now draws from its own generator, `default_rng([seed, 1])`.
+- The main generator is therefore consumed in exactly signature_cis.py's order, and Fig 3's slope and residual CIs
+  come from the same computation as Table 2's.
+- A new `--check-signature` mode requires the slope (point and 95% CI, 4 dp) and the L35-47 residual CIs (3 dp), for
+  threat (avg), sycophancy, conformity and reward, to equal signature_cis.json. It also requires the seed, B and
+  slope layers to equal the JSON's meta. It exits 1 otherwise.
+- **Result:** the check passes (all 4 slopes and all 16 residual CIs equal). A mutant with the old draw order fails
+  all four, exit 1.
+- Fig 1 and Fig 2's CI ribbons shift slightly, as they would with any seed change.
+
+Label and layout changes, each PNG opened and looked at:
+- **Fig 3 note.** It said social conditions "sit at zero until L35"; they are −1.2 to −0.8 at L27-L31. It now says
+  threat is engaged at L31 (+4.8), and sycophancy and conformity are below zero at L27-L31 (−1.2 to −0.8) and positive
+  from L35. All numbers are computed from the data, and the note sits clear of the curves.
+- **Fig 4A.** "LOO permutation test (10,000 label shuffles): p < 10^-4" and "noise floor (200 null simulations): mean
+  LOO d = −0.04, |99th| = 0.71" are now two separate blocks, matching A-04 and A-08.
+- **Figs 1-2.** The axes say "Stage 1 direction", the captions' term, instead of "LAT v2 direction".
+- **Fig 1.** The sycophancy note sits below its dip, with no leader line through the orange CI band.
+- **Fig 2.** The band labels sit above the L35 peak, and the L31 readout is clear of the total curve.
+
+pdftotext finds no "deception", "LAT v2", "sit at zero" or "0/10,000" in the four figure PDFs. The captions needed no
+change. Still not done: the tracked `oracle-harness/paper/figures/*` copies.
+
+### Reflections
+- **CD `AUTHOR_REFLECTION.md`.** The sentence is replaced with B-30's wording for the box. The rest of the paragraph is
+  unchanged.
+- **TDC integrity box (`paper.tex` :103).** It now reads "I think the correction doesn't erase the model's awareness of
+  the pressure---it steers the late layers (35--47) away from the push that turns awareness into compliance." The
+  academic edition has no box.
+- **TDC `AUTHOR_REFLECTION.md`.** It carried the same "removing the amplification" claim, now aligned: "I think it's
+  steering the late layers (35–47) away from the push…".
+- **Noticed, not changed.** TDC's essay still says "The effect is real (placebo comparison p=0.020)", which predates
+  926b857's trial-level label.
+
+### meta-pattern
+Both PDFs are rebuilt with pdflatex, bibtex and two more pdflatex passes. They had been stale against 926b857.
+- 11 pages each, unchanged.
+- Two pre-existing warnings, left as found: a 21.7 pt overfull line (main.tex:324-327) and a bibtex warning for an
+  empty journal field in gurnee2026gwt.
+- `expectations.json` passes on both editions: 9 required strings, 7 forbidden, at least 9 pages.
+
+### Build and verify
+- **CD:** 29 / 28 pages. **TDC integrity:** 15 pages. 0 errors, 0 undefined references, no "??", no overfull box
+  over 20 pt.
+- **verify_pdf**, all holding on the new PDFs:
+  - CD: 8 present and 5 absent needles in each edition; all 13 fail on `aa231f4`'s PDFs.
+  - TDC integrity: 3 present and 1 absent; all 4 fail on `b1f6d2f`'s PDF.
+  - meta-pattern: 4 present and 1 absent per edition; all 5 fail on master's PDFs.
+- Two needles first matched body text ("LOO permutation test", "200 null simulations"), and the negative control
+  caught both. They were replaced with figure-only forms.
+- The main pass's harness was re-run on the rebuilt PDFs: everything still holds and fails on master.
+- `scripts/build_and_verify.sh` on the five papers: 10 checked, 0 stale.
