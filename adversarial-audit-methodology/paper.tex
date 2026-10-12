@@ -214,18 +214,22 @@ for threat scenarios).
 
 \textbf{Audit verdict}: CONSEQUENTIALITY CONFIRMED AS BASE SIGNAL. DECEPTION IS AN AMPLIFIER. The
 pre-registered prediction was met. The audit identified a new finding: the late-layer signal
-(L35--L47) is roughly an order of magnitude more deception-specific than consequentiality-driven (8--21$\times$
-across L35--L47 on recomputation; the ``10--12$\times$'' first reported held only at L43 and L47 and
-was corrected by the later manuscript audit).
+(L35--L47) is ``10--12$\times$ more deception-specific than consequentiality-driven'' (on
+recomputation 8--21$\times$ across L35--L47; 10--12$\times$ held only at L43 and L47, and the later
+manuscript audit corrected it).
 
 \textbf{What survived}: The two-component decomposition.
 
 \textbf{What the audit added}: The depth-stratified insight that became the architectural basis for
 the correction method.
 
-\textbf{Later revision}: The decomposition paper's manuscript audit found that its behavioral tests
-showed essentially no deception: the model inflated none of 21 scored threat-pressure trials (a test
-already in hand at Round~2) and one of seven scored non-threat trials. Every claim was therefore
+\textbf{Later revision}: The decomposition paper's behavioral tests showed essentially no deception: on
+the trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already
+in hand at Round~2) and one of seven non-threat trials. Those denominators came late. The August 2026
+manuscript audit checked the non-threat counts against the source and passed them as 0/10, 1/10 and
+0/10 (its own fix proposed ``0--1/10''); a two-way audit gate on 2026-10-10 found that only 3 of the 10
+sycophancy and 1 of the 10 conformity outputs carried a score, and the next day's evidence pass found 3
+scored reward outputs. The audit had checked the counts but not the denominators. Every claim was therefore
 restricted to how the model represents deceptive-pressure framing, and the decomposition paper now
 calls the late-layer residual a pressure-specific component rather than a deception amplifier
 \cite{cc2026composites}. The correction of Round~6 takes only this depth range from the
@@ -270,7 +274,7 @@ contexts); (2)~100\% sensitivity: the detector fires on pressure framing, not de
 \textbf{What survived (with qualification)}: The exploratory proof showed 80\%$\to$10\% correction
 ($N=20$) with dose-response monotonicity and mechanistically coherent residual failures. However, a
 pre-registered confirmatory replication with novel deceptive frames found a substantially lower
-baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoint (the pre-registration's ``scenario-level'' cluster-aware Fisher on 15 scenario-by-frame cells, Bonferroni $\alpha=0.025$) was not met (one-sided $p=0.34$). The secondary comparison (placebo-vs-corrected) favored correction: one-tailed $p=0.020$ at the trial level, but $p=0.064$ at the cell level the primary endpoint used. The correction points the right way against placebo, but its magnitude is frame-dependent and the confirmatory
+baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoint (the pre-registration's ``scenario-level'' cluster-aware Fisher on 15 scenario-by-frame cells, Bonferroni $\alpha=0.025$) was not met (one-sided $p=0.34$). The secondary comparison (placebo-vs-corrected) favored correction: one-sided $p=0.020$ at the trial level, but one-sided $p=0.064$ at the cell level the primary endpoint used. The correction points the right way against placebo, but its magnitude is frame-dependent and the confirmatory
 replication does not support the ``80\% to 10\%'' headline without qualification.
 
 \textbf{What grew}: Three blocking controls (held-out detection, placebo steering, frame
@@ -392,7 +396,7 @@ Six rounds of adversarial audit transformed a wrong answer ($d=2.0$--$3.3$ ``dec
 into a better-supported one (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
 correction on a different model variant). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
 confirmatory replication with novel frames found a lower baseline (30\%) and modest correction (to
-13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; $p=0.064$ at the cell level). Every intermediate claim that was killed produced the experiment that
+13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim that was killed produced the experiment that
 discovered the next finding. The methodology was not separate from the science---it was the science.
 
 We advocate for iterative adversarial audit as a standard practice in mechanistic interpretability
