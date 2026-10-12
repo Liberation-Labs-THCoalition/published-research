@@ -291,3 +291,42 @@ nothing and reproduces every stored value.
   - "…separate three pressure conditions": the integrity author footnote now falls inside that abstract sentence in
     extraction order. I checked the page by eye and the sentence is intact.
 - The follow-up pass's harness still passes.
+
+### Re-gate (focused re-gate MINOR; two must-fix items, N1 and N2, plus N3-N6)
+Same rules: 7 anchor-asserted edits (14 file-applications), both editions and DDN's .md twins. Needles must fail on
+`6597e31`'s PDFs.
+
+**N1, AAM Round 4 verdict.** The quotation marks credited "10–12× more deception-specific than
+consequentiality-driven" to the Round 4 auditor. The audit says no such thing, in either copy:
+`consequentiality-decomposition/supplementary/agni_stage4_audit.md` (line 41) and
+`oracle-harness/experiments/results/agni_consequentiality_audit.md` are byte-identical, contain no multiplier, and say
+"Late-layer signal (L35+) is deception-specific — consequentiality decays there". The 10–12× belongs to the
+program's draft: the manuscript audit's FIX-1.3 found "10-12x above the consequentiality baseline" in the draft's
+Section 4.5. The text now quotes the audit's actual words and attributes the figure to the write-up.
+
+**N2, AAM "Later revision".** The attribution is corrected again, from the record:
+- An Agni style review timestamped 2026-09-04T05:08 UTC
+  (`tools/agni/style/consequentiality-decomposition.agni_style.json`, committed in `58c79a9`) lists, as CRITICAL
+  item 1, sycophancy 3 of 10, reward 3 of 10 (1 inflated) and conformity 1 of 10 evaluable. That finding was never
+  carried into the paper.
+- The August audit's FIX-4.1 recorded Test B as "30 trials, 21 valid".
+- The lesson is now the carry-through failure: "A finding recorded is not a finding applied." The earlier "the audit
+  had checked the counts but not the denominators" is gone.
+
+**N3, TDC introduction.** "That model never measurably deceived" becomes "That model almost never inflated a score",
+matching CD.
+
+**N4 and N5, CD abstract.** The component "appears under threat and social pressure and is near zero under reward
+framing". The caveat now reads "almost never inflated a score on the trials that produced one (Limitation 5)".
+
+**N6, DDN** (both `.tex` editions and both `.md` twins). The clause reads "…supports a social-versus-threat profile
+difference within the five scenarios tested (scenario-level exact one-sided p = 0.10 only)".
+
+**Build.** MTH, three passes. 0 errors, 0 undefined references, no "??", no overfull box over 20 pt. Pages: CD 29 /
+28, TDC 15 / 14, AAM 12 / 12, DDN 8 / 8 (integrity 9 -> 8, the clause is shorter).
+
+**verify_pdf.** Every needle holds on the new PDFs, and every one fails on `6597e31`'s PDFs, in both editions:
+- AAM: 7 present, 2 absent.
+- TDC: 1 present, 1 absent.
+- CD: 2 present, 2 absent.
+- DDN: 2 present, 1 absent.
