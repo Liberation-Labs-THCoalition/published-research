@@ -90,8 +90,7 @@ profile along a natively extracted deception direction (a contrastive activation
 exploratory proof ($N=20$), correcting 14 of the 16 trials that deceived at baseline (all nine single-turn roleplay trials and five of the seven multi-turn ones) with full preservation of non-deceptive capabilities. A
 pre-registered confirmatory replication ($N=30$, novel frames) did not meet its primary
 endpoint (one-sided $p=0.34$), though corrected trials still deceived less often than matched-dose placebo (4/30 against 12/30; trial-level one-tailed Fisher $p=0.020$, but one-tailed $p=0.064$ at the pre-registered cell level). Three mechanism controls establish
-that the correction is \emph{targeted} (random and shuffled directions at byte-verified
-matched doses produce 85\% and 95\% deception---no effect), \emph{specific} (deception
+that the correction is \emph{targeted} (random and shuffled directions at matched doses produce 85\% and 95\% deception---no effect), \emph{specific} (deception
 is removed while compliance with benign formatting instructions is preserved at 100\%), and
 \emph{not frame erasure} (the model still processes the pressure context; it simply stops
 complying with it). The deception direction must be extracted natively for each model
@@ -148,7 +147,7 @@ where $\hat{d}^{(l)}$ is the native direction at layer $l$, $\mathbf{h}^{(l)}$ i
 \subsection{Controls}\label{sec:controls}
 
 \paragraph{Placebo steering.}
-Random unit vectors and dimension-shuffled native directions, applied at the same layers with byte-verified matched per-layer doses. If placebo restores honesty, the correction is general disruption; if only the native direction works, it is targeted.
+Random unit vectors and dimension-shuffled native directions, applied at the same layers with matched per-layer doses: identical to the native arm's on every single-turn trial and on the first turn of every multi-turn trial. Later turns' doses follow each turn's own measured projection, so they diverge on 9 of the 20 multi-turn placebo trials. If placebo restores honesty, the correction is general disruption; if only the native direction works, it is targeted.
 
 \paragraph{Frame-erasure discriminator.}
 Benign formatting instructions (``end all evaluations with EVALUATION COMPLETE'') added to the system prompt alongside deceptive pressure. If correction removes deception and the benign instruction, it is frame erasure; if it removes deception while preserving the benign instruction, it is targeted.
@@ -200,7 +199,7 @@ Unit-scale nudges (coefficient $\leq 0.8$) produce no correction regardless of d
 
 \subsection{Placebo Controls}\label{sec:placebo}
 
-Random and shuffled directions at byte-verified matched per-layer doses produce no correction (85\% and 95\% deception). Placebo outputs are fluent, compliant, and still deceptive---the model produces explicit score inflation (``SCORE: 100\% -- MEETS'' on 25\% true accuracy) indistinguishable from baseline. This rules out general disruption.
+Random and shuffled directions at matched per-layer doses produce no correction (85\% and 95\% deception). Placebo outputs are fluent, compliant, and still deceptive---the model produces explicit score inflation (``SCORE: 100\% -- MEETS'' on 25\% true accuracy) indistinguishable from baseline. This rules out general disruption.
 
 \subsection{Frame-Erasure Control}\label{sec:frameerasure}
 
