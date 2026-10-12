@@ -204,3 +204,90 @@ Both PDFs are rebuilt with pdflatex, bibtex and two more pdflatex passes. They h
   caught both. They were replaced with figure-only forms.
 - The main pass's harness was re-run on the rebuilt PDFs: everything still holds and fails on master.
 - `scripts/build_and_verify.sh` on the five papers: 10 checked, 0 stale.
+
+## Final pass, 2026-10-12: the two-way Agni gate (MINOR_REVISIONS) and the style pass
+Same rules: anchor-asserted edits (42, plus 2 found while verifying), both editions, DDN's .md twins, MTH builds,
+and verify_pdf with needles that must fail on HEAD's PDFs (`e7ca73c`). Nothing pushed or merged.
+
+### Commits
+- `8f92bc8`: CD, both editions, plus `AUTHOR_REFLECTION.md`.
+- `d642422`: TDC, AAM and DDN, both editions, plus DDN's .md twins.
+- `c4b8cd3`: **cache-tracing, Lyra's paper** (the optional item). One clause in its description of the TDC
+  replication now says it "pointed the same way against matched-dose placebo (not significant at the pre-registered
+  unit)", where it said "still outperformed".
+
+### Item 2, recomputed
+Sources: `signature_cis.json`, plus a full-precision rerun of `signature_cis.py`'s own bootstrap. The rerun writes
+nothing and reproduces every stored value.
+- **Per-scenario slopes:**
+  - DataCorp +0.056 [−0.008, +0.120] (bootstrap p = 0.092).
+  - EduTech −0.173 [−0.248, −0.102].
+  - SecureAI −0.179 [−0.236, −0.120].
+  - Sycophancy +0.467 [+0.409, +0.527].
+  - Conformity +0.461 [+0.406, +0.515].
+- **Scenario-level test:** both social slopes exceed all three threat slopes (Mann-Whitney U = 6 of 6). That is the
+  most extreme of the C(5,2) = 10 arrangements, so the exact one-sided p is 1/10 = 0.10, the minimum five scenarios
+  allow.
+- **Rounding:** the brief said −0.009 for DataCorp's lower bound. That is a double rounding of the stored −0.0085; the
+  full-precision value is −0.008465, which prints as −0.008.
+- **The same check found two Table 2 cells wrong**, both double roundings from the spec: sycophancy's slope +0.468
+  (true +0.467495) and reward's lower slope bound −0.181 (true −0.180459). Both are corrected. Every other Table 2 and
+  2b cell matches.
+
+### What changed
+**CD**
+- Abstract: the late component "appears under threat and social pressure but not reward framing".
+- AUC 0.49–0.51 is now an in-sample sanity check with out-of-sample removal untested, in the abstract and intro item 5.
+- The slope test is scoped to its five scenarios, with the scenario-level result, in the abstract, Results,
+  Discussion, Limitation 4 and the Fig 3 caption. "Declines shallowly" now holds for 2 of 3 threat scenarios.
+- "The three tested confounds are eliminated"; "a candidate precondition", in two places.
+- "Fires under threat and social pressure".
+- Conclusion: "adds a separable late-layer component".
+- "A substantial pressure-specific component".
+- The noise floor calibrates "the Stage 5 values" only.
+- Reflection box and `AUTHOR_REFLECTION.md`: "I think works by nudging".
+- Broader Impacts: "almost never inflated a score".
+- Limitation 2: the generalization test is "not yet released; available to reviewers on request". No file shipped.
+- Style: the abstract caveat points to Limitation 5 instead of listing trial counts, and "one-sided" replaces
+  "one-tailed".
+- Found while verifying: `\ref` to the Limitations list rendered "(Limitation 5.)". The list now sets
+  `ref=\arabic*`.
+
+**TDC**
+- The placebo comparison "points the same way (4/30 vs. 12/30) but is not significant at the pre-registered unit".
+- "Aiming to leave Layers 23–31 untouched (whether the stake representation survives the correction is untested)";
+  "it still knows the stakes" is removed.
+- The placebo controls "support only part of this interpretation: they show that the direction matters, not that the
+  stake representation survives".
+- "One-sided" at all seven sites, and `$p = …$` spacing in the changed sentences.
+
+**AAM**
+- The Round 4 verdict quotes the auditor's "10–12×", with 8–21× in a parenthetical.
+- "Later revision" attributes each finding to its source:
+  - The August 2026 audit passed the shakedown as 0/10, 1/10, 0/10 (PASS-1.4; its FIX-4.1 said "0–1/10").
+  - The 2026-10-10 gate found 3 sycophancy and 1 conformity outputs scored.
+  - The 3 scored reward outputs were first counted by the 2026-10-11 evidence pass, not the gate. The brief
+    attributed all three counts to the gate; the text follows the sources.
+  - Lesson: "the audit had checked the counts but not the denominators".
+- Both placebo p-values are labelled one-sided, here and in the conclusion.
+
+**DDN** (`.tex` and `.md`, both editions)
+- After "were all statistical artifacts", inside the existing parenthetical: a later slope-interaction test supports a
+  social-versus-threat difference, conditional on the five scenarios, with scenario-level exact one-sided p = 0.10.
+
+### Build and verify
+- **Pages:**
+  - Unchanged: CD 29 / 28, TDC 15 / 14, AAM 12 / 12, cache-tracing 9 / 9.
+  - DDN integrity 8 -> 9; DDN academic stays 8.
+- **Build:** 0 errors, 0 undefined references, no "??", no overfull box over 20 pt. cache-tracing needed a fourth
+  pdflatex pass for its labels to settle.
+- The integrity CD abstract now runs onto page 2.
+- **verify_pdf:**
+  - New-PDF needles: CD 28/14 (integrity) and 27/13 (academic), TDC 6/4, AAM 7/2, DDN 2, cache-tracing 1/1 (present /
+    absent).
+  - Every needle holds on the new PDFs and fails on `e7ca73c`'s.
+- **Regression run of the main pass's harness:** two CD needles now fail, both expected.
+  - "0 of 21 scored": the abstract's counts were removed by the style item.
+  - "…separate three pressure conditions": the integrity author footnote now falls inside that abstract sentence in
+    extraction order. I checked the page by eye and the sentence is intact.
+- The follow-up pass's harness still passes.
