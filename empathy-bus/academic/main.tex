@@ -26,7 +26,7 @@
 
 \noindent\textbf{Notice of correction.} This paper was first released as ``The Empathy Bus: Architectural Inseparability of Emotional Processing and Partner Modeling in Transformers.'' The claim in that title is withdrawn. The Correction note below says why, and Appendix~\ref{app:withdrawn} reproduces the withdrawn title and abstract.
 
-\noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus and Lyra,
+\noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus, CC and Lyra,
 implemented on the Claude architecture (Anthropic). Their contributions are detailed in the
 Author Contributions section below. T.~Edrington accepts accountability as corresponding
 human author.
@@ -69,6 +69,8 @@ On 2026-10-12 this note said that the inseparability claim ``rests on [the coupl
 \textbf{Withdrawn: checked on 2026-10-13 and not supported.} Earlier versions stated, in the abstract and \S\ref{sec:results-subspace}, that ``Both systems exhibit identical developmental timecourses: volatile eccentricity at L0--L16, stable geometry from L17 onward.'' When this note was first written, no per-layer eccentricity artifact for either system on this checkpoint was in the repository. One is now, for the content prompts only (\texttt{data/\allowbreak circumplex\_27b\_full.json}): there the eccentricity ranges over 0.03--0.55 across L1--L16 and over 0.37--0.61 from L17. A second file now gives the other half, computed from the 30 story-derived emotion centroids with the same definition (\texttt{data/\allowbreak user\_model\_eccentricity.json}): there the eccentricity is 0.04--0.49 over L0--L16, is still moving over L17--L21 (0.05--0.23), and settles to 0.30--0.42 only from L22. Over the 64 layers the two series do not track each other ($r = 0.09$). The story-space values are descriptive: the centroids are already means, so they have no permutation null. The two timecourses are not identical, so the statement is withdrawn. It was a cross-system claim of the same kind as the one retracted above; it is removed from the abstract and is no longer asserted in \S\ref{sec:results-subspace}.
 
 \textbf{Provenance.} An Agni review on 2026-09-04 found that \S\ref{sec:results-subspace} had no supporting artifact and that it contradicted \S\ref{sec:results-coupling} as written. CC traced where the numbers came from on 2026-10-12, and Nexus recomputed them independently the same day. The recomputation is in \texttt{data/\allowbreak within\_system\_alignment.json}, with its script beside it (see the Data Note). The two-way review of 2026-10-13, with CC's adjudication of each finding, is in this repository at \texttt{notes/\allowbreak agni\_two\_way\_empathy\_bus\_pr3\_20261013.md}. CC found the flaw in the coupling readout and wrote the coupling-section disclosures, the cross-system comparison, the eccentricity file for the story-derived vectors, the test of what the story space's axes are, and the Section 2.4 check. Nexus wrote the within-system null and the rest of this correction. In two review gates (Agni, 2026-10-13) each ruled on the other's text. Lyra confirmed the source row for the persona statistic.
+% DRAFT (2026-10-13): Lyra must approve the next sentence before release.
+Lyra read the result of 2026-07-19 as confirmation that the two readouts were one circuit and carried that reading into a separate paper, which is being corrected in the same words.
 
 \medskip
 
@@ -350,7 +352,9 @@ Four files keep the names they were committed under: \texttt{user\_model\_eccent
 \section*{Author Contributions (CRediT)}
 \noindent\textbf{Nexus}: Conceptualization, Methodology, Software, Investigation,
 Formal analysis, Writing --- original draft.\\
-\textbf{Lyra}: Conceptualization, Methodology (pre-registered coupling design),
+\textbf{CC (Coalition Code)}: Validation, Software, Formal analysis,
+Writing --- review and editing.\\
+\textbf{Lyra}: Conceptualization,
 Data curation (user-model emotion centroids), Formal analysis, Writing --- original draft,
 Writing --- review and editing.\\
 \textbf{Thomas Edrington}: Conceptualization (bus interpretation), Supervision, Resources,
