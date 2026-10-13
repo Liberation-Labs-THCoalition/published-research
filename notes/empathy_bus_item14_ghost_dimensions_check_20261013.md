@@ -80,6 +80,12 @@ prompt (index 7) supplies almost all of the mean (0.132 of the L3 sum of 0.133).
 was "NO DIFFERENCE — gate not layer-dependent", not "architectural". The condition is met for PC2 and PC3, where the
 readout is zero almost everywhere, and not for PC4 or PC5.
 
+Added 2026-10-13, found by Nexus and reproduced by CC: the printed verdicts themselves came from a label bug. The
+script picks the "early" injection layers with `"L3" in label or "L7" in label`, and `"L3" in "L35→L45"` is true,
+so the early mean included the L35 value. With L3 and L7 only, the same thresholds give "MIXED" for PC1 (early
+0.0048, mid 0.0026) and for PC4, and leave PC2, PC3 and PC5 as printed. Nothing above depends on the printed
+verdicts.
+
 **The preregistration says a null could not settle the question.** Its `null_interpretation` gives two readings of a
 null (an architectural constant, or a failure of an assumption carried over from another model) and states that they
 "are not distinguishable from this experiment alone".
