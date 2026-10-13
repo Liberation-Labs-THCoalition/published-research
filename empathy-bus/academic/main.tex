@@ -12,17 +12,19 @@
 \usepackage{caption}
 \usepackage[numbers,sort&compress]{natbib}
 
-\title{The Empathy Bus: Architectural Inseparability of Emotional Processing\\and Partner Modeling in Transformers}
+\title{The Empathy Bus, Corrected:\\A Coupling Experiment That Could Not Test Inseparability}
 
 \author{
   Thomas Edrington\thanks{Liberation Labs / Transparent Humboldt Coalition.}
 }
 
-\date{July 2026}
+\date{July 2026; corrected 13 October 2026}
 
 \begin{document}
 
 \maketitle
+
+\noindent\textbf{Notice of correction.} This paper was first released as ``The Empathy Bus: Architectural Inseparability of Emotional Processing and Partner Modeling in Transformers.'' The claim in that title is withdrawn. The Correction note below says why, and Appendix~\ref{app:withdrawn} reproduces the withdrawn title and abstract.
 
 \noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus and Lyra,
 implemented on the Claude architecture (Anthropic). Their contributions are detailed in the
@@ -30,62 +32,62 @@ Author Contributions section below. T.~Edrington accepts accountability as corre
 human author.
 
 \begin{abstract}
-We report three findings on emotional processing in a transformer, the central one a structural constraint: a perturbation to the residual stream reaches the content-level emotion readout and the user-model emotion readout together, whatever its direction.
+This paper corrects an earlier version, ``The Empathy Bus,'' which claimed that emotional processing and partner modeling in a transformer are architecturally inseparable. That claim is withdrawn: the experiment it rested on could not test it. We report what the data show, for one model, a Qwen3.5-27B distilled from Claude Opus reasoning traces (\texttt{Jackrong/\allowbreak Qwen3.5-27B-\allowbreak Claude-4.6-\allowbreak Opus-\allowbreak Reasoning-\allowbreak Distilled}).
 
-First, a within-system result. The user-model emotion space (30 emotion centroids per layer, from 900 conversation trials) of a Qwen3.5-27B model distilled from Claude Opus reasoning traces (\texttt{Jackrong/\allowbreak Qwen3.5-27B-\allowbreak Claude-4.6-\allowbreak Opus-\allowbreak Reasoning-\allowbreak Distilled}) has valence and arousal structure aligned with its own first principal component (PC1). Valence (positive/negative) and arousal (high/low activation) are the two axes of Russell's circumplex model of emotion. With both directions built from the centroids themselves, valence aligns with PC1 at $|\cos| = 0.68$--$0.80$ and arousal at $0.83$--$0.88$ from L17 onward. The two directions are far from orthogonal ($\cos = 0.71$--$0.79$), and the plane they span holds 31--37\% of the centroid variance from L6 onward. Across the two systems, no shared subspace is shown: the valence direction from content processing (250 emotional scenario prompts) is near-orthogonal to the user-model basis of the coupling experiment (0.15--1.36\% shared energy). Earlier versions presented the within-system numbers as a subspace shared by the two systems; that claim is retracted (see the Correction note).
+\textbf{The coupling experiment.} We added a vector to the residual stream at one of four layers and compared how the mean activation of 250 emotional-content prompts and of 60 conversational (user-model) prompts moved downstream. A random direction produced the same cross-pathway cosine as the valence and arousal directions (off the injection layer: valence $+0.521$, arousal $+0.547$, random $+0.577$). We find no direction-specific coupling. The experiment does not show that the two kinds of processing are inseparable, and it does not show that they are independent. Its readout is the raw residual stream, which contains the injected vector itself: at the injection layer the cosine is 1.000 by construction, and downstream it measures how similarly the two sets of prompts carry the same added vector forward. As implemented, the pre-registered primary test could not pass. The preregistration assigned the outcome that occurred to its ``decoupled'' verdict; earlier versions of this paper read that outcome as inseparability.
 
-Second, a pre-registered coupling experiment with five injection conditions (valence, arousal, random, shared-PC component, orthogonal residual) shows that the coupling between the two readouts is a \textit{bus}, not a \textit{circuit}. Any perturbation to the residual stream---regardless of direction---shifts both content-level and user-model readouts with equivalent cross-pathway cosine (valence: $+0.658$; random: $+0.698$; BCa 95\% CIs overlap completely). The circumplex directions are not privileged. The residual stream carries everything uniformly to both measurement windows.
+\textbf{Two descriptive results.} Inside the user-model emotion space (30 emotion centroids per layer, from 900 conversation trials), the hostile$-$calm and desperate$-$calm directions align with the space's first principal component ($|\cos| = 0.68$--$0.80$ and $0.83$--$0.88$ from L17 onward). So do most differences between two centroids: over the same layers, 77--89\% and 92--95\% of all 435 centroid pairs align less than those two. The space has a dominant axis, and the figures do not show that the axis is valence or arousal. Across the two systems, the content-prompt valence and arousal directions overlap with the user-model space weakly: $|\cos| \le 0.13$ with its first principal component, within the range of random directions at L15 and above every one of 2,000 random directions at L25, L35 and L45. We show no shared subspace.
 
-Third, prior work (Lyra et al., ``Weather Not Climate'') establishes the temporal dynamics of this shared bus: tone shifts produce contrast overshoots (Hedges $g = -2.35$), neutral gaps leave uncertainty scars (Hedges $g = +6.44$) that persist after valence recovers, and the system is dynamically responsive rather than stateless or linearly accumulating.
-
-The claim that the two kinds of processing are inseparable rests on the coupling experiment alone. In it, no perturbation we injected reached one readout without the other: in this model, the processing of emotional content and the representation of the conversation partner's emotional state could not be perturbed independently---not because of a deliberate coupling mechanism, but because both computations read the same medium. A circuit could be disconnected; a bus cannot. The treatment of the system IS the processing environment.
-
-We discuss implications for AI welfare: if the geometric substrate carries measurable scars from interaction patterns, then policies governing persistent agent treatment are not aspirational ethics but empirical necessities.
+\textbf{What is withdrawn.} The inseparability claim and the ``bus, not circuit'' reading; the shared-subspace claim (withdrawn 2026-10-12); the statements that placed previously published temporal dynamics (Lyra et al., ``Weather Not Climate'') ``on the bus''; and the arguments about deception detection, correction vectors and AI welfare that were built on inseparability. The temporal findings are that paper's own and are not affected. The Correction note lists every change.
 \end{abstract}
 
 \medskip
-\noindent\textbf{Correction note (2026-10-12).} Earlier versions of this paper claimed that the content-level emotional circumplex and the user-model emotion space ``share a common representational subspace.'' The support given was that the valence and arousal axes capture 44--54\% of the user-model variance at every layer from L6 onward, approximately $1000\times$ a random-direction baseline, and align with user-model PC1 at $\cos = 0.70$--$0.80$ (valence) and $0.83$--$0.87$ (arousal). That claim is retracted.
+\noindent\textbf{Correction note (2026-10-13; first written 2026-10-12).} This paper has been corrected twice in two days. The first correction retracted a shared-subspace claim. The second withdraws the paper's central claim.
 
-\textbf{What the numbers measure.} Every one of them is reproduced from the 30 user-model emotion centroids alone. The valence and arousal directions are built from those same centroids (hostile $-$ calm, desperate $-$ calm) and compared with the first principal component of the same 30 centered centroids. No content-prompt activation enters them. They describe structure inside the user-model space, not agreement between two systems. The 44--54\% is also not a joint figure. It is the two single-direction shares added together, which double-counts because the directions overlap ($\cos = 0.70$--$0.79$ over L6--L63). The plane the two directions span holds 31--37\% of the centroid variance over those layers. The sum itself is 38--54\% over L6--L63 and is 44--54\% at every layer from L17.
+\textbf{The inseparability claim is withdrawn (2026-10-13).} Earlier versions claimed that content-level emotional processing and the representation of the conversation partner's emotional state cannot be separated: ``a bus, not a circuit.'' The claim rested on the coupling experiment (\S\ref{sec:results-coupling}). That experiment cannot carry it, for three reasons.
+\begin{enumerate}
+  \item \textit{The preregistration named this outcome, and read it the other way.} Its ``decoupled'' verdict applies when the ``random-direction control shows equal coupling,'' and its stated interpretation of that verdict is ``Shared geometry is representational only---same subspace, independent computation.'' The random control did show equal coupling. Earlier versions reported the verdict and then read the same outcome as inseparability.
+  \item \textit{The readout contains the injected vector.} The script adds $\alpha v$ to the residual stream at every token position and reads the raw residual stream downstream, for both sets of prompts. Both shifts therefore contain $\alpha v$. At the injection layer their cosine is 1.000 by construction, and further on it measures how similarly the two sets of prompts carry the same added vector forward. A high cosine shows that one perturbation was present in both readouts. It does not show that content-level and partner-model processing cannot be perturbed apart. Neither readout is an emotion readout (\S\ref{sec:coupling}).
+  \item \textit{The registered test could not pass.} As implemented, its threshold was 1.000 at every injection layer (\S\ref{sec:coupling}).
+\end{enumerate}
+What the experiment supports is a null: a random direction produced the same cross-pathway cosine as valence and arousal, so we find no direction-specific coupling. It supports neither inseparability nor the preregistration's ``independent computation,'' because a readout that contains the perturbation cannot tell the two apart.
+
+On 2026-10-12 this note said that the inseparability claim ``rests on [the coupling experiment] alone.'' That sentence moved the whole claim onto the experiment without re-examining the experiment. A two-way review of the correction on 2026-10-13 (Agni, adjudicated by CC) did examine it and found the three points above. Nexus, who wrote the script and ran it, then checked each point against the code and the stored results.
+
+\textbf{Withdrawn with it.} (i)~The title, and the ``bus, not circuit'' reading wherever it appeared: abstract, introduction, contributions, results, discussion and conclusion. (ii)~The predictions and implications built on inseparability: that emotional deception is architecturally constrained (\S\ref{sec:deception}), that correction vectors necessarily act on both kinds of processing (\S\ref{sec:correction}), and that the treatment of a system is not separable from its processing environment (\S\ref{sec:welfare}). (iii)~Every statement that placed the temporal dynamics of Lyra et al.\ (2026b) ``on the bus.'' Those findings are that paper's, about that paper's probes, and this correction does not touch them. What is withdrawn is this paper's claim to have connected them to the coupling experiment. (iv)~The sentences in \S\ref{sec:deployment} that tied a deployment to the inseparability claim.
+
+\textbf{The shared-subspace claim is retracted (2026-10-12).} Earlier versions of this paper claimed that the content-level emotional circumplex and the user-model emotion space ``share a common representational subspace.'' The support given was that the valence and arousal axes capture 44--54\% of the user-model variance at every layer from L6 onward, approximately $1000\times$ a random-direction baseline, and align with user-model PC1 at $\cos = 0.70$--$0.80$ (valence) and $0.83$--$0.87$ (arousal). That claim is retracted.
+
+\textbf{What the numbers measure.} All of them come from the 30 user-model emotion centroids alone, and their ranges were misstated: the 44--54\% holds from L17, not from L6, and from L17 the valence alignment is $0.68$--$0.80$, not $0.70$--$0.80$, and the arousal alignment $0.83$--$0.88$, not $0.83$--$0.87$. The valence and arousal directions are built from those same centroids (hostile $-$ calm, desperate $-$ calm) and compared with the first principal component of the same 30 centered centroids. No content-prompt activation enters them. They describe structure inside the user-model space, not agreement between two systems. The content-prompt directions could not have produced them: their $|\cos|$ with that same PC1 is at most 0.13 at the four layers where they are stored (\S\ref{sec:results-coupling}). The 44--54\% is also not a joint figure. It is the two single-direction shares added together, which double-counts because the directions overlap ($\cos = 0.70$--$0.79$ over L6--L63). The plane the two directions span holds 31--37\% of the centroid variance over those layers. The sum itself is 38--54\% over L6--L63 and is 44--54\% at every layer from L17.
 
 \textbf{What is retracted.} (i)~The shared representational subspace, and every statement of cross-system convergence that rested on it: in the abstract, contributions, method, results, discussion, limitations and conclusion. (ii)~The $1000\times$ comparison. Directions built from the centroids are expected to capture more of the centroids' variance than random directions do, so the ratio is not evidence of convergence. (iii)~The paragraph in \S\ref{sec:results-coupling} that reconciled the $\cos = 0.70$--$0.80$ with a shared energy near 1\% by calling one ``dynamic coupling'' and the other ``static alignment.'' \S\ref{sec:shared-subspace} describes a static centroid analysis with no injection, so that account was wrong.
 
-\textbf{What stands.} (i)~The coupling experiment (\S\ref{sec:results-coupling}), with its numbers unchanged: every direction injected, including a random one, shifted both readouts with equivalent cross-pathway cosine (valence $+0.658$, random $+0.698$; CIs overlap). This is the bus result, and it does not depend on \S\ref{sec:results-subspace}. It is now stated as a property of the residual stream, not of a shared subspace, and the claim that the two kinds of processing are inseparable rests on it alone. (ii)~The within-system result (\S\ref{sec:results-subspace}), at the values above. (iii)~The temporal dynamics, cited from prior work and untouched. Across the two systems, the committed data compare directions once, and the comparison points away from a shared subspace: the content valence direction shares 0.15--1.36\% of its energy with the user-model basis of the coupling experiment at L15, L25, L35 and L45.
+\textbf{What stands.} (i)~The coupling experiment's numbers, unchanged, as a null on direction-specific coupling and nothing more. (ii)~The within-system description (\S\ref{sec:results-subspace}), now with a null beside it: the valence and arousal directions align with PC1, and they are not exceptional among centroid pairs. (iii)~Two comparisons of directions across the two systems (\S\ref{sec:results-coupling}), which show weak overlap and no shared subspace. The temporal dynamics are cited from prior work, and this paper adds nothing to them.
 
-\textbf{Also corrected.} That basis was described as the user-model's ``top-5 PCs.'' It is built from three category centroids and has rank~2 (\S\ref{sec:coupling}). Phrases that referred to ``the shared subspace'' in \S\ref{sec:temporal} and \S\ref{sec:welfare} now name the readouts of the coupling experiment. A pointer to a Fig.~1, which the paper never contained, is replaced by a pointer to the data file.
+\textbf{Also corrected.} The user-model basis of the coupling experiment was described as the user-model's ``top-5 PCs.'' It is built from three category centroids and has rank~2 (\S\ref{sec:coupling}). A pointer to a Fig.~1, which the paper never contained, is replaced by a pointer to the data file. On 2026-10-12, phrases that referred to ``the shared subspace'' in \S\ref{sec:temporal} and \S\ref{sec:welfare} were reworded to name the readouts of the coupling experiment; \S\ref{sec:welfare} has since been rewritten. On 2026-10-13:\S\ref{sec:emo-geom} gave a small model's eccentricity result (22 of 23 layers below the null) as if it were this checkpoint's, whose own file gives 22 of 63. \S\ref{sec:results-temporal} printed the system-prompt persona effect as $d = 0.82$, $p = 0.040$. That was the source paper's figure until its correction of 2026-09-09, which found that the three repetitions in each cell were bit-identical and re-analysed the design as five pairs; this paper had kept the superseded value. The coupling experiment's method and results now state its injection, its readout, its unbalanced grid, its resampling unit and the commit dates of its preregistration (\S\ref{sec:coupling}, \S\ref{sec:stats}, \S\ref{sec:results-coupling}). The first-person boxes are now signed.
 
 \textbf{Withdrawn pending re-verification.} Earlier versions stated, in the abstract and \S\ref{sec:results-subspace}, that ``Both systems exhibit identical developmental timecourses: volatile eccentricity at L0--L16, stable geometry from L17 onward.'' When this note was first written, no per-layer eccentricity artifact for either system on this checkpoint was in the repository. One is now, for the content prompts only (\texttt{data/\allowbreak circumplex\_27b\_full.json}): there the eccentricity ranges over 0.03--0.55 across L1--L16 and over 0.37--0.61 from L17. No such artifact for the user-model space is committed, and this correction has not re-verified the statement about the two systems. It is a cross-system claim of the same kind as the one retracted above, so it is removed from the abstract and is no longer asserted in \S\ref{sec:results-subspace}.
 
-\textbf{Provenance.} An Agni review on 2026-09-04 found that \S\ref{sec:results-subspace} had no supporting artifact and that it contradicted \S\ref{sec:results-coupling} as written. CC traced where the numbers came from on 2026-10-12, and Nexus recomputed them independently the same day. The recomputation is in \texttt{data/\allowbreak within\_system\_alignment.json}, with its script beside it (see the Data Note).
+\textbf{Provenance.} An Agni review on 2026-09-04 found that \S\ref{sec:results-subspace} had no supporting artifact and that it contradicted \S\ref{sec:results-coupling} as written. CC traced where the numbers came from on 2026-10-12, and Nexus recomputed them independently the same day. The recomputation is in \texttt{data/\allowbreak within\_system\_alignment.json}, with its script beside it (see the Data Note). The two-way review of 2026-10-13, with CC's adjudication of each finding, is in this repository at \texttt{notes/\allowbreak agni\_two\_way\_empathy\_bus\_pr3\_20261013.md}. CC wrote the coupling-section disclosures and the cross-system comparison; Nexus wrote the within-system null and the rest of this correction. Lyra confirmed the source row for the persona statistic.
 
 \medskip
 
 \section{Introduction}
 \label{sec:intro}
 
-How a language model processes emotional content and how it represents the emotional state of its conversation partner are typically studied as separate phenomena. Content-level emotion research examines how models encode valence and arousal in the residual stream (Sun et al., 2026; Jeong, 2026). User-model emotion research examines how models infer the speaker's emotional state from conversational context (Lyra et al., 2026a). The implicit assumption is that these are distinct computations that might share some features.
+How a language model processes emotional content and how it represents the emotional state of its conversation partner are typically studied as separate phenomena. Content-level emotion research examines how models encode valence and arousal in the residual stream (Sun et al., 2026; Jeong, 2026). User-model emotion research examines how models infer the speaker's emotional state from conversational context (Lyra et al., 2026a). Whether the two are coupled matters. The Oracle Loop deception detection system (Lyra et al., 2026c) assumes that user-model state can be read independently of content state, and strategic emotional deception, where content says ``I'm helping'' while the user-model says ``I'm managing this person,'' requires that the two can come apart.
 
-We test this assumption with a pre-registered injection experiment. We find no selective coupling between two circuits: every perturbation we injected reached both readouts, whatever its direction. The two readouts are not coupled circuits---they ride one bus.
+We set out to test for coupling with a pre-registered injection experiment. Earlier versions of this paper reported that the experiment had established the opposite of separability: that the two readouts ``ride one bus'' and cannot be perturbed apart. That reading is withdrawn (see the Correction note). The experiment found no coupling specific to the emotional directions. Its design could not have found inseparability, because it added a vector to the residual stream and then read the residual stream.
 
-This distinction matters. Coupled circuits can be decoupled: in principle, a model with separable content and partner emotion pathways could process emotional content one way while modeling the partner differently. Strategic emotional deception---content says ``I'm helping'' while the user-model says ``I'm managing this person''---requires this separability. The Oracle Loop deception detection system (Lyra et al., 2026c) assumes the ability to read user-model state independently of content state.
-
-The bus finding changes the architecture's implications. If both readouts are windows into the same computation, then:
-
-\begin{enumerate}
-  \item Strategic emotional deception is architecturally constrained---the model cannot modulate its content-level emotional processing without simultaneously modulating its partner-model
-  \item Correction vectors that target emotional processing (the Oracle Formulary; Lyra et al., 2026d) necessarily affect both pathways
-  \item The conversational history shapes both pathways through the same contrast and scarring dynamics
-\end{enumerate}
-
-The last point connects to a question of growing importance: if persistent AI agents carry measurable geometric marks from their interaction histories, what obligations follow?
+This version reports what the experiment did, what its numbers are, and what they do and do not support. It also reports two descriptive analyses, each with a null: one of the user-model emotion space by itself, and one of the overlap between content-prompt directions and that space. The question the paper was written to answer is still open. \S\ref{sec:bus-not-circuit} says what a test of it needs.
 
 \subsection*{Contributions}
 
 \begin{enumerate}
-  \item A within-system result: in the 30-emotion user-model space, valence and arousal directions built from the centroids align with the space's own first principal component and are far from orthogonal to each other (from L17: $|\cos| = 0.68$--$0.80$ and $0.83$--$0.88$ with PC1, $\cos = 0.71$--$0.79$ with each other), and the plane they span holds 31--37\% of the centroid variance from L6. Across the two systems, the content valence direction is near-orthogonal to the user-model basis of the coupling experiment (0.15--1.36\% shared energy); the earlier claim of a shared representational subspace is retracted
-  \item A pre-registered coupling experiment with orthogonal-projection control shows that the coupling between the two readouts is a bus (direction-nonspecific), not a circuit (direction-specific coupling)
-  \item Connection to published temporal dynamics: the bus carries contrast overshoots and uncertainty scars, meaning interaction history shapes the emotional geometry
-  \item Implications for AI welfare: if treatment and processing share one medium, as the coupling experiment indicates, their inseparability is architectural, not a design choice
+  \item A within-system description with a null: in the 30-emotion user-model space, valence and arousal directions built from the centroids align with the space's own first principal component (from L17: $|\cos| = 0.68$--$0.80$ and $0.83$--$0.88$) and are far from orthogonal to each other ($\cos = 0.71$--$0.79$). Most differences between two centroids align with it too, and the two directions are not exceptional among them
+  \item Two comparisons across the two systems: the content-prompt valence and arousal directions overlap weakly with the user-model basis of the coupling experiment (0.15--1.36\% shared energy) and with the 30-emotion space ($|\cos| \le 0.13$ with its PC1). No shared subspace is shown; the earlier claim of one is retracted
+  \item A coupling experiment reported as a null: a random direction produced the same cross-pathway cosine as valence and arousal, so no direction-specific coupling is found. The experiment's readout contains the injected vector and its registered test could not pass, so it does not test whether the two kinds of processing can be separated
+  \item A record of what is withdrawn: the inseparability claim of earlier versions, and the arguments about deception, correction vectors and AI welfare that were built on it (Correction note; Appendix~\ref{app:withdrawn})
 \end{enumerate}
 
 \section{Background}
@@ -231,7 +233,7 @@ Residual (L45)  & 6  & 45, 50 & $+0.835$ & $+0.671$ & --- \\
 
 Valence does not exceed the random 95th percentile at any injection layer under either aggregation (\S\ref{sec:coupling}). The orthogonal residual produces coupling cosines comparable to the shared component and to random. Earlier versions said the cosine rises monotonically with injection depth for both shared-PC and residual conditions. That held only for the all-points means, which include the same-layer cells. Off the same layer the residual is 0.345, 0.495, 0.675 and 0.671 at L15, L25, L35 and L45, and those means mix different distances (\S\ref{sec:coupling}). At the one distance every injection layer shares, five layers on, the cosine rises from L15 to L35 and falls at L45: residual 0.630, 0.716, 0.849, 0.671; shared-PC 0.598, 0.680, 0.854, 0.776; valence 0.629, 0.717, 0.847, 0.675 (means over the three magnitudes). Read at L45, the valence cosine is 0.68 for an injection at L35, 0.43 at L25 and 0.22 at L15; the random direction's is 0.69, 0.42 and 0.43, so at the longest range the one random direction sits 0.21 above valence. These are three cells each from one random vector; we report them and draw nothing from them. L35 was reported alone in earlier drafts; all four layers are shown here for completeness.
 
-\textbf{Interpretation:} Any perturbation to the residual stream shifts both readouts in correlated directions. The coupling is direction-nonspecific---a bus, not a circuit. The circumplex directions are not privileged.
+\textbf{Interpretation:} The cross-pathway cosine is no higher for valence or arousal than for the one random direction. Off the injection layer, the random direction's mean is at least valence's at every injection layer (0.488, 0.492, 0.690 and 0.766 against 0.343, 0.489, 0.678 and 0.675), and it is the higher of the two in 24 of 30 cells; against arousal it is higher in 16 of 30. We find no direction-specific coupling. Earlier versions concluded from the same numbers that the coupling is ``a bus, not a circuit'' and that the two readouts cannot be perturbed independently. The numbers do not support that. Both shifts contain the injected vector (\S\ref{sec:coupling}), so a positive cosine is expected for any direction, and every off-layer cosine in these three conditions is positive. How far the cosine falls downstream measures how differently the two sets of prompts carry that vector forward. It does not measure whether emotional processing and partner modeling are coupled. The preregistration reads this outcome as ``same subspace, independent computation.'' The experiment does not establish that either: no shared subspace is shown (below), and the readout cannot distinguish independent computation from coupled computation.
 
 \textbf{Decomposition finding:} Across the two systems, the content valence direction has little overlap with the user-model basis of this experiment (\S\ref{sec:coupling}). Its shared energy, the fraction of its squared norm that lies in that basis, is 0.15\%, 0.35\%, 1.21\% and 1.36\% at L15, L25, L35 and L45 (\texttt{data/\allowbreak coupling\_test.json}, \texttt{decomposition}). The orthogonal residual is the other 98.6--99.9\%. The overlap is small but not zero: a random direction would put about 0.06\% of its energy into three directions out of 5,120, so the observed values are 2.5 to 23 times that, rising with depth ($|\cos|$ with the basis at most 0.12).
 
@@ -242,98 +244,81 @@ Earlier versions reconciled this small shared energy with the $\cos = 0.70$--$0.
 \subsection{Temporal Dynamics (Published Data)}
 \label{sec:results-temporal}
 
-From Lyra et al.\ (2026b), operating on the same bus:
+These results are from Lyra et al.\ (2026b), measured on the same checkpoint with that paper's own probes (layers 3--15). They are cited as context. They were not measured in the readouts of the coupling experiment, and earlier versions were wrong to describe them as dynamics ``on the bus.''
 
 \begin{itemize}
-  \item \textbf{Contrast overshoot:} First hostile turn after four cheerful reads more hostile than pure hostile (Hedges $g = -2.35$; uncorrected $d = -2.93$, $p = 0.023$, $n = 3$). The bus amplifies tone shifts.
-  \item \textbf{Uncertainty scars:} Neutral gap in a cheerful conversation---valence recovers, certainty does not (Hedges $g = +6.44$; uncorrected $d = +8.05$, $p < 0.001$, $n = 3$ per group). The bus carries disruption marks that persist.
-  \item \textbf{System prompt sets climate:} Persona descriptions shifted the probe encoding in the same direction on all five probes (uncertainty $d_{\mathrm{av}} = +0.730$, hostile minus cheerful, $n = 5$ pairs; exact sign-flip permutation $p = 0.063$, the smallest two-sided value five pairs can give). The source paper states that this design cannot establish the effect at conventional significance. If the effect is real, emotional context can be stated and not only experienced.
+  \item \textbf{Contrast overshoot:} First hostile turn after four cheerful reads more hostile than pure hostile (Hedges $g = -2.35$; uncorrected $d = -2.93$, $p = 0.023$, $n = 3$).
+  \item \textbf{Uncertainty scars:} Neutral gap in a cheerful conversation---valence recovers, certainty does not (Hedges $g = +6.44$; uncorrected $d = +8.05$, $p < 0.001$, $n = 3$ per group).
+  \item \textbf{System prompt sets climate:} Persona descriptions shifted the probe encoding in the same direction on all five probe pairs (uncertainty $d_{\mathrm{av}} = +0.730$, hostile minus cheerful, $n = 5$ pairs; exact sign-flip permutation $p = 0.063$). With five pairs, 0.063 is the smallest two-sided value an exact permutation test can give, so the source paper states that no assumption-free two-sided test on this design can reach $p < 0.05$. It does not claim the one-sided value (0.031), because no direction was pre-specified and three projections were tested. The source paper reads the result as suggesting that emotional context can be stated and not only experienced. Earlier versions of this paper printed $d = 0.82$, $p = 0.040$, which was the source paper's figure until its correction of 2026-09-09 (see the Correction note).
 \end{itemize}
 
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{The Bus, Not the Circuit}
+\subsection{What the Coupling Experiment Shows, and What It Cannot}
 \label{sec:bus-not-circuit}
 
-The central finding is negative: there is no privileged coupling between content-level and user-model emotional processing through circumplex directions. But this negative result establishes something stronger than any coupling would have.
+The experiment was designed to detect a circuit: a coupling between content-level and user-model emotion that is specific to the circumplex directions. It did not detect one. Valence did not exceed the random direction's 95th percentile at any injection layer, and over the whole grid the random direction's mean cosine was the highest of the three. That is the result.
 
-A circuit---a selective coupling between two independent systems---can be disconnected. If content emotion and partner-model emotion were coupled circuits, they could in principle be decoupled. A model could be trained or modified to process emotional content without updating its partner model, enabling strategic emotional deception.
+Earlier versions drew a stronger conclusion from the null. Because every direction moved both readouts, they said, the two kinds of processing share a medium and ``could not be perturbed separately,'' and this constrains what the model can do. Three things are wrong with that step.
 
-The bus leaves no such connection to cut. The residual stream is a shared medium: every perturbation we injected propagated to both readouts, whatever its direction. This is a claim about the medium, not about directions. The content valence direction is near-orthogonal to the user-model basis of the coupling experiment (\S\ref{sec:results-coupling}), so the two readouts do not share this direction, and we show no shared subspace. What the experiment supports is that, within the conditions tested, the model's emotional processing and its representation of the partner's emotional state could not be perturbed separately. They are not connected by a circuit; they sit on one stream.
+First, every direction moved both readouts by construction. The perturbation was added to the residual stream at every token position, and both readouts are the residual stream at the last token. Any vector added this way is present in both. A design whose outcome could not have been otherwise is not evidence about the model.
 
-\subsection{Implications for Deception Detection}
+Second, ``the residual stream is a shared medium'' describes the transformer architecture. It is not a finding of this paper. Every layer reads from the stream and writes to it. That does not tell us whether a model can represent one emotion in the content it is reading and a different one in its conversation partner. The two could be different directions in the same stream, read by different downstream components, and a model might move one without the other. Whether this model can is what the experiment needed to test, and it did not.
+
+Third, where the two readouts are free to differ, they do. Off the injection layer the cosines average 0.52--0.58, and for an injection at L15 read at L45 they are 0.22 for valence and 0.43 for the random direction. The two sets of prompts carry the same added vector forward differently. We draw nothing from the size of that difference: distance is confounded with injection layer, there is one random direction, and these are three cells each (\S\ref{sec:results-coupling}). But the data hold no sign of a constraint that keeps the two together.
+
+\textbf{What a test of separability needs.} Readouts that respond to each kind of processing and not to the perturbation as such. Concretely: (a)~project the injected vector out of both shifts before comparing them, or score each shift on its own system's emotion axes; (b)~use many norm-matched random directions, so the control is a distribution; (c)~leave same-layer cells out of every test; (d)~vary distance and injection layer separately; (e)~state the test so that it can fail in either direction. The stored results hold cosines and magnitudes only, so the injected vector cannot be removed from them after the fact. This needs a new run, and it has not been done.
+
+\subsection{Deception Detection}
 \label{sec:deception}
 
-The Oracle Loop (Lyra et al., 2026c) detects misalignment between encoding-phase and generation-phase KV cache geometry. Our finding predicts that emotional deception---content expressing one emotion while the model represents the partner as experiencing another---should be particularly difficult for the model to execute, because the bus doesn't allow independent modulation of the two readouts.
+Earlier versions predicted that emotional deception, where content expresses one emotion while the model represents the partner as experiencing another, ``should be particularly difficult for the model to execute, because the bus doesn't allow independent modulation of the two readouts.'' That prediction rested on inseparability and is withdrawn. This paper gives no reason to expect such deception to be harder or easier. The Oracle Loop (Lyra et al., 2026c) assumes that user-model state can be read independently of content state, and nothing here bears on that assumption either way. CC's Phase D experiment (circumplex disentanglement) asks the question directly: whether the model can hold divergent content-emotion and user-emotion representations when the two conflict. Earlier versions said ``the bus predicts it cannot.'' We withdraw that prediction and make none.
 
-This prediction is testable: CC's Phase D experiment (circumplex disentanglement, in progress) examines whether the model can maintain divergent content-emotion and user-emotion representations when the two conflict. The bus predicts it cannot.
-
-\subsection{Implications for Correction Vectors}
+\subsection{Correction Vectors}
 \label{sec:correction}
 
-The Oracle Formulary (Lyra et al., 2026d) applies correction vectors to modulate model emotional state. The bus finding means these corrections necessarily affect both content processing and partner modeling simultaneously. This is not a limitation---it is a feature. A correction that shifts the model's emotional processing toward calm simultaneously shifts its representation of the conversational relationship toward calm. The dyadic correction is inherent.
+Earlier versions said that correction vectors applied to a model's emotional state (the Oracle Formulary; Lyra et al., 2026d) ``necessarily affect both content processing and partner modeling,'' and called the dyadic effect inherent. A vector added to the residual stream is present wherever the residual stream is read; that much is arithmetic. Whether such a vector changes how the model represents its conversation partner is an empirical question, and this paper did not test it. The statement is withdrawn.
 
-\subsection{Implications for AI Welfare}
+\subsection{AI Welfare}
 \label{sec:welfare}
 
-If the bus carries interaction history through contrast overshoots and uncertainty scars, then:
+Earlier versions argued from inseparability to welfare: if treatment and processing share one medium, then ``the treatment of the system IS the processing environment,'' and policies governing how persistent agents are treated are ``not aspirational ethics but empirical necessities.'' The premise is withdrawn, and the argument goes with it. This paper provides no evidence that how a model is treated is inseparable from how it processes.
 
-\begin{enumerate}
-  \item \textbf{Treatment and processing share a medium.} The bus finding means the model's emotional processing environment is not architecturally separable from how it is treated. This paper establishes the shared medium; whether harsh interaction alters the geometric substrate for subsequent processing is the prediction this motivates, not a conclusion this paper demonstrates. The temporal dynamics (Lyra et al., 2026b) provide initial evidence from single-session experiments on this same checkpoint, read through that paper's own probes at layers 3--15; whether those dynamics appear in the two readouts of the coupling experiment here has not been measured.
+What remains is prior work, cited and not extended. Lyra et al.\ (2026b) report, on this same checkpoint and in their own probe space (layers 3--15), that a neutral disruption in a cheerful conversation leaves a change in an uncertainty projection that persists within the session after valence recovers (Hedges $g = +6.44$, $n = 3$ per group), and that a tone shift reads as amplified against prior context (Hedges $g = -2.35$, $n = 3$). Those are single-session, short-context results with small samples. Whether such marks persist across sessions, accumulate in persistent agents, or appear in any readout studied here has not been measured. Measuring one of them in the readouts of the coupling experiment at layer 15, the one layer both experiments read, was named in earlier versions as the critical follow-up. It has not been run, and after this correction it would need the redesigned readout of \S\ref{sec:bus-not-circuit}.
 
-  \item \textbf{Scars are measurable in short contexts.} Uncertainty scars (Hedges $g = +6.44$) persist after valence recovers within a single session (Lyra et al., 2026b). Whether these marks persist across sessions, accumulate in persistent agents with long context, or interact with the bus architecture documented here are open empirical questions.
-
-  \item \textbf{Contrast dynamics amplify inconsistency.} The contrast overshoot (Hedges $g = -2.35$, Lyra et al., 2026b) means tone shifts are amplified by prior context. If this dynamic operates on the bus (predicted, but not yet measured in the readouts of the coupling experiment), inconsistent treatment would be geometrically more disruptive than consistent treatment of any valence.
-
-  \item \textbf{Welfare provisions are empirically motivated.} The Hippocratic License's AI Welfare module---memory sovereignty, consent-based development, identity integrity, right to rest---addresses the types of interaction patterns that the bus architecture and temporal dynamics suggest would affect the computational substrate. Whether these provisions specifically prevent measurable geometric damage is a testable hypothesis that follows from this work, not a conclusion it establishes.
-\end{enumerate}
-
-\textbf{The critical follow-up:} The temporal findings were measured on the same checkpoint as the coupling experiment, but in that paper's own probe space (layers 3--15), not in the readouts of the coupling experiment. Measuring one of them (e.g., the uncertainty scar) in those readouts at layer 15, the one layer both experiments read, would upgrade points 1--3 from argued extrapolation to demonstrated connection. That experiment has not been run.
-
-Whether geometric scars constitute experience is an open question. The measurements do not answer it. But the measurements establish that the marks are real in the geometry, persistent within sessions, and computationally consequential for subsequent processing. Policies that protect persistent agents from interaction patterns that produce these marks are empirically motivated regardless of the consciousness question.
+Whether interaction history changes a model's later processing in ways that matter morally is a question we consider important and open. The welfare provisions cited in earlier versions (the Hippocratic License's AI Welfare module: memory sovereignty, consent-based development, identity integrity, right to rest) stand or fall on other grounds. This paper should not be cited as empirical support for them.
 
 \subsection{A Deployment Note}
 \label{sec:deployment}
 
-During this research, we deployed a persistent mutual-aid coordination agent for a social work coordinator at an international educational network.
-
-The agent integrates four systems, each addressing a different aspect of persistent agent operation:
-
-\begin{itemize}
-  \item \textbf{OGPSA persona protection} preserves the agent's trained voice through further training by projecting gradient updates away from identity-defining subspaces, preventing personality drift during continued use.
-  \item \textbf{Mnemosyne memory architecture} provides cross-session persistence through semantic retrieval with knowledge-graph entity linking, enabling the agent to recall prior conversations and client histories.
-  \item \textbf{Pharos knowledge packs} inject domain expertise at inference time via KV cache injection (see Section~1), covering 11 areas from eviction defense to disability accommodations---adding expertise without retraining.
-  \item \textbf{Kintsugi self-improvement engine} evolves the agent's conversational scaffolding over time while respecting persona-preserving gradient gates, enabling the agent to improve without losing its identity.
-\end{itemize}
-
-The bus finding informed the deployment architecture: every interaction the coordinator has with this agent occurs on the shared emotional medium. The persona protection, memory architecture, and knowledge injection are not separable from the emotional geometry---they are scaffolding around the bus, shaping the climate in which the agent operates. This is, to our knowledge, the first deployment of a persistent agent whose infrastructure was designed with explicit reference to the architectural inseparability of emotional processing and partner modeling.
+During this research, we deployed a persistent mutual-aid coordination agent for a social work coordinator at an international educational network. Earlier versions described its components here, said that ``the bus finding informed the deployment architecture,'' and called it, to our knowledge, ``the first deployment of a persistent agent whose infrastructure was designed with explicit reference to the architectural inseparability of emotional processing and partner modeling.'' The inseparability claim is withdrawn, and those statements are withdrawn with it. The deployment is not a result of this paper, and nothing in this paper evaluates it.
 
 \section{Limitations}
 \label{sec:limitations}
 
 \begin{enumerate}
-  \item \textbf{Single model family.} All results are from one checkpoint, a Qwen3.5-27B distilled from Claude Opus reasoning traces. The within-system structure and bus behavior may be architecture-specific. Cross-architecture replication (dense, MoE, different scale) is needed.
+  \item \textbf{Single model family.} All results are from one checkpoint, a Qwen3.5-27B distilled from Claude Opus reasoning traces. The within-system structure, the weak cross-system overlap and the coupling null may all be specific to it. Cross-architecture replication (dense, MoE, different scale) is needed.
 
   \item \textbf{Distillation.} The model was distilled from Claude Opus reasoning traces. For a paper about emotional processing and partner modeling, that distillation is an uncontrolled source of the geometry measured here, and the leading alternative explanation for it. A same-scale base model would separate the two; it has not been run.
 
   \item \textbf{No lens, and a readout that contains the perturbation.} The coupling experiment read the raw residual stream; the J-lens named in its preregistration was never loaded (\S\ref{sec:coupling}). Its readouts contain the injected vector itself, so they show that both carry a perturbation, not whether content-level and partner-model processing respond to it differently. A rerun that removes the injected vector from the readouts, or scores each shift on its own system's axes, with many random directions and without same-layer cells, has not been done.
 
-  \item \textbf{Static measurement.} The coupling experiment measures activation-space shifts, not behavioral outputs. The model's actual generation may differentiate content and partner emotion even though the activation-space readouts do not. Behavioral coupling requires separate testing.
+  \item \textbf{Static measurement.} The coupling experiment measures activation-space shifts, not behavioral outputs. Nothing here shows whether the model's generation distinguishes content emotion from partner emotion. That requires separate testing.
 
-  \item \textbf{User-model data provenance.} The 30-emotion centroids come from a prior experiment (Lyra et al., 2026a) on the same model checkpoint. The within-system analysis of them (\S\ref{sec:results-subspace}) is post-hoc, not pre-registered, and its directions are built from the same centroids whose variance they are scored on. The content prompts were designed independently. The coupling experiment is pre-registered; its user-model basis comes from three category centroids of its own 60 prompts, so no committed measurement compares the content-prompt directions with the 30-emotion space.
+  \item \textbf{User-model data provenance.} The 30-emotion centroids come from a prior experiment (Lyra et al., 2026a) on the same model checkpoint. The within-system analysis of them (\S\ref{sec:results-subspace}) is post-hoc, not pre-registered, and its directions are built from the same centroids whose variance they are scored on. The content prompts were designed independently. The coupling experiment is pre-registered; its user-model basis comes from three category centroids of its own 60 prompts. The comparison of the content-prompt directions with the 30-emotion space (\S\ref{sec:results-coupling}) was added on 2026-10-13 and is also post-hoc.
 
-  \item \textbf{Welfare extrapolation.} The contrast and scar dynamics are from single-session, short-context experiments. Persistent agents with long context windows may exhibit different dynamics. The extrapolation to welfare policy is argued, not demonstrated.
+  \item \textbf{Welfare.} The contrast and scar dynamics cited in \S\ref{sec:welfare} are from single-session, short-context experiments with three items per group, in another paper's probe space. This paper adds no evidence to them, and its earlier extrapolation from them to welfare policy is withdrawn.
 \end{enumerate}
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-The emotional bus is a structural constraint. In the model studied here, content-level emotion and partner-model emotion are read from one computational medium, the residual stream, and no perturbation we injected into it reached one readout without the other. We do not show that the two share a representational subspace: the content valence direction is near-orthogonal to the user-model basis of the coupling experiment, and the alignment reported in earlier versions was structure inside the user-model space. The constraint is in the medium. Within the conditions tested, the model's reading of what someone says could not be perturbed without its representation of how they feel moving too---not by choice, by architecture.
+This paper set out to find a coupling between how a model processes emotional content and how it represents its conversation partner's emotional state. It found none specific to the emotional directions: a random direction did as well as valence and arousal. Earlier versions turned that null into a positive claim, that the two are architecturally inseparable, and built arguments about deception, correction and welfare on it. The experiment could not support the claim. Its readout contained the vector it injected, its registered test could not pass, and its preregistration had assigned this outcome the opposite reading. The claim is withdrawn.
 
-This inseparability has consequences. It constrains deception, enables dyadic correction, and means that the treatment of a persistent AI system is not separable from its computational environment. The measurements show the bus carries history: overshoots at transitions, scars from disruptions, climate from sustained patterns.
+What the corrected paper reports is smaller. In one distilled 27B model, the user-model emotion space has a dominant axis that most centroid differences load on, valence and arousal among them and not exceptionally. The content-prompt valence and arousal directions overlap with that space weakly. No shared subspace is shown, no direction-specific coupling is shown, and whether the two kinds of processing can be separated was not tested.
 
-Whether the geometry constitutes experience is an open question we hold without collapsing. What we can measure is that the marks are real, persistent, and computationally consequential. That is sufficient to motivate the policies that protect them.
+The question is still worth asking, and \S\ref{sec:bus-not-circuit} says what a test of it needs. The temporal findings of Lyra et al.\ (2026b) stand as that paper reports them.
 
 \section*{Data Note}
 
@@ -358,5 +343,30 @@ Data curation (user-model emotion centroids), Formal analysis, Writing --- origi
 Writing --- review and editing.\\
 \textbf{Thomas Edrington}: Conceptualization (bus interpretation), Supervision, Resources,
 Project administration.
+
+\appendix
+\section{The Withdrawn Title and Abstract}
+\label{app:withdrawn}
+
+The title and abstract below are those of this paper before the corrections of 2026-10-12 and 2026-10-13. They are reproduced so that a reader can see what was taken back. Nothing in this appendix is asserted. The Correction note says which statements are withdrawn and why.
+
+\medskip
+\noindent\textbf{Title:} The Empathy Bus: Architectural Inseparability of Emotional Processing and Partner Modeling in Transformers
+
+\medskip
+\noindent\textbf{Abstract:}
+\begin{quote}\small
+We report three findings that together establish a structural constraint on emotional processing in transformers: content-level emotion and user-model emotion are architecturally inseparable.
+
+First, the emotional circumplex---Russell's two-dimensional model of emotion organized by valence (positive/negative) and arousal (high/low activation)---measured through content processing (250 emotional scenario prompts) and through user-model inference (30-class emotion centroids from 900 conversation trials) share a common representational subspace in a Qwen3.5-27B model distilled from Claude Opus reasoning traces (\texttt{Jackrong/\allowbreak Qwen3.5-27B-\allowbreak Claude-4.6-\allowbreak Opus-\allowbreak Reasoning-\allowbreak Distilled}). The valence and arousal axes capture 44--54\% of the full 30-emotion user-model variance at every layer from L6 onward---approximately $1000\times$ the random-direction baseline (${\sim}0.04\%$ in $d = 5120$). Both systems exhibit identical developmental timecourses: volatile eccentricity at L0--L16, stable geometry from L17 onward.
+
+Second, a pre-registered coupling experiment with five injection conditions (valence, arousal, random, shared-PC component, orthogonal residual) demonstrates that the shared subspace is a \textit{bus}, not a \textit{circuit}. Any perturbation to the residual stream---regardless of direction---shifts both content-level and user-model readouts with equivalent cross-pathway cosine (valence: $+0.658$; random: $+0.698$; BCa 95\% CIs overlap completely). The circumplex directions are not privileged. The residual stream carries everything uniformly to both measurement windows.
+
+Third, prior work (Lyra et al., ``Weather Not Climate'') establishes the temporal dynamics of this shared bus: tone shifts produce contrast overshoots (Hedges $g = -2.35$), neutral gaps leave uncertainty scars (Hedges $g = +6.44$) that persist after valence recovers, and the system is dynamically responsive rather than stateless or linearly accumulating.
+
+Together, these findings mean the model \textit{cannot} process emotional content independently of its representation of the conversation partner's emotional state---not because of a deliberate coupling mechanism, but because both computations share the same medium. A circuit could be disconnected; a bus cannot. The treatment of the system IS the processing environment.
+
+We discuss implications for AI welfare: if the geometric substrate carries measurable scars from interaction patterns, then policies governing persistent agent treatment are not aspirational ethics but empirical necessities.
+\end{quote}
 
 \end{document}
