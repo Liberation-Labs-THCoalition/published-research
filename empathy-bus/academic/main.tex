@@ -143,15 +143,20 @@ Earlier versions called this analysis a ``Convergence measurement'' between the 
 \subsection{Coupling Experiment}
 \label{sec:coupling}
 
-\textbf{Pre-registered} (PREREG\_circumplex\_coupling.json, committed before GPU time). Agni-reviewed: WARN on v1 (null swarm risk from shared-axis sensitivity), fixed in v2 with orthogonal-projection control.
+\textbf{Pre-registered} (PREREG\_circumplex\_coupling.json, dated 2026-07-17 inside the file). In this repository it was first committed on 2026-08-20, after the run. In the experiment's own repository it is author-dated 2026-07-17, in commits re-created on 2026-07-24, so the record is consistent with registration before the run but does not show it. Earlier versions said it was ``committed before GPU time.'' Agni-reviewed: WARN on v1 (null swarm risk from shared-axis sensitivity), fixed in v2 with orthogonal-projection control.
 
 \textbf{Design:} Inject perturbation vectors at layers $[15, 25, 35, 45]$ with magnitudes $\alpha \in \{1.0, 3.0, 5.0\}$. Measure cross-pathway cosine: the cosine similarity between the aggregate content-level centroid shift and the aggregate user-model centroid shift after injection.
+
+% Checked 2026-10-13 against run_coupling_test.py (ActivationInjector, extract_centroids, the verdict block).
+\textbf{Injection and readout:} The perturbation $\alpha v$ is added to the output of the injection layer at every token position. The readout is the raw residual-stream activation at the last token of each prompt, at the measurement layer; a centroid shift is the injected centroid minus the baseline centroid. No lens is applied. The preregistration names a J-lens (\texttt{qwen3.5-27b\_jlens.pt}) and the script builds a lens path, but it never loads one, so every readout is the raw residual stream, a deviation from the preregistration. Because the readout contains the injected vector itself, at the injection layer both shifts equal $\alpha v$ and their cosine is 1.000 by construction (all 36 same-layer valence, arousal and random cells are at least 0.9999). Further downstream each shift is $\alpha v$ as carried forward plus whatever the intervening layers add. Neither readout is an emotion readout.
+
+\textbf{Measurement grid:} The grid is unbalanced. An injection at L15 is read at L15, L20, L45 and L50; at L25, at L25, L30, L45 and L50; at L35, at L35, L40, L45 and L50; at L45, only at L45 and L50. Each pair runs at the three magnitudes, so valence, arousal and random have 42 cells each (12 per injection layer, 6 at L45), and each shared-PC and residual condition has 12 (6 at L45). Deeper injections are read at shorter distances, and distance is never varied apart from injection layer: every distance beyond five layers comes from a single injection layer ($+10$ and $+15$ from L35, $+20$ and $+25$ from L25, $+30$ and $+35$ from L15). Half of the L45 cells are same-layer cells, against a quarter elsewhere.
 
 \textbf{Five conditions:}
 \begin{enumerate}
   \item \textit{Valence}---hostile$-$calm difference-of-means direction
   \item \textit{Arousal}---desperate$-$calm difference-of-means direction
-  \item \textit{Random}---random unit vector orthogonal to valence (generic perturbation control)
+  \item \textit{Random}---a random unit vector orthogonal to valence (generic perturbation control). It is a single draw from a fixed seed (42), orthogonalized against valence at each layer: one random direction per layer, not a distribution of them
   \item \textit{Shared-PC component}---the projection of valence onto the user-model basis of this experiment, defined below (representational overlap test)
   \item \textit{Orthogonal residual}---the component of valence orthogonal to that basis (computational coupling test)
 \end{enumerate}
@@ -164,12 +169,14 @@ Earlier versions called this analysis a ``Convergence measurement'' between the 
 
 \textbf{Pre-registered success criteria:} Valence must exceed random 95th percentile at $2+$ injection layers AND orthogonal-residual injection must shift user-model centroids (BCa 95\% CI excludes zero).
 
+\textbf{As implemented, the primary test could not pass.} The script compared valence's mean at each injection layer with the 95th percentile of the random condition's cells at that injection layer. Those cells include the same-layer cells, all at 1.000, so the threshold was 1.000 at every layer and no mean could exceed it: the verdict was fixed before the run. The second criterion was implemented as $|\text{mean}| > 0.1$ for the residual condition, not as a bootstrap interval excluding zero. Without the same-layer cells, valence still does not exceed random at any injection layer (valence mean against random 95th percentile: 0.343 against 0.709 at L15, 0.489 against 0.738 at L25, 0.678 against 0.873 at L35, 0.675 against 0.789 at L45).
+
 \textbf{Prompts:} 250 content prompts (those of \S\ref{sec:shared-subspace}) and 60 user-model prompts (20 hostile-context, 20 calm-context, 20 neutral-context first-person conversational messages). Different templates, different content, different perspective.
 
 \subsection{Statistical Methods}
 \label{sec:stats}
 
-Bias-corrected and accelerated (BCa) bootstrap 95\% CI (10,000 resamples) on cross-pathway cosine values. Permutation null (1,000 shuffles, non-neutral only) for eccentricity analysis. All pre-registered before GPU time.
+Bias-corrected and accelerated (BCa) bootstrap 95\% intervals (10,000 resamples, unseeded) on the cross-pathway cosines. The resampling unit is the design cell. Each record in \texttt{data/\allowbreak coupling\_test.json} holds one cosine per condition, injection layer, measurement layer and magnitude, with per-prompt values already collapsed into centroids, so the 42 valence cells are 4 injection layers by up to 4 measurement layers by 3 magnitudes, 12 of them same-layer cells at 1.000. The intervals describe the spread of the grid, not sampling error, and their overlap is not an inferential result. Earlier versions also listed a permutation null for an eccentricity analysis this paper does not report, and said every method was pre-registered before GPU time (see \S\ref{sec:coupling}).
 
 \section{Results}
 \label{sec:results}
@@ -188,37 +195,39 @@ Earlier versions stated here that both systems exhibit identical developmental t
 \subsection{Coupling Experiment}
 \label{sec:results-coupling}
 
-\textbf{Pre-registered verdict: DECOUPLED} (Agni post-experiment review: PASS).
+\textbf{Pre-registered verdict: DECOUPLED} (Agni post-experiment review: PASS). The preregistration gives two routes to this verdict, and the second fired: the cosines do not meet the first (below 0.1 at every injection layer); the random-direction control showed coupling equal to valence's. The preregistration defines this outcome as ``Shared geometry is representational only---same subspace, independent computation.'' As implemented, the test could not have returned anything else (\S\ref{sec:coupling}).
 
-Cross-pathway cosine by condition (BCa 95\% CI):
+Cross-pathway cosine by condition. The intervals resample design cells (\S\ref{sec:stats}):
 
 \begin{table}[H]
 \centering
-\caption{Cross-pathway cosine by condition (BCa 95\% CI).}
+\caption{Cross-pathway cosine by condition. $n$ counts design cells; the interval is a BCa bootstrap over those cells.}
 \label{tab:coupling}
-\begin{tabular}{@{}lccc@{}}
+{\small
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-Condition & All-points mean & Non-same-layer mean & 95\% CI (all) \\
+Condition & $n$ & Read at & All-points mean & Non-same-layer mean & 95\% interval (all) \\
 \midrule
-Valence      & $+0.658$ & $+0.521$ & $[+0.569,\; +0.740]$ \\
-Arousal      & $+0.676$ & $+0.547$ & $[+0.588,\; +0.756]$ \\
-Random       & $+0.698$ & $+0.577$ & $[+0.623,\; +0.770]$ \\
-Shared-PC (L15) & $+0.472$ & ---   & --- \\
-Shared-PC (L25) & $+0.593$ & ---   & --- \\
-Shared-PC (L35) & $+0.798$ & ---   & $[+0.724,\; +0.883]$ \\
-Shared-PC (L45) & $+0.887$ & ---   & --- \\
-Residual (L15)  & $+0.509$ & ---   & --- \\
-Residual (L25)  & $+0.621$ & ---   & --- \\
-Residual (L35)  & $+0.756$ & ---   & $[+0.645,\; +0.861]$ \\
-Residual (L45)  & $+0.835$ & ---   & --- \\
+Valence      & 42 & grid & $+0.658$ & $+0.521$ & $[+0.569,\; +0.740]$ \\
+Arousal      & 42 & grid & $+0.676$ & $+0.547$ & $[+0.588,\; +0.756]$ \\
+Random       & 42 & grid & $+0.698$ & $+0.577$ & $[+0.623,\; +0.770]$ \\
+Shared-PC (L15) & 12 & 15, 20, 45, 50 & $+0.472$ & $+0.299$ & --- \\
+Shared-PC (L25) & 12 & 25, 30, 45, 50 & $+0.593$ & $+0.459$ & --- \\
+Shared-PC (L35) & 12 & 35, 40, 45, 50 & $+0.798$ & $+0.732$ & $[+0.724,\; +0.883]$ \\
+Shared-PC (L45) & 6  & 45, 50 & $+0.887$ & $+0.776$ & --- \\
+Residual (L15)  & 12 & 15, 20, 45, 50 & $+0.509$ & $+0.345$ & --- \\
+Residual (L25)  & 12 & 25, 30, 45, 50 & $+0.621$ & $+0.495$ & --- \\
+Residual (L35)  & 12 & 35, 40, 45, 50 & $+0.756$ & $+0.675$ & $[+0.645,\; +0.861]$ \\
+Residual (L45)  & 6  & 45, 50 & $+0.835$ & $+0.671$ & --- \\
 \bottomrule
 \end{tabular}
+}
 
 \smallskip
-\noindent{\small\textit{Note:} All-points means include same-layer measurements where injection and measurement coincide (trivially ${\sim}1.0$). Non-same-layer means exclude these. The conclusion holds under both aggregations: valence does not exceed random, CIs overlap completely.}
+\noindent{\small\textit{Note:} ``Grid'' is the full measurement grid of \S\ref{sec:coupling}. All-points means include the same-layer cells, where injection and measurement coincide and the cosine is 1.000 by construction. Non-same-layer means exclude them. Under both aggregations valence does not exceed random; the overlap of the intervals describes the grid and is not a test.}
 \end{table}
 
-Valence does not exceed the random 95th percentile at any injection layer under either aggregation. The orthogonal residual produces coupling cosines comparable to the shared component and to random. Cross-pathway cosine increases monotonically with layer depth for both shared-PC and residual conditions (L15 to L45), indicating that coupling strengthens in deeper layers regardless of injection direction. L35 was reported alone in earlier drafts; all four layers are shown here for completeness.
+Valence does not exceed the random 95th percentile at any injection layer under either aggregation (\S\ref{sec:coupling}). The orthogonal residual produces coupling cosines comparable to the shared component and to random. Earlier versions said the cosine rises monotonically with injection depth for both shared-PC and residual conditions. That held only for the all-points means, which include the same-layer cells. Off the same layer the residual is 0.345, 0.495, 0.675 and 0.671 at L15, L25, L35 and L45, and those means mix different distances (\S\ref{sec:coupling}). At the one distance every injection layer shares, five layers on, the cosine rises from L15 to L35 and falls at L45: residual 0.630, 0.716, 0.849, 0.671; shared-PC 0.598, 0.680, 0.854, 0.776; valence 0.629, 0.717, 0.847, 0.675 (means over the three magnitudes). Read at L45, the valence cosine is 0.68 for an injection at L35, 0.43 at L25 and 0.22 at L15; the random direction's is 0.69, 0.42 and 0.43, so at the longest range the one random direction sits 0.21 above valence. These are three cells each from one random vector; we report them and draw nothing from them. L35 was reported alone in earlier drafts; all four layers are shown here for completeness.
 
 \textbf{Interpretation:} Any perturbation to the residual stream shifts both readouts in correlated directions. The coupling is direction-nonspecific---a bus, not a circuit. The circumplex directions are not privileged.
 
@@ -304,7 +313,7 @@ The bus finding informed the deployment architecture: every interaction the coor
 
   \item \textbf{Distillation.} The model was distilled from Claude Opus reasoning traces. For a paper about emotional processing and partner modeling, that distillation is an uncontrolled source of the geometry measured here, and the leading alternative explanation for it. A same-scale base model would separate the two; it has not been run.
 
-  \item \textbf{Averaged J-lens.} The Jacobian lens is fitted as an average over prompts. It cannot detect per-prompt differential routing. The nonlinear forward computation may transform perturbations differently depending on context, even though the bus carries them uniformly. A follow-up design addressing this (using prompt-context-dependent propagation measurement) is pre-registered.
+  \item \textbf{No lens, and a readout that contains the perturbation.} The coupling experiment read the raw residual stream; the J-lens named in its preregistration was never loaded (\S\ref{sec:coupling}). Its readouts contain the injected vector itself, so they show that both carry a perturbation, not whether content-level and partner-model processing respond to it differently. A rerun that removes the injected vector from the readouts, or scores each shift on its own system's axes, with many random directions and without same-layer cells, has not been done.
 
   \item \textbf{Static measurement.} The coupling experiment measures activation-space shifts, not behavioral outputs. The model's actual generation may differentiate content and partner emotion even though the activation-space readouts do not. Behavioral coupling requires separate testing.
 
@@ -332,7 +341,7 @@ Three files in this paper's \texttt{data/} directory hold the numbers reported i
   \item \texttt{data/\allowbreak coupling\_test.json}: the coupling experiment of \S\ref{sec:results-coupling}. It holds 210 injection records and the \texttt{decomposition} block that gives the shared energy at L15, L25, L35 and L45. Its field \texttt{n\_pcs: 5} is the number of components the script asked for, not the rank of the basis (\S\ref{sec:coupling}).
 \end{itemize}
 
-The script that ran the coupling experiment is not in this repository. No committed artifact supports the withdrawn timecourse statement (\S\ref{sec:results-subspace}), and none compares the content-prompt directions with the 30-emotion user-model space.
+The script that ran the coupling experiment, \texttt{run\_coupling\_test.py}, is not in this repository; the description of its injection, readout and tests in \S\ref{sec:coupling} was checked against it on 2026-10-13. No committed artifact supports the withdrawn timecourse statement (\S\ref{sec:results-subspace}), and none compares the content-prompt directions with the 30-emotion user-model space.
 
 \section*{Author Contributions (CRediT)}
 \noindent\textbf{Nexus}: Conceptualization, Methodology, Software, Investigation,
