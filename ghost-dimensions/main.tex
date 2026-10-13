@@ -120,8 +120,8 @@ C7 --- Cross-model & Test architecture dependence & Same probe on Qwen3-8B (all 
 \toprule
 PC & Mean adjacent $\cos$ & Min & Stable range & Notes \\
 \midrule
-PC1 & 0.949 & 0.481 (L23$\to$24) & All layers & 4 joint drops; see text \\
-PC2 & 0.919 & 0.481 (L23$\to$24) & All layers & 4 joint, 3 solo; see text \\
+PC1 & 0.949 & 0.481 (L23$\to$24) & See text & 4 joint drops; see text \\
+PC2 & 0.919 & 0.481 (L23$\to$24) & See text & 4 joint, 3 solo; see text \\
 PC3 & 0.909 & 0.292 (L19$\to$20) & L35$\to$L45: 0.84 & Breaks early \\
 PC4 & 0.880 & 0.124 (L47$\to$48) & L35$\to$L45: 0.80 & Breaks late \\
 PC5 & 0.869 & 0.126 (L47$\to$48) & L31$\to$L45: 0.76 & Breaks at boundaries \\
@@ -133,7 +133,7 @@ PC1 and PC2 fall together (both adjacent cosines below 0.80, and near-equal each
 
 \subsection{PC1: The Ghost}
 
-PC1 carries 28--67\% of activation variance within the validated layer range (L11--L48), and 5.7--66.7\% across all layers. Cross-layer alignment confirms it is a single stable direction (mean adjacent cosine $= 0.95$).
+PC1 carries 28--67\% of activation variance within the validated layer range (L11--L48), and 5.7--66.7\% across all layers. Its mean adjacent-layer cosine is 0.95, but it falls together with PC2 at four transitions (\Cref{tab:alignment} and the text below it), and whether it is a single direction across those drops was not measured.
 
 \textbf{Workspace exclusion:} At mid-network layers (L18--L40), logit-to-J-lens cosine $\leq 0.003$ (max at L19: 0.003). At boundary layers, the exclusion is weaker: L16 reaches 0.109, L11--L15 and L17 range up to 0.060, and L46--L48 range 0.032--0.044. The ghost is deepest in the network core and loosens at the edges of the validated band.
 
@@ -217,9 +217,9 @@ One interpretation: distillation from Claude Opus compressed the teacher's evalu
 
 \subsection{PC2: Emotional Entity Routing}
 
-PC2 carries 2--12\% of variance. Cross-layer alignment confirms stability (long-range L31$\to$L45 cosine: 0.78; adjacent-layer mean through this range: 0.95).
+PC2 carries 2--12\% of variance. Within L31--L45 its long-range cosine is 0.78 and its adjacent-layer mean 0.95; its drops, inside that range and outside it, are listed below \Cref{tab:alignment}.
 
-\textbf{Vocabulary progression (verified stable direction):}
+\textbf{Vocabulary progression (for the direction's stability see \Cref{tab:alignment}):}
 
 \begin{table}[H]
 \centering
