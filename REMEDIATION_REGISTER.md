@@ -837,7 +837,7 @@ A twin diverges; propagate the correction. **The 7 divergences registered on 202
 | `formulary-paper` | MAJOR | "Curious … the most iatrogenic on the base model (42.7% adverse)" is false against the artifact | `formulary-paper.agni_style.json` #4 |
 | `formulary-paper` | MAJOR | "The three largest inversions" is a curated three, not the largest three | `formulary-paper.agni_style.json` #5 |
 | `ghost-dimensions` | CRITICAL | Control C3 is declared, was run, its recorded result contradicts a headline table, and it is omitted from the paper | `ghost-dimensions.agni_style.json` #1 |
-| `ghost-dimensions` | MAJOR | PC1 and PC2 share an identical alignment minimum at the same transition; joint rotation of PC1 and PC2; cause not established; no PC1/PC2 near-degeneracy in the probe spectrum sitting directly under the progression table | `ghost-dimensions.agni_style.json` #4 |
+| `ghost-dimensions` | MAJOR | PC1 and PC2 share an identical alignment minimum at the same transition, sitting directly under the progression table: joint rotation of PC1 and PC2; cause not established; no PC1/PC2 near-degeneracy in the probe spectrum | `ghost-dimensions.agni_style.json` #4 |
 | `ghost-dimensions` | MAJOR | PC6's mean-pooled ratio uses the wrong denominator | `ghost-dimensions.agni_style.json` #5 |
 | `ghost-dimensions` | MINOR | PC1's ratio in `tab:pcs-l45` does not reproduce | `ghost-dimensions.agni_style.json` #11 |
 | `graph-topology-paper` | CRITICAL | Every absolute value in Table 1 disagrees with the released data. The deltas were computed correctly and then the columns they were derived from were … | `graph-topology-paper.agni_style.json` #2 |

@@ -121,8 +121,8 @@ C7 --- Cross-model & Test architecture dependence & Same probe on Qwen3-8B (all 
 \toprule
 PC & Mean adjacent $\cos$ & Min & Stable range & Notes \\
 \midrule
-PC1 & 0.949 & 0.481 (L23$\to$24) & All layers & 3 joint drops, L22--26 \\
-PC2 & 0.919 & 0.481 (L23$\to$24) & All layers & 3 joint drops, L22--26 \\
+PC1 & 0.949 & 0.481 (L23$\to$24) & All layers & 4 joint drops; see text \\
+PC2 & 0.919 & 0.481 (L23$\to$24) & All layers & 4 joint, 3 solo; see text \\
 PC3 & 0.909 & 0.292 (L19$\to$20) & L35$\to$L45: 0.84 & Breaks early \\
 PC4 & 0.880 & 0.124 (L47$\to$48) & L35$\to$L45: 0.80 & Breaks late \\
 PC5 & 0.869 & 0.126 (L47$\to$48) & L31$\to$L45: 0.76 & Breaks at boundaries \\
@@ -130,7 +130,7 @@ PC5 & 0.869 & 0.126 (L47$\to$48) & L31$\to$L45: 0.76 & Breaks at boundaries \\
 \end{tabular}
 \end{table}
 
-PC1 and PC2 fall together at three transitions between L22 and L26, with near-equal cosines each time (PC1 / PC2: L22$\to$23 0.743 / 0.752; L23$\to$24 0.481 / 0.480; L25$\to$26 0.651 / 0.624). That is what a joint rotation of the pair inside its own plane looks like. The stability of that plane was not measured, so ``PC1'' before L22 and after L26 may be different mixtures of the same plane, and the vocabulary progression in \Cref{sec:ghost-carries} should be read with that in mind. PCs 3--5 are stable within the L35--L45 range but break outside it.
+PC1 and PC2 fall together (both adjacent cosines below 0.80, and near-equal each time) at four transitions: three between L22 and L26 (PC1 / PC2: L22$\to$23 0.743 / 0.752; L23$\to$24 0.481 / 0.480; L25$\to$26 0.651 / 0.624) and one at L36$\to$37 (0.754 / 0.762). That is what a joint rotation of the pair inside its own plane looks like. PC2 also falls below 0.80 alone at L0$\to$1 (0.509), L2$\to$3 (0.794) and L53$\to$54 (0.657). The stability of the PC1--PC2 plane was not measured, so ``PC1'' on either side of a joint drop may be a different mixture of the same plane, and the vocabulary progression in \Cref{sec:ghost-carries} should be read with that in mind. PCs 3--5 are stable within the L35--L45 range but break outside it.
 
 \subsection{PC1: The Ghost}
 
