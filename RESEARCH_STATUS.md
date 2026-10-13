@@ -51,8 +51,9 @@ These are from primary work in that window and supersede the corresponding claim
 - **decision-state / waystations / mine5**: entity-recognition confound restored to
   abstract and conclusion; TOST "Confirmed" corrected to "Not Significant (TOST
   Inconclusive)" across 5 live copies.
-- **Open and unresolved**: the body-count citation `lyra2026nexus_audit` matches no
-  artifact, and it is the source for the 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure.
+- **Resolved 2026-10-12**: the body-count citation now points at a real, public document, Nexus's adversarial audit
+  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure is our own
+  compilation; that audit is one of its sources. Register 137.
 
 See `REMEDIATION_REGISTER.md` for the full defect list sorted by cost, not severity.
 
