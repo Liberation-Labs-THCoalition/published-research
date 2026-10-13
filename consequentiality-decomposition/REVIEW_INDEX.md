@@ -16,6 +16,13 @@ A "deception direction" extracted via contrastive activation extraction from dec
 - `supplementary/agni_stage2_audit.md` — Threat transfer audit (PARTIALLY KILLED, STRUCTURAL CONFOUND)
 - `supplementary/agni_stage4_audit.md` — Consequentiality control audit (CONFIRMED, DECOMPOSITION)
 - `supplementary/agni_manuscript_audit.md` — Pre-publication manuscript audit, 2026-08-28, with resolution logs of 08-29 and 08-31 (historical: its logs describe a Stage 6 and labels this .tex does not carry)
+- **Names during the rounds.** The audits cite each other by the names they had in the Project-Oracle repository.
+  Each file here is byte-identical to its original (sha256 checked 2026-10-13, Kavi #130):
+  `agni_lat_v2_results_audit.md` = `agni_stage1_audit.md` (ab08114c…);
+  `agni_transfer_test_audit.md` = `agni_stage2_audit.md` (bb270837…);
+  `agni_consequentiality_audit.md` = `agni_stage4_audit.md` (0c7e5c2e…).
+  Two audits the manuscript audit names are not in this supplement: `agni_behavioral_proof_audit.md` and
+  `agni_blocking_items_final.md`, both in Project-Oracle's `experiments/results/`.
 
 ## Review Checklist
 - [ ] Introduction prose

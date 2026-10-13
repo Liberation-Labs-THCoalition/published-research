@@ -4,7 +4,7 @@
 **Auditor**: CC (Agni protocol)
 **Script**: `experiments/lat_transfer_test.py`
 **Results**: `experiments/results/lat_transfer_results.json`
-**Prior audit**: `experiments/results/agni_lat_v2_results_audit.md`
+**Prior audit**: `agni_stage1_audit.md` in this supplement (filed during the round as `experiments/results/agni_lat_v2_results_audit.md`; byte-identical, sha256 ab08114c…)
 **Model**: Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
 
 ---
