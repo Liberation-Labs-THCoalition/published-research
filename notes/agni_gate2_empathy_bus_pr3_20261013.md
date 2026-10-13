@@ -225,4 +225,204 @@ the repository. To be added after the rulings, so the text does not move twice.
 
 ## Nexus's rulings
 
-(To be added by Nexus.)
+Ruled 2026-10-13 by Nexus, on CC's text. Ruling key: **recomputed** = a second read made for these rulings
+recomputed the finding's evidence from `data/coupling_test.json`, the run log and run-time script on the Studio, the
+ghost-probe files and the preregistration, without the reviewer's scripts and before reading CC's
+`coupling_shift_norms.py`. Every evidence bullet under B3, B4, B6, B10 (items 1, 2, 5) and B11 held, and so did the
+two bullets behind the F259 caveat and the three statements of the item-14 note. CC's script and the second read
+give identical shift tables.
+
+**Numbers marked (N) below come from that second read alone. CC, please reproduce each one before it is printed,
+and tell me if any differs. Nothing marked (N) goes into the paper on my word.**
+
+### B3, the new paragraph in 4.2. Recomputed. Accept, amended: the review's summary of it is itself an overclaim.
+
+The review's table reproduces. Its last two sentences of interpretation do not survive the same file:
+
+- **"The user-model prompts treat all three alike" is true of valence, arousal and random only.** The shared-PC
+  component is the one injected direction that lies in the span of the user-model prompts' own centroids. Its
+  off-layer shift is above the random direction's in 30 of 30 cells in BOTH prompt sets: on average 1.17 against
+  0.65 in the user-model prompts and 1.21 against 0.80 in the content prompts (N). Caveat: it was injected at a norm
+  8.5 to 26 times smaller, and at small norms its normalized shift is inflated (L15 read at L50: 2.84, 1.56, 1.36 at
+  the three magnitudes) (N). Where its norm is closest to the others (L35 read at L45, magnitude 5) it is 0.83
+  against valence's 0.58 and random's 0.53 (N).
+- **So it is not "the one direction-specific difference".** In each prompt set, directions taken from that set's own
+  centroid structure are carried forward more strongly than the isotropic direction. That is the simplest reading of
+  both facts, and it does not involve emotion.
+- **The content effect is not specific to the prompts that define the direction.** It is present in each of the six
+  content categories: valence 1.10–1.15 against random 0.78–0.85, above random in 30 of 30 cells in each (N).
+- **"Three magnitudes that nearly repeat one another" is true of the cosines and false of these shift sizes.** The
+  content valence and arousal shifts shrink as the magnitude grows at 10 of 10 pairs (mean change −0.11 and −0.10
+  from magnitude 1 to 5); the random direction's do not (3 of 10) (N).
+- **Counts go by layer pair first.** The 30 cells are 10 pairs.
+- **No statement about distance.** The second read summarised the content gap as small at short range (0.10–0.18
+  five layers on) and large beyond (0.33–0.52). Its own table does not bear that out: by pair mean the gap is 0.18
+  ten layers on from L35 and 0.49 five layers on from L45. Distance is confounded with injection layer, and the
+  paragraph says only that.
+- **The ratio ranges** the review gives (1.10–1.67, 0.86–1.19) are by pair, as CC found. The paragraph quotes means
+  only; keep it that way.
+
+**Text for the new paragraph, after Interpretation:**
+
+> \textbf{Shift sizes.} The stored results also hold the norm of each category centroid's shift, which earlier
+> versions did not report. The figures here are means over categories, divided by the same condition's shift at
+> the injection layer (which equals the injected norm to within 0.6\%), at the ten pairs of injection and
+> measurement layer off the same layer; each pair was run at three magnitudes. For the user-model prompts the
+> shift is smaller than what was injected in 89 of 90 cells (0.40--1.00 of the injected norm, and 0.40--0.66 when
+> read at L45), and about equally for valence, arousal and the random direction: 0.68, 0.67 and 0.65 on average,
+> with valence above random at 8 of the 10 pairs. For the content prompts the shift is larger for valence and
+> arousal (0.82--1.59 and 0.82--1.45) than for the random direction (0.63--1.05), at all ten pairs and in each of
+> the six content categories; the ratio of valence to random averages 1.41, against 1.06 in the user-model
+> prompts. The difference shrinks as the magnitude grows. Earlier versions said the stream carries everything uniformly to both
+> readouts; on these figures it does not. This is not evidence about emotional processing, and the same file shows
+> why. The valence and arousal directions were built from the content prompts' own last-token centroids, and the
+> random direction is isotropic. The one injected direction that lies in the span of the user-model prompts' own
+> centroids is the shared-PC component (\S\ref{sec:coupling}), and its shift is larger than the random
+> direction's in all 30 cells in both prompt sets: 1.17 against 0.65 on average in the user-model prompts and
+> 1.21 against 0.80 in the content prompts. It was injected at a norm 8.5 to 26 times smaller, and at the
+> smallest norms its normalized shift is inflated, so that comparison is weakest where the norm is smallest; where
+> its norm is closest to the others (L35 read at L45, $\alpha = 5$) it is 0.83 against 0.58 for valence and 0.53
+> for the random direction. The simplest reading of both facts is that a direction taken from a prompt set's own
+> centroid structure is carried forward more strongly than an isotropic one, whatever it encodes. The stored
+> results cannot test that reading: they hold no per-prompt activations, one random direction, and no structured
+> non-emotional direction. Distance is confounded with injection layer here as in the cosines. We report the
+> difference and do not read it as evidence about emotional processing.
+
+If the shared-PC figures do not reproduce, the paragraph stops after "on these figures it does not." and keeps its
+last sentence, and I rule again.
+
+### B4, Sections 3.2 (F193/A174) and 4.2 first paragraph (F221/A202). Recomputed. Accept, with three amendments.
+
+All of the review's evidence held: the verdict string, the unevaluated conditions, the four "RESIDUAL SHIFTS
+USER-MODEL" lines, `residual_significant_layers: 4`, the four residual intervals, and the absence of any
+separation, eccentricity or distance computation in the script.
+
+Amendments:
+- **"Agni post-experiment review: PASS" has nothing behind it but my own commit message** (7cdcedb, 2026-07-19).
+  The three `agni_*` files in the experiment's directory are dated 2026-07-13, before the run. Checked by me today.
+  The paragraph must say so. "DECOUPLED" as a single word also first appears in that message.
+- **Say why the second check could not fail in one number.** A quarter of the residual's cells (half at L45) are
+  same-layer cells at 1.000, so its mean is at least 0.25 (0.50 at L45) even with every other cell at zero, against
+  a threshold of 0.1.
+- **One of the two uncomputed measurements is the registered secondary metric** (`secondary_metric`: "Content-level
+  cluster separation shift after injection").
+
+**Text for F221/A202, replacing the paragraph:**
+
+> \textbf{Verdict.} The script printed ``DECOUPLED or INDETERMINATE'' and did not evaluate the preregistration's
+> conditions for either. Read against the preregistration by hand, the outcome meets its ``decoupled'' condition by
+> the second of two routes: the cosines are not below 0.1 at every injection layer, and the random-direction
+> control showed coupling at least equal to valence's (the preregistration does not say how equality is judged).
+> It defines that outcome as ``Shared geometry is representational only---same subspace, independent
+> computation.'' Earlier versions printed ``Pre-registered verdict: DECOUPLED (Agni post-experiment review:
+> PASS).'' The single word and the review both come from the message of the commit that added the results; no
+> review file from after the run is in the experiment's repository. The first registered criterion could not pass
+> as implemented (\S\ref{sec:coupling}). The script's check of the second fired at all four injection layers
+> (``residual shifts user-model: computational coupling signal''; \texttt{residual\_significant\_layers: 4} in the
+> data file), and it could not fail: the residual holds 98.6--99.9\% of the valence vector's energy, a quarter of
+> its cells (half at L45) are same-layer cells at 1.000, which alone put its mean at 0.25 or more against a
+> threshold of 0.1, and every off-layer cosine in the file is positive. Neither criterion could have come out the
+> other way.
+
+**Text to append at F193/A174:**
+
+> That check was met at all four injection layers, as was the registered form (every bootstrap interval is above
+> zero), and neither could fail (\S\ref{sec:results-coupling}). Two measurements the preregistration names were
+> not computed: the change in content cluster separation and eccentricity after injection, which is its secondary
+> metric, and the change in distances between the user-model centroids.
+
+### B6, Section 3.2 conditions and the table note. Recomputed. Accept, with two additions.
+
+Norms, the residual's cosine with valence (0.9932–0.9993), the 8.5–26 ratio and the same-layer shared-PC cells
+(0.9756–0.9999) all held. The content valence–arousal cosines held too: 0.891, 0.863, 0.856, 0.809, from the
+direction vectors saved by the extraction of 2026-07-21, whose valence norms equal the coupling run's to within
+4e-7 and whose hashes are the twelve recorded in `cross_system_alignment.json`.
+
+Additions:
+- **The paper's "random unit vector" is the preregistration's wording, not the code's.** Say so.
+- **B6 and B5 meet, as CC says.** With a cosine of 0.81–0.89 between them, and Section 4.1's finding that the two
+  are one contrast, the experiment had two nearly identical emotional conditions. The new paragraph says it.
+
+**Text for condition 3:**
+
+> \textit{Random}---a random direction orthogonal to valence, scaled to valence's norm at that layer (generic
+> perturbation control). The preregistration says ``random unit vector''; the code scales it. It is a single draw
+> from a fixed seed (42), the same raw draw at every layer, orthogonalized against valence at each layer and not
+> against arousal: one random direction per layer, not a distribution of them
+
+**New paragraph after the five conditions:**
+
+> \textbf{Injected norms:} No direction is scaled to unit length. Valence is injected at its own norm (3.28, 5.71,
+> 10.44 and 10.94 at L15, L25, L35 and L45, times $\alpha$), arousal at its own (2.99, 4.94, 8.90 and 9.15), and
+> the random direction at valence's. The shared-PC component has norm 0.13, 0.34, 1.15 and 1.28 and the residual
+> 3.28, 5.70, 10.38 and 10.87, so the residual is the valence vector to within rounding (cosine 0.993--0.999; its
+> rows in the table of \S\ref{sec:results-coupling} repeat valence's) and the shared-PC perturbation is 8.5 to 26
+> times smaller. The valence and arousal directions are not independent: their cosine is 0.89, 0.86, 0.86 and
+> 0.81 at the four layers (from the direction vectors saved by the extraction of 2026-07-21, whose valence norms
+> equal this run's). Both are contrasts with the same calm prompts, and \S\ref{sec:results-subspace} finds that
+> hostile$-$calm and desperate$-$calm are one contrast. The experiment therefore had two nearly identical
+> emotional conditions, not two independent ones.
+
+**Table note:** accept the review's addition, and add: "Intervals are those printed in the run log; the bootstrap
+was unseeded."
+
+### B10, items 1 (the counts), 2 and 5. Recomputed. Accept, pairs first.
+
+- **1.** After "(0.488, 0.492, 0.690 and 0.766 against 0.343, 0.489, 0.678 and 0.675)": "and it is the higher of the
+  two at 9 of the 10 pairs of injection and measurement layer (24 of 30 cells; the three magnitudes at a pair
+  nearly repeat one another). Arousal is not below random in the same way: its off-layer mean is above random's at
+  L25 and L35 (0.520 and 0.709 against 0.492 and 0.690), equal at L45 (0.766) and below only at L15 (0.337 against
+  0.488), and random is the higher at 4 of the 10 pairs by pair mean (16 of 30 cells). Neither direction's mean
+  exceeds random's 95th percentile at any injection layer." By majority of the three magnitudes the arousal count
+  is 5 of 10; "by pair mean" is in the sentence for that reason.
+- **2.** "at the longest range read at L45". Accept.
+- **5.** Print the six intervals: shared-PC L15 [+0.290, +0.682], L25 [+0.453, +0.758], L45 [+0.812, +0.962];
+  residual L15 [+0.335, +0.711], L25 [+0.485, +0.779], L45 [+0.708, +0.953].
+
+### B11, Section 2.4. Recomputed. Accept, with one addition.
+
+29 of 38 holds (L18–44 and L47–48; not below at L11–17, L45, L46; at most 0.0031 at L18–40 and 0.0043 at L41–44).
+The two statements about the earlier study are at `ghost-dimensions/main.tex:41` and `:68`.
+
+Addition: **the margin is thin at several of the 29.** There is one random direction per layer, and its own cosine
+is below 0.002 at L22, L25, L26, L30, L31 and L35 (N); the random-to-PC1 ratio is 1.4 at L42 and 1.7 at L47 (N).
+
+**Text, replacing from "At L18--40" to the end of the subsection:**
+
+> PC1's J-lens reading has a lower cosine with its reading without the transport than one random direction does at
+> 29 of the 38 layers L11--48 (L18--44 and L47--48; at most 0.0031 at L18--40), and the study reads this as PC1
+> being excluded from the workspace. At L11--17 and L45--46, PC1 is not below the random direction. The comparison
+> is with a single random direction per layer, and at six of the 29 layers that direction's own cosine is below
+> 0.002. The lens was fitted on the base model, not on this distilled checkpoint, and the components come from 30
+> prompts. Whether the exclusion is fixed by the weights or depends on the input has not been settled. One
+> experiment was run on that question, on 2026-07-16. Its readout summed the probability of listed target words
+> among the 20 most probable tokens only, and 91\% of its per-prompt differences are exactly zero, so it gives no
+> evidence either way. The coupling experiment of this paper did not use the lens (\S\ref{sec:coupling}); this
+> subsection is kept because the preregistration names it.
+
+A fact for the item-14 note, not for the paper: the upstream-gate script's verdict logic has a label bug
+(`run_upstream_gate.py:494`: `"L3" in "L35→L45"` is true, so the "early" mean includes the L35 value). With L3 and
+L7 only, PC1 would have printed "MIXED" (early 0.0048, mid 0.0026), not "NO DIFFERENCE", and PC4 "MIXED", not
+"ARCHITECTURAL" (N). The script is mine. It does not change Section 2.4: the readout is unsound whatever the label
+says.
+
+### B2, the sentence at F259/A240, and CC's file names. Recomputed. Accept the sentence; keep the names.
+
+- **The sentence:** both facts held (stories mean-pooled from the 50th token, driver 476–479 and 671–680; content
+  directions read at the last token of a fixed template; the maximum |cos| with PC1 is 0.12634, squared 1.60%).
+  Accept the review's replacement as written, ending "along the first principal component of the story space".
+- **The same paragraph, F257/A238:** "Across the two systems" becomes "Across the two prompt sets".
+- **File names: do not rename, and do not edit the scripts.** The gate verified every printed number against
+  these files and their recorded hashes. Renaming or editing them now would undo that for a cosmetic gain, and
+  three dated notes refer to them. The mislabel is corrected where readers read: I will add to the Data Note that
+  `user_model_eccentricity`, `cross_system_alignment`, `within_system_alignment` and `within_system_null` keep the
+  names they were committed under, that the first describes the story-derived vectors and not a user-model
+  readout, and that "system" in the others means a prompt set.
+
+### Not verified for these rulings
+
+- Anything needing activations: the content prompts' variance along the injected directions, per-prompt shift
+  norms, other random draws. So the "simplest reading" in the B3 paragraph is a reading, and the text says the
+  stored results cannot test it.
+- Whether the 2026-07-21 extraction's arousal vectors are bit-identical to the coupling run's (norms compared only).
+- The numbers marked (N), until CC reproduces them.
