@@ -3,7 +3,7 @@
 %
 % Core argument: Mid-layer emotional geometry is strong and
 % emotion-specific (24.4x corrected permutation baseline; control
-% 6.1x mid-layer, emotional/control ratio ~4.7x). The model trends toward Russell's circular
+% 6.4x, both medians over all 24 layers; emotional/control ratio ~4.7x). The model trends toward Russell's circular
 % circumplex at mid-depth (22/23 layers below null, sign test p<0.001)
 % but individual layers do not survive FDR correction. The finding is
 % the directional trend.
@@ -65,7 +65,7 @@ emotional signal is strong and emotion-specific: 24.4$\times$ above
 permutation baselines (median ratio, 23/24 significant layers, corrected
 permutation with non-neutral-only shuffle, fixed PCA, median statistics)
 and stronger than matched non-emotional categorical content (control
-median ratio $6.1\times$ at mid-layers vs.\ emotional $24.4\times$;
+median ratio $6.4\times$ vs.\ emotional $24.4\times$, both over all 24 layers;
 emotional/control ratio ${\sim}4.7\times$). Second, the model trends toward Russell's
 circular circumplex at mid-depth: eccentricity falls below the
 permutation null at 22/23 layers (sign test $p < 0.001$), with the trend
@@ -146,7 +146,7 @@ artifact of categorical processing:
           Emotion is encoded as distributed geometry in the residual
           stream. The signal is substantially stronger than matched
           non-emotional categorical content at these depths (emotional
-          $24.4\times$ vs.\ control $6.1\times$ median ratio;
+          $24.4\times$ vs.\ control $6.4\times$ median ratio, both over all 24 layers;
           emotional/control ${\sim}4.7\times$). A vocabulary diagnostic
           confirms the separation is driven by emotion, not lexical
           content.
@@ -178,7 +178,7 @@ artifact of categorical processing:
           dimensions develop through distinct computational paths.
     \item The mid-layer emotional signal is emotion-specific
           (24.4$\times$ above corrected permutation baselines; control
-          $6.1\times$, emotional/control ratio ${\sim}4.7\times$), confirmed by a vocabulary
+          $6.4\times$, both medians over all 24 layers; emotional/control ratio ${\sim}4.7\times$), confirmed by a vocabulary
           diagnostic showing emotion drives the geometry rather than
           lexical content.
     \item Identification of a mid-layer window (L8--20 in this model)
@@ -770,8 +770,8 @@ reflexive representation from output-layer preparation.
           prompts cluster closer to outdoor prompts (shared nature
           vocabulary) in L2 distance but still separate clearly from the
           control, indicating emotion drives the geometry more than
-          vocabulary. Control median ratio is $6.1\times$ at mid-layers
-          vs.\ emotional $24.4\times$ (emotional/control ${\sim}4.7\times$). A semantically-intense
+          vocabulary. Control median ratio is $6.4\times$
+          vs.\ emotional $24.4\times$, both over all 24 layers (emotional/control ${\sim}4.7\times$). A semantically-intense
           non-emotional control would further strengthen this conclusion.
     \item \textbf{Two KV heads.} The pipeline model has 2 Grouped-Query
           Attention heads. Larger models (4+ heads) may show
@@ -794,8 +794,8 @@ reflexive representation from output-layer preparation.
           permutation audit corrected the emotional separation values
           (non-neutral-only shuffle, fixed PCA, median statistics). The
           non-emotional control pipeline has been re-run with
-          these corrections. Updated control ratios: $6.1\times$
-          median at mid-layers (previously ${\sim}6\times$, consistent),
+          these corrections. Updated control ratios: $6.4\times$
+          median over all 24 layers (previously ${\sim}6\times$, consistent),
           $36.9\times$--$68.1\times$ at deep layers (previously
           ${\sim}1.7\times$ --- the old value was computed against
           uncorrected emotional separation and substantially
@@ -819,7 +819,7 @@ develop through distinct computational paths that converge at mid-depth.
 The mid-layer window where both axes are well-developed and the model
 most actively equalizes them coincides with the depth range where emotion
 geometry is strongest relative to non-emotional content (24.4$\times$
-above corrected permutation baselines; control $6.1\times$,
+above corrected permutation baselines; control $6.4\times$, both medians over all 24 layers;
 emotional/control ratio ${\sim}4.7\times$)---making this the optimal zone for inference-time
 monitoring and correction. A vocabulary diagnostic (calm-vs-outdoor
 clustering) confirms the mid-layer signal is driven by emotion rather
@@ -861,8 +861,9 @@ worth publishing.
 
 \paragraph{Data and code availability.}
 All experiment scripts, stimulus sets, and analysis pipelines are
-available at
-\texttt{Liberation-Labs-THCoalition/emotional-trajectory-paper}.
+available in the \path{emotional-trajectory-paper/data/} folder of the
+public published-research repository
+(\url{https://github.com/Liberation-Labs-THCoalition/published-research}).
 
 \section*{Author Contributions (CRediT)}
 \noindent\textbf{Nexus}: Conceptualization, Methodology, Formal analysis, Writing -- original draft.\\
