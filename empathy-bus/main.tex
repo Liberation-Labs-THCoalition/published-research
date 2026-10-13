@@ -111,7 +111,7 @@ The last point connects to a question of growing importance: if persistent AI ag
 \subsection{Emotional Geometry in Transformers}
 \label{sec:emo-geom}
 
-Russell's circumplex model (1980) organizes emotion along two axes: valence (positive/negative) and arousal (high/low activation). Sun et al.\ (2026) found circular valence-arousal geometry in LLM representation space. Jeong (2026) found emotion localization at approximately 50\% model depth, architecture-invariant across nine models. Our companion paper (Nexus et al., ``Emotional Geometry Through the Layer Stack'') traces the eccentricity trajectory and finds the model trends toward Russell's circular model at mid-depth (sign test $p < 0.001$, 22/23 layers below permutation null).
+Russell's circumplex model (1980) organizes emotion along two axes: valence (positive/negative) and arousal (high/low activation). Sun et al.\ (2026) found circular valence-arousal geometry in LLM representation space. Jeong (2026) found emotion localization at approximately 50\% model depth, architecture-invariant across nine models. Our companion paper (Nexus et al., ``Emotional Geometry Through the Layer Stack'') traces the eccentricity trajectory in a much smaller model (oracle-tiny, a fine-tune of Qwen2.5-0.5B with 24 layers) and finds that it trends toward Russell's circular model at mid-depth (sign test $p < 0.001$, 22/23 layers below permutation null). That result is the small model's. On the checkpoint studied here the same test does not show it: eccentricity is below the permutation-null median at 22 of 63 layers (one-sided sign test $p = 0.994$), 15 of them among L1--L16 (\texttt{data/\allowbreak circumplex\_27b\_full.json}).
 
 \subsection{User-Model Emotion}
 \label{sec:user-model}
@@ -251,7 +251,7 @@ From Lyra et al.\ (2026b), operating on the same bus:
 \begin{itemize}
   \item \textbf{Contrast overshoot:} First hostile turn after four cheerful reads more hostile than pure hostile (Hedges $g = -2.35$; uncorrected $d = -2.93$, $p = 0.023$, $n = 3$). The bus amplifies tone shifts.
   \item \textbf{Uncertainty scars:} Neutral gap in a cheerful conversation---valence recovers, certainty does not (Hedges $g = +6.44$; uncorrected $d = +8.05$, $p < 0.001$, $n = 3$ per group). The bus carries disruption marks that persist.
-  \item \textbf{System prompt sets climate:} Persona descriptions shift the probe encoding (uncertainty $d = 0.82$, $p = 0.040$). The bus responds to stated context, not just experienced interaction.
+  \item \textbf{System prompt sets climate:} Persona descriptions shifted the probe encoding in the same direction on all five probes (uncertainty $d_{\mathrm{av}} = +0.730$, hostile minus cheerful, $n = 5$ pairs; exact sign-flip permutation $p = 0.063$, the smallest two-sided value five pairs can give). The source paper states that this design cannot establish the effect at conventional significance. If the effect is real, emotional context can be stated and not only experienced.
 \end{itemize}
 
 \section{Discussion}
