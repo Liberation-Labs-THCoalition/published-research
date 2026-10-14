@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 
 PAPERS = ("cache-tracing decision-state-paper delta-manifold-paper "
-          "emotion-accumulation-paper emotional-trajectory-paper formulary-paper "
+          "emotion-accumulation-paper emotional-trajectory-paper empathy-bus formulary-paper "
           "graph-topology-paper identity-geometry kv-cloak-defense-paper "
           "lyra-technique-ii meta-pattern mine5-selective-sharpener "
           "null-swarm-paper oracle-loop-paper presence-metric "

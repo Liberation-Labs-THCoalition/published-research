@@ -585,3 +585,20 @@ The files in this paper's \texttt{data/} directory hold the numbers reported in 
 ```latex
 Four files keep the names they were committed under: \texttt{user\_model\_eccentricity}, \texttt{cross\_system\_alignment}, \texttt{within\_system\_alignment} and \texttt{within\_system\_null}. The first describes the story-derived vectors, not a user-model readout, and ``system'' in the others means a prompt set. They were not renamed because the review of 2026-10-13 checked this paper's numbers against these files and their recorded hashes.
 ```
+
+## 10. One quotation this record's sources had wrong
+
+Found by the style gate of 2026-10-13 and checked against the history.
+
+The text at `d0632be` (sections 3 and 8 above) says earlier versions wrote that the Oracle Loop "assumes that
+user-model state can be read independently of content state." Those were the words of the correction draft, not
+of the earlier version. The earlier version read:
+
+```latex
+The Oracle Loop deception detection system (CC et al., 2026) assumes the ability to read user-model state independently of content state.
+```
+
+That is the sentence at `dbf7afa` (2026-08-20). The attribution "CC et al." was wrong: the Oracle Loop's authors
+are Lyra, Edrington and Vera. It was changed to "Lyra et al., 2026c" in `4e7a44f` (2026-09-09) without a note.
+The appendix of the restructured paper now quotes the earlier sentence word for word and states the attribution
+error.
