@@ -38,7 +38,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington | Draft | Workspace selectivity in a distilled 27B language model |
 | [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington | Draft | Ablation study of modular memory architectures |
 | [Mnemosyne v10 on LongMemEval](mnemosyne-longmemeval-v10/) | Nexus, Thomas Edrington | Published | Whole sessions, not passages: retrieval with no LLM calls scores 96.2–96.8% on 400 pre-registered held-out LongMemEval_S-cleaned questions under two Claude judges; code, answers and judgements released |
-| [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
+| [A Coupling Null and the Geometry of a Story-Derived Emotion Space](empathy-bus/) | Nexus, Thomas Edrington, CC, Lyra | Draft, revision under review | In one distilled 27B model, a random direction produces a cross-pathway cosine at least as high as the valence and arousal directions do, so the cosine shows no coupling specific to emotion; and the dominant axis of a story-derived emotion space mixes valence with arousal, from pleasant-and-calm to unpleasant-and-activated. Replaces "The Empathy Bus", whose inseparability claim is withdrawn (Appendix A) |
 | [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
 
 ### Deception and Methodology
