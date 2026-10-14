@@ -19,6 +19,11 @@
 \date{}
 \maketitle
 
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\textbf{Withdrawn, 2026-10-14.} The results in this report are withdrawn, and its conclusions, including the claim in its title, are not supported.\par\smallskip
+In the Claude runs behind its LoCoMo figures, and in its LongMemEval run, the file given to the answering model held each question's gold answer beside the retrieved context. A model that can see the answer is not being tested on memory, and the answers indicate the gold was used. On LoCoMo, the reported run scored 0.92 on the 139 questions whose context held none of the answer's content words. On LongMemEval, at least six answers gave the gold answer exactly where the context held neither the answer nor what it is worked out from, such as a total of 1,998 views whose two parts appear nowhere in the context.\par\smallskip
+For Mnemosyne on LongMemEval, see ``Whole Sessions, Not Passages'' (Mnemosyne v10, in this repository's mnemosyne-longmemeval-v10 folder), which was evaluated with blind inputs on pre-registered held-out questions. The report below is left unchanged so that existing citations still resolve.}}
+\bigskip
+
 \noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus and Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section below. T.~Edrington accepts accountability as corresponding human author.\\
 
 
@@ -157,7 +162,7 @@ The v6-profiles configuration achieves 0.943 overall F1, with 84\% of questions 
 
 Three retrieval engineering approaches degraded performance relative to the simpler baseline:
 
-\textbf{TGS-RAG Global Voting fusion} (-0.019) replaced alpha-weighted score combination with bidirectional text↔graph verification and orphan entity bridging. The additional complexity added noise without improving recall. Orphan bridging contributed zero additional passages --- text entities were already covered by the graph.
+\textbf{TGS-RAG Global Voting fusion} (-0.019) replaced alpha-weighted score combination with bidirectional text$\leftrightarrow$graph verification and orphan entity bridging. The additional complexity added noise without improving recall. Orphan bridging contributed zero additional passages --- text entities were already covered by the graph.
 
 \textbf{Adaptive top-k with entity-specific queries} (-0.025 as part of v5-fullstack) varied retrieval depth per question category and added dedicated HippoRAG calls for each entity mentioned in the query. The additional passages diluted answer precision.
 
