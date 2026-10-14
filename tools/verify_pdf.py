@@ -37,7 +37,7 @@ LIGATURES = {
 
 
 def extract(pdf):
-    out = subprocess.run(["pdftotext", "-layout", pdf, "-"],
+    out = subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", pdf, "-"],
                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if out.returncode != 0:
         sys.exit("pdftotext failed on %s: %s" % (pdf, out.stderr.strip()[:200]))
