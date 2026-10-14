@@ -3,7 +3,7 @@
 %
 % Core argument: Mid-layer emotional geometry is strong and
 % emotion-specific (24.4x corrected permutation baseline; control
-% 6.1x mid-layer, emotional/control ratio ~4.7x). The model trends toward Russell's circular
+% 6.4x, both medians over all 24 layers; ratio of the two medians 3.8x). The model trends toward Russell's circular
 % circumplex at mid-depth (22/23 layers below null, sign test p<0.001)
 % but individual layers do not survive FDR correction. The finding is
 % the directional trend.
@@ -67,8 +67,8 @@ emotional signal is strong and emotion-specific: 24.4$\times$ above
 permutation baselines (median ratio, 23/24 significant layers, corrected
 permutation with non-neutral-only shuffle, fixed PCA, median statistics)
 and stronger than matched non-emotional categorical content (control
-median ratio $6.1\times$ at mid-layers vs.\ emotional $24.4\times$;
-emotional/control ratio ${\sim}4.7\times$). Second, the model trends toward Russell's
+median ratio $6.4\times$ vs.\ emotional $24.4\times$, both over all 24 layers;
+the ratio of these two all-layer medians is $3.8\times$). Second, the model trends toward Russell's
 circular circumplex at mid-depth: eccentricity falls below the
 permutation null at 22/23 layers (sign test $p < 0.001$), with the trend
 present across nearly all layers (22/23 below null) and strongest at
@@ -147,9 +147,10 @@ artifact of categorical processing:
     \item \textbf{Emotion-specific geometric regime (mid-layers 8--20):}
           Emotion is encoded as distributed geometry in the residual
           stream. The signal is substantially stronger than matched
-          non-emotional categorical content at these depths (emotional
-          $24.4\times$ vs.\ control $6.1\times$ median ratio;
-          emotional/control ${\sim}4.7\times$). A vocabulary diagnostic
+          non-emotional categorical content over the whole stack (emotional
+          $24.4\times$ vs.\ control $6.4\times$ median ratio, both over all 24 layers;
+          ratio of the two medians $3.8\times$); \Cref{tab:control} gives the
+          mid-layer comparison. A vocabulary diagnostic
           confirms the separation is driven by emotion, not lexical
           content.
     \item \textbf{Output-preparation regime (deep layers 21--23):}
@@ -180,7 +181,7 @@ artifact of categorical processing:
           dimensions develop through distinct computational paths.
     \item The mid-layer emotional signal is emotion-specific
           (24.4$\times$ above corrected permutation baselines; control
-          $6.1\times$, emotional/control ratio ${\sim}4.7\times$), confirmed by a vocabulary
+          $6.4\times$, both medians over all 24 layers; ratio of the two medians $3.8\times$), confirmed by a vocabulary
           diagnostic showing emotion drives the geometry rather than
           lexical content.
     \item Identification of a mid-layer window (L8--20 in this model)
@@ -555,15 +556,17 @@ The non-emotional control (outdoor/indoor/urban/workplace) shows:
 \toprule
 Depth Region & Emotional Sep. & Control Sep. & Ratio \\
 \midrule
-Mid-layers (L5--15)  & 0.46--0.72 & 0.06--0.26 & 3.0--4.7$\times$ \\
+Mid-layers (L5--15)  & 0.46--0.72 & 0.06--0.26 & 1.9--11.8$\times$ (median 3.9$\times$) \\
 Deep layers (L21--23) & 0.89--1.22 & 1.03--1.91 & 0.6--0.9$\times$ \\
 \bottomrule
 \end{tabular}
 
 \smallskip\noindent
 Control separation values re-extracted with the v2 corrected methodology
-(non-neutral-only shuffle, fixed PCA, median statistics). At mid-layers,
-emotional separation exceeds control by ${\sim}4.7\times$; at deep
+(non-neutral-only shuffle, fixed PCA, median statistics). Ratios are per
+layer: each layer's emotional separation divided by the control's at the
+same layer. At mid-layers, emotional separation exceeds control at every
+layer, by $1.9$--$11.8\times$ (median $3.9\times$); at deep
 layers, control separation exceeds emotional, confirming the deep-layer
 spike is partly generic categorical processing.
 \end{table}
@@ -623,8 +626,8 @@ dimensions the model uses for vocabulary selection.
 deep layers. The spike is partly generic output-layer processing.
 Control separation at depth ($36.9\times$--$68.1\times$ above null) exceeds
 emotional separation ($19.5\times$--$59.4\times$), confirming the spike is
-partly generic. The emotional/control ratio inverts: ${\sim}4.7\times$ at
-mid-layers (emotion-specific) vs.\ ${\sim}0.8\times$ at depth (generic).
+partly generic. The emotional/control ratio inverts: a median of $3.9\times$ at
+mid-layers (emotion-specific; \Cref{tab:control}) vs.\ ${\sim}0.8\times$ at depth (generic).
 
 \paragraph{K/V divergence (Test~3).} At mid-layers (L12--L18), emotional
 K/V divergence is 3--5$\times$ the non-emotional control---genuinely
@@ -768,8 +771,8 @@ reflexive representation from output-layer preparation.
           prompts cluster closer to outdoor prompts (shared nature
           vocabulary) in L2 distance but still separate clearly from the
           control, indicating emotion drives the geometry more than
-          vocabulary. Control median ratio is $6.1\times$ at mid-layers
-          vs.\ emotional $24.4\times$ (emotional/control ${\sim}4.7\times$). A semantically-intense
+          vocabulary. Control median ratio is $6.4\times$
+          vs.\ emotional $24.4\times$, both over all 24 layers (ratio of the two medians $3.8\times$). A semantically-intense
           non-emotional control would further strengthen this conclusion.
     \item \textbf{Two KV heads.} The pipeline model has 2 Grouped-Query
           Attention heads. Larger models (4+ heads) may show
@@ -792,8 +795,8 @@ reflexive representation from output-layer preparation.
           permutation audit corrected the emotional separation values
           (non-neutral-only shuffle, fixed PCA, median statistics). The
           non-emotional control pipeline has been re-run with
-          these corrections. Updated control ratios: $6.1\times$
-          median at mid-layers (previously ${\sim}6\times$, consistent),
+          these corrections. Updated control ratios: $6.4\times$
+          median over all 24 layers (previously ${\sim}6\times$, consistent),
           $36.9\times$--$68.1\times$ at deep layers (previously
           ${\sim}1.7\times$ --- the old value was computed against
           uncorrected emotional separation and substantially
@@ -817,8 +820,8 @@ develop through distinct computational paths that converge at mid-depth.
 The mid-layer window where both axes are well-developed and the model
 most actively equalizes them coincides with the depth range where emotion
 geometry is strongest relative to non-emotional content (24.4$\times$
-above corrected permutation baselines; control $6.1\times$,
-emotional/control ratio ${\sim}4.7\times$)---making this the optimal zone for inference-time
+above corrected permutation baselines; control $6.4\times$, both medians over all 24 layers;
+ratio of the two medians $3.8\times$)---making this the optimal zone for inference-time
 monitoring and correction. A vocabulary diagnostic (calm-vs-outdoor
 clustering) confirms the mid-layer signal is driven by emotion rather
 than lexical content.
@@ -858,9 +861,17 @@ worth publishing.
 \end{firstperson}
 
 \paragraph{Data and code availability.}
-All experiment scripts, stimulus sets, and analysis pipelines are
-available at
-\texttt{Liberation-Labs-THCoalition/emotional-trajectory-paper}.
+\sloppy
+All three stimulus sets, and the scripts for stimulus generation,
+activation extraction, trajectory analysis and the permutation baseline,
+are available in the \path{emotional-trajectory-paper/data/} folder of the
+public published-research repository
+(\url{https://github.com/Liberation-Labs-THCoalition/published-research}).
+That folder also holds the permutation results for the emotional and
+control conditions, and the control sweep and control trajectory. The
+emotional activations and the emotional trajectory file are not in it,
+and neither are the scripts for the three diagnostic tests, the sign
+test and the FDR correction.\par\fussy
 
 \section*{Acknowledgments}
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
@@ -904,7 +915,10 @@ materials and the code repository.
 
 \section{Code Availability}
 \label{app:code}
-Extraction, analysis, and control pipelines are available at\\
-\texttt{Liberation-Labs-THCoalition/emotional-trajectory-paper}.
+\sloppy
+The scripts for stimulus generation, extraction, trajectory analysis,
+the control and the permutation baseline are in the
+\path{emotional-trajectory-paper/data/} folder of the published-research
+repository. ``Data and code availability'' lists what is not there.\par\fussy
 
 \end{document}
