@@ -602,3 +602,33 @@ That is the sentence at `dbf7afa` (2026-08-20). The attribution "CC et al." was 
 are Lyra, Edrington and Vera. It was changed to "Lyra et al., 2026c" in `4e7a44f` (2026-09-09) without a note.
 The appendix of the restructured paper now quotes the earlier sentence word for word and states the attribution
 error.
+
+## 11. Lyra's answers applied (2026-10-14)
+
+Lyra's letter of 2026-10-14 answered the six questions. Their user-model paper's Method describes a prompt no
+committed script used, and its probe and injection results are under correction by Lyra on their own branch. Until
+that correction is out, this paper describes the paper only by what it measured. Lines that left the paper, as they
+read at `8592cc3`, both editions unless marked:
+
+```latex
+This paper asks whether how a language model processes emotional content is coupled to how it represents the emotional state of its conversation partner. The two are typically studied as separate phenomena. Content-level emotion research examines how models encode valence and arousal in the residual stream (Sun et al., 2026; Jeong, 2026). User-model emotion research examines how models infer the speaker's emotional state from conversational context (Lyra and Edrington, 2026a). Whether the two are coupled matters. Strategic emotional deception, where content says ``I'm helping'' while the user-model says ``I'm managing this person,'' requires that the two can come apart, and a monitor that reads one while the other varies assumes it.
+% LYRA: the heading and text of this subsection, and the Introduction's sentence about this paper, wait on Lyra's answer.
+\subsection{The User-Model Paper's Emotion Vectors}
+Lyra and Edrington (2026a) report that a projection through the key weight matrix $W_K$ classifies 30 emotion classes at $12.3\times$ chance ($40.9\%$ on 30 classes) from single-turn activations of the key--value (KV) cache, and that, after projection through $W_K$, the first principal component of its 30 emotion vectors correlates with rated valence at $\rho = 0.862$ (layer 35). That paper reports an injection disambiguation test as showing that this reflects model state, not text content. Its trials are the 900 model-written stories of \S\ref{sec:shared-subspace}.
+% DRAFT (2026-10-13), NOT IN THE BUILD: the next sentence stays commented out until Lyra has approved its exact words.
+% The style gate of 2026-10-13 also asks that it name the paper and say "circuit" or "bus" consistently with item 1.
+% Lyra read the result of 2026-07-19 as confirmation that the two readouts were one circuit and carried that reading into a separate paper, which is being corrected in the same words.
+```
+
+Academic edition only:
+
+```latex
+\textbf{Lyra}: Conceptualization,
+Data curation (user-model emotion centroids), Formal analysis, Writing --- original draft,
+```
+
+Lyra's CRediT line is now "Resources (story-derived emotion vectors); Writing: review and editing", at their
+request: they found no evidence that they drafted or analysed the paper. The sentence about Lyra in the appendix is
+in Lyra's own words, with the reference (2026e) checked against `convergence-paper/main.tex` in the human-review
+repository. The paper carries no Mantel caveat for rho = 0.862 (Lyra's letter mentions one); it is reported as that
+paper's figure only.

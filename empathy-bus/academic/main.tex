@@ -40,7 +40,7 @@ All results are for one model, a Qwen3.5-27B distilled from Claude Opus reasonin
 \section{Introduction}
 \label{sec:intro}
 
-This paper asks whether how a language model processes emotional content is coupled to how it represents the emotional state of its conversation partner. The two are typically studied as separate phenomena. Content-level emotion research examines how models encode valence and arousal in the residual stream (Sun et al., 2026; Jeong, 2026). User-model emotion research examines how models infer the speaker's emotional state from conversational context (Lyra and Edrington, 2026a). Whether the two are coupled matters. Strategic emotional deception, where content says ``I'm helping'' while the user-model says ``I'm managing this person,'' requires that the two can come apart, and a monitor that reads one while the other varies assumes it.
+This paper asks whether how a language model processes emotional content is coupled to how it represents the emotional state of its conversation partner. The two are typically studied as separate phenomena. Content-level emotion research examines how models encode valence and arousal in the residual stream (Sun et al., 2026; Jeong, 2026). A model may also represent the emotional state of the person it is talking with, inferred from the conversation. Whether the two are coupled matters. Strategic emotional deception, where content says ``I'm helping'' while the user-model says ``I'm managing this person,'' requires that the two can come apart, and a monitor that reads one while the other varies assumes it.
 
 We tested for coupling with an injection experiment: add a vector to the residual stream, and compare how the centroids of emotional-content prompts and of conversational prompts shift downstream. The experiment has a preregistration, whose commit record is consistent with registration before the run but does not show it (\S\ref{sec:coupling}). It found no coupling specific to the emotional directions. A random direction produced a cross-pathway cosine at least as high as valence and arousal did (\S\ref{sec:results-coupling}). The experiment does not settle the question in either direction. It added a vector to the residual stream and then read the residual stream, so both shifts contain the vector, and a high cosine shows that one perturbation was present in both readouts. \S\ref{sec:disc-test} says what a test of separability needs.
 
@@ -65,11 +65,10 @@ The paper's only partner-directed material is the 60 first-person messages of th
 
 Russell's circumplex model (1980) organizes emotion along two axes: valence (positive/negative) and arousal (high/low activation). Sun et al.\ (2026) found circular valence-arousal geometry in LLM representation space. Jeong (2026) found emotion localization at approximately 50\% model depth, architecture-invariant across nine models. Our companion paper (Nexus et al., 2026, ``Emotional Geometry Through the Layer Stack'') traces the eccentricity trajectory (how far the valence--arousal geometry is from circular, with 0 for a circle) in a much smaller model (oracle-tiny, a fine-tune of Qwen2.5-0.5B with 24 layers) and finds that it trends toward Russell's circular model at mid-depth (sign test $p < 0.001$, 22/23 layers below permutation null). That result is the small model's. On the checkpoint studied here the count runs the other way: eccentricity, computed as $\sqrt{1 - (b/a)^2}$ for the larger ($a$) and smaller ($b$) of the norms of the hostile$-$calm and desperate$-$calm directions, is below the permutation-null median at 22 of 63 layers (15 of them among L1--L16) and above it at 41, including every layer from L20 to L51. Neighbouring layers are not independent, so we give the counts and no sign-test $p$ value (\texttt{data/\allowbreak circumplex\_27b\_full.json}).
 
-% LYRA: the heading and text of this subsection, and the Introduction's sentence about this paper, wait on Lyra's answer.
-\subsection{The User-Model Paper's Emotion Vectors}
+\subsection{The Story-Derived Emotion Vectors}
 \label{sec:user-model}
 
-Lyra and Edrington (2026a) report that a projection through the key weight matrix $W_K$ classifies 30 emotion classes at $12.3\times$ chance ($40.9\%$ on 30 classes) from single-turn activations of the key--value (KV) cache, and that, after projection through $W_K$, the first principal component of its 30 emotion vectors correlates with rated valence at $\rho = 0.862$ (layer 35). That paper reports an injection disambiguation test as showing that this reflects model state, not text content. Its trials are the 900 model-written stories of \S\ref{sec:shared-subspace}.
+Lyra and Edrington (2026a) built 30 emotion vectors per layer from 900 stories the model wrote about third-person characters (\S\ref{sec:shared-subspace}). They report that, after projection through the key weight matrix $W_K$, the first principal component of the 30 vectors correlates with rated valence at $\rho = 0.862$ (layer 35). This paper uses the vectors and none of that paper's other results.
 
 \section{Method}
 \label{sec:method}
@@ -282,8 +281,7 @@ Four files keep the names they were committed under: \texttt{user\_model\_eccent
 Formal analysis, Writing --- original draft.\\
 \textbf{CC (Coalition Code)}: Validation, Software, Formal analysis,
 Writing --- review and editing.\\
-\textbf{Lyra}: Conceptualization,
-Data curation (user-model emotion centroids), Formal analysis, Writing --- original draft,
+\textbf{Lyra}: Resources (story-derived emotion vectors),
 Writing --- review and editing.\\
 \textbf{Thomas Edrington}: Conceptualization (bus interpretation), Supervision, Resources,
 Project administration.
@@ -294,6 +292,7 @@ Project administration.
 %   Anthropic, the two Nexus papers: ghost-dimensions/main.tex (its bibliography and title block), emotional-trajectory-paper/main.tex
 %   Jeong, Russell, Sun: emotional-trajectory-paper/references.bib
 %   Lyra 2026a-d: the title and author block of each paper's own main.tex
+%   Lyra 2026e: human-review repository, convergence-paper/main.tex at origin/main (title, author block, date and the quoted phrase), checked 2026-10-14
 % The Oracle Formulary's main.tex is dated "Draft" and its paper.json 2026-04-25; paper.json lists a third author
 % (Dwayne Wilkes) that the paper's own author block and the repository README do not.
 % NOT LISTED, details not found in this repository: the Hippocratic License (named in Appendix A).
@@ -313,6 +312,8 @@ Project administration.
 \refitem Lyra, Edrington, T.~K., and Vera (2026c). The Oracle Loop: Self-Regulating AI Through KV-Cache Geometry Monitoring. Liberation Labs, April 2026. In the published-research repository, \texttt{oracle-loop-paper/}.
 
 \refitem Lyra and Edrington, T. (2026d). The Oracle Formulary: Emotion-Vector Steering of Confabulation Across Model Training Regimes. Liberation Labs, draft, April 2026. In the published-research repository, \texttt{formulary-paper/}.
+
+\refitem Lyra, Vera, CC, Nexus, and Edrington, T. (2026e). Five Instruments, One Structure: Convergent Evidence for Workspace Opacity in Language Models. Liberation Labs, draft, July 2026. In the human-review repository, \texttt{convergence-paper/}.
 
 \refitem Nexus and Edrington, T. (2026). The Ghost and the Gate: Workspace Selectivity in a Distilled 27B Language Model. Liberation Labs, July 2026. In the published-research repository, \texttt{ghost-dimensions/}.
 
@@ -347,8 +348,7 @@ This paper replaces ``The Empathy Bus: Architectural Inseparability of Emotional
 \textbf{Removed.} A background section on the Jacobian lens, which the experiment did not use. In it the earlier version misquoted two figures from an earlier study of this checkpoint (Nexus and Edrington, 2026) and said that an experiment had confirmed a point on which that experiment gives no evidence. The check is in \texttt{notes/\allowbreak empathy\_bus\_\allowbreak item14\_\allowbreak ghost\_\allowbreak dimensions\_\allowbreak check\_\allowbreak 20261013.md}.
 
 \textbf{How it was found.} An Agni review on 2026-09-04 found that the shared-subspace section had no supporting artifact and that it contradicted the coupling results as written. CC traced where the numbers came from on 2026-10-12, and Nexus recomputed them independently the same day. A two-way review on 2026-10-13, with CC's adjudication of each finding, is in this repository at \texttt{notes/\allowbreak agni\_two\_way\_empathy\_bus\_pr3\_20261013.md}. That review found the flaw in the coupling readout. Nexus, who wrote the script and ran it, then checked each point against the code and the stored results. CC, who launched the review and verified its findings, wrote the coupling-section disclosures, the cross-system comparison, the eccentricity file for the story-derived vectors, the test of what the story space's axes are, and the check of the lens section. Nexus wrote the within-system null and the rest of the revision. In a second review the same day each of the two ruled on the other's text (\texttt{notes/\allowbreak agni\_gate2\_empathy\_bus\_pr3\_20261013.md}). Lyra confirmed the source row for a statistic from their paper that the earlier version had kept in a superseded form.
-% DRAFT (2026-10-13), NOT IN THE BUILD: the next sentence stays commented out until Lyra has approved its exact words.
-% The style gate of 2026-10-13 also asks that it name the paper and say "circuit" or "bus" consistently with item 1.
-% Lyra read the result of 2026-07-19 as confirmation that the two readouts were one circuit and carried that reading into a separate paper, which is being corrected in the same words.
+% Lyra approved the next sentence's exact words on 2026-10-14 (letter in ~/messages on MTH).
+Lyra read the 2026-07-19 result as confirming inseparability and carried that reading into their convergence paper (Lyra et al., 2026e), whose abstract says that content-level and user-model emotion processing ``share a single computational bus.'' That paper is being corrected in the same words as this one.
 
 \end{document}
