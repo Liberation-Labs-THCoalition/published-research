@@ -373,3 +373,215 @@ What the corrected paper reports is smaller. In one distilled 27B model, the sto
 ```latex
 The script that ran the coupling experiment, \texttt{run\_coupling\_test.py}, is not in this repository; the description of its injection, readout and tests in \S\ref{sec:coupling} was checked against it on 2026-10-13. For the withdrawn timecourse statement (\S\ref{sec:results-subspace}) the repository holds per-layer eccentricity for the content prompts and, since 2026-10-13, for the story-derived centroids with the same definition; the two do not agree.
 ```
+
+## 8. Sections removed whole
+
+These sections are not in the restructured paper. They are given in full, as they stood at `d0632be`. Some of their paragraphs also appear in section 7.
+
+**Section 2.3, Temporal Dynamics (background) (lines 130-139)**
+
+```latex
+\subsection{Temporal Dynamics}
+\label{sec:temporal}
+
+Lyra and Edrington (2026b, ``Weather, Not Climate'') report that emotional context does not accumulate linearly across conversation turns, and describe three dynamic phenomena:
+\begin{itemize}
+  \item \textbf{Contrast overshoot} (Hedges $g = -2.35$; uncorrected $d = -2.93$, $p = 0.023$, $n = 3$)\footnote{Corrected 2026-10-09. Earlier versions gave the uncertainty scar as $d = +9.86$, a superseded value, and the contrast overshoot as a bare $d = -2.93$; both now follow the source paper's current primary statistics (Hedges $g$). Earlier versions also said the temporal findings had not been measured on this checkpoint. They were (the same distill), though not in the readouts of the coupling experiment; see \S\ref{sec:welfare}. Reworded 2026-10-12: this footnote said ``not in the shared subspace,'' and no shared subspace is shown (see the Correction note).}: a tone shift reads as amplified relative to prior context
+  \item \textbf{Uncertainty scars} (Hedges $g = +6.44$; uncorrected $d = +8.05$, $p < 0.001$, $n = 3$ per group): after a two-turn neutral gap in a cheerful conversation, the uncertainty projection stays elevated on the two cheerful turns that follow, though valence recovers. The three per group are reruns of one scripted conversation, and the source paper says the effect generalises to that conversation only
+  \item \textbf{Dose-dependent decay}: emotional distinction is maintained across turns (raw gap ${\sim}0.5$--$0.8$) even as absolute magnitudes decay
+\end{itemize}
+```
+
+**Section 2.4, The Jacobian Lens (lines 140-144)**
+
+```latex
+\subsection{The Jacobian Lens}
+\label{sec:jlens}
+
+The J-lens (Anthropic, 2026) transports mid-layer residual-stream activations to the output layer via an averaged Jacobian, reading what the model is disposed to say. An earlier study of the checkpoint used here (Nexus and Edrington, 2026, ``The Ghost and the Gate'') asked at which layers that reading is informative. At 45 of the 63 layers with a fitted lens (L11--13, L15--17 and L24--62), the top tokens of the J-lens reading overlap the next 32 tokens of the text more than they overlap another prompt's, and more than the reading without the transport does. At 31 of those layers the Jacobian is also low-rank: L11--13, L15--17 and L24--48, which is 17--20\%, 23--27\% and 38--75\% of the depth of this 64-layer model. That study calls these 31 layers the workspace band. The largest principal component of the residual stream (PC1) holds 28--67\% of the activation variance at L11--48. PC1's J-lens reading has a lower cosine with its reading without the transport than one random direction does at 29 of the 38 layers L11--48 (L18--44 and L47--48; at most 0.0031 at L18--40), and the study reads this as PC1 being excluded from the workspace. At L11--17 and L45--46, PC1 is not below the random direction. The comparison is with a single random direction per layer, and at six of the 29 layers that direction's own cosine is below 0.002. The lens was fitted on the base model, not on this distilled checkpoint, and the components come from 30 prompts. Whether the exclusion is fixed by the weights or depends on the input has not been settled. One experiment was run on that question, on 2026-07-16. Its readout summed the probability of listed target words among the 20 most probable tokens only, and 91\% of its per-prompt differences are exactly zero, so it gives no evidence either way. The coupling experiment of this paper did not use the lens (\S\ref{sec:coupling}); this subsection is kept because the preregistration names it.
+```
+
+**Section 4.3, Temporal Dynamics (Published Data) (lines 272-282)**
+
+```latex
+\subsection{Temporal Dynamics (Published Data)}
+\label{sec:results-temporal}
+
+These results are from Lyra and Edrington (2026b), measured on the same checkpoint with that paper's own probes (KV-cache key activations at layers 3, 7, 11 and 15). They are cited as context. They were not measured in the readouts of the coupling experiment, and earlier versions were wrong to describe them as dynamics ``on the bus.''
+
+\begin{itemize}
+  \item \textbf{Contrast overshoot:} First hostile turn after four cheerful reads more hostile than pure hostile (Hedges $g = -2.35$; uncorrected $d = -2.93$, $p = 0.023$, $n = 3$).
+  \item \textbf{Uncertainty scars:} Neutral gap in a cheerful conversation---valence recovers, certainty does not (Hedges $g = +6.44$; uncorrected $d = +8.05$, $p < 0.001$, $n = 3$ per group).
+  \item \textbf{Stated context:} Persona descriptions shifted the probe encoding in the same direction on all five probe pairs (uncertainty $d_{\mathrm{av}} = +0.730$, hostile minus cheerful, $n = 5$ pairs; exact sign-flip permutation $p = 0.063$). With five pairs, 0.063 is the smallest two-sided value an exact permutation test can give, so the source paper states that no assumption-free two-sided test on this design can reach $p < 0.05$. It does not claim the one-sided value (0.031), because no direction was pre-specified and three projections were tested. The source paper reads the result as suggesting that emotional context can be stated and not only experienced. Earlier versions of this paper printed $d = 0.82$, $p = 0.040$, which was the source paper's figure until its correction of 2026-09-09 (see the Correction note).
+\end{itemize}
+```
+
+**Sections 5.2 to 5.5: Deception Detection, Correction Vectors, AI Welfare, A Deployment Note (lines 301-324)**
+
+```latex
+\subsection{Deception Detection}
+\label{sec:deception}
+
+Earlier versions predicted that emotional deception, where content expresses one emotion while the model represents the partner as experiencing another, ``should be particularly difficult for the model to execute, because the bus doesn't allow independent modulation of the two readouts.'' That prediction rested on inseparability and is withdrawn. This paper gives no reason to expect such deception to be harder or easier. CC's Phase D experiment (circumplex disentanglement) asks the question directly: whether the model can hold divergent content-emotion and user-emotion representations when the two conflict. It has been run twice (July 2026, unpublished) without an answer: its first result was retracted as a prompt-length artifact, and the preregistered primary analysis of the second was ambiguous. Earlier versions said ``the bus predicts it cannot.'' We withdraw that prediction and make none. Earlier versions also said, here and in the Introduction, that the Oracle Loop (Lyra et al., 2026c) ``assumes that user-model state can be read independently of content state.'' That paper does not discuss a user model, and the sentence is removed.
+
+\subsection{Correction Vectors}
+\label{sec:correction}
+
+Earlier versions said that correction vectors applied to a model's emotional state (the Oracle Formulary; Lyra and Edrington, 2026d) ``necessarily affect both content processing and partner modeling,'' and called the dyadic effect inherent. At the layer where a vector is added, it is present in any readout of the stream; that much is arithmetic. Later layers respond to it, and a later readout shows the sum: in the stored results the shift of the user-model prompts' category centroids is 0.40--0.66 of the injected norm by L45 (\S\ref{sec:results-coupling}). Whether such a vector changes how the model represents its conversation partner is an empirical question, and this paper did not test it. The statement is withdrawn.
+
+\subsection{AI Welfare}
+\label{sec:welfare}
+
+Earlier versions argued from inseparability to welfare: if treatment and processing share one medium, then ``the treatment of the system IS the processing environment,'' and policies governing how persistent agents are treated are ``not aspirational ethics but empirical necessities.'' The premise is withdrawn, and the argument goes with it. This paper provides no evidence that how a model is treated is inseparable from how it processes.
+
+What remains is prior work, cited and not extended. Lyra and Edrington (2026b) report, on this same checkpoint and in their own probe space (KV-cache key activations at layers 3, 7, 11 and 15), that a neutral disruption in a cheerful conversation leaves a change in an uncertainty projection that persists within the session after valence recovers (Hedges $g = +6.44$, $n = 3$ per group), and that a tone shift reads as amplified against prior context (Hedges $g = -2.35$, $n = 3$). Those are single-session, short-context results with small samples. Whether such marks persist across sessions, accumulate in persistent agents, or appear in any readout studied here has not been measured. Measuring one of them in the readouts of the coupling experiment at layer 15, the one layer both experiments read, was named in earlier versions as the critical follow-up. It has not been run, and after this correction it would need the redesigned readout of \S\ref{sec:bus-not-circuit}.
+
+Whether interaction history changes a model's later processing in ways that matter morally is a question we consider important and open. The welfare provisions cited in earlier versions (the Hippocratic License's AI Welfare module: memory sovereignty, consent-based development, identity integrity, right to rest) stand or fall on other grounds. This paper should not be cited as empirical support for them.
+
+\subsection{A Deployment Note}
+\label{sec:deployment}
+
+During this research, we deployed a persistent mutual-aid coordination agent for a social work coordinator at an international educational network. Earlier versions described its components here, said that ``the bus finding informed the deployment architecture,'' and called it, to our knowledge, ``the first deployment of a persistent agent whose infrastructure was designed with explicit reference to the architectural inseparability of emotional processing and partner modeling.'' The inseparability claim is withdrawn, and those statements are withdrawn with it. The deployment is not a result of this paper, and nothing in this paper evaluates it.
+```
+
+**Limitation 6, Welfare (lines 339-339)**
+
+```latex
+  \item \textbf{Welfare.} The contrast and scar dynamics cited in \S\ref{sec:welfare} are from single-session, short-context experiments with three reruns of one scripted conversation per group, in another paper's probe space. This paper adds no evidence to them, and its earlier extrapolation from them to welfare policy is withdrawn.
+```
+
+## 9. Lines reworded or dropped without correction history
+
+These lines of `d0632be` are in the restructured paper in an edited form (a gloss added, a date removed, a section reference changed), or were dropped as connecting text. Old wording, unedited.
+
+**Line 106**
+
+```latex
+This version reports what the experiment did, what its numbers are, and what they do and do not support. It also reports two descriptive analyses, each with a null: one of the story-derived emotion space by itself, and one of the overlap between content-prompt directions and that space. The question the paper was written to answer is still open. \S\ref{sec:bus-not-circuit} says what a test of it needs.
+```
+
+**Line 113**
+
+```latex
+\item A coupling experiment reported as a null: a random direction produced the same cross-pathway cosine as valence and arousal, so the cosine shows no direction-specific difference; the shift sizes differ by direction, in a way that is not evidence about emotional processing. The experiment's readout contains the injected vector and its registered test could not pass, so it does not test whether the two kinds of processing can be separated
+```
+
+**Line 148**
+
+```latex
+\subsection{Directions and Within-System Analysis}
+```
+
+**Line 174**
+
+```latex
+\textbf{Design:} Inject perturbation vectors at layers $[15, 25, 35, 45]$ with magnitudes $\alpha \in \{1.0, 3.0, 5.0\}$. Measure cross-pathway cosine: the cosine similarity between the aggregate content-level centroid shift and the aggregate user-model centroid shift after injection.
+```
+
+**Line 177**
+
+```latex
+\textbf{Injection and readout:} The perturbation $\alpha v$ is added to the output of the injection layer at every token position. The readout is the raw residual-stream activation at the last token of each prompt, at the measurement layer; a centroid shift is the injected centroid minus the baseline centroid. No lens is applied. The preregistration names a J-lens (\texttt{qwen3.5-27b\_jlens.pt}) and the script builds a lens path, but it never loads one, so every readout is the raw residual stream, a deviation from the preregistration. Because the readout contains the injected vector itself, at the injection layer both shifts equal $\alpha v$ and their cosine is 1.000 by construction (all 36 same-layer valence, arousal and random cells are at least 0.9999). Further downstream each shift is $\alpha v$ as carried forward plus whatever the intervening layers add. Neither readout is an emotion readout.
+```
+
+**Line 196**
+
+```latex
+\textbf{Critical control (Fable's fix):} Decompose the valence vector into what it shares with the user-model basis above (shared-PC) and what's orthogonal (residual). If only the shared component shifts user-model centroids $\to$ representational overlap. If the residual also shifts them $\to$ computational coupling beyond shared geometry.
+```
+
+**Line 198**
+
+```latex
+\textbf{Pre-registered success criteria:} Valence must exceed random 95th percentile at $2+$ injection layers AND orthogonal-residual injection must shift user-model centroids (BCa 95\% CI excludes zero).
+```
+
+**Line 230**
+
+```latex
+Cross-pathway cosine by condition. The intervals resample design cells (\S\ref{sec:stats}):
+```
+
+**Line 266**
+
+```latex
+\textbf{Decomposition finding:} Across the two prompt sets, the content valence direction has little overlap with the user-model basis of this experiment (\S\ref{sec:coupling}). Its shared energy, the fraction of its squared norm that lies in that basis, is 0.15\%, 0.35\%, 1.21\% and 1.36\% at L15, L25, L35 and L45 (\texttt{data/\allowbreak coupling\_test.json}, \texttt{decomposition}). The orthogonal residual is the other 98.6--99.9\%. The overlap is small but not zero: a random direction would put about 0.06\% of its energy into three directions out of 5,120, so the observed values are 2.5 to 23 times that, rising with depth ($|\cos|$ with the basis at most 0.12).
+```
+
+**Line 287**
+
+```latex
+\label{sec:bus-not-circuit}
+```
+
+**Line 299**
+
+```latex
+\textbf{What a test of separability needs.} Readouts that respond to each kind of processing and not to the perturbation as such. Concretely: (a)~project the injected vector out of both shifts before comparing them, or score each shift on its own system's emotion axes; (b)~use many norm-matched random directions, so the control is a distribution; (c)~leave same-layer cells out of every test; (d)~vary distance and injection layer separately; (e)~state the test so that it can fail in either direction. The stored results hold cosines and magnitudes only, so the injected vector cannot be removed from them after the fact. This needs a new run, and it has not been done.
+```
+
+**Line 329**
+
+```latex
+\item \textbf{Single model family.} All results are from one checkpoint, a Qwen3.5-27B distilled from Claude Opus reasoning traces. The within-system structure, the weak cross-system overlap and the coupling null may all be specific to it. Cross-architecture replication (dense, MoE, different scale) is needed.
+```
+
+**Line 349**
+
+```latex
+The question is still worth asking, and \S\ref{sec:bus-not-circuit} says what a test of it needs. The temporal findings of Lyra and Edrington (2026b) stand as that paper reports them.
+```
+
+**Line 366**
+
+```latex
+The files in this paper's \texttt{data/} directory hold the numbers reported in \S\ref{sec:results-subspace} and \S\ref{sec:results-coupling}, and one figure in \S\ref{sec:emo-geom}.
+```
+
+**Line 369**
+
+```latex
+\item \texttt{data/\allowbreak within\_system\_alignment.json}: the 2026-10-12 recomputation of \S\ref{sec:results-subspace}. For each of the 64 layers it gives the two alignments with PC1, the cosine between the hostile$-$calm and desperate$-$calm directions of the story-derived space (labelled valence and arousal in the file), the variance share of each direction, their sum (labelled as double-counted), the share of the plane they span, and PC1's own share.
+```
+
+**Line 371**
+
+```latex
+\item \texttt{data/\allowbreak coupling\_test.json}: the coupling experiment of \S\ref{sec:results-coupling}. It holds 210 injection records and the \texttt{decomposition} block that gives the shared energy at L15, L25, L35 and L45. Its field \texttt{n\_pcs: 5} is the number of components the script asked for, not the rank of the basis (\S\ref{sec:coupling}).
+```
+
+**Line 372**
+
+```latex
+\item \texttt{data/\allowbreak within\_system\_null.json} and \texttt{.py}: the null of \S\ref{sec:results-subspace}, added 2026-10-13. For each of the 64 layers it scores every difference of two centroids (435) against PC1 and every plane through three centroids (4,060) for the variance it holds, and places the hostile$-$calm pair, the desperate$-$calm pair (labelled valence and arousal in the file) and their plane among them. Same input as \texttt{within\_system\_alignment.py}.
+```
+
+**Line 373**
+
+```latex
+\item \texttt{data/\allowbreak cross\_system\_alignment.json} and \texttt{.py}: the second cross-system comparison of \S\ref{sec:results-coupling}, added 2026-10-13, with its null of 2,000 seeded random directions. Its inputs are the same centroid file and the stored content valence and arousal directions at L15, L25, L35 and L45. Neither is in this repository; the JSON records a hash of each.
+```
+
+**Line 375**
+
+```latex
+\item \texttt{data/\allowbreak user\_model\_eccentricity.json} and \texttt{.py}: the story-space half of the timecourse comparison of \S\ref{sec:results-subspace}, added 2026-10-13. It applies the definition of the content file (hostile minus calm, desperate minus calm; $\sqrt{1 - (b/a)^2}$ for the larger and smaller of the two norms) to the 30 story-derived centroids at each of the 64 layers, beside the content values. It has no permutation null.
+```
+
+**Line 376**
+
+```latex
+\item \texttt{data/\allowbreak story\_space\_axes.json} and \texttt{.py}: the test of what the story-derived space's axes are (\S\ref{sec:results-subspace}), added 2026-10-13. Per layer, the rank correlation of each emotion's score on PC1 and PC2 with the valence and arousal ratings in the source experiment's script, and where the hostile$-$calm and desperate$-$calm pairs sit among all 435 pairs.
+```
+
+**Line 377**
+
+```latex
+\item \texttt{data/\allowbreak story\_space\_axes\_null.json} and \texttt{.py}: its follow-up, added the same day: how much of the PC1 and PC2 scores the two ratings explain together, where each component points in the rated plane, and a null from shuffling the ratings among the emotions.
+```
+
+**Line 384**
+
+```latex
+Four files keep the names they were committed under: \texttt{user\_model\_eccentricity}, \texttt{cross\_system\_alignment}, \texttt{within\_system\_alignment} and \texttt{within\_system\_null}. The first describes the story-derived vectors, not a user-model readout, and ``system'' in the others means a prompt set. They were not renamed because the review of 2026-10-13 checked this paper's numbers against these files and their recorded hashes.
+```
