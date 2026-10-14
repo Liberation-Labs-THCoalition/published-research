@@ -12,6 +12,7 @@ names = sorted(ev[layers[0]])
 val = np.array([RATINGS[n][0] for n in names]); aro = np.array([RATINGS[n][1] for n in names])
 A = np.column_stack([np.ones(30), (val - val.mean()) / val.std(), (aro - aro.mean()) / aro.std()])
 rng = np.random.default_rng(20261013)
+rng2 = np.random.default_rng(20261014)
 print("L   | PC1: R2(val+aro)  angle  perm p95 |rho_val|  p(rho_val)  | PC2: R2  angle")
 res = {}
 for L in layers:
@@ -31,6 +32,13 @@ for L in layers:
     perm = np.array([abs(spearman(s1, rng.permutation(val))) for _ in range(2000)])
     row["perm_p95"] = float(np.percentile(perm, 95)); row["p_val"] = float((np.sum(perm >= obs) + 1) / (len(perm) + 1))
     row["obs"] = float(obs)
+    # The same null for the other three correlations, from a second generator so the figures above do not move.
+    s2 = Xc @ Vt[1]
+    for key, scores, rating in (("pc1_aro", s1, aro), ("pc2_val", s2, val), ("pc2_aro", s2, aro)):
+        o = abs(spearman(scores, rating))
+        pm = np.array([abs(spearman(scores, rng2.permutation(rating))) for _ in range(2000)])
+        row[f"{key}_obs"] = float(o); row[f"{key}_perm_p95"] = float(np.percentile(pm, 95))
+        row[f"{key}_p"] = float((np.sum(pm >= o) + 1) / (len(pm) + 1))
     res[int(L)] = row
     if int(L) in (6, 15, 17, 20, 25, 27, 35, 45, 55, 63):
         print(f"{int(L):<3} |      {row['pc1_r2']:.2f}       {row['pc1_angle']:5.1f}       {row['perm_p95']:.2f} vs {obs:.2f}      {row['p_val']:.4f}   |   {row['pc2_r2']:.2f}  {row['pc2_angle']:5.1f}")
@@ -40,6 +48,12 @@ for lo, hi in ((17, 63), (27, 63)):
     g = lambda k: f"{min(r[k] for r in sel):.0f}-{max(r[k] for r in sel):.0f}"
     print(f"L{lo}-L{hi}: PC1 R2 {f('pc1_r2')}, angle {g('pc1_angle')} deg; PC2 R2 {f('pc2_r2')}, angle {g('pc2_angle')} deg; "
           f"perm p95 {f('perm_p95')}; max p {max(r['p_val'] for r in sel):.4f}")
+for lo, hi in ((17, 63),):
+    sel = [res[L] for L in res if lo <= L <= hi]
+    for key in ("pc1_aro", "pc2_val", "pc2_aro"):
+        print(f"L{lo}-L{hi} {key}: observed {min(r[key + '_obs'] for r in sel):.2f}-{max(r[key + '_obs'] for r in sel):.2f}, "
+              f"perm p95 {min(r[key + '_perm_p95'] for r in sel):.2f}-{max(r[key + '_perm_p95'] for r in sel):.2f}, "
+              f"max p {max(r[key + '_p'] for r in sel):.4f}")
 print("angle convention: 0 = the valence axis, 90 = the arousal axis, 135 = pleasant-calm to unpleasant-activated, 45 = pleasant-activated to unpleasant-calm")
 hc = np.degrees(np.arctan2((0.70 + 0.60) / aro.std(), (-0.75 - 0.60) / val.std())) % 180
 dc = np.degrees(np.arctan2((0.80 + 0.60) / aro.std(), (-0.70 - 0.60) / val.std())) % 180
