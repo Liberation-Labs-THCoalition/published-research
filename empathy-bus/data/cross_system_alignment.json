@@ -1,0 +1,156 @@
+{
+  "what": "content-prompt valence/arousal directions vs the user-model's 30-emotion centroid space",
+  "script_sha256": "373930dac9370de318a41dd5788ac9d1e51375327b930b309a80d28bfa30405c",
+  "inputs_sha256": {
+    "~/user_model_rerun/results/emotion_geometry_bridge/emotion_vectors.json": "3452df23a47725e113f6ba351f562315e0264673d9aa93e2a1f9ab32ad7c9008",
+    "~/jlens_results/cc_direction_vectors_full/user_model_PC1_L15.npy": "e4b0c6735e1011a04f929edd7b211336c56bef8d9804f60169cd920fd2eebe87",
+    "~/jlens_results/cc_direction_vectors_full/content_valence_L15.npy": "3a8640f310b367a2107f0586753c95f8c6b07c56ba387addceb22f2093172d4b",
+    "~/jlens_results/cc_direction_vectors_full/content_arousal_L15.npy": "51b0dc7d42ba2b8e914dbeb0f11804c98ff8f01889513da859b9f6594882e68e",
+    "~/jlens_results/cc_direction_vectors_full/user_model_PC1_L25.npy": "f8691b87d5daaaf1de641c6e5cc1dd2df494969ad677d20ee66e2647b12218f8",
+    "~/jlens_results/cc_direction_vectors_full/content_valence_L25.npy": "c0977bb60024277535ab52ce58ea2fdaf769e2324eb919f50e2af956d2970ca4",
+    "~/jlens_results/cc_direction_vectors_full/content_arousal_L25.npy": "1e9734b024dfbd2ac5247874564d038d348ee30eb5e3ae2080a04f729c6a229c",
+    "~/jlens_results/cc_direction_vectors_full/user_model_PC1_L35.npy": "6dd3ea83ed2d9582cfdbd4d76722e828eb4317aba098305a921448cd1d54670d",
+    "~/jlens_results/cc_direction_vectors_full/content_valence_L35.npy": "1ed90a2ea9e959a7bcfe10b64db07f7fc7404c5b51d155cd6209e93b52636fa0",
+    "~/jlens_results/cc_direction_vectors_full/content_arousal_L35.npy": "2ea302d3865fb8e21e747e2aecf7d94f14e008643b3e087afc95701eaad4223a",
+    "~/jlens_results/cc_direction_vectors_full/user_model_PC1_L45.npy": "d21c091f51cac8762abac07d041071c37cb3dfa98ccd40f913752d802203ada6",
+    "~/jlens_results/cc_direction_vectors_full/content_valence_L45.npy": "97849a79d01f2112d8ea0ca4553fa967b63277b2ddb1d30263da7fe4224db255",
+    "~/jlens_results/cc_direction_vectors_full/content_arousal_L45.npy": "5c283858424926a898f58975855b69d664c555f3f2ce18ebba958e5cacbd08f2"
+  },
+  "numpy": "2.4.6",
+  "layers": [
+    {
+      "layer": 15,
+      "n_emotions": 30,
+      "pc1_variance_share": 0.32685642611556326,
+      "abs_cos_with_stored_user_model_PC1": 0.11436963251810871,
+      "content_valence": {
+        "abs_cos_PC1": 0.02622727156029911,
+        "abs_cos_PC2": 0.015386537685605212,
+        "abs_cos_PC3": 0.004746971421340028,
+        "centroid_variance_share_along_direction": 0.0008329219609897198
+      },
+      "content_arousal": {
+        "abs_cos_PC1": 0.015282862627267347,
+        "abs_cos_PC2": 0.0058921384863135995,
+        "abs_cos_PC3": 0.030350164672161596,
+        "centroid_variance_share_along_direction": 0.0012770699227174448
+      },
+      "null_random_direction": {
+        "n": 2000,
+        "seed": [
+          20261013,
+          15
+        ],
+        "abs_cos_PC1_mean": 0.011008937188907797,
+        "abs_cos_PC1_p95": 0.027309320214363414,
+        "abs_cos_PC1_max": 0.044935491375033595,
+        "variance_share_mean": 0.00019720189964674633,
+        "variance_share_p95": 0.0004050315412810061,
+        "variance_share_max": 0.0007605402419746328
+      }
+    },
+    {
+      "layer": 25,
+      "n_emotions": 30,
+      "pc1_variance_share": 0.3245972660663814,
+      "abs_cos_with_stored_user_model_PC1": 0.10933899532722338,
+      "content_valence": {
+        "abs_cos_PC1": 0.0614840448139617,
+        "abs_cos_PC2": 0.0077394369097344255,
+        "abs_cos_PC3": 0.0663785884223413,
+        "centroid_variance_share_along_direction": 0.002080135036602966
+      },
+      "content_arousal": {
+        "abs_cos_PC1": 0.04996020795086263,
+        "abs_cos_PC2": 0.003009282369669828,
+        "abs_cos_PC3": 0.055352521418862294,
+        "centroid_variance_share_along_direction": 0.001536319898819964
+      },
+      "null_random_direction": {
+        "n": 2000,
+        "seed": [
+          20261013,
+          25
+        ],
+        "abs_cos_PC1_mean": 0.01089448515585504,
+        "abs_cos_PC1_p95": 0.027432205958266953,
+        "abs_cos_PC1_max": 0.044253666717373075,
+        "variance_share_mean": 0.00019662727855543477,
+        "variance_share_p95": 0.00040487399448141897,
+        "variance_share_max": 0.0008443893476923964
+      }
+    },
+    {
+      "layer": 35,
+      "n_emotions": 30,
+      "pc1_variance_share": 0.32920661765096987,
+      "abs_cos_with_stored_user_model_PC1": 0.146030125895715,
+      "content_valence": {
+        "abs_cos_PC1": 0.08845840186963944,
+        "abs_cos_PC2": 0.02669257161479259,
+        "abs_cos_PC3": 0.10453297840720963,
+        "centroid_variance_share_along_direction": 0.004003990327221762
+      },
+      "content_arousal": {
+        "abs_cos_PC1": 0.08656052190781886,
+        "abs_cos_PC2": 0.013542809435570576,
+        "abs_cos_PC3": 0.0759256380852399,
+        "centroid_variance_share_along_direction": 0.003278742407430553
+      },
+      "null_random_direction": {
+        "n": 2000,
+        "seed": [
+          20261013,
+          35
+        ],
+        "abs_cos_PC1_mean": 0.011356472101183887,
+        "abs_cos_PC1_p95": 0.027549077347497904,
+        "abs_cos_PC1_max": 0.04918875503966854,
+        "variance_share_mean": 0.00019860872715386497,
+        "variance_share_p95": 0.00041850233853028026,
+        "variance_share_max": 0.0009737293218892188
+      }
+    },
+    {
+      "layer": 45,
+      "n_emotions": 30,
+      "pc1_variance_share": 0.34572762563585396,
+      "abs_cos_with_stored_user_model_PC1": 0.0964708244235161,
+      "content_valence": {
+        "abs_cos_PC1": 0.10982184364431258,
+        "abs_cos_PC2": 0.028263388475591213,
+        "abs_cos_PC3": 0.10075813016625092,
+        "centroid_variance_share_along_direction": 0.005604592518119633
+      },
+      "content_arousal": {
+        "abs_cos_PC1": 0.12634190352910415,
+        "abs_cos_PC2": 0.03666988653049034,
+        "abs_cos_PC3": 0.08676881482333976,
+        "centroid_variance_share_along_direction": 0.006751164963190727
+      },
+      "null_random_direction": {
+        "n": 2000,
+        "seed": [
+          20261013,
+          45
+        ],
+        "abs_cos_PC1_mean": 0.011289571701645278,
+        "abs_cos_PC1_p95": 0.027636221284371296,
+        "abs_cos_PC1_max": 0.051923594641631855,
+        "variance_share_mean": 0.00019703529273046227,
+        "variance_share_p95": 0.0004165962070714376,
+        "variance_share_max": 0.001089136039937122
+      }
+    }
+  ],
+  "range": {
+    "valence": [
+      0.02622727156029911,
+      0.10982184364431258
+    ],
+    "arousal": [
+      0.015282862627267347,
+      0.12634190352910415
+    ]
+  }
+}
