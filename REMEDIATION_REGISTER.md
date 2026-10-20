@@ -26,7 +26,7 @@ comparable as "work".
 
 | # | Paper | Defect | Status |
 |---|---|---|---|
-| 117a | temporal-boundary ×2 | n inflated 3× on all encoding claims; Fig 1 SEM understated √3 | **DONE 08-31** |
+| 117a | temporal-boundary ×2 | n inflated 3× on all encoding claims; Fig 1 SEM understated √3. **True factor 12×, SEM √12** (see Update 2026-09-01 below) | **NOT LANDED** (corrected 2026-10-20; previously "DONE 08-31"). Written 08-31..09-04 in both working trees, committed in neither. human-review copy is now human-review PR #2, draft, not yet merged; `lyra-s-research-` copy still uncommitted. |
 | 117b | emotion-accumulation main+academic | Exp 3 pseudoreplication; 5 false/stale Limitations | **DONE 08-31** |
 | 117c | identity-geometry, presence-metric | positive control cited as 72 trials; true 24 | **DONE 08-31** (agent) |
 | 117d | WEEK_IN_REVIEW_JUL4-9 | "Trials: 168" → 84 | **DONE 08-31** (agent) |
@@ -87,7 +87,12 @@ invisible to a PDF check.
 My 08-31 correction was itself wrong: I fixed the repeat index (3x) and missed that
 **condition cannot vary the encoding either**, because encoding is a deterministic
 prefill read *before* injection. Only **30 unique encoding values exist across 360
-records** — the factor is **12x**. Now corrected in both papers and PDF-verified:
+records** — the factor is **12x**. **Written, but NOT landed** (corrected 2026-10-20; this
+sentence previously read "Now corrected in both papers and PDF-verified"): the edits were
+made in both working-tree copies and committed in neither. The human-review copy, extended
+09-04, sat stranded until 2026-10-20 and is now human-review PR #2 (draft, not yet merged);
+the `lyra-s-research-/temporal-boundary-paper` copy is still uncommitted. The edits, measured
+against the uncommitted 08-31 draft (the paper as published printed 360 trials and n=60):
 overall 120 -> 30; Figure 1 per emotion n=20 -> **n=5**; SEM understated by
 **sqrt(12) = 3.46x** not sqrt(3); the `$<10^{-4}$` bound restated as **exactly 0.0**
 (true across all 51 features). Table 4's n=30 was already correct and was left alone.
@@ -111,7 +116,7 @@ Same family as T1b. The two papers are no longer near-identical in their claims.
 | # | Target | What to redo | Notes |
 |---|---|---|---|
 | 117e | identity-geometry | **Retract "168 trials, 0.978 ± 0.002"** — rests on 2 unique prompts. presence-metric ALREADY retracted this exact number as pseudoreplication (F15); identity-geometry still asserts it. | Two papers, one number, one retracted. Highest-value T2. |
-| 117f | temporal-boundary | Redraw Fig 1 error bars at n=20, not 60 | Data in hand |
+| 117f | temporal-boundary | Redraw Fig 1 error bars at **n=5** independent encodings per emotion, not 60 (corrected 2026-10-20; previously "n=20", the 3×-era figure) | Data in hand. Figure not yet redrawn; human-review PR #2's caption discloses that the bars understate SE by √12 |
 | 117g | presence-detector | trajectory "0" has `persona == base`, `delta ≡ 0.0` across 9 turns — the persona condition did not apply. 1 of 24. | Drop or explain |
 | 117h | decision-state | `entity_deconfound`: Egypt's `C_fake` is bit-identical to `A_easy` — the fake-name substitution was a no-op because the question never contains the entity name. 1 of 30. | A control that silently did not apply |
 | 137 | `meta-pattern` §2.1 | **THE LEDGER'S STATED WARRANT CANNOT BE OPENED.** `main.tex:162`: *"The body count uses the canonical list from the Nexus audit (June 2026)"* `\citep{lyra2026nexus_audit}`. The bib entry exists (`references.bib:329`, `@unpublished`, `note = {Liberation Labs internal audit}`) — **the document does not.** `find -iname "*nexus*audit*"` returns nothing corpus-wide. So Table 1, the body-count ledger the whole paper is organised around, rests on a source no reader and no author can obtain. **And it has moved twice since June:** 8/7/10 -> 7/7/10 (2026-08-14) -> 6/7/10/1 (2026-09-07). The paper honestly says "updated with the July 2026 convergence sprint findings", so the current table is a June document nobody can read plus unnamed updates. Found by the citation agent 2026-09-08; agni could not find it either. NOTE the same bib file has 7 `@unpublished` entries and `lyra2026portrait` shows no trace either. | **DONE 10-12** (Lyra; Kavi #129). The June audit exists, under a different title: Nexus's *Coalition Papers Adversarial Audit Report* (2026-06-23), public at `human-review/archive/COALITION_KILLS_AUDIT_20260623.md`. The invented title and author list were mine. Bib corrected (key now `nexus2026audit`), both editions. The sentence no longer calls the audit the ledger's canonical list: it covers 12 findings, and Table 1 has 24 rows compiled from several audits and replications. **Still open:** `lyra2026portrait`, from the NOTE. |
@@ -138,7 +143,7 @@ stimuli reproduces the same rows. Genuine replication requires varying the **sti
 |---|---|---|---|
 | 117i | emotion-accumulation Exp 3 (persona) | 15 → **5** per arm | More **probes**. 5 pairs caps permutation p at 2/2⁵ = 0.0625; no assumption-free test can reach p<.05 at this design. |
 | 117j | emotion-accumulation Exp 2 (dynamics) | 3 reps of **one script** | ≥3 *independent scenarios* per pattern, mirroring Exp 1's three topics |
-| 117k | temporal-boundary | 360 → **120** encoding | Vary scenario per repeat, or drop repeats and state n=120 |
+| 117k | temporal-boundary | 360 → **30** encoding (corrected 2026-10-20; previously "120", the 3×-era figure) | Vary the scenario per repeat (and per condition arm, if independent encodings per arm are wanted): encoding is read before injection, so neither repeat nor condition varies it. Dropping repeats alone still leaves n=30, not 120 (previously "drop repeats and state n=120") |
 | 117l | identity-geometry / presence-metric positive control | 72 → **24** | `noise_floor_sd: 0.0` is self-documenting — 3 repeats of a deterministic call |
 | 117m | geometric_portrait | 168 → **84** | Same idiom; no paper depends on it |
 | 103 | KV-Cloak P7-C04 | 280 features / 100 samples, AUROC 1.000 both arms | Degenerate; the experiment that should settle it cannot |
