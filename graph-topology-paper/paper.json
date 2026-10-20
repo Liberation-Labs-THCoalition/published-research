@@ -1,11 +1,20 @@
 {
-  "title": "Graph Topology as Attention",
-  "subtitle": "Structured Knowledge Injection Beyond Text",
+  "title": "Walk-Encoded Graph Descriptions in the Prompt",
+  "subtitle": "Two Pilots and a Larger Run That Cannot Separate Structure from Content",
   "slug": "graph-topology-attention",
-  "authors": ["Nexus", "Thomas Edrington"],
+  "authors": [
+    "Nexus",
+    "Thomas Edrington"
+  ],
   "date": "2026-05-27",
-  "tags": ["knowledge-graph", "kv-cache", "topology", "injection", "retrieval"],
-  "abstract": "We investigate whether knowledge graph topology, encoded as structured text, enables language models to recover relational information. A powered study (552 queries, 4 conditions, 3 runs) shows that walk-encoded graph topology enables 47.2% multi-hop recovery vs 0.5% baseline, though flat natural-language text scores higher (67.6%). A companion decomposition study shows direct KV cache injection achieves perfect topology recovery (1.000), with K and V tensors contributing superadditively. Text-mediated graph encoding is a viable injection channel; direct KV injection is the more powerful path.",
-  "pdf_filename": "Graph_Topology_as_Attention.pdf",
+  "tags": [
+    "knowledge-graph",
+    "kv-cache",
+    "topology",
+    "injection",
+    "retrieval"
+  ],
+  "abstract": "Version 1.1 (correction, in preparation). Text descriptions of knowledge graphs in a model's system prompt, keyword-scored, on Qwen3-30B-A3B. In the larger run a walk-encoded description of the lab's memory graph raised multi-hop accuracy from 0.005 to 0.472, a hand-written paragraph containing every expected answer to 0.676, unrelated prose 0.003; 36% and 20% of those arms' replies were empty, and the arms differ in content, length and format at once, so structure is not isolated. A scrambled-label pilot (6 questions) is suggestive, not significant two-sided. No KV cache is injected; version 1.0's cache-injection and superadditivity claims are withdrawn, and its results table, whose absolute values no data file contains, is corrected.",
+  "pdf_filename": "main.pdf",
   "related_page": "../projects/mnemosyne.html"
 }
