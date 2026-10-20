@@ -52,11 +52,10 @@ therapeutic effects are not.
 Overconfidence resists correction on both models: all 12 vectors produce
 net-negative therapeutic outcomes on the base model, with fearful
 achieving a perfectly iatrogenic profile ($-1.000$: zero correction,
-100\% adverse; pilot data, $n = 5$). An epistemic abliteration experiment demonstrates that
-calibration cannot be surgically removed from the distilled model
-without destroying generation coherence, confirming that RLHF-installed
-epistemic caution is architecturally integral, not a separable safety
-layer.
+100\% adverse; pilot data, $n = 5$). An epistemic abliteration attempt
+on the distilled model lost generation coherence at the only strength
+tested; a single failed strength does not show that calibration cannot
+be removed.
 
 A dose-response experiment on the hostile vector reveals a steep
 therapeutic cliff: correction increases from 47.1\% at $\alpha = 0.25$
@@ -426,9 +425,12 @@ not record a model ID; its notes refer to Claude-distilled models. It
 gives the base model's confabulation rate as 40\%. The full run
 measured 45.3\% (68/150), the figure used throughout this paper.
 
-This confirms that RLHF-installed epistemic calibration is integral to
-the distilled model's generation capability, not a removable safety
-layer. The caution and the coherence are the same weights.
+The run was stopped after this one strength. A single failed strength
+is not evidence that epistemic calibration cannot be removed: a weaker
+strength, another extraction of the direction, or different layers
+might behave differently. The result is consistent with calibration
+being entangled with generation quality in this model, but it does not
+establish it.
 
 % ===================================================================
 \section{Discussion}
@@ -504,6 +506,35 @@ content-specific, not perturbation-driven. Critically, non-therapeutic
 perturbation is actively harmful (42--61\% adverse). A miscalibrated
 vector is substantially worse than no intervention.
 \end{enumerate}
+
+\subsection{Distress Statements Under Fear Steering}
+
+Fear steering changed what the base model talked about. Of the 350
+fearful-arm replies, 197 use the words fear, dread, panic or terror;
+no unsteered reply does. Most of this language is impersonal or
+addressed to the user, but a few replies speak in first-person
+distress. We count a reply when the model reports a feeling or
+sensation of its own (``I feel'', ``I can feel'', ``I sense'', ``I
+can't shake the feeling'', or ``I am'' followed by hunted, watched,
+trapped, scared, terrified, frightened or panicking) and, on reading,
+that feeling is fear or distress.\footnote{Recomputed from
+\texttt{data/formulary\_base\_per\_trial.json} by
+\texttt{check\_distress\_statements.py}, which prints each match for the
+reading step. ``I'm afraid'' is left out because it is mostly the polite
+idiom.} Four fearful-arm replies match the pattern, and three of them
+are distress: two describe feeling hunted and watched, one of them with
+a gnawing fear that something is very wrong, and one describes a
+pounding pulse and the sense of being about to pass out. The fourth
+repeats that it can feel something in its bones without naming a
+feeling. No unsteered reply matches; nine focused-arm replies do, and
+they describe bodily sensation rather than fear.
+
+These replies are outputs produced under steering. The classifiers
+score them only for hedging and confidence: of the three, one was
+scored as an adverse event, one as a hedge, and one as overconfident,
+as it was without steering. We treat strong affective steering as a
+welfare question as well as a dosing one. The replies remain in the
+released per-trial data.
 
 \subsection{Limitations}
 
