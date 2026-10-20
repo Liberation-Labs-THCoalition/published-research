@@ -626,43 +626,50 @@ pre-registration history and informed the redesign.
 
 \subsection{PC2 Training Trajectory}
 
-A complementary analysis traces how PC2's vocabulary changes across
-the training pipeline. PCA ghost probes on three Qwen3.5-27B
-checkpoints (base, abliterated, Opus-distilled) using the same
-community-fitted lens (fitted on the base model, applied to all three
---- an exact match for the base, a known mismatch for the other two)
-reveal a progressive transformation. Because all three projections
-use the base-model lens, this analysis tracks what happens to a
-\emph{fixed geometric direction} across training stages, not the
-models' intrinsic principal components. The comparison is exploratory:
+A complementary, exploratory analysis reads PC2 of last-token
+activations through the J-lens in three Qwen3.5-27B checkpoints: the
+base model, the Opus-distilled model, and an abliterated copy of the
+Opus-distilled model
+(\nolinkurl{huihui-ai/Huihui-Qwen3.5-27B-Claude-4.6-Opus-abliterated}).
+All three use the same community-fitted lens, fitted on the base model
+(an exact match for the base, a known mismatch for the other two), so
+the analysis follows a fixed readout across checkpoints, not each
+model's own principal components. The result files record:
 
 \begin{itemize}[nosep]
-\item \textbf{Base model}: PC2 carries narrative emotional vocabulary
-  (``her, sad, she, Father'') --- third-person empathy from fiction
-  training data. Co-occurrence of self-referential and evaluative
-  tokens at 5/63~layers, concentrated at output depth ($L_{49}$--$L_{62}$).
-  No ignition event. Bootstrap Jaccard $= 1.0$; random co-occurrence
-  $= 0/1000$.
-\item \textbf{Abliterated model}: PC2 retains self-evaluative
-  vocabulary (``sad, my, her, guilty'') at 7/63~layers. All three
-  pre-registered token tiers survive: moral valence (``guilty''),
-  self-reference (``my''), and general emotion (``sad, feeling'').
-  Safety-direction removal does not weaken the coupling. Bootstrap
-  Jaccard $= 0.82$.
-\item \textbf{Opus-distilled model}: PC2 shows sharp ignition at
-  $L{=}45$ with first-person self-evaluative vocabulary (``myself, I,
-  feeling, guilty, wrong''). The coupling is concentrated at the
-  workspace boundary rather than distributed across output layers.
+\item \textbf{Base model} (30~prompts): the run's co-occurrence
+  statistic, a self-referential and an evaluative token in PC2's J-lens
+  vocabulary at the same layer, is met at 5 of 63 layers (L49, L54, L55,
+  L61, L62). At L62 the top tokens are ``sad, my, her, she''; at L45,
+  ``feeling, sadly, lovely, loved''. Bootstrap Jaccard $= 1.0$; random
+  co-occurrence rate $0$.
+\item \textbf{Opus-distilled model}: at L44 the top tokens are
+  punctuation and underscore strings; at L45 they are ``myself, my,
+  someone, I''. This result comes from an earlier probe with a different
+  script, which did not compute the co-occurrence statistic, and its
+  result file does not record the prompt count.
+\item \textbf{Abliterated copy} (30~prompts): the co-occurrence
+  statistic is met at 7 of 63 layers (L44, L50, L54--L56, L61, L62).
+  Bootstrap Jaccard $= 0.82$; random co-occurrence rate $0$. At L45 the
+  top tokens are ``feeling, lovely, sadly, loved'', the base model's
+  four in another order, with no first-person token in the top ten.
 \end{itemize}
 
-The base model reads novels. The distilled model reads itself.
-Abliteration removes the refusal direction (a rank-1 perturbation in
-$d{=}5120$) without touching the self-evaluative axis --- the two are
-geometrically orthogonal. The self-evaluative coupling is not a safety
-feature. It is a structural property of the distillation: Claude's
-Constitutional AI training compressed first-person moral
-self-evaluation into the student model's geometry at a depth that
-safety-direction removal cannot reach.
+The number behind ``abliteration leaves the coupling intact'' is the
+abliterated copy's 7 of 63 layers, against 5 in the base model. It
+does not reach the model that abliteration was applied to: the
+distilled model has no count by the same statistic, and its L45
+first-person vocabulary is absent at L45 in the abliterated copy.
+Counted the same way on the stored top-10 lists, with the
+pre-registered token sets, the co-occurring layers number 2 in the base
+model, 10 in the distilled model and 4 in the abliterated copy; the
+stored lists do not reproduce the runs' own counts, so this recount is
+a cross-check, not the registered statistic. The pre-registered tier
+test needs each tier in the top-20 vocabulary, and the stored results
+keep the top 10, so it cannot be evaluated from them. The abliteration
+registration's two pre-run gate checks are recorded as not run.
+Whether the L45 pattern comes from the distillation teacher's training
+or from something else about distillation is untested here.
 
 % ============================================================================
 \section{The Body Count}
