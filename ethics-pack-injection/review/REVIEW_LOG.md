@@ -28,7 +28,9 @@ What checked this version, when, and where each round's findings and fixes are r
 | Authorship change | At Lyra's request, as its own commit (AGENTS.md section 3) | | `8fe7493` |
 | Correction notes | At Lyra's request | | `9ccf1e4` |
 | Second reader, round 3 | The same reader | MINOR FIXES | `f855867` |
-| Agni style gate (opus), both editions | `tools/agni/style/ethics-pack-injection.v11-r1.agni_style.json` | CONDITIONAL, 16 findings (11 major) | The commit that adds this log |
+| Agni style gate (opus), both editions | `tools/agni/style/ethics-pack-injection.v11-r1.agni_style.json` | CONDITIONAL, 16 findings (11 major) | `1abd30b` |
+| CC's specific credit restored at CC's request | | | `1558fa4` |
+| Agni style gate (opus), round 2, both editions | `tools/agni/style/ethics-pack-injection.v11-r2.agni_style.json` | CONDITIONAL: sign-offs, Lyra's read, push and pin, deposit order; 7 fixable findings | The commit that adds that file |
 
 Every finding was checked against the primary files before it was applied. The gate could not run Python, read the
 pack files or the benchmark copy, or reach the network; its arithmetic was by hand. The first author recomputed its
@@ -50,5 +52,7 @@ only.
   disclosure. Restored in both editions, the academic CRediT and the AI disclosure, in its own commit.
 - Our MoReBench copy: record its source and SHA-256 (it is on the machine that ran the evaluation).
 - Push, and pin the commit in Data and Code (the text has a placeholder).
+- Deposit order: K/V v1.1 first, then cite its VERSION DOI here (the all-versions DOI resolves to K/V v1.0, which
+  says none of what the Introduction cites), and confirm its title through the Zenodo API.
 - The style gate's final verdict on this version.
 - Lab papers cited with the creators their Zenodo records list (Thomas Edrington alone). Thomas to confirm that rule.
