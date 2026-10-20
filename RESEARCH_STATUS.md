@@ -174,8 +174,8 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Logit-Bias Confab | Fabrication 45%→10% with logit bias | Awaiting review |
 | Presence Metric | V-space subspace overlap, positive control validated | Noise-floor concern |
 | Emotional Trajectory | Circumplex eccentricity through layers | Awaiting review |
-| KV Decomposition | K+V superadditive | No 135M data, acquiescence concern |
-| Ethics Pack Injection | KG injection +0.074 MoReBench | n=5, keyword-matching confound |
+| KV Decomposition | K+V superadditive (withdrawn in v1.1, 2026-10-19) | No 135M data, acquiescence concern |
+| Ethics Pack Injection | KG injection +0.074 MoReBench (withdrawn in v1.1, 2026-10-19: keyword overlap +0.038, not significant; v3's significant harm was empty responses) | n=5, keyword-matching confound |
 
 ## Prospectuses (Next Mines)
 
