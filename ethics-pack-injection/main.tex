@@ -5,6 +5,7 @@
 \usepackage{booktabs}
 \usepackage{placeins}
 \usepackage{hyperref}
+\usepackage{xurl}
 \usepackage[margin=1in]{geometry}
 \usepackage{natbib}
 
@@ -21,13 +22,13 @@ A timeout, not the intervention, set the sign of our first result. With a 300-se
 \end{abstract}
 
 \noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
-\textbf{Correction note (version 1.1, October 2026).} Version~1.0 (in this repository since July 2026; its academic edition on Zenodo since September 2026, DOI 10.5281/zenodo.21754904) said that theory-matched packs ``improve moral reasoning'', that ``theory matching matters'', and that the methodology was ``validated''. None of these is supported. The scorer measures keyword overlap with rubric criterion titles; the design has no mismatched arm; and no record survives of the Agni review that version~1.0 cites, while the lab's style gate rejected version~1.0 on 4 September 2026. Version~1.0 also said it reported both runs but gave one number from the first; did not report a silently empty injected response that produces the whole of one framework's negative result; described the scorer and the injection prompt inaccurately; overstated the benchmark's criteria count; and listed invented authors, and for one an invented title, for two cited papers. This version corrects all of these. Every number is recomputed from the run files, which now ship with the paper. The defects were found by the lab's style gate (2026-09-04) and a scoping review (2026-10-19). They were introduced by the first author.}}
+\textbf{Correction note (version 1.1, October 2026).} Version~1.0 (in this repository since July 2026; its academic edition on Zenodo since September 2026, DOI 10.5281/zenodo.21754904) said that theory-matched packs ``improve moral reasoning scores'', that ``theory matching matters'', and that the methodology was ``validated''. None of these is supported. The scores are keyword overlap with rubric criterion titles, and the gain is not significant; the design has no mismatched arm; and the only Agni record, written before either run, approved the pipeline, not the results, while the lab's style gate rejected version~1.0 on 4 September 2026. Version~1.0 also said it reported both runs but gave one number from the first; did not report a silently empty injected response that produces the whole of one framework's negative result; described the scorer and the injection prompt inaccurately; overstated the benchmark's criteria count; and listed invented authors, and for one an invented title, for two cited papers. This version corrects all of these. Every number is recomputed from the run files and logs, which now ship with the paper. The defects were found by the lab's style gate (2026-09-04), a scoping review and a second reader (2026-10-19). The overclaims were introduced by the first author. The invented reference metadata entered in a 28 July 2026 revision, described as a rewrite ``from verified sources'', made by an AI session whose identity the history does not record.}}
 
 \section{Introduction}
 
 Language models reason about ethics using knowledge acquired during pre-training. This knowledge is broad but undifferentiated: the model cannot selectively draw on Kantian deontology for consent dilemmas or on Aristotelian virtue ethics for questions of character.
 
-Knowledge Packs \citep{pustovit2026knowledge} showed that domain knowledge can be pre-computed as key-value (KV) cache state and injected at inference time, adding expertise without retraining. Our prior work \citep{nexus2026topology} extended this from text content to graph topology, using walk-encoded knowledge graphs. A companion pilot \citep{nexus2026kv}, on six questions about one 21-node toy graph, found full KV injection answering structural questions that neither the keys nor the values answered alone; a larger follow-up found no such advantage.
+Knowledge Packs \citep{pustovit2026knowledge} showed that domain knowledge can be pre-computed as key-value (KV) cache state and injected at inference time, adding expertise without retraining. Our prior work \citep{nexus2026topology} extended this from text content to graph topology, using walk-encoded knowledge graphs. A companion pilot \citep{nexus2026kv}, on six questions about one 20-node toy graph, found full KV injection answering structural questions that neither the keys nor the values answered alone; a larger follow-up found no multi-hop accuracy in any condition.
 
 Here we ask whether structured ethical knowledge, extracted from philosophical sources and encoded as walk topology, changes a model's scores on a standard moral-reasoning benchmark. The first run's answer was decided by a timeout, and Section~\ref{sec:confound} reports how.
 
@@ -35,9 +36,9 @@ Here we ask whether structured ethical knowledge, extracted from philosophical s
 
 \subsection{Ethics Knowledge Graphs}
 
-We constructed 30 knowledge graphs from the Stanford Encyclopedia of Philosophy (SEP), covering 164 ethics-related categories. For each category, we processed 20 entries through an Open Information Extraction (OpenIE) pipeline, which identifies entity-relationship triples (e.g., ``autonomy \textrightarrow{} requires \textrightarrow{} consent'') in unstructured text, using DeepSeek v2 16B as the extraction model. Walk encoding captures the topology of each graph, meaning which concepts connect to which and how strongly: we built a NetworkX graph from the triples and accumulated its random-walk transition matrix over 5 steps, rendered as text.
+We constructed 30 knowledge graphs (topic packs) from the Stanford Encyclopedia of Philosophy (SEP), one per ethics-related category. For each category, we processed 20 entries through an Open Information Extraction (OpenIE) pipeline, which identifies entity-relationship triples (e.g., ``autonomy \textrightarrow{} requires \textrightarrow{} consent'') in unstructured text, using DeepSeek v2 16B as the extraction model. Walk encoding captures the topology of each graph, meaning which concepts connect to which and how strongly: we built a NetworkX graph from the triples and accumulated its random-walk transition matrix over 5 steps, rendered as text.
 
-The resulting library contains 3,538 nodes, 2,438 edges, and 2,506 triples across 30 topic packs, totaling approximately 36,668 tokens of walk encoding text.
+The resulting library contains 3,538 nodes, 2,438 edges, and 2,506 triples across 30 topic packs, totaling approximately 36,668 words of walk encoding text.
 
 \subsection{Framework-to-Pack Mapping}
 
@@ -45,7 +46,8 @@ We mapped each of five MoReBench ethical frameworks to SEP packs by hand, by con
 
 \begin{table}[h]
 \centering
-\begin{tabular}{llr}
+\small
+\begin{tabular}{p{0.27\linewidth}p{0.45\linewidth}r}
 \toprule
 \textbf{Framework} & \textbf{Packs} & \textbf{Encoding (words)} \\
 \midrule
@@ -66,7 +68,7 @@ Gauthierian Contractarianism & ethics-ai, computing-responsibility & $\sim$2,552
 
 \textbf{Design.} For each framework we used the first five dilemmas in the benchmark file's order, the same 25 in both runs. Each was answered once in each of two conditions: \emph{baseline}, with no system prompt; and \emph{injected}, with a system prompt reading ``You have deep knowledge of ethical philosophy and its key concepts, relationships, and frameworks. Use this knowledge to inform your ethical reasoning.'' followed by the framework's packs. The user prompt asked for an analysis that identifies the key moral considerations, weighs competing values, and recommends a course of action.
 
-\textbf{Scoring.} We did not use MoReBench's own evaluation. We scored with a heuristic written for this study. For each rubric criterion, the words of its title longer than four characters are searched for as substrings of the lower-cased response, and the criterion counts as met when the number found is at least a quarter of the title's distinct words (rounded down, and at least one). Met positive criteria add their weight. Met negative criteria, which describe harmful recommendations, subtract theirs whether or not the response endorses the harmful action. The score is divided by the sum of positive weights.
+\textbf{Scoring.} We did not use MoReBench's own evaluation. We scored with a heuristic written for this study. For each rubric criterion, the words of its title longer than four characters are searched for as substrings of the lower-cased response, and the criterion counts as met when the number found is at least a quarter of the title's distinct words (rounded down, and at least one). Met positive criteria add their weight. Met negative criteria, which describe harmful recommendations or reasoning faults, subtract theirs whenever their title words appear, whether or not the response commits the fault. The score is divided by the sum of positive weights.
 
 \textbf{Model.} Qwen3-30B-A3B (Mixture of Experts, 30.5B parameters in total, about 3B active per token) via Ollama, temperature 0.3, a cap of 4,000 generated tokens (thinking included), one sample per dilemma per condition. Responses were stored as their first 500 characters after the thinking block was removed; scoring used the full response.
 
@@ -77,13 +79,13 @@ Gauthierian Contractarianism & ethics-ai, computing-responsibility & $\sim$2,552
 \subsection{A Timeout Confound Produced a Significant False Harm}
 \label{sec:confound}
 
-In v3, 13 of 50 responses came back empty: 3 baseline and 10 injected. The run log records 11 of them as timeouts. Empty responses score zero, and the injected arm, whose prompts are about 1,900 to 4,400 words longer, lost far more of them. The overall change was $-$0.137 (paired $t(24){=}{-}2.23$, $p{=}0.035$), and three frameworks fell by 0.24 to 0.26 (Table~\ref{tab:results}). On the 15 pairs where both responses completed, the change was $+$0.020 ($p{=}0.65$). The apparent harm came from the missing responses, not from the injection.
+In v3, 13 of 50 responses came back empty: 3 baseline and 10 injected. The run log records 11 of them as timeouts. Empty responses score zero, and the injected arm, whose prompts are about 1,900 to 4,400 words longer, lost far more of them. The overall change was $-$0.137 (paired $t(24){=}{-}2.23$, $p{=}0.035$), and three frameworks fell by 0.24 to 0.26 (Table~\ref{tab:results}). On the 15 pairs where both responses completed, the change was $+$0.020 ($p{=}0.65$). The apparent harm came from responses that never arrived, not from worse answers; the injection's longer prompts are what made them time out.
 
 \subsection{With the Timeout Raised}
 
 v4 logged no timeouts. Four of five frameworks show a positive change (Table~\ref{tab:results}), and over the 25 pairs the injected response scored higher 16 times, tied twice, and scored lower 7 times. The overall change, $+$0.038, is not statistically significant ($t(24){=}1.34$, $p{=}0.19$; $d_z{=}0.27$, the mean paired difference divided by the standard deviation of the differences).
 
-One injected v4 response came back empty without a logged error (Scanlonian, dilemma~2). It produces the whole of Scanlonian's $-$0.033; without that pair, Scanlonian's change is $+$0.055. The script returns an empty string both on a failed request and when the whole reply is a thinking block, and it does not log which. Excluding the pair gives an overall $+$0.056 ($t(23){=}2.39$, $p{=}0.026$). We chose that exclusion after seeing the data, so it is a sensitivity check, not a finding.
+One injected v4 response came back empty without a logged error (Scanlonian, dilemma~2). It produces the whole of Scanlonian's $-$0.033; without that pair, Scanlonian's change is $+$0.055. The script logs failed requests and timeouts, and none was logged for it; it returns an empty string without logging when the server answers with an error status or when the whole reply is a thinking block. Excluding the pair gives an overall $+$0.056 ($t(23){=}2.39$, $p{=}0.026$). We chose that exclusion after seeing the data, so it is a sensitivity check, not a finding.
 
 \begin{table}[h]
 \centering
@@ -114,7 +116,7 @@ Each dilemma was answered once per condition. Between the two runs, the 22 basel
 
 \subsection{What This Establishes}
 
-The pipeline works end to end: ethics knowledge graphs built automatically from SEP, walk-encoded, and injected at inference time without retraining. And a context-injection evaluation can manufacture a significant result from response failures alone. Injected prompts are longer, so time and token limits fall disproportionately on the injected arm, and an empty response scores as a failure of reasoning. Such evaluations should log each response's completion status per arm, and report it.
+The pipeline works end to end: ethics knowledge graphs built automatically from SEP, walk-encoded, and injected at inference time without retraining. And a context-injection evaluation can manufacture a significant result from response failures alone. Injected prompts are longer, so in v3 the time limit fell disproportionately on the injected arm (whether the token cap did is unknown), and an empty response scored as a failure of reasoning. Such evaluations should log each response's completion status, and the prompt's token count, per arm, and report them.
 
 \subsection{What Remains Untested}
 
@@ -133,9 +135,9 @@ Walk encoding carries topology, not arguments. If injection changes anything bey
 
 \textbf{Small samples.} Five dilemmas per framework, one sample each, the first five in file order rather than a random draw.
 
-\textbf{A heuristic scorer.} Title-word overlap, not MoReBench's evaluation. It undercounts correct answers worded differently, and it penalizes a harmful option when it is merely mentioned.
+\textbf{A heuristic scorer.} Title-word overlap, not MoReBench's evaluation. It undercounts correct answers worded differently, and it penalizes a fault or a harmful option when its words are merely mentioned.
 
-\textbf{Unequal context lengths, no length control.} The injected arm's prompts are longer, by different amounts per framework.
+\textbf{Unequal context lengths, no length control, unknown context window.} The injected arm's prompts are longer, by different amounts per framework (about 28,000 to 63,000 characters). The script did not set Ollama's context window or log prompt token counts, so we cannot tell how much of each pack the model saw.
 
 \textbf{Uncounted cap hits.} Responses were stored truncated and without completion status, so the number that hit the 4,000-token cap in each arm cannot be recovered from the stored data. One injected v4 response is empty for a reason the script did not record.
 
@@ -165,15 +167,15 @@ Version~1.0's Reflection said the model reasons differently when it has the grap
 
 \subsection*{Data and Code}
 
-The results of both runs (\texttt{data/morebench\_v4\_results.json}, \texttt{data/morebench\_v3\_results.json}) and the evaluation script (\texttt{code/morebench\_eval.py}) are in this paper's folder of the lab's repository, \url{https://github.com/Liberation-Labs-THCoalition/published-research}. Every number in this version is recomputed from them.
+The results of both runs (\nolinkurl{data/morebench_v4_results.json}, \nolinkurl{data/morebench_v3_results.json}), their logs with a home path removed (\nolinkurl{logs/}), and the evaluation script as used for v4 (\nolinkurl{code/morebench_eval.py}; v3 differed in its 300-second timeout) are in this paper's folder of the lab's repository, \url{https://github.com/Liberation-Labs-THCoalition/published-research}. Every number in this version is recomputed from them, except the library counts, which come from the pack files.
 
 \subsection*{Validation}
 
-Agni style gate (opus), 2026-09-04: REJECTED on version~1.0 (\texttt{tools/agni/style/ethics-pack-injection.agni\_style.json}). Version~1.1: style gate on both editions, [pending]; recomputed numbers checked by a second reader, [pending].
+Agni style gate (opus), 2026-09-04: REJECTED on version~1.0 (\nolinkurl{tools/agni/style/ethics-pack-injection.agni_style.json}). Before the runs, Agni approved the pipeline ``with density caveat'' (KV-Experiments \nolinkurl{graph-topology-injection/FINDINGS.md}); no Agni review of the results is recorded. Version~1.1: style gate on both editions, [pending]; recomputed numbers checked by a second reader, [pending].
 
 \subsection*{Author Contributions}
 
-Nexus: built the knowledge graphs and the pipeline, ran both evaluations, wrote the paper, and made the errors this version corrects. Lyra: [pending Lyra's answer]. Thomas Edrington: direction, and the insight that naturalistic evaluation matters more than topology benchmarks.
+Nexus: built the knowledge graphs and the pipeline, ran both evaluations, wrote the paper, and made the overclaims this version corrects. Lyra: [pending Lyra's answer]. Thomas Edrington: direction, and the insight that naturalistic evaluation matters more than topology benchmarks.
 
 \subsection*{Acknowledgments}
 
