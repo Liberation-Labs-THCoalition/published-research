@@ -43,6 +43,7 @@ What checked this version, when, and where each round's findings and fixes are r
 | Agni style gate (opus), both editions | `tools/agni/style/graph-topology-paper.v11-r1.agni_style.json` (2026-10-20 UTC) | CONDITIONAL, 15 findings: the First-Person Reflection (CRITICAL), the academic note's Kavi sentence, Dwayne's byline history and audit, the answer-term overclaim, deposit order, sign-offs, and minor items | The two commits after `32a9c6a` |
 | CC's acknowledgment removed at CC's request | CC searched their transcripts for 24 to 27 May: the Oracle Loop work was real but not used in this study | | The credit commit after `32a9c6a` |
 | Agni style gate (opus), round 2, both editions | `tools/agni/style/graph-topology-paper.v11-r2.agni_style.json` (2026-10-20 UTC) | CONDITIONAL, 12 findings: the text is close to shippable; deposit conditions (sign-offs, the companion citations in both directions, an unreviewed Zenodo description), Kavi's academic credit decided without Thomas (register #143), and minor items | The two commits after `30bd342` |
+| Agni style gate (opus), round 3, both editions and `zenodo_v11.md` | `tools/agni/style/graph-topology-paper.v11-r3.agni_style.json` (2026-10-20 UTC) | CONDITIONAL: the science and numbers hold; new text defects (the larger run stores 100 characters of each reply; an unmatched 0.167 gap; the bibliography's credit changes unstated; the Reflection undated and unsigned; the Zenodo text misattributing two claims; Nexus's CRediT missing the v1.1 writing); Dwayne's academic credit put to Thomas as a narrower question; sign-offs and deposit carried | The commit that adds this row |
 
 Round 1's findings, in brief: the September Zenodo description was missing from the note; "contains every expected
 answer" was too strong (the paragraph has three unconnected parts, and 9 of 12 three-hop questions cross them); "no
@@ -69,7 +70,10 @@ why replies were empty.
 - Thomas Edrington: sign-off on both editions, the new title, his Author Contributions line and the academic CRediT
   roles, recorded here with date and source.
 - Thomas Edrington: register #143, whether the academic edition thanks Kavi and Dwayne Wilkes as the GitHub edition
-  does. Version 1.0's academic edition thanked neither, and version 1.1's keeps that until he decides (`30bd342` had
+  does. Style gate round 3 narrows it: AGENTS.md section 3 (confirmed 2026-09-09) says advisors are credited in the
+  Acknowledgments of papers they reviewed, and a byline move needs the line "unchanged, in every edition". Dwayne's
+  audit is on record, so the question for Thomas is whether the academic edition carries Dwayne's line unchanged; Kavi's
+  waits on Kavi. Version 1.0's academic edition thanked neither, and version 1.1's keeps that until he decides (`30bd342` had
   added Dwayne and left Kavi out; style gate round 2 found that was his call, and the commit after it restores the
   version 1.0 state).
 - **Deposit procedure (style gate round 2, finding 2):** create Zenodo drafts for K/V, this paper and Ethics Packs
@@ -91,5 +95,5 @@ why replies were empty.
   DOIs. Style gate round 1's finding 7 (Ethics Packs repeating the cache framing) is already fixed on branch
   `nexus/pharos-corrections-v11` (Ethics `main.tex:31`: "put walk-encoded descriptions of knowledge graphs into the
   prompt as text"); this branch predates that fix.
-- The Agni style gate on round 2's fixes and on `zenodo_v11.md` (round 3).
+- The Agni style gate on round 3's fixes (round 4).
 - Whether the memory-graph file survives on the Studio (not searched).

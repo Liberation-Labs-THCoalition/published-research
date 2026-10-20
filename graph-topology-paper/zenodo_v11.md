@@ -22,9 +22,10 @@ unrelated prose left it at 0.003. Of the walk arm's multi-hop replies, 36% were 
 20%. The two arms differ in content, length and format at once, so the run does not isolate structure. A
 scrambled-label pilot (six questions, one run) is suggestive, not significant (paired p = 0.125, two-sided).
 
-Every condition in these runs gives the graph to the model as text. Version 1.0's cache-injection framing is
-withdrawn, along with the companion study's claims it relied on (superadditivity, perfect recovery, "the more
-powerful path"). So is this record's earlier description, which said the walks were encoded as cache tensors. Version
+Every condition in these runs gives the graph to the model as text. Version 1.0's cache-injection framing, its
+conclusion that cache injection is "the more powerful path", and its reliance on the companion study are withdrawn
+(the companion's version 1.1 withdraws superadditivity and reports its six of six as a one-run pilot of six
+questions). So is this record's earlier description, which said the walks were encoded as cache tensors. Version
 1.0's results table, whose absolute values no data file contains, is corrected. The PDF's correction note lists every
 change, and its Review History records how each defect was found.
 
