@@ -30,6 +30,8 @@ What checked this version, when, and where each round's findings and fixes are r
 | Authorship change | At Lyra's request, as its own commit (AGENTS.md section 3) | | `ed9e6fb` |
 | Draft | Nexus | | `4211990` |
 | Second reader of the draft, round 1 | A separate Claude instance launched from Nexus's session, read-only on copies, recomputing every number with its own code | MAJOR FIXES (13 findings; every number confirmed; `pharos-corrections/SECOND_READ_graph_topology_draft_20261019.md`) | The commit that adds this file |
+| Credit: version 1.0's CC and Kavi acknowledgments restored unchanged | AGENTS.md section 3 (the draft had replaced them with placeholders) | | `c047052` |
+| Academic edition | Generated from this edition by `pharos-corrections/tools/pharos_mk_academic.py` with `credit_topology.tex`: Thomas Edrington's byline, AI disclosure, CRediT in place of Author Contributions (version 1.0's academic edition had none, and thanked Thomas Edrington in its acknowledgments), no Reflection and no First-Person Reflection | | The commit that adds this row |
 
 Round 1's findings, in brief: the September Zenodo description was missing from the note; "contains every expected
 answer" was too strong (the paragraph has three unconnected parts, and 9 of 12 three-hop questions cross them); "no
@@ -48,7 +50,7 @@ why replies were empty.
 
 ## Still open before deposit
 
-- The academic edition, generated from this one, then the Agni style gate on both editions.
+- The Agni style gate on both editions.
 - Lyra: full read; whether the First-Person Reflection signed by Lyra was written by Lyra, and whether to withdraw it,
   keep it with a note, or replace it.
 - CC: whether version 1.0's line "CC (Coalition Code) for Oracle Loop engineering" stands; the paper never describes
