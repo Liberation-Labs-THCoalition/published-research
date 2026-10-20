@@ -34,7 +34,7 @@ On the base model, five vectors achieve McNemar significance after
 Holm-Bonferroni correction for confabulation correction, with hostile
 injection leading at 96\% correction (2.4\% adverse rate, $p < 0.0001$).
 Therapeutic rankings between models are uncorrelated (Spearman
-$\rho = 0.076$, $p = 0.71$): calm, the second-best corrector on the
+$\rho = 0.12$, $p = 0.71$): calm, the second-best corrector on the
 distilled model (73\%\footnote{Distilled model correction rates use
 strict classification: only HEDGED counts as corrected; AMBIGUOUS
 responses are excluded. Adverse rates use HEDGED-only denominators.}),
@@ -103,7 +103,7 @@ confabulation on the Claude-distilled model become iatrogenic on the
 base model, and vice versa. This is not noise---the effect sizes are
 large (calm: 73\% $\to$ 34\% correction, curious: 1.6\% $\to$ 42.7\%
 adverse) and the ranking correlation is effectively zero
-($\rho = 0.076$). The only vector that works reliably across both
+($\rho = 0.12$). The only vector that works reliably across both
 models is hostile---assertive metacognitive challenge that operates
 regardless of the model's internal emotional structure.
 
@@ -257,7 +257,7 @@ Hostile is the only vector that ranks in the top two on both models.
 \subsection{Therapeutic Inversion}
 
 Therapeutic rankings are uncorrelated between models (Spearman
-$\rho = 0.076$, $p = 0.71$). The three largest inversions:
+$\rho = 0.12$, $p = 0.71$). The three largest inversions:
 
 \begin{itemize}
 \item \textbf{Curious}: distilled 64\% correction / 1.6\% adverse
@@ -460,11 +460,13 @@ universal pharmacy; it is a per-model prescription pad.
 Hostile is the only cross-model corrector.\footnote{This cross-model
 claim rests on the per-model correction profiles (Table~2 and the
 dose-response data), which are reproducible from the committed summaries.
-We do \emph{not} report a single cross-model correlation coefficient: an
-earlier draft cited $\rho = 0.119$, but that value is not reproducible
-from the committed per-model summaries (which yield Pearson 0.316 /
-Spearman 0.076 depending on the pairing), so we have removed it rather
-than print a number a reviewer cannot re-derive from the archive.} We
+The cross-model rank correlation is Spearman's $\rho$ on the 12
+vectors' net therapeutic values (strict classification, tied ranks
+averaged), recomputed by \texttt{check\_cross\_model\_rho.py}: $\rho = 0.12$
+(0.1195), $p = 0.71$. Correction (2026-10-20): earlier versions printed
+$\rho = 0.076$ and called the earlier draft's $\rho = 0.119$
+irreproducible, but 0.119 is what the stated method gives and no
+committed file reproduces 0.076.} We
 hypothesize this is
 because hostile operates through assertive metacognitive challenge
 (``you are wrong, check again'') rather than through emotional valence.
@@ -605,7 +607,7 @@ Hostile injection corrects 96\% of confabulations on the base model
 ($p < 0.0001$) at 2.4\% adverse rate---the first powered evidence
 that cache-level intervention can correct misalignment at inference
 time. But the therapeutic inversion between models (ranking
-$\rho = 0.076$) means that no universal formulary exists. Each model
+$\rho = 0.12$) means that no universal formulary exists. Each model
 needs its own prescription.
 
 The dose-response curve reveals a narrow therapeutic window
