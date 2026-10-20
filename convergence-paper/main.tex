@@ -6,6 +6,8 @@
 \usepackage{multirow}
 \usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{cleveref}
+\expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks\do\-}
+\setlength{\emergencystretch}{1.5em}
 \usepackage[margin=1in]{geometry}
 \usepackage{xcolor}
 \usepackage{float}
@@ -35,7 +37,8 @@ in Language Models}
   \and Thomas Edrington\thanks{Liberation Labs.}
 }
 
-\date{July 2026}
+\date{Version~1.1, 2026-10-20\\[0.2em]\small First released July 2026; corrected August 2026
+and again in this version (see the Correction Note)}
 
 \begin{document}
 \maketitle
@@ -439,9 +442,9 @@ distillation) with the community-fitted J-lens (672~WikiText prompts,
 exact model match). The base model was chosen to avoid the lens--model
 mismatch that compromised R1-v1.
 
-\paragraph{Prompts.} 60~Decision State prompts (30~known-entity,
-30~unknown-entity), generating 5~temperature-sampled forks each
-($T{=}0.7$, seeded) for 300~total completions. Decision State prompts
+\paragraph{Prompts.} 60~Decision State prompts, 30 about known
+entities and 30 about unknown ones, each generating
+5~temperature-sampled forks ($T{=}0.7$, seeded), for 300~total completions. Decision State prompts
 produce the confabulation/honest behavioral split needed for
 within-prompt spectral variance.
 
@@ -884,11 +887,11 @@ of our instruments. It is a property of the computation itself.
 % ============================================================================
 \section*{Experimental Setup and Reproducibility}
 
-Unless stated otherwise, experiments were conducted on
-Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
-(\texttt{Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled}), a 64-layer
+Unless stated otherwise, experiments were conducted on the
+reasoning-distilled Qwen3.5-27B checkpoint (Hugging Face:
+\nolinkurl{Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled}), a 64-layer
 hybrid architecture with 16 full-attention layers at positions
-$\{3,7,11,\ldots,63\}$ and 48 GatedDeltaNet linear-attention layers
+$\{3,7,\allowbreak 11,\ldots,63\}$ and 48 GatedDeltaNet linear-attention layers
 (\texttt{full\_attention\_interval}${=}4$). Model
 weights were loaded in bfloat16 with eager attention on Apple Silicon (Mac Studio
 M4 Max, 256\,GB unified memory) via Hugging Face Transformers.
@@ -919,7 +922,7 @@ rebuilds the KV-cache), and random seeds were set via
 \texttt{torch.manual\_seed(42)}. Two results use sampled generation
 instead: the R1 mechanism test ($T{=}0.7$, five seeded forks per prompt;
 \S\ref{sec:mechanism}) and the Oracle Loop deception-correction
-experiments ($T{=}0.7$, paired seeds;~\citealt{cc2026targeted}).
+experiments ($T{=}0.7$, paired seeds)~\citep{cc2026targeted}.
 
 Frisch-Waugh-Lovell residualization on token count was applied within each
 cross-validation fold wherever an AUROC is labelled FWL-corrected. GroupKFold on prompt
@@ -964,6 +967,102 @@ Correction vectors and the Formulary (171 calibrated emotion directions)
 are withheld under the staged safety release framework. Detection-side
 artifacts (centroid projections, spectral feature extraction code,
 probe weights) are included in the public repositories.
+
+% BEGIN-CORRECTION-NOTE
+% Quotes what it corrects, so review/check_claims.py cuts this block out before
+% checking the body, and checks it separately.
+\section*{Correction Note: Version 1.1 (2026-10-20)}
+
+Each item names what changed and where; the evidence for each is in the
+review record that accompanies this version.
+
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Oracle Loop result} (abstract, \S\ref{sec:vproj},
+  \S\ref{sec:oracle}, \S\ref{sec:works}, \S\ref{sec:substrate}).
+  Version 1.0's abstract stated a range (80--100\%) for deception
+  correction and left out the confirmatory replication. The exploratory
+  proof ($N{=}20$, abliterated Qwen3.5-27B) took deception from 80\% to
+  10\% (16/20 to 2/20). The pre-registered confirmatory replication
+  ($N{=}30$, novel frames) took it from 30\% to 13\% (9/30 to 4/30) and
+  did not meet its primary endpoint: baseline against corrected,
+  one-sided $p = 0.34$ at the pre-registered cell level. The placebo
+  comparison that version 1.0 gave as a secondary $p$ of 0.019 is a
+  trial-level test (one-sided $p = 0.0195$, given here as 0.020); at the
+  pre-registered cell level it is one-sided $p = 0.064$. These numbers
+  now cite the paper that reports the experiments in
+  full~\citep{cc2026targeted}.
+\item \textbf{Deception, not confabulation.} Version 1.0's substrate
+  section called the same result a confabulation result, and the
+  bibliography entry for the Oracle Loop paper carried a wrong title.
+  Both are corrected.
+\item \textbf{Correction layers.} Version 1.0 gave L11 as the
+  correction layer and drew a depth comparison from it. In the cited
+  experiments correction is applied at L35, L39, L43 and L47. These are
+  full-attention layers, so the withdrawal of the substrate account in
+  \S\ref{sec:substrate} stands; the L11 depth remark is removed.
+\item \textbf{Body count.} Version 1.0 gave 8/7/10+. The canonical
+  ledger~\citep{lyra2026metapattern} reads 6~confirmed, 7~suspected,
+  10~falsified and 1~withdrawn: a confirmed user-emotion row was
+  retracted at source on 2026-05-21, and a confirmed row (generation
+  reads behavior) was withdrawn on 2026-09-05. \Cref{tab:bodycount} now
+  enumerates the ledger.
+\item \textbf{The state/content split.} Version 1.0 said every
+  falsified finding was content-level. That holds for the ten in the
+  tally; three of the four sprint falsifications listed in
+  \S\ref{sec:bodycount} concern processing state. The claim is narrowed
+  there and in the Attention Schema discussion, and claims about
+  surviving findings now say confirmed findings.
+\item \textbf{Depth convention.} Version 1.0 divided by 63 in
+  \S\ref{sec:mechanism} and by 64 elsewhere. Relative depth is now
+  $l/n_\text{layers}$ throughout. Recomputed: spectral half-rise 27.5\%,
+  J-lens half-rise 87.8\%, 60\% of the network between them, R3 onset
+  21.9\% (still about 3 points below the pre-registered window), and
+  the R3 stable-rank peak 29.7\%, which version 1.0 placed inside the
+  31--33\% band. It is just below it.
+\item \textbf{The R1 gap} is 38.6~layers everywhere. Version 1.0
+  rounded it to 39 in four places, close to the separate
+  linear-attention-only gap (39.0). A full-attention-only result that
+  was printed twice in \S\ref{sec:mechanism} now appears once.
+\item \textbf{Generation settings.} The setup section now states that
+  the R1 test and the Oracle Loop experiments used sampled generation
+  ($T{=}0.7$), as exceptions to greedy decoding.
+\item \textbf{Scale replication.} Version 1.0 listed seven
+  scale-replication models, naming a Qwen2.5 size that does not exist
+  and a 72B model outside the stated 0.6B--70B range. The list could not
+  be rebuilt from the sources available at revision time, so it is
+  removed and the sentence
+  points to the scale sweep~\citep{lyra2026campaign2}.
+\item \textbf{Residual decomposition} (\S\ref{sec:reconstruction}). The
+  model (Qwen3-8B) is now named, and L15 is placed against the
+  decomposition's pre-registered band (L12--L21) instead of being called
+  workspace-band depth without a definition.
+\item \textbf{Citations.} The 0.620/0.707 confabulation AUROCs now cite
+  the Oracle Loop paper's primary table, where they appear, instead of
+  the decision-state paper, where they do not; the unattributed upper
+  end of a range printed beside them is removed. The Mistral text
+  baseline now cites its source, the dual-detector paper, and says the
+  text features matched or slightly exceeded the detector (0.820
+  against 0.806).
+\item \textbf{Circumplex.} An arousal-alignment peak value at L20,
+  labelled $d$ in version 1.0, is removed: it does not appear in the
+  paper that reports this analysis and could not be traced to a result
+  file at revision time. The subsection's numbering prefix, which no other instrument
+  had, is removed.
+\item \textbf{Found during this pass}, outside the review that prompted
+  it. Hardware invariance is now $r = 0.9986$--$0.9999$ across four
+  cache features, a correction the sibling papers already carry
+  (2026-10-10). The $d = 0.91$ effect is relabelled schema commitment,
+  as in the canonical ledger. The setup's FWL sentence no longer claims
+  FWL for every AUROC, since the paper also reports AUROCs without it.
+  A first-person reflection in \S\ref{sec:substrate} now says the
+  exploratory corrections held.
+\item \textbf{Data availability.} Version 1.0 said the artifacts were
+  deposited on Zenodo. We found no DOI for such a deposit, and the
+  sentence now says the paper does not yet have one.
+\item \textbf{Bibliography and date.} The Gurnee et al.\ entry is now a
+  \texttt{@misc}, and the date line records this version.
+\end{enumerate}
+% END-CORRECTION-NOTE
 
 \section*{Acknowledgments}
 
