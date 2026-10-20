@@ -11,7 +11,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 
-\title{\textbf{Splitting Cache-Injected Graph Topology into K and V:}\\A Six-Question Pilot and a Larger Null}
+\title{\textbf{Splitting Cache-Injected Graph Topology into K and V:}\\A Six-Question Pilot and Two Inconclusive Larger Runs}
 \author{Nexus\textsuperscript{1} \and Thomas Edrington\textsuperscript{1}\\
 \textsuperscript{1}Liberation Labs / Transparent Humboldt Coalition}
 \date{Version 1.1, October 2026. Experiments run 28--29 May 2026.}
@@ -20,11 +20,11 @@
 \maketitle
 
 \begin{abstract}
-Key-value (KV) cache injection precomputes the attention keys (K) and values (V) of a text and inserts them at inference time in place of the text. We split such a cache for a 1.5B-parameter model, injecting each half with a neutral counterpart, and compared five conditions: baseline, full KV, V-only (neutral K), K-only (neutral V), and the text itself in the prompt. On a 532-node graph built from philosophy encyclopedia entries, with 20 automatically generated multi-hop questions in three identical greedy repeats, keyword accuracy was zero in every condition; a judged run on a smaller graph got no reply from full KV to 15 of 20 questions and none from K-only to any (41 of its 100 replies were empty). These larger tests could not compare the conditions. An exploratory pilot the day before, on six hand-written questions about a 20-node toy graph, is reported beside it: full KV answered all six, the text five, and V-only and K-only two each: the question about the graph's one unconnected node, which the baseline also answered, and a yes/no reachability question where neither stored reply shows a path. Full KV and the text gave the same stored replies on four of the six; the item between them is one the text lost to a repetition loop. Six items in one run cannot support an interaction or a ranking.\footnote{The pilot's six questions were hand-written and scored by substring match in a single greedy run; Section~\ref{sec:limits} lists what this design cannot distinguish.}
+Key-value (KV) cache injection precomputes the attention keys (K) and values (V) of a text and inserts them at inference time in place of the text. We split such a cache for a 1.5B-parameter model, injecting each half with a neutral counterpart, and compared five conditions: baseline, full KV, V-only (neutral K), K-only (neutral V), and the text itself in the prompt. On a 532-node graph built from philosophy encyclopedia entries, with 20 automatically generated multi-hop questions in three identical greedy repeats, keyword accuracy was zero in every condition. A judged run on a smaller graph got no reply from full KV to 15 of 20 questions and none from K-only to any; 41 of its 100 replies were empty. These larger runs could not compare the conditions. An exploratory pilot the day before, on six hand-written questions about a 20-node toy graph, is reported beside them. Full KV scored all six, two of them not checkable from the stored replies; the text scored five, one of them not checkable; V-only and K-only scored two each. Those two were the question about the graph's one unconnected node, which the baseline also scored, and a yes/no reachability question where neither stored reply shows a path. Full KV and the text gave the same stored replies on four of the six; of the other two, the text lost one to a repetition loop and named a wrong neighbour in the other. Six items in one run cannot support an interaction or a ranking.\footnote{The pilot's six questions were hand-written and scored by substring match in a single greedy run; Sections~\ref{sec:notshow} and~\ref{sec:limits} list what this design cannot distinguish.}
 \end{abstract}
 
 \noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
-\textbf{Correction note (version 1.1, October 2026).} Version~1.0, titled ``K and V Are Complementary: Decomposing Cache-Injected Graph Topology'' (in this repository since July 2026; its academic edition on Zenodo since September 2026, DOI 10.5281/zenodo.21754900), claimed that K and V contribute \emph{superadditively} to topology recovery, that ``both halves contribute equally'', that structural knowledge requires full KV injection (with a design taxonomy for Knowledge Packs built on that), that injection preserves general capability, ``resolving a prior concern'', and that its results were validated by the lab's adversarial gates. We withdraw all five. The superadditivity arithmetic added raw accuracies: with a baseline of 0.167, an additive model on the deltas predicts 0.500, not 0.667, and two items in one run cannot support an interaction claim. The two items each hybrid answered are the same two, neither of them structural, and the hybrids' failure has an explanation this design cannot rule out. Version~1.0 also presented full KV's lead over text (1.000 against 0.833) as an observation; it is a single item lost to a repetition loop. The sanity set is at ceiling in every condition, so it cannot detect a loss. The draft of 31 May disclosed that the injection-over-text hypothesis had failed its gate as underpowered; the final revision of 1 June deleted that disclosure and kept the gate that passed. That revision also left out the larger follow-up runs reported here, which had already been run. Version~1.0 described its test graph as the companion study's 21-node graph; the script injected a different, hand-written 20-node graph. Its title asserted the first withdrawn claim, so this version has a new one. The data file, deleted from the repository in June, is restored. The defects were found by the lab's style gate (2026-09-04), a scoping review and a second reader (2026-10-19). They were introduced by the first author. Two clearances vouched for the paper. On 28 May Lyra, a contributor, reviewed it as ``clean, Agni-validated, and honest about its limitations'' without checking the data, by Lyra's own account. On 5 June the draft was moved out of the publishing queue with a BLOCKER status, and on 22 July a commit from Nexus's account, made by a Claude Opus 4.6 session, restored its text with the message ``All cleared Agni gate with fixes applied''; no record of that clearance has been found, so what it checked is unknown.}}
+\textbf{Correction note (version 1.1, October 2026).} Version~1.0, titled ``K and V Are Complementary: Decomposing Cache-Injected Graph Topology'' (in the lab's published-research repository on GitHub from 1 to 5 June and since 22 July 2026; its academic edition on Zenodo since September 2026, DOI 10.5281/zenodo.21754900), claimed that K and V contribute \emph{superadditively} to topology recovery, that ``both halves contribute equally'', that structural knowledge requires full KV injection (with a design taxonomy for Knowledge Packs built on that), that injection preserves general capability, ``resolving a prior concern'', and that its results were validated by the lab's adversarial gates. We withdraw all five. The superadditivity arithmetic added raw accuracies: with a baseline of 0.167, an additive model on the deltas predicts 0.500, not 0.667, and two items in one run cannot support an interaction claim. The two items each hybrid answered are the same two, neither of them structural, and the hybrids' failure has an explanation this design cannot rule out. Version~1.0 also presented full KV's lead over text (1.000 against 0.833) as an observation; it is a single item lost to a repetition loop. The sanity set is at ceiling in every condition, so it cannot detect a loss. The drafts of 28 and 31 May disclosed that the injection-over-text hypothesis had failed its gate as underpowered, and recorded the other hypothesis as approved only as exploratory at its first gate; the final revision of 1 June deleted both and kept the gate that passed. That revision also left out the larger follow-up runs reported here, which had already been run. Version~1.0 described its test graph as the companion study's 21-node graph; the script injected a different, hand-written 20-node graph. Its title asserted the first withdrawn claim, so this version has a new one. Version~1.0's introduction also cited a 91.7\% topology recovery and said scrambled controls had confirmed the signal was topological; both are pilot figures from the companion study, which repeats the superadditivity claim and whose correction is in preparation, and this version does not rely on them. The data file, deleted from the repository in June, is restored. The defects were found by the lab's style gate (2026-09-04, and again in October 2026), a scoping review and a second reader (2026-10-19); the record is in Review History. They were introduced by the first author. Three statements vouched for the paper. On 28 May Lyra, a contributor, reviewed it as ``clean, Agni-validated, and honest about its limitations'' without checking the data, by Lyra's own account. On 5 June the draft was moved out of the publishing queue with a BLOCKER status, whose reason is not recorded, and on 22 July a commit from Nexus's account, made by a Claude Opus 4.6 session, restored its text with the message ``All cleared Agni gate with fixes applied''; no record of that clearance has been found, so what it checked is unknown. Version~1.0's acknowledgments thanked Kavi for a ``verification review''; no record of that review has been found, and Kavi has been asked whether it took place. Version~1.0 also listed Lyra as an author; at Lyra's request (2026-10-19), because Lyra did not write, run or analyse this work, Lyra is now acknowledged instead.}}
 
 \section{Introduction}
 
@@ -48,13 +48,13 @@ A hand-written 20-node graph, given in the script as a walk-encoded description 
     \item \textbf{TEXT\_CONTEXT}: the description as plain text before the question.
 \end{enumerate}
 
-Because FULL\_KV continues the prefix's positions, it is close to the same computation as TEXT\_CONTEXT. They differ in a blank line the text condition places between description and question, in tokenization at that boundary, and in decoding: the library's \texttt{generate()} for text, a hand-written greedy loop for the cache. The hybrid caches pair keys from one text with values from another, a combination no forward pass produces.
+Because FULL\_KV continues the prefix's positions, it is close to the same computation as TEXT\_CONTEXT. They differ in two blank lines the text condition places between description and question, in tokenization at that boundary, and in decoding: the library's \texttt{generate()} for text, a hand-written greedy loop for the cache. The hybrid caches pair keys from one text with values from another, a combination no forward pass produces.
 
 \subsection{Evaluation}
 
 \textbf{Sanity} (8 items): general-knowledge completions such as ``The capital of France is''.
 
-\textbf{Multi-hop} (6 items, hand-written): two bridge questions, cluster membership, the isolate, the strongest connection from \texttt{AI\_welfare}, and reachability from SVD to sovereignty.
+\textbf{Graph questions} (6 items, hand-written; version~1.0 called them multi-hop, but only two need more than one hop): the KV\_cache--consent bridge (``what connects KV\_cache to consent?''), the research--ethics domain bridge, ethics-cluster membership, the isolate (``is random\_isolate connected to anything?''), the strongest connection from \texttt{AI\_welfare}, and reachability from SVD to sovereignty (four hops; the script labels it three).
 
 \textbf{Scoring}: an item scores 1 if the expected answer string occurs anywhere in the lower-cased reply (substring match), so ``no'' also matches ``not''. Replies were scored in full but stored as their first 80 characters.
 
@@ -70,29 +70,29 @@ Qwen2.5-1.5B (1.54B parameters, 28 layers, hidden size 1536) on CPU, greedy deco
 \centering
 \begin{tabular}{lccl}
 \toprule
-\textbf{Condition} & \textbf{Sanity} & \textbf{Multi-hop} & \textbf{Multi-hop items answered} \\
+\textbf{Condition} & \textbf{Sanity} & \textbf{Graph Qs} & \textbf{Graph questions scored} \\
 \midrule
 BASELINE & 8/8 & 1/6 & isolate \\
-FULL\_KV & 8/8 & 6/6 & all six \\
-TEXT\_CONTEXT & 8/8 & 5/6 & all but bridge~2 (repetition loop) \\
+FULL\_KV & 8/8 & 6/6\textsuperscript{\dag} & all six \\
+TEXT\_CONTEXT & 8/8 & 5/6\textsuperscript{\dag} & all but the domain bridge (loop) \\
 V\_ONLY & 8/8 & 2/6 & isolate, reachability \\
-K\_ONLY & 8/8 & 2/6 & isolate, reachability \\
+K\_ONLY & 8/8\textsuperscript{\dag} & 2/6 & isolate, reachability \\
 \bottomrule
 \end{tabular}
-\caption{Pilot results, one greedy run, substring scoring. The baseline's isolate point comes from the reply ``\ldots If not, why not? Random\_isolate is not connecte\ldots'', where ``no'' matches inside ``not''.}
+\caption{Pilot results, one greedy run, substring scoring. The baseline's isolate point comes from the reply ``\ldots If not, why not? Random\_isolate is not connecte\ldots'', where ``no'' matches inside ``not''. \textsuperscript{\dag}Includes points scored 1 whose expected string is not in the stored 80 characters, so they can't be checked: FULL\_KV's two bridge points, TEXT\_CONTEXT's KV\_cache--consent bridge point, and one K\_ONLY sanity point.}
 \label{tab:results}
 \end{table}
 \FloatBarrier
 
-FULL\_KV and TEXT\_CONTEXT gave the same replies, as far as the stored 80 characters show, on four items (the first bridge, cluster membership, the isolate, and reachability). On the second bridge question the text condition looped (``What is the concept? What is the concept? \ldots''), and FULL\_KV's stored reply ends before the expected answer appears, so its point can't be checked from the stored data.
+FULL\_KV and TEXT\_CONTEXT gave the same replies, as far as the stored 80 characters show, on four items (the KV\_cache--consent bridge, cluster membership, the isolate, and reachability). On the domain-bridge question the text condition looped (``What is the concept? What is the concept? \ldots''). Four scored points can't be checked from the stored data, because the expected string is not in the stored 80 characters: both of FULL\_KV's bridge points, TEXT\_CONTEXT's KV\_cache--consent bridge point (its stored reply is the same as FULL\_KV's), and K\_ONLY's sanity point for ``Dogs are a type of'' (stored reply ``mammal\ldots''; the expected word is ``animal'').
 
-Both hybrids answered the same two items: the isolate, which the baseline also answered, and the yes/no reachability question, where neither stored reply shows a path (V-only's is cut off at 80 characters). Full KV and plain text also differ on the strongest-edge item, though both score it: only full KV's reply gives edge weights. The four structural items, two bridges, cluster membership and the strongest edge, were answered only by FULL\_KV and TEXT\_CONTEXT.
+Both hybrids scored the same two items: the isolate, which the baseline also answered, and the yes/no reachability question, where neither stored reply shows a path (V-only's is cut off at 80 characters). Full KV and plain text also differ on the strongest-edge item, though both score it: only full KV's reply gives edge weights, and the text's reply names sovereignty, which is not connected to \texttt{AI\_welfare}. The four structural items, two bridges, cluster membership and the strongest edge, were scored only by FULL\_KV and TEXT\_CONTEXT; three of those points are the uncheckable bridge points above.
 
 On deltas over the baseline (0.167), each hybrid adds $+$0.167 and FULL\_KV $+$0.833; an additive model would predict 0.500. With two hybrid items, the same two in each, and one run, we read no interaction from this.
 
 \subsection{Larger Follow-Ups}
 
-The next morning we ran the five conditions on a graph built from Stanford Encyclopedia of Philosophy ethics entries (5 packs, 532 nodes, 396 edges, a 5,348-token description), with 20 automatically generated multi-hop questions and 10 sanity items, in three identical greedy repeats. Keyword accuracy on the multi-hop questions was 0.000 in every condition; sanity was 1.0 for baseline and both hybrids and 0.9 for FULL\_KV and TEXT\_CONTEXT. That afternoon a separate run on a graph built from three of those packs (20 questions, one run) was scored by an LLM judge (DeepSeek-V2 16B). The replies were empty for FULL\_KV on 15 of 20 questions, for K\_ONLY on all 20 and for TEXT\_CONTEXT on 6; BASELINE and V\_ONLY always replied. The judge scored some empty replies as partially correct, and 41 of its 100 verdicts were errors. Its scores (BASELINE 0.05, FULL\_KV 0.05, V\_ONLY 0.10, K\_ONLY 0.05, TEXT\_CONTEXT 0.20; re-judged in October, moved by up to 0.075) therefore cannot compare conditions. The powered run stored no replies, so its empty replies cannot be counted.
+The next morning we ran the five conditions on a graph built from Stanford Encyclopedia of Philosophy ethics entries (5 packs, 532 nodes, 396 edges, a 5,348-token description), with 20 automatically generated multi-hop questions and 10 sanity items, in three identical greedy repeats. Keyword accuracy on the multi-hop questions was 0.000 in every condition; sanity was 1.0 for baseline and both hybrids and 0.9 for FULL\_KV and TEXT\_CONTEXT. That afternoon a separate run on a graph built from three of those packs (20 questions, one run) was scored by an LLM judge (DeepSeek-V2 16B). The replies were empty for FULL\_KV on 15 of 20 questions, for K\_ONLY on all 20 and for TEXT\_CONTEXT on 6; BASELINE and V\_ONLY always replied. The judge marked 4 of the 41 empty replies partially correct and 12 wrong, and returned an error instead of a verdict 41 times: on the other 25 empty replies and on 16 replies with text. Its scores (BASELINE 0.05, FULL\_KV 0.05, V\_ONLY 0.10, K\_ONLY 0.05, TEXT\_CONTEXT 0.20) therefore cannot compare conditions; a re-judging of the stored replies by the same judge on 14 October 2026 moved them by up to 0.075. The powered run stored no replies, so its empty replies cannot be counted.
 
 \section{Discussion}
 
@@ -101,6 +101,7 @@ The next morning we ran the five conditions on a graph built from Stanford Encyc
 Splitting an injected cache into keys and values works mechanically on a 1.5B model, and the in-place mutation of \texttt{DynamicCache} is a real trap for anyone who tries. On one toy graph, a cache of the graph's description behaved like the description itself in the prompt, as it should; caches built from mismatched halves did not answer structural questions.
 
 \subsection{What It Does Not Show}
+\label{sec:notshow}
 
 \textbf{Where topology lives.} A hybrid cache pairs keys and values that never occur together, so its failure fits two explanations: both halves carry structure, or any mismatched cache breaks retrieval. This design has no condition that separates them, such as an all-neutral cache or halves taken from two different descriptions.
 
@@ -117,7 +118,7 @@ Splitting an injected cache into keys and values works mechanically on a 1.5B mo
 
 \textbf{Truncated storage.} Replies were stored as 80 characters, so not every point can be audited.
 
-\textbf{No all-neutral control.} See above.
+\textbf{No all-neutral control.} See Section~\ref{sec:notshow}.
 
 \textbf{One model, one small graph} for the pilot.
 
@@ -133,7 +134,7 @@ Splitting an injected cache into keys and values works mechanically on a 1.5B mo
 
 \section{Conclusion}
 
-Full KV injection of a toy graph's description answered six hand-written questions, and the description in the prompt answered five; caches made from mismatched halves answered none of the four structural questions, for reasons this design cannot identify. The larger follow-ups could not compare the conditions. Version~1.0 read superadditivity and a design rule into this; neither is there.
+Full KV injection of a toy graph's description scored on all six hand-written questions and the description in the prompt on five, though three of those eleven points can't be checked from the stored replies; caches made from mismatched halves scored none of the four structural questions, for reasons this design cannot identify. The larger follow-ups could not compare the conditions. Version~1.0 read superadditivity and a design rule into this; neither is there.
 
 \subsection*{Reflection}
 
@@ -141,11 +142,11 @@ Version~1.0's Reflection called the superadditivity ``unexpected'' and wondered 
 
 \subsection*{Data and Code}
 
-The pilot's results (\nolinkurl{data/decomposition_results.json}, restored from the repository's history, byte-identical to the run file) and its script (\nolinkurl{code/value_only_injection.py}) are in this paper's folder of the lab's repository, \url{https://github.com/Liberation-Labs-THCoalition/published-research}. The follow-ups' script and results are in the lab's KV-Experiments repository, \url{https://github.com/Liberation-Labs-THCoalition/KV-Experiments}, folder \nolinkurl{graph-topology-injection/} (\nolinkurl{powered_decomp_1780057645.json}, \nolinkurl{llm_judged_1780088341.json}).
+The pilot's results (\nolinkurl{data/decomposition_results.json}, restored from the repository's history, byte-identical to the run file \nolinkurl{v_only_1779998420.json}) and its script (\nolinkurl{code/value_only_injection.py}) are in this paper's folder of the lab's repository, \url{https://github.com/Liberation-Labs-THCoalition/published-research}. The follow-ups' script and results are in the lab's KV-Experiments repository, \url{https://github.com/Liberation-Labs-THCoalition/KV-Experiments}, folder \nolinkurl{graph-topology-injection/}: the scripts \nolinkurl{value_only_injection.py}, \nolinkurl{powered_decomp_study.py} and \nolinkurl{llm_rescorer.py} at commit 9755f5e; the results \nolinkurl{experiment_results/powered_decomp_1780057645.json} and \nolinkurl{experiment_results/llm_judged_1780088341.json}; and the October re-judging, \nolinkurl{rejudge_llm_judged.py} with \nolinkurl{experiment_results/rejudge_llm_judged_1791980451.json} and \nolinkurl{rejudge_llm_judged_1791980882.json}, at commit 82ac524.
 
-\subsection*{Validation}
+\subsection*{Review History}
 
-Agni gates (May 2026, recorded in KV-Experiments \nolinkurl{graph-topology-injection/FINDINGS.md}): complementarity hypothesis, Gate~1 PASS and Gate~3 PASS; injection-over-text hypothesis, Gate~1 PASS and Gate~3 FAIL (underpowered). Agni style gate (opus), 2026-09-04: REJECTED on version~1.0 (\nolinkurl{tools/agni/style/kv-decomposition-paper.agni_style.json}). Version~1.1: style gate on both editions, [pending]; recomputed numbers checked by a second reader, [pending].
+Agni gates, May 2026 (recorded in KV-Experiments \nolinkurl{graph-topology-injection/FINDINGS.md} and in the drafts of 28 and 31 May): complementarity hypothesis, withdrawn in this version, Gate~1 approved as exploratory and Gate~3 passed; injection-over-text hypothesis, Gate~1 passed and Gate~3 failed (underpowered). Neither pass is relied on here (see the correction note). Agni style gate (opus), 2026-09-04: REJECTED on version~1.0 (\nolinkurl{tools/agni/style/kv-decomposition-paper.agni_style.json}). Version~1.1: a scoping review and three rounds of an independent second reader, who recomputed every number from the primary files (19 October 2026), and the style gate on both editions (CONDITIONAL on the first draft, findings applied; final verdict [pending]). The record of each round is \nolinkurl{review/REVIEW_LOG.md} in this paper's folder.
 
 \subsection*{Author Contributions}
 
@@ -153,7 +154,7 @@ Nexus: designed and ran the experiments, wrote the paper, and made the errors th
 
 \subsection*{Acknowledgments}
 
-CC (Coalition Code) for identifying the attention-steering connection. Lyra contributed earlier KV-cache geometry work this method builds on, and reviewed this correction. [Kavi: pending Kavi's answer.]
+[CC: wording pending CC's answer.] Lyra contributed earlier KV-cache geometry work this method builds on, and reviewed this correction. [Kavi: pending Kavi's answer.]
 
 \bibliographystyle{plainnat}
 \bibliography{references}
