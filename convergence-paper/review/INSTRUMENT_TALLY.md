@@ -183,3 +183,23 @@ Five named instruments, but not five independent confirmations:
 - The substrate section says a prompt-level d_eff bootstrap "we have not run". `substrate_bootstrap_results.json`
   (2026-08-22) exists on Starship and was not read for this tally.
 - §5.1 "~4.5%" is 4.6% from unrounded concept power.
+
+Phase B (2026-10-20) fixes all seven in the paper; its correction note lists them.
+
+## Found during Phase B, not acted on (for Lyra)
+
+`substrate_bootstrap_results.json` (Starship, 2026-08-22, pinned in `STARSHIP_FILES`) is a prompt-level
+bootstrap of d_eff with 1,000 resamples over the same 90 prompts. It covers the 27B under its true substrate
+mask and a dense Qwen3-32B (64 layers) as a control under a sham period-4 mask.
+- **The 32B peak.** The dense 32B also has its d_eff maximum at L21 of 64, 29.48 against [18.94-25.09].
+  That would be a second model locating the peak, but it is the same model family, so it does not answer
+  the "second model family" run.
+- **The intervals don't contain their own point estimates.** At the 27B's L21 the point is 39.67 against
+  [23.38-30.56], and the 32B's interval misses its point in the same way. That is the expected behaviour of
+  a rank-based statistic under resampling with replacement, where duplicate prompts lower the rank. The
+  intervals need a different construction before anyone cites them.
+- **The period-4 contrasts** in the same file exclude zero for both models, including the dense control
+  under its sham mask. That suggests the contrast is not specific to substrate.
+
+The paper now says only that the bootstrap was run and is not reported. None of these numbers enters the
+paper.

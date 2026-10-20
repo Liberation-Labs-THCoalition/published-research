@@ -286,7 +286,9 @@ def check_c20():
     present("C20.text.layers(substrate)", "detects at L27, L31, L35, L39, L43 and L47 and corrects "
                                           "at L35, L39, L43 and L47")
     present("C20.text.layers(2.3)", "detects at L27--L47 and corrects at L35, L39, L43 and L47")
-    absent("C20.gone.L11", "L11")
+    # Tightened in Phase B: "L11" now also occurs in the ghost probe's "L11--L48"; v1.0's correction-layer
+    # claims ("corrects at L11." and "applied at L11,") are still caught.
+    absent_re("C20.gone.L11", r"L11(?![-\d])")
     absent("C20.gone.17pct", "$17\\%$ depth")
     record("C20.prim.temperature", ex["temperature"] == 0.7 and cf["temperature"] == 0.7,
            "T exploratory %s, confirmatory %s" % (ex["temperature"], cf["temperature"]), held)
@@ -364,8 +366,10 @@ def check_r1():
     present("R1.text.gap-uses", "38.6", count=4)   # Phase B: fewer restatements; the shuffled null says 39.0
     absent_re("R1.gone.39", r"(?<![\d.])39(?:~|-)layer")
     present("R1.text.linear-only", "39.0~layers [CI: $38.4$--$39.6$]")
-    record("R1.dup.removed", BODY.count("14.5~layers") == 1,
-           "14.5~layers occurs %d time(s)" % BODY.count("14.5~layers"))
+    # Tightened in Phase B: the Interpretation now restates the number once ("the full-attention-only gap is
+    # 14.5~layers"); finding #9 was the full result printed twice, which this still catches.
+    full = "14.5~layers [CI: $11.7$--$17.4$]"
+    record("R1.dup.removed", BODY.count(full) == 1, "%r occurs %d time(s)" % (full, BODY.count(full)))
 
 
 def check_citations_and_numbers():
@@ -977,7 +981,8 @@ def check_phase_b():
     ABS = squash(m.group(1)).strip() if m else ""
     record("B.abs.thesis-first", ABS.startswith(THESIS), "abstract opens with the thesis sentence verbatim")
     tie("B.abs.forks", "in all 300 forks", "r1_forks", where=ABS)
-    tie("B.abs.peak", "peaks at L21 ($32.8\\%$ of depth)", "deff27_peak", where=ABS)
+    tie("B.abs.peak", "In Qwen3.5-27B (base, 64 layers), the effective dimensionality ($d_\\text{eff}$) of the "
+        "residual stream peaks at L21 ($32.8\\%$ of depth)", "deff27_peak", where=ABS)
     tie("B.abs.bump", "rises $1.47\\times$ above its flanks at L19--L23 ($29.7$--$35.9\\%$)", where=ABS)
     tie("B.abs.8b", "local $d_\\text{eff}$ maximum at $33.3\\%$ but its global maximum at $91.7\\%$", where=ABS)
     tie("B.abs.gap", "reaches half its rise $38.6$ layers [$38.0$--$39.2$] before readability through the Jacobian "
