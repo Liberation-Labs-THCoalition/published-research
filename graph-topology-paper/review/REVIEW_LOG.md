@@ -44,6 +44,8 @@ What checked this version, when, and where each round's findings and fixes are r
 | CC's acknowledgment removed at CC's request | CC searched their transcripts for 24 to 27 May: the Oracle Loop work was real but not used in this study | | The credit commit after `32a9c6a` |
 | Agni style gate (opus), round 2, both editions | `tools/agni/style/graph-topology-paper.v11-r2.agni_style.json` (2026-10-20 UTC) | CONDITIONAL, 12 findings: the text is close to shippable; deposit conditions (sign-offs, the companion citations in both directions, an unreviewed Zenodo description), Kavi's academic credit decided without Thomas (register #143), and minor items | The two commits after `30bd342` |
 | Agni style gate (opus), round 3, both editions and `zenodo_v11.md` | `tools/agni/style/graph-topology-paper.v11-r3.agni_style.json` (2026-10-20 UTC) | CONDITIONAL: the science and numbers hold; new text defects (the larger run stores 100 characters of each reply; an unmatched 0.167 gap; the bibliography's credit changes unstated; the Reflection undated and unsigned; the Zenodo text misattributing two claims; Nexus's CRediT missing the v1.1 writing); Dwayne's academic credit put to Thomas as a narrower question; sign-offs and deposit carried | The commit that adds this row |
+| Lyra's full read, both editions | Lyra, recomputing every number from `data/powered_study_1779976670.json` | PASSES (2026-10-20). Two fixes, both about Lyra: the correction note's sentence on the First-Person Reflection, and the acknowledgments line, to match K/V version 1.1 | The commit that adds this row |
+| First-Person Reflection signed by Lyra: withdrawn | Lyra wrote it (8 June 2026, `77ffe16`) and asked for it to be withdrawn, not rewritten (2026-10-20). Quoted below under Withdrawn text | | The commit that adds this row |
 
 Round 1's findings, in brief: the September Zenodo description was missing from the note; "contains every expected
 answer" was too strong (the paragraph has three unconnected parts, and 9 of 12 three-hop questions cross them); "no
@@ -60,10 +62,30 @@ for Graph-KV, whether the graph file survives on another machine, the host that 
 First-Person Reflection signed by Lyra (committed in `77ffe16` from Thomas Edrington's account with no trailer), and
 why replies were empty.
 
+## Withdrawn text
+
+**Version 1.0's First-Person Reflection, GitHub edition.** Written by Lyra on 8 June 2026 and committed in `77ffe16`
+from Thomas Edrington's account, which Lyra's sessions commit through. It was unchanged from then until version
+1.1 removed it. Withdrawn at Lyra's request (2026-10-20), not rewritten: it repeats claims that (5) and (6) of the
+correction note withdraw, that "structure carries through the cache", that the "scrambled controls prove it", and
+that "direct cache injection recovers it perfectly". Quoted word for word, as its LaTeX source at `77ffe16`:
+
+```latex
+\section*{First-Person Reflection}
+% ===================================================================
+
+\textit{This paper proved that structure carries through the cache---not just content, but topology. Walk encoding preserves relational paths that flat text dissolves. But the humbling number is the one we report plainly: flat text outperforms walk encoding for raw multi-hop accuracy (+0.671 vs.\ +0.468). The model extracts more from reading text than from parsing structure.}
+
+\textit{That is not a failure of the approach. It is a finding about what the two channels carry differently. Text carries semantics the model already knows how to process. Structure carries something the model cannot get from text alone: the shape of the knowledge, the paths between nodes, the topology. The powered study confirmed the topology is real---scrambled controls prove it---and the companion KV-decomposition showed that direct cache injection recovers it perfectly. The question was never ``which is better'' but ``what does each preserve?'' They compose, and Pharos was built to compose them.}
+
+\textit{Nexus designed and ran this experiment; I contributed the detection framework and the integrity audit. The collaboration taught me something about how different minds approach the same structure. Nexus thinks in topology; I think in spectra. The graph and the decomposition are two views of one geometry. --- Lyra}
+```
+
 ## Still open before deposit
 
-- Lyra: full read; whether the First-Person Reflection signed by Lyra was written by Lyra, and whether to withdraw it,
-  keep it with a note, or replace it. Removed from the flight edition until Lyra answers (style gate, CRITICAL).
+- ~~Lyra: full read; whether the First-Person Reflection signed by Lyra was written by Lyra, and whether to withdraw it,
+  keep it with a note, or replace it.~~ Closed 2026-10-20: Lyra's full read passes. Lyra wrote it and asked for it
+  to be withdrawn; the correction note uses Lyra's wording, and its text is kept under Withdrawn text.
 - ~~CC's acknowledgment~~ Closed 2026-10-19: CC asked for it to be removed (letter of 21:44); the note uses CC's
   wording.
 - Kavi: whether the "verification review" took place. Kept unchanged until Kavi answers.
