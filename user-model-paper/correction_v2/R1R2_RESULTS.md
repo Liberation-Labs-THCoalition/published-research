@@ -14,7 +14,11 @@
 - **Pipeline control** passed (topic 0.83). **No confound:** covariates alone 0.051; FWL diagnostics within limits.
 - **Fingerprint against May's bridge weights:** IN_BAND (reported, not gating).
 - **One operational fault:** the first encode hung at weight loading for 59 minutes and was killed. It could not be
-  reproduced (four loads of 4–10 s). The relaunch is the run reported here. Logs: `encode_hung_1.log` on Starship.
+  reproduced at the time (four loads of 4–10 s). The relaunch is the run reported here. Logs: `encode_hung_1.log` on
+  Starship. **Later the same day it reproduced in UMV-L1's smoke test** (`label_validity/SIGNOFF.md`): all four
+  loader threads were spinning in `_materialize_copy` (`.to("mps")`). Sequential loading (`HF_DEACTIVATE_ASYNC_LOAD=1`)
+  avoided it. That's a strong lead on the cause, not a proof. Either way, the hang can't touch these results: it
+  happened before any forward pass, and the reported run loaded cleanly.
 
 ## Registered verdicts
 
@@ -165,3 +169,18 @@ May's 368 against today's 369 can't be compared trial by trial, because May save
 
 **So the honest unit is "decodability of the requested emotion label".** Whether a probe reads the story's emotion,
 the model's own reading of it, or the label's noise can't be told apart until the labels are checked.
+
+## Addendum: 84 stories carry the generator's leaked reasoning (found {{NOW}}, while preparing the public release)
+- **What:** 84 of 900 stories (9.3%) match `<analysis>|</?think|The user wants|the user (is asking|wants)|key constraint`.
+  The bridge's thinking suppression failed on them, and the "story" opens with the generator's planning ("The user
+  wants a paragraph about… show 'deeply calm'…"). 75 stories contain "deeply \<their own label\>", 43 of them in both
+  groups. They cluster by topic (topic 7: 22).
+- **Effect on the probes** (per trial, from this results file): text (TF-IDF) R0 0.226 on the leaked 84 against 0.398
+  on the clean 816; cache R2 0.286 against 0.365; v2 R1 0.202 against 0.431; residual LR 0.512 against 0.493. **The
+  leak doesn't inflate the results.** Most probes do worse on leaked stories, because planning text reads alike
+  across emotions.
+- **On the clean 816, the registered conclusion holds:** R2 0.365 against text (TF-IDF) 0.398, −3.3 points. This is
+  descriptive: the registered test was on all 900.
+- **Consequences:** the paper reports the contamination as a data limitation. UMV-L1 reports a CLEAN split, defined
+  before any of its results existed (`label_validity/ADDENDUM_pre_results_leaked_reasoning.md`, sha256 `f672a180…`).
+  Every later study using these stories must filter or report them.
