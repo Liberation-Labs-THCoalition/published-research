@@ -6,15 +6,35 @@
 
 **Date:** April 2026
 
+> **Corrected October 2026.** A preregistered re-run and a reading of
+> the original scripts found that the "W_K projection probe" applied no W_K, that the stories describe a third-person
+> character's requested emotion rather than the user's state, and that the probe's margin over a text (TF-IDF) baseline
+> had never been tested. The user-state claim, the injection test and the direction-versus-shape claim are withdrawn.
+> The paper's Appendix A keeps each withdrawn sentence with its reason.
+
 ## Summary
 
-We demonstrate that language models maintain internal representations of user emotional state in the KV cache, readable through the architecture's own projection geometry---not through aggregate spectral features, which fail under proper controls.
+When a language model reads a short third-person story, sent as a user message, whose character was written to feel
+one of 30 emotions, the requested emotion can be decoded from its KV cache far above chance. A preregistered test finds
+that the cache probe the paper describes does not read it better than a text (TF-IDF) classifier on the story's words.
 
 Key findings:
-1. **W_K projection classifies 30 emotions at 12.3x chance.** Projecting key activations onto W_K-transformed emotion directions achieves 40.9% accuracy on 30 classes (chance = 3.3%) and binary valence AUROC 0.992 (within-fold FWL-corrected, topic-grouped CV, n = 900 trials, Qwen3.5-27B-Claude-Distilled).
-2. **Injection test proves model state, not text content.** Injecting emotion vectors into neutral-text caches (zero emotional content) yields 100% detection accuracy across 5 emotions and 20 prompts. A TF-IDF text baseline achieves AUROC 0.882; the W_K projection exceeds it at 0.992.
-3. **Spectral features are null after proper controls.** 120 probe configurations using spectral features all return chance-level performance after within-fold FWL correction. Emotions change the *direction* key vectors point, not the spectral *shape* of the cache.
-4. **W_K bridge: a candidate pathway, partly supported.** Residual-stream emotion vectors projected through W_K produce valence-separated structure (rho = 0.862 at L35), with bridge signal building from mid-network to deep layers. A direct test found the leading direction partly carries over to the measured cache geometry (mean cosine 0.456), but the projection does not predict the cache's distance structure (Mantel rho = 0.090, 0/16 layers).
+1. **Decodable, but not beyond text (TF-IDF).** The probe as the Method describes it reaches 35.8% on 30 emotions
+   (chance 3.3%) against 38.2% for text (TF-IDF) on the same folds; the cell-bootstrap 95% interval for the difference,
+   -6.4 to +1.6 points, excludes the registered 3-point gain. The 40.9% reported in May came from a different script, a
+   class-mean key probe with no W_K; v2's number reproduces to within one trial in 900 (369 against 368) on a software
+   stack that has changed since May.
+2. **A binary split confounded with arousal.** On v2's hard-coded ten emotions (n = 300), cache readouts separate the
+   halves slightly better than text (TF-IDF): AUROC 0.985 against 0.967 (registered secondary, Holm p = 0.027).
+3. **The residual stream reads more (exploratory).** A logistic regression on the raw residual stream reaches 49.4%,
+   above a tuned text (TF-IDF) baseline (44.8%) and the cache probe; nothing shows that W_K or the cache adds to it.
+4. **W_K bridge: a candidate pathway, partly supported.** Residual-stream emotion vectors projected through W_K produce
+   valence-separated structure (rho = 0.862 at L35). A direct test found the leading direction partly carries over to
+   the measured cache geometry (mean cosine 0.456), but the projection does not predict the cache's distance structure
+   (Mantel rho = 0.090, 0/16 layers).
+
+Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
+`PROVENANCE_wk_probes.md`). The October re-run's preregistration, scripts and results are cited by sha256 in the paper.
 
 ## Repository Contents
 
@@ -36,7 +56,7 @@ Key findings:
 
 ## Key Numbers (Verified Against Source JSON)
 
-> **⚠ RETRACTED ROW — corrected 2026-08-15.** The `Enc peak accuracy` row below (`0.094 (2.8x)` / `0.084 (2.5x)`) is the **retracted** spectral emotion result. It was an artifact of applying FWL residualization *before* cross-validation splitting; within-fold FWL collapses the spectral emotion probe to chance (0.033). See the Correction note in `paper/main.tex`. The surviving result is the **W_K directional** probe at **12.3x chance (40.9% on 30 classes)**, valence AUROC 0.992 — a different probe, not a revision of this one.
+> **⚠ RETRACTED ROW — corrected 2026-08-15.** The `Enc peak accuracy` row below (`0.094 (2.8x)` / `0.084 (2.5x)`) is the **retracted** spectral emotion result. It was an artifact of applying FWL residualization *before* cross-validation splitting; within-fold FWL collapses the spectral emotion probe to chance (0.033). See the Correction note in `paper/main.tex`. The 12.3x / 0.992 probe once named here as the survivor is itself corrected (October 2026): it applied no W_K and does not beat a text (TF-IDF) baseline; see the Summary above.
 >
 > The row is left in place rather than deleted so the retraction is legible. **Do not cite it.** This README carried it under a "Verified" heading for 86 days after the paper itself published the retraction.
 
