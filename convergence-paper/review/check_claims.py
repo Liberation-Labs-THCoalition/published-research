@@ -239,7 +239,8 @@ def check_c20():
     b, c = ex["baseline"], ex["corrected"]
     s_ex = "from 80\\%% to 10\\%% (%d/%d to %d/%d)" % (b[0], b[1], c[0], c[1])
     assert round(pct(*b)) == 80 and round(pct(*c)) == 10
-    present("C20.text.exploratory(abstract+2.2)", s_ex, count=2)
+    # Revised in Phase B: the abstract no longer restates the exploratory counts; section 2.2 keeps them.
+    present("C20.text.exploratory(2.2)", s_ex, count=1)
 
     cf, held = confirmatory()
     if not held:
@@ -267,7 +268,8 @@ def check_c20():
            "placebo>corrected cells %s vs %s: one-sided p=%.4f -> 0.064"
            % (cf["cells_placebo"], cf["cells_corrected"], p3), held)
 
-    present("C20.text.confirmatory", "30\\% to 13\\%, 9/30 to 4/30; one-sided $p = 0.34$")
+    # Revised in Phase B: the abstract's Oracle clause is shorter; the counts stay in section 2.2.
+    present("C20.text.confirmatory", "did not meet its primary endpoint (one-sided $p = 0.34$)")
     present("C20.text.confirmatory(2.2)", "30\\% to 13\\%, one-sided $p = 0.34$")
     present("C20.text.placebo", "(4/30 against 12/30): one-sided $p = 0.020$ at the trial level, "
                                 "$0.064$ at the pre-registered cell level")
@@ -298,7 +300,8 @@ def check_bodycount():
            "meta-pattern tab:bodycount tally %s (Lyra's gated 6/7/10/1)" % tally)
     s = "%d~confirmed, %d~suspected, %d~falsified, %d~withdrawn" % (
         tally["Confirmed"], tally["Suspected"], tally["Falsified"], tally["Withdrawn"])
-    present("BC.text.abstract", s)
+    # Revised in Phase B: the body count is no longer in the abstract (rebuilt around the tally); the
+    # section 8 count below (BC.text.section) carries it.
     present("BC.text.section", "comprises %d~confirmed findings, %d~at suspected status (signal present, "
                                "controls incomplete), %d~honestly falsified, and %d~withdrawn"
             % (tally["Confirmed"], tally["Suspected"], tally["Falsified"], tally["Withdrawn"]))
@@ -315,8 +318,8 @@ def check_bodycount():
     record("BC.prim.split", meta_types == {"Meta"} and content_types == {"Content"},
            "confirmed types %s, falsified types %s" % (meta_types, content_types))
     present("BC.text.narrowed", "The ten falsified findings in the tally all attempted content-level measurement.")
-    present("BC.text.ast", "every falsified finding in the tally attempted to measure")
-    present("BC.text.ast2", "every confirmed finding in our body count")
+    # Revised in Phase B: the Attention Schema paragraph is shortened and hedged; its narrowed claim reads:
+    present("BC.text.ast", "confirmed findings measure processing state, and the falsified ones tried to measure content")
     present("BC.text.sprint", "Only the third is a content-level claim")
     absent("BC.gone.all-falsified", "The falsified findings all attempted")
     absent("BC.gone.surviving", "every surviving finding")
@@ -358,7 +361,7 @@ def check_depth():
 def check_r1():
     # Gated key number (Lyra): R1 temporal gap 38.6 layers [38.0-39.2], 100% forks positive, p<0.005.
     present("R1.text.gap", "\\textbf{38.6~layers} [CI: $38.0$--$39.2$]")
-    present("R1.text.gap-uses", "38.6", count=6)
+    present("R1.text.gap-uses", "38.6", count=4)   # Phase B: fewer restatements; the shuffled null says 39.0
     absent_re("R1.gone.39", r"(?<![\d.])39(?:~|-)layer")
     present("R1.text.linear-only", "39.0~layers [CI: $38.4$--$39.6$]")
     record("R1.dup.removed", BODY.count("14.5~layers") == 1,
@@ -372,7 +375,7 @@ def check_citations_and_numbers():
           and "gen\\_only\\_MP & + FWL belt & 0.620 ($p{=}0.023$)" in res)
     record("FWL.prim.oracle-table", ok, "Oracle Loop tab:primary: 0.707 no FWL, 0.620 with FWL belt (Qwen)")
     present("FWL.text.label", "AUROC~$0.620$ after FWL residualization, $0.707$ without FWL, on Qwen2.5-7B)~\\citep{lyra2026oracle}")
-    present("FWL.text.list", "AUROC~$0.620$ (FWL-corrected, permutation $p{=}0.023$; $0.707$ without FWL, $p{=}0.001$)")
+    # Revised in Phase B: section 4.6's list is folded into the key-cache subsection (REL.text.keycache-p).
     absent_re("FWL.gone.0.999", r"0\.999(?!\d)")   # whole number; 0.9999 (hardware r) is not it
     absent("FWL.gone.decision-cite", "lyra2026decision")
     absent("FWL.gone.scope", "for all classification AUROCs")
@@ -601,9 +604,10 @@ def check_extension():
                    "identical developmental", "23 of 24", "59\\times", "lyra2026weather", "W$_K$ bridge",
                    "Content--Inference", "same geometric subspace", "user-emotion encoding ($12.3"):
         absent("INST5.gone %s" % needle[:22], needle)
-    present("INST5.text.abstract", "The emotional-geometry instrument, restated in this version, finds "
-                                   "valence--arousal structure in an emotion space built from stories the model wrote")
-    present("INST5.text.instrument-name", "causal intervention analysis, and emotional circumplex geometry")
+    # Revised in Phase B (Lyra's thesis ruling): the abstract is rebuilt around the tally's two lists and no
+    # longer lists five instruments; its emotion-geometry clause is checked here instead.
+    present("INST5.text.abstract", "The emotion-geometry instrument locates no band, and its injection test "
+                                   "shows no direction-specific coupling")
     present("INST5.text.footnote", "decodes the emotions of characters in stories the model wrote, not the "
                                    "user's state")
     record("INST5.bib", "@unpublished{nexus2026coupling," in BIB and "@misc{lyra2026usermodel," in BIB
@@ -639,11 +643,12 @@ def check_extension():
     # ---- "reliably" ----
     for needle in ("reliably discriminate", "reliably measurable", "reliably distinguish"):
         absent("REL.gone %s" % needle, needle)
-    present("REL.text.abstract", "discriminate cognitive states modestly above chance (confabulation detection at")
-    present("REL.text.abstract-p", "residualization on generation window, permutation $p = 0.023$; $0.707$ "
-                                   "without FWL)")
-    present("REL.text.list", "spectral features discriminate cognitive states above chance:")
-    present("REL.text.intro", "geometric signatures that distinguish confabulation from honest processing above chance")
+    # Revised in Phase B: the abstract, the intro sentence and the section 4.6 list are rewritten or removed;
+    # "modestly above chance" now lives in the key-cache subsection, and the abstract gives the AUROCs.
+    present("REL.text.keycache", "discriminates modestly above chance")
+    present("REL.text.abstract-auroc", "(AUROC $0.620$ after FWL residualization, $0.707$ without, on Qwen2.5-7B)")
+    present("REL.text.keycache-p", "AUROC $0.620$ after FWL residualization (permutation $p = 0.023$) and $0.707$ "
+                                   "without it ($p = 0.001$)")
 
     # ---- Scale range, from KV-Experiments paper-scale-invariance/sections/results.tex (100f38a) ----
     sr = read_if(KVX / "paper-scale-invariance" / "sections" / "results.tex")
@@ -658,8 +663,8 @@ def check_extension():
                                                                           tiers[0][:24], tiers[2][-20:]))
     else:
         record("SCALE2.prim", True, "HELD rho 0.826/0.867/0.896, 10 models, Qwen3-0.6B..Llama-3.1-70B-q4", held=True)
-    present("SCALE2.text.abstract", "Key-cache geometric signatures replicate across a wider scale range (ten "
-                                    "models from $0.6$B to $70$B; Spearman $\\rho = 0.83$--$0.90$ between size tiers)")
+    # Revised in Phase B: the abstract now says only that scale invariance uses key-cache features.
+    present("SCALE2.text.abstract", "cross-scale invariance use key-cache features and locate no depth")
     present("SCALE2.text.structure", "Key-cache geometric signatures (key norm, norm per token, effective rank and "
                                      "key entropy) replicate across ten models from $0.6$B to $70$B parameters "
                                      "(Spearman $\\rho = 0.83$--$0.90$ between three size tiers; the two largest "
@@ -709,6 +714,7 @@ STARSHIP_FILES = {   # mirror-relative path: (Starship path, sha256 prefix of th
     "ayni/r1_shuffled_null.json": ("~/ayni-run/r1_r2_results/", "1abca578a9fbd4c2"),
     "ayni/r2_r3_analysis.json": ("~/ayni-run/r1_r2_results/", "606cf79efa37d559"),
     "ayni/agni_r1v2_identity_null_v2.json": ("~/ayni-run/r1_r2_results/", "454cd73bc3ce2a03"),
+    "lab/substrate_bootstrap_results.json": ("~/lab/kv-experiments/", "38d983614bbb164c"),
 }
 
 # HELD: the strings check_tally computes, recorded 2026-10-20 from the mirror above.
@@ -732,6 +738,8 @@ HELD_TALLY = {
     "det_auroc": "0.707", "det_p": "0.001", "det_fwl": "0.620", "det_fwl_p": "0.023",
     # Added before the tally was written, after reading position_specific_prereg.json (H3 positive control):
     "pos_resid": "0.68 against 0.92", "pos_resid_frac": "9 of 40", "dec_input_lifts": "0.89, 0.84, 0.83, 0.92",
+    # Added in Phase B (substrate_bootstrap_results.json, found while fixing text defect 6):
+    "boot_n": "1,000", "boot_27b": "39.67 against [23.38-30.56]", "boot_32b": "L21 of 64, 29.48 against [18.94-25.09]",
 }
 
 
@@ -755,8 +763,18 @@ def mirror_load(rel):
     return json.loads(txt), False
 
 
+_TV = None
+
+
 def tally_values():
-    """Compute every tally string from the mirror. Returns (dict, all_primaries_present)."""
+    """Compute every tally string from the mirror (memoized). Returns (dict, all_primaries_present)."""
+    global _TV
+    if _TV is None:
+        _TV = _tally_values()
+    return dict(_TV[0]), _TV[1]
+
+
+def _tally_values():
     g = {k: mirror_load(k) for k in STARSHIP_FILES}
     if any(h for _, h in g.values()):
         return dict(HELD_TALLY), False
@@ -865,6 +883,16 @@ def tally_values():
     v.update(swap="%d of %d" % (sum(t["output_changed"] for t in sw), len(sw)),
              removal="%d of %d" % (sum(t["output_changed"] for t in rm), len(rm)))
 
+    bt = g["lab/substrate_bootstrap_results.json"][0]
+    b27, b32 = bt["qwen35-27b"], bt["qwen3-32b"]
+    p32 = max(range(len(b32["point_d_eff"])), key=lambda i: b32["point_d_eff"][i])
+    v["boot_n"] = "{:,}".format(b27["n_boot"])
+    v["boot_27b"] = "%.2f against [%.2f-%.2f]" % (b27["point_d_eff"][21], b27["ci_lo"][21], b27["ci_hi"][21])
+    v["boot_32b"] = "L%d of %d, %.2f against [%.2f-%.2f]" % (p32, b32["n_layers"], b32["point_d_eff"][p32],
+                                                             b32["ci_lo"][p32], b32["ci_hi"][p32])
+    v["boot_ci_excludes_point"] = (not (b27["ci_lo"][21] <= b27["point_d_eff"][21] <= b27["ci_hi"][21])
+                                   and b32["mask_label"].startswith("SHAM") and b27["n_prompts"] == 90)
+
     det = json.loads((REPO / "oracle-loop-paper" / "data" / "detection" / "analysis_results.json")
                      .read_text(encoding="utf-8"))["qwen"]["primary"]
     v.update(det_auroc="%.3f" % det["gen_only_MP"]["loo_auroc"], det_p="%.3f" % det["gen_only_MP"]["permutation"]["p_value"],
@@ -884,7 +912,7 @@ def check_tally():
         for k, s in HELD_TALLY.items():
             record("TALLY.held-matches %s" % k, v.get(k) == s, "computed %r, held %r" % (v.get(k), s))
         for flag in ("deff_offsets_none", "r1_null_exceeds_all", "r1_ident_validated", "r2_fail",
-                     "dec_h1_text", "v_concepts_formatting", "inj_concept_never_top5"):
+                     "dec_h1_text", "v_concepts_formatting", "inj_concept_never_top5", "boot_ci_excludes_point"):
             record("TALLY.prim %s" % flag, v[flag] is True, "%s = %r" % (flag, v[flag]))
         record("TALLY.prim deff_n", v["deff_n"] == (90, 90), "prompts %r" % (v["deff_n"],))
         record("TALLY.prim dec_model", v["dec_model"] == "Qwen/Qwen3-8B", v["dec_model"])
@@ -911,6 +939,172 @@ def check_tally():
         record("TALLY.ghost %s" % s, s in text, "present: %r" % s)
     for s in ("What converges", "What does not converge", "Independence"):
         record("TALLY.section %s" % s, s in text, "section present: %r" % s)
+
+
+# --------------------------------------------------------------------------
+# Phase B (Lyra's thesis ruling): title, abstract, headings, verdicts, "what would test the band",
+# the seven tally defects, and the withdrawal note with version 1.0's abstract kept verbatim.
+# Numbers in new prose are tied to the tally values: every number of the cited tally string must
+# appear in the needle (so the prose cannot drift from the primary).
+# --------------------------------------------------------------------------
+THESIS = ("In one model, residual-stream spectral statistics peak near a third of depth, and in all 300 forks "
+          "they rise before content becomes readable through the unembedding. No other instrument we ran "
+          "locates that band, and our cache-readout nulls cannot tell a closed cache from a probe that reads "
+          "nothing there, because their pre-registered positive control failed.")
+
+
+def _nums(s):
+    return re.findall(r"\d+(?:\.\d+)?", s.replace("{,}", "").replace(",", ""))
+
+
+def tie(cid, needle, *keys, where=None):
+    hay = BODY if where is None else where
+    ok = needle in hay
+    v, _ = tally_values()
+    missing = [(k, n) for k in keys for n in _nums(v[k]) if n not in _nums(needle)]
+    record(cid, ok and not missing, "present=%s %r; tally numbers missing from needle: %r" % (ok, needle[:90], missing))
+
+
+def check_phase_b():
+    # Title (the \title{...} block, not the appendix that keeps version 1.0's title).
+    m = re.search(r"\\title\{(.*?)\}\s*\\author", RAW, re.S)
+    title = squash(m.group(1)) if m else ""
+    record("B.title.new", "Spectral Structure Before Readability:" in title and "A Third-of-Depth Peak, and Why Five "
+           "Instruments" in squash(title.replace("\\\\", " ")) and "Did Not Converge on It" in title, "title %r" % title[:120])
+    record("B.title.old-gone", "One Structure" not in title, "old title words absent from \\title")
+
+    m = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", BODY, re.S)
+    ABS = squash(m.group(1)).strip() if m else ""
+    record("B.abs.thesis-first", ABS.startswith(THESIS), "abstract opens with the thesis sentence verbatim")
+    tie("B.abs.forks", "in all 300 forks", "r1_forks", where=ABS)
+    tie("B.abs.peak", "peaks at L21 ($32.8\\%$ of depth)", "deff27_peak", where=ABS)
+    tie("B.abs.bump", "rises $1.47\\times$ above its flanks at L19--L23 ($29.7$--$35.9\\%$)", where=ABS)
+    tie("B.abs.8b", "local $d_\\text{eff}$ maximum at $33.3\\%$ but its global maximum at $91.7\\%$", where=ABS)
+    tie("B.abs.gap", "reaches half its rise $38.6$ layers [$38.0$--$39.2$] before readability through the Jacobian "
+        "lens (J-lens), in 300 of 300 forks", "r1_gap", "r1_forks", where=ABS)
+    tie("B.abs.ident", "only $3.25$ layers later than the J-lens does", "r1_ident_diff", where=ABS)
+    present("B.abs.limits", "The pre-registered band never closed, and no null control has been run.", where=ABS)
+    present("B.abs.oracle", "corrects at $54.7$--$73.4\\%$ of depth", where=ABS)
+    present("B.abs.oracle-p", "did not meet its primary endpoint (one-sided $p = 0.34$)", where=ABS)
+    present("B.abs.jlens", "half-rise at $87.8\\%$ of depth", where=ABS)
+    tie("B.abs.cache", "(V $0.92\\times$, K $1.12\\times$)", "v_band", "k_band", where=ABS)
+    tie("B.abs.posctl", "lift $0.68$ at concept positions against $0.92$ elsewhere", "pos_resid", where=ABS)
+    present("B.abs.ghost", "spans $17.2$--$75.0\\%$ of depth", where=ABS)
+    present("B.abs.decomp", "attention lift ($2.3\\times$, at $41.7\\%$ of depth) missed its pre-registered threshold",
+            where=ABS)
+    tie("B.abs.r2", "($13.2\\%$ against $15\\%$)", "r2_frac", where=ABS)
+    tie("B.abs.r3", "($21.9\\%$ against $25$--$35\\%$)", "r3_onset64", where=ABS)
+    tie("B.abs.det", "(AUROC $0.620$ after FWL residualization, $0.707$ without, on Qwen2.5-7B)", "det_auroc", "det_fwl",
+        where=ABS)
+    for needle in ("converge on the same", "workspace", "Global Workspace", "reliabl", "One Structure"):
+        absent("B.abs.gone %s" % needle, needle, where=ABS)
+    record("B.calc.jlens-depth", "%.1f" % (100 * 56.2 / 64) == "87.8", "J-lens half-rise 56.2 of 64 = 87.8%")
+
+    # Introduction and first-person box.
+    present("B.intro.thesis", "set out to show that five of our instruments converge on the same structure, at about "
+                              "a third of model depth. They do not.")
+    present("B.intro.list", "no other instrument locates the band, and our cache-readout nulls cannot separate a closed "
+                            "cache from a probe that reads nothing there")
+    present("B.box.answer", "We still do not know; our cache nulls cannot answer it.")
+    for needle in ("The convergence is real", "is the paper's central finding", "the workspace is real",
+                   "Five instruments. One structure.", "consistent with the opacity thesis",
+                   "exactly the pattern our five null results", "The workspace is a reconstruction engine",
+                   "transparent to state measurement", "Five independent experiments converge"):
+        absent("B.gone %s" % needle[:28], needle)
+
+    # Headings: no section heading asserts convergence; one per instrument, each with a verdict.
+    heads = re.findall(r"\\(?:sub){0,2}section\*?\{([^}]*)\}", BODY.replace("\\\\", " "))
+    bad = [h for h in heads if re.search(r"Convergence|Opacity Thesis|Reconstruction Engine|Despite Opacity|"
+                                         r"to the Workspace", h)]
+    record("B.heads.no-convergence", not bad, "headings asserting convergence: %r" % bad)
+    for h in ("The Instruments, One at a Time", "Residual-Stream Effective Dimensionality", "Substrate Continuity",
+              "Key-Cache Spectral Features: Detection and Scale", "Emotion Geometry: A Story-Derived Space and Content Prompts",
+              "The Oracle Loop's Deception Correction", "J-Lens Readouts of the Cache", "Position-Specific Cache Tracing",
+              "Causal Cache Intervention", "The Ghost Probe", "Residual Decomposition: The Attention Lift",
+              "K/V Split Injection", "RLHF and Output Entropy", "Pre-Registered Mechanism Tests (R1--R3)",
+              "What the Evidence Supports", "What It Does Not", "A Global Workspace Reading, as a Hypothesis",
+              "What Would Test the Band"):
+        record("B.head %s" % h[:34], h in heads, "heading present: %r" % h)
+    record("B.verdicts", BODY.count("\\paragraph{Verdict.}") >= 11,
+           "\\paragraph{Verdict.} x%d (need >= 11)" % BODY.count("\\paragraph{Verdict.}"))
+
+    # Verdicts and per-instrument numbers.
+    tie("B.v.deff", "A peak at L21 of 64 ($32.8\\%$) in Qwen3.5-27B base and a local maximum at L12 of 36 ($33.3\\%$) in "
+        "Qwen3-8B, whose global maximum is at L33 ($91.7\\%$)", "deff27_peak", "deff8_local")
+    tie("B.deff.kurt", "kurtosis falls from 4{,}677 (mean of L0--L3) to 2{,}271 (mean of L19--L23)", "deff_kurt_early",
+        "deff_kurt_band")
+    present("B.deff.null", "its critical fix, a null control such as a randomly initialized model, has not been run")
+    present("B.v.keycache", "Neither locates a depth band")
+    present("B.v.emotion", "Locates no depth band; its cross-set overlap is weak and its coupling test is a null.")
+    present("B.oracle.depth", "detects at L27--L47 ($42.2$--$73.4\\%$) and corrects at L35--L47 ($54.7$--$73.4\\%$)")
+    present("B.v.oracle", "Works outside the band, and its confirmatory replication did not meet its primary endpoint.")
+    tie("B.jlens.caveat", "lift $0.89$, $0.84$, $0.83$ and $0.92$", "dec_input_lifts")
+    tie("B.jlens.k", "reaches $1.87$ at L30", "k_max")
+    tie("B.v.jlens", "Near random at band depth (V $0.92\\times$, K $1.12\\times$)", "v_band", "k_band")
+    tie("B.position.ctl", "Its pre-registered positive control failed: residual-stream lift at concept positions was "
+        "$0.68$ against $0.92$ elsewhere, higher in 9 of 40 records", "pos_resid", "pos_resid_frac")
+    present("B.position.rule", "methodology failure, not a cache finding")
+    tie("B.causal.swap", "changed output in 0 of 360 trials and removal-only in 0 of 300", "swap", "removal")
+    tie("B.causal.add", "changed the top-1 token in 8 of 240 and 44 of 6{,}000 injected trials", "inj_v2", "inj_v3")
+    tie("B.causal.rank", "best rank 872", "inj_rank")
+    present("B.v.causal", "Never steers output toward the concept")
+    present("B.ghost.var", "PC1 carries $28$--$67\\%$ of activation variance across L11--L48")
+    present("B.ghost.cos", "at most $0.003$ at L18--L40")
+    present("B.ghost.band", "spans $17.2$--$75.0\\%$ of depth")
+    tie("B.decomp.h1", "lifts are $1.37$, $2.30$, $1.91$ and $1.41$ at L12, L15, L18 and L21", "dec_band_lifts")
+    tie("B.decomp.h1b", "one of four layers passes and H1 is not met", where=None)
+    tie("B.decomp.cp", "$0.92$ against $20.11$ ($4.6\\%$)", "dec_cp_attn", "dec_cp_in", "dec_ratio")
+    present("B.v.decomp", "Attention lift $2.30$ at L15 ($41.7\\%$ of depth, outside 31--33\\%)")
+    present("B.v.kv", "Does not bear on the band")
+
+    # What would test the band (four concrete runs).
+    for cid, needle in (("null", "on a randomly initialized Qwen3.5-27B"), ("posctl", "whose positive control passes "
+                        "before any"), ("family", "on a second model family"),
+                        ("logit", "with the plain logit lens as the registered baseline")):
+        present("B.test.%s" % cid, needle)
+
+    # The seven tally defects.
+    tie("B.d1.null39", "39.0 layers at integer half-rise resolution (L17 and L56)", "r1_null_gap", "r1_null_halves")
+    absent("B.d1.gone", "The real 38.6-layer gap")
+    absent("B.d2.gone", "stable rank of the demeaned V-projection matrix")
+    present("B.d2.new", "stable rank of the demeaned residual-stream block output")
+    absent("B.d3.gone", "increase monotonically through the network")
+    tie("B.d3.new", "the mid band ($6.73$) sits below the workspace band ($7.13$)", "r2_mid", "r2_ws")
+    for needle in ("does not change behavioral output", "0/6{,}960", "6{,}960"):
+        absent("B.d4.gone %s" % needle, needle)
+    absent("B.d5.gone", "spectral features of value-projection matrices")
+    present("B.d5.new", "spectral features of the key-value cache and the residual stream")
+    present("B.d5.keycache", "reads spectral features of the key cache")
+    absent("B.d6.gone", "and we have not run it")
+    tie("B.d6.new", "A prompt-level bootstrap was run later (1{,}000 resamples", "boot_n")
+    present("B.d6.ci", "its intervals do not contain their own point estimates")
+    absent("B.d7.gone", "4.5\\%")
+    tie("B.ident", "readability then half-rises at $59.4$ against $56.1$ for the J-lens on the same 60 forks, $3.25$ "
+        "layers later", "r1_ident", "r1_ident_real", "r1_ident_diff")
+
+    # Discussion, conclusion, and the other sites the ruling names.
+    record("B.gwt.once", BODY.count("It is a hypothesis the evidence does not yet support") == 1,
+           "GWT hypothesis sentence x%d (need exactly 1)" % BODY.count("It is a hypothesis the evidence does not yet support"))
+    present("B.ast.hedged", "the kind of pattern such a schema would produce")
+    present("B.concl", "That is the result this paper can stand on.")
+    absent("B.ghost.gone34", "34$--$67")
+    absent("B.ghost.gone001", "{\\leq}0.001")
+    present("B.ghost.28", "28$--$67\\%$", count=2)
+    absent("B.rlhf.gone", "the workspace's mode of engagement")
+
+    # Correction note: the withdrawal, and version 1.0's title and abstract verbatim.
+    present("B.note.withdraw", "Version 1.1 withdraws the convergence thesis", where=NOTE)
+    out = subprocess.run(["git", "-C", str(REPO), "show", "b887872:convergence-paper/main.tex"],
+                         capture_output=True, text=True, encoding="utf-8")
+    if out.returncode == 0:
+        v10 = out.stdout
+        a10 = squash(re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", v10, re.S).group(1)).strip()
+        record("B.note.v10-abstract", a10 in NOTE, "version 1.0 abstract (b887872) verbatim in the correction record "
+               "(%d chars)" % len(a10))
+    else:
+        record("B.note.v10-abstract", False, "could not read b887872 to compare")
+    present("B.note.v10-title", "Five Instruments, One Structure: Convergent Evidence for Workspace Opacity in Language "
+                                "Models", where=NOTE)
 
 
 def check_note_and_date():
@@ -952,6 +1146,7 @@ def main():
     check_citations_and_numbers()
     check_extension()
     check_tally()
+    check_phase_b()
     check_note_and_date()
 
     width = max(len(c) for _, c, _ in RESULTS)
