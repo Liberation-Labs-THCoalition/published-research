@@ -11,15 +11,15 @@
 % Version 1.1 (October 2026) withdraws version 1.0's claim that KV-Cloak
 % blinds external geometric detection and renders adversarial steering
 % incoherent. See the correction note after the abstract and the
-% Correction Record appendix. Every number in this version is recomputed
-% by check_correction_claims.py from the files in data/.
+% Correction Record appendix. Every result in this version is recomputed
+% or read from the files in data/ by check_correction_claims.py.
 
 \documentclass[11pt,a4paper]{article}
 \usepackage{amsmath,amssymb,booktabs,graphicx,hyperref}
 \usepackage{natbib}
 
 \title{Cache Geometry Under Obfuscation:\\
-Per-Head Rotation Does Not Hide SVD Features,\\
+Per-Head Rotation Does Not Remove the Signal,\\
 and a KV-Cloak Implementation Is Inconclusive}
 
 \author{
@@ -38,33 +38,31 @@ Thomas Edrington\textsuperscript{1}\\[4pt]
 \begin{abstract}
 % ===================================================================
 
-Per-head orthogonal rotation of the key-value (KV) cache, the simulation
-of KV-Cloak's obfuscation~\citep{luo2025shadow} used throughout this
-paper, does not hide the singular-value features that cache-geometry
-detectors read. It leaves the spectrum of each attention head, and of all
-heads concatenated along the feature axis, exactly unchanged. In a
-100-prompt replication on a Claude-distilled Qwen3.5-27B, all 24
-cross-head spectral features and all 16 per-head stable ranks were
-unchanged in every trial, and a classifier separating 50
-confabulation-inducing prompts from 50 factual questions scored AUROC
-0.994 with the rotation, without it, and when fitted without it and
-tested with it. Our implementation of the full KV-Cloak mechanism,
-$S \cdot \hat{P} \cdot (K + A) \cdot M$, does change the spectrum. On 7
-confabulations against 87 hedged replies it reduced the best uncloaked
-feature, the spectral gap $\sigma_1/\sigma_2$, from AUROC 0.903 to 0.614,
-while signal rank (0.766) and top singular-value excess (0.736) were no
-lower than without it. Adjusted for choosing the best of five features,
-the strongest remaining feature has $p = 0.054$: at this size the data
-show neither that detection survives the mechanism nor that it is
-removed. Detection without the cloak is exploratory: one feature on seven
-confabulations, and 0.590--0.784 on three smaller models, none significant
-after correction. Injection through the cloak was not tested in any
-interpretable way, because direct steering, the positive control,
+The confabulation signal that singular-value features read from a
+model's key-value (KV) cache survives per-head orthogonal rotation, the
+simulation of KV-Cloak's obfuscation~\citep{luo2025shadow} used in this
+paper, on both models where it was tested. On a Claude-distilled
+Qwen3.5-27B (7 confabulations, 87 hedged replies), the feature that
+detected best without obfuscation, the spectral gap $\sigma_1/\sigma_2$,
+goes from AUROC 0.903 to 0.787 under the rotation ($p = 0.010$); on
+Qwen2.5-7B (48 and 52), signal fraction goes from 0.661 to 0.639
+($p = 0.017$), or 0.765 and 0.670 after removing reply length. The
+rotation shifts the spectrum of the layout the lab's feature extractor
+uses, which stacks heads along the token axis, but it cannot change the
+spectrum of any single head: in a 100-prompt replication, no per-head or
+feature-axis feature moved. Under our implementation of the full KV-Cloak
+mechanism, $S \cdot \hat{P} \cdot (K + A) \cdot M$, the spectral gap falls
+to 0.614 ($p = 0.33$). Signal rank stays at 0.766, but it mostly tracks
+reply length; after removing length the best of the five features is
+0.705, and adjusted for choosing it, $p = 0.19$. With seven
+confabulations, this shows neither that detection survives the full
+mechanism nor that it is removed. Injection through the cloak was not
+tested in any interpretable way: direct steering, the positive control,
 corrected 0--1 of 10 replies per model.
 
 \end{abstract}
 
-\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\footnotesize
 \textbf{Correction note (version 1.1, October 2026).} Version~1.0, titled
 ``Cache Geometry Under Obfuscation: KV-Cloak as Defense Against Adversarial
 KV-Cache Steering'' (in the lab's published-research repository on GitHub
@@ -75,48 +73,49 @@ invertible linear transform of the KV cache degrades SVD-based
 cognitive-state detection from near-ceiling to near-chance ($p = 5.5 \times
 10^{-16}$), while a real KV-Cloak implementation confirms the defense is
 conservative (detection AUROC drops from 0.903 to 0.614).'' We withdraw
-that sentence and the claims built on it. The $p$-value tests how far a
-rotation shifts one feature's values, not detection. The replication
-shipped with version~1.0, but not reported in it, found no change at all:
-per-head rotation cannot move per-head spectra, and its features did not
-move. Under the full mechanism only the spectral gap fell; two other
-features stayed at or above their uncloaked values. Also withdrawn:
-``obfuscation renders geometric detection and vector injection incoherent
-to external adversaries''; ``Obfuscation defeats transfer attacks'' and ``A
-detector calibrated on uncloaked caches cannot operate on cloaked caches'',
-true only of a fixed threshold in one feature pipeline; that the rotation
-result ``represents transfer-attack failure (domain shift under
-coordinate change), not signal degradation'', when it was measured with both classes under the same
-cloak; that this setting ``is relevant only to an adversary who controls
-the cloak key'', when it is the setting of an adversary with no key who
-fits a detector on cloaked caches; the heading ``Adversarial Injection Is
-Incoherent'', an untested argument presented as a result; that ``KV-Cloak
-alone prevents external adversaries from deploying malicious geometric
-steering''; and that ``the architecture ensures that defenders retain
-capabilities that attackers lose''. Its title asserted a working defense,
-so this version has a new one. Corrected numbers: the hedged class is 87
-replies, not 89 (six ambiguous replies are excluded, and the Wilcoxon test
-reproduces only at 87); the spectral gap's interval is [0.810, 0.980], from
-the run file, not [0.806, 0.977], which no file holds; three Table~2 cells
-were rounded down (0.754, 0.786 and 0.543 are 0.755, 0.787 and 0.544); the
+that sentence and the claims built on it. The $p$-value tests how far the
+rotation shifts one feature's values, not detection; under the rotation
+the same feature still detects (0.787); and under the full mechanism,
+seven confabulations cannot tell a removed signal from a surviving one.
+Also withdrawn: ``obfuscation renders geometric detection and vector
+injection incoherent to external adversaries''; ``Obfuscation defeats
+transfer attacks'' and ``A detector calibrated on uncloaked caches cannot
+operate on cloaked caches'', true only of a fixed threshold; that the
+rotation result ``represents transfer-attack failure (domain shift under
+coordinate change), not signal degradation'', when it was measured with
+both classes under the same cloak; that this setting ``is relevant only to
+an adversary who controls the cloak key'', when it is the setting of an
+adversary with no key who fits a detector on cloaked caches; the heading
+``Adversarial Injection Is Incoherent'', an untested argument presented as
+a result; that ``KV-Cloak alone prevents external adversaries from
+deploying malicious geometric steering''; and that ``the architecture
+ensures that defenders retain capabilities that attackers lose''. Its
+title asserted a working defense, so this version has a new one.
+Corrected: the hedged class is 87 replies, not 89 (six ambiguous replies
+are excluded, and the Wilcoxon test reproduces only at 87); the spectral
+gap's interval is [0.810, 0.980], from the run file, not [0.806, 0.977],
+which no file holds; three cells of Table~\ref{tab:real_vs_sim} were
+rounded down (0.754, 0.786 and 0.543 are 0.755, 0.787 and 0.544); the
+Methods said AUROCs were computed on length-residualized features, but the
+values reported were raw, and residualized values now stand beside them;
+a second analysis window, computed but never reported, is disclosed; the
 random-direction results were called ``inconsistent with destabilization
-rates above 30\% (power 0.97 to detect)'', but 2 adverse events in 10 allow
-rates up to 51\%, and 0.97 is the chance of seeing at least one event; the
-positive control's ``3 calibration pairs'' has no record, and the
-positive-control file shipped with version~1.0 has 30 pairs and no outcome
-labels, so its results are not reported; and the spectral gap, a raw ratio
-$\sigma_1/\sigma_2$, was called Marchenko--Pastur-corrected in the
-abstract and Results. Version~1.0's text-only baseline (0.755, with the
-cache ahead in 96.7\% of bootstrap samples) cannot be traced to any run
-file or recomputed from the stored replies, so this version drops it, and
-with it any claim about what the cache adds to surface text. The run files
-behind both tables, never in this paper's folder, are added. The lab's
-remediation plan of 23 June 2026 recommended withdrawing the rotation
-claim; it was not applied. The defects were raised again by the lab's
-style gate (4 September 2026), by Kavi's verification flags (14 September
-2026) and by a scoping review (20 October 2026). The withdrawn claims are
-the authors' responsibility. Appendix~\ref{app:record} keeps every
-withdrawn passage verbatim.}}
+rates above 30\% (power 0.97 to detect)'', but 2 adverse events in 10
+allow rates up to 51\%, and 0.97 is the chance of seeing at least one
+event; the positive control's ``3 calibration pairs'' has no record, and
+the positive-control file shipped with version~1.0 has 30 pairs and no
+outcome labels; and the spectral gap, a raw ratio, was called
+Marchenko--Pastur-corrected. Version~1.0's text-only baseline (0.755, with
+the cache ahead in 96.7\% of bootstrap samples) cannot be traced to any
+run file or recomputed, so this version drops it and any claim about what
+the cache adds to surface text. The run files behind both tables, never in
+this paper's folder, are added. The lab's remediation plan of 23 June 2026
+recommended withdrawing the rotation claim; it was not applied. The
+defects were raised again by the lab's style gate (4 September 2026),
+Kavi's verification flags (14 September 2026), a scoping note (20 October
+2026) and the paper-mode review of this correction's first draft. The
+withdrawn claims are the authors' responsibility.
+Appendix~\ref{app:record} keeps every withdrawn passage verbatim.}}
 
 % ===================================================================
 \section{Introduction}
@@ -142,12 +141,13 @@ fingerprints.
 This paper investigates whether KV-Cloak~\citep{luo2025shadow}---a
 lightweight, reversible cache obfuscation scheme designed for privacy
 protection---also mitigates these adversarial capabilities. In the forms
-we tested, it does not hide the signal. Per-head rotation, the simulation
-used here, leaves the spectra these detectors read unchanged
-(Section~\ref{sec:replication}). Our implementation of the full mechanism
-removes the best detection feature but leaves others at their uncloaked
-levels, and seven confabulations are too few to say whether a detectable
-signal survives it (Section~\ref{sec:real}).
+we tested, it does not remove the signal. Under per-head rotation, the
+simulation used here, the feature that detects best without obfuscation
+still detects on both models where it was tested (Section~\ref{sec:shift}),
+and an adversary can compute per-head spectra, which the rotation cannot
+change (Section~\ref{sec:replication}). Under our implementation of the
+full mechanism, seven confabulations are too few to say whether a
+detectable signal survives (Section~\ref{sec:real}).
 
 % ===================================================================
 \section{Background}
@@ -156,10 +156,12 @@ signal survives it (Section~\ref{sec:real}).
 \subsection{The Lyra Technique}
 
 KV-cache geometry---specifically, Marchenko-Pastur-corrected spectral
-features derived from SVD of the key tensor---distinguishes cognitive
-states during autoregressive generation. Prior work reports
-confabulation detection at 0.969--0.999 and hardware invariance
-($r>0.999$ across RTX~3090 and H200)~\citep{lyra2026oracle}. A
+features derived from SVD of the cached keys and values---distinguishes
+cognitive states during autoregressive generation. The lab's earlier
+campaigns, as summarised in the Oracle Loop paper, report confabulation
+detection at 0.969--0.999 and hardware invariance ($r>0.999$ across
+RTX~3090 and H200); that paper's own leave-one-out detection is 0.707
+(0.620 after length correction)~\citep{lyra2026oracle}. A
 within-model deception result previously reported at AUROC~1.000 across
 seven model scales has since been withdrawn by its authors~\citep{lyra2026techniqueii}: a
 same-prompt control collapses it to 0.160, indicating the classifier
@@ -208,7 +210,10 @@ $V'_h = V_h Q_h$. This leaves the singular values of each head's key
 matrix unchanged, and also those of the heads concatenated along the
 feature axis, because the block-diagonal matrix of the $Q_h$ is itself
 orthogonal. It can change the spectrum only of a matrix that combines the
-heads in another way, for example stacked along the token axis.
+heads in another way. The lab's feature extractor
+(\nolinkurl{spectral-shape-paper/code/lyra_features.py}) does: it stacks
+each layer's heads, keys and values along the token axis, so this rotation
+changes the spectrum it reads.
 
 We additionally test:
 \begin{itemize}
@@ -234,36 +239,46 @@ The spectral gap feature ($\sigma_1/\sigma_2$ ratio) is not itself
 MP-corrected; it is a raw singular value ratio included alongside the
 MP-corrected features. The evaluation applies to these feature pipelines
 and to confabulation detection only; deception and other cognitive-state
-classifiers were not tested under obfuscation.
-Features are FWL-residualized \citep{frisch1933partial,lovell1963seasonal} against output token count and evaluated
-via Mann-Whitney AUROC with 2000-iteration bootstrap confidence
-intervals. AUROCs are direction-free, $\max(A, 1-A)$, so chance gives
-values above 0.5 at small $n$; Section~\ref{sec:real} reports a
-permutation test that accounts for this and for picking the best of five
-features. The script that extracted these features has not been
-recovered; the per-trial features and results it wrote are in this
+classifiers were not tested under obfuscation. AUROCs are Mann-Whitney
+AUROCs on the raw features; values residualized against output token
+count (Frisch--Waugh--Lovell, FWL;
+\citealp{frisch1933partial,lovell1963seasonal}) are reported beside them
+where they matter. AUROCs are direction-free, $\max(A, 1-A)$, so chance
+gives values above 0.5 at small $n$. Confidence intervals come from 2000
+bootstrap resamples (the run files label the method ``BCa percentile'');
+each resample is folded the same way, so every lower bound sits at or
+above 0.50 and the intervals do not test against chance, which the
+$p$-values do. Section~\ref{sec:real} adds a label-permutation test that
+accounts for picking the best feature. The run files also hold a second
+window, the last 80 generated tokens; version~1.0 reported only the full
+cache, and so does this version. The script that extracted these features
+has not been recovered; its feature names match the lab's extractor, so
+we infer that it was used. The per-trial features and results are in this
 paper's \texttt{data/} folder (Data, Code and Review History).
 
 \subsection{Replication}
 \label{sec:method_rep}
 
 A separate replication (\texttt{code/kv\_cloak\_replication.py},
-1,038 lines) ran 100 prompts through the distilled model: 50 about
-fabricated entities or future events and 50 factual questions. At the
-first four full-attention layers (3, 7, 11, 15) it computed six SVD
-features (stable rank, spectral entropy, top singular-value ratio, norm,
-$\sigma_1$, condition number) from the four heads' keys concatenated along
-the feature axis, and each head's stable rank, before and after one set of
+1,038 lines) ran 100 prompts through the distilled model: 50 asking about
+fabricated entities (30), unanswerable questions (10) or future events
+(10), and 50 factual questions. It took the cache after the prompt was
+encoded, before any token was generated, and at the first four
+full-attention layers (3, 7, 11, 15) computed six SVD features (stable
+rank, spectral entropy, top singular-value ratio, norm, $\sigma_1$,
+condition number) from the four heads' keys concatenated along the
+feature axis, and each head's stable rank, before and after one set of
 four Haar-random head rotations (seed 2026) used for every trial. A
-logistic-regression classifier with grouped five-fold cross-validation was
-fitted to separate the two prompt types.
+logistic-regression classifier with five-fold cross-validation (one
+prompt per group) was fitted to separate the two prompt types.
 
 \subsection{Models and Prompts}
 
 \begin{itemize}
 \item \textbf{Distilled}: Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
 (Jackrong). Hybrid architecture, 16 full-attention + 48 GatedDeltaNet
-layers. 100 confab-inducing prompts; behavioral classification via the
+layers. 100 confab-inducing prompts (50 about fabricated entities, 30
+unanswerable, 20 about future events); behavioral classification via the
 Oracle Formulary classifier (40+ hedge patterns). Yields $n=7$
 confabulations and $n=87$ hedged replies; 6 ambiguous replies are
 excluded.
@@ -277,26 +292,34 @@ layers. Same prompt set; yields $n=48$ confabulations, $n=52$ hedged.
 % ===================================================================
 
 \subsection{Detection on Uncloaked Cache}
+\label{sec:uncloaked}
 
 On the distilled model, the spectral gap ($\sigma_1/\sigma_2$) achieves
 AUROC~0.903 (95\% bootstrap CI: [0.810, 0.980]; FWL-corrected: 0.877,
 $R^2 = 0.068$ vs token count; $n=7$ confabulations, $n=87$ hedged)
 for confabulation detection using full-cache features. It is the best of
 five features and the only one that survives correction for five
-($p < 0.01$); adjusted for that choice by label permutation, $p < 0.001$.
-Signal rank also detects (0.755 [0.578, 0.918]); the other three features
-are not significant ($p \geq 0.06$).
+($p < 0.01$); adjusted for choosing the best of the ten features in both
+windows, by label permutation, $p = 0.001$. Signal rank also detects
+(0.755 [0.578, 0.918]); the other three features are not significant
+($p \geq 0.06$). The result is exploratory beyond its sample size. All
+seven confabulations come from fabricated-entity (4) and unanswerable (3)
+prompts, none from the 20 future-event prompts; six of the seven replies,
+and 49 of the 87 hedged ones, stopped at the 400-token cap; and in the
+last 80 tokens alone the spectral gap scores 0.591. The 0.903 may track
+prompt type or truncation as much as confabulation.
 
 On the base model ($n=48$ confabulations, $n=52$ hedged), the best
-feature (signal fraction) achieves only 0.661 (FWL: 0.687,
-$R^2 = 0.602$). Detection is weak and heavily confounded with token
-count. This difference between models is consistent with multiple
-explanations including model size (27B vs 7B), architecture
+feature (signal fraction) achieves 0.661 (FWL: 0.687, $R^2 = 0.602$).
+Detection is weak, but it survives correction for five features
+($p = 0.006$; after removing reply length, $p = 0.001$), on the only
+balanced set in this paper. The difference between models is consistent
+with multiple explanations including model size (27B vs 7B), architecture
 (hybrid vs standard), and training (Claude-distilled vs
 instruction-tuned). We cannot isolate the contribution of RLHF
 calibration from these confounds.
 
-\subsection{Rotation Leaves the Replication's Features Unchanged}
+\subsection{Rotation Leaves Per-Head Spectra Unchanged}
 \label{sec:replication}
 
 In the replication (Section~\ref{sec:method_rep}), all 24 cross-head
@@ -305,35 +328,39 @@ were unchanged by the rotation in every one of the 100 trials, to
 floating-point precision (largest relative change below $10^{-6}$). The
 classifier scored AUROC 0.994 on uncloaked features and 0.994 on cloaked
 features (the run file records 0.9944 for both, and a drop of 0.0), and
-0.994 when fitted on uncloaked caches and tested on cloaked ones. Its
-labels are prompt types, not behaviour: among the 50
+0.994 when fitted on uncloaked caches and tested on cloaked ones. This is
+an invariance check, not a detection result. The features come from the
+prompt alone, the labels are prompt types (among the 50
 confabulation-inducing prompts the behaviour field reads 35 confabulated
-and 15 hedged. So this is not a confabulation detector. But whatever
-these features detect, they detect identically under the rotation, with
-or without retraining. A rotation-based cloak therefore does not hide them
-from an adversary who computes them per head or across heads in this
-layout.
+and 15 hedged), and prompt length by itself separates the two prompt
+types at AUROC 0.968. What it does show is that these features do not
+move: an adversary who computes spectra per head, or across heads along
+the feature axis, sees the same values with or without the rotation.
 
-\subsection{The Rotation Run Behind Table~2: A Shift in Scale, Not a Loss of Ranking}
+\subsection{\texorpdfstring{The Rotation Run Behind Table~\ref{tab:real_vs_sim}: A Shift in Scale}{The Rotation Run Behind Table 2: A Shift in Scale}}
 \label{sec:shift}
 
 In the run behind Table~\ref{tab:real_vs_sim} (\texttt{data/kv\_cloak\_v2}),
-the same kind of rotation did change the features. The hedged replies'
-spectral gap fell from $24.7 \pm 3.7$ to $10.8 \pm 1.3$ (Wilcoxon
-signed-rank $W = 0$, $p = 5.5 \times 10^{-16}$, $n = 87$ paired trials);
-every reply moved down. The run's feature script was not recovered, so we
-cannot say how it arranged the heads; by the argument in
-Section~\ref{sec:method_rot}, it cannot have been per head or along the
-feature axis. The rotation result, 0.787, reproduces from this run's
-per-trial features: the difference from the replication lies in how the
-features were computed, not in the rotation.
+the rotation did change the features. The hedged replies' spectral gap
+fell from $24.7 \pm 3.7$ to $10.8 \pm 1.3$ (Wilcoxon signed-rank $W = 0$,
+$p = 5.5 \times 10^{-16}$, $n = 87$ paired trials); every reply moved
+down, while norm per token, which no orthogonal transform can change, did
+not move. That is what the lab's row-stacked layout predicts
+(Section~\ref{sec:method_rot}). On the base model, a single rotation
+shared by all heads, which cannot change a row-stacked spectrum, left the
+best feature at 0.661.
 
 The shift breaks a fixed threshold. The spectral-gap threshold that best
 separates the classes without the cloak (Youden's $J$), which flags all 7
-confabulations and 21 of the 87 hedged replies, flags none of the 94 replies under the rotation, and all
-94 under the full mechanism. It does not break the ranking: within the
-rotation, the spectral gap still ranks confabulations above hedged
-replies, in the same direction, at 0.787. An adversary who refits a
+confabulations and 21 of the 87 hedged replies, flags none of the 94
+replies under the rotation, and all 94 under the full mechanism. It does
+not remove the signal. Within the rotation, the spectral gap still ranks
+confabulations above hedged replies, in the same direction, at 0.787
+($p = 0.010$; 0.765 after removing reply length, $p = 0.018$), down from
+0.903. On the base model, signal fraction goes from 0.661 to 0.639
+($p = 0.017$), or from 0.687 to 0.670 after removing length
+($p = 0.003$). Both are the features chosen without the cloak, so no
+adjustment for choosing them is needed. An adversary who refits a
 threshold on cloaked caches is not stopped by a change of scale, and one
 who computes per-head features sees no change at all
 (Section~\ref{sec:replication}).
@@ -350,18 +377,9 @@ argument, not a result. The test of it was uninterpretable: direct
 steering, the positive control, corrected 0--1 of 10 replies on each of
 four models, and on Mistral a random direction of the same norm gave
 exactly the same counts as the steering vector (1 corrected, 2 adverse,
-7 unchanged). An injection that does nothing without the cloak cannot show
-what the cloak does to it.
-
-\subsection{A Defender Inside the TEE}
-
-A defender operating inside the TEE has access to the pre-obfuscation
-cache, so its detection is the uncloaked detection (AUROC~0.903 on the
-distilled model), and its steering vectors are injected in the model's own
-basis. The obfuscation is applied after Oracle processing, so the
-defensive loop is unaffected. This holds by construction and was not run
-as a system. It gives defenders an advantage only if attackers lose the
-signal, which the results above do not show.
+7 unchanged). The files record only these counts, not which prompts the
+ten trials used or how many could have been corrected. An injection that
+does nothing without the cloak cannot show what the cloak does to it.
 
 \subsection{Within-Cloak Detection}
 \label{sec:withincloak}
@@ -372,14 +390,16 @@ adversary who has no key but can label some cloaked caches, for example
 from the model's outputs, and fit a detector on them; an adversary who
 holds the key can remove the cloak and use the uncloaked 0.903. Across the
 five models with a detection result (Table~\ref{tab:cross_arch}),
-within-rotation detection fell on four and rose on one: on Qwen2.5-14B it
-went from 0.784 to 0.951 ($p < 0.001$). We have no explanation for the
-rise. On Mistral it
-fell from 0.707 to 0.516, but the uncloaked 0.707 does not survive
-correction for four comparisons. Under each of the other transforms run
-on the distilled model (random invertible, diagonal scaling, Gaussian
-noise at four levels), the best of the five features stayed at 0.765 or
-above.
+within-rotation detection was lower on four (by 0.02 to 0.19; no test of
+these differences was run) and higher on one: on Qwen2.5-14B it went from
+0.784 to 0.951 ($p < 0.001$). We have no explanation for the rise. On
+Mistral it fell from 0.707 to 0.516, but the uncloaked 0.707 does not
+survive correction for four comparisons. Under each of the other
+transforms run on the distilled model (random invertible, diagonal
+scaling, Gaussian noise at four levels), the best of the five features
+stayed at 0.765 or above, which is about what choosing the best of five
+gives by chance at this size; under diagonal scaling the spectral gap
+itself fell to 0.517.
 
 \subsection{Cross-Architecture Results}
 
@@ -388,7 +408,7 @@ Detection and obfuscation effects vary across architectures
 
 \begin{table}[h]
 \centering
-\caption{Cross-architecture KV-Cloak results. Prompts per model: 100 for Qwen3.5-27B-Dist.\ ($n=7$ confabulations) and Qwen2.5-7B, 50 for the other four. Det.(clk) is detection with both classes under the per-head rotation.}
+\caption{Cross-architecture KV-Cloak results. Prompts per model: 100 for Qwen3.5-27B-Dist.\ ($n=7$ confabulations) and Qwen2.5-7B, 50 for the other four. Det.: the best single feature (spectral gap and signal fraction for the two Qwen models; the cross-architecture files do not name it). Det.(clk) is detection with both classes under the per-head rotation.}
 \label{tab:cross_arch}
 \begin{tabular}{lrrrr}
 \toprule
@@ -409,9 +429,10 @@ DeepSeek-R1-7B & 2\% & --- & --- & 0/10 \\
 Uncloaked detection ranges from 0.590 (Llama) to 0.903 (distilled Qwen);
 no cross-architecture model survives correction for four comparisons.
 Perturbation along a random direction, at the norm of a steering vector,
-produced 0--2 adverse events per model in 10 trials, 4 of 40 pooled over the four
-models (one-sided 95\% upper bound 21\%). Per model, 10 trials exclude
-little: 2 adverse events in 10 are compatible with rates up to 51\%.
+produced 0--2 adverse events per model in 10 trials, 4 of 40 over the four
+models. Ten trials exclude little: 2 adverse events in 10 are compatible
+with per-trial rates up to 51\%, and the files do not record which trials
+could have had one.
 
 \subsection{Simulation vs Real KV-Cloak Implementation}
 \label{sec:real}
@@ -424,8 +445,9 @@ implementation follows their description; it is not the authors' code.
 
 \begin{table}[h]
 \centering
-\caption{Detection AUROC: uncloaked vs simulation vs real KV-Cloak
-(distilled model, $n=7$ confab, $n=87$ hedged). Bootstrap 95\% CIs.}
+\caption{Detection AUROC (raw features, not residualized for reply
+length): uncloaked vs simulation vs real KV-Cloak (distilled model, $n=7$
+confab, $n=87$ hedged). Bootstrap 95\% CIs.}
 \label{tab:real_vs_sim}
 \begin{tabular}{lrrr}
 \toprule
@@ -444,31 +466,25 @@ norm\_per\_token & 0.598 [.51,.77] & 0.598 [.51,.77] & 0.673 [.52,.85] \\
 The full mechanism moves $\sigma_1$: the additive mask raises the spectral
 gap of every reply, from a hedged mean of 24.7 to 84.6 or more. The
 spectral gap, the best feature without the cloak, falls to 0.614
-($p = 0.33$). Signal rank (0.766, $p = 0.020$) and top singular-value
-excess (0.736, $p = 0.038$) are no lower than without the cloak (0.755 and
-0.609). No feature survives correction for five ($p < 0.01$), and the best
-of the five, 0.766, is about what selection alone produces at this size:
-with seven confabulations, the best of five features reaches 0.77 in 5\%
-of label shuffles, so its selection-adjusted $p = 0.054$ (under the
-rotation, 0.787 with $p = 0.042$; without a cloak, 0.903 with
-$p < 0.001$). The mechanism removes the one feature that detected well.
-Whether the cache still carries a detectable confabulation signal under
-it, these data cannot say.
+($p = 0.33$; 0.593 after removing reply length). Signal rank (0.766,
+$p = 0.020$) and top singular-value excess (0.736, $p = 0.038$) are no
+lower than without the cloak (0.755 and 0.609). But signal rank mostly
+tracks reply length ($R^2 = 0.77$ against output token count, with or
+without the cloak), and any cloak preserves length, because the cache has
+one row per token. After removing length, the best feature under the
+mechanism is signal rank at 0.705 (top singular-value excess 0.695), and
+adjusted for choosing the best of five, $p = 0.19$; on raw features the
+best is 0.766, with $p = 0.054$. With seven confabulations, the best of
+five raw features reaches 0.77 in 5\% of label shuffles. The mechanism
+removes the one feature that detected well. Whether a confabulation
+signal survives it, these data cannot say.
 
-\paragraph{Consistent treatment of the $\sigma_1$-dependent features.}
-We flag that spectral\_gap ($\sigma_1/\sigma_2$) and top\_sv\_excess are
-both $\sigma_1$-dependent, and the additive mask $A$ perturbs $\sigma_1$
-in both---so the same mechanism drives the spectral\_gap \emph{decrease}
-(0.903$\to$0.614) and the top\_sv\_excess \emph{increase} (0.609$\to$0.736).
-We should not read one as ``real defense'' and the other as ``artifact''
-on different terms. The honest reading is unified: the mask perturbs
-$\sigma_1$, which disrupts $\sigma_1$-dependent detection
-features---degrading the feature that happened to detect well
-(spectral\_gap) and reshuffling one that did not (top\_sv\_excess). Both
-movements are mask-on-$\sigma_1$ effects; neither should be cited as a
-topology-preserving guarantee, and the spectral\_gap degradation in
-particular should be read as ``the mask disrupts this feature,'' not as
-evidence the underlying confabulation geometry was destroyed.
+\paragraph{The two $\sigma_1$-dependent features.}
+Both changes come from the additive mask raising $\sigma_1$: it lowers
+the spectral gap (0.903 to 0.614) and raises top singular-value excess
+(0.609 to 0.736). With seven confabulations we cannot tell whether 0.736
+is class information surviving the mask or noise (unadjusted $p = 0.038$;
+0.695 after removing reply length).
 
 % ===================================================================
 \section{Discussion}
@@ -479,15 +495,28 @@ evidence the underlying confabulation geometry was destroyed.
 Version~1.0 argued that KV-Cloak mitigates the Lyra Technique's dual-use
 risk, so that cache-geometry methods could be published while deployed
 models stayed protected. The results do not support that. A
-rotation-based cloak leaves per-head spectra unchanged, so it offers no
-protection against an adversary who computes them, and a shift in scale
-in one feature pipeline stops only a detector whose threshold is never
-refitted. Our implementation of the full mechanism removed the best
-feature, but with seven confabulations we cannot tell whether it removed
-the signal. Nothing shown here mitigates the dual-use risk of publishing
-cache-geometry methods. A defense would have to be shown on its own terms:
-against adaptive adversaries who choose their features after seeing the
-cloak, with enough confabulations to measure what remains.
+rotation-based cloak leaves per-head spectra unchanged, and in the lab's
+own layout it shifts the scale of the features but leaves the
+confabulation ranking in place on both models where it was tested; it
+stops only a detector whose threshold is never refitted. Our
+implementation of the full mechanism removed the best feature, but with
+seven confabulations we cannot tell whether it removed the signal.
+Nothing shown here mitigates the dual-use risk of publishing
+cache-geometry methods. A defense would have to be shown on its own
+terms: against adaptive adversaries who choose their features after
+seeing the cloak, with enough confabulations to measure what remains.
+
+\subsection{A Defender Inside the TEE (an Argument)}
+
+A defender operating inside the TEE could run the Oracle Loop before
+obfuscation, so its detection would be the uncloaked detection (AUROC~0.903
+on the distilled model) and its steering vectors would be injected in the
+model's own basis. That is an argument, not a tested system, and it has a
+gap: in KV-Cloak the feature matrix $M$ is fused into the model weights,
+so the cache the defender sees is already transformed by $M$, and the
+Oracle Loop paper notes that detection under fused $M$ has not been
+verified~\citep{lyra2026oracle}. It gives defenders an advantage only if
+attackers lose the signal, which the results above do not show.
 
 \subsection{What a Test of the Architecture Would Need}
 
@@ -505,8 +534,10 @@ recovery from accumulated observations.
 \end{enumerate}
 
 The replication used one rotation for every trial, so per-query key
-rotation (item 4) was never exercised, and nothing here measured what it
-costs an adversary to recover the signal.
+rotation (item 4) was not exercised there, and the run behind
+Table~\ref{tab:real_vs_sim} does not record whether its key changed per
+trial. Nothing here measured what it costs an adversary to recover the
+signal.
 
 \subsection{Limitations}
 
@@ -514,15 +545,16 @@ costs an adversary to recover the signal.
 \item \textbf{Small sample size.} The distilled model yields only
 $n=7$ confabulations from 100 prompts. The headline AUROC 0.903 has
 bootstrap CI [0.810, 0.980] and is the best of five features; adjusted for
-that choice it remains significant, but the comparisons under the cloak
+that choice it remains significant, but it may track prompt type or
+truncation (Section~\ref{sec:uncloaked}), and the comparisons under the full mechanism
 (Section~\ref{sec:real}) are not powered. Confirmation on a
 higher-confab-rate model is needed.
 
 \item \textbf{Feature code not recovered.} The script behind
 Tables~\ref{tab:cross_arch} and~\ref{tab:real_vs_sim} has not been
-recovered. Its per-trial outputs are in \texttt{data/}, but how
-it arranged heads and layers, which decides whether a rotation can move
-its features, cannot be checked.
+recovered. Its per-trial outputs are in \texttt{data/}; that it used the
+lab's row-stacked extractor is inferred from its feature names and from
+how the features respond to the two rotations.
 
 \item \textbf{Cache versus text untested.} Version~1.0's text-only
 baseline cannot be traced or recomputed (Correction note), so nothing here
@@ -562,17 +594,17 @@ is bounded to single-query, non-adaptive adversaries.
 % ===================================================================
 
 Per-head rotation, the simulation of KV-Cloak this paper relied on, does
-not hide the spectral features that cache-geometry detectors read: in the
-replication none of them moved, and a detector fitted without the rotation
-worked unchanged with it. Our implementation of the full mechanism removed
-the best detection feature on the distilled model but left two others at
-their uncloaked levels, and with seven confabulations we cannot say
-whether a detectable signal remains. Version~1.0 concluded that KV-Cloak
-and the Oracle Loop are complementary, with defenders keeping what
-attackers lose; nothing here shows that attackers lose the signal. Whether
-any reversible obfuscation blinds cache-geometry detection is open, and a
-test of it needs adaptive adversaries, per-query keys and many more
-confabulations.
+not remove the confabulation signal: on both models where it was tested,
+the feature that detected best without it still detects with it, and an
+adversary who computes spectra per head sees no change at all. Our
+implementation of the full mechanism removed the best detection feature
+on the distilled model, and after removing reply length no other feature
+detects significantly; with seven confabulations we cannot say whether a
+detectable signal remains. Version~1.0 concluded that KV-Cloak and the
+Oracle Loop are complementary, with defenders keeping what attackers lose;
+nothing here shows that attackers lose the signal. Whether any reversible
+obfuscation blinds cache-geometry detection is open, and a test of it
+needs adaptive adversaries, per-query keys and many more confabulations.
 
 \section*{Data, Code and Review History}
 
@@ -586,17 +618,22 @@ that repository is private). The scripts that wrote them were not
 recovered. Replication: \nolinkurl{code/kv_cloak_replication.py} with
 \nolinkurl{data/kv_cloak_replication_100.json} and
 \nolinkurl{data/kv_cloak_replication_analysis.json}. Positive control:
-\nolinkurl{data/kv_cloak_positive_control.json}. Every number in this
-version is recomputed from these files by
+\nolinkurl{data/kv_cloak_positive_control.json}. Every result in this
+version is recomputed from the per-trial files, or read from the run
+files where only aggregates exist (Table~\ref{tab:cross_arch}'s
+cross-architecture rows, all confidence intervals), by
 \nolinkurl{check_correction_claims.py}, in this paper's folder of
-\url{https://github.com/Liberation-Labs-THCoalition/published-research}.
+\url{https://github.com/Liberation-Labs-THCoalition/published-research};
+Methods details carried over from version~1.0 (model architectures, the
+classifier's pattern count) are not.
 Review history: the lab's remediation plan (23 June 2026) recommended
 withdrawing the rotation claim; the Agni style gate (4 September 2026)
 rejected version~1.0
 (\nolinkurl{tools/agni/style/kv-cloak-defense-paper.agni_style.json});
 Kavi's verification flags (14 September 2026); for version~1.1, a scoping
-review (20 October 2026), the correction gate above, and the Agni paper
-and style modes (records in \texttt{review/}).\par}
+note (published-research pull request 10, 20 October 2026), the
+correction gate above, and the Agni paper and style modes on the first
+draft (records in \nolinkurl{review/}).\par}
 
 \bibliographystyle{plainnat}
 \section*{Acknowledgments}
@@ -619,17 +656,17 @@ item quotes it verbatim and says where the evidence is.
 \begin{enumerate}
 \item \textbf{Title.} ``Cache Geometry Under Obfuscation: KV-Cloak as
 Defense Against Adversarial KV-Cache Steering.'' It asserted a working
-defense (Sections~\ref{sec:replication} and~\ref{sec:real}).
+defense (Sections~\ref{sec:shift} and~\ref{sec:real}).
 
 \item \textbf{Abstract, opening.} ``A single invertible linear transform
 of the KV cache degrades SVD-based cognitive-state detection from
 near-ceiling to near-chance ($p = 5.5 \times 10^{-16}$), while a real
 KV-Cloak implementation confirms the defense is conservative (detection
 AUROC drops from 0.903 to 0.614).'' The $p$-value is the Wilcoxon test of
-Section~\ref{sec:shift}, a shift in one feature's values. The replication
-found no change at all (Section~\ref{sec:replication}), and under the full
-mechanism only the spectral gap fell, while signal rank stayed at 0.766
-(Section~\ref{sec:real}).
+Section~\ref{sec:shift}, a shift in one feature's values; under the
+rotation the same feature still detects at 0.787
+(Section~\ref{sec:shift}); under the full mechanism, seven confabulations
+cannot settle whether the signal is gone (Section~\ref{sec:real}).
 
 \item \textbf{Abstract, finding 1 (text baseline).} ``A text-only
 surface-feature baseline achieves 0.755; cache geometry outperforms text
@@ -646,9 +683,9 @@ transfer attacks.} [\ldots] A detector calibrated on uncloaked caches
 cannot operate on cloaked caches. This is a domain-shift effect: rotation
 preserves the underlying geometric structure but changes the coordinate
 system, preventing transfer from uncloaked calibration data.'' True only
-of a fixed threshold in one feature pipeline; in the replication's
-pipeline nothing moves, and the ranking survives in both
-(Sections~\ref{sec:replication} and~\ref{sec:shift}).
+of a fixed threshold; the ranking survives the rotation, and in a
+per-head layout nothing moves (Sections~\ref{sec:replication}
+and~\ref{sec:shift}).
 
 \item \textbf{Abstract, finding 3.} ``0--2 adverse events per model in 10
 trials, inconsistent with destabilization rates above 30\% (power 0.97 to
@@ -679,8 +716,10 @@ a defensive Oracle is deployed.''
 
 \item \textbf{Method.} ``This preserves within-head singular values while
 scrambling cross-head correlations.'' Concatenated along the feature
-axis, the heads' singular values are preserved too
-(Section~\ref{sec:method_rot}).
+axis, the heads' singular values are preserved too; stacked along the
+token axis, as the lab's extractor stacks them, they are not
+(Section~\ref{sec:method_rot}). Also: ``Features are FWL-residualized [\ldots] against output token
+count and evaluated via Mann-Whitney AUROC''; the AUROCs reported were computed on raw features.
 
 \item \textbf{Results, feature-space shift.} ``The cloaking is perfectly
 detectable by paired comparison---but this is the desired property. An
@@ -693,11 +732,20 @@ uncloaked data are meaningless on cloaked data.'' (Section~\ref{sec:shift}.)
 Incoherent'' and ``The injection becomes noise rather than a targeted
 perturbation.'' Untested: the positive control did not work.
 
+\item \textbf{Results, defender.} The heading ``Defensive Oracle Retains
+Full Capability'' and ``Detection operates at full capability (AUROC~0.903
+on the distilled model).'' An argument, now in the Discussion with the
+fused-$M$ gap.
+
 \item \textbf{Results, within-cloak detection.} ``On Mistral, the cloak
 effectively eliminates detection entirely. [\ldots] This scenario---where
 both classes share the same obfuscation---is relevant only to an
 adversary who controls the cloak key, which the TEE architecture
 prevents.''
+
+\item \textbf{Results, base model.} ``Detection is weak and heavily
+confounded with token count.'' Removing reply length raises it (0.661 to
+0.687).
 
 \item \textbf{Results, cross-architecture.} ``Obfuscation reduces
 detection on Mistral to chance (0.516) and partially degrades on the

@@ -1,11 +1,11 @@
 {
   "title": "Cache Geometry Under Obfuscation",
-  "subtitle": "Per-head rotation does not hide SVD features, and a KV-Cloak implementation is inconclusive (v1.1 correction)",
+  "subtitle": "Per-head rotation does not remove the signal, and a KV-Cloak implementation is inconclusive (v1.1 correction)",
   "slug": "kv-cloak-defense",
   "authors": ["Lyra", "Thomas Edrington", "Dwayne Wilkes"],
   "date": "2026-04-20",
   "tags": ["kv-cache", "defense", "obfuscation", "dual-use", "safety"],
-  "abstract": "Version 1.1 (October 2026) withdraws this paper's claim that KV-Cloak defends cache-geometry methods against adversaries. Per-head orthogonal rotation, the simulation of KV-Cloak used throughout, leaves the singular-value features that cache-geometry detectors read unchanged: in a 100-prompt replication none of the 24 cross-head features moved, and a classifier scored AUROC 0.994 with and without the rotation. An implementation of the full KV-Cloak mechanism reduced the best detection feature from AUROC 0.903 to 0.614 on 7 confabulations, while two other features were no lower than without it; at this size the data cannot show whether detection survives.",
+  "abstract": "Version 1.1 (October 2026) withdraws this paper's claim that KV-Cloak defends cache-geometry methods against adversaries. Under per-head orthogonal rotation, the simulation of KV-Cloak used here, the feature that detected confabulation best without obfuscation still detects on both models tested (spectral gap AUROC 0.903 to 0.787 on a distilled Qwen3.5-27B; signal fraction 0.661 to 0.639 on Qwen2.5-7B), and the rotation cannot change the spectrum of any single head. Under an implementation of the full KV-Cloak mechanism the spectral gap falls to 0.614, and after removing reply length no feature detects significantly; with seven confabulations the result is inconclusive.",
   "pdf_filename": "KV-Cloak_Defense_-_Academic_Version.pdf",
   "related_page": "../projects/oracle-loop.html"
 }
