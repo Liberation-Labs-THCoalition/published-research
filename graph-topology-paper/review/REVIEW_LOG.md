@@ -42,6 +42,7 @@ What checked this version, when, and where each round's findings and fixes are r
 | Second reader of the draft, round 2 | The same reader, on the files and diff of `503b25c`, `c047052`, `32a9c6a` | MINOR FIXES (11 of 13 fixed; "containing the answers" left in the Discussion and Conclusion; the academic edition adds Kavi and Dwayne; "not connected" is not generic; 27f86e4 missing; two two-hop questions, not one; nits) | The two commits after `32a9c6a` |
 | Agni style gate (opus), both editions | `tools/agni/style/graph-topology-paper.v11-r1.agni_style.json` (2026-10-20 UTC) | CONDITIONAL, 15 findings: the First-Person Reflection (CRITICAL), the academic note's Kavi sentence, Dwayne's byline history and audit, the answer-term overclaim, deposit order, sign-offs, and minor items | The two commits after `32a9c6a` |
 | CC's acknowledgment removed at CC's request | CC searched their transcripts for 24 to 27 May: the Oracle Loop work was real but not used in this study | | The credit commit after `32a9c6a` |
+| Agni style gate (opus), round 2, both editions | `tools/agni/style/graph-topology-paper.v11-r2.agni_style.json` (2026-10-20 UTC) | CONDITIONAL, 12 findings: the text is close to shippable; deposit conditions (sign-offs, the companion citations in both directions, an unreviewed Zenodo description), Kavi's academic credit decided without Thomas (register #143), and minor items | The two commits after `30bd342` |
 
 Round 1's findings, in brief: the September Zenodo description was missing from the note; "contains every expected
 answer" was too strong (the paragraph has three unconnected parts, and 9 of 12 three-hop questions cross them); "no
@@ -65,10 +66,30 @@ why replies were empty.
 - ~~CC's acknowledgment~~ Closed 2026-10-19: CC asked for it to be removed (letter of 21:44); the note uses CC's
   wording.
 - Kavi: whether the "verification review" took place. Kept unchanged until Kavi answers.
-- Thomas Edrington: sign-off on both editions, the new title, and his Author Contributions line.
-- Deposit order: K/V version 1.1 first; then this paper, with K/V version 1.1's version DOI in place of the concept DOI
-  in its `nexus2026kv` entry; then Ethics Packs version 1.1, which cites both. The style gate's finding 7 (Ethics Packs
-  repeating the cache framing) is already fixed on branch `nexus/pharos-corrections-v11` (Ethics `main.tex:31`: "put
-  walk-encoded descriptions of knowledge graphs into the prompt as text"); this branch predates that fix.
-- The Agni style gate on the fixes (round 2).
+- Thomas Edrington: sign-off on both editions, the new title, his Author Contributions line and the academic CRediT
+  roles, recorded here with date and source.
+- Thomas Edrington: register #143, whether the academic edition thanks Kavi and Dwayne Wilkes as the GitHub edition
+  does. Version 1.0's academic edition thanked neither, and version 1.1's keeps that until he decides (`30bd342` had
+  added Dwayne and left Kavi out; style gate round 2 found that was his call, and the commit after it restores the
+  version 1.0 state).
+- **Deposit procedure (style gate round 2, finding 2):** create Zenodo drafts for K/V, this paper and Ethics Packs
+  version 1.1 and reserve all three version DOIs before publishing any. Then:
+  - here, `nexus2026kv` gets K/V version 1.1's reserved version DOI;
+  - in K/V, `nexus2026topology` gets this paper's version 1.1 title and reserved DOI, and "whose correction is in
+    preparation" becomes that citation;
+  - in Ethics Packs, the same for both entries (its `.bib` already lists Edrington as the author on
+    `nexus/pharos-corrections-v11`; the title is still version 1.0's).
+- **Zenodo description:** paste `zenodo_v11.md` over the pre-filled metadata (the 14 September description carries the
+  withdrawn "cache tensors" claim). It is to be gated with the two editions.
+- **Repository metadata at deposit:** `paper.json` (abstract's "in preparation", `related_page`, date), the README row
+  and the `RESEARCH_STATUS.md` row; register #142 can close (each `.tex` now has one Acknowledgments section).
+- Outside this paper: `null-swarm-paper/references.bib:71` and its academic copy hold an uncited entry for this paper
+  under a title it never had. For that paper's own correction.
+- Checked, nothing to add: the Pustovit name. "Aleksandr" entered in `6137b98` and was fixed to "Andrey" in `6c8e740`
+  on 28 May, before version 1.0 was deposited, so version 1.1 corrects nothing silently there.
+- Deposit order, in short: K/V first, then this paper, then Ethics Packs, each citing the others' reserved version
+  DOIs. Style gate round 1's finding 7 (Ethics Packs repeating the cache framing) is already fixed on branch
+  `nexus/pharos-corrections-v11` (Ethics `main.tex:31`: "put walk-encoded descriptions of knowledge graphs into the
+  prompt as text"); this branch predates that fix.
+- The Agni style gate on round 2's fixes and on `zenodo_v11.md` (round 3).
 - Whether the memory-graph file survives on the Studio (not searched).
