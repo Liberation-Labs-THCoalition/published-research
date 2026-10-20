@@ -36,7 +36,9 @@ Key findings:
 
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
 `PROVENANCE_wk_probes.md`). The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
-(byte-exact copies; `SHA256SUMS` lists every file's hash).
+(byte-exact copies; `SHA256SUMS` lists every file's hash), with the 900 stories and the text (TF-IDF) baseline.
+At least 84 of the 900 stories carry the generator's leaked planning (141 by a broader, post-data pattern); the paper
+reports this as a data limitation, and `correction_v2/leak_split.py` computes the split.
 
 ## Repository Contents
 
@@ -54,6 +56,11 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 - The October 2026 correction run: preregistration (markdown and JSON), the sealed prediction, the encode, analysis
   and dry-run scripts, the results with the encode manifest and logs (`results_20261019/`), the results write-up,
   the R1 investigation and the design notes. `.gitattributes` keeps them byte-exact so the registered hashes hold.
+- `emotion_bridge_trials.json` — the 900 stories every probe reads (sha256 `fc5938fe…`, registered).
+- `R0_text_baseline.py`, `R0_results.json` — the text (TF-IDF) baseline's script and its 5-fold results file
+  (`R0_results.json` sha256 `f2e029b1…`, registered).
+- `leak_split.py` — splits off the stories that carry the generator's leaked reasoning and reports each probe's
+  accuracy on both groups, from the released files (descriptive; the registered tests ran on all 900).
 
 ### `code/`
 - `emotion_geometry_bridge.py` — Main experiment script (900 trials, 30 emotions x 10 topics x 3 stories)
