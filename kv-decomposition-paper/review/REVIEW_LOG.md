@@ -41,11 +41,13 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
 ## Still open before deposit
 
 - Kavi: whether the "verification review" thanked in version 1.0 took place, and their acknowledgment wording.
-- CC: wording for their acknowledgment (version 1.0's "attention-steering connection" came from the 1 June revision
-  and has no source). The note now says so, with CC's answer pending; if CC is thanked, the academic AI disclosure
-  names CC too.
+- ~~CC's acknowledgment~~ Closed 2026-10-19: CC found no record of contributing to this paper and asked for the line
+  to be dropped unless the history showed otherwise. It doesn't: the 28 May draft thanked CC for infrastructure work
+  and already cited the value-only result; the 1 June revision wrote "attention-steering connection". Line removed,
+  and the note says so.
 - Thomas Edrington: sign-off on BOTH editions (he is on both bylines); confirmation of his flight-edition line
-  "direction and the initial insight" (written in the 1 June revision, like CC's withdrawn line) and of his academic
+  "direction and the initial insight" (the 28 May draft said "for direction"; the 1 June revision added "and the
+  initial insight", the same edit that wrote CC's withdrawn line) and of his academic
   CRediT roles (Conceptualization, Supervision, Resources, Project administration); whether the status table's
   blocker was the reason for the 5 June move; the new title.
 - Lyra: full read of both editions. Lyra's own acknowledgment line says "reviewed this correction"; it is true only
