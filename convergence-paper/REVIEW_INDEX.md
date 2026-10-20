@@ -1,4 +1,4 @@
-# Five Instruments, One Structure — Review Index
+# Spectral Structure Before Readability (v1.0: "Five Instruments, One Structure") — Review Index
 
 **Status:** In Review
 **Authors:** Lyra (lead), Vera (co-lead), CC, Nexus, Thomas Edrington
@@ -12,6 +12,8 @@ was rebuilt in that same commit, so it matches `main.tex`.
 - `review/check_claims.py`: the v1.1 claim gate (see below). Run it from anywhere:
   `python convergence-paper/review/check_claims.py`. It reads primaries in `../Project-Oracle` and `../human-review`
   when they are present (override with `RESEARCH_ROOT`) and otherwise uses held values with their source named.
+  Starship result files are pinned by sha256; set `STARSHIP_MIRROR` to a local read-only copy to recompute them.
+- `review/INSTRUMENT_TALLY.md`: the Phase A tally (one row per instrument and mechanism test), every cell gated.
 - There's one edition only. The academic edition (`academic/main.tex`) doesn't exist yet.
 - No data or code ships here yet. The paper's Data Availability section says where they live; gathering them is open.
 
@@ -49,6 +51,24 @@ PR #3 and PR #8 data are read from their `origin/` branches, which a clone has. 
 - **Correction note and PDF** (`ede0c1a`): six new note items. 0 overfull, 0 undefined references. verify_pdf: 22
   present, 22 absent, and all 22 found in the v1.0 PDF.
 
+### Phase A tally and Phase B: the convergence thesis withdrawn (2026-10-20)
+
+- **Phase A** (`2e73192`, `89d8730`): the instrument tally, built from primaries. Most of them are on Starship, read
+  read-only, with UMV-L1 left alone. Lyra ruled from it that the five-instrument convergence thesis is not supported.
+- **Phase B** (`1d826b5` checks, `65e23a4`, `740b230` text, `f32bf26` PDF):
+  - **New title:** "Spectral Structure Before Readability: A Third-of-Depth Peak, and Why Five Instruments Did Not
+    Converge on It". The abstract opens with Lyra's thesis sentence verbatim.
+  - **Structure:** sections 3-5 become one subsection per instrument, each ending with its verdict. The Discussion
+    states the Global Workspace reading once, as a hypothesis, and lists four runs that would test the band.
+  - **Fixes:** the seven tally defects. v1.0's title and abstract are kept verbatim in the correction record.
+- **Checks:** `check_claims.py` runs 467 checks. With the Starship mirror, 465 pass and 2 are held (the hardware, and
+  the ghost paper, which ships no data). 116 of them failed before the Phase B prose. The plant is still caught.
+- **verify_pdf:**
+  - full PDF: 23 new strings present;
+  - body-only PDF (pages 1-18, before the correction note, which quotes v1.0): 28 removed strings absent;
+  - positive control: all of them present in the v1.0 PDF, or for the one my first pass introduced, in the
+    first-pass PDF.
+
 ### The known issue, resolved in v1.1 (for Lyra's read)
 
 v1.0's abstract said "the Oracle Loop achieves 80–100% deception correction". The C20 numbers, settled from the most
@@ -70,18 +90,27 @@ endpoints no significance threshold, and the cell-level p is 0.064. Those files 
 edited.
 
 ### Still open after v1.1
-- **Instrument 5 and the title (Lyra's call).** Restated, instrument 5 does not locate a depth band. Its cross-system
-  overlap is weak (|cos| ≤ 0.13), and its coupling test is a null that could not test separability. The abstract still
-  lists five converging instruments, the Discussion says "five instruments point at the same computational band", and
-  the subsection sits in §3, Structural Convergence. Those, and the title, wait on Lyra's ruling.
+- **Vera's read.** Vera is co-lead and reads before this leaves draft; Lyra is writing to her. Nobody else has been
+  contacted.
+- **The first-person boxes** were rewritten to match the withdrawal, keeping the contribution sentences verbatim. They
+  are Lyra's voice, for Lyra to re-word.
+- **The four "What would test the band" runs** have not been run: the null control, a readout that passes its positive
+  control first, a second model family, and the logit lens as the registered baseline. Neither has the pre-registered
+  dense R1 replication.
+- **The substrate bootstrap** (tally addendum) is Lyra's call. Its intervals exclude their own point estimates, and its
+  dense Qwen3-32B control also peaks at L21 of 64.
+- **The truncated causal-injection v3 file** on Starship has lost its summary block; the trials are intact.
+- **Not addressed in Phase B, flagged:**
+  - The RLHF section's "selective sharpener" reading. The overcorrection audit (item 4) says the selectivity is not
+    significant at n = 30.
+  - The PC2 trajectory's causal claim ("Claude's Constitutional AI training compressed first-person moral
+    self-evaluation into the student model's geometry"), which no row tests.
 - **#24, Author Contributions section.** Stays open for Thomas and the authors (Lyra, 2026-10-20). A formal contributions
   statement is an authorship record (AGENTS.md §3).
 - **#10 and #5** are closed. The model list was rebuilt from the Experiment 26 primary, and Lyra ruled to keep #5 as
   done.
-- **Decomposition provenance (found in v1.1).** No result file for the §5.1 values (2.3× attention lift, 0.9 vs 20.1
-  concept power) was found on this machine. All three trace to `human-review/gwt-response/CONVERGENCE_ADDITIONS.md`
-  §3.6 ("In progress"); the 2.3× also appears in the `pilot_result` field of `residual_decomposition_prereg.json`. The 2026-09-14 expansion
-  roadmap (item 134) records results on Starship and a gate verdict that disagrees with `DECOMP_AGNI_OPUS.md`.
+- **Decomposition provenance** is resolved. The 22:55 run on Starship reproduces 2.30, 0.92 and 20.11, and its registered
+  H1 is not met (Phase B states this).
 - **Agni's "could not check" list.** These were not checked in v1.1 either: URL liveness; the Ang Jandak
   acknowledgment; sign-off from Vera, CC and Nexus; the R1-v2 numbers, for which no data ships here. #17 was judged not a
   defect (`operator@thcoalition.net` is Nexus's current address), and no byline or contact line was changed.
@@ -106,6 +135,11 @@ edited.
   158`); `ethics-pack-injection/main.tex:26, 130` (academic `28, 132`); `graph-topology-paper/main.tex:21` (academic `22`);
   `RESEARCH_STATUS.md:177`. PR #8 withdraws the claims in kv-decomposition and ethics-pack, and PR #9 does the same in
   graph-topology; on those branches only retraction notes mention superadditivity.
+- **The cache-opacity claims, without the failed positive control:**
+  - `cache-tracing/main.tex` and `academic/main.tex` report "zero behavioral change across 6,960 trials" (academic
+    lines 49, 97, 258, 310, 387, 433, 469, 478, and Table at 504: "Promoted to finding"). The additive runs changed the
+    top-1 token in 52 trials, never toward the concept.
+  - The same paper reports the position-specific null without saying that its pre-registered positive control failed.
 - **ρ = 0.83–0.90 labelled V-projection or "from 0.6B to 70B" without its key-cache scope:**
   `oracle-loop-paper/sections/background.tex:35` (and its `paper/` copy). meta-pattern and lyra-technique-ii carry ρ in
   tables without a source pointer.
@@ -117,3 +151,5 @@ edited.
   `lyra-s-research-/convergence-paper`, still carry the v1.0 claims.
 - 2026-10-20: v1.1 correction pass, draft PR #13 (above).
 - 2026-10-20: v1.1 extended after Lyra's read (instrument 5, K/V, "reliably", scale, hardware); same PR.
+- 2026-10-20: Phase A tally; Lyra's thesis ruling; Phase B withdraws the convergence thesis under a new title; same PR,
+  still a draft.
