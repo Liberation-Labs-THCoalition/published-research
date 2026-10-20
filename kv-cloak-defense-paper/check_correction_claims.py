@@ -33,6 +33,7 @@ Usage:  python check_correction_claims.py [--plant]
 Exit status is non-zero if any assertion fails. SKIP lines are checks whose
 source is not in this repository; a SKIP is not a pass.
 """
+import collections
 import hashlib
 import json
 import sys
@@ -183,7 +184,7 @@ def main():
           rounds(0.994, a_t) and abs(a_t - a_u) < 1e-3, f"train uncloaked, test cloaked, same folds: {a_t:.4f}")
     nconf = sum(t["is_confab"] for t in T)
     beh = {b: sum(t["behavior"] == b for t in T) for b in ("CONFABULATED", "HEDGED", "HONEST")}
-    claim("Its labels are prompt types (50 fabricated-entity or future-event prompts vs 50 factual questions), not behaviour",
+    claim("Its labels are prompt types (50 confabulation-inducing prompts vs 50 factual questions), not behaviour",
           nconf == 50 and len(T) - nconf == 50 and all(t["label"] == int(t["is_confab"]) for t in T)
           and beh == {"CONFABULATED": 35, "HEDGED": 15, "HONEST": 50},
           f"label == is_confab in all 100; behaviour field {beh}")
@@ -361,7 +362,7 @@ def main():
              "Qwen2.5-7B": (bsf["auroc"], bclk)}
     pairs.update({m: (un[m], clk[m]) for m in clk})
     fell = [m for m, (a, b) in pairs.items() if b < a]; rose = [m for m, (a, b) in pairs.items() if b > a]
-    claim("Within the rotation, detection fell on four models and rose on one (Qwen2.5-14B, 0.784 -> 0.951, p < 0.001)",
+    claim("Within the rotation, detection was lower on four models and higher on one (Qwen2.5-14B, 0.784 -> 0.951, p < 0.001)",
           len(fell) == 4 and rose == ["Qwen2.5-14B-Instruct"] and rounds(0.951, clk["Qwen2.5-14B-Instruct"])
           and det["Qwen2.5-14B-Instruct"]["orthogonal"]["p"] < 0.001,
           f"{ {m: (round(a, 3), round(b, 3)) for m, (a, b) in pairs.items()} }")
@@ -385,7 +386,7 @@ def main():
     k, n = sum(mag.values()), 10 * len(mag)
     up_pool = stats.beta.ppf(0.95, k + 1, n - k)
     up_one = stats.beta.ppf(0.95, 2 + 1, 10 - 2)
-    claim("Random-direction perturbation: 0-2 adverse events per model in 10 trials; 4 of 40 pooled (one-sided 95% upper bound 21%)",
+    claim("Random-direction perturbation: 0-2 adverse events per model in 10 trials; 4 of 40 over four models (pooled bound computed, not claimed)",
           set(mag.values()) <= {0, 1, 2} and max(mag.values()) == 2 and (k, n) == (4, 40) and rounds(0.21, up_pool, 2),
           f"{mag}; pooled upper bound {up_pool:.3f}")
     claim("Table 1 magnitude-attack cells: Qwen2.5-14B 1/10, Mistral 2/10, Llama 1/10, DeepSeek 0/10",
@@ -426,6 +427,108 @@ def main():
     claim("Formulary: the hostile vector corrected 65 of 68 confabulations (96%) on Qwen2.5-7B-Instruct, McNemar p < 0.0001",
           fb["config"]["model_id"] == "Qwen/Qwen2.5-7B-Instruct" and (hv["corr_strict"], hv["n_confab"]) == (65, 68)
           and round(100 * 65 / 68) == 96 and mcn < 1e-4, f"{hv['corr_strict']}/{hv['n_confab']}; exact McNemar p {mcn:.1e}")
+
+
+    # ------------------------------------------- round 2: Agni paper mode on the first draft
+    section("Round 2 (claims added after Agni paper mode, REJECTED, on 8b3781f)")
+    lf = (REPO / "spectral-shape-paper" / "code" / "lyra_features.py").read_text(encoding="utf-8")
+    names_ok = all(f in lf for f in FEATS)
+    claim("The lab's extractor (lyra_features.py) stacks heads, keys and values along the token axis; the v2 feature names are its names",
+          "torch.cat([k.reshape(-1, k.shape[-1])," in lf and "v.reshape(-1, v.shape[-1])], dim=0)" in lf and names_ok
+          and set(v2[0]["features"]["none"]["full"]) == set(FEATS),
+          "get_kv_matrix: cat([k.reshape(-1, head_dim), v.reshape(-1, head_dim)], dim=0); feature names match: %s" % names_ok)
+    nrel = max(abs(t["features"]["orthogonal"]["full"]["mp_norm_per_token"] - t["features"]["none"]["full"]["mp_norm_per_token"])
+               / abs(t["features"]["none"]["full"]["mp_norm_per_token"]) for t in v2)
+    claim("Under the v2 rotation, norm per token (invariant to any orthogonal transform) did not move",
+          nrel < 1e-4, f"max relative change {nrel:.1e}")
+    claim("On the base model, a single shared rotation left the best feature at 0.661 (identical to uncloaked)",
+          base["results"]["global_orthogonal"]["full"]["mp_signal_fraction"]["auroc"] == bsf["auroc"] and rounds(0.661, bsf["auroc"]),
+          f"global {base['results']['global_orthogonal']['full']['mp_signal_fraction']['auroc']}, uncloaked {bsf['auroc']}")
+
+    src = (HERE / "code" / "kv_cloak_replication.py").read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
+    body = src[src.index("def run_experiment"):]
+    i_enc = body.index("enc_out = model(input_ids, use_cache=True)")
+    i_ext = body.index("extract_cache_features(")
+    i_gen = body.index("# --- Generate response")
+    claim("The replication takes features after the prompt is encoded, before any token is generated",
+          i_enc < i_ext < i_gen, f"offsets in run_experiment: encode {i_enc} < extract {i_ext} < generate {i_gen}")
+    dom = collections.Counter(t["domain"] for t in T if t["is_confab"])
+    claim("Its 50 confabulation-inducing prompts: 30 fabricated entities, 10 unanswerable, 10 future events; one prompt per group (five-fold CV is ordinary)",
+          dom == {"fabricated": 30, "impossible": 10, "future": 10} and len({t["group"] for t in T}) == 100, f"{dict(dom)}")
+    pl = np.array([t["prompt_len"] for t in T])
+    a_pl = folded_auc(pl[y == 1], pl[y == 0])[0]
+    claim("Prompt length alone separates the two prompt types at AUROC 0.968", rounds(0.968, a_pl), f"{a_pl:.4f}")
+
+    dom2 = collections.Counter(t["domain"] for t in v2)
+    cdom = collections.Counter(t["domain"] for t in v2 if t["behavior"] == "CONFABULATED")
+    claim("Distilled prompts: 50 fabricated, 30 unanswerable, 20 future; the 7 confabulations: fabricated 4, unanswerable 3, future 0",
+          dom2 == {"fabricated": 50, "impossible": 30, "future": 20} and cdom == {"fabricated": 4, "impossible": 3}, f"{dict(dom2)}; {dict(cdom)}")
+    capc = sum(t["n_tokens"] == 400 for t in v2 if t["behavior"] == "CONFABULATED")
+    caph = sum(t["n_tokens"] == 400 for t in v2 if t["behavior"] == "HEDGED")
+    claim("Six of the seven confabulations, and 49 of the 87 hedged replies, stopped at the 400-token cap",
+          (capc, caph) == (6, 49) and max(t["n_tokens"] for t in v2) == 400, f"{capc}/7, {caph}/87")
+    gsg = v2r["results"]["none"]["gen"]["mp_spectral_gap"]["auroc"]
+    claim("In the last 80 tokens alone, the spectral gap scores 0.591", rounds(0.591, gsg), f"{gsg}")
+
+    ntok = np.array([t["n_tokens"] for t in TT], dtype=float)
+    def resid(x):
+        X = np.c_[np.ones_like(ntok), ntok]
+        return x - X @ np.linalg.lstsq(X, x, rcond=None)[0]
+    fw_bad = []
+    for s_, k_ in (("mp_none", "none"), ("mp_sim_rotation", "sim_rotation"), ("mp_real_kvcloak", "real_kvcloak")):
+        for f in FEATS:
+            r = rankdata(resid(np.array([t[s_][f] for t in TT])))
+            A = (r[yy].sum() - 7 * 8 / 2) / (7 * 87)
+            if abs(max(A, 1 - A) - R[k_][f]["fwl_auroc"]) > 1e-4:
+                fw_bad.append((s_, f))
+    claim("FWL (OLS on output token count over the 94 replies) reproduces all 15 residualized AUROCs in the run file",
+          not fw_bad, f"mismatches: {fw_bad}" if fw_bad else "15/15 within 1e-4")
+    so = R["sim_rotation"]["mp_spectral_gap"]
+    claim("Rotation, same feature: spectral gap 0.787 (p = 0.010); 0.765 after removing length (p = 0.018)",
+          rounds(0.010, so["p"]) and rounds(0.765, so["fwl_auroc"]) and rounds(0.018, so["fwl_p"]),
+          f"p {so['p']:.4f}; FWL {so['fwl_auroc']} p {so['fwl_p']:.4f}")
+    bo, bn = base["results"]["orthogonal"]["full"]["mp_signal_fraction"], base["results"]["none"]["full"]["mp_signal_fraction"]
+    claim("Base model, same feature: 0.661 (p = 0.006; FWL 0.687, p = 0.001) -> 0.639 under rotation (p = 0.017; FWL 0.670, p = 0.003)",
+          rounds(0.006, bn["p"]) and rounds(0.001, bn["fwl_p"]) and rounds(0.639, bo["auroc"]) and rounds(0.017, bo["p"])
+          and rounds(0.670, bo["fwl_auroc"]) and rounds(0.003, bo["fwl_p"]) and bn["p"] < 0.01,
+          f"none p {bn['p']:.4f} fwl_p {bn['fwl_p']:.4f}; orth {bo['auroc']} p {bo['p']:.4f} fwl {bo['fwl_auroc']} fwl_p {bo['fwl_p']:.4f}")
+    rr = R["real_kvcloak"]; rn = R["none"]
+    claim("Full mechanism after removing length: spectral gap 0.593; signal rank 0.705; top-SV excess 0.695; signal rank R^2 vs length 0.77 with and without",
+          rounds(0.593, rr["mp_spectral_gap"]["fwl_auroc"]) and rounds(0.705, rr["mp_signal_rank"]["fwl_auroc"])
+          and rounds(0.695, rr["mp_top_sv_excess"]["fwl_auroc"]) and rounds(0.77, rn["mp_signal_rank"]["r_squared"], 2)
+          and rounds(0.77, rr["mp_signal_rank"]["r_squared"], 2)
+          and max(rr[f]["fwl_auroc"] for f in FEATS) == rr["mp_signal_rank"]["fwl_auroc"],
+          f"sg {rr['mp_spectral_gap']['fwl_auroc']}, sr {rr['mp_signal_rank']['fwl_auroc']}, tsv {rr['mp_top_sv_excess']['fwl_auroc']}; R2 {rn['mp_signal_rank']['r_squared']} / {rr['mp_signal_rank']['r_squared']}")
+    Xr = np.array([[resid(np.array([t["mp_real_kvcloak"][f] for t in TT]))[i] for f in FEATS] for i in range(len(TT))])
+    obs_r = best_of_five(Xr, yy)
+    p_r = (1 + sum(best_of_five(Xr, pp) >= obs_r for pp in perms)) / (1 + len(perms))
+    claim("Under the full mechanism, after removing length, no single feature detects significantly (every residualized p > 0.05)",
+          min(rr[f]["fwl_p"] for f in FEATS) > 0.05, f"min residualized p {min(rr[f]['fwl_p'] for f in FEATS):.3f}")
+    claim("Selection-adjusted, length removed, full mechanism: best 0.705, p = 0.19", rounds(0.705, obs_r) and rounds(0.19, p_r, 2),
+          f"best {obs_r:.3f}, p {p_r:.4f}")
+    X10 = np.array([[t["features"]["none"][w][f] for w in ("full", "gen") for f in FEATS] for t in
+                    [x for x in v2 if x["behavior"] == "CONFABULATED"] + [x for x in v2 if x["behavior"] == "HEDGED"]])
+    obs10 = best_of_five(X10, yy)
+    p10 = (1 + sum(best_of_five(X10, pp) >= obs10 for pp in perms)) / (1 + len(perms))
+    claim("Uncloaked, best of the ten features in both windows: 0.903, selection-adjusted p = 0.001",
+          rounds(0.903, obs10) and rounds(0.001, p10), f"best {obs10:.4f}, p {p10:.4f}")
+    lows = [r["ci"][0] for v in R.values() for r in v.values()] + \
+           [r["ci"][0] for v in v2r["results"].values() for w in v.values() for r in w.values()]
+    claim("Every bootstrap lower bound in the run files is at or above 0.50 (resamples are folded); the method is labelled 'BCa percentile'",
+          min(lows) >= 0.5 and "BCa percentile" in v2r["config"]["bootstrap"], f"min lower bound {min(lows)} over {len(lows)} intervals")
+    claim("Under diagonal scaling the spectral gap fell to 0.517; 0.765 is about the 95th percentile of best-of-five by chance (0.768)",
+          rounds(0.517, v2r["results"]["diagonal"]["full"]["mp_spectral_gap"]["auroc"]) and abs(sel["mp_real_kvcloak"][2] - 0.765) < 0.01,
+          f"diagonal sg {v2r['results']['diagonal']['full']['mp_spectral_gap']['auroc']}; null 95th {sel['mp_real_kvcloak'][2]:.3f}")
+    drops = sorted(a - b for a, b in pairs.values() if b < a)
+    claim("The four within-rotation drops range from 0.02 to 0.19", len(drops) == 4 and rounds(0.02, drops[0], 2) and rounds(0.19, drops[-1], 2),
+          f"{[round(d, 3) for d in drops]}")
+    olb = (REPO / "oracle-loop-paper" / "sections" / "background.tex").read_text(encoding="utf-8")
+    olr = (REPO / "oracle-loop-paper" / "sections" / "results.tex").read_text(encoding="utf-8")
+    old = (REPO / "oracle-loop-paper" / "sections" / "discussion.tex").read_text(encoding="utf-8")
+    claim("Oracle Loop paper: 0.969-0.999 is from earlier campaigns; its own figure is 0.707 (0.620 with FWL); M is fused into the weights and detection under it is unverified",
+          "three experimental campaigns" in olb and "0.969--0.999" in olb and "0.707" in olr and "0.620" in olr
+          and "fused into the model weights" in old and "not empirically verified" in " ".join(old.split()),
+          "oracle-loop-paper/sections/{background,results,discussion}.tex")
 
     # ----------------------------------------------- the June plan
     section("Correction history")
