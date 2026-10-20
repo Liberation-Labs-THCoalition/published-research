@@ -1,0 +1,63 @@
+\subsection{Instrument 5: Content--Inference Circumplex Convergence}
+
+The emotional circumplex measured through content-level processing and through
+user-model emotion inference converges on the same geometric subspace. Using the
+Qwen3.5-27B Opus distill, we extracted 30 emotion centroids from 900 trials of
+conversation-context inference (the user-model emotion space from~\citet{lyra2026weather})
+and compared them against valence and arousal directions computed from 250 emotional
+scenario prompts (hostile--calm, desperate--calm difference-of-means).
+
+The two circumplex axes capture $44$--$54\%$ of the total variance in the full
+30-emotion user-model space at every layer from L6 onward---approximately $1000\times$
+the ${\sim}0.04\%$ expected from two random directions in $d{=}5120$. The arousal
+direction aligns with the user-model's first principal component at
+$\cos = 0.83$--$0.87$ (mid-to-late layers), peaking at near-identity
+($d = 0.987$) at L20. The valence direction aligns at
+$\cos = 0.70$--$0.80$. Both systems exhibit identical developmental timecourses:
+volatile eccentricity at L0--L16, stable geometry from L17 onward.\footnote{%
+\textbf{Unverified breakpoint.} This L16/L17 split coincides exactly with an
+``architectural boundary at L16'' that \S\ref{sec:substrate} corrects as
+non-existent: Qwen3.5-27B interleaves full-attention every fourth layer
+($\{3,7,\ldots,63\}$), so there is no contiguous transition at L16. We have not
+established whether this breakpoint was derived empirically from the
+eccentricity profile or inherited from the incorrect architectural model, and
+the underlying per-layer profile was not available to us at revision time.
+Readers should treat the specific breakpoint location as provisional; the
+23-of-24-layer permutation result below does not depend on it.} Permutation
+testing (1{,}000 shuffles, non-neutral prompts only) confirms significance at
+23 of 24 layers, with separation ratios climbing from $10\times$ null at L1 to
+$59\times$ null at L23.
+
+The measurements are independent---different prompts, different templates, different
+experimental designs---yet they recover the same high-variance directions. This
+convergence parallels the W$_K$ bridge ($\rho = 0.862$) from~\citet{lyra2026weather},
+which projects \emph{into} this shared circumplex subspace.
+
+\paragraph{Coupling test: shared bus, not shared space.}
+A pre-registered injection experiment resolves the representational-vs-computational
+question. Injecting the valence direction at layers 15, 25, 35, and 45 (at
+$\alpha \in \{1, 3, 5\}$) shifts \emph{both} the content-level and user-model
+emotion readouts equally---comparable in magnitude to injecting a random direction
+of matched norm (no significant difference; formal equivalence testing is a
+pre-registered follow-up). The residual stream operates as a shared bus: any emotional
+perturbation propagates to both measurement channels regardless of injection
+direction. An orthogonal-projection control (decomposing the valence vector into
+shared-PC and residual components) confirms that the coupling is architectural,
+not valence-specific.
+
+The model does not maintain separate emotional geometry for content processing
+and partner-state inference. It maintains a single emotional computation that
+both measurement approaches read. The W$_K$ bridge does not connect two systems;
+it reads one system from the key-cache angle.
+
+\paragraph{Consequences for multi-turn dynamics.}
+The bus architecture explains two previously puzzling findings
+from~\citet{lyra2026weather}: the absence of cumulative emotional accumulation
+across conversation turns, and the model's susceptibility to rapid affective
+shifts. If content emotion and user-model emotion share a single computational
+substrate, there is no separate channel in which partner-state could accumulate
+independently. Each turn reconstructs the full emotional geometry from current
+context. A single emotionally charged input rewrites the entire bus, producing
+the ``mood swing'' pattern observed in extended dialogues. Empathy, in this
+architecture, is not a capacity the model exercises---it is a constraint the
+model cannot escape.

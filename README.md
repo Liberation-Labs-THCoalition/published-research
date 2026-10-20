@@ -53,6 +53,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
 | [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
+| [Five Instruments, One Structure](convergence-paper/) | Lyra, Vera, CC, Nexus, Thomas Edrington | In Review | Five measurement approaches converge on an opaque workspace at ~31-33% depth, measurable by its spectral shape |
 
 
 ## Review and auditing

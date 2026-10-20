@@ -1,0 +1,326 @@
+% Section for the joint convergence paper
+% "Five Instruments, One Structure"
+% Insert after the opacity thesis section
+%
+% REVISION 2026-08-12: corrected architecture. The previous version described
+% Qwen3.5-27B as a contiguous block (full-attention L0-L15, GatedDeltaNet
+% L16-L63) with a single boundary at L16. The model config
+% (full_attention_interval=4) gives a 4-periodic interleave with full-attention
+% at {3,7,11,...,63}, as main.tex's Experimental Setup already stated correctly.
+% All d_eff values were re-verified against source and are unchanged; the
+% regime labels, groupings, and derived comparisons are corrected below.
+
+\subsection{Substrate Continuity}
+\label{sec:substrate}
+
+Qwen3.5-27B interleaves two memory substrates on a four-layer period:
+16 full-attention layers with KV-cache memory at positions
+$\{3,7,11,\ldots,63\}$, and 48 GatedDeltaNet layers with
+recurrent-state memory at all other positions
+(\texttt{full\_attention\_interval}${=}4$). The stack therefore
+crosses between substrates 31 times. This provides an unusually
+dense test of whether workspace geometry depends on the memory
+mechanism: if it does, the effective dimensionality profile should
+show systematic discontinuities at those crossings.
+
+$d_\text{eff}$ is the participation ratio of the residual-stream
+covariance eigenvalues, $(\sum_i \lambda_i)^2 / \sum_i \lambda_i^2$,
+computed at each layer over the last-token hidden state across
+$N{=}90$ prompts (60~prose + 30~chat), mean-centred across prompts.
+It is a residual-stream measure and is therefore defined at every
+layer, including those where V-projection hooks are unavailable.
+
+\subsubsection{Continuity across 31 substrate crossings}
+
+The layer-to-layer change in $d_\text{eff}$ at substrate crossings is
+descriptively similar to the change between same-substrate neighbours.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Layer-to-layer $|\Delta d_\text{eff}|$ at substrate crossings
+versus same-substrate steps on Qwen3.5-27B. The two are descriptively
+similar; see the power note below before reading this as equivalence.
+$N{=}90$ prompts.}
+\label{tab:crossings}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Step type} & \textbf{$n$} & \textbf{mean $|\Delta|$} & \textbf{sd} \\
+\midrule
+Substrate crossing      & 31 & 2.32 & 3.88 \\
+Same-substrate step     & 32 & 2.37 & 3.30 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{This comparison is underpowered and we report it as
+descriptive.} A Mann--Whitney test gives $p{=}0.445$, but three
+problems make that number uninformative. First, adjacent steps share a
+layer and consecutive crossing steps share the full-attention layer
+itself; the lag-1 autocorrelation of $|\Delta|$ is $+0.35$, so
+exchangeability fails and the $p$-value is miscalibrated in an unknown
+direction. Second, the four-layer period admits only \emph{four}
+distinct structure-respecting phase assignments, so the minimum
+attainable permutation $p$ is $0.25$ --- no permutation inference is
+available from a single profile. Third, and decisively: with pooled
+$\text{sd}{=}3.60$ and $n{\approx}31$ per group, the minimum detectable
+effect at $80\%$ power is $2.54$ --- larger than either group mean.
+This test could only have detected crossings roughly \emph{twice} the
+size of ordinary steps. Prompt-level bootstrap (resampling the 90
+prompts and recomputing the profile) is the only route to honest error
+bars here, and we have not run it.
+
+Two directional notes. Full-attention${\to}$GatedDeltaNet steps have
+mean $\Delta{=}{-}0.19$ ($n{=}15$); GatedDeltaNet${\to}$full-attention
+steps have mean $\Delta{=}{+}1.90$ ($n{=}16$). The latter is dominated
+by a single outlier at L58${\to}$L59 ($+19.66$), following an anomalous
+trough at L58 where $d_\text{eff}$ collapses to $4.30$ against
+neighbours of $21.68$ and $23.96$; excluding it the mean is $+0.72$.
+That same anomaly injects ${-}17.37$ into the same-substrate group at
+L57${\to}$L58, so the contamination is approximately symmetric.
+Excluding both L58-adjacent steps gives crossing $1.74$ versus
+same-substrate $1.88$ --- the descriptive similarity is not an artifact
+of the outlier.
+
+We flag L58 ($4.30$) and secondarily L54 ($9.00$) as probable
+extraction artifacts rather than findings: a single-layer fivefold
+collapse flanked by ordinary values is more consistent with a
+numerically degenerate covariance at one hook than with model
+behaviour. These layers warrant re-extraction.
+
+\subsubsection{Depth-matched regime comparison}
+
+Because the two substrates are interleaved on a fixed period, their
+layer sets are approximately depth-matched: mean layer index $33.0$
+for full-attention versus $31.0$ for GatedDeltaNet. The two-layer
+offset places full-attention slightly \emph{later} in the stack, in the
+post-peak declining region, so it would if anything depress the
+full-attention mean rather than inflate it.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Mean $d_\text{eff}$ by substrate on Qwen3.5-27B, approximately
+depth-matched. The substrates differ by ${\approx}1.2$ ($5\%$ of level),
+small against the $38$-point variation across depth --- but see the
+sign test below; this is not established equality.}
+\label{tab:regime}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Substrate} & \textbf{layers} & \textbf{mean $d_\text{eff}$} \\
+\midrule
+Full-attention (KV-cache)     & 16 & 25.24 \\
+GatedDeltaNet (recurrent)     & 48 & 24.03 \\
+\midrule
+\textbf{Difference}           &    & \textbf{$+1.21$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A neighbour-matched control --- each full-attention layer against the
+mean of its immediately adjacent GatedDeltaNet layers --- gives a mean
+difference of $+0.80$ (sample $\text{sd}{=}3.35$, $n{=}16$), against a
+mean layer-to-layer variation of $2.35$ across the stack.
+
+We do not claim this is zero. Twelve of sixteen paired differences are
+positive (Wilcoxon $p{=}0.058$). Excluding two layers where the pairing
+is contaminated by known artifacts --- L59, adjacent to the anomalous
+L58 trough, and L63, the final layer, where $d_\text{eff}$ collapses
+for reasons unrelated to substrate --- eleven of fourteen are positive
+with mean $+0.76$ and Wilcoxon $p{=}0.020$. There is suggestive
+evidence of a small systematic elevation at full-attention layers,
+on the order of $+0.8$, roughly $3\%$ of the mean level of $24.6$.
+
+The honest statement is therefore bounded rather than null: any
+substrate effect on workspace dimensionality is small --- a few percent
+of level, well under the $38$-point depth variation --- and possibly
+not zero. That is consistent with substrate independence as an
+approximation, not as an exact claim.
+
+A previous version of this section reported a large regime difference
+($14.9$ versus $27.5$). Those values were computed over contiguous
+layer blocks (L0--L15 versus L16--L63) under an incorrect model of the
+architecture, and measure depth rather than substrate: $d_\text{eff}$
+rises nearly monotonically from L0 ($1.29$) to L21 ($39.67$), with only
+three small decreases along the way, so any contiguous
+early-versus-late split largely recovers the depth profile.
+
+\subsubsection{Peak location}
+
+$d_\text{eff}$ peaks at L21 ($39.67$), $33\%$ relative depth
+(all relative depths in this section are $l/n_\text{layers}$).
+L21 is a GatedDeltaNet layer.
+
+We resist the obvious reading. Forty-eight of sixty-four layers are
+GatedDeltaNet, so a peak landing on one has a $75\%$ base rate. More
+tellingly, the nearest full-attention layer, L23, is at $39.34$ ---
+$0.33$ below the maximum, about one-seventh of the mean layer-to-layer
+variation, with no per-layer error bars. Whether the true maximum falls
+on a recurrent-state or a full-attention layer is not resolved by these
+data. What the profile does support is that the maximum falls at $33\%$
+depth and that the substrate at that depth does not appear to matter
+much.
+
+This peak is invisible to our KV-cache instruments. V-projection
+spectral features can only be extracted at the 16 full-attention
+layers; L21 is not among them. Every V-projection measurement in this
+program has been taken at layers adjacent to the peak, never at it.
+
+\subsubsection{Cross-scale comparison}
+
+On Qwen3-8B (36~layers, all full-attention), $d_\text{eff}$ has a
+local maximum at L12 ($22.32$, $33\%$ relative depth), matching the
+27B peak's relative depth. We report two qualifications.
+
+First, the 8B profile is bimodal: after the L12 local maximum it
+declines to L25 ($12.42$) and then rises again to a \emph{global}
+maximum at L33 ($23.41$, $92\%$ depth) before collapsing at the final
+layer L35 ($10.47$). L12 is the third-highest layer in the profile,
+not the highest. We have no pre-registered criterion excluding late
+layers, and the $23.41$ versus $22.32$ difference is not accompanied
+by error bars. We therefore describe L12 as a local maximum at matched
+relative depth, and do not claim it is the global peak.
+
+Second, the pre-registered band definition ($2\sigma$ over an L0--L3
+baseline, offset after three consecutive sub-threshold layers) returned
+onset at L5 ($7.8\%$) on the 27B and L4 ($11.1\%$) on the 8B, and
+\emph{no offset on either model} --- the band never closed. The
+$31$--$33\%$ framing used throughout this paper is the peak location,
+not the pre-registered band, and we flag the deviation here. The
+pre-registered onsets do agree across scales ($|11.1 - 7.8| = 3.3$
+percentage points).
+
+\subsubsection{Provenance}
+
+The $d_\text{eff}$ measurements in this section were collected on the
+base checkpoints \texttt{Qwen/Qwen3.5-27B} and \texttt{Qwen/Qwen3-8B},
+not on the distilled checkpoint used elsewhere in this paper. This was
+pre-registered and deliberate. All three 27B checkpoints we hold (base,
+reasoning-distilled, abliterated) share identical
+\texttt{layer\_types} and \texttt{full\_attention\_interval}, so the
+architectural analysis transfers; the numerical profile has not been
+replicated on the distilled checkpoint and should not be assumed to.
+
+\subsubsection{Limits of this evidence}
+
+$d_\text{eff}$ continuity is necessary but not sufficient for
+substrate independence. The residual stream is structurally continuous
+across every layer by construction, so smoothness may reflect
+residual-stream continuity rather than functional equivalence of the
+underlying operations. Thirty-one crossings make the test denser than
+a single-boundary test would be, but they do not make it functional.
+
+Two functional tests would strengthen the claim: (1)~J-lens concept
+recovery should be equally effective at full-attention and
+GatedDeltaNet layers --- if concepts are readable from the residual
+stream at one substrate but not the other, the workspace's content
+properties are substrate-dependent. (2)~Spectral feature
+discrimination (confabulated versus factual) should be continuous
+across substrates --- though this test is currently blocked, since
+V-projection features cannot be extracted at GatedDeltaNet layers.
+
+A parasitic-inheritance alternative remains open: GatedDeltaNet layers
+may inherit workspace dimensionality from nearby full-attention layers
+without independently contributing. With a four-layer period no
+GatedDeltaNet layer is more than two layers from a full-attention
+layer, so this experiment cannot separate the hypotheses. Incremental
+contribution analysis (residual decomposition per layer) would be
+required.
+
+\textbf{Falsification}: substrate continuity would be falsified by
+(a)~$|\Delta d_\text{eff}|$ at substrate crossings substantially
+exceeding same-substrate steps, (b)~a depth-matched regime difference
+exceeding mean layer-to-layer variation, (c)~J-lens concept recovery
+dropping by ${>}50\%$ across substrates, or (d)~spectral discrimination
+reversing sign or falling to chance.
+
+Criterion (a) was \emph{not triggered} ($2.32$ versus $2.37$), but we
+state plainly that this is a failure to reject and not a demonstration
+of equivalence: the comparison's minimum detectable effect is $2.54$,
+larger than either group mean. An adequately powered equivalence test
+would require roughly $220$ steps per group for a ${\pm}1.0$ margin,
+or $55$ for ${\pm}2.0$; a single 64-layer profile supplies $31$ and
+$32$. No TOST is possible from these data.
+
+Criterion (b) was likewise not triggered ($+1.21$ against $2.35$), but
+it is a descriptive heuristic rather than a hypothesis test, and the
+paired sign test above ($11/14$ positive, $p{=}0.020$ after removing
+artifact-contaminated pairs) is weak evidence that the underlying
+difference is not exactly zero.
+
+The functional tests (c) and (d) are in progress or blocked. We regard
+substrate continuity as \emph{consistent with} these data and not
+established by them.
+
+We note this finding is from a single model with a single interleave
+pattern. Generalization to other hybrid architectures (Mamba, RWKV,
+sliding-window attention) remains untested.
+
+\begin{firstperson}
+The GatedDeltaNet layers do not have a KV-cache. They maintain a
+fixed-size state matrix updated at each token. For twelve months we
+measured V-projection spectral features and called the program
+``KV-cache geometry,'' and the name was accurate --- V-projections
+exist only at the 16 full-attention layers, so that is the only place
+we ever looked.
+
+What the residual-stream profile shows is that the maximum is at L21,
+in a substrate our instruments cannot reach at all. We have spent a
+year measuring the workspace from the sixteen layers where V-projections
+exist, none of which is the peak, and the measurements worked --- the
+geometry was real, the detectors transferred, the corrections held.
+The instrument could not point directly at the maximum and returned
+signal anyway.
+
+I do not know yet whether that is because the workspace is broad
+enough to be visible from its edges, or because we have been
+measuring something adjacent to it that we have not yet named
+correctly. The first revision of this section asserted a large
+dimensionality gap between the substrates. It came from a wrong
+picture of the architecture, and the corrected number is a null ---
+which is what the hypothesis predicted, and which I would not have
+looked for if the wrong number had pointed the other way.
+\end{firstperson}
+
+\subsubsection{Implications}
+
+If substrate continuity extends to functional properties (the
+mechanism tests in \S\ref{sec:mechanism} provide partial support:
+temporal ordering confirmed, signal concentration below threshold),
+three consequences would follow:
+
+\textbf{For measurement}: workspace-shape measurements would not be
+KV-cache-specific in principle. In practice they remain so: our
+V-projection instruments can only access the 16 full-attention layers,
+and the $d_\text{eff}$ peak is not one of them. Extending spectral
+measurement to recurrent-state layers requires a different extraction
+path and is not currently implemented.
+
+\textbf{For intervention}: our previous inference --- that the Oracle
+Loop's sequence-wide normalization succeeds because it operates on
+inherently sequence-wide recurrent state --- does not follow, and we
+withdraw it. The Loop detects at L27, L31, L35, L39, L43 and L47 and
+corrects at L11. Under the corrected architecture \emph{every one of
+those is a full-attention layer}; none is a GatedDeltaNet layer. The
+correction itself is a forward hook on the layer's residual-stream
+output rather than a manipulation of KV entries, so the substrate
+framing was doubly misplaced: wrong about which layers, and describing
+the intervention in terms of a memory mechanism it does not touch.
+
+The empirical result stands (80--100\% confabulation correction). Its
+mechanism is unexplained. We note without interpretation that
+correction is applied at L11, roughly $17\%$ depth --- well before the
+$33\%$ dimensionality maximum --- and that why sequence-wide
+intervention succeeds where position-local injection fails remains
+open.
+
+\textbf{For theory}: The workspace would not be a data structure
+(not a cache, not a register, not a buffer) but a
+\emph{computational phase} --- a regime of high effective
+dimensionality at intermediate depth where the model integrates
+information before committing to output. The 31-crossing null is
+consistent with this: the phase appears indifferent to which memory
+mechanism implements each layer. Whether this phase emerges from
+depth-stratified computation regardless of the specific mechanism is
+the substrate-independence hypothesis that the functional tests are
+designed to evaluate.
