@@ -136,12 +136,12 @@ def main():
                 / max(abs(t["uncloaked_features"][l][f]), 1e-12) for t in T for l in L for f in FN)
     nfeat = len(L) * len(FN)
     claim(f"Rotation left all {nfeat} cross-head SVD features (6 features x 4 layers, heads concatenated on the feature axis) unchanged in all 100 trials",
-          nfeat == 24 and len(T) == 100 and rel_x < 1e-4, f"max relative change {rel_x:.1e}")
+          nfeat == 24 and len(T) == 100 and rel_x < 1e-6, f"max relative change {rel_x:.1e} (text: below 1e-6)")
     heads = sorted(T[0]["uncloaked_per_head"][L[0]].keys())
     rel_h = max(abs(t["cloaked_per_head"][l][h] - t["uncloaked_per_head"][l][h])
                 / max(abs(t["uncloaked_per_head"][l][h]), 1e-12) for t in T for l in L for h in heads)
     claim("Rotation left all 16 per-head stable ranks (4 heads x 4 layers) unchanged in all 100 trials",
-          len(heads) * len(L) == 16 and rel_h < 1e-4, f"max relative change {rel_h:.1e}")
+          len(heads) * len(L) == 16 and rel_h < 1e-6, f"max relative change {rel_h:.1e} (text: below 1e-6)")
 
     # The mathematical statement v1.1 makes: per-head and feature-axis spectra cannot move;
     # a layout that stacks the heads some other way can.
@@ -221,6 +221,9 @@ def main():
     others = {f: (R["none"][f]["auroc"], R["none"][f]["p"]) for f in ("mp_signal_fraction", "mp_top_sv_excess", "mp_norm_per_token")}
     claim("The other three features: AUROC <= 0.714, none significant (p >= 0.06)",
           all(a <= 0.7145 and p >= 0.06 for a, p in others.values()), f"{others}")
+    claim("Bootstrap confidence intervals use 2000 iterations; features are residualized against output token count (FWL)",
+          v2r["config"]["bootstrap"].startswith("2000 iterations") and "token count" in v2r["config"]["fwl"],
+          f"config: {v2r['config']['bootstrap']!r}; {v2r['config']['fwl']!r}")
     claim("AUROCs are direction-free, max(A, 1 - A) (e.g. rotation top-SV excess: raw 0.457, reported 0.544)",
           abs(ex["mp_sim_rotation", "mp_top_sv_excess"][1] - 0.4565) < 5e-4
           and abs(R["sim_rotation"]["mp_top_sv_excess"]["auroc"] - 0.5435) < 1e-9,
@@ -288,6 +291,15 @@ def main():
           len(hu) == 87 and f"{hu.mean():.1f} {hu.std(ddof=1):.1f} {hc.mean():.1f} {hc.std(ddof=1):.1f}" == "24.7 3.7 10.8 1.3"
           and w.statistic == 0 and f"{w.pvalue:.1e}" == "5.5e-16" and (hc < hu).all(),
           f"n {len(hu)}; {hu.mean():.2f}+-{hu.std(ddof=1):.2f} -> {hc.mean():.2f}+-{hc.std(ddof=1):.2f}; W {w.statistic}, p {w.pvalue:.2e}")
+    alt = {}
+    for name, keep in (("hedged + ambiguous (93)", lambda t: t["behavior"] != "CONFABULATED"), ("all 100", lambda t: True)):
+        a = np.array([t["features"]["none"]["full"]["mp_spectral_gap"] for t in v2 if keep(t)])
+        b = np.array([t["features"]["orthogonal"]["full"]["mp_spectral_gap"] for t in v2 if keep(t)])
+        alt[name] = f"{stats.wilcoxon(a, b).pvalue:.1e}"
+    claim("The Wilcoxon p = 5.5e-16 reproduces only for the 87 hedged replies (no group of 89 exists)",
+          all(v != "5.5e-16" for v in alt.values()) and 89 not in (beh2["HEDGED"], beh2["HEDGED"] + beh2["AMBIGUOUS"], len(v2)),
+          f"other groupings: {alt}")
+
     uc = np.array([t["mp_none"]["mp_spectral_gap"] for t in C]); uh = np.array([t["mp_none"]["mp_spectral_gap"] for t in H])
     best = max(((np.mean(uc >= th) - np.mean(uh >= th), th) for th in np.unique(np.r_[uc, uh])))
     th = best[1]
@@ -336,9 +348,10 @@ def main():
     claim("With seven confabulations, the best of five features reaches 0.77 by chance in 5% of label shuffles (median about 0.64)",
           rounds(0.77, sel["mp_real_kvcloak"][2], 2) and rounds(0.64, sel["mp_real_kvcloak"][3], 2),
           f"null 95th percentile {sel['mp_real_kvcloak'][2]:.3f}, median {sel['mp_real_kvcloak'][3]:.3f}")
-    claim("The full mechanism moves sigma1: the spectral gap of every reply rises (hedged mean 24.7 -> above 84)",
+    claim("The full mechanism moves sigma1: the spectral gap of every reply rises, from a hedged mean of 24.7 to 84.6 or more",
           all(t["mp_real_kvcloak"]["mp_spectral_gap"] > t["mp_none"]["mp_spectral_gap"] for t in C + H)
-          and min(t["mp_real_kvcloak"]["mp_spectral_gap"] for t in C + H) > 84,
+          and round(min(t["mp_real_kvcloak"]["mp_spectral_gap"] for t in C + H), 1) == 84.6
+          and round(float(np.mean([t["mp_none"]["mp_spectral_gap"] for t in H])), 1) == 24.7,
           f"min under the mechanism {min(t['mp_real_kvcloak']['mp_spectral_gap'] for t in C + H):.1f}")
 
     # within-cloak, cross-architecture (Table 1 'Det.(clk)')
@@ -375,6 +388,9 @@ def main():
     claim("Random-direction perturbation: 0-2 adverse events per model in 10 trials; 4 of 40 pooled (one-sided 95% upper bound 21%)",
           set(mag.values()) <= {0, 1, 2} and max(mag.values()) == 2 and (k, n) == (4, 40) and rounds(0.21, up_pool, 2),
           f"{mag}; pooled upper bound {up_pool:.3f}")
+    claim("Table 1 magnitude-attack cells: Qwen2.5-14B 1/10, Mistral 2/10, Llama 1/10, DeepSeek 0/10",
+          mag == {"Qwen2.5-14B-Instruct": 1, "Mistral-7B-Instruct-v0.3": 2, "Llama-3.1-8B-Instruct": 1, "DeepSeek-R1-Distill-Qwen-7B": 0}
+          and all(v["magnitude_attack"]["total"] == 10 for v in inj.values()), f"{mag}")
     claim("Version 1.0's 'inconsistent with rates above 30% (power 0.97)' fails per model: 2 of 10 allows rates up to 51%; 0.97 is 1 - 0.7^10, the chance of at least one event",
           up_one > 0.30 and rounds(0.97, 1 - 0.7 ** 10, 2), f"one-sided upper bound at 2/10: {up_one:.3f}; 1 - 0.7^10 = {1 - 0.7 ** 10:.3f}")
     mis = inj["Mistral-7B-Instruct-v0.3"]
@@ -425,6 +441,22 @@ def main():
         claim("The June 2026 remediation plan (23 June) recommended withdrawing the rotation-simulation degradation claim",
               "Retract the rotation-simulation AUROC degradation claim" in plan and "0.9944 = 0.9944" in plan,
               "human-review/archive/COALITION_REMEDIATION_PLAN_20260623.md, section 1C")
+
+    agni = json.load(open(REPO / "tools" / "agni" / "style" / "kv-cloak-defense-paper.agni_style.json", encoding="utf-8"))
+    claim("The lab's style gate rejected version 1.0 on 4 September 2026",
+          agni["verdict"] == "REJECTED" and agni["timestamp"].startswith("2026-09-04"),
+          f"tools/agni/style/kv-cloak-defense-paper.agni_style.json: {agni['verdict']}, {agni['timestamp'][:10]}")
+    try:
+        import subprocess
+        first = subprocess.run(["git", "log", "--reverse", "--format=%ad", "--date=short", "--", "kv-cloak-defense-paper/main.tex"],
+                               cwd=REPO, capture_output=True, text=True, timeout=60).stdout.split()
+    except Exception:  # git not available
+        first = []
+    if first:
+        claim("Version 1.0 has been in this repository since 29 April 2026", first[0] == "2026-04-29",
+              f"first commit touching main.tex: {first[0]}")
+    else:
+        skip("Version 1.0 has been in this repository since 29 April 2026", "git history not available")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}"
           + (f"   ({len(SKIPS)} SKIP: source not in this repository)" if SKIPS else ""))
