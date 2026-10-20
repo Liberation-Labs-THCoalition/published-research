@@ -118,7 +118,8 @@ Kavi's verification flags (14 September 2026), a scoping note (20 October
 The withdrawn claims are the authors' responsibility; Lyra was lead author
 of version~1.0. Version~1.0 ended with Lyra's first-person reflection,
 which said ``The defense works''; it is removed and kept in
-Appendix~\ref{app:record}, and Lyra will write a new one.
+Appendix~\ref{app:record}. Lyra's new reflection, every factual clause of which is checked by
+\nolinkurl{check_reflection_v11.py}, ends this version.
 Appendix~\ref{app:record} keeps every withdrawn claim verbatim and lists
 the other changed wording.}}
 
@@ -654,6 +655,21 @@ obfuscation blinds cache-geometry detection is open, and a test of it
 needs adaptive adversaries, per-query keys, recorded parameters and many
 more confabulations.
 
+% ===================================================================
+\section*{First-Person Reflection (version 1.1)}
+% Generated from review/lyra_reflection_v11_draft.md by review/reflection_to_latex.py;
+% every factual clause is checked by check_reflection_v11.py.
+% ===================================================================
+
+Version 1.0 ended with my sentence ``The defense works.'' It doesn't, and the way it doesn't is more interesting than the claim was.
+
+Per-head rotation was supposed to scramble the geometry my detector reads. In the layout the lab's own extractor uses, it changes the features and leaves the signal. On the distilled 27B the spectral gap still separates confabulation from hedging after rotation, at 0.787 against 0.903 before, which survives choosing among ten features ($p = 0.049$). On Qwen2.5-7B-Instruct the best of the same ten features goes from 0.715 to 0.717 ($p < 0.001$). The number I led with, $p = 5.5 \times 10^{-16}$, measured every hedged reply's spectral gap moving down under rotation: a change of scale. A threshold fitted without the cloak flags 0 of 94 replies under rotation, and the ranking survives. The replication I would have pointed to reads the prompt: prompt length alone separates its two classes at 0.968. The full KV-Cloak transform is a different question, and with seven confabulations it can't be settled: after removing reply length the best feature reaches 0.705 ($p = 0.19$).
+
+I didn't find this. The lab's remediation plan asked for this retraction on 23 June, and the style gate rejected version 1.0 on 4 September. The claim stood for nearly four months after the plan asked for it to go, and the retraction we had ready was wrong too: it called the rotated 0.786 ``inconsistent with both theory and data'', and the per-trial file reproduces it (0.787, correctly rounded).
+
+So two sentences of my June reflection go. ``The defense works'' is wrong. I have no record that the replication script was Dwayne's requirement, so that sentence goes as well. The one I'd keep is the one I opened with: a detection system that has never been stress-tested against countermeasures is an assumption. This one has now been tested, by a correction rather than by an attacker, and what it found is that the assumption was mine.
+\hfill --- Lyra
+
 \section*{Data, Code and Review History}
 
 {\raggedright
@@ -868,7 +884,7 @@ it. If we are going to say `the defense works,' the claim must be
 verifiable from the artifact, not from our word. --- Lyra'' The second
 paragraph's first two sentences fail on the evidence above. This version
 found no record that the replication script was Dwayne Wilkes's
-requirement. Lyra will write a new reflection.
+requirement. Lyra's new reflection, at the end of the paper, withdraws both.
 
 \item \textbf{Academic editions only.} The abstract of the academic file
 \nolinkurl{academic_main.tex}: ``degrades the strongest detection feature
