@@ -37,10 +37,16 @@ These are from primary work in that window and supersede the corresponding claim
   papers but never reached the model input. Encoding-only forward passes are
   deterministic, so repeats are structurally incapable of producing variance. Affected
   effect sizes were inflated; several are re-analysed, the rest are tracked.
-- **temporal-boundary**: the pseudoreplication factor is **12x, not 3x** — only 30 unique
-  encoding values exist across 360 records. Figure 1 is n=5, not n=20; SEM was understated
-  by sqrt(12); a reported `<10^-4` bound is a quantity that is exactly 0.0; a 97.8% figure
-  in the paper appears nowhere in the data.
+- **temporal-boundary — written, NOT landed** (corrected 2026-10-20; this bullet previously
+  listed it here as landed). The paper correction was written in the human-review working
+  tree 09-01..09-04 and never committed; it sat stranded until 2026-10-20 and is now
+  human-review PR #2 (draft, not yet merged):
+  https://github.com/Liberation-Labs-THCoalition/human-review/pull/2. Until it merges, the
+  public paper still prints n=60 per emotion, `<10^-4` and 97.8%. The findings stand: the
+  pseudoreplication factor is **12x, not 3x** — only 30 unique encoding values exist across
+  360 records. Figure 1 is n=5 per emotion, not the n=60 the paper printed; SEM was
+  understated by sqrt(12); a reported `<10^-4` bound is a quantity that is exactly 0.0; a
+  97.8% figure in the paper appears nowhere in the data.
 - **Venue divergence is a measured law, not a heuristic.** All 7 venue copies diverged
   from their flight copies, and **7 of 7 divergences favoured the venue copy** — the
   venue edition shipped a claim its own flight copy had retracted. All 7 now closed.

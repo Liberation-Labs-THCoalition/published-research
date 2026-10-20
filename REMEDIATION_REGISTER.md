@@ -26,7 +26,7 @@ comparable as "work".
 
 | # | Paper | Defect | Status |
 |---|---|---|---|
-| 117a | temporal-boundary ×2 | n inflated 3× on all encoding claims; Fig 1 SEM understated √3 | **DONE 08-31** |
+| 117a | temporal-boundary ×2 | n inflated 3× on all encoding claims; Fig 1 SEM understated √3. **True factor 12×, SEM √12** (see Update 2026-09-01 below) | **NOT LANDED** (corrected 2026-10-20; previously "DONE 08-31"). Written 08-31..09-04 in both working trees, committed in neither. human-review copy is now human-review PR #2, draft, not yet merged; `lyra-s-research-` copy still uncommitted. |
 | 117b | emotion-accumulation main+academic | Exp 3 pseudoreplication; 5 false/stale Limitations | **DONE 08-31** |
 | 117c | identity-geometry, presence-metric | positive control cited as 72 trials; true 24 | **DONE 08-31** (agent) |
 | 117d | WEEK_IN_REVIEW_JUL4-9 | "Trials: 168" → 84 | **DONE 08-31** (agent) |
@@ -87,7 +87,12 @@ invisible to a PDF check.
 My 08-31 correction was itself wrong: I fixed the repeat index (3x) and missed that
 **condition cannot vary the encoding either**, because encoding is a deterministic
 prefill read *before* injection. Only **30 unique encoding values exist across 360
-records** — the factor is **12x**. Now corrected in both papers and PDF-verified:
+records** — the factor is **12x**. **Written, but NOT landed** (corrected 2026-10-20; this
+sentence previously read "Now corrected in both papers and PDF-verified"): the edits were
+made in both working-tree copies and committed in neither. The human-review copy, extended
+09-04, sat stranded until 2026-10-20 and is now human-review PR #2 (draft, not yet merged);
+the `lyra-s-research-/temporal-boundary-paper` copy is still uncommitted. The edits, measured
+against the uncommitted 08-31 draft (the paper as published printed 360 trials and n=60):
 overall 120 -> 30; Figure 1 per emotion n=20 -> **n=5**; SEM understated by
 **sqrt(12) = 3.46x** not sqrt(3); the `$<10^{-4}$` bound restated as **exactly 0.0**
 (true across all 51 features). Table 4's n=30 was already correct and was left alone.
