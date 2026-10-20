@@ -68,7 +68,8 @@ effect at $80\%$ power is $2.54$ --- larger than either group mean.
 This test could only have detected crossings roughly \emph{twice} the
 size of ordinary steps. Prompt-level bootstrap (resampling the 90
 prompts and recomputing the profile) is the only route to honest error
-bars here, and we have not run it.
+bars here. A prompt-level bootstrap was run later (1{,}000 resamples, with a dense
+Qwen3-32B control under a sham substrate mask), but its intervals do not contain their own point estimates, so we do not report it here.
 
 Two directional notes. Full-attention${\to}$GatedDeltaNet steps have
 mean $\Delta{=}{-}0.19$ ($n{=}15$); GatedDeltaNet${\to}$full-attention
@@ -325,3 +326,7 @@ mechanism implements each layer. Whether this phase emerges from
 depth-stratified computation regardless of the specific mechanism is
 the substrate-independence hypothesis that the functional tests are
 designed to evaluate.
+
+\paragraph{Verdict.} Descriptive continuity of $d_\text{eff}$ across the
+substrate crossings, from an underpowered comparison. It says nothing
+about function, and it adds nothing to where the peak sits.

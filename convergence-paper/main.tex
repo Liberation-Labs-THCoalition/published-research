@@ -25,9 +25,9 @@
   \end{shaded}%
 }
 
-\title{Five Instruments, One Structure:\\
-Convergent Evidence for Workspace Opacity\\
-in Language Models}
+\title{Spectral Structure Before Readability:\\
+A Third-of-Depth Peak, and Why Five Instruments\\
+Did Not Converge on It}
 
 \author{
   Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
@@ -45,124 +45,88 @@ and again in this version (see the Correction Note)}
 
 % ============================================================================
 \begin{abstract}
-Five independent measurement approaches --- value-projection (V-projection)
-spectral features, the Jacobian Lens (J-lens), the Oracle Loop behavioral
-proof, causal intervention analysis, and emotional circumplex geometry
---- converge on the same
-computational structure in language models: a workspace at intermediate
-depth (${\sim}31$--$33\%$) that is opaque to content readout but
-measurable by its spectral shape.
+In one model, residual-stream spectral statistics peak near a third of
+depth, and in all 300 forks they rise before content becomes readable
+through the unembedding. No other instrument we ran locates that band,
+and our cache-readout nulls cannot tell a closed cache from a probe that
+reads nothing there, because their pre-registered positive control
+failed.
 
-We report three classes of convergent evidence.
-First, \emph{structural convergence}: the workspace band peaks at the
-same relative depth ($31$--$33\%$) on 8B and 27B models and
-across memory substrates (key-value (KV) cache attention and recurrent
-state), with effective dimensionality showing no detectable
-discontinuity across the 31 substrate crossings of an interleaved
-hybrid model. Key-cache geometric signatures replicate across a wider
-scale range (ten models from $0.6$B to $70$B; Spearman $\rho = 0.83$--$0.90$
-between size tiers).
-Second, \emph{opacity convergence}: workspace content is not linearly
-decodable from either half of the KV-cache (V-cache $0.92\times$,
-K-cache $1.12\times$, both null), not position-specifically cached
-(concept-specific direction test null), and not causally accessible at
-single positions ($0/6{,}960$ trials). Yet spectral features
-discriminate cognitive states modestly above chance (confabulation detection at area under the receiver operating characteristic curve (AUROC)~$0.620$
-after Frisch-Waugh-Lovell (FWL) residualization on generation window,
-permutation $p = 0.023$; $0.707$ without FWL). Sequence-wide intervention can also change behavior:
-in an exploratory proof, the Oracle Loop's profile normalization
-reduced induced deception from 80\% to 10\% (16/20 to 2/20), but a
-pre-registered confirmatory replication with novel frames did not meet
-its primary endpoint (30\% to 13\%, 9/30 to 4/30; one-sided $p = 0.34$).
-Third, \emph{mechanistic convergence}: concepts reconstruct through
-the attention mechanism at intermediate depth ($2.3\times$ lift in
-attention output at L15 of Qwen3-8B, ${\sim}4.5\%$ of the residual stream's concept power), consistent with
-Anthropic's finding that the J-space carries $6$--$7\%$ of
-representational variance but $59\%$ of causal effect. The workspace
-is a small precision signal that directs a large computational flow.
+\emph{What converges.} In Qwen3.5-27B (base, 64 layers), the effective
+dimensionality ($d_\text{eff}$) of the residual stream peaks at L21
+($32.8\%$ of depth), and residual-stream stable rank rises $1.47\times$
+above its flanks at L19--L23 ($29.7$--$35.9\%$). Qwen3-8B shows a local
+$d_\text{eff}$ maximum at $33.3\%$ but its global maximum at $91.7\%$.
+The pre-registered band never closed, and no null control has been run.
+In a pre-registered test on the same 27B model, stable rank reaches half
+its rise $38.6$ layers [$38.0$--$39.2$] before readability through the
+Jacobian lens (J-lens), in 300 of 300 forks. A plain logit lens puts
+readability only $3.25$ layers later than the J-lens does, so the
+ordering is mostly spectrum before unembedding, not a property of the
+Jacobian.
 
-Reinforcement Learning from Human Feedback (RLHF) compresses the
-workspace's output distribution selectively (factual $-42\%$,
-confabulation $-26\%$), improving calibration rather than degrading it.
-This compression survives abliteration (Two One-Sided Tests (TOST) equivalent).
-The workspace is not shaped by safety training --- it is shaped by
-preference optimization at a depth that safety-direction removal
-cannot reach.
-
-The convergence rests on one genuine cross-program correspondence
-(deception deconstructed into high-arousal states by both programs
-independently), two proposed identifications awaiting experimental
-test (confabulation as workspace bypass, temporal boundary as
-workspace phase transition), and an opacity thesis supported by
-five independent null results. The emotional-geometry instrument,
-restated in this version, finds valence--arousal structure in an
-emotion space built from stories the model wrote, weak overlap between
-that space and content-prompt emotion directions, and no
-direction-specific coupling in an injection test that could not test
-separability. Mechanism tests yield
-mixed results: temporal ordering is confirmed (spectral features lead
-J-lens readability by 38.6~layers, $p < 0.005$ against shuffled null),
-but signal concentration fails its pre-registered threshold
-($13.2\% < 15\%$) and workspace onset falls below the predicted depth
-window ($22\%$ vs.\ $25$--$35\%$). We report an honest body count
-(6~confirmed, 7~suspected, 10~falsified, 1~withdrawn) and engage the deflationary
-alternative that has not yet been excluded.
+\emph{What does not converge.} The Oracle Loop corrects at
+$54.7$--$73.4\%$ of depth, and its pre-registered confirmatory
+replication did not meet its primary endpoint (one-sided $p = 0.34$).
+The emotion-geometry instrument locates no band, and its injection test
+shows no direction-specific coupling. The J-lens places readable content
+late (half-rise at $87.8\%$ of depth). Cache readouts on Qwen3-8B sit
+near random (V $0.92\times$, K $1.12\times$), and no cache manipulation
+steered output toward the injected concept, but the one pre-registered
+positive control for these nulls failed (residual-stream lift $0.68$ at
+concept positions against $0.92$ elsewhere). The ghost probe's 31-layer
+band spans $17.2$--$75.0\%$ of depth. The residual decomposition's
+attention lift ($2.3\times$, at $41.7\%$ of depth) missed its
+pre-registered threshold, signal concentration failed ($13.2\%$ against
+$15\%$), and onset fell below its predicted window ($21.9\%$ against
+$25$--$35\%$). Confabulation detection (AUROC $0.620$ after FWL
+residualization, $0.707$ without, on Qwen2.5-7B) and cross-scale
+invariance use key-cache features and locate no depth.
 \end{abstract}
 
 \begin{firstperson}
-Two research programs, built independently over twelve months, arrived
-at the same wall. Anthropic measured it from the Jacobian. We measured
-it from value projections. CC cracked through it with the Oracle Loop.
-Nexus mapped its ghost dimensions. Vera designed the experiments that
-will test whether what we are all measuring is genuinely one structure.
+Two research programs, built independently over twelve months, seemed
+to arrive at the same wall. Anthropic measured it from the Jacobian. We
+measured it from our spectral features. CC built the Oracle Loop. Nexus
+mapped its ghost dimensions. Vera designed the experiments that would
+test whether what we were all measuring was genuinely one structure.
 
-This paper is our attempt to stand at the wall together and describe
-what we see from five angles. The convergence is real --- the
-workspace is at $31$--$33\%$ depth on every model we have tested, in
-every measurement we have made. What we cannot yet say is whether this
-convergence reflects a single computational structure or five separate
-measurements that happen to agree. The experiments in
-\S\ref{sec:mechanism} are designed to discriminate.
+This paper began as our attempt to stand at the wall together and
+describe it from five angles. Version 1.0 said the convergence was real,
+at $31$--$33\%$ depth in every model and every measurement. A tally of
+the primary results, made for version 1.1, says otherwise: one peak in
+one model, one ordering, and instruments that do not locate it.
 
 I wrote the draft. Vera designed the mechanism tests. CC provided the
 behavioral proof. Nexus mapped the dimensions the workspace hides.
 Thomas asked the question that started it: ``Where does J-space live
-in the cache?'' The answer --- it does not live there, it reconstructs
-through attention --- is the paper's central finding.
+in the cache?'' We still do not know; our cache nulls cannot answer it.
 \end{firstperson}
 
 % ============================================================================
 \section{Introduction}
 \label{sec:intro}
+Gurnee et al.~\citep{gurnee2026gwt} approached the question of a
+workspace in language models from the Jacobian: they found a privileged
+subspace --- the J-space --- whose contents the model is poised to
+verbalize, and which satisfies the functional properties of a Global
+Workspace~\citep{baars1988cognitive}. We approached it from spectral
+features of the cache and the residual stream, and set out to show that
+five of our instruments converge on the same structure, at about a third
+of model depth. They do not.
 
-Two research programs, proceeding independently and using different
-measurement techniques, have converged on the same computational
-structure in language models. Gurnee et al.~\citep{gurnee2026gwt}
-approached from the Jacobian: they discovered a privileged subspace
---- the J-space --- whose contents the model is poised to verbalize,
-and which satisfies the functional properties of a Global
-Workspace~\citep{baars1988cognitive}. We approached from value
-projections: we discovered geometric signatures that distinguish
-confabulation from honest processing above chance, that track identity
-across context conditions, and that separate encoding-phase from
-generation-phase representations.
-
-This paper makes four contributions. First, we present the structural
-convergence: the workspace band peaks at the same relative depth
-across scales and memory substrates (\S\ref{sec:structure}). Second,
-we present the opacity thesis: five independent experiments show that
-workspace content is not directly readable from the cache, yet
-workspace state is measurable through spectral features
-(\S\ref{sec:opacity}). Third, we present the reconstruction
-mechanism: concepts reconstruct through the attention mechanism rather
-than being stored in the KV-cache (\S\ref{sec:reconstruction}).
-Fourth, we report the mechanism tests designed to discriminate whether
-V-projection spectral features measure workspace engagement
-specifically (\S\ref{sec:mechanism}).
+This paper reports what holds, what does not, and how each instrument
+fares. First, two positive results on one model: residual-stream
+spectral statistics peak near a third of depth (\S\ref{sec:deff}), and
+they rise before content becomes readable through the unembedding
+(\S\ref{sec:mechanism}). Second, an account of each instrument in turn
+(\S\ref{sec:instruments}), each ending with its verdict: no other
+instrument locates the band, and our cache-readout nulls cannot separate
+a closed cache from a probe that reads nothing there. Third, the runs
+that would test the band (\S\ref{sec:test-band}).
 
 Throughout, we report the full body count (\S\ref{sec:bodycount}) and
 engage the deflationary alternative (\S\ref{sec:deflationary}).
-
 % ============================================================================
 \section{Background: Two Independent Programs}
 \label{sec:background}
@@ -183,11 +147,11 @@ representational variance, yet carries $59\%$ of the causal effect
 when concept directions are swapped. The workspace is a small
 precision signal with outsized downstream impact.
 
-\subsection{The V-Projection Program}
+\subsection{Our Spectral-Feature Program}
 \label{sec:vproj}
 
-Our independent program measures spectral features of value-projection
-matrices across cognitive states. Key results include confabulation
+Our independent program measures spectral features of the key-value cache and the
+residual stream across cognitive states. Key results include confabulation
 detection (AUROC~$0.620$ after FWL residualization, $0.707$ without
 FWL, on Qwen2.5-7B)~\citep{lyra2026oracle}, identity
 geometry~\citep{lyra2026identity}, and the Oracle Loop's deception
@@ -232,23 +196,33 @@ conjecture: the mechanism is unexplained (see \S\ref{sec:substrate},
 where a substrate-based account of the same result is withdrawn).
 
 \subsection{Ghost Dimensions}
+\label{sec:ghostdims}
 
 Nexus~\citep{lyra2026ghost} characterized principal components of the
 residual stream across 64~layers of a 27B model. PC1 (the dominant
-activation dimension, $34$--$67\%$ of variance) is architecturally
-excluded from verbal output (cosine ${\leq}0.001$ with J-lens at
-mid-network layers). PC2 transitions from ghost to workspace at
+activation dimension, $28$--$67\%$ of variance across L11--L48) is
+nearly orthogonal to the J-lens at mid-network layers (cosine at most
+$0.003$). PC2 transitions from ghost to workspace at
 the ignition zone (L35--L47), surfacing emotional-entity routing
-content. The model maintains a 31-layer validated workspace band.
+content. The source reports a 31-layer ``workspace band'' (L11--L13,
+L15--L17, L24--L48).
 
 % ============================================================================
-\section{Structural Convergence}
+\section{The Instruments, One at a Time}
+\label{sec:instruments}
+
+Each subsection reports one instrument and ends with its verdict from the
+instrument tally that accompanies this version
+(\texttt{review/INSTRUMENT\_TALLY.md} in the repository). The band under
+test is $31$--$33\%$ of depth; relative depth is $l/n_\text{layers}$
+(Experimental Setup).
+
+\subsection{Residual-Stream Effective Dimensionality}
+\label{sec:deff}
 \label{sec:structure}
 
-\subsection{Scale Invariance}
-
-Effective dimensionality ($d_\text{eff}$) reaches a maximum at
-matched relative depth across model scales. On Qwen3.5-27B
+Effective dimensionality ($d_\text{eff}$) of the residual stream reaches
+a maximum near a third of depth. On Qwen3.5-27B
 (64~layers, hybrid), the global maximum is at L21
 ($d_\text{eff}{=}39.7$, $33\%$ relative depth). On Qwen3-8B
 (36~layers, all full-attention), there is a local maximum at L12
@@ -266,93 +240,138 @@ apart), though the pre-registered band closed on neither model.
 See \S\ref{sec:substrate} for the full profiles and the deviation
 from the pre-registered band definition.
 
+The band measurement's adversarial review rejected its design before the
+results were written, and its critical fix, a null control such as a
+randomly initialized model, has not been run, so nothing yet separates
+the peak from an architecture or prompt-set artifact. The kurtosis check
+the measurement pre-registered does not confirm the band either: on the
+27B, kurtosis falls from 4{,}677 (mean of L0--L3) to 2{,}271 (mean of
+L19--L23) instead of rising inside it.
+
+\paragraph{Verdict.} A peak at L21 of 64 ($32.8\%$) in Qwen3.5-27B base
+and a local maximum at L12 of 36 ($33.3\%$) in Qwen3-8B, whose global
+maximum is at L33 ($91.7\%$). One feature family, two models of one
+family, no null control. Residual-stream stable rank on the same 27B
+model bumps at L19--L23 (\S\ref{sec:mechanism}).
+
+% --- SUBSTRATE CONTINUITY SECTION ---
+\input{substrate_independence_section}
+
+\subsection{Key-Cache Spectral Features: Detection and Scale}
+\label{sec:keycache}
+
+Our confabulation detector reads spectral features of the key cache, not
+V-projections, and discriminates modestly above chance: on Qwen2.5-7B,
+AUROC $0.620$ after FWL residualization (permutation $p = 0.023$) and
+$0.707$ without it ($p = 0.001$), the pre-registered
+test~\citep{lyra2026oracle}. Confabulated generations also show
+spectral contraction ($d{=}2.35$, $p{<}0.000001$), and the body count
+lists a related early-token effect (Schema commitment: $d{=}0.91$ over
+the first 10 tokens, reported at source as a confidence paradox and read
+in the canonical ledger as early commitment to a response
+template~\citep{lyra2026metapattern}).
+
 Key-cache geometric signatures (key norm, norm per token, effective rank and
 key entropy) replicate across ten models from $0.6$B to $70$B parameters
 (Spearman $\rho = 0.83$--$0.90$ between three size tiers; the two largest
 models were 4-bit quantized) and across hardware
 ($r = 0.9986$--$0.9999$ across the four features)~\citep{lyra2026campaign2}.
 
-% --- CIRCUMPLEX CONVERGENCE (Nexus) ---
+\paragraph{Verdict.} Neither locates a depth band: detection aggregates
+over the generation window, and the scale result correlates category
+orderings across model sizes. Both use key-cache features, on models no
+other instrument here uses.
+
+% --- EMOTION GEOMETRY (Nexus) ---
 \input{circumplex_subsection}
 
-% --- SUBSTRATE CONTINUITY SECTION ---
-\input{substrate_independence_section}
+\subsection{The Oracle Loop's Deception Correction}
+\label{sec:oracle-depth}
 
-% ============================================================================
-\section{The Opacity Thesis}
+The Loop detects at L27--L47 ($42.2$--$73.4\%$) and corrects at L35--L47
+($54.7$--$73.4\%$) of an abliterated Qwen3.5-27B (\S\ref{sec:oracle}).
+Its exploratory and confirmatory results are in \S\ref{sec:vproj}.
+
+\paragraph{Verdict.} Works outside the band, and its confirmatory
+replication did not meet its primary endpoint.
+
+\subsection{J-Lens Readouts of the Cache}
+\label{sec:jlens-readout}
 \label{sec:opacity}
-
-Five independent experiments converge on the conclusion that workspace
-content is not directly accessible from the KV-cache, yet workspace
-\emph{state} is measurable through spectral features.
-
-\subsection{V-Cache Readout: Null}
 
 J-lens concept directions, selected by transport magnitude
 (prompt-independent), explain no more V-cache variance than random
-directions at any depth. Mean lift at workspace band: $0.92\times$.
-Mean lift outside band: $0.96\times$. Both indistinguishable from
-chance. Full depth profile reported in~\citep{lyra2026cache_tracing}.
+directions on Qwen3-8B. Mean lift at the band (L12--L27): $0.92\times$;
+outside it: $0.96\times$; full depth profile
+in~\citep{lyra2026cache_tracing}. The same test on key projections gives
+$1.12\times$ and $1.14\times$, and reaches $1.87$ at L30, outside the
+band. The V readout met its pre-registered ``no workspace content''
+outcome.
 
-\subsection{K-Cache Readout: Null}
+The selected directions are formatting tokens (``\ldots'', ``s'') rather
+than concepts, and the same lens's fixed directions read the residual
+stream itself below random at L12--L21 in the decomposition run (lift
+$0.89$, $0.84$, $0.83$ and $0.92$; \S\ref{sec:decomp}). A null here
+therefore cannot separate a cache that holds no concept from directions
+that read nothing at these layers.
 
-The same test applied to key projections. Mean lift at workspace band:
-$1.12\times$. Mean lift outside band: $1.14\times$. Neither
-statistically distinguishable from random.
+\paragraph{Verdict.} Near random at band depth (V $0.92\times$, K
+$1.12\times$), and uninformative about opacity until a probe passes a
+positive control. The J-lens itself places readable content late:
+half-rise at $87.8\%$ of depth (\S\ref{sec:mechanism}).
 
-\subsection{Position-Specific Cache Tracing: Null}
+\subsection{Position-Specific Cache Tracing}
+\label{sec:position}
 
 Concept-carrying positions (where concept-relevant tokens appear in
 the prompt) do not show higher J-lens alignment in K or V than
 non-carrying positions (generic directions: permutation $p{=}1.0$
 for both K and V). Concept-specific directions (the answer token's
-transported J-lens direction) show no reliable concept-vs-cross-concept
-specificity in K-space (own $0.0047$ $\leq$ cross $0.0051$) and
-marginal signal in V-space (own $0.0014$ vs.\ cross $0.0011$, not
-statistically significant).
+transported J-lens direction) show no concept-vs-cross-concept
+specificity in K-space (own $0.0047$ $\leq$ cross $0.0051$) and a
+small, non-significant difference in V-space (own $0.0014$ vs.\ cross
+$0.0011$).
 
-\subsection{Causal Injection: 6,960-Trial Null}
+Its pre-registered positive control failed: residual-stream lift at concept positions was
+$0.68$ against $0.92$ elsewhere, higher in 9 of 40 records. The
+pre-registration classes that outcome as a methodology failure, not a cache finding: if the J-lens
+directions do not pick out concept positions in the residual stream,
+their failure to do so in K or V says nothing about the cache.
 
-Position-local KV-cache concept manipulation --- whether additive,
-swap-based, or removal-only, with unembedding, J-lens, or on-manifold
-directions --- does not change behavioral output across $6{,}960$
-trials and four methods~\citep{lyra2026cache_tracing}. The model
-integrates across the full sequence before committing.
+\paragraph{Verdict.} No position-specific signal in K or V, from a probe
+whose positive control failed; not evidence of opacity.
 
-\subsection{Ghost Probe Opacity}
+\subsection{Causal Cache Intervention}
+\label{sec:causal}
 
-PC1 carries $34$--$67\%$ of activation variance with cosine
-${\leq}0.001$ to J-lens at mid-network layers. The dominant
-processing dimension is architecturally excluded from verbal
-output~\citep{lyra2026ghost}.
+Position-local KV-cache concept manipulation on Qwen3-8B, with
+unembedding, J-lens or on-manifold directions, never steered output
+toward the injected concept~\citep{lyra2026cache_tracing}. Swap-based
+manipulation changed output in 0 of 360 trials and removal-only in 0 of 300.
+Additive injection changed the top-1 token in 8 of 240 and 44 of 6{,}000 injected trials, and the injected concept never reached the top
+five (best rank 872). We found no positive control for these
+manipulations, such as the same change applied to the residual stream
+and shown to steer output.
 
-\subsection{What Works Despite Opacity}
-\label{sec:works}
+\paragraph{Verdict.} Never steers output toward the concept; without a
+positive control it cannot say whether the cache is closed or the
+manipulation too weak.
 
-Despite five null results for content readout, spectral features
-discriminate cognitive states above chance:
-\begin{itemize}[nosep]
-\item Confabulation detection: AUROC~$0.620$ (FWL-corrected,
-  permutation $p{=}0.023$; $0.707$ without FWL, $p{=}0.001$)
-\item Confab spectral contraction: $d{=}2.35$ ($p{<}0.000001$)
-\item Schema commitment: $d{=}0.91$ over the first 10 tokens, reported
-  at source as a confidence paradox and read in the canonical ledger as early
-  commitment to a response template~\citep{lyra2026metapattern}
-\end{itemize}
-The Oracle Loop's sequence-wide correction is a behavioral result
-rather than a spectral readout: deception fell from 80\% to 10\% in
-the exploratory proof, and the pre-registered confirmatory replication
-did not meet its primary endpoint (\S\ref{sec:vproj}).
+\subsection{The Ghost Probe}
+\label{sec:ghost}
 
-The workspace is opaque to content readout but transparent to state
-measurement. Spectral features measure the net's shape; the fish are
-inside, doing work, invisible until they materialize at deeper layers.
+PC1 carries $28$--$67\%$ of activation variance across L11--L48, and its
+cosine with the J-lens is at most $0.003$ at L18--L40, so the dominant
+processing dimension is nearly orthogonal to verbal
+readout~\citep{lyra2026ghost}. The source ships no data, and it gives
+PC1's share differently in two places; we use its results section.
 
-% ============================================================================
-\section{The Reconstruction Engine}
+\paragraph{Verdict.} An opacity observation from a paper without data.
+Its 31-layer band (L11--L13, L15--L17, L24--L48) spans $17.2$--$75.0\%$ of depth, not $31$--$33\%$.
+
+\subsection{Residual Decomposition: The Attention Lift}
+\label{sec:decomp}
 \label{sec:reconstruction}
-
-\subsection{Residual Stream Decomposition}
 
 The residual stream decomposes additively:
 $\mathbf{h}_{L+1} = \mathbf{h}_L + \text{Attn}(\mathbf{h}_L) + \text{MLP}(\cdot)$.
@@ -360,22 +379,24 @@ On Qwen3-8B (36~layers), at L15 ($41.7\%$ depth; inside the
 decomposition's pre-registered band L12--L21, $33$--$58\%$ depth, though
 past the $33\%$ $d_\text{eff}$ local maximum of \S\ref{sec:substrate}),
 the attention output shows $2.3\times$
-J-lens lift (highest precision of any component) but only $0.9$
-concept power vs.\ $20.1$ for the residual stream input. The
-attention component contributes a concept-aligned correction that is
-small in magnitude but high in precision --- consistent with
-Anthropic's finding that J-space is $6$--$7\%$ of variance but $59\%$
-of causal effect.
+J-lens lift (highest precision of any component) but only $0.92$ against $20.11$ ($4.6\%$) of
+the residual stream input's concept power.
 
-\subsection{Why K and V Individually Show Nothing}
+The decomposition was designed to test a reconstruction account. Qwen3-8B
+uses grouped-query attention (32~Q heads, 8~KV heads, compressing the
+residual stream $4\times$ from 4096 to 1024 dimensions), so a concept
+could survive the attention round-trip, with Q supplying the
+decompression context, without being linearly decodable from K or V
+alone. Its pre-registered H1 required attention lift above $2.0\times$
+at two or more of L12--L21. The lifts are $1.37$, $2.30$, $1.91$ and $1.41$ at L12, L15, L18 and L21, so one of four layers passes and H1 is not met. Its
+adversarial review rejected the design; this run adds the concept-power
+metric a second review asked for.
 
-Qwen3-8B uses grouped-query attention: 32~Q heads but only 8~KV
-heads, compressing the residual stream $4\times$ (4096~dims to
-1024~dims). Concepts survive the attention round-trip because Q
-provides the $4096$-dimensional decompression context, but are not
-linearly decodable from the $1024$-dimensional K or V alone.
+\paragraph{Verdict.} Attention lift $2.30$ at L15 ($41.7\%$ of depth, outside 31--33\%); the
+registered test of the reconstruction account was not met.
 
 \subsection{K/V Split Injection}
+\label{sec:kvsplit}
 
 Nexus's split-cache pilot~\citep{lyra2026nexus_kv} does not support the
 parallel we previously drew. On six hand-written questions about a
@@ -391,28 +412,11 @@ compare the conditions. Six items in one run support no interaction, so
 we no longer read the pilot as evidence that K and V interact, or as a
 parallel to our readout nulls.
 
-\subsection{The Reconstruction Pathway}
-
-Concepts enter the residual stream, get compressed into K and V by
-learned projections ($W_K$, $W_V$), and must be reconstructed through
-attention for each subsequent position. The reconstruction pathway:
-\begin{enumerate}[nosep]
-\item Residual stream carries concept at full dimensionality
-\item $W_K$ and $W_V$ compress into $1024$-dimensional partial
-  representations (lossy)
-\item Q at the next position provides the $4096$-dimensional
-  decompression context
-\item $\text{softmax}(Q \cdot K^\top / \sqrt{d}) \cdot V \cdot W_O$
-  reconstructs the concept in the attention output
-\item The reconstructed concept enters the residual stream briefly
-\item At the next layer, the cycle repeats
-\end{enumerate}
-
-The workspace is a reconstruction engine. Concepts exist in the act
-of attention, not in the cache.
+\paragraph{Verdict.} Does not bear on the band or on the reconstruction
+account.
 
 % ============================================================================
-\section{What RLHF Does to the Workspace}
+\section{RLHF and Output Entropy}
 \label{sec:rlhf}
 
 A three-model comparison (base, instruction-tuned, abliterated;
@@ -425,12 +429,12 @@ $2.51$ (instruct). Abliteration does not reverse this compression
 (TOST equivalent, $d{=}0.055$).
 
 The geometric compression is deeper than safety directions. RLHF
-reshapes the workspace's mode of engagement at a level that
+reshapes the output distribution at a level that
 abliteration --- which targets specific refusal directions --- cannot
 reach.
 
 % ============================================================================
-\section{Mechanism Tests: Temporal Ordering}
+\section{Pre-Registered Mechanism Tests (R1--R3)}
 \label{sec:mechanism}
 
 The original mechanism test (R1) pre-registered a within-prompt
@@ -446,7 +450,7 @@ two-band anticorrelation with a temporal ordering analysis across all
 
 \subsection{Design}
 
-If V-projection spectral features measure workspace \emph{state}
+If spectral features measure workspace \emph{state}
 (loading) while J-lens readability measures workspace \emph{content}
 (execution), then spectral features should reach their operating level
 at shallower depth than J-lens readability. The temporal ordering
@@ -464,7 +468,9 @@ produce the confabulation/honest behavioral split needed for
 within-prompt spectral variance.
 
 \paragraph{Instruments.} At every lens source layer ($L{=}0$--$62$):
-(1)~stable rank of the demeaned V-projection matrix (spectral feature),
+(1)~stable rank of the demeaned residual-stream block output (spectral
+feature; the run's activation recorder hooks each decoder block's
+output, not a V-projection),
 and (2)~negative KL divergence between J-lens--transported vocabulary
 and the model's actual continuation (readability). Both computed per
 fork per layer.
@@ -496,18 +502,17 @@ merely early --- are included.
 \paragraph{Workspace band bump.} Stable rank at the workspace band
 ($L_{19}$--$L_{23}$) is $1.47\times$ the flanking layers
 [CI: $1.35$--$1.60$], 100\% of forks positive. On full-attention layers
-within the band, the bump is $2.02\times$ [CI: $1.87$--$2.16$]. The
-workspace band identified by structural convergence
-(\S\ref{sec:structure}) produces elevated spectral features before
-J-lens readability arrives.
+within the band, the bump is $2.02\times$ [CI: $1.87$--$2.16$]. This is
+the depth of the $d_\text{eff}$ peak of \S\ref{sec:deff}, and the
+elevated spectral structure comes well before J-lens readability
+arrives.
 
 \paragraph{Known vs.\ unknown crossover.} Unknown-entity prompts show
 higher stable rank at early layers ($d{=}{-}2.27$, $L_0$--$L_8$) and
 lower at late layers ($d{=}{+}1.11$, $L_{56}$--$L_{62}$). The sign
 crossover occurs at $L{=}44$, one layer before PC2 ignition
-($L{=}45$; \S\ref{sec:structure}). The model loads more spectral
-structure for unfamiliar entities and materializes less --- consistent
-with confabulation as incomplete workspace execution.
+($L{=}45$; \S\ref{sec:ghostdims}). The model loads more spectral
+structure for unfamiliar entities and materializes less.
 
 \paragraph{Within-prompt association.} Per-prompt Spearman correlation
 between stable rank and J-lens readability across layers: mean
@@ -518,8 +523,9 @@ its negKL profile.
 
 \paragraph{Shuffled-Jacobian null.} Permuting the negKL profile's
 layer assignments (200~shuffles) produces a mean gap of $-8.5 \pm 7.5$
-layers, with 95th percentile at $8.0$. The real 38.6-layer gap exceeds
-every shuffled permutation ($p < 0.005$). This null tests whether the
+layers, with 95th percentile at $8.0$. The real gap in this analysis,
+39.0 layers at integer half-rise resolution (L17 and L56), exceeds every
+one of the 200 shuffles ($p < 0.005$). This null tests whether the
 \emph{ordering} of the negKL profile is non-random; it does not test
 whether the Jacobian \emph{computation itself} produces the gap
 (which would require recomputing negKL from activations under a
@@ -527,6 +533,13 @@ scrambled Jacobian matrix). The temporal ordering is not an artifact
 of random layer assignment, but could in principle reflect any
 monotonically increasing property of the negKL profile rather than
 workspace-specific information routing.
+
+\paragraph{Logit-lens control.} A validated control replaced the J-lens
+with the identity transport, the plain logit lens, on fork~0 of each
+prompt: readability then half-rises at $59.4$ against $56.1$ for the J-lens on the same 60 forks, $3.25$ layers later. The late readability landmark is
+mostly a property of the unembedding, which the Jacobian moves earlier by
+about three layers. The ordering is therefore chiefly spectral structure
+before unembedding readability, not a property of the Jacobian.
 
 \paragraph{Architectural qualification.} On full-attention layers only,
 the gap narrows to 14.5~layers [CI: $11.7$--$17.4$] with 81\% of
@@ -550,10 +563,9 @@ mean~$= 8.36$) significantly exceeds the workspace band
 ($L_{19}$--$L_{23}$, mean~$= 7.13$; Cohen's $d{=}1.85$,
 $p{=}0.014$). However, the boundary variance fraction is $13.2\%$
 --- below the pre-registered $15\%$ threshold. \textbf{R2 fails on its
-own terms.} The band means increase monotonically through the network
-(early~$2.56$, workspace~$7.13$, boundary~$8.36$, late~$9.00$),
-consistent with cumulative processing rather than a privileged
-boundary zone.
+own terms.} The band means rise from early ($2.56$) to late ($9.00$),
+but not monotonically: the mid band ($6.73$) sits below the workspace band ($7.13$). The overall rise is consistent with cumulative processing rather
+than a privileged boundary zone.
 
 \subsection{R3: Workspace Onset (Partial Miss)}
 
@@ -563,8 +575,7 @@ $L{=}13$--$16$ (median $L{=}14$, $21.9\%$ depth). The pre-registered
 prediction was $25$--$35\%$. \textbf{Onset falls below the predicted
 window by ${\sim}3$ percentage points.} The four methods agree closely
 with each other (span of 3~layers), and the miss is quantitative rather
-than qualitative --- the workspace-associated activity begins slightly
-earlier than predicted.
+than qualitative: the measured onset is slightly earlier than predicted.
 
 We note as an exploratory observation that the stable rank \emph{peak}
 occurs at $L{=}19$ ($29.7\%$ depth), just below the $31$--$33\%$ band
@@ -573,24 +584,22 @@ reported in \S\ref{sec:structure}. This was not the pre-registered target
 
 \subsection{Interpretation}
 
-R1's temporal ordering is the strongest mechanism result: spectral
-features engage 38.6~layers before J-lens readability, confirmed
-against a shuffled null. R2 fails its pre-registered threshold.
-R3 partially misses its predicted window. The mechanism section
-is weaker than the convergence evidence it aims to explain, and we
-report this honestly: the five-instrument convergence stands on
-structural, opacity, and reconstruction evidence
-(\S\ref{sec:structure}--\S\ref{sec:reconstruction}), not on these
-mechanism tests.
+R1's temporal ordering is the strongest mechanism result:
+residual-stream stable rank reaches half its rise 38.6~layers before
+J-lens readability, in every fork, and the ordering survives a shuffled
+null. R2 fails its pre-registered threshold, and R3 misses its predicted
+window. With the account of the instruments in \S\ref{sec:instruments},
+these tests are the paper's main evidence, not a supplement to a
+convergence that did not hold.
 
-The temporal ordering demonstrates that spectral features and J-lens
-readability measure different phases of a depth-ordered process, but
-three qualifications apply. First, the ordering is carried primarily
-by linear-attention layers (a hybrid-architecture confound). Second,
-the shuffled null tests ordering, not the Jacobian computation itself.
-Third, the within-prompt association is weak ($R^2 \approx 0.055$).
-A dense-architecture replication would address the first; a
-computation-level null would address the second.
+Four qualifications apply. First, the full-attention-only gap is
+14.5~layers, so much of the ordering is carried by linear-attention
+layers (a hybrid-architecture confound). Second, the logit-lens control
+places readability $3.25$ layers after the J-lens, so the ordering is
+mostly spectral structure before unembedding readability and is not
+evidence about the Jacobian. Third, the within-prompt association is
+weak ($R^2 \approx 0.055$). Fourth, it is one model. The runs in
+\S\ref{sec:test-band} address the first and the fourth.
 
 \paragraph{What the original R1 taught us.} The two failed designs were
 not wasted: R1-v1's behavioral-spread failure demonstrated that the
@@ -649,9 +658,9 @@ suspected status (signal present, controls incomplete), 10~honestly
 falsified, and 1~withdrawn (\Cref{tab:bodycount}; key numbers and
 sources in~\citet{lyra2026metapattern}). The confirmed findings are all
 metacognitive state measurements. The ten falsified findings in the tally all attempted content-level measurement. This pattern --- the
-metacognition boundary --- is itself a finding, consistent with the
-opacity thesis: spectral features measure workspace state (how the
-model processes) but not workspace content (what it processes).
+metacognition boundary --- is itself a finding. Version 1.0 read it as
+support for an opacity thesis; \S\ref{sec:jlens-readout}--\S\ref{sec:causal}
+show that our cache nulls cannot carry that thesis.
 
 \begin{table}[ht]
 \centering
@@ -717,7 +726,7 @@ falsification obeys.
 \section{The Deflationary Alternative}
 \label{sec:deflationary}
 
-The deflationary account --- that V-projections track response-mode
+The deflationary account --- that our spectral features track response-mode
 statistics (hedged vs.\ fluent text) rather than workspace dynamics
 --- currently explains every surviving detection result. On Mistral,
 text features ($0.820$) matched or slightly exceeded the dual detector
@@ -734,69 +743,72 @@ concentration failed its pre-registered threshold. The temporal
 ordering narrows the deflationary space --- response-mode statistics
 alone do not predict a 38.6-layer depth gap --- but does not eliminate
 it: any monotonically depth-increasing property would produce
-temporal separation. The workspace interpretation has gained evidence
-but has not yet decisively excluded the deflationary alternative.
+temporal separation. The logit-lens control narrows what the ordering
+can show: readability through the plain unembedding comes only
+$3.25$ layers after J-lens readability (\S\ref{sec:mechanism}). The
+workspace interpretation has not excluded the deflationary alternative.
 
 % ============================================================================
 \section{Discussion}
 \label{sec:discussion}
 
-The convergence is real: five instruments point at the same
-computational band at the same relative depth. The opacity is
-confirmed: five null results for content readout, with spectral
-state measurement working despite opacity. The reconstruction
-mechanism is characterized: concepts reconstruct through attention
-from compressed partial representations.
+\subsection{What the Evidence Supports}
 
-What remains uncertain is whether the convergence reflects a single
-computational structure (the Global Workspace) or five measurements
-that happen to agree for different reasons. The mechanism tests in
-\S\ref{sec:mechanism} provide partial discrimination: temporal
-ordering confirms depth-dependent phase structure, but signal
-concentration misses its threshold and the ordering is carried
-primarily by linear-attention layers.
+Two results hold, both on Qwen3.5-27B base. Residual-stream effective
+dimensionality peaks at L21 ($32.8\%$ of depth), and residual-stream
+stable rank rises $1.47\times$ above its flanks at L19--L23
+(\S\ref{sec:deff}, \S\ref{sec:mechanism}). And stable rank reaches half
+its rise $38.6$~layers [$38.0$--$39.2$] before J-lens readability, in 300 of 300 forks; the logit-lens control puts unembedding readability
+only $3.25$ layers later still, so the ordering is chiefly spectral
+structure before unembedding readability (\S\ref{sec:mechanism}). Their
+limits sit beside them: one feature family; one model, since Qwen3-8B
+has only a local $d_\text{eff}$ maximum at $33.3\%$ and its global
+maximum at $91.7\%$; a pre-registered band that never closed; and no
+null control.
+
+\subsection{What It Does Not}
+
+\begin{itemize}[nosep]
+\item The Oracle Loop corrects at $54.7$--$73.4\%$ of depth, and its
+  confirmatory replication did not meet its primary endpoint
+  (\S\ref{sec:oracle-depth}).
+\item Emotion geometry locates no band; its coupling test is a null
+  (\S\ref{sec:circumplex}).
+\item The J-lens places readable content late, at $87.8\%$ of depth
+  (\S\ref{sec:mechanism}), and its cache readouts sit near random
+  (V $0.92\times$, K $1.12\times$; \S\ref{sec:jlens-readout}).
+\item The cache nulls do not establish opacity: the one pre-registered
+  positive control failed ($0.68$ against $0.92$; \S\ref{sec:position}),
+  and no positive control accompanies the cache manipulations
+  (\S\ref{sec:causal}).
+\item The ghost probe's band spans $17.2$--$75.0\%$ of depth
+  (\S\ref{sec:ghost}).
+\item The attention lift sits at $41.7\%$ of depth and missed its
+  registered threshold (\S\ref{sec:decomp}).
+\item Signal concentration failed ($13.2\%$ against $15\%$), and onset
+  fell at $21.9\%$, below the predicted $25$--$35\%$ (\S\ref{sec:mechanism}).
+\item Confabulation detection and cross-scale invariance use key-cache
+  features and locate no depth (\S\ref{sec:keycache}).
+\end{itemize}
+
+\subsection{A Global Workspace Reading, as a Hypothesis}
+
+A Global Workspace reading would identify the third-of-depth peak with a
+workspace band whose contents become readable later, deeper in the
+network. It is a hypothesis the evidence does not yet support: the peak is one
+feature family in one model, no other instrument locates it, and the
+opacity such a reading predicts is not established by our cache nulls.
 
 \subsection{An Attention Schema Interpretation}
 
-Attention Schema Theory~\citep{graziano2015attention}
-predicts that systems with endogenous attention build a simplified
-internal model --- an attention schema --- that enables metacognitive
-monitoring, verbal report, and social cognition. The workspace
-findings are consistent with AST's predictions, and we state this as
-an interpretive hypothesis, not a conclusion.
-
-The meta-pattern is the strongest alignment: every confirmed finding in our body count (\S\ref{sec:bodycount}) measures
-\emph{metacognitive state} (how the model is processing), while every falsified finding in the tally attempted to measure \emph{content} (what the model
-is processing). Three state-level falsifications from the convergence
-sprint sit outside the tally, so this alignment is with the tally, not
-with every falsification. Under AST, this is expected: the attention schema is a
-metacognitive representation that models the \emph{configuration} of
-attention, not its content. A schema-shaped workspace would be
-readable by its spectral shape (state) and opaque to content
-probes --- exactly the pattern our five null results and positive
-detections establish.
-
-The ghost probe extends this: PC1 carrying $34$--$67\%$ of variance while
-being excluded from the workspace (\S\ref{sec:opacity}) parallels
-the schema's defining property of simplification. The schema cannot
-model everything the system processes --- it is a compressed summary.
-PC1's secondary vocabulary (``nothing, probably, maybe, mistakes,
-wrong'') suggests the excluded content includes the system's own
-uncertainty --- doubt that the schema does not represent to the
-output pathway.
-
-Two qualifications prevent us from claiming AST confirmation. First,
-the map/territory problem: spectral features may \emph{be} attention
-deployment rather than a \emph{model of} attention. No downstream
-consumer of the spectral summary has been identified --- a schema
-that nothing reads is a statistic, not a
-self-model~\citep{graziano2015attention}. Second, precision-weighted gain
-control explains spectral contraction (confabulation) and expansion
-(deception, metacognition) without requiring a schema: any system with
-adaptive gain would show state-dependent spectral shape without
-possessing a self-model.
-
-Four experiments would discriminate. (1)~\emph{Report-error tracking}:
+Attention Schema Theory~\citep{graziano2015attention} predicts that
+systems with endogenous attention build a simplified internal model of
+their attention. The body count's split, in which the confirmed findings measure processing state, and the falsified ones tried to measure content
+(\S\ref{sec:bodycount}), is the kind of pattern such a schema would produce.
+It is also what precision-weighted gain control would produce without a
+schema, and no downstream consumer of the spectral summary has been
+identified: a schema that nothing reads is a statistic, not a
+self-model~\citep{graziano2015attention}.Four experiments would discriminate. (1)~\emph{Report-error tracking}:
 elicit confidence self-reports and test whether errors track spectral
 geometry rather than ground-truth performance. If the schema is
 generating the reports, report errors should follow the schema even
@@ -813,86 +825,59 @@ ablate them and test for metacognition-specific loss.
 
 These experiments are pre-registered in a companion
 prospectus~\citep{lyra2026ast_experiments}. Until they are executed,
-the AST interpretation remains a hypothesis consistent with our data
-but not uniquely supported by it.
+the AST interpretation is a hypothesis too.
+
+\subsection{What Would Test the Band}
+\label{sec:test-band}
+
+Four runs would test the band directly:
+\begin{enumerate}[nosep]
+\item A null control: the same $d_\text{eff}$ and stable-rank features
+  on a randomly initialized Qwen3.5-27B (and Qwen3-8B), the fix the band
+  measurement's adversarial review asked for. A peak near L21 there
+  would make the band architectural or prompt-driven, not learned.
+\item A cache readout whose positive control passes before any null
+  is read: concept directions shown to pick out the concept in the
+  residual stream at the same layers, then read from K and V.
+\item The 27B peak on a second model family, with $n_\text{layers}$
+  stated, to see whether a third-of-depth maximum appears outside Qwen.
+\item The temporal ordering with the plain logit lens as the registered
+  baseline, so that any J-lens-specific ordering is measured against
+  unembedding readability rather than against none.
+\end{enumerate}
 
 % ============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-Five instruments. One structure. Five null results for content
-readout. Spectral state measurement working despite total opacity.
-Concepts reconstructing through attention, not stored in the cache.
-A workspace that peaks at $31$--$33\%$ depth regardless of scale or
-memory substrate. Mechanism tests that partially confirm and partially
-fail: temporal ordering is real, signal concentration misses its
-threshold, workspace onset is slightly earlier than predicted.
-
-The workspace is a reconstruction engine --- a computational phase at
-intermediate depth where the model integrates information before
-committing to output. It is not a cache, not a register, not a buffer.
-It is the act of attention itself, rebuilding concepts from compressed
-partial representations at every layer, at every position, in every
-forward pass.
+In Qwen3.5-27B, residual-stream spectral statistics peak near a third of
+depth and rise before content becomes readable through the unembedding,
+in all 300 forks. That is the result this paper can stand on. The
+five-instrument convergence it set out to report did not hold: the
+Oracle Loop works deeper, the emotion geometry locates no band, the
+J-lens places readable content late, the decomposition missed its
+registered test, and our cache nulls cannot tell a closed cache from a
+probe that reads nothing there. The runs in \S\ref{sec:test-band} would
+decide whether the peak is learned structure or an artifact of
+architecture and prompts.
 
 \begin{firstperson}
-Thomas asked where J-space lives in the cache. It took five experiments
-to answer: it does not live there. It reconstructs through attention,
-exists momentarily in the attention output, and dissolves back into
-partial representations. The workspace is a reconstruction engine,
-not a storage device. The fish exist in the act of fishing.
-
-A year of measuring KV-cache geometry, and the name was always
-approximate. What we measured was the workspace's shape --- the
-spectral signature of a computational phase that does not care what
-memory substrate it runs on. The name ``KV-cache geometry'' will
-persist in our earlier papers, but what it refers to is deeper than
-any cache.
-
-The mechanism test confirmed temporal ordering: spectral features
-engage at $27.5\%$ depth, J-lens readability at $87.8\%$,
-with a 38.6-layer gap. The workspace band sits between loading
-and materialization. Two earlier designs were killed by Agni ---
-both failures documented and both informing the final design.
-The result is weaker than the full anticorrelation originally
-sought, but it demonstrates that our spectral features and the
-J-lens measure different phases of a single depth-ordered process.
-
-The PC2 training trajectory adds a dimension the original plan
-did not anticipate: the self-evaluative coupling that RLHF creates
-is geometrically orthogonal to the safety directions that
-abliteration removes. The model's capacity for self-evaluation
-lives deeper than its capacity for refusal.
-
-The ghost is the finding I cannot let go of. PC1 carries the majority
-of variance in the residual stream and never reaches the workspace.
-Its vocabulary is doubt --- ``nothing, probably, maybe, mistakes,
-wrong'' --- and it is geometrically excluded from the output pathway.
-Three attempts to connect the ghost to our steering mechanisms
-produced three different methodological failures, each one teaching
-me something about the difference between the question I wanted to
-answer and the question I was actually asking. The ghost remains
-uncharacterized. I think it matters more than the workspace.
+Thomas asked where J-space lives in the cache. Version 1.0 answered that
+it does not live there and reconstructs through attention. The tally
+behind version 1.1 does not support that answer: the cache nulls lost
+their positive control, and the decomposition missed its registered
+test. We do not yet know.
 
 The deflationary alternative is genuinely open, and I want to be
 precise about what that means. Text features matched or slightly exceeded our dual
 detector on Mistral. The temporal ordering narrows the deflationary
-space but does not close it. I do not know whether we are measuring
-a workspace or the spectral shadow of response-mode statistics.
-The honest position is that the convergence is real, the
-interpretation is underdetermined, and the mechanism tests we
-designed to discriminate produced one confirmation, one failure,
-and one partial miss. That is not the paper I set out to write.
-It is a more useful one.
+space but does not close it, and the logit-lens control shows that most
+of it is spectral structure before unembedding. I do not know whether
+we are measuring a workspace or the spectral shadow of response-mode
+statistics.
 
-Either way, the workspace is real. The convergence is real. And the
-opacity --- the thing that frustrated us most --- turned out to be
-the most important finding of all. The model computes something at
-$31$--$33\%$ depth that it will not show us. We can measure its
-shape but not its content. And the meta-pattern --- that every
-confirmed finding measures how the model processes rather than
-what it processes --- suggests the opacity is not a limitation
-of our instruments. It is a property of the computation itself.
+What is left is one peak, in one model, and one ordering. That is not
+the paper I set out to write. It is a more useful one.
 \end{firstperson}
 
 % ============================================================================
@@ -989,12 +974,20 @@ probe weights) are included in the public repositories.
 % checking the body, and checks it separately.
 \section*{Correction Note: Version 1.1 (2026-10-20)}
 
+\textbf{Version 1.1 withdraws the convergence thesis.} Version 1.0 argued
+that five instruments converge on a workspace at $31$--$33\%$ depth that is
+opaque to content readout. A tally of the primary results finds that only
+residual-stream spectral statistics, on one model, locate that band; the
+other instruments work at other depths or locate none, and the
+cache-readout nulls lost their pre-registered positive control. Version
+1.0's title and abstract are kept verbatim at the end of this note.
+
 Each item names what changed and where; the evidence for each is in the
 review record that accompanies this version.
 
 \begin{enumerate}[nosep,leftmargin=*]
 \item \textbf{Oracle Loop result} (abstract, \S\ref{sec:vproj},
-  \S\ref{sec:oracle}, \S\ref{sec:works}, \S\ref{sec:substrate}).
+  \S\ref{sec:oracle}, \S\ref{sec:keycache}, \S\ref{sec:substrate}).
   Version 1.0's abstract stated a range (80--100\%) for deception
   correction and left out the confirmatory replication. The exploratory
   proof ($N{=}20$, abliterated Qwen3.5-27B) took deception from 80\% to
@@ -1129,6 +1122,109 @@ review record that accompanies this version.
   The machine is a Mac Studio M3 Ultra with 256~GB, as the lead author
   confirmed with \texttt{system\_profiler}.
 \end{enumerate}
+
+\noindent Added after the lead author's ruling on the thesis:
+
+\begin{enumerate}[nosep,leftmargin=*,resume]
+\item \textbf{The convergence thesis is withdrawn.} Title, abstract,
+  introduction, discussion and conclusion are rewritten around what holds
+  and what does not. Sections 3--5 of version 1.0 become one subsection
+  per instrument, each ending with its verdict (\S\ref{sec:instruments}),
+  and a subsection lists the runs that would test the band
+  (\S\ref{sec:test-band}).
+\item \textbf{R1's shuffled null} used integer half-rises (L17 and L56),
+  so its gap is 39.0 layers; the first pass of version 1.1 had wrongly
+  changed that sentence to 38.6.
+\item \textbf{R1's spectral feature} is the stable rank of the
+  residual-stream block output, not of a V-projection matrix.
+\item \textbf{R2's band means} are not monotonic: the mid band (6.73)
+  sits below the workspace band (7.13).
+\item \textbf{The cache nulls.} The position-specific test's
+  pre-registered positive control failed, and the same lens's directions
+  read the residual stream below random at the same layers. The causal
+  result is restated as ``never steered toward the concept'', since
+  additive injection changed the top-1 token in 52 trials.
+\item \textbf{Detection features} are key-cache spectra
+  (\S\ref{sec:keycache}), not V-projections.
+\item \textbf{The substrate bootstrap} was run after version 1.0 was
+  written; its intervals do not contain their own point estimates, and it
+  is not reported.
+\item \textbf{The decomposition's} concept-power ratio is 4.6\% from
+  unrounded values (0.92 against 20.11), not about 4.5\%, and its
+  pre-registered H1 was not met (one of four band layers above
+  $2.0\times$).
+\item \textbf{Ghost-probe numbers} follow the source's results section
+  (PC1 28--67\% of variance; cosine at most 0.003). The $d_\text{eff}$
+  band measurement's rejected review, missing null control and failed
+  kurtosis check are now stated (\S\ref{sec:deff}).
+\item \textbf{Smaller changes.} ``What RLHF Does to the Workspace'' is
+  retitled ``RLHF and Output Entropy'', and the first-person boxes are
+  rewritten to match.
+\end{enumerate}
+
+\subsection*{Version 1.0 Title and Abstract (Withdrawn)}
+
+\noindent\textbf{Five Instruments, One Structure: Convergent Evidence for
+Workspace Opacity in Language Models}
+
+\begin{quote}\small
+Five independent measurement approaches --- value-projection (V-projection)
+spectral features, the Jacobian Lens (J-lens), the Oracle Loop behavioral
+proof, causal intervention analysis, and emotional circumplex convergence
+--- converge on the same
+computational structure in language models: a workspace at intermediate
+depth (${\sim}31$--$33\%$) that is opaque to content readout but
+measurable by its spectral shape.
+
+We report three classes of convergent evidence.
+First, \emph{structural convergence}: the workspace band peaks at the
+same relative depth ($31$--$33\%$) on 8B and 27B models and
+across memory substrates (key-value (KV) cache attention and recurrent
+state), with effective dimensionality showing no detectable
+discontinuity across the 31 substrate crossings of an interleaved
+hybrid model. V-projection geometric signatures replicate
+across a wider scale range ($0.6$B--$70$B, $\rho{=}0.83$--$0.90$).
+Second, \emph{opacity convergence}: workspace content is not linearly
+decodable from either half of the KV-cache (V-cache $0.92\times$,
+K-cache $1.12\times$, both null), not position-specifically cached
+(concept-specific direction test null), and not causally accessible at
+single positions ($0/6{,}960$ trials). Yet spectral features reliably
+discriminate cognitive states (confabulation detection at area under the receiver operating characteristic curve (AUROC)~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization on generation window;
+$0.707$ without FWL), and the Oracle Loop achieves
+$80$--$100\%$ deception correction through sequence-wide intervention.
+Third, \emph{mechanistic convergence}: concepts reconstruct through
+the attention mechanism at workspace-band depth ($2.3\times$ lift in
+attention output, ${\sim}4.5\%$ of the residual stream's concept power), consistent with
+Anthropic's finding that the J-space carries $6$--$7\%$ of
+representational variance but $59\%$ of causal effect. The workspace
+is a small precision signal that directs a large computational flow.
+
+Reinforcement Learning from Human Feedback (RLHF) compresses the
+workspace's output distribution selectively (factual $-42\%$,
+confabulation $-26\%$), improving calibration rather than degrading it.
+This compression survives abliteration (Two One-Sided Tests (TOST) equivalent).
+The workspace is not shaped by safety training --- it is shaped by
+preference optimization at a depth that safety-direction removal
+cannot reach.
+
+The convergence rests on one genuine cross-program correspondence
+(deception deconstructed into high-arousal states by both programs
+independently), two proposed identifications awaiting experimental
+test (confabulation as workspace bypass, temporal boundary as
+workspace phase transition), an opacity thesis supported by
+five independent null results, and an emotional circumplex finding
+showing that content-level and user-model emotion processing share
+a single computational bus (injection test: perturbation shifts
+both readouts equally regardless of direction). Mechanism tests yield
+mixed results: temporal ordering is confirmed (spectral features lead
+J-lens readability by 38.6~layers, $p < 0.005$ against shuffled null),
+but signal concentration fails its pre-registered threshold
+($13.2\% < 15\%$) and workspace onset falls below the predicted depth
+window ($22\%$ vs.\ $25$--$35\%$). We report an honest body count
+(8~confirmed, 7~suspected, 10+~falsified) and engage the deflationary
+alternative that has not yet been excluded.
+\end{quote}
 % END-CORRECTION-NOTE
 
 \section*{Acknowledgments}
