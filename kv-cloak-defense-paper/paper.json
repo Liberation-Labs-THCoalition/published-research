@@ -5,7 +5,7 @@
   "authors": ["Lyra", "Thomas Edrington", "Dwayne Wilkes"],
   "date": "2026-04-20",
   "tags": ["kv-cache", "defense", "obfuscation", "dual-use", "safety"],
-  "abstract": "Version 1.1 (October 2026) withdraws this paper's claim that KV-Cloak defends cache-geometry methods against adversaries. Under per-head orthogonal rotation, the simulation of KV-Cloak used here, the feature that detected confabulation best without obfuscation still detects on both models tested (spectral gap AUROC 0.903 to 0.787 on a distilled Qwen3.5-27B; signal fraction 0.661 to 0.639 on Qwen2.5-7B), and the rotation cannot change the spectrum of any single head. Under an implementation of the full KV-Cloak mechanism the spectral gap falls to 0.614, and after removing reply length no feature detects significantly; with seven confabulations the result is inconclusive.",
+  "abstract": "Version 1.1 (October 2026) withdraws this paper's claim that KV-Cloak defends cache-geometry methods against adversaries. Under per-head orthogonal rotation, the simulation of KV-Cloak used here, the feature that detects best without obfuscation still detects on the two models whose feature is recorded: clearly on Qwen2.5-7B (0.715 to 0.717; adjusted p < 0.001) and marginally on a distilled Qwen3.5-27B (spectral gap 0.903 to 0.787; adjusted p = 0.049). The rotation cannot change the spectrum of any single head. Under an implementation of the full KV-Cloak transform, whose parameters were not recorded, the spectral gap falls to 0.614, and after removing reply length no feature detects significantly; with seven confabulations the result is inconclusive.",
   "pdf_filename": "KV-Cloak_Defense_-_Academic_Version.pdf",
   "related_page": "../projects/oracle-loop.html"
 }
