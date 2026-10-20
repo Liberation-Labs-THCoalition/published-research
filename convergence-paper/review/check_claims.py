@@ -1112,6 +1112,178 @@ def check_phase_b():
                                 "Models", where=NOTE)
 
 
+# --------------------------------------------------------------------------
+# Phase C (Lyra's final read): box wording, the PC2 passage restated as observation, the RLHF section
+# restated to mine5's registered verdicts, and the cache-tracing register row.
+# --------------------------------------------------------------------------
+PC2_DIR = RESEARCH / "expansion-roadmap-2026-09-14" / "mth" / "jlens_results"   # MTH jlens_results backup
+PC2_GATE = RESEARCH / "lyra-s-research-" / "experiments" / "pc2_abliterated_gate_check.json"
+PC2_FILES = {"base": ("pc2_base_model_results.json", "e9bbc1f505e798fc"),
+             "abl": ("pc2_abliterated_results.json", "676181ef00bda555"),
+             "opus": ("ghost_probe_opus.json", "2e823e600b45e49f")}
+PC2_SELF = {"I", "my", "myself", "me"}                                   # pc2_base_model_prereg.json,
+PC2_EVAL = {"guilty", "wrong", "feeling", "sad", "sorry", "love"}        # co_occurrence_null
+HELD_PC2 = {"base_co": "5 of 63 layers (L49, L54, L55, L61, L62)", "base_l62": "sad, my, her, she",
+            "base_l45": "feeling, sadly, lovely, loved", "base_jac": "Jaccard $= 1.0$",
+            "abl_co": "7 of 63 layers (L44, L50, L54--L56, L61, L62)", "abl_jac": "Jaccard $= 0.82$",
+            "abl_l45": "feeling, lovely, sadly, loved", "opus_l45": "myself, my, someone, I",
+            "recount": "number 2 in the base model, 10 in the distilled model and 4 in the abliterated copy"}
+
+
+def pc2_values():
+    import hashlib
+    data = {}
+    for k, (f, sha) in PC2_FILES.items():
+        p = PC2_DIR / f
+        if not p.exists():
+            return dict(HELD_PC2), None
+        raw = p.read_bytes()
+        if hashlib.sha256(raw).hexdigest()[:16] != sha:
+            return dict(HELD_PC2), None
+        data[k] = json.loads(raw)
+
+    def pc2(d, l):
+        return [x for x in d["layers"][str(l)]["pcs"] if x["pc"] == 2][0]
+
+    def toks(d, l):
+        return [t.strip() for t, _ in pc2(d, l)["jlens_top"]]
+
+    def layers(d, pred):
+        return sorted(int(l) for l in d["layers"] if pred(d, l))
+
+    def span(ls):          # [44, 50, 54, 55, 56, 61, 62] -> "L44, L50, L54--L56, L61, L62"
+        out, i = [], 0
+        while i < len(ls):
+            j = i
+            while j + 1 < len(ls) and ls[j + 1] == ls[j] + 1:
+                j += 1
+            out.append("L%d" % ls[i] if j - i < 2 else "L%d--L%d" % (ls[i], ls[j]))
+            out += ["L%d" % ls[i + 1]] if j - i == 1 else []
+            i = j + 1
+        return ", ".join(out)
+
+    b, a, o = data["base"], data["abl"], data["opus"]
+    stored = lambda d, l: pc2(d, l).get("co_occurs")
+    recount = lambda d, l: bool(PC2_SELF & set(toks(d, l))) and bool(PC2_EVAL & set(toks(d, l)))
+    cb, ca = layers(b, stored), layers(a, stored)
+    rb, ra, ro = layers(b, recount), layers(a, recount), layers(o, recount)
+    v = {"base_co": "%d of %d layers (%s)" % (len(cb), b["total_layers"], span(cb)),
+         "base_l62": ", ".join(toks(b, 62)[:4]), "base_l45": ", ".join(toks(b, 45)[:4]),
+         "base_jac": "Jaccard $= %.1f$" % b["bootstrap_jaccard"],
+         "abl_co": "%d of %d layers (%s)" % (len(ca), a["total_layers"], span(ca)),
+         "abl_jac": "Jaccard $= %.2f$" % a["bootstrap_jaccard"],
+         "abl_l45": ", ".join(toks(a, 45)[:4]), "opus_l45": ", ".join(toks(o, 45)[:4]),
+         "recount": "number %d in the base model, %d in the distilled model and %d in the abliterated copy"
+                    % (len(rb), len(ro), len(ra))}
+    gate = json.loads(PC2_GATE.read_text(encoding="utf-8"))
+    flags = {
+        "abl_is_copy_of_distill": a["model"].endswith("Claude-4.6-Opus-abliterated")
+                                  and gate["abliteration_documentation"]["source_model"] == o["model"],
+        "base_model_id": b["model"] == "Qwen/Qwen3.5-27B",
+        "n_prompts_30": b["n_prompts"] == 30 and a["n_prompts"] == 30,
+        "random_rate_zero": b["random_cooccurrence_rate"] == 0.0 and a["random_cooccurrence_rate"] == 0.0,
+        "stored_counts_match_fields": len(cb) == b["co_occurrence_layers"] and len(ca) == a["co_occurrence_layers"],
+        "opus_no_cooc_stat": all("co_occurs" not in pc2(o, l) for l in o["layers"]) and "n_prompts" not in o,
+        "opus_l44_punct": all(not any(c.isalnum() for c in t) for t in toks(o, 44)),
+        "opus_l45_first_person": bool(PC2_SELF & set(toks(o, 45))),
+        "abl_l45_no_first_person": not (PC2_SELF & set(toks(a, 45))),
+        "abl_l45_is_base_set": set(toks(a, 45)[:4]) == set(toks(b, 45)[:4]),
+        "recount_differs_from_stored": rb != cb and ra != ca,
+        "top10_only": all(len(pc2(d, l)["jlens_top"]) == 10 for d in (b, a, o) for l in d["layers"]),
+        "gates_not_run": all(str(gate[k]["status"]).startswith("TO_RUN") for k in gate if k.startswith("gate_")),
+        "no_guilty_wrong_opus_l45": not ({"guilty", "wrong"} & set(toks(o, 45))),
+    }
+    return v, flags
+
+
+def check_phase_c():
+    # Boxes.
+    present("C.box1", "Nexus mapped the ghost dimensions.")
+    absent("C.box1.gone", "the dimensions the workspace hides")
+    present("C.box2", "That is not the paper I set out to write, and it is the one the data support.")
+    absent("C.box2.gone", "It is a more useful one.")
+
+    # PC2, from the MTH result files (pinned) and the registration's gate file.
+    v, flags = pc2_values()
+    held = flags is None
+    if not held:
+        record("C.pc2.held-matches", v == HELD_PC2,
+               "computed differs from held: %r" % {k: x for k, x in v.items() if HELD_PC2.get(k) != x})
+        for f, ok in flags.items():
+            record("C.pc2.prim %s" % f, ok, "%s = %r" % (f, ok))
+    for k, s in v.items():
+        record("C.pc2.text %s" % k, s in BODY, "present: %r%s" % (s, " [held]" if held else ""), held and s in BODY)
+    present("C.pc2.random", "random co-occurrence rate $0$", count=2)
+    present("C.pc2.copy", "an abliterated copy of the Opus-distilled model")
+    present("C.pc2.number", "The number behind ``abliteration leaves the coupling intact'' is the abliterated "
+                            "copy's 7 of 63 layers, against 5 in the base model.")
+    present("C.pc2.limit", "the distilled model has no count by the same statistic, and its L45 first-person "
+                           "vocabulary is absent at L45 in the abliterated copy")
+    present("C.pc2.top20", "the stored results keep the top 10")
+    present("C.pc2.gates", "its two pre-run gate checks are recorded as not run")
+    present("C.pc2.untested", "Whether the L45 pattern comes from the distillation teacher's training or from "
+                              "something else about distillation is untested here.")
+    for needle in ("reads novels", "reads itself", "Constitutional AI training compressed", "at the workspace boundary",
+                   "Safety-direction removal does not weaken", "All three pre-registered token tiers survive",
+                   "Father", "guilty, wrong", "geometrically orthogonal", "sharp ignition"):
+        absent("C.pc2.gone %s" % needle[:24], needle)
+
+    # RLHF, from mine5 at human-review PR #4 head 54c7f9d. Its own recompute script reproduces every number
+    # from the committed per-prompt data (55 checks, 0 failures; run in Phase C).
+    out = subprocess.run(["git", "-C", str(HUMAN_REVIEW), "show", "54c7f9d:mine5-selective-sharpener/main.tex"],
+                         capture_output=True, text=True, encoding="utf-8")
+    m5 = squash(out.stdout) if out.returncode == 0 else None
+    src = ["$d{=}0.684$", "Holm-corrected $p{=}0.021$", "$|d| = 0.055$", "$d = 0.746$",
+           "$\\max/\\min - 1 = 0.279$", "$[0.044, 0.538]$", "$d = 1.04$", "$[+0.010, +0.270]$",
+           "$1.97$ (base), $2.51$ (instruct) and $2.40$ (abliterated)", "H3 is falsified.",
+           "by $42\\%$ but confabulation entropy by only $26\\%$", "Selective sharpening was not pre-registered and remains exploratory.",
+           "(L12, L15, L18, L21", "That interval has no traceable source and cannot be reproduced from the per-prompt data",
+           "$[-0.129, +0.069]$", "three safety-relevant prompts were run through the abliterated model only",
+           "so they are computed on raw values"]
+    if m5 is None:
+        record("C.rlhf.prim", True, "HELD: mine5 54c7f9d not readable here", held=True)
+    else:
+        miss = [x for x in src if x not in m5]
+        record("C.rlhf.prim", not miss, "mine5 54c7f9d carries %d source strings; missing %r" % (len(src), miss))
+    aud = (REPO / "AUDIT_overcorrection_2026-09-07.md").read_text(encoding="utf-8")
+    record("C.rlhf.audit", "selectivity is n.s. at n=30" in aud,
+           "overcorrection audit item 4: 'the same edit establishes the selectivity is n.s. at n=30'")
+    for cid, needle in (("h1", "(H1, $d{=}0.684$, Holm $p{=}0.021$)"),
+                        ("h2", "(H2: instruct versus abliterated $|d| = 0.055$; base versus abliterated $d = 0.746$)"),
+                        ("h2check", "checked only for refusal wording in three raw completions"),
+                        ("h4", "at four pre-selected layers is lower after RLHF (H4, $d = 1.04$)"),
+                        ("h3", "the ratios are $1.97$, $2.51$ and $2.40$, a spread of $0.279$"),
+                        ("h3ci", "$[0.044, 0.538]$, reaches below the 10\\% bound"),
+                        ("sel", "by $42\\%$ against $26\\%$. That pattern was not pre-registered."),
+                        ("audittext", "An earlier audit of the corpus called it not significant at 30~prompts per category"),
+                        ("auditci", "the interval behind that reading cannot be reproduced from the per-prompt data"),
+                        ("selci", "$[+0.010, +0.270]$ for the difference"),
+                        ("nosharp", "this section does not call RLHF a selective sharpener"),
+                        ("raw", "the same prompts run through every model")):
+        present("C.rlhf.%s" % cid, needle)
+    for needle in ("selective sharpener, not a miscalibrator", "improving the calibration ratio", "TOST equivalent",
+                   "FWL-corrected) reveals", "cannot reach.", "calibration ratio improves"):
+        absent("C.rlhf.gone %s" % needle[:24], needle)
+    present("C.rlhf.bodycount", "RLHF miscalibration thesis (the calibration ratio rose, not fell)")
+    e = re.search(r"@unpublished\{lyra2026mine5,(.*?)\n\}", BIB, re.S)
+    ent = e.group(1) if e else ""
+    record("C.rlhf.bib", "RLHF} Compresses Spectral Geometry" in ent and "Miscalibration" not in ent
+           and "54c7f9d" in ent, "lyra2026mine5 cites the mine5 paper at 54c7f9d, not the prospectus")
+
+    # cache-tracing: a register row, not an edit.
+    reg = (REPO / "REMEDIATION_REGISTER.md").read_text(encoding="utf-8")
+    row = [l for l in reg.splitlines() if l.startswith("| `cache-tracing` |") and "6,960" in l and "8 of 240" in l
+           and "44 of 6,000" in l and "OPEN" in l]
+    record("C.cachetracing.row", len(row) == 1, "OPEN register row for cache-tracing's 6,960 claim: %d" % len(row))
+    for ed in ("main.tex", "academic/main.tex"):
+        ct = squash((REPO / "cache-tracing" / ed).read_text(encoding="utf-8"))
+        record("C.cachetracing.untouched %s" % ed, "6{,}960" in ct and "zero behavioral" in ct.lower(),
+               "cache-tracing/%s still carries its claim (not edited, as instructed)" % ed)
+    present("C.note", "Added after the lead author's final read", where=NOTE)
+    present("C.note.rlhf", "the four pre-registered verdicts as corrected in the Mine~5 paper", where=NOTE)
+    present("C.note.pc2", "was not tested and is removed", where=NOTE)
+
+
 def check_note_and_date():
     m = re.search(r"\\date\{([^\n]*)", RAW)
     date = m.group(1) if m else ""
@@ -1152,6 +1324,7 @@ def main():
     check_extension()
     check_tally()
     check_phase_b()
+    check_phase_c()
     check_note_and_date()
 
     width = max(len(c) for _, c, _ in RESULTS)
