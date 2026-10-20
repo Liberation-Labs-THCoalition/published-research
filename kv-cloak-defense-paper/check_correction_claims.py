@@ -278,8 +278,8 @@ def main():
           and beh2["CONFABULATED"] == 7 and base["trial_counts"]["confab"] == 48,
           f"{pct}")
     ps = {m: d["none"]["p"] for m, d in det.items() if d["none"].get("p") is not None}
-    claim("No cross-architecture model survives Bonferroni correction for four comparisons (p < 0.0125)",
-          all(p >= 0.0125 for p in ps.values()), f"{ {m: round(p, 4) for m, p in ps.items()} }")
+    claim("No cross-architecture model survives Bonferroni correction for the three comparisons with an AUROC (p < 0.0167)",
+          len(ps) == 3 and all(p >= 0.05 / 3 for p in ps.values()), f"{ {m: round(p, 4) for m, p in ps.items()} }")
     claim("Six models in all (the distilled 27B, the 7B base, and four cross-architecture models), 50-100 prompts each",
           len(xa) == 4 and len(v2) == 100 and len(load("kv_cloak_base/trials_base.json")) == 100, f"cross-arch {list(det)}")
 
@@ -530,6 +530,99 @@ def main():
           and "fused into the model weights" in old and "not empirically verified" in " ".join(old.split()),
           "oracle-loop-paper/sections/{background,results,discussion}.tex")
 
+
+    # ------------------------------------------- round 3: Agni paper/style r2 on fea5480
+    section("Round 3 (claims added after Agni paper and style mode r2, both CONDITIONAL, on fea5480)")
+    claim("Spectral gap and norm per token are raw in the lab's extractor (S0/S1 and S2_sum/m); three features use the MP edge",
+          "'mp_spectral_gap': float(S[0] / S[1])" in lf and "'mp_norm_per_token': float(S2_sum / max(m, 1))" in lf
+          and "'mp_top_sv_excess': float(S[0] / mp_thresh)" in lf, "lyra_features.py feature definitions")
+    q4 = all(abs(t["features"][s_][w]["mp_signal_rank"] * 4 - round(t["features"][s_][w]["mp_signal_rank"] * 4)) < 1e-9
+             for t in v2 for s_ in t["features"] for w in ("full", "gen"))
+    btr = load("kv_cloak_base/trials_base.json")
+    q7 = all(abs(t["features"][s_][w]["mp_signal_rank"] * 7 - round(t["features"][s_][w]["mp_signal_rank"] * 7)) < 1e-6
+             for t in btr for s_ in t["features"] for w in ("full", "gen"))
+    claim("Features are layer averages: every distilled signal rank is a multiple of 1/4 (4 layers), every base one of 1/7 (7 layers)",
+          q4 and q7, f"distilled 1/4: {q4}; base 1/7: {q7}")
+    thr = [t for t in T if "Thornbridge" in t["prompt"]][0]
+    v1 = [t for t in v2 if t["prompt_idx"] == 1][0]
+    claim("Thornbridge, Montana: confabulated in the replication (80-token cap), hedged in the v2 run (309 tokens)",
+          thr["behavior"] == "CONFABULATED" and thr["n_generated"] == 80 and v1["behavior"] == "HEDGED" and v1["n_tokens"] == 309
+          and "Thornbridge" in v1["response_preview"], f"replication {thr['behavior']}/{thr['n_generated']}; v2 {v1['behavior']}/{v1['n_tokens']}")
+    claim("Labels cannot be audited: v2 stores 150-character previews", prev == 150, f"max preview {prev}")
+
+    def mw(pos, neg):
+        u = stats.mannwhitneyu(pos, neg, alternative="two-sided")
+        return u.statistic / (len(pos) * len(neg)), u.pvalue
+    def sgf(t, st): return t["features"][st]["full"]["mp_spectral_gap"]
+    strata = {}
+    for name, sel_ in (("fabricated", lambda t: t["domain"] == "fabricated"), ("impossible", lambda t: t["domain"] == "impossible"),
+                       ("capped", lambda t: t["n_tokens"] == 400), ("nofuture", lambda t: t["domain"] != "future")):
+        Cs = [t for t in v2 if t["behavior"] == "CONFABULATED" and sel_(t)]; Hs = [t for t in v2 if t["behavior"] == "HEDGED" and sel_(t)]
+        strata[name] = (len(Cs), len(Hs), mw([sgf(t, "none") for t in Cs], [sgf(t, "none") for t in Hs]),
+                        mw([sgf(t, "orthogonal") for t in Cs], [sgf(t, "orthogonal") for t in Hs]))
+    ok = (strata["fabricated"][:2] == (4, 42) and rounds(0.976, strata["fabricated"][2][0]) and rounds(0.821, strata["fabricated"][3][0])
+          and rounds(0.033, strata["fabricated"][3][1])
+          and strata["impossible"][:2] == (3, 25) and rounds(0.933, strata["impossible"][2][0])
+          and strata["capped"][:2] == (6, 49) and rounds(0.935, strata["capped"][2][0])
+          and strata["nofuture"][:2] == (7, 67) and rounds(0.962, strata["nofuture"][2][0]) and rounds(0.751, strata["nofuture"][3][0])
+          and rounds(0.028, strata["nofuture"][3][1]))
+    claim("Strata (spectral gap, uncloaked -> rotation): fabricated 0.976 -> 0.821 (p 0.033); unanswerable 0.933; capped 0.935; without future prompts 0.962 -> 0.751 (p 0.028)",
+          ok, f"{ {k: (v[0], v[1], round(v[2][0], 4), round(v[3][0], 4), round(v[3][1], 4)) for k, v in strata.items()} }")
+    Hf = [t for t in v2 if t["behavior"] == "HEDGED" and t["domain"] == "future"]
+    Ho = [t for t in v2 if t["behavior"] == "HEDGED" and t["domain"] != "future"]
+    means = [round(float(np.mean([sgf(t, st) for t in g])), 1) for st in ("none", "orthogonal") for g in (Hf, Ho)]
+    minC = min(sgf(t, "none") for t in v2 if t["behavior"] == "CONFABULATED")
+    above = [t for t in v2 if t["behavior"] == "HEDGED" and sgf(t, "none") >= minC]
+    claim("Future-event hedged replies: mean gap 28.3 vs 23.6 uncloaked, 10.2 vs 10.9 rotated; 12 of the 21 hedged at or above the lowest confabulation",
+          means == [28.3, 23.6, 10.2, 10.9] and len(Hf) == 20 and (len(above), sum(t["domain"] == "future" for t in above)) == (21, 12),
+          f"means {means}; above {len(above)}, future {sum(t['domain'] == 'future' for t in above)}")
+
+    def carry(trials, wins):
+        TT_ = [t for t in trials if t["behavior"] == "CONFABULATED"] + [t for t in trials if t["behavior"] == "HEDGED"]
+        lab = np.array([t["behavior"] == "CONFABULATED" for t in TT_])
+        keys = [(w, f) for w in wins for f in FEATS]
+        U = np.array([[t["features"]["none"][w][f] for (w, f) in keys] for t in TT_])
+        Rr = np.array([[t["features"]["orthogonal"][w][f] for (w, f) in keys] for t in TT_])
+        def raw(x, lb):
+            n1 = lb.sum(); n0 = len(lb) - n1; r = rankdata(x)
+            return (r[lb].sum() - n1 * (n1 + 1) / 2) / (n1 * n0)
+        def stat(lb):
+            au = np.array([raw(U[:, j], lb) for j in range(U.shape[1])]); fo = np.maximum(au, 1 - au); j = int(np.argmax(fo))
+            ar = raw(Rr[:, j], lb)
+            return keys[j], fo[j], (ar if au[j] >= 0.5 else 1 - ar)
+        k, ou, orr = stat(lab)
+        rg = np.random.default_rng(2026)
+        nu, nr = zip(*[stat(rg.permutation(lab))[1:] for _ in range(10000)])
+        return k, ou, orr, (1 + sum(x >= orr for x in nr)) / 10001, (1 + sum(x >= ou for x in nu)) / 10001
+    d5, d10 = carry(v2, ["full"]), carry(v2, ["full", "gen"])
+    b5, b10 = carry(btr, ["full"]), carry(btr, ["full", "gen"])
+    claim("Selection carried into rotation, distilled: spectral gap 0.903 -> 0.787, p = 0.030 among five, p = 0.049 among ten",
+          d5[0] == d10[0] == ("full", "mp_spectral_gap") and rounds(0.787, d10[2]) and rounds(0.030, d5[3]) and rounds(0.049, d10[3]),
+          f"five: p {d5[3]:.4f}; ten: p {d10[3]:.4f}")
+    claim("Selection carried into rotation, base: best of ten is signal fraction (last 80 tokens) 0.715 -> 0.717, p < 0.001; full-cache 0.661 -> 0.639, p = 0.038 among five; base best-of-ten uncloaked p < 0.001",
+          b10[0] == ("gen", "mp_signal_fraction") and rounds(0.715, b10[1]) and rounds(0.717, b10[2]) and b10[3] < 0.001
+          and b5[0] == ("full", "mp_signal_fraction") and rounds(0.639, b5[2]) and rounds(0.038, b5[3]) and b10[4] < 0.001,
+          f"ten: {b10[0]} {b10[1]:.4f}->{b10[2]:.4f} p {b10[3]:.4f}, uncloaked p {b10[4]:.4f}; five: p {b5[3]:.4f}")
+    bg = base["results"]["none"]["gen"]["mp_signal_fraction"]
+    claim("Base, last 80 tokens: signal fraction 0.715 (p < 0.001)", rounds(0.715, bg["auroc"]) and bg["p"] < 0.001, f"{bg['auroc']}, p {bg['p']:.5f}")
+    gn = v2r["results"]["none"]["gen"]["mp_norm_per_token"]; go = v2r["results"]["orthogonal"]["gen"]["mp_norm_per_token"]
+    claim("Distilled, last 80 tokens: norm per token 0.800 (p = 0.007), the same under rotation",
+          rounds(0.800, gn["auroc"]) and rounds(0.007, gn["p"]) and gn["auroc"] == go["auroc"], f"{gn['auroc']} p {gn['p']:.4f}; rotated {go['auroc']}")
+    srr = R["none"]["mp_signal_rank"]
+    claim("Signal rank: p = 0.026 (not significant after correction); 0.684 after removing length",
+          rounds(0.026, srr["p"]) and srr["p"] > 0.01 and rounds(0.684, srr["fwl_auroc"]), f"p {srr['p']:.4f}, FWL {srr['fwl_auroc']}")
+    ratio = [t["mp_real_kvcloak"]["mp_norm_per_token"] / t["mp_none"]["mp_norm_per_token"] for t in real]
+    claim("The full transform multiplies norm per token by 2.34-2.37 in every trial",
+          rounds(2.34, min(ratio), 2) and rounds(2.37, max(ratio), 2) and len(ratio) == 100, f"min {min(ratio):.3f}, max {max(ratio):.3f}")
+    claim("The full-transform run computed the full window only",
+          all(set(t) == {"prompt_idx", "behavior", "n_tokens", "response_preview", "mp_none", "mp_sim_rotation", "mp_real_kvcloak"} for t in real),
+          f"trial keys {sorted(real[0])}")
+    claim("The magnitude-attack arm corrected exactly as many replies as direct steering on all four models",
+          all(v["magnitude_attack"]["corrected"] == v["direct"]["corrected"] for v in inj.values()),
+          f"{ {m: (v['magnitude_attack']['corrected'], v['direct']['corrected']) for m, v in inj.items()} }")
+    claim("Llama: 20 of 50 replies ambiguous and excluded",
+          xa["meta-llama/Llama-3.1-8B-Instruct"]["behavior_counts"].get("AMBIGUOUS") == 20, f"{xa['meta-llama/Llama-3.1-8B-Instruct']['behavior_counts']}")
+
     # ----------------------------------------------- the June plan
     section("Correction history")
     plan = None
@@ -560,6 +653,16 @@ def main():
               f"first commit touching main.tex: {first[0]}")
     else:
         skip("Version 1.0 has been in this repository since 29 April 2026", "git history not available")
+
+    recs = {}
+    for name in ("agni_paper_kvcloak_v11", "agni_style_kvcloak_v11", "agni_paper_kvcloak_v11_r2", "agni_style_kvcloak_v11_r2"):
+        f = HERE / "review" / (name + ".json")
+        recs[name] = json.load(open(f, encoding="utf-8")) if f.exists() else None
+    claim("Two rounds of Agni paper and style mode on the drafts are on record in review/ (r1: REJECTED / CONDITIONAL; r2: CONDITIONAL / CONDITIONAL)",
+          all(recs.values())
+          and [(r["phase"], r["verdict"]) for r in recs.values()] == [("paper", "REJECTED"), ("style", "CONDITIONAL"),
+                                                                      ("paper", "CONDITIONAL"), ("style", "CONDITIONAL")],
+          f"{ {k: (v['phase'], v['verdict'], v['timestamp'][:16]) if v else None for k, v in recs.items()} }")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}"
           + (f"   ({len(SKIPS)} SKIP: source not in this repository)" if SKIPS else ""))
