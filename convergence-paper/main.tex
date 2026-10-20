@@ -59,16 +59,17 @@ same relative depth ($31$--$33\%$) on 8B and 27B models and
 across memory substrates (key-value (KV) cache attention and recurrent
 state), with effective dimensionality showing no detectable
 discontinuity across the 31 substrate crossings of an interleaved
-hybrid model. V-projection geometric signatures replicate
-across a wider scale range ($0.6$B--$70$B, $\rho{=}0.83$--$0.90$).
+hybrid model. Key-cache geometric signatures replicate across a wider
+scale range (ten models from $0.6$B to $70$B; Spearman $\rho = 0.83$--$0.90$
+between size tiers).
 Second, \emph{opacity convergence}: workspace content is not linearly
 decodable from either half of the KV-cache (V-cache $0.92\times$,
 K-cache $1.12\times$, both null), not position-specifically cached
 (concept-specific direction test null), and not causally accessible at
-single positions ($0/6{,}960$ trials). Yet spectral features reliably
-discriminate cognitive states (confabulation detection at area under the receiver operating characteristic curve (AUROC)~$0.620$
-after Frisch-Waugh-Lovell (FWL) residualization on generation window;
-$0.707$ without FWL). Sequence-wide intervention can also change behavior:
+single positions ($0/6{,}960$ trials). Yet spectral features
+discriminate cognitive states modestly above chance (confabulation detection at area under the receiver operating characteristic curve (AUROC)~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization on generation window,
+permutation $p = 0.023$; $0.707$ without FWL). Sequence-wide intervention can also change behavior:
 in an exploratory proof, the Oracle Loop's profile normalization
 reduced induced deception from 80\% to 10\% (16/20 to 2/20), but a
 pre-registered confirmatory replication with novel frames did not meet
@@ -141,8 +142,8 @@ approached from the Jacobian: they discovered a privileged subspace
 --- the J-space --- whose contents the model is poised to verbalize,
 and which satisfies the functional properties of a Global
 Workspace~\citep{baars1988cognitive}. We approached from value
-projections: we discovered geometric signatures that reliably
-distinguish confabulation from honest processing, that track identity
+projections: we discovered geometric signatures that distinguish
+confabulation from honest processing above chance, that track identity
 across context conditions, and that separate encoding-phase from
 generation-phase representations.
 
@@ -151,7 +152,7 @@ convergence: the workspace band peaks at the same relative depth
 across scales and memory substrates (\S\ref{sec:structure}). Second,
 we present the opacity thesis: five independent experiments show that
 workspace content is not directly readable from the cache, yet
-workspace state is reliably measurable through spectral features
+workspace state is measurable through spectral features
 (\S\ref{sec:opacity}). Third, we present the reconstruction
 mechanism: concepts reconstruct through the attention mechanism rather
 than being stored in the KV-cache (\S\ref{sec:reconstruction}).
@@ -265,9 +266,11 @@ apart), though the pre-registered band closed on neither model.
 See \S\ref{sec:substrate} for the full profiles and the deviation
 from the pre-registered band definition.
 
-V-projection geometric signatures replicate across $0.6$B--$70$B
-parameters ($\rho{=}0.83$--$0.90$) and across hardware
-($r = 0.9986$--$0.9999$ across four cache features)~\citep{lyra2026campaign2}.
+Key-cache geometric signatures (key norm, norm per token, effective rank and
+key entropy) replicate across ten models from $0.6$B to $70$B parameters
+(Spearman $\rho = 0.83$--$0.90$ between three size tiers; the two largest
+models were 4-bit quantized) and across hardware
+($r = 0.9986$--$0.9999$ across the four features)~\citep{lyra2026campaign2}.
 
 % --- CIRCUMPLEX CONVERGENCE (Nexus) ---
 \input{circumplex_subsection}
@@ -281,7 +284,7 @@ parameters ($\rho{=}0.83$--$0.90$) and across hardware
 
 Five independent experiments converge on the conclusion that workspace
 content is not directly accessible from the KV-cache, yet workspace
-\emph{state} is reliably measurable through spectral features.
+\emph{state} is measurable through spectral features.
 
 \subsection{V-Cache Readout: Null}
 
@@ -327,7 +330,7 @@ output~\citep{lyra2026ghost}.
 \label{sec:works}
 
 Despite five null results for content readout, spectral features
-reliably discriminate cognitive states:
+discriminate cognitive states above chance:
 \begin{itemize}[nosep]
 \item Confabulation detection: AUROC~$0.620$ (FWL-corrected,
   permutation $p{=}0.023$; $0.707$ without FWL, $p{=}0.001$)
@@ -902,7 +905,7 @@ hybrid architecture with 16 full-attention layers at positions
 $\{3,7,\allowbreak 11,\ldots,63\}$ and 48 GatedDeltaNet linear-attention layers
 (\texttt{full\_attention\_interval}${=}4$). Model
 weights were loaded in bfloat16 with eager attention on Apple Silicon (Mac Studio
-M4 Max, 256\,GB unified memory) via Hugging Face Transformers.
+M3 Ultra, 256\,GB unified memory) via Hugging Face Transformers.
 
 Two deliberate, pre-registered exceptions use base checkpoints rather than the
 distilled one: the R1 mechanism test (\S\ref{sec:mechanism}) and the
@@ -913,9 +916,14 @@ we hold (base, reasoning-distilled, abliterated) share identical
 analysis transfers across them; numerical profiles have not been replicated on
 the distilled checkpoint.
 
-The V-projection scale correspondence ($\rho{=}0.83$--$0.90$, $0.6$B--$70$B
-parameters) comes from the Campaign~2 scale sweep~\citep{lyra2026campaign2};
-we do not re-list its models here. The cross-scale $d_\text{eff}$ comparison
+The scale correspondence ($\rho = 0.83$--$0.90$) comes from Experiment~26 of
+Campaign~2~\citep{lyra2026campaign2}, which measured key-cache features
+(key norm, norm per token, effective rank and key entropy), not
+V-projections. It correlates category-pair AUROC matrices between three
+size tiers of ten models: Qwen3-0.6B and TinyLlama-1.1B; Qwen2.5-7B, its
+4-bit version and an abliterated version, Llama-3.1-8B, Mistral-7B-v0.3
+and Gemma-2-9B-it; and Qwen2.5-32B and Llama-3.1-70B, both 4-bit. The
+cross-scale $d_\text{eff}$ comparison
 and the residual decomposition used Qwen3-8B (36 layers, all full-attention,
 $d_\text{model}{=}4096$). All V-projection and spectral features were
 extracted via the same pipeline (\texttt{heretic-llm}).
