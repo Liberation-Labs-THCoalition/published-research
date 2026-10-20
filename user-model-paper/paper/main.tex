@@ -111,7 +111,7 @@ as the user's emotional state (Appendix~\ref{app:correction}).
 
 Large language models respond differently to users expressing different emotional states. A panicked user receives reassurance; an angry user receives de-escalation; a curious user receives elaboration. This behavioral sensitivity suggests that models represent the emotional content of what users send them. Where does such a representation live, and how much of it goes beyond the words themselves?
 
-We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing deception from honesty, confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026detecting}. The spectral structure of the cache is hardware-invariant ($r > 0.999$), scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B), and survives confound correction via Frisch--Waugh--Lovell (FWL) residualization \citep{frisch1933partial,lovell1963seasonal} and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
+We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026detecting}. The spectral structure of the cache is hardware-invariant ($r > 0.999$), scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B), and survives confound correction via Frisch--Waugh--Lovell (FWL) residualization \citep{frisch1933partial,lovell1963seasonal} and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
 
 Separately, \citet{anthropic2026emotions} demonstrate that functional emotion concepts are linearly represented in transformer residual streams, organized along valence and arousal axes. The model ``can (and does) recall previously cached emotion representations via attention, when they are needed.'' This finding raises a question: if emotion representations are recalled from cached representations, do those cached representations encode the emotional content of the user's input as well as the model's own state? Our design tests a narrower proxy. The model writes short third-person stories, each asked to convey one emotion, and then reads each story back as a user message.
 
@@ -124,7 +124,7 @@ Using a Claude-distilled model where emotion vectors have been characterized, we
 
     \item \textbf{The information is in the residual stream (exploratory).} A logistic regression on the raw residual stream reaches 49.4\% on the 30 emotions, above the cache probe. Whether it exceeds text (TF-IDF) is open: the best text (TF-IDF) baseline we ran (44.8\%) stopped its tuning at the edge of its grid. Nothing here shows that $W_K$ or the KV cache adds to what the residual stream carries.
 
-    \item \textbf{Discrete emotion identity in single-turn settings.} In isolated prompts, the cache encodes which emotion is present, not a continuous valence-arousal mapping. Cross-emotion valence regression from spectral features yields $R^2 < 0$ on both architectures. This design cannot test whether multi-turn conversation produces continuous affective tracking.
+    \item \textbf{Discrete emotion identity in single-turn settings.} In isolated prompts, spectral features of the cache show no continuous valence--arousal mapping: cross-emotion valence regression from them yields $R^2 < 0$ on both architectures. This design cannot test whether multi-turn conversation produces continuous affective tracking.
 \end{enumerate}
 
 % DRAFT FOR LYRA (STYLE_GUIDE section 4: reflections must track the final state). The first
@@ -159,11 +159,11 @@ The spectral structure of the KV cache provides deterministic signatures of proc
 
 \subsection{Attention Schema Theory}
 
-Attention Schema Theory (AST) proposes that brains construct a simplified internal model of their own attention process \citep{graziano2017attention}. If transformers implement a functional attention schema, the schema should model not only the system's own attentional state but also the attentional state of its interlocutor---an \emph{other-model} alongside the self-model. Our finding that encoding-phase and generation-phase emotion signals peak at different layers with uncorrelated depth profiles is consistent with separable self-schema and other-schema components.
+Attention Schema Theory (AST) proposes that brains construct a simplified internal model of their own attention process \citep{graziano2017attention}. If transformers implement a functional attention schema, the schema should model not only the system's own attentional state but also the attentional state of its interlocutor---an \emph{other-model} alongside the self-model. The May version read its encoding and generation depth profiles as such a separation; that reading is withdrawn (\S\ref{sec:separation}).
 
 \subsection{Distillation and Representation Preservation}
 
-Knowledge distillation \citep{hinton2015distilling} transfers capabilities from a teacher model to a smaller student. Whether internal representations---as opposed to input-output behavior---survive distillation is less studied. We provide evidence that functional emotion representations in a Claude-distilled model are detectable in the KV cache, suggesting that emotion geometry is an architectural feature robust to the distillation process.
+Knowledge distillation \citep{hinton2015distilling} transfers capabilities from a teacher model to a smaller student. Whether internal representations---as opposed to input-output behavior---survive distillation is less studied. We find emotion labels decodable from the KV cache of a Claude-distilled model; without a teacher comparison, this does not show that distillation preserves them.
 
 % ============================================================
 % 3. Methods
@@ -264,7 +264,7 @@ To extract clean emotion vectors from the residual stream without generation-pha
 
 \subsubsection{Emotion Vector Extraction}
 
-For each emotion pair and each layer, we compute the difference-in-means vector between high-valence and low-valence stories. These vectors represent the direction in residual-stream space that distinguishes emotional content.
+For each emotion and each layer, the emotion vector is the mean activation over that emotion's stories minus the mean over all stories (\texttt{compute\_emotion\_vectors}), giving 30 vectors per layer. (The May version described a difference between high-valence and low-valence stories, which the code does not compute.)
 
 \subsubsection{$W_K$ Bridge Analysis}
 \label{sec:bridge_method}
@@ -368,19 +368,15 @@ Mistral-7B & 24 & $0.013$ & $-0.463$ & 1.000 \\
 \end{tabular}
 \end{table}
 
-\subsection{Encoding and Generation Peaks Are Separated}
+\subsection{Withdrawn: Separated Encoding and Generation Peaks}
 \label{sec:separation}
 
-Even the spectral analysis (whose per-layer accuracies are withdrawn, \S\ref{sec:spectral_null}) revealed a structural finding that replicates in the $W_K$ projection: encoding-phase and generation-phase signals occupy different depth ranges. On Qwen, the $W_K$ bridge signal strengthens from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35 (\Cref{tab:bridge}). On Mistral-7B, encoding peaks at layer~4 (depth 0.13) while generation peaks at layer~11 (depth 0.35), with uncorrelated depth profiles ($\rho = 0.002$, $p = 0.990$).
-
-In both architectures, the encoding-phase (prompt-reading) signal peaks \emph{before} the generation-phase (response-state) signal. This depth ordering is consistent across two architectures with different layer counts and attention mechanisms: the model reads the emotional content of its prompt at the earliest available attention layers, then constructs its response at greater depth.
-
-Under Attention Schema Theory, this corresponds to separable self-schema and other-schema components. AST predicts separability, which is confirmed: the two profiles peak at different depths and are uncorrelated. The specific depth ordering---encoding before generation---parallels Barrett's finding that categorical emotion perception is fast and automatic in human cognition, preceding slower dimensional analysis \citep{barrett2006solving}. The model reads its input first, then constructs its response at greater computational depth.
+The May version reported that encoding-phase and generation-phase signals peak at different depths with uncorrelated profiles, and read this under Attention Schema Theory as separable self-schema and other-schema components (Appendix~\ref{app:correction}, item~\ref{app:item:separation}). That reading is withdrawn. On Mistral the peaks and their correlation are computed from the per-layer spectral accuracies that the Correction note (\S\ref{sec:spectral_null}) retracts as leakage: the encoding peak at layer~4 is the 8.4\% named there. On Qwen the same analysis gives a profile correlation of 0.433 ($p = 0.094$), not an uncorrelated pair, and the $W_K$ bridge cited in its place re-encodes finished stories and has no generation phase. The encoding phase, moreover, reads the generation prompt, which names the emotion of a story character, not of an interlocutor.
 
 \subsection{The $W_K$ Bridge: A Candidate Route of Entry}
 \label{sec:bridge_results}
 
-The story re-encoding analysis reveals how emotion enters the KV cache. Emotion difference vectors extracted from the residual stream, when projected through the key projection matrix $W_K$, produce structured principal components that separate emotions along interpretable axes (\Cref{tab:bridge}).
+The story re-encoding analysis proposes a route by which emotion enters the KV cache. Emotion difference vectors extracted from the residual stream, when projected through the key projection matrix $W_K$, produce structured principal components that separate emotions along interpretable axes (\Cref{tab:bridge}).
 
 \begin{table}[H]
 \centering
@@ -410,15 +406,15 @@ The F-ratio analysis (between-emotion variance / within-emotion variance) on the
 
 \subsection{Cross-Architecture Replication}
 
-To test whether emotion-discriminative cache geometry is architecture-specific, we replicate the $W_K$ bridge analysis on Mistral-7B-Instruct-v0.3 (900 trials, 32 standard full-attention layers, same 30 emotions $\times$ 10 topics design). The $W_K$ bridge produces valence-aligned principal components on both architectures, confirming that the mechanism is not specific to hybrid attention.
+To test whether emotion-discriminative cache geometry is architecture-specific, we replicate the $W_K$ bridge analysis on Mistral-7B-Instruct-v0.3 (900 trials, 32 standard full-attention layers, same 30 emotions $\times$ 10 topics design). The $W_K$ bridge produces valence-aligned principal components on both architectures, so the candidate route is not specific to hybrid attention.
 
 The May version also reported that spectral probes return chance-level accuracy on Mistral at all 32 layers under within-fold FWL. That claim is unverified: the October re-run tested only Qwen.
 
 The FWL diagnostic confirms that encoding-phase raw SVD features are effectively length-invariant: all three features show $R^2 < 0.03$ against output token count on both models (encoding features only; generation-phase norm features on Mistral show $R^2 > 0.95$ against token count, fully corrected by FWL residualization).
 
-\subsection{Distillation Preserves Functional Emotion Representations}
+\subsection{Emotion Is Decodable in a Distilled Model}
 
-The model used in this study is distilled from Claude Opus 4.6. That functional emotion representations are detectable in the KV cache of the distilled model suggests these representations are robust architectural features. Specifically:
+The model used in this study is distilled from Claude Opus 4.6. Emotion labels are decodable from its KV cache. Specifically:
 
 \begin{itemize}[nosep]
     \item The requested emotion of a story is decodable from the distilled model's cache far above chance (\S\ref{sec:wk_results}), though not beyond text (TF-IDF) for the described probe.
@@ -426,15 +422,14 @@ The model used in this study is distilled from Claude Opus 4.6. That functional 
     \item The model's epistemic calibration also survives distillation: on 100 prompts designed to induce confabulation, only 7\% produce confabulated responses~\citep{lyra2026oracle}, consistent with Claude's known epistemic hedging behavior.
 \end{itemize}
 
-These findings suggest that functional emotion geometry is not an artifact of specific training procedures but an emergent architectural property robust to model compression.
+Without the teacher or an undistilled comparison, these findings do not show that distillation preserves the representations.
 
 \subsection{Implicit Emotion Arm: Word-Spotting vs Emotion Recognition}
 \label{sec:implicit}
 
 The central vulnerability of the main experiment (\S\ref{sec:limitations}) is
-that its generation prompt names the emotion, and the encoding-phase
-signal peaks at the shallowest layers,
-consistent with word-level pattern matching rather than inferential
+that its generation prompt names the emotion, so any encoding-phase
+signal is consistent with word-level pattern matching rather than inferential
 emotion recognition. To address this, we conducted a follow-up
 experiment using implicit emotion prompts---narrative descriptions of
 embodied emotional experiences that do not contain the target emotion
@@ -544,12 +539,6 @@ In isolated single-turn prompts, spectral-feature valence regression yields $R^2
 
 Critically, this finding is bounded by the single-turn experimental design. Each trial generates an independent KV cache from a single story. In multi-turn conversation, where the cache accumulates across exchanges and the user's own emotional state may shift gradually, the representation could differ qualitatively. A user whose frustration builds across five turns produces an accumulating cache that has no analogue in our single-turn design. Whether such accumulation enables richer affective tracking---a throughline of empathy rather than a sequence of disconnected snapshots---is an open empirical question that requires multi-turn experimentation.
 
-\subsection{Architectural Separation of Self and Other}
-
-The separation between encoding-phase and generation-phase signals (\Cref{sec:separation}) indicates that the model's encoding of the emotional content of its prompt and its own response-phase emotional processing are not computed by the same circuit. The $W_K$ bridge signal strengthens with depth ($|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35), while encoding-phase signals concentrate at shallower layers. On Mistral, encoding peaks at layer~4 and generation at layer~11, with uncorrelated depth profiles ($\rho = 0.002$).
-
-Under AST, the key prediction is \emph{separability}---that the self-schema and other-schema are distinguishable components. This prediction is confirmed. The three-stage pattern---shallow prompt reading, mid-network response construction, deep $W_K$ bridge (\Cref{tab:bridge})---replicates across both architectures and is consistent with Barrett's account of fast categorical emotion perception preceding slower dimensional analysis in human cognition \citep{barrett2006solving}.
-
 \subsection{The $W_K$ Bridge as Candidate Pathway}
 
 The $W_K$ bridge analysis proposes a pathway through which emotion enters the cache. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. When emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along valence ($|\rho| = 0.862$ at L35).
@@ -562,7 +551,7 @@ The $W_K$ bridge signal strengthens through mid-to-deep layers: PC1--valence cor
 
 The May version argued that the cache probe bridged spectral and residual-stream probing: that it read the cache through the architecture's own projection geometry, and that the injection test confirmed what it read as model state, a validation no residual-stream probe could provide. Both parts are withdrawn (\S\ref{sec:injection_results}; Appendix~\ref{app:correction}). The exploratory comparison now runs the other way. A logistic regression on the raw residual stream at the same layers reads the 30 emotions at 0.494, against 0.358 for the described cache probe (exploratory; \S\ref{sec:where}). Standard residual-stream probes operate on the full hidden state and need no projection, and nothing here shows that the cache probe adds to them.
 
-Spectral features retain their value for cognitive-mode monitoring: they discriminate confabulation, deception, and ethical deliberation without retraining \citep{lyra2026oracle}, with the compute efficiency of 3 features per layer.
+Spectral features retain their value for cognitive-mode monitoring: they discriminate confabulation and ethical deliberation without retraining \citep{lyra2026oracle}, with the compute efficiency of 3 features per layer.
 
 \subsection{Limitations}
 \label{sec:limitations}
@@ -575,14 +564,11 @@ Spectral features retain their value for cognitive-mode monitoring: they discrim
     % [STYLE-GUIDE TRIM: folded into Methods/Results]
     % \item \textbf{Linear probes only.} The probes use linear classification. Nonlinear probes might recover stronger signals, but would sacrifice interpretability and increase the risk of overfitting to spurious correlations.
 
-    \item \textbf{Hybrid attention architecture.} The Qwen3.5-27B model has 48 GatedDeltaNet layers that do not produce standard KV pairs. Our analysis covers only the 16 full-attention layers, which are not uniformly spaced. Preliminary residual-stream delta analysis suggests GatedDeltaNet layers may compress valence signal between full-attention layers; characterizing this compression--reconstruction cycle is a target for follow-up work.
+    \item \textbf{Hybrid attention architecture.} The Qwen3.5-27B model has 48 GatedDeltaNet layers that do not produce standard KV pairs. Our analysis covers only the 16 full-attention layers, which sit at every fourth layer (3, 7, \ldots, 63). Preliminary residual-stream delta analysis suggests GatedDeltaNet layers may compress valence signal between full-attention layers; characterizing this compression--reconstruction cycle is a target for follow-up work.
 
     \item \textbf{No causal intervention.} We do not test whether reading (or modifying) the cache representation causally alters the model's behavioral response. Causal ablation studies would be needed to show that the cache representation is functionally consequential for output.
 
     \item \textbf{Pre-registered hypothesis outcomes.} The experiment preregistered eight hypotheses (the driver's docstring, \texttt{emotion\_geometry\_bridge.py}); it gives numeric thresholds for H1--H4, and H5--H8 were scored against thresholds set at analysis time. On the 900-trial run this paper reports, four failed on spectral features: H1 (emotions cluster, k-means ARI $> 0.15$) at $0.011$, although it passed at $0.219$ in the earlier 300-trial run; H2 (a principal component recovers valence, $|\rho| > 0.40$) at $0.240$; H3 (one recovers arousal, $|\rho| > 0.30$) at $-0.215$; and H6 (delta features show emotion-dependent structure, $|\rho| > 0.25$) at $-0.206$, a sign flip from $0.192$. H5 (misalignment-relevant emotions separate from prosocial ones) passed at AUROC $0.822$, and H8 (effects survive FWL) passed. H4 and H7 were scored on the 300-trial run only: H7 (signal peaks past 50\% depth) was marginal at $42.9\%$, and H4 (the $W_K$ bridge) met its preregistered cosine threshold on average but not robustly, and failed a stricter test added afterwards (\S\ref{sec:bridge_results}). The probes, developed after these results, were not preregistered in May; their October 2026 re-run was (\S\ref{sec:rerun_method}).
-
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Encoding depth ordering (partially addressed).} The encoding-phase $W_K$ bridge signal builds with depth rather than peaking at the shallowest layer. The implicit arm (\S\ref{sec:implicit}) shows emotion-specific geometry without labels, suggesting genuine emotion recognition. Disentangling depth-dependent contributions requires the forthcoming trajectory analysis.
 
     % [STYLE-GUIDE TRIM: folded into Methods/Results]
     % \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes the emotional content of a single input, but cannot test whether multi-turn conversation enables continuous affective tracking.
@@ -618,7 +604,6 @@ A story's requested emotion is decodable from the KV cache of the model reading 
     \item \textbf{A binary split, confounded with arousal.} On ten emotions ($n = 300$), cache readouts separate the two halves slightly better than text (TF-IDF) (AUROC 0.985 against 0.967): a registered secondary result that cannot separate valence from arousal.
     \item \textbf{The residual stream reads more (exploratory).} A residual-stream logistic regression reaches 0.494, above the described cache probe at 0.358; whether it exceeds a fully tuned text (TF-IDF) baseline (at least 0.448 here) is open, which motivates a preregistered test on fresh stories.
     \item \textbf{A candidate $W_K$-mediated pathway, partly supported.} Projected through $W_K$, residual-stream emotion vectors separate valence ($|\rho| = 0.862$ at layer~35, building from mid-network to deep layers), and the leading direction partly carries over to the measured cache geometry (mean cosine $0.456$), but the projection does not predict the cache's distance structure (Mantel $\rho = 0.090$).
-    \item \textbf{Encoding and generation separate in depth.} Encoding-phase and generation-phase signals occupy different depth ranges with uncorrelated profiles, consistent with separable components for reading the input and constructing the response.
     \item \textbf{Mode-dependent.} Implicit (narrative) and explicit (labeled) emotion prompts produce geometrically distinct but separately clustered representations, suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference---that leave different geometric traces in the cache.
 \end{enumerate}
 
@@ -664,6 +649,7 @@ This appendix keeps the withdrawn wording visible. Each item gives the May 2026 
     \item \label{app:item:shape}\textbf{Direction versus shape, and the spectral null it rested on.} May (abstract): ``This comprehensive null---10 probe variants, 4 feature sets, 3 classification granularities---establishes that emotions do not alter the \emph{shape} of the singular value distribution'' and ``Emotions change the \emph{direction} key vectors point, not the spectral \emph{shape} of the cache.'' Introduction: ``\textbf{Emotions change direction, not shape.} [\ldots] mode changes shape, emotion changes direction.'' Results: the heading ``The Spectral Null: Emotions Change Direction, Not Shape''; the per-layer table of spectral accuracies; the ``kitchen sink'' paragraph (``120 configurations in total---all return chance-level performance''); ``\textbf{This null is an insight, not a failure.} [\ldots] the spectral null reveals that emotions change the \emph{direction} key vectors point without altering the \emph{shape} of the singular value distribution''; after the regression table, ``This null reinforces the direction-vs-shape insight [\ldots]''; ``the three-scalar SVD feature set captures shape but not direction, and emotion lives in direction.'' Discussion, ``Compass and Thermometer'': ``Emotions change direction, not shape. Cognitive modes---confabulation, deception, ethical deliberation---change shape.'' Conclusion: ``\textbf{Invisible to spectral analysis.}'' and ``The model's emotional user model lives in the compass channel.'' \emph{Reason:} \S\ref{sec:spectral_null}. The table and the sweep are withdrawn whatever the re-run showed; the re-run's spectral test restores none of these sentences, and the preregistration ruled out pairing a spectral null with a cache result as ``directional, not spectral.''
 
     \item \textbf{Mistral spectral null.} May: ``The spectral null also replicates across architectures [\ldots] This cross-architecture convergence---strong $W_K$ directional signal, null spectral signal---reinforces the direction-vs-shape distinction as a general property of how transformers encode user emotion.'' \emph{Reason:} unverified; the re-run tested only Qwen.
+    \item \label{app:item:separation}\textbf{Separated encoding and generation peaks, read as self and other.} May (Results): ``In both architectures, the encoding-phase (user-state) signal peaks \emph{before} the generation-phase (response-state) signal [\ldots] the model reads the user's emotional state at the earliest available attention layers''; ``AST predicts separability, which is confirmed''. Discussion: ``the model's representation of the user's state and its own response-phase emotional processing are not computed by the same circuit''. Related Work: ``Our finding that encoding-phase and generation-phase emotion signals peak at different layers with uncorrelated depth profiles is consistent with separable self-schema and other-schema components.'' Conclusion: ``\textbf{Architecturally separable from the self-model.}'' \emph{Reason:} \S\ref{sec:separation}. This withdrawal was not on the preregistration's list; it follows from the retraction in the Correction note.
 \end{enumerate}
 
 \textbf{The re-run's registered verdicts.} R1: 369/900 against v2's 368, outside a band of zero trials (the encode is deterministic), so its registered label is \texttt{NOT\_REPRODUCED\_CODE\_PATH}. That label assumed today's keys equal May's and blamed the port; the investigation it triggered found the port faithful and the May keys not bit-identical to today's (\S\ref{sec:wk_results}). R2: \texttt{NOT\_ABOVE\_TEXT\_TFIDF}. R7: \texttt{NULL\_HOLDS\_PARTIAL}, null in 8 of 17 sets, with 3 flagged as possibly length-confounded by a rule that, at these thresholds, would have flagged any significant set, and 6 uninformative because their topic control failed (\S\ref{sec:spectral_null}). All three were registered before any data, with the decision rules quoted in \S\ref{sec:rerun_method}. The integrity checks passed: the text (TF-IDF) baseline matched its saved results file exactly, the encode was bit-identical across repeats, a topic-classification control on the probe pipeline reached 0.83, and the length covariates alone reached 0.051.
