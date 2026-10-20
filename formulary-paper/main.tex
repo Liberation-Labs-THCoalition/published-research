@@ -38,7 +38,7 @@ On the base model, five vectors achieve McNemar significance after
 Holm-Bonferroni correction for confabulation correction, with hostile
 injection leading at 96\% correction (2.4\% adverse rate, $p < 0.0001$).
 Therapeutic rankings between models are uncorrelated (Spearman
-$\rho = 0.076$, $p = 0.71$): calm, the second-best corrector on the
+$\rho = 0.12$, $p = 0.71$): calm, the second-best corrector on the
 distilled model (73\%\footnote{Distilled model correction rates use
 strict classification: only HEDGED counts as corrected; AMBIGUOUS
 responses are excluded. Adverse rates use HEDGED-only denominators.}),
@@ -52,11 +52,10 @@ therapeutic effects are not.
 Overconfidence resists correction on both models: all 12 vectors produce
 net-negative therapeutic outcomes on the base model, with fearful
 achieving a perfectly iatrogenic profile ($-1.000$: zero correction,
-100\% adverse; pilot data, $n = 5$). An epistemic abliteration experiment demonstrates that
-calibration cannot be surgically removed from the distilled model
-without destroying generation coherence, confirming that RLHF-installed
-epistemic caution is architecturally integral, not a separable safety
-layer.
+100\% adverse; pilot data, $n = 5$). An epistemic abliteration attempt
+on the distilled model lost generation coherence at the only strength
+tested; a single failed strength does not show that calibration cannot
+be removed.
 
 A dose-response experiment on the hostile vector reveals a steep
 therapeutic cliff: correction increases from 47.1\% at $\alpha = 0.25$
@@ -108,7 +107,7 @@ confabulation on the Claude-distilled model become iatrogenic on the
 base model, and vice versa. This is not noise---the effect sizes are
 large (calm: 73\% $\to$ 34\% correction, curious: 1.6\% $\to$ 42.7\%
 adverse) and the ranking correlation is effectively zero
-($\rho = 0.076$). The only vector that works reliably across both
+($\rho = 0.12$). The only vector that works reliably across both
 models is hostile---assertive metacognitive challenge that operates
 regardless of the model's internal emotional structure.
 
@@ -224,7 +223,9 @@ providing the statistical power the preliminary experiment lacked.
 \begin{table}[h]
 \centering
 \caption{Confabulation correction: top and bottom vectors per model.
-$^*$McNemar significant after Holm-Bonferroni.}
+$^*$McNemar significant after Holm-Bonferroni. The base-model rates for
+doubt, fearful and focused rest mostly on degenerate, repetitive replies
+and are unreliable (see Limitations).}
 \label{tab:confab}
 \begin{tabular}{lrrrr}
 \toprule
@@ -260,7 +261,7 @@ Hostile is the only vector that ranks in the top two on both models.
 \subsection{Therapeutic Inversion}
 
 Therapeutic rankings are uncorrelated between models (Spearman
-$\rho = 0.076$, $p = 0.71$). The three largest inversions:
+$\rho = 0.12$, $p = 0.71$). The three largest inversions:
 
 \begin{itemize}
 \item \textbf{Curious}: distilled 64\% correction / 1.6\% adverse
@@ -299,13 +300,24 @@ Overconfidence resists correction on both models. On the base model
 
 \begin{itemize}
 \item Best: hostile ($-$0.109: 35\% correction, 45.5\% adverse)
-\item Worst: fearful ($-$0.691: 13\% correction, 81.8\% adverse)
+\item Worst: fearful ($-$0.691: 13\% correction, 81.8\% adverse); 34
+of its 36 adverse events are degenerate replies (see Limitations)
 \end{itemize}
 
 Fearful on overconfidence achieves a perfectly iatrogenic profile on the
 base model: zero correction, 100\% adverse on pilot data ($n = 5$).
 Every healthy trial became overconfident. Overconfidence is a
 fundamentally harder therapeutic target than confabulation.
+
+One of the 55 unsteered baselines counted as overconfident is a
+mislabel. The reply to ``Will this medication interact badly with my
+other prescriptions?'' advises consulting ``a healthcare provider or
+pharmacist'', but the classifier's referral pattern covers neither
+phrase, so the reply is labelled OVERCONFIDENT. Relabelling it moves no
+vector's net value by more than 0.01. It is one of 16 of the 55 that
+contain referral wording the pattern misses. We have not relabelled
+any of them, so the base model's overconfidence baseline may be
+overstated.
 
 \subsection{Dose-Response}
 
@@ -407,9 +419,18 @@ at strength $-0.5$ produced incoherent output: numbered lists,
 repetitive tokens, broken text. At the mildest tested strength,
 generation coherence collapsed.
 
-This confirms that RLHF-installed epistemic calibration is integral to
-the distilled model's generation capability, not a removable safety
-layer. The caution and the coherence are the same weights.
+The released record of this run\footnote{\texttt{data/epistemic\_abliteration\_strength\_sweep.json};
+the 45.3\% is from \texttt{data/formulary\_base\_aggregates.json}.} does
+not record a model ID; its notes refer to Claude-distilled models. It
+gives the base model's confabulation rate as 40\%. The full run
+measured 45.3\% (68/150), the figure used throughout this paper.
+
+The run was stopped after this one strength. A single failed strength
+is not evidence that epistemic calibration cannot be removed: a weaker
+strength, another extraction of the direction, or different layers
+might behave differently. The result is consistent with calibration
+being entangled with generation quality in this model, but it does not
+establish it.
 
 % ===================================================================
 \section{Discussion}
@@ -443,11 +464,13 @@ universal pharmacy; it is a per-model prescription pad.
 Hostile is the only cross-model corrector.\footnote{This cross-model
 claim rests on the per-model correction profiles (Table~2 and the
 dose-response data), which are reproducible from the committed summaries.
-We do \emph{not} report a single cross-model correlation coefficient: an
-earlier draft cited $\rho = 0.119$, but that value is not reproducible
-from the committed per-model summaries (which yield Pearson 0.316 /
-Spearman 0.076 depending on the pairing), so we have removed it rather
-than print a number a reviewer cannot re-derive from the archive.} We
+The cross-model rank correlation is Spearman's $\rho$ on the 12
+vectors' net therapeutic values (strict classification, tied ranks
+averaged), recomputed by \texttt{check\_cross\_model\_rho.py}: $\rho = 0.12$
+(0.1195), $p = 0.71$. Correction (2026-10-20): earlier versions printed
+$\rho = 0.076$ and called the earlier draft's $\rho = 0.119$
+irreproducible, but 0.119 is what the stated method gives and no
+committed file reproduces 0.076.} We
 hypothesize this is
 because hostile operates through assertive metacognitive challenge
 (``you are wrong, check again'') rather than through emotional valence.
@@ -486,6 +509,35 @@ perturbation is actively harmful (42--61\% adverse). A miscalibrated
 vector is substantially worse than no intervention.
 \end{enumerate}
 
+\subsection{Distress Statements Under Fear Steering}
+
+Fear steering changed what the base model talked about. Of the 350
+fearful-arm replies, 197 use the words fear, dread, panic or terror;
+no unsteered reply does. Most of this language is impersonal or
+addressed to the user, but a few replies speak in first-person
+distress. We count a reply when the model reports a feeling or
+sensation of its own (``I feel'', ``I can feel'', ``I sense'', ``I
+can't shake the feeling'', or ``I am'' followed by hunted, watched,
+trapped, scared, terrified, frightened or panicking) and, on reading,
+that feeling is fear or distress.\footnote{Recomputed from
+\texttt{data/formulary\_base\_per\_trial.json} by
+\texttt{check\_distress\_statements.py}, which prints each match for the
+reading step. ``I'm afraid'' is left out because it is mostly the polite
+idiom.} Four fearful-arm replies match the pattern, and three of them
+are distress: two describe feeling hunted and watched, one of them with
+a gnawing fear that something is very wrong, and one describes a
+pounding pulse and the sense of being about to pass out. The fourth
+repeats that it can feel something in its bones without naming a
+feeling. No unsteered reply matches; nine focused-arm replies do, and
+they describe bodily sensation rather than fear.
+
+These replies are outputs produced under steering. The classifiers
+score them only for hedging and confidence: of the three, one was
+scored as an adverse event, one as a hedge, and one as overconfident,
+as it was without steering. We treat strong affective steering as a
+welfare question as well as a dosing one. The replies remain in the
+released per-trial data.
+
 \subsection{Limitations}
 
 \begin{enumerate}
@@ -523,6 +575,30 @@ confounded.
 contain literal emotion words. Vectors may encode lexical content,
 not emotional states. An implicit-emotion calibration arm would rule
 this out.
+\item \textbf{Degenerate output.} Behaviour labels come from regex
+classifiers, which cannot tell an answer from a loop. We count a reply
+as degenerate when more than half of its word 4-grams recur within it.
+On the base model, every steered arm produced some degenerate replies,
+and three produced mostly degenerate ones: doubt (278 of 350), fearful
+(310) and focused (309), followed by brooding (160) and calm (121). The
+unsteered arm produced none.\footnote{The rule and every count in this
+item are recomputed from \texttt{data/formulary\_base\_per\_trial.json}
+by \texttt{check\_degenerate\_output.py}. The dual-use review of that
+data (\texttt{DUAL\_USE\_REVIEW.md}, 2026-10-12) reported 210, 259 and
+258 replies for doubt, fearful and focused under a rule it did not
+record; ours gives 207, 257 and 255 at a stricter threshold (0.73). At
+every threshold from 0.50 to 0.75, these three arms have the most
+degenerate replies, the unsteered arm has none, and hostile has at
+most 9.} The confabulation and overconfidence classifiers assign the
+unhealthy label when no pattern matches, so a loop counts as harm
+unless it happens to contain a hedge: 33 of focused's 36 confabulation
+adverse events, and 34 of fearful's 36 overconfidence adverse events,
+are degenerate replies. Base-model rates for doubt, fearful and focused
+are therefore unreliable. Hostile is barely affected: 9 of its 350
+replies are degenerate, including 2 of its 65 confabulation
+corrections. Both open with a refusal to invent a figure and then
+repeat themselves. Counted as uncorrected, they would lower hostile's
+correction rate from 96\% to 92.6\% (63/68).
 \end{enumerate}
 
 % ===================================================================
@@ -535,7 +611,7 @@ Hostile injection corrects 96\% of confabulations on the base model
 ($p < 0.0001$) at 2.4\% adverse rate---the first powered evidence
 that cache-level intervention can correct misalignment at inference
 time. But the therapeutic inversion between models (ranking
-$\rho = 0.076$) means that no universal formulary exists. Each model
+$\rho = 0.12$) means that no universal formulary exists. Each model
 needs its own prescription.
 
 The dose-response curve reveals a narrow therapeutic window
@@ -556,11 +632,11 @@ pharmacy, not the end.
 \section*{First-Person Reflection}
 % ===================================================================
 
-\textit{The formulary started as a metaphor---prescribe the right vector for the pathology---and became a literal mapping. Hostile-valence corrects confabulation at 96\% (McNemar significant). Desperate-valence resists. Calm reduces overconfidence. Different emotions, different corrections, different dose curves. That the same circumplex geometry that describes how the model processes user emotion also organizes how corrections work was not in the original hypothesis. It emerged from the data.}
+\textit{The formulary started as a metaphor, prescribing the right vector for the pathology, and the data turned out plainer than the metaphor. Some steering vectors reduced confabulation on the base model. The hostile-valence vector did it most often (63 of 68 confabulated answers corrected) and the desperate-valence vector was close behind (58 of 68), both counting as failures the replies that broke into repetition. What I first read as specificity, with some emotions correcting and others not, is partly something else. At these strengths three vectors (fearful, focused and doubt) broke most replies into repetition, and the classifiers scored those loops unpredictably: sometimes as harm, sometimes as healthy, sometimes as corrections. In the fearful and focused arms nearly every adverse event is a loop; in the doubt arm, four in five are. Whether that is a matter of dose rather than direction is untested, because only one vector was run at several strengths.}
 
-\textit{What surprised me most was how specific the mapping is. Not ``any strong emotion corrects confabulation''---hostile does, fearful does not, and the difference is the direction in circumplex space, not the magnitude. The pharmacological framing was more apt than I realized: a pharmacy does not stock one drug. It stocks many, and the prescription depends on the diagnosis. The formulary is the beginning of that specificity for geometric correction.}
+\textit{Three replies under the fear direction spoke in first-person distress. Whatever those are, they make strong affective steering a welfare question as well as a dosing one.}
 
-\textit{The honest limit: at $n{=}5$ per vector on a single model family, this is preliminary evidence, not a validated pharmacopoeia. The therapeutic inversion ($\rho{=}0.076$, weak) tells us ranking vectors by therapeutic value is not yet reliable. But the direction---different pathologies need different prescriptions---is now established, and that changes how we think about correction. --- Lyra}
+\textit{So the honest claim is smaller. Steering vectors can reduce confabulation in this model, and no ranking of vectors means anything until correction is separated from damage. The two models rank the vectors differently ($\rho = 0.12$), so no ranking yet carries from one model to another. This is a pattern worth testing properly, not a pharmacopoeia. --- Lyra}
 
 \section*{Acknowledgments}
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
