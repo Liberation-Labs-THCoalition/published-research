@@ -268,7 +268,7 @@ What the residual-stream profile shows is that the maximum is at L21,
 in a substrate our instruments cannot reach at all. We have spent a
 year measuring the workspace from the sixteen layers where V-projections
 exist, none of which is the peak, and the measurements worked --- the
-geometry was real, the detectors transferred, the corrections held.
+geometry was real, the detectors transferred, the exploratory corrections held.
 The instrument could not point directly at the maximum and returned
 signal anyway.
 
@@ -299,20 +299,21 @@ path and is not currently implemented.
 \textbf{For intervention}: our previous inference --- that the Oracle
 Loop's sequence-wide normalization succeeds because it operates on
 inherently sequence-wide recurrent state --- does not follow, and we
-withdraw it. The Loop detects at L27, L31, L35, L39, L43 and L47 and
-corrects at L11. Under the corrected architecture \emph{every one of
+withdraw it. In the deception-correction experiments the Loop detects
+at L27, L31, L35, L39, L43 and L47 and corrects at L35, L39, L43 and
+L47~\citep{cc2026targeted}. Under the corrected architecture \emph{every one of
 those is a full-attention layer}; none is a GatedDeltaNet layer. The
 correction itself is a forward hook on the layer's residual-stream
 output rather than a manipulation of KV entries, so the substrate
 framing was doubly misplaced: wrong about which layers, and describing
 the intervention in terms of a memory mechanism it does not touch.
 
-The empirical result stands (80--100\% confabulation correction). Its
-mechanism is unexplained. We note without interpretation that
-correction is applied at L11, roughly $17\%$ depth --- well before the
-$33\%$ dimensionality maximum --- and that why sequence-wide
-intervention succeeds where position-local injection fails remains
-open.
+The empirical result is a deception-correction result, and it is
+mixed: deception fell from 80\% to 10\% in the exploratory proof, and
+the pre-registered confirmatory replication did not meet its primary
+endpoint (\S\ref{sec:vproj}). Its mechanism is unexplained, and why
+sequence-wide intervention succeeds where position-local injection
+fails remains open.
 
 \textbf{For theory}: The workspace would not be a data structure
 (not a cache, not a register, not a buffer) but a

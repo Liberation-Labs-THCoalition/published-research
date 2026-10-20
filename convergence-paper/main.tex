@@ -65,8 +65,11 @@ K-cache $1.12\times$, both null), not position-specifically cached
 single positions ($0/6{,}960$ trials). Yet spectral features reliably
 discriminate cognitive states (confabulation detection at area under the receiver operating characteristic curve (AUROC)~$0.620$
 after Frisch-Waugh-Lovell (FWL) residualization on generation window;
-$0.707$ without FWL), and the Oracle Loop achieves
-$80$--$100\%$ deception correction through sequence-wide intervention.
+$0.707$ without FWL). Sequence-wide intervention can also change behavior:
+in an exploratory proof, the Oracle Loop's profile normalization
+reduced induced deception from 80\% to 10\% (16/20 to 2/20), but a
+pre-registered confirmatory replication with novel frames did not meet
+its primary endpoint (30\% to 13\%, 9/30 to 4/30; one-sided $p = 0.34$).
 Third, \emph{mechanistic convergence}: concepts reconstruct through
 the attention mechanism at workspace-band depth ($2.3\times$ lift in
 attention output, ${\sim}4.5\%$ of the residual stream's concept power), consistent with
@@ -175,6 +178,7 @@ when concept directions are swapped. The workspace is a small
 precision signal with outsized downstream impact.
 
 \subsection{The V-Projection Program}
+\label{sec:vproj}
 
 Our independent program measures spectral features of value-projection
 matrices across cognitive states. Key results include confabulation
@@ -182,10 +186,15 @@ detection (AUROC~$0.620$ after FWL residualization, $0.707$ without
 FWL; range $0.620$--$0.999$ across designs)~\citep{lyra2026decision}, user-emotion encoding
 ($12.3\times$ chance via the $W_K$ directional
 probe)~\citep{lyra2026weather}, identity
-geometry~\citep{lyra2026identity}, and the Oracle Loop ($80$--$100\%$
-deception correction with three clean controls; pre-registered primary
-endpoint $p{=}0.34$, secondary placebo
-$p{=}0.019$)~\citep{lyra2026oracle}.\footnote{\textbf{Corrected
+geometry~\citep{lyra2026identity}, and the Oracle Loop's deception
+correction. In an exploratory proof ($N{=}20$), profile normalization
+reduced induced deception from 80\% to 10\% (16/20 to 2/20), with three
+mechanism controls. The pre-registered confirmatory replication
+($N{=}30$, novel frames) did not meet its primary endpoint (30\% to
+13\%, one-sided $p = 0.34$). Corrected trials still deceived less
+often than matched-dose placebo (4/30 against 12/30): one-sided
+$p = 0.020$ at the trial level, $0.064$ at the pre-registered cell
+level~\citep{cc2026targeted}.\footnote{\textbf{Corrected
 2026-08-14.} This sentence previously reported user-emotion encoding at
 ``$2.5$--$2.8\times$ signal'' and identity geometry at
 ``distinctiveness $0.154$ vs.\ substrate $0.080$.'' The first figure was
@@ -198,12 +207,16 @@ has not been published, so the citation could not be followed. Both
 have been removed rather than re-sourced.}
 
 \subsection{The Oracle Loop}
+\label{sec:oracle}
 
 CC's Oracle Loop~\citep{lyra2026oracle} is a two-tier detection and
-correction system operating at the materialization boundary
-(L35--L47 on the 27B model). It achieves targeted deception
-correction through sequence-wide activation-profile normalization.
-We previously attributed this to the Loop operating at the depth where
+correction system operating at the materialization boundary. In the
+deception-correction experiments it detects at L27--L47 and corrects at
+L35, L39, L43 and L47 of an abliterated Qwen3.5-27B checkpoint, by
+sequence-wide activation-profile normalization~\citep{cc2026targeted}.
+The correction was large in the exploratory proof; the pre-registered
+confirmatory replication did not meet its primary endpoint
+(\S\ref{sec:vproj}). We previously attributed the correction to the Loop operating at the depth where
 workspace content materializes into output-facing representations,
 rather than inside the workspace band itself. We now state that as a
 conjecture: the mechanism is unexplained (see \S\ref{sec:substrate},
@@ -303,6 +316,7 @@ processing dimension is architecturally excluded from verbal
 output~\citep{lyra2026ghost}.
 
 \subsection{What Works Despite Opacity}
+\label{sec:works}
 
 Despite five null results for content readout, spectral features
 reliably discriminate cognitive states:
@@ -313,6 +327,10 @@ reliably discriminate cognitive states:
 \item Confidence paradox: $d{=}0.91$ (confab more confident)
 \item Oracle Loop: $80$--$100\%$ deception correction
 \end{itemize}
+The Oracle Loop's sequence-wide correction is a behavioral result
+rather than a spectral readout: deception fell from 80\% to 10\% in
+the exploratory proof, and the pre-registered confirmatory replication
+did not meet its primary endpoint (\S\ref{sec:vproj}).
 
 The workspace is opaque to content readout but transparent to state
 measurement. Spectral features measure the net's shape; the fish are
