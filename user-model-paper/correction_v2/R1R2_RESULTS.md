@@ -170,7 +170,7 @@ May's 368 against today's 369 can't be compared trial by trial, because May save
 **So the honest unit is "decodability of the requested emotion label".** Whether a probe reads the story's emotion,
 the model's own reading of it, or the label's noise can't be told apart until the labels are checked.
 
-## Addendum: 84 stories carry the generator's leaked reasoning (found {{NOW}}, while preparing the public release)
+## Addendum: 84 stories carry the generator's leaked reasoning (found 2026-10-19 18:29 PDT, the file time of this append, while preparing the public release)
 - **What:** 84 of 900 stories (9.3%) match `<analysis>|</?think|The user wants|the user (is asking|wants)|key constraint`.
   The bridge's thinking suppression failed on them, and the "story" opens with the generator's planning ("The user
   wants a paragraph about… show 'deeply calm'…"). 75 stories contain "deeply \<their own label\>", 43 of them in both
@@ -184,3 +184,9 @@ the model's own reading of it, or the label's noise can't be told apart until th
 - **Consequences:** the paper reports the contamination as a data limitation. UMV-L1 reports a CLEAN split, defined
   before any of its results existed (`label_validity/ADDENDUM_pre_results_leaked_reasoning.md`, sha256 `f672a180…`).
   Every later study using these stories must filter or report them.
+- **The pattern undercounts** (the paper-edit agent read all 900, 2026-10-19 evening). Reading by hand flags **141**:
+  the 84, plus planning that opens "I need to…" or "**Thinking Process:**", three refusals (#99, #379, #609), a
+  clarification request (#738), an essay (#744), and scaffolding around a story ("**Final Answer:**", "# Solution").
+  73 of the 75 "deeply <own label>" stories are among the 141. The 141 is a post-data count, so the 84 stays the
+  primary split. On the clean 759: R0 0.410, R2 0.383 (−2.6 points), R1 0.453, residual LR 0.503. The direction is
+  unchanged. Reproducible with `user-model-paper/correction_v2/leak_split.py` in published-research.
