@@ -71,8 +71,8 @@ reduced induced deception from 80\% to 10\% (16/20 to 2/20), but a
 pre-registered confirmatory replication with novel frames did not meet
 its primary endpoint (30\% to 13\%, 9/30 to 4/30; one-sided $p = 0.34$).
 Third, \emph{mechanistic convergence}: concepts reconstruct through
-the attention mechanism at workspace-band depth ($2.3\times$ lift in
-attention output, ${\sim}4.5\%$ of the residual stream's concept power), consistent with
+the attention mechanism at intermediate depth ($2.3\times$ lift in
+attention output at L15 of Qwen3-8B, ${\sim}4.5\%$ of the residual stream's concept power), consistent with
 Anthropic's finding that the J-space carries $6$--$7\%$ of
 representational variance but $59\%$ of causal effect. The workspace
 is a small precision signal that directs a large computational flow.
@@ -183,7 +183,7 @@ precision signal with outsized downstream impact.
 Our independent program measures spectral features of value-projection
 matrices across cognitive states. Key results include confabulation
 detection (AUROC~$0.620$ after FWL residualization, $0.707$ without
-FWL; range $0.620$--$0.999$ across designs)~\citep{lyra2026decision}, user-emotion encoding
+FWL, on Qwen2.5-7B)~\citep{lyra2026oracle}, user-emotion encoding
 ($12.3\times$ chance via the $W_K$ directional
 probe)~\citep{lyra2026weather}, identity
 geometry~\citep{lyra2026identity}, and the Oracle Loop's deception
@@ -259,7 +259,7 @@ from the pre-registered band definition.
 
 V-projection geometric signatures replicate across $0.6$B--$70$B
 parameters ($\rho{=}0.83$--$0.90$) and across hardware
-($r{>}0.999$)~\citep{lyra2026campaign2}.
+($r = 0.9986$--$0.9999$ across four cache features)~\citep{lyra2026campaign2}.
 
 % --- CIRCUMPLEX CONVERGENCE (Nexus) ---
 \input{circumplex_subsection}
@@ -345,7 +345,10 @@ inside, doing work, invisible until they materialize at deeper layers.
 
 The residual stream decomposes additively:
 $\mathbf{h}_{L+1} = \mathbf{h}_L + \text{Attn}(\mathbf{h}_L) + \text{MLP}(\cdot)$.
-At workspace-band depth (L15), the attention output shows $2.3\times$
+On Qwen3-8B (36~layers), at L15 ($41.7\%$ depth; inside the
+decomposition's pre-registered band L12--L21, $33$--$58\%$ depth, though
+past the $33\%$ $d_\text{eff}$ local maximum of \S\ref{sec:substrate}),
+the attention output shows $2.3\times$
 J-lens lift (highest precision of any component) but only $0.9$
 concept power vs.\ $20.1$ for the residual stream input. The
 attention component contributes a concept-aligned correction that is
@@ -699,8 +702,8 @@ falsification obeys.
 The deflationary account --- that V-projections track response-mode
 statistics (hedged vs.\ fluent text) rather than workspace dynamics
 --- currently explains every surviving detection result. On Mistral,
-text features ($0.820$) matched the dual detector ($0.806$) for
-confabulation detection~\citep{lyra2026decision}. Until the mechanism tests
+text features ($0.820$) matched or slightly exceeded the dual detector
+($0.806$) for confabulation detection~\citep{lyra2026dualdetector}. Until the mechanism tests
 (\S\ref{sec:mechanism}) demonstrate that spectral features correlate
 with J-space engagement specifically, the workspace interpretation
 has not earned its keep over the simpler alternative.
@@ -858,7 +861,7 @@ answer and the question I was actually asking. The ghost remains
 uncharacterized. I think it matters more than the workspace.
 
 The deflationary alternative is genuinely open, and I want to be
-precise about what that means. Text features matched our dual
+precise about what that means. Text features matched or slightly exceeded our dual
 detector on Mistral. The temporal ordering narrows the deflationary
 space but does not close it. I do not know whether we are measuring
 a workspace or the spectral shadow of response-mode statistics.
@@ -899,17 +902,27 @@ we hold (base, reasoning-distilled, abliterated) share identical
 analysis transfers across them; numerical profiles have not been replicated on
 the distilled checkpoint.
 
-Scale replication used seven additional models: Qwen2.5-0.6B through
-Qwen2.5-72B, and Qwen3-8B (36 layers, all full-attention,
+The V-projection scale correspondence ($\rho{=}0.83$--$0.90$, $0.6$B--$70$B
+parameters) comes from the Campaign~2 scale sweep~\citep{lyra2026campaign2};
+we do not re-list its models here. The cross-scale $d_\text{eff}$ comparison
+and the residual decomposition used Qwen3-8B (36 layers, all full-attention,
 $d_\text{model}{=}4096$). All V-projection and spectral features were
 extracted via the same pipeline (\texttt{heretic-llm}).
 
-Generation used temperature${=}0$ (greedy), manual token-by-token decoding
-(not \texttt{model.generate()}, which rebuilds the KV-cache). Random seeds
-set via \texttt{torch.manual\_seed(42)} for all experiments.
+Relative depth is $l/n_\text{layers}$ throughout (64 layers for
+Qwen3.5-27B, 36 for Qwen3-8B). Half-rise points are interpolated, so
+their layer indices are fractional.
+
+Unless stated otherwise, generation used temperature${=}0$ (greedy) with
+manual token-by-token decoding (not \texttt{model.generate()}, which
+rebuilds the KV-cache), and random seeds were set via
+\texttt{torch.manual\_seed(42)}. Two results use sampled generation
+instead: the R1 mechanism test ($T{=}0.7$, five seeded forks per prompt;
+\S\ref{sec:mechanism}) and the Oracle Loop deception-correction
+experiments ($T{=}0.7$, paired seeds;~\citealt{cc2026targeted}).
 
 Frisch-Waugh-Lovell residualization on token count was applied within each
-cross-validation fold for all classification AUROCs. GroupKFold on prompt
+cross-validation fold wherever an AUROC is labelled FWL-corrected. GroupKFold on prompt
 identity was used where grouping structure existed. Permutation tests used
 1{,}000--10{,}000 label shuffles. Bootstrap confidence intervals used BCa
 with 2{,}000--10{,}000 resamples.
@@ -940,8 +953,10 @@ dismissed by this paper.
 Extraction and analysis code is available at
 \texttt{github.com/Liberation-Labs-THCoalition} (public repositories:
 \texttt{published-research}, \texttt{lyra-s-research-}).
-Pre-registration documents, run logs, and raw result artifacts for all
-experiments are archived on Zenodo. The Oracle Loop production harness
+Pre-registration documents, run logs, and raw result artifacts are held
+in the program's research repositories and are available on request;
+this paper does not yet have a public data deposit with a DOI. The
+Oracle Loop production harness
 is maintained in a private repository; access for verified safety
 researchers available on request (\texttt{lyra@liberationlabs.tech}).
 
