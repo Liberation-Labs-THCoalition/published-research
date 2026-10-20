@@ -730,6 +730,8 @@ HELD_TALLY = {
     "k_max": "1.87 at L30", "pos_k": "0.0047 against 0.0051", "pos_v": "0.0014 against 0.0011",
     "inj_v2": "8 of 240", "inj_v3": "44 of 6,000", "inj_rank": "872", "swap": "0 of 360", "removal": "0 of 300",
     "det_auroc": "0.707", "det_p": "0.001", "det_fwl": "0.620", "det_fwl_p": "0.023",
+    # Added before the tally was written, after reading position_specific_prereg.json (H3 positive control):
+    "pos_resid": "0.68 against 0.92", "pos_resid_frac": "9 of 40", "dec_input_lifts": "0.89, 0.84, 0.83, 0.92",
 }
 
 
@@ -837,6 +839,15 @@ def tally_values():
     m = lambda k: st.mean(c[k] for c in cs)
     v.update(pos_k="%.4f against %.4f" % (m("concept_pos_own_r2_k"), m("concept_pos_cross_r2_k")),
              pos_v="%.4f against %.4f" % (m("concept_pos_own_r2_v"), m("concept_pos_cross_r2_v")))
+    # H3 positive control (position_specific_prereg.json): residual-stream lift at concept positions
+    # must exceed non-concept positions, or the null is "methodology failure, not a cache finding".
+    pr = [r for r in g["lab/position_specific_cache_20260717_203639.json"][0]["results"]
+          if r.get("concept_mean_lift_resid") is not None]
+    v["pos_resid"] = "%.2f against %.2f" % (st.mean(r["concept_mean_lift_resid"] for r in pr),
+                                            st.mean(r["non_concept_mean_lift_resid"] for r in pr))
+    v["pos_resid_frac"] = "%d of %d" % (sum(r["concept_mean_lift_resid"] > r["non_concept_mean_lift_resid"]
+                                            for r in pr), len(pr))
+    v["dec_input_lifts"] = ", ".join("%.2f" % lift("input", L) for L in (12, 15, 18, 21))
     T2 = g["lab/causal_injection_v2_20260710_073723.json"][0]["trials"]
     b2 = {(t["probe_idx"], t["concept"], t["inject_layer"]): t["output_tokens"][0] for t in T2 if t["alpha"] == 0.0}
     i2 = [t for t in T2 if t["alpha"] != 0.0]
@@ -866,7 +877,7 @@ def check_tally():
     if not TALLY.exists():
         record("TALLY.exists", False, "review/INSTRUMENT_TALLY.md missing")
         return
-    text = TALLY.read_text(encoding="utf-8")
+    text = squash(TALLY.read_text(encoding="utf-8"))   # markdown wraps lines inside values
     v, prim = tally_values()
     held = not prim
     if prim:
