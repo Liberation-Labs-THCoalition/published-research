@@ -29,10 +29,10 @@ Key findings:
 3. **A larger residual-stream readout reads more (exploratory).** A 20,480-feature logistic regression on the raw residual
    stream reaches 49.4%, above the 30-feature cache probe; whether it beats a fully tuned text (TF-IDF) baseline (at least
    44.8%) is open, and nothing shows that W_K or the cache adds to it.
-4. **W_K bridge: a candidate pathway, partly supported.** Residual-stream emotion vectors projected through W_K produce
-   valence-separated structure (rho = 0.862 at L35). A direct test found the leading direction partly carries over to
-   the measured cache geometry (mean cosine 0.456), but the projection does not predict the cache's distance structure
-   (Mantel rho = 0.090, 0/16 layers).
+4. **W_K bridge: a candidate pathway, not established.** Residual-stream emotion vectors projected through W_K separate
+   the emotions' assigned valence (|rho| up to 0.872 at L43). There is no unprojected or random-matrix control, the code
+   applies W_K to each layer's output rather than the normalized input W_K reads, and the one direct test (Mantel rho
+   0.090 on an earlier 300-trial run) is not released and could not be re-verified.
 
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
 `PROVENANCE_wk_probes.md`). The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
@@ -74,7 +74,7 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 | Gen peak layer | L23 (depth 0.37) | L11 (depth 0.35) |
 | Enc/gen profile rho | 0.433 (NS) | 0.002 (NS) |
 | GKF(emotion) valence R^2 | -0.470 | -0.463 |
-| Bridge PC1-valence rho (best) | 0.862 (L35) | 0.932 (L17) |
+| Bridge PC1-valence rho (best) | 0.872 (L43) | 0.932 (L17) |
 | Permutation null mean | 0.022 +/- 0.005 | — |
 
 ## Verification
