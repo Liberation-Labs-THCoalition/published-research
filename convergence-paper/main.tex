@@ -457,20 +457,20 @@ the ${\sim}0.9$-layer shape-bias ceiling measured by the self-test null).
 \subsection{Results}
 
 \paragraph{Temporal ordering confirmed.} Stable rank reaches half-rise
-at $L{=}17.6$ [CI: $17.2$--$18.1$], corresponding to ${\sim}28\%$
-model depth. J-lens readability reaches half-rise at $L{=}56.2$
-[CI: $55.8$--$56.7$], corresponding to ${\sim}89\%$ depth. The gap is
+at $L{=}17.6$ [CI: $17.2$--$18.1$], corresponding to $27.5\%$ of model
+depth. J-lens readability reaches half-rise at $L{=}56.2$
+[CI: $55.8$--$56.7$], corresponding to $87.8\%$ depth. The gap is
 \textbf{38.6~layers} [CI: $38.0$--$39.2$], with 100\% of forks showing
-a positive gap. Spectral features engage 61\% of the network earlier
+a positive gap. Spectral features engage 60\% of the network earlier
 than J-lens readability.
 
 \paragraph{Architecture-phase control.} On linear-attention layers only
 (removing any full-attention structural advantage), the gap is
-39.0~layers [CI: $38.4$--$39.6$]. On full-attention layers only, the
-gap narrows to 14.5~layers [CI: $11.7$--$17.4$], 81\% of forks
-positive. The ordering holds across both attention types but is
-strongest when linear-attention layers --- which constitute $75\%$ of
-layers throughout the stack, not merely early --- are included.
+39.0~layers [CI: $38.4$--$39.6$]. The full-attention-only result is
+given under the architectural qualification below. The ordering holds
+across both attention types but is strongest when linear-attention
+layers --- which constitute $75\%$ of layers throughout the stack, not
+merely early --- are included.
 
 \paragraph{Workspace band bump.} Stable rank at the workspace band
 ($L_{19}$--$L_{23}$) is $1.47\times$ the flanking layers
@@ -497,7 +497,7 @@ its negKL profile.
 
 \paragraph{Shuffled-Jacobian null.} Permuting the negKL profile's
 layer assignments (200~shuffles) produces a mean gap of $-8.5 \pm 7.5$
-layers, with 95th percentile at $8.0$. The real 39-layer gap exceeds
+layers, with 95th percentile at $8.0$. The real 38.6-layer gap exceeds
 every shuffled permutation ($p < 0.005$). This null tests whether the
 \emph{ordering} of the negKL profile is non-random; it does not test
 whether the Jacobian \emph{computation itself} produces the gap
@@ -513,7 +513,7 @@ forks positive (19\% show the wrong ordering). The temporal ordering
 is carried primarily by the GatedDeltaNet (linear-attention) layers,
 which constitute 48 of 64 layers, interleaved three-in-four at every
 depth rather than concentrated early. The full-attention subset used
-for the qualification above is therefore a sparse depth-spanning comb,
+here is therefore a sparse depth-spanning comb,
 not a late-network subnetwork, and the narrowing cannot be attributed
 to sampling a different depth range. Whether it reflects workspace
 processing or GatedDeltaNet's sequential compression architecture
@@ -538,7 +538,7 @@ boundary zone.
 
 Four independent onset-detection methods (threshold crossing, maximum
 curvature, slope breakpoint, spectral entropy inflection) converge on
-$L{=}13$--$16$ (median $L{=}14$, $22.2\%$ depth). The pre-registered
+$L{=}13$--$16$ (median $L{=}14$, $21.9\%$ depth). The pre-registered
 prediction was $25$--$35\%$. \textbf{Onset falls below the predicted
 window by ${\sim}3$ percentage points.} The four methods agree closely
 with each other (span of 3~layers), and the miss is quantitative rather
@@ -546,14 +546,14 @@ than qualitative --- the workspace-associated activity begins slightly
 earlier than predicted.
 
 We note as an exploratory observation that the stable rank \emph{peak}
-occurs at $L{=}19$ ($30.2\%$ depth), within the convergence paper's
-$31$--$33\%$ band. This was not the pre-registered target
+occurs at $L{=}19$ ($29.7\%$ depth), just below the $31$--$33\%$ band
+reported in \S\ref{sec:structure}. This was not the pre-registered target
 (onset $\neq$ peak) and should not be interpreted as confirming R3.
 
 \subsection{Interpretation}
 
 R1's temporal ordering is the strongest mechanism result: spectral
-features engage 39~layers before J-lens readability, confirmed
+features engage 38.6~layers before J-lens readability, confirmed
 against a shuffled null. R2 fails its pre-registered threshold.
 R3 partially misses its predicted window. The mechanism section
 is weaker than the convergence evidence it aims to explain, and we
@@ -708,10 +708,10 @@ has not earned its keep over the simpler alternative.
 We engage this alternative honestly because it is the most important
 challenge to our program. The redesigned R1 test
 (\S\ref{sec:mechanism}) confirmed temporal ordering (spectral
-features lead J-lens readability by 39~layers) but R2's signal
+features lead J-lens readability by 38.6~layers) but R2's signal
 concentration failed its pre-registered threshold. The temporal
 ordering narrows the deflationary space --- response-mode statistics
-alone do not predict a 39-layer depth gap --- but does not eliminate
+alone do not predict a 38.6-layer depth gap --- but does not eliminate
 it: any monotonically depth-increasing property would produce
 temporal separation. The workspace interpretation has gained evidence
 but has not yet decisively excluded the deflationary alternative.
@@ -833,7 +833,7 @@ persist in our earlier papers, but what it refers to is deeper than
 any cache.
 
 The mechanism test confirmed temporal ordering: spectral features
-engage at ${\sim}28\%$ depth, J-lens readability at ${\sim}89\%$,
+engage at $27.5\%$ depth, J-lens readability at $87.8\%$,
 with a 38.6-layer gap. The workspace band sits between loading
 and materialization. Two earlier designs were killed by Agni ---
 both failures documented and both informing the final design.
