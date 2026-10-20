@@ -348,7 +348,9 @@ def check_depth():
     present("DEPTH.text.convention", "Relative depth is $l/n_\\text{layers}$ throughout")
     absent("DEPTH.gone.30.2", "30.2")
     absent("DEPTH.gone.22.2", "22.2")
-    absent("DEPTH.gone.89", "89\\%")
+    # Tightened in the v1.1 extension: "89\%" alone also matches instrument 5's "77--89\%".
+    # v1.0 wrote the depth as "${\sim}89\%$" (twice), which this still catches.
+    absent("DEPTH.gone.89", "{\\sim}89\\%")
     absent("DEPTH.gone.61", "61\\%")
     absent("DEPTH.gone.selfref", "convergence paper's")
 
@@ -394,7 +396,9 @@ def check_citations_and_numbers():
     # Experiment 37, RTX 3090 vs H200 JSONs). The v1.0 'r>0.999' overstated two of four features.
     lt = (REPO / "lyra-technique-ii" / "main.tex").read_text(encoding="utf-8")
     record("HW.prim", "$r = 0.9986$--$0.9999$" in lt, "lyra-technique-ii: r = 0.9986--0.9999")
-    present("HW.text", "across hardware ($r = 0.9986$--$0.9999$ across four cache features)")
+    # Revised in the v1.1 extension (Lyra, PR #13): the sentence now names the four key-cache
+    # features once, so the needle ends "across the four features".
+    present("HW.text", "across hardware ($r = 0.9986$--$0.9999$ across the four features)")
     absent("HW.gone", "r{>}0.999")
 
     # Schema commitment: meta-pattern/main.tex tab:bodycount + footnote (5cfaa86).
@@ -408,7 +412,8 @@ def check_citations_and_numbers():
     eb = (REPO / "empathy-bus" / "main.tex").read_text(encoding="utf-8")
     record("CIRC.prim", "$\\cos = 0.83$--$0.87$ (mid-to-late layers)" in eb and "0.987" not in eb,
            "empathy-bus: cos 0.83--0.87, no 0.987")
-    present("CIRC.text", "$\\cos = 0.83$--$0.87$ (mid-to-late layers)")
+    # Revised in the v1.1 extension: instrument 5 is restated from PR #3's data files, so the old
+    # "cos 0.83-0.87 (mid-to-late layers)" sentence is gone; the replacement is checked in INST5.*.
     absent("CIRC.gone.0.987", "0.987")
     absent("CIRC.gone.instrument5", "Instrument 5")
 
@@ -427,7 +432,7 @@ def check_citations_and_numbers():
     absent("SCALE.gone.0.6", "Qwen2.5-0.6B")
     absent("SCALE.gone.72", "Qwen2.5-72B")
     absent("SCALE.gone.seven", "seven additional models")
-    present("SCALE.text", "comes from the Campaign~2 scale sweep~\\citep{lyra2026campaign2}")
+    # Revised in the v1.1 extension: the model list is now rebuilt from the primary (SCALE2.*).
 
     # Temperature, data availability.
     present("TEMP.text", "Unless stated otherwise, generation used temperature${=}0$ (greedy)")
@@ -445,6 +450,235 @@ def check_citations_and_numbers():
            "cc2026targeted present with DOI 10.5281/zenodo.21754921")
     record("BIB.metapattern", "@misc{lyra2026metapattern," in BIB, "lyra2026metapattern present")
     present("BIB.cited.cc", "\\citep{cc2026targeted}", count=2)
+
+
+# --------------------------------------------------------------------------
+# v1.1 extension (Lyra's read of PR #13): hardware, instrument 5, K/V split, "reliably", scale.
+# Primaries on other branches are read with `git show <ref>:<path>` from this repository; if the
+# ref is gone (e.g. merged and deleted) the master working tree is tried, then held values.
+# --------------------------------------------------------------------------
+PR3_REF = "origin/nexus/empathy-bus-41-42"        # published-research PR #3 (draft), data at 9d60363
+PR8_REF = "origin/nexus/pharos-corrections-v11"   # published-research PR #8 (draft), head 0467721
+KVX = RESEARCH.parent / "KV-Experiments"          # Campaign 2 repo (paper-scale-invariance at 100f38a)
+
+
+def repo_json(ref, path):
+    out = subprocess.run(["git", "-C", str(REPO), "show", "%s:%s" % (ref, path)],
+                         capture_output=True, text=True, encoding="utf-8")
+    if out.returncode == 0:
+        return json.loads(out.stdout), False
+    p = REPO / path
+    if p.exists():
+        return json.loads(p.read_text(encoding="utf-8")), False
+    return None, True
+
+
+def rng(vals, nd):
+    return "%.*f--%.*f" % (nd, min(vals), nd, max(vals))
+
+
+def check_extension():
+    # Hardware. HELD: Lyra ran `system_profiler SPHardwareDataType` on Starship on 2026-10-20
+    # (message on PR #13): Mac Studio, Mac15,14, Apple M3 Ultra, 256 GB. Not machine-readable here.
+    record("HW2.prim", True, "Starship = Mac Studio Mac15,14, Apple M3 Ultra, 256 GB (Lyra, system_profiler)",
+           held=True)
+    present("HW2.text", "Mac Studio M3 Ultra, 256\\,GB unified memory")
+    absent("HW2.gone", "M4 Max")
+
+    # ---- Instrument 5, from PR #3's data files ----
+    L17 = [str(l) for l in range(17, 64)]
+    wsn, h1 = repo_json(PR3_REF, "empathy-bus/data/within_system_null.json")
+    axes, h2 = repo_json(PR3_REF, "empathy-bus/data/story_space_axes.json")
+    csa, h3 = repo_json(PR3_REF, "empathy-bus/data/cross_system_alignment.json")
+    ecc, h4 = repo_json(PR3_REF, "empathy-bus/data/user_model_eccentricity.json")
+    cpl, h5 = repo_json(PR3_REF, "empathy-bus/data/coupling_test.json")
+    if not any((h1, h2, h3, h4, h5)):
+        W = wsn["layers"]
+        vals = {
+            "cos_hc": rng([W[l]["valence"]["abs_cos_pc1"] for l in L17], 2),
+            "cos_dc": rng([W[l]["arousal"]["abs_cos_pc1"] for l in L17], 2),
+            "plane": rng([100 * W[l]["plane"]["var_share"] for l in L17], 0),
+            "pct_hc": rng([W[l]["valence"]["pct_below"] for l in L17], 0),
+            "pct_dc": rng([W[l]["arousal"]["pct_below"] for l in L17], 0),
+            "plane_ratio": rng([W[l]["plane"]["var_share"] / W[l]["planes_var_share"]["median"] for l in L17], 2),
+            "rho_val": rng([abs(axes[l]["pc1_val"]) for l in L17], 2),
+            "rho_aro": rng([abs(axes[l]["pc1_aro"]) for l in L17], 2),
+            "opposite": all(axes[l]["pc1_val"] > 0 > axes[l]["pc1_aro"] for l in L17),
+            "n_pairs": wsn["n_pairs"],
+        }
+        C = csa["layers"]
+        vals.update({
+            "x_val": rng([x["content_valence"]["abs_cos_PC1"] for x in C], 3),
+            "x_aro": rng([x["content_arousal"]["abs_cos_PC1"] for x in C], 3),
+            "null_p95": rng([x["null_random_direction"]["abs_cos_PC1_p95"] for x in C], 3),
+            "null_max": rng([x["null_random_direction"]["abs_cos_PC1_max"] for x in C], 3),
+            "x_share": rng([100 * x[k]["centroid_variance_share_along_direction"] for x in C
+                            for k in ("content_valence", "content_arousal")], 2),
+            "x_ratio": "%d to %d" % (round(min(x[k]["centroid_variance_share_along_direction"]
+                                               / x["null_random_direction"]["variance_share_mean"]
+                                               for x in C for k in ("content_valence", "content_arousal"))),
+                                     round(max(x[k]["centroid_variance_share_along_direction"]
+                                               / x["null_random_direction"]["variance_share_mean"]
+                                               for x in C for k in ("content_valence", "content_arousal")))),
+            "L15_within": all(x[k]["abs_cos_PC1"] < x["null_random_direction"]["abs_cos_PC1_p95"]
+                              for x in C if x["layer"] == 15 for k in ("content_valence", "content_arousal")),
+            "L25up_exceed": all(x[k]["abs_cos_PC1"] > x["null_random_direction"]["abs_cos_PC1_max"]
+                                for x in C if x["layer"] > 15 for k in ("content_valence", "content_arousal")),
+        })
+        U, Cc = ecc["user_model"], ecc["content"]
+        vals.update({
+            "ecc_content": rng([Cc["L17-L63"]["min"], Cc["L17-L63"]["max"]], 2),
+            "ecc_story_a": rng([U["L17-L21"]["min"], U["L17-L21"]["max"]], 2),
+            "ecc_story_b": rng([U["L22-L63"]["min"], U["L22-L63"]["max"]], 2),
+            "ecc_r": "%.2f" % ecc["pearson_r_user_model_vs_content_all_layers"],
+        })
+        R = cpl["results"]
+        mean_off = {c: sum(x["cross_pathway_cosine"] for x in R if x["condition"] == c
+                           and x["measurement_layer"] != x["injection_layer"])
+                    / sum(1 for x in R if x["condition"] == c and x["measurement_layer"] != x["injection_layer"])
+                    for c in ("valence", "arousal", "random")}
+        same_min = min(x["cross_pathway_cosine"] for x in R if x["condition"] in ("valence", "arousal", "random")
+                       and x["measurement_layer"] == x["injection_layer"])
+        vals.update({"m_val": "%.3f" % mean_off["valence"], "m_aro": "%.3f" % mean_off["arousal"],
+                     "m_rnd": "%.3f" % mean_off["random"], "same_min": same_min,
+                     "n_content": cpl["n_content"], "n_user": cpl["n_user"],
+                     "inj": cpl["injection_layers"], "alphas": cpl["alphas"]})
+        held5 = False
+    else:
+        # HELD from PR #3's data files at 9d60363 (computed 2026-10-20 by this script's code path).
+        vals = {"cos_hc": "0.68--0.80", "cos_dc": "0.83--0.88", "plane": "33--37", "pct_hc": "77--89",
+                "pct_dc": "92--95", "plane_ratio": "1.26--1.36", "rho_val": "0.66--0.80", "rho_aro": "0.49--0.67",
+                "opposite": True, "n_pairs": 435, "x_val": "0.026--0.110", "x_aro": "0.015--0.126",
+                "null_p95": "0.027--0.028", "null_max": "0.044--0.052", "x_share": "0.08--0.68",
+                "x_ratio": "4 to 34", "L15_within": True, "L25up_exceed": True, "ecc_content": "0.37--0.61",
+                "ecc_story_a": "0.05--0.23", "ecc_story_b": "0.30--0.42", "ecc_r": "0.09", "m_val": "0.521",
+                "m_aro": "0.547", "m_rnd": "0.577", "same_min": 0.9999, "n_content": 250, "n_user": 60,
+                "inj": [15, 25, 35, 45], "alphas": [1.0, 3.0, 5.0]}
+        held5 = True
+    record("INST5.prim.within", vals["opposite"] and vals["n_pairs"] == 435,
+           "L17-L63: hc %s, dc %s, plane %s%%, pct_below hc %s dc %s, plane/median %s, rho val %s aro %s"
+           % (vals["cos_hc"], vals["cos_dc"], vals["plane"], vals["pct_hc"], vals["pct_dc"],
+              vals["plane_ratio"], vals["rho_val"], vals["rho_aro"]), held5)
+    record("INST5.prim.cross", vals["L15_within"] and vals["L25up_exceed"],
+           "content val %s aro %s; random p95 %s max %s; share %s%% (%sx random)"
+           % (vals["x_val"], vals["x_aro"], vals["null_p95"], vals["null_max"], vals["x_share"],
+              vals["x_ratio"]), held5)
+    record("INST5.prim.coupling", vals["same_min"] >= 0.9999 and vals["m_rnd"] >= vals["m_aro"] >= vals["m_val"]
+           and (vals["n_content"], vals["n_user"]) == (250, 60) and vals["inj"] == [15, 25, 35, 45],
+           "off-layer means random %s arousal %s valence %s; same-layer min %.4f"
+           % (vals["m_rnd"], vals["m_aro"], vals["m_val"], vals["same_min"]), held5)
+    d = lambda s: "$" + s.replace("--", "$--$") + "$"
+    present("INST5.text.story", "30 emotion centroids per layer, each a mean over stories the model wrote "
+                                "about a third-person character")
+    present("INST5.text.not-user", "not the state of a conversation partner")
+    present("INST5.text.rho", "rated valence at $|\\rho| = %s and, with the opposite sign, with rated arousal "
+                              "at $|\\rho| = %s" % (d(vals["rho_val"])[1:], d(vals["rho_aro"])[1:]))
+    present("INST5.text.cos", "align with that component at $|\\cos| = %s and %s" % (d(vals["cos_hc"])[1:],
+                                                                                   d(vals["cos_dc"])))
+    present("INST5.text.plane", "holds %s\\%%$ of the centroid variance" % d(vals["plane"])[:-1])
+    present("INST5.text.pct", "%s\\%%$ of the %d centroid-pair directions" % (d(vals["pct_hc"])[:-1],
+                                                                             vals["n_pairs"]))
+    present("INST5.text.pct-dc", "%s\\%%$ less than desperate$-$calm" % d(vals["pct_dc"])[:-1])
+    present("INST5.text.plane-ratio", "%s times the variance of the median plane" % d(vals["plane_ratio"]))
+    present("INST5.text.cross", "$|\\cos| = %s with the story space's first component and the arousal "
+                                "direction %s" % (d(vals["x_val"])[1:], d(vals["x_aro"])))
+    present("INST5.text.null", "reach %s at the 95th percentile and %s at most" % (d(vals["null_p95"]),
+                                                                                   d(vals["null_max"])))
+    present("INST5.text.share", "%s\\%%$ of the centroid variance, %s times" % (d(vals["x_share"])[:-1],
+                                                                              vals["x_ratio"]))
+    present("INST5.text.ecc", "eccentricity is %s from L17" % d(vals["ecc_content"]))
+    present("INST5.text.ecc2", "%s over L17--L21 and %s from L22" % (d(vals["ecc_story_a"]),
+                                                                   d(vals["ecc_story_b"])))
+    present("INST5.text.ecc-r", "($r = %s$)" % vals["ecc_r"])
+    present("INST5.text.sets", "%d content prompts and %d conversational prompts" % (vals["n_content"],
+                                                                                   vals["n_user"]))
+    present("INST5.text.means", "the random direction's mean cosine ($%s$) is at least as high as valence's "
+                                "($%s$) and arousal's ($%s$)" % (vals["m_rnd"], vals["m_val"], vals["m_aro"]))
+    present("INST5.text.construction", "1.000 at the injection layer by construction")
+    present("INST5.text.cannot", "cannot test whether the two kinds of processing are separable")
+    absent_re("INST5.gone.bus", r"(?i)\bbus\b")
+    for needle in ("user-model", "inseparable", "mood swing", "Empathy, in this", "1000\\times", "44$--$54",
+                   "identical developmental", "23 of 24", "59\\times", "lyra2026weather", "W$_K$ bridge",
+                   "Content--Inference", "same geometric subspace", "user-emotion encoding ($12.3"):
+        absent("INST5.gone %s" % needle[:22], needle)
+    present("INST5.text.abstract", "The emotional-geometry instrument, restated in this version, finds "
+                                   "valence--arousal structure in an emotion space built from stories the model wrote")
+    present("INST5.text.instrument-name", "causal intervention analysis, and emotional circumplex geometry")
+    present("INST5.text.footnote", "decodes the emotions of characters in stories the model wrote, not the "
+                                   "user's state")
+    record("INST5.bib", "@unpublished{nexus2026coupling," in BIB and "@misc{lyra2026usermodel," in BIB
+           and "{lyra2026weather," not in BIB, "nexus2026coupling and lyra2026usermodel in; lyra2026weather out")
+
+    # ---- K/V split injection, from PR #8's data file ----
+    kv, hkv = repo_json(PR8_REF, "kv-decomposition-paper/data/decomposition_results.json")
+    if kv is not None:
+        sc = {r["condition"]: (round(r["multihop_score"] * len(r["multihop_details"])),
+                               len(r["multihop_details"]),
+                               frozenset(x["q"][:20] for x in r["multihop_details"] if x["score"] > 0))
+              for r in kv["results"]}
+        ok = (sc["BASELINE"][:2] == (1, 6) and sc["FULL_KV"][:2] == (6, 6) and sc["TEXT_CONTEXT"][:2] == (5, 6)
+              and sc["V_ONLY"][:2] == (2, 6) and sc["K_ONLY"][:2] == (2, 6)
+              and sc["V_ONLY"][2] == sc["K_ONLY"][2] and sc["BASELINE"][2] < sc["V_ONLY"][2]
+              and kv["model"] == "Qwen/Qwen2.5-1.5B")
+        record("KV.prim", ok, "baseline %d/6, full %d/6, text %d/6, V %d/6, K %d/6; V and K scored the same "
+               "items %s; model %s" % (sc["BASELINE"][0], sc["FULL_KV"][0], sc["TEXT_CONTEXT"][0],
+                                       sc["V_ONLY"][0], sc["K_ONLY"][0], sorted(sc["V_ONLY"][2]), kv["model"]))
+    else:
+        # HELD: PR #8 kv-decomposition-paper/data/decomposition_results.json and main.tex tab:results (0467721).
+        record("KV.prim", True, "HELD baseline 1/6, full 6/6, text 5/6, V 2/6, K 2/6 (same two items)", held=True)
+    present("KV.text.full", "full KV injection scored 6/6 and the text in the prompt 5/6")
+    present("KV.text.halves", "K-only and V-only injection scored 2/6 each, on the same two items")
+    present("KV.text.baseline", "uninjected baseline (1/6)")
+    present("KV.text.model", "(Qwen2.5-1.5B, one greedy run)")
+    absent_re("KV.gone.superadd", r"(?i)superadditiv")
+    absent("KV.gone.sum", "0.333 + 0.333")
+    absent("KV.gone.complementary", "complementary representations")
+    record("KV.bib", "Splitting Cache-Injected Graph Topology" in BIB and "= {K and V Are Complementary" not in BIB,
+           "lyra2026nexus_kv carries the v1.1 title")
+
+    # ---- "reliably" ----
+    for needle in ("reliably discriminate", "reliably measurable", "reliably distinguish"):
+        absent("REL.gone %s" % needle, needle)
+    present("REL.text.abstract", "discriminate cognitive states modestly above chance (confabulation detection at")
+    present("REL.text.abstract-p", "residualization on generation window, permutation $p = 0.023$; $0.707$ "
+                                   "without FWL)")
+    present("REL.text.list", "spectral features discriminate cognitive states above chance:")
+    present("REL.text.intro", "geometric signatures that distinguish confabulation from honest processing above chance")
+
+    # ---- Scale range, from KV-Experiments paper-scale-invariance/sections/results.tex (100f38a) ----
+    sr = read_if(KVX / "paper-scale-invariance" / "sections" / "results.tex")
+    if sr is not None:
+        rhos = [float(x) for x in re.findall(r"(?:Small|Medium) vs\.\\ (?:Medium|Large) & (0\.\d+)", sr)]
+        tiers = re.findall(r"\\textbf\{(?:Small|Medium|Large)\} \([^)]*\): ([^\n]+)", sr)
+        n_models = sum(len(t.split(", ")) for t in tiers)
+        ok = (sorted(rhos) == [0.826, 0.867, 0.896] and n_models == 10
+              and "Qwen3-0.6B" in tiers[0] and "Llama-3.1-70B-q4" in tiers[2])
+        record("SCALE2.prim", ok and "%.2f--%.2f" % (min(rhos), max(rhos)) == "0.83--0.90",
+               "Exp 26 tier rho %s, %d models, smallest %s, largest %s" % (rhos, n_models,
+                                                                          tiers[0][:24], tiers[2][-20:]))
+    else:
+        record("SCALE2.prim", True, "HELD rho 0.826/0.867/0.896, 10 models, Qwen3-0.6B..Llama-3.1-70B-q4", held=True)
+    present("SCALE2.text.abstract", "Key-cache geometric signatures replicate across a wider scale range (ten "
+                                    "models from $0.6$B to $70$B; Spearman $\\rho = 0.83$--$0.90$ between size tiers)")
+    present("SCALE2.text.structure", "Key-cache geometric signatures (key norm, norm per token, effective rank and "
+                                     "key entropy) replicate across ten models from $0.6$B to $70$B parameters "
+                                     "(Spearman $\\rho = 0.83$--$0.90$ between three size tiers; the two largest "
+                                     "models were 4-bit quantized)")
+    present("SCALE2.text.setup", "comes from Experiment~26 of Campaign~2~\\citep{lyra2026campaign2}, which "
+                                 "measured key-cache features")
+    present("SCALE2.text.small", "Qwen3-0.6B and TinyLlama-1.1B")
+    present("SCALE2.text.large", "Qwen2.5-32B and Llama-3.1-70B, both 4-bit")
+    absent("SCALE2.gone.vproj", "V-projection geometric signatures")
+    absent("SCALE2.gone.relist", "we do not re-list its models here")
+
+    for needle in ("story-derived", "2/6", "M3 Ultra", "Experiment~26", "modestly above chance"):
+        present("NOTE2.has %s" % needle, needle, where=NOTE)
+
+    # Guard added after a shell heredoc turned "\noindent" into a newline plus "oindent" in this
+    # pass (it printed in the PDF). Any LaTeX control word that lost its backslash and landed at
+    # the start of a line is caught here, before the build.
+    hits = re.findall(r"(?m)^(oindent|extbf|egin\{|item |ewline|ref\{|cite)", RAW.replace("\r", ""))
+    record("TEX.mangled-control-word", not hits, "line-initial control words without backslash: %r" % hits[:5])
 
 
 def check_note_and_date():
@@ -484,6 +718,7 @@ def main():
     check_depth()
     check_r1()
     check_citations_and_numbers()
+    check_extension()
     check_note_and_date()
 
     width = max(len(c) for _, c, _ in RESULTS)
