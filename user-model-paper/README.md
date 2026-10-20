@@ -35,7 +35,8 @@ Key findings:
    (Mantel rho = 0.090, 0/16 layers).
 
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
-`PROVENANCE_wk_probes.md`). The October re-run's preregistration, scripts and results are cited by sha256 in the paper.
+`PROVENANCE_wk_probes.md`). The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
+(byte-exact copies; `SHA256SUMS` lists every file's hash).
 
 ## Repository Contents
 
@@ -48,6 +49,11 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 - `qwen_emotion_bridge_summary.json` — Qwen W_K bridge PCA, valence/arousal correlations per layer
 - `mistral_emotion_bridge_summary.json` — Mistral equivalent
 - `baseline_residual_probe_results.json` — Residual-stream linear probe comparison (894 trials)
+
+### `correction_v2/`
+- The October 2026 correction run: preregistration (markdown and JSON), the sealed prediction, the encode, analysis
+  and dry-run scripts, the results with the encode manifest and logs (`results_20261019/`), the results write-up,
+  the R1 investigation and the design notes. `.gitattributes` keeps them byte-exact so the registered hashes hold.
 
 ### `code/`
 - `emotion_geometry_bridge.py` — Main experiment script (900 trials, 30 emotions x 10 topics x 3 stories)
@@ -73,7 +79,7 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 
 ## Verification
 
-Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395`, and the October re-run's numbers to its results file, cited in the paper by sha256 and not yet in this repository. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
+Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395`, and the October re-run's numbers to `correction_v2/results_20261019/um_v2_results.json`. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
 
 ## Hardware
 
