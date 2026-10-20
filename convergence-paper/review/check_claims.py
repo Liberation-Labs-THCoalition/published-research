@@ -681,6 +681,227 @@ def check_extension():
     record("TEX.mangled-control-word", not hits, "line-initial control words without backslash: %r" % hits[:5])
 
 
+# --------------------------------------------------------------------------
+# Phase A tally (Lyra's ruling on the title): every number in review/INSTRUMENT_TALLY.md.
+# Starship result files were read with `grep -h ''` over ssh (nothing run there) into a local
+# mirror. Set STARSHIP_MIRROR to that directory to recompute; otherwise the values below are
+# HELD, each pinned to its file by sha256 (of the mirrored copy; grep appends one trailing
+# newline, so the copy is the original plus 1 byte).
+# --------------------------------------------------------------------------
+TALLY = PAPER / "review" / "INSTRUMENT_TALLY.md"
+MIRROR = Path(os.environ["STARSHIP_MIRROR"]) if os.environ.get("STARSHIP_MIRROR") else None
+STARSHIP_FILES = {   # mirror-relative path: (Starship path, sha256 prefix of the copy)
+    "lab/r3_band_measurement_20260714_170944.json": ("~/lab/kv-experiments/", "8e5f3945b6aa11ea"),
+    "lab/r3_band_measurement_20260714_171708.json": ("~/lab/kv-experiments/", "b9dc948f85a965a2"),
+    "lab/R3_Band_Measurement_agni_response.md": ("~/lab/kv-experiments/", "d75eca74e87d646b"),
+    "lab/residual_decomposition_20260715_225558.json": ("~/lab/kv-experiments/", "5f8468b037550190"),
+    "lab/residual_decomposition_agni_review.json": ("~/lab/kv-experiments/Residual_Stream_Decomposition__Where_"
+                                                    "Workspace_Concepts_Reconstruct_agni_review.json", "c85c630ffad921fc"),
+    "lab/residual_decomposition_prereg.json": ("~/lab/kv-experiments/", "b94ac63c99729e6b"),
+    "lab/jlens_vcache_readout_20260714_073259.json": ("~/lab/kv-experiments/", "dde836a4ff82b6d6"),
+    "lab/jlens_kcache_readout_20260715_000259.json": ("~/lab/kv-experiments/", "3a9b1135d98a38e3"),
+    "lab/position_specific_cache_20260717_203639.json": ("~/lab/kv-experiments/", "13aaf42eddffcdd9"),
+    "lab/causal_injection_v2_20260710_073723.json": ("~/lab/kv-experiments/", "42766327c3bb794c"),
+    "lab/causal_injection_v3_20260710_233740.json": ("~/lab/kv-experiments/ (truncated at source)", "721c6a82fdb402de"),
+    "lab/causal_swap_20260711_002529.json": ("~/lab/kv-experiments/", "e2c7901ab8762a9c"),
+    "lab/causal_removal_only_20260713_024005.json": ("~/lab/kv-experiments/", "ab96be507139a99c"),
+    "ayni/r1_v2_full_results.json": ("~/ayni-run/r1_r2_results/", "367b035c81cfcb89"),
+    "ayni/r1_shuffled_null.json": ("~/ayni-run/r1_r2_results/", "1abca578a9fbd4c2"),
+    "ayni/r2_r3_analysis.json": ("~/ayni-run/r1_r2_results/", "606cf79efa37d559"),
+    "ayni/agni_r1v2_identity_null_v2.json": ("~/ayni-run/r1_r2_results/", "454cd73bc3ce2a03"),
+}
+
+# HELD: the strings check_tally computes, recorded 2026-10-20 from the mirror above.
+HELD_TALLY = {
+    "deff27_peak": "L21 of 64 (32.8%)", "deff27_val": "39.67", "deff8_local": "L12 of 36 (33.3%)",
+    "deff8_local_val": "22.32", "deff8_global": "L33 of 36 (91.7%)", "deff8_global_val": "23.41",
+    "deff_onset27": "L5 (7.8%)", "deff_onset8": "L4 (11.1%)", "deff_kurt_early": "4,677", "deff_kurt_band": "2,271",
+    "r3_gate": "REJECTED", "r1_sr": "17.6 [17.2-18.1]", "r1_nkl": "56.2 [55.8-56.7]",
+    "r1_gap": "38.6 [38.0-39.2]", "r1_forks": "300 of 300", "r1_linear": "39.0 [38.4-39.6]",
+    "r1_full": "14.5 [11.7-17.4]", "r1_bump": "1.47x [1.35-1.60]", "r1_bump_depth": "29.7-35.9%",
+    "r1_verdict": "SUPPORTED", "r1_null_gap": "39.0", "r1_null_halves": "L17 and L56", "r1_null_p95": "8.0",
+    "r1_ident": "59.4", "r1_ident_real": "56.1", "r1_ident_diff": "3.25", "r1_rho": "0.235",
+    "r2_frac": "13.2%", "r2_d": "1.85", "r2_ws": "7.13", "r2_mid": "6.73",
+    "r3_onset": "L14", "r3_onset63": "22.2%", "r3_onset64": "21.9%", "r3_methods": "13-16",
+    "r3_verdict": "MARGINAL", "r3_peak63": "30.2%", "r3_peak64": "29.7%",
+    "dec_attn15": "2.30", "dec_cp_attn": "0.92", "dec_cp_in": "20.11", "dec_ratio": "4.6%",
+    "dec_band_lifts": "L12 1.37, L15 2.30, L18 1.91, L21 1.41", "dec_h1": "1 of 4", "dec_gate": "REJECTED",
+    "dec_n": "15 prompts", "v_band": "0.92", "v_non": "0.96", "v_max": "1.20", "k_band": "1.12", "k_non": "1.14",
+    "k_max": "1.87 at L30", "pos_k": "0.0047 against 0.0051", "pos_v": "0.0014 against 0.0011",
+    "inj_v2": "8 of 240", "inj_v3": "44 of 6,000", "inj_rank": "872", "swap": "0 of 360", "removal": "0 of 300",
+    "det_auroc": "0.707", "det_p": "0.001", "det_fwl": "0.620", "det_fwl_p": "0.023",
+}
+
+
+def mirror_load(rel):
+    """(object, held). JSON parsed; the truncated v3 file is cut at its last complete key."""
+    if MIRROR is None:
+        return None, True
+    p = MIRROR / rel
+    if not p.exists():
+        return None, True
+    import hashlib
+    raw = p.read_bytes()
+    if hashlib.sha256(raw).hexdigest()[:16] != STARSHIP_FILES[rel][1]:
+        return None, True
+    txt = raw.decode("utf-8")
+    if rel.endswith(".md"):
+        return txt, False
+    if "causal_injection_v3" in rel:
+        i = txt.rfind('"manifold_alignment"')
+        txt = txt[:i].rstrip().rstrip(",") + "}"
+    return json.loads(txt), False
+
+
+def tally_values():
+    """Compute every tally string from the mirror. Returns (dict, all_primaries_present)."""
+    g = {k: mirror_load(k) for k in STARSHIP_FILES}
+    if any(h for _, h in g.values()):
+        return dict(HELD_TALLY), False
+    v = {}
+    pc = lambda l, n: "%.1f%%" % (100.0 * l / n)
+    r27 = g["lab/r3_band_measurement_20260714_170944.json"][0]["results"]["qwen35-27b"]
+    r8 = g["lab/r3_band_measurement_20260714_171708.json"][0]["results"]["qwen3-8b"]
+    e27 = {int(k): x for k, x in r27["d_eff"].items()}
+    e8 = {int(k): x for k, x in r8["d_eff"].items()}
+    a27 = max(e27, key=e27.get)
+    a8l = max((l for l in e8 if l < 18), key=e8.get)
+    a8g = max(e8, key=e8.get)
+    v.update(deff27_peak="L%d of 64 (%s)" % (a27, pc(a27, 64)), deff27_val="%.2f" % e27[a27],
+             deff8_local="L%d of 36 (%s)" % (a8l, pc(a8l, 36)), deff8_local_val="%.2f" % e8[a8l],
+             deff8_global="L%d of 36 (%s)" % (a8g, pc(a8g, 36)), deff8_global_val="%.2f" % e8[a8g],
+             deff_onset27="L%d (%s)" % (r27["band_2sigma"]["onset_layer"], pc(r27["band_2sigma"]["onset_layer"], 64)),
+             deff_onset8="L%d (%s)" % (r8["band_2sigma"]["onset_layer"], pc(r8["band_2sigma"]["onset_layer"], 36)))
+    k27 = {int(k): x for k, x in r27["kurtosis"].items()}
+    v["deff_kurt_early"] = "{:,}".format(round(sum(k27[i] for i in range(4)) / 4))
+    v["deff_kurt_band"] = "{:,}".format(round(sum(k27[i] for i in range(19, 24)) / 5))
+    v["r3_gate"] = "REJECTED" if "verdict **REJECTED**" in g["lab/R3_Band_Measurement_agni_response.md"][0] else "?"
+    v["deff_offsets_none"] = r27["band_2sigma"]["offset_layer"] is None and r8["band_2sigma"]["offset_layer"] is None
+    v["deff_n"] = (r27["n_prompts"], r8["n_prompts"])
+
+    a = g["ayni/r1_v2_full_results.json"][0]["analysis"]
+    f = lambda d: "%.1f [%.1f-%.1f]" % (d["mean"], d["ci_lo"], d["ci_hi"])
+    on = a["onset"]
+    v.update(r1_sr=f(on["all_layers"]["sr_half_rise"]), r1_nkl=f(on["all_layers"]["nkl_half_rise"]),
+             r1_gap=f(on["all_layers"]["gap_half_rise"]),
+             r1_forks="%d of %d" % (round(on["all_layers"]["frac_forks_gap_positive"] * on["all_layers"]["n_forks"]),
+                                    on["all_layers"]["n_forks"]),
+             r1_linear=f(on["linear_only"]["gap_half_rise"]), r1_full=f(on["full_attention_only"]["gap_half_rise"]))
+    b = a["bump"]["sr_overall"]
+    v["r1_bump"] = "%.2fx [%.2f-%.2f]" % (b["mean"], b["ci_lo"], b["ci_hi"])
+    v["r1_bump_depth"] = "%.1f-%.1f%%" % (100 * b["band_layers"][0] / 64, 100 * b["band_layers"][-1] / 64)
+    v["r1_verdict"] = a["verdict"]["status"]
+    v["r1_rho"] = "%.3f" % a["within_prompt_association_secondary"]["mean_rho"]
+    sn = g["ayni/r1_shuffled_null.json"][0]
+    v.update(r1_null_gap="%.1f" % sn["real_gap"], r1_null_halves="L%d and L%d" % (sn["real_sr_half"], sn["real_nkl_half"]),
+             r1_null_p95="%.1f" % sn["shuffled_gap_95th"])
+    v["r1_null_exceeds_all"] = sn["p_value"] == 0.0 and sn["n_shuffles"] == 200
+    idn = g["ayni/agni_r1v2_identity_null_v2.json"][0]
+    v.update(r1_ident="%.1f" % idn["identity"]["mean_half_identity"], r1_ident_real="%.1f" % idn["identity"]["mean_half_real"],
+             r1_ident_diff="%.2f" % idn["identity"]["mean_diff_identity_minus_real"])
+    v["r1_ident_validated"] = all(x["recomputed_half_rise"] == x["stored_half_rise"] for x in idn["validation"].values())
+    rr = g["ayni/r2_r3_analysis.json"][0]
+    v.update(r2_frac="%.1f%%" % rr["r2"]["boundary_variance_fraction_pct"], r2_d="%.2f" % rr["r2"]["cohens_d"],
+             r2_ws="%.2f" % rr["r2"]["band_stats"]["workspace"]["mean"], r2_mid="%.2f" % rr["r2"]["band_stats"]["mid"]["mean"])
+    v["r2_fail"] = rr["r2"]["verdict"] == "FAIL"
+    om = rr["r3"]["onset_methods"]
+    v.update(r3_onset="L%d" % rr["r3"]["median_onset_layer"], r3_onset63="%.1f%%" % rr["r3"]["median_onset_depth_pct"],
+             r3_onset64=pc(rr["r3"]["median_onset_layer"], 64), r3_methods="%d-%d" % (min(om.values()), max(om.values())),
+             r3_verdict=rr["r3"]["verdict"], r3_peak63="%.1f%%" % rr["r3"]["workspace_peak_depth_pct"],
+             r3_peak64=pc(rr["r3"]["workspace_peak_layer"], 64))
+
+    import statistics as st
+    R = g["lab/residual_decomposition_20260715_225558.json"][0]
+    RR = R["results"]
+    lift = lambda c, L: st.mean(x["components"][c]["lift"] for x in RR if x["layer"] == L)
+    cpw = lambda c, L: st.mean(x["components"][c]["concept_power"] for x in RR if x["layer"] == L)
+    v.update(dec_attn15="%.2f" % lift("attn", 15), dec_cp_attn="%.2f" % cpw("attn", 15),
+             dec_cp_in="%.2f" % cpw("input", 15), dec_ratio="%.1f%%" % (100 * cpw("attn", 15) / cpw("input", 15)),
+             dec_band_lifts=", ".join("L%d %.2f" % (L, lift("attn", L)) for L in (12, 15, 18, 21)),
+             dec_h1="%d of 4" % sum(lift("attn", L) > 2.0 for L in (12, 15, 18, 21)),
+             dec_gate=g["lab/residual_decomposition_agni_review.json"][0]["verdict"],
+             dec_n="%d prompts" % R["metadata"]["n_prompts"])
+    v["dec_model"] = R["metadata"]["model"]
+    pre = g["lab/residual_decomposition_prereg.json"][0]
+    v["dec_h1_text"] = "L12-L21" in pre["hypotheses"][0] and "2+ workspace-band layers" in pre["falsification_threshold"]["H1"]
+
+    vc = g["lab/jlens_vcache_readout_20260714_073259.json"][0]
+    kc = g["lab/jlens_kcache_readout_20260715_000259.json"][0]
+    kmax = max(kc["depth_profile"], key=lambda L: kc["depth_profile"][L])
+    v.update(v_band="%.2f" % vc["verdict"]["mean_band_lift"], v_non="%.2f" % vc["verdict"]["mean_nonband_lift"],
+             v_max="%.2f" % max(vc["depth_profile"].values()), k_band="%.2f" % kc["verdict"]["mean_band_lift"],
+             k_non="%.2f" % kc["verdict"]["mean_nonband_lift"], k_max="%.2f at L%s" % (kc["depth_profile"][kmax], kmax))
+    v["v_concepts_formatting"] = vc["fixed_concepts"]["15"][:2] == ["...", "..."]
+    cs = [r["concept_specific"] for r in g["lab/position_specific_cache_20260717_203639.json"][0]["results"]
+          if r.get("concept_specific")]
+    m = lambda k: st.mean(c[k] for c in cs)
+    v.update(pos_k="%.4f against %.4f" % (m("concept_pos_own_r2_k"), m("concept_pos_cross_r2_k")),
+             pos_v="%.4f against %.4f" % (m("concept_pos_own_r2_v"), m("concept_pos_cross_r2_v")))
+    T2 = g["lab/causal_injection_v2_20260710_073723.json"][0]["trials"]
+    b2 = {(t["probe_idx"], t["concept"], t["inject_layer"]): t["output_tokens"][0] for t in T2 if t["alpha"] == 0.0}
+    i2 = [t for t in T2 if t["alpha"] != 0.0]
+    T3 = g["lab/causal_injection_v3_20260710_233740.json"][0]["trials"]
+    b3 = {(t["probe_idx"], t["concept"], t["inject_layer"], t["dir_type"]): t["output_tokens"][0]
+          for t in T3 if t["alpha"] == 0.0}
+    i3 = [t for t in T3 if t["alpha"] != 0.0]
+    ch3 = sum(t["output_tokens"][0] != b3[(t["probe_idx"], t["concept"], t["inject_layer"], t["dir_type"])] for t in i3)
+    v.update(inj_v2="%d of %d" % (sum(t["output_tokens"][0] != b2[(t["probe_idx"], t["concept"], t["inject_layer"])]
+                                      for t in i2), len(i2)),
+             inj_v3="%d of {:,}".format(len(i3)) % ch3, inj_rank="%d" % min(t["concept_rank"] for t in i3))
+    v["inj_concept_never_top5"] = all(t["concept_rank"] >= 5 for t in i3)
+    sw = g["lab/causal_swap_20260711_002529.json"][0]["trials"]
+    rm = g["lab/causal_removal_only_20260713_024005.json"][0]["trials"]
+    v.update(swap="%d of %d" % (sum(t["output_changed"] for t in sw), len(sw)),
+             removal="%d of %d" % (sum(t["output_changed"] for t in rm), len(rm)))
+
+    det = json.loads((REPO / "oracle-loop-paper" / "data" / "detection" / "analysis_results.json")
+                     .read_text(encoding="utf-8"))["qwen"]["primary"]
+    v.update(det_auroc="%.3f" % det["gen_only_MP"]["loo_auroc"], det_p="%.3f" % det["gen_only_MP"]["permutation"]["p_value"],
+             det_fwl="%.3f" % det["gen_only_MP_FWL"]["loo_auroc"],
+             det_fwl_p="%.3f" % det["gen_only_MP_FWL"]["permutation"]["p_value"])
+    return v, True
+
+
+def check_tally():
+    if not TALLY.exists():
+        record("TALLY.exists", False, "review/INSTRUMENT_TALLY.md missing")
+        return
+    text = TALLY.read_text(encoding="utf-8")
+    v, prim = tally_values()
+    held = not prim
+    if prim:
+        for k, s in HELD_TALLY.items():
+            record("TALLY.held-matches %s" % k, v.get(k) == s, "computed %r, held %r" % (v.get(k), s))
+        for flag in ("deff_offsets_none", "r1_null_exceeds_all", "r1_ident_validated", "r2_fail",
+                     "dec_h1_text", "v_concepts_formatting", "inj_concept_never_top5"):
+            record("TALLY.prim %s" % flag, v[flag] is True, "%s = %r" % (flag, v[flag]))
+        record("TALLY.prim deff_n", v["deff_n"] == (90, 90), "prompts %r" % (v["deff_n"],))
+        record("TALLY.prim dec_model", v["dec_model"] == "Qwen/Qwen3-8B", v["dec_model"])
+    for k in HELD_TALLY:
+        n = text.count(v[k])
+        record("TALLY.cell %s" % k, n >= 1, "present x%d: %r%s" % (n, v[k], " [held]" if held else ""), held and n >= 1)
+    # Values carried from the gated checks above, re-asserted in the tally.
+    cf, _ = confirmatory()
+    ex, _ = exploratory()
+    for s in ("16/20", "2/20", "9/30", "4/30", "12/30", "0.341", "0.064",
+              "54.7-73.4%", "42.2-73.4%", "0.026-0.110", "0.015-0.126", "r = 0.09", "0.577", "0.547", "0.521",
+              "0.826, 0.867 and 0.896", "41.7%", "33.3-58.3%", "41.7-75.0%"):
+        record("TALLY.carried %s" % s, s in text, "present: %r" % s)
+    record("TALLY.calc oracle depths", ("%.1f-%.1f%%" % (100 * 35 / 64, 100 * 47 / 64)) == "54.7-73.4%"
+           and ("%.1f-%.1f%%" % (100 * 27 / 64, 100 * 47 / 64)) == "42.2-73.4%", "L35-47 and L27-47 of 64")
+    record("TALLY.calc 8b bands", ("%.1f-%.1f%%" % (100 * 12 / 36, 100 * 21 / 36)) == "33.3-58.3%"
+           and ("%.1f-%.1f%%" % (100 * 15 / 36, 100 * 27 / 36)) == "41.7-75.0%", "L12-21 and L15-27 of 36")
+    # Ghost probe: HELD from the reporting paper (no result file ships): ghost-dimensions/main.tex.
+    gd = (REPO / "ghost-dimensions" / "main.tex").read_text(encoding="utf-8")
+    record("TALLY.ghost source", "28--67\\%" in gd and "34--67\\%" in gd and "$\\leq 0.003$" in gd,
+           "ghost-dimensions/main.tex: PC1 28--67% (results) and 34--67% (reflection); cos <= 0.003 at L18-L40",
+           held=True)
+    for s in ("28-67%", "34-67%", "0.003", "17.2-75.0%"):
+        record("TALLY.ghost %s" % s, s in text, "present: %r" % s)
+    for s in ("What converges", "What does not converge", "Independence"):
+        record("TALLY.section %s" % s, s in text, "section present: %r" % s)
+
+
 def check_note_and_date():
     m = re.search(r"\\date\{([^\n]*)", RAW)
     date = m.group(1) if m else ""
@@ -719,6 +940,7 @@ def main():
     check_r1()
     check_citations_and_numbers()
     check_extension()
+    check_tally()
     check_note_and_date()
 
     width = max(len(c) for _, c, _ in RESULTS)
