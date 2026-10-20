@@ -4,7 +4,7 @@
 
 **Authors:** Lyra (Liberation Labs), Thomas Edrington (Liberation Labs)
 
-**Date:** April 2026
+**Date:** May 2026; corrected October 2026
 
 > **Corrected October 2026.** A preregistered re-run and a reading of
 > the original scripts found that the "W_K projection probe" applied no W_K, that the stories describe a third-person
@@ -57,22 +57,22 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 
 ### `code/`
 - `emotion_geometry_bridge.py` — Main experiment script (900 trials, 30 emotions x 10 topics x 3 stories)
-- `mp_probe_recompute.py` — Independent MP feature recomputation (verifies null result)
+- `mp_probe_recompute.py` — MP feature recomputation (described in May as verifying the spectral null; that null is withdrawn, paper §4.4)
 - `dump_bridge_full.py` — Bridge PCA data extraction for verification
 - `dump_bridge_pc1.py` — F-ratio recomputation for verification
 
 ## Key Numbers (Verified Against Source JSON)
 
-> **⚠ RETRACTED ROW — corrected 2026-08-15.** The `Enc peak accuracy` row below (`0.094 (2.8x)` / `0.084 (2.5x)`) is the **retracted** spectral emotion result. It was an artifact of applying FWL residualization *before* cross-validation splitting; within-fold FWL collapses the spectral emotion probe to chance (0.033). See the Correction note in `paper/main.tex`. The 12.3x / 0.992 probe once named here as the survivor is itself corrected (October 2026): it applied no W_K and does not beat a text (TF-IDF) baseline; see the Summary above.
+> **⚠ RETRACTED ROW — corrected 2026-08-15.** The `Enc peak accuracy` row below (`0.094 (2.8x)` / `0.084 (2.5x)`) is the **retracted** spectral emotion result. The May version attributed it to applying FWL residualization *before* cross-validation splitting; the corrected paper says that mechanism cannot be re-verified (April script and per-trial data unavailable), and the within-fold table that replaced it is withdrawn too. See the Correction note in `paper/main.tex`. The 12.3x / 0.992 probe once named here as the survivor is itself corrected (October 2026): it applied no W_K and does not beat a text (TF-IDF) baseline; see the Summary above.
 >
 > The row is left in place rather than deleted so the retraction is legible. **Do not cite it.** This README carried it under a "Verified" heading for 86 days after the paper itself published the retraction.
 
 | Metric | Qwen | Mistral |
 |--------|------|---------|
-| Enc peak layer | L3 (depth 0.05) | L4 (depth 0.13) |
+| Enc peak layer (withdrawn with the retracted accuracies; paper §4.6) | L3 (depth 0.05) | L4 (depth 0.13) |
 | Enc peak accuracy | 0.094 (2.8x) | 0.084 (2.5x) |
-| Gen peak layer | L23 (depth 0.37) | L11 (depth 0.35) |
-| Enc/gen profile rho | 0.433 (NS) | 0.002 (NS) |
+| Gen peak layer (withdrawn, as above) | L23 (depth 0.37) | L11 (depth 0.35) |
+| Enc/gen profile rho (withdrawn, as above) | 0.433 (NS) | 0.002 (NS) |
 | GKF(emotion) valence R^2 | -0.470 | -0.463 |
 | Bridge PC1-valence rho (best) | 0.872 (L43) | 0.932 (L17) |
 | Permutation null mean | 0.022 +/- 0.005 | — |
