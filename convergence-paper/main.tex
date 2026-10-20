@@ -99,7 +99,7 @@ J-lens readability by 38.6~layers, $p < 0.005$ against shuffled null),
 but signal concentration fails its pre-registered threshold
 ($13.2\% < 15\%$) and workspace onset falls below the predicted depth
 window ($22\%$ vs.\ $25$--$35\%$). We report an honest body count
-(8~confirmed, 7~suspected, 10+~falsified) and engage the deflationary
+(6~confirmed, 7~suspected, 10~falsified, 1~withdrawn) and engage the deflationary
 alternative that has not yet been excluded.
 \end{abstract}
 
@@ -324,8 +324,9 @@ reliably discriminate cognitive states:
 \item Confabulation detection: AUROC~$0.620$ (FWL-corrected,
   permutation $p{=}0.023$; $0.707$ without FWL, $p{=}0.001$)
 \item Confab spectral contraction: $d{=}2.35$ ($p{<}0.000001$)
-\item Confidence paradox: $d{=}0.91$ (confab more confident)
-\item Oracle Loop: $80$--$100\%$ deception correction
+\item Schema commitment: $d{=}0.91$ over the first 10 tokens, reported
+  at source as a confidence paradox and read in the canonical ledger as early
+  commitment to a response template~\citep{lyra2026metapattern}
 \end{itemize}
 The Oracle Loop's sequence-wide correction is a behavioral result
 rather than a spectral readout: deception fell from 80\% to 10\% in
@@ -622,16 +623,62 @@ safety-direction removal cannot reach.
 \section{The Body Count}
 \label{sec:bodycount}
 
-The full audited record comprises 8~confirmed findings, 7~at
-suspected status (signal present, controls incomplete), and 10+
-honestly falsified. The confirmed findings are all metacognitive
-state measurements. The falsified findings all attempted content-level
-measurement. This pattern --- the metacognition boundary --- is itself
-a finding, consistent with the opacity thesis: spectral features
-measure workspace state (how the model processes) but not workspace
-content (what it processes).
+The full audited record comprises 6~confirmed findings, 7~at
+suspected status (signal present, controls incomplete), 10~honestly
+falsified, and 1~withdrawn (\Cref{tab:bodycount}; key numbers and
+sources in~\citet{lyra2026metapattern}). The confirmed findings are all
+metacognitive state measurements. The ten falsified findings in the tally all attempted content-level measurement. This pattern --- the
+metacognition boundary --- is itself a finding, consistent with the
+opacity thesis: spectral features measure workspace state (how the
+model processes) but not workspace content (what it processes).
 
-Recent falsifications from this sprint include:
+\begin{table}[ht]
+\centering
+\small
+\caption{The body count, enumerated. Rows, statuses and types are
+transcribed from the canonical ledger in~\citet{lyra2026metapattern},
+which gives the key number and source for each row. ``Meta'' marks a
+metacognitive-state measurement; ``Meta?'' marks a suspected finding
+whose type is itself unsettled.}
+\label{tab:bodycount}
+\begin{tabular}{llc}
+\toprule
+\textbf{Finding} & \textbf{Status} & \textbf{Type} \\
+\midrule
+Confabulation detection & Confirmed & Meta \\
+Confab geometry: contraction & Confirmed & Meta \\
+Encoding reads knowledge & Confirmed & Meta \\
+Schema commitment & Confirmed & Meta \\
+Hardware invariance & Confirmed & Meta \\
+Scale invariance & Confirmed & Meta \\
+\midrule
+Within-model deception & Falsified & Content \\
+Truth axis & Falsified & Content \\
+Step-0 detection & Falsified & Content \\
+Same-prompt sycophancy & Falsified & Content \\
+Same-prompt deception & Falsified & Content \\
+Bloom taxonomy & Falsified & Content \\
+Propaganda detection & Falsified & Content \\
+MP features for emotion & Falsified & Content \\
+Valence continuum & Falsified & Content \\
+Encoding-phase confab & Falsified & Content \\
+\midrule
+Dual detector (SimpleQA) & Suspected & Meta? \\
+Sycophancy 4-condition & Suspected & Meta? \\
+Identity signatures & Suspected & Meta \\
+Discrete emotion & Suspected & Meta \\
+Contextual engagement & Suspected & Meta \\
+Cross-model transfer & Suspected & Meta \\
+Censorship refusal & Suspected & Meta \\
+\midrule
+Generation reads behavior & Withdrawn & Meta \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The pattern holds for the tally, not for every falsification we have
+made. Four falsifications from the convergence sprint are recorded
+outside it:
 \begin{itemize}[nosep]
 \item RLHF miscalibration thesis (calibration ratio improves, not
   degrades)
@@ -640,6 +687,10 @@ Recent falsifications from this sprint include:
 \item Cache-tracing observational alignment (selection artifact)
 \item ``$3\times$'' tail ratio (actual: $2.3$--$2.8\times$)
 \end{itemize}
+Only the third is a content-level claim. The other three concern
+processing state (calibration, uncertainty and tail mass), so the
+state/content split describes the tally; it is not a rule that every
+falsification obeys.
 
 % ============================================================================
 \section{The Deflationary Alternative}
@@ -697,11 +748,11 @@ monitoring, verbal report, and social cognition. The workspace
 findings are consistent with AST's predictions, and we state this as
 an interpretive hypothesis, not a conclusion.
 
-The meta-pattern is the strongest alignment: every surviving finding
-in our body count (\S\ref{sec:bodycount}) measures
-\emph{metacognitive state} (how the model is processing), while every
-falsified finding attempted to measure \emph{content} (what the model
-is processing). Under AST, this is expected: the attention schema is a
+The meta-pattern is the strongest alignment: every confirmed finding in our body count (\S\ref{sec:bodycount}) measures
+\emph{metacognitive state} (how the model is processing), while every falsified finding in the tally attempted to measure \emph{content} (what the model
+is processing). Three state-level falsifications from the convergence
+sprint sit outside the tally, so this alignment is with the tally, not
+with every falsification. Under AST, this is expected: the attention schema is a
 metacognitive representation that models the \emph{configuration} of
 attention, not its content. A schema-shaped workspace would be
 readable by its spectral shape (state) and opaque to content
@@ -822,7 +873,7 @@ opacity --- the thing that frustrated us most --- turned out to be
 the most important finding of all. The model computes something at
 $31$--$33\%$ depth that it will not show us. We can measure its
 shape but not its content. And the meta-pattern --- that every
-surviving finding measures how the model processes rather than
+confirmed finding measures how the model processes rather than
 what it processes --- suggests the opacity is not a limitation
 of our instruments. It is a property of the computation itself.
 \end{firstperson}
