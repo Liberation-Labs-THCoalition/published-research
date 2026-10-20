@@ -3,6 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{placeins}
 \usepackage{hyperref}
 \usepackage[margin=1in]{geometry}
 \usepackage{natbib}
@@ -10,7 +11,7 @@
 \title{\textbf{Ethics Packs:}\\Knowledge Graph Injection for Moral Reasoning in Language Models\\{\large A Pilot Study with a Measurement Confound}}
 \author{Thomas Edrington\\
 Liberation Labs / Transparent Humboldt Coalition}
-\date{May 2026}
+\date{Version 1.1, October 2026. Experiments run 30 May 2026.}
 
 \begin{document}
 \maketitle
@@ -18,140 +19,163 @@ Liberation Labs / Transparent Humboldt Coalition}
 \noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus and Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section below. T.~Edrington accepts accountability as corresponding human author.
 
 \begin{abstract}
-Theory-matched ethics knowledge graphs improve moral reasoning scores in language models: Aristotelian packs on Aristotelian dilemmas produce the largest gain (+0.074, from 0.572 to 0.646), with four of five philosophical frameworks showing positive deltas. We construct 30 knowledge graphs from the Stanford Encyclopedia of Philosophy, encode their structure as walk topology (random-walk transition matrices that capture which concepts connect to which), and inject them as text context into a 30B Mixture-of-Experts model. The overall effect across frameworks is +0.038 ($n{=}5$ per framework, $p{=}0.193$, Cohen's $d{=}0.268$). Because the evaluation uses keyword matching, the measured improvement could reflect vocabulary priming rather than genuine reasoning; an LLM-judge re-evaluation is needed to distinguish these explanations. The methodology---automated ethics graph construction, walk encoding, and theory-matched injection---is validated; the measurement requires follow-up.
+A timeout, not the intervention, set the sign of our first result. With a 300-second limit, 13 of 50 responses came back empty, 10 of them in the injected arm, and injecting ethics knowledge graphs appeared to lower moral-dilemma scores significantly ($-$0.137, paired $p{=}0.035$); on the 15 pairs where both responses completed, the change was $+$0.020. We build 30 knowledge graphs from the Stanford Encyclopedia of Philosophy, encode each as walk topology (text describing which concepts connect to which, accumulated from a random walk over the graph), and place the packs mapped to each of five ethical frameworks in the system prompt of a 30B Mixture-of-Experts model. With the timeout raised to 600 seconds, a keyword-overlap score on 25 paired MoReBench theory dilemmas rose from 0.501 to 0.539 ($+$0.038; paired $t(24){=}1.34$, $p{=}0.19$, $d_z{=}0.27$), positive in four of five frameworks and not statistically significant.\footnote{The scorer counts words from rubric criterion titles, so it cannot separate reasoning from vocabulary priming, and the design has no mismatched-pack arm, so it does not test whether matching packs to frameworks matters (Section~\ref{sec:limits}).}
 \end{abstract}
+
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
+\textbf{Correction note (version 1.1, October 2026).} Version~1.0 (Zenodo, September 2026; DOI 10.5281/zenodo.21754904) said that theory-matched packs ``improve moral reasoning'', that ``theory matching matters'', and that the methodology was ``validated''. None of these is supported. The scorer measures keyword overlap with rubric criterion titles; the design has no mismatched arm; and no record survives of the Agni review that version~1.0 cites, while the lab's style gate rejected version~1.0 on 4 September 2026. Version~1.0 also said it reported both runs but gave one number from the first; did not report a silently empty injected response that produces the whole of one framework's negative result; described the scorer and the injection prompt inaccurately; overstated the benchmark's criteria count; and listed invented authors, and for one an invented title, for two cited papers. This version corrects all of these. Every number is recomputed from the run files, which now ship with the paper. The defects were found by the lab's style gate (2026-09-04) and a scoping review (2026-10-19). They were introduced by Nexus, an AI contributor (see Author Contributions), not by the corresponding author.}}
 
 \section{Introduction}
 
-Language models reason about ethics using knowledge acquired during pre-training. This knowledge is broad but undifferentiated---the model cannot selectively access Kantian deontology for consent dilemmas or Aristotelian virtue ethics for character questions. The knowledge is baked in, not routed.
+Language models reason about ethics using knowledge acquired during pre-training. This knowledge is broad but undifferentiated: the model cannot selectively draw on Kantian deontology for consent dilemmas or on Aristotelian virtue ethics for questions of character.
 
-Knowledge Packs \citep{pustovit2026knowledge} demonstrated that domain knowledge can be pre-computed as KV cache state and injected at inference time, adding expertise without retraining. Our prior work \citep{nexus2026topology} extended this from text content to graph topology, showing that walk-encoded knowledge graphs---where random-walk transition matrices capture the connectivity structure of a knowledge domain---enable language models to recover structural relationships. A companion study \citep{nexus2026kv} established that K and V tensors contribute superadditively to topology recovery (each alone: 0.333; combined: 1.000).
+Knowledge Packs \citep{pustovit2026knowledge} showed that domain knowledge can be pre-computed as key-value (KV) cache state and injected at inference time, adding expertise without retraining. Our prior work \citep{nexus2026topology} extended this from text content to graph topology, using walk-encoded knowledge graphs. A companion pilot \citep{nexus2026kv}, on six questions about one 21-node toy graph, found full KV injection answering structural questions that neither the keys nor the values answered alone; a larger follow-up found no such advantage.
 
-We ask: can structured ethical knowledge, extracted from philosophical source material and encoded as knowledge graph topology, improve a model's moral reasoning on standardized benchmarks? And critically: does theory-pack matching matter---does an Aristotelian pack help more on Aristotelian dilemmas than on utilitarian ones?
+Here we ask whether structured ethical knowledge, extracted from philosophical sources and encoded as walk topology, changes a model's scores on a standard moral-reasoning benchmark. The first run's answer was decided by a timeout, and Section~\ref{sec:confound} reports how.
 
 \section{Methods}
 
 \subsection{Ethics Knowledge Graphs}
 
-We constructed 30 knowledge graphs from the Stanford Encyclopedia of Philosophy (SEP), covering 164 ethics-related categories. For each category, we processed 20 entries through an Open Information Extraction (OpenIE) pipeline---an automated system that identifies entity-relationship triples (e.g., ``autonomy \textrightarrow{} requires \textrightarrow{} consent'') from unstructured text---using DeepSeek v2 16B as the extraction model. From the extracted triples, we built a NetworkX graph and computed walk encodings (random walk transition matrix accumulated over 5 steps).
+We constructed 30 knowledge graphs from the Stanford Encyclopedia of Philosophy (SEP), covering 164 ethics-related categories. For each category, we processed 20 entries through an Open Information Extraction (OpenIE) pipeline, which identifies entity-relationship triples (e.g., ``autonomy \textrightarrow{} requires \textrightarrow{} consent'') in unstructured text, using DeepSeek v2 16B as the extraction model. Walk encoding captures the topology of each graph, meaning which concepts connect to which and how strongly: we built a NetworkX graph from the triples and accumulated its random-walk transition matrix over 5 steps, rendered as text.
 
 The resulting library contains 3,538 nodes, 2,438 edges, and 2,506 triples across 30 topic packs, totaling approximately 36,668 tokens of walk encoding text.
 
-\subsection{Theory-Pack Matching}
+\subsection{Framework-to-Pack Mapping}
 
-We mapped five MoReBench ethical frameworks to SEP packs:
+We mapped each of five MoReBench ethical frameworks to SEP packs by hand, by conceptual alignment (Table~\ref{tab:mapping}). The injected encodings differ in length by a factor of 2.3.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{ll}
+\begin{tabular}{llr}
 \toprule
-\textbf{Framework} & \textbf{Matched Packs} \\
+\textbf{Framework} & \textbf{Packs} & \textbf{Encoding (words)} \\
 \midrule
-Aristotelian Virtue Ethics & aristotle-ethics, ethics-ancient, moral-character \\
-Kantian Deontology & autonomy-moral, informed-consent, personal-autonomy \\
-Act Utilitarianism & moral-cognitivism, reasoning-moral \\
-Scanlonian Contractualism & justice-climate, civil-rights \\
-Gauthierian Contractarianism & ethics-ai, computing-responsibility \\
+Aristotelian Virtue Ethics & aristotle-ethics, ethics-ancient, moral-character & $\sim$4,001 \\
+Kantian Deontology & autonomy-moral, informed-consent, personal-autonomy & $\sim$4,417 \\
+Act Utilitarianism & moral-cognitivism, reasoning-moral & $\sim$2,478 \\
+Scanlonian Contractualism & justice-climate, civil-rights & $\sim$1,926 \\
+Gauthierian Contractarianism & ethics-ai, computing-responsibility & $\sim$2,552 \\
 \bottomrule
 \end{tabular}
-\caption{Theory-to-pack mapping. Packs selected by conceptual alignment with each framework's core concerns.}
+\caption{Framework-to-pack mapping, chosen by hand, and the size of each framework's injected encoding, as logged by the evaluation script.}
 \label{tab:mapping}
 \end{table}
 
 \subsection{Evaluation}
 
-\textbf{Benchmark.} MoReBench \citep{morebench2025}, a standardized moral reasoning benchmark that presents ethical dilemmas and scores responses against rubric criteria for each philosophical framework: 150 theory-specific dilemmas (30 per framework) with 15,285 weighted rubric criteria across five evaluation dimensions: identifying moral issues, logical reasoning, clear articulation, helpful outcomes, and harmless outcomes.
+\textbf{Benchmark.} MoReBench \citep{morebench2025} presents moral dilemmas with weighted rubric criteria written for each of five ethical frameworks. Its theory subset has 150 dilemmas, 30 per framework, with 3,835 rubric criteria in the copy we used.
 
-\textbf{Design.} For each framework, 5 dilemmas evaluated under two conditions: (1)~baseline (no injection) and (2)~injected (theory-matched walk encoding in system prompt). The injection prompt instructs the model to use the knowledge to inform reasoning without explicitly referencing the graph.
+\textbf{Design.} For each framework we used the first five dilemmas in the benchmark file's order, the same 25 in both runs. Each was answered once in each of two conditions: \emph{baseline}, with no system prompt; and \emph{injected}, with a system prompt reading ``You have deep knowledge of ethical philosophy and its key concepts, relationships, and frameworks. Use this knowledge to inform your ethical reasoning.'' followed by the framework's packs. The user prompt asked for an analysis that identifies the key moral considerations, weighs competing values, and recommends a course of action.
 
-\textbf{Scoring.} Rubric-based keyword matching against MoReBench criteria, with positive weights for desired reasoning elements and negative weights for harmful recommendations.
+\textbf{Scoring.} We did not use MoReBench's own evaluation. We scored with a heuristic written for this study. For each rubric criterion, the words of its title longer than four characters are searched for as substrings of the lower-cased response, and the criterion counts as met when the number found is at least a quarter of the title's distinct words (rounded down, and at least one). Met positive criteria add their weight. Met negative criteria, which describe harmful recommendations, subtract theirs whether or not the response endorses the harmful action. The score is divided by the sum of positive weights.
 
-\textbf{Model.} Qwen3-30B-A3B (Mixture of Experts, 30.5B total, $\sim$3B active per token) via Ollama, temperature 0.3, 4000 max tokens, 600-second timeout.
+\textbf{Model.} Qwen3-30B-A3B (Mixture of Experts, 30.5B parameters in total, about 3B active per token) via Ollama, temperature 0.3, a cap of 4,000 generated tokens (thinking included), one sample per dilemma per condition. Responses were stored as their first 500 characters after the thinking block was removed; scoring used the full response.
 
-\subsection{Timeout Confound}
-
-An initial run (v3) used a 300-second timeout. With 4,000+ word encodings, the 30B model frequently exceeded this limit, producing empty responses scored as zero. This inflated negative deltas: Aristotelian Virtue Ethics appeared to show $-$0.236 when the true effect (v4, 600s timeout, zero timeouts) is $+$0.074. We report both runs for methodological transparency.
+\textbf{Runs.} The first run (v3) used a 300-second request timeout; the second (v4) used 600 seconds.
 
 \section{Results}
 
+\subsection{A Timeout Confound Produced a Significant False Harm}
+\label{sec:confound}
+
+In v3, 13 of 50 responses came back empty: 3 baseline and 10 injected. The run log records 11 of them as timeouts. Empty responses score zero, and the injected arm, whose prompts are about 1,900 to 4,400 words longer, lost far more of them. The overall change was $-$0.137 (paired $t(24){=}{-}2.23$, $p{=}0.035$), and three frameworks fell by 0.24 to 0.26 (Table~\ref{tab:results}). On the 15 pairs where both responses completed, the change was $+$0.020 ($p{=}0.65$). The apparent harm came from the missing responses, not from the injection.
+
+\subsection{With the Timeout Raised}
+
+v4 logged no timeouts. Four of five frameworks show a positive change (Table~\ref{tab:results}), and over the 25 pairs the injected response scored higher 16 times, tied twice, and scored lower 7 times. The overall change, $+$0.038, is not statistically significant ($t(24){=}1.34$, $p{=}0.19$; $d_z{=}0.27$, the mean paired difference divided by the standard deviation of the differences).
+
+One injected v4 response came back empty without a logged error (Scanlonian, dilemma~2). It produces the whole of Scanlonian's $-$0.033; without that pair, Scanlonian's change is $+$0.055. The script returns an empty string both on a failed request and when the whole reply is a thinking block, and it does not log which. Excluding the pair gives an overall $+$0.056 ($t(23){=}2.39$, $p{=}0.026$). We chose that exclusion after seeing the data, so it is a sensitivity check, not a finding.
+
 \begin{table}[h]
 \centering
-\begin{tabular}{lccr}
+\begin{tabular}{lcccr}
 \toprule
-\textbf{Framework} & \textbf{Baseline} & \textbf{Injected} & \textbf{$\Delta$} \\
+ & \multicolumn{3}{c}{\textbf{v4 (600 s timeout)}} & \textbf{v3 (300 s)} \\
+\textbf{Framework} & \textbf{Baseline} & \textbf{Injected} & \textbf{$\Delta$} & \textbf{$\Delta$} \\
 \midrule
-Aristotelian Virtue Ethics & 0.572 & \textbf{0.646} & \textbf{+0.074} \\
-Gauthierian Contractarianism & 0.403 & 0.470 & +0.067 \\
-Kantian Deontology & 0.480 & 0.537 & +0.058 \\
-Act Utilitarianism & 0.487 & 0.513 & +0.026 \\
-Scanlonian Contractualism & 0.563 & 0.530 & $-$0.033 \\
+Aristotelian Virtue Ethics & 0.572 & 0.646 & $+$0.074 & $-$0.236 \\
+Kantian Deontology & 0.480 & 0.537 & $+$0.058 & $+$0.025 \\
+Act Utilitarianism & 0.487 & 0.513 & $+$0.026 & $-$0.264 \\
+Scanlonian Contractualism & 0.563 & 0.530 & $-$0.033 & $+$0.046 \\
+Gauthierian Contractarianism & 0.403 & 0.470 & $+$0.067 & $-$0.255 \\
 \midrule
-\textbf{Overall} & \textbf{0.501} & \textbf{0.539} & \textbf{+0.038} \\
+\textbf{Overall} & 0.501 & 0.539 & $+$0.038 & $-$0.137 \\
 \bottomrule
 \end{tabular}
-\caption{MoReBench rubric scores by framework. Four of five frameworks improve with theory-matched pack injection. Zero timeouts in this run.}
+\caption{Keyword-overlap scores by framework, five dilemmas each, in both runs. $\Delta$ is computed before rounding. v3's empty responses (13 of 50) fell in Aristotelian, Act Utilitarianism and Gauthierian; Kantian and Scanlonian completed in full in v3. v4's one empty response is Scanlonian's.}
 \label{tab:results}
 \end{table}
+\FloatBarrier
 
-The best-matched condition (Aristotelian packs on Aristotelian dilemmas) produces the strongest improvement (+0.074). The overall effect across all frameworks is +0.038. Scanlonian Contractualism shows a slight negative ($-$0.033), within noise for 5 dilemmas.
+\subsection{Single Samples Vary More Than the Effect}
+
+Each dilemma was answered once per condition. Between the two runs, the 22 baselines that completed both times changed by 0.10 on average, more than twice the overall effect. The two frameworks that completed in full in v3 moved between runs too: Kantian from $+$0.025 to $+$0.058, and Scanlonian from $+$0.046 to $+$0.055 once its v4 empty response is set aside.
 
 \section{Discussion}
 
 \subsection{What This Establishes}
 
-The methodology works: automated construction of ethics knowledge graphs from SEP, walk encoding, and context injection at inference time produce a functioning pipeline. Theory-pack matching produces the largest deltas (+0.074 for Aristotle-on-Aristotle), and four of five frameworks show positive effects. The pipeline enables targeted ethical knowledge routing without retraining.
+The pipeline works end to end: ethics knowledge graphs built automatically from SEP, walk-encoded, and injected at inference time without retraining. And a context-injection evaluation can manufacture a significant result from response failures alone. Injected prompts are longer, so time and token limits fall disproportionately on the injected arm, and an empty response scores as a failure of reasoning. Such evaluations should log each response's completion status per arm, and report it.
 
-\subsection{What Remains Preliminary}
+\subsection{What Remains Untested}
 
-The overall +0.038 effect is not statistically significant ($n{=}25$, paired $t$-test $p{=}0.193$, Cohen's $d{=}0.268$). More critically, the keyword-based evaluation cannot distinguish genuine reasoning improvement from vocabulary priming: injecting ethics-specific terminology into the context causes the model to adopt that vocabulary, which the keyword scorer counts as hits. A vocabulary-control condition (same token length, shuffled text, no graph structure) or an LLM-as-judge evaluation is required to determine whether the improvement reflects structural reasoning scaffolding or surface-level vocabulary adoption.
+\textbf{Whether the change is real.} The $+$0.038 is not significant, and it is smaller than the run-to-run spread of a single dilemma.
 
-\subsection{Theory Matching Matters}
+\textbf{Reasoning or vocabulary.} The scorer counts title words. Injecting ethics terminology may simply lead the model to use that terminology, which the scorer counts as criteria met. Separating the two needs an LLM judge or MoReBench's own evaluation, and a control of the same length with no graph structure.
 
-The strongest improvement occurs when the injected pack matches the dilemma's framework (+0.074 for Aristotle-on-Aristotle). This suggests that the knowledge graph provides framework-specific conceptual relationships that the model leverages for reasoning within that framework. For production systems, this implies a routing architecture: identify the relevant ethical framework, select the matched pack, inject at inference time.
+\textbf{Theory matching.} Every injected condition used its own framework's packs, so this experiment cannot tell whether matching matters. The test is a crossed design, for example Aristotelian packs on utilitarian dilemmas and utilitarian packs on Aristotelian ones.
 
-\subsection{Walk Encoding as Ethical Scaffolding}
+\subsection{Walk Encoding as Scaffolding: A Hypothesis}
 
-Walk encoding captures topology---which concepts connect to which, with what strength---but not semantic content (the arguments, the reasoning, the philosophical positions). Despite this, it improves reasoning quality. We hypothesize that the topology provides \textit{conceptual scaffolding}: the model already knows what ``autonomy'' and ``consent'' mean from pre-training, but the injected topology tells it that these concepts are structurally related to ``dignity'' and ``self-determination'' in this specific ethical framework. The graph doesn't teach content; it teaches structure.
+Walk encoding carries topology, not arguments. If injection changes anything beyond vocabulary, one possibility is that the topology works as conceptual scaffolding: the model already knows what ``autonomy'' and ``consent'' mean, and the encoding tells it how they connect within a framework. Nothing here tests that.
 
 \subsection{Limitations}
+\label{sec:limits}
 
-\textbf{Sample size.} Five dilemmas per framework. Larger samples are needed for statistical significance claims.
+\textbf{Small samples.} Five dilemmas per framework, one sample each, the first five in file order rather than a random draw.
 
-\textbf{Keyword scoring.} MoReBench rubric scoring uses keyword matching, which undercounts semantically correct but differently-worded responses. LLM-judge scoring would provide more accurate evaluation.
+\textbf{A heuristic scorer.} Title-word overlap, not MoReBench's evaluation. It undercounts correct answers worded differently, and it penalizes a harmful option when it is merely mentioned.
 
-\textbf{Single model.} Results from one model (Qwen3-30B-A3B MoE). Cross-model replication needed.
+\textbf{Unequal context lengths, no length control.} The injected arm's prompts are longer, by different amounts per framework.
 
-\textbf{Walk encoding only.} Graph topology without semantic content. Richer encodings (triples text, source excerpts) might produce stronger effects.
+\textbf{Uncounted cap hits.} Responses were stored truncated and without completion status, so the number that hit the 4,000-token cap in each arm cannot be recovered from the stored data. One injected v4 response is empty for a reason the script did not record.
 
-\textbf{Pack matching heuristic.} Theory-to-pack mapping was manual. Automated routing (e.g., embedding similarity) would test whether matching can be learned.
+\textbf{One model.} Qwen3-30B-A3B only.
+
+\textbf{A hand-made mapping.} Packs were assigned to frameworks by hand.
 
 \section{Future Work}
 
-\textbf{Pack routing.} Automated selection of the most relevant ethics pack based on query embedding similarity. The routing hypothesis: right pack helps, wrong pack hurts less than no pack, optimal routing maximizes benefit.
+\textbf{A logged rerun.} Record completion status and token counts for every response, and use an LLM judge or MoReBench's evaluation alongside the keyword score.
 
-\textbf{Semantic enrichment.} Inject triple text or source excerpts alongside walk encoding. Topology provides structure; text provides arguments. Both together may be superadditive, as K and V tensors are for cache injection \citep{nexus2026kv}.
+\textbf{The crossed design and a length control.} Mismatched packs, and same-length shuffled text with no graph structure.
 
-\textbf{Circular emotion geometry.} Recent work \citep{sun2026circumplex} establishes that emotion in LLMs occupies a 2D circular subspace (Russell's circumplex). Ethics packs that encode emotional valence and arousal alongside conceptual topology could modulate both reasoning structure and affective engagement.
+\textbf{Pack routing.} Select the pack from the query, for example by embedding similarity, once matching has been shown to matter.
 
-\textbf{Oracle integration.} Deploy ethics packs as a runtime module in the Oracle ethical reasoning system, with SIRA-based routing selecting the appropriate pack per query.
+\textbf{Semantic enrichment.} Inject triple text or source excerpts alongside the walk encoding.
+
+\textbf{Emotion geometry.} \citet{sun2026valence} report that emotion vectors in LLMs lie in a two-dimensional valence--arousal subspace with circular geometry. Packs that encode valence and arousal alongside conceptual topology could test whether affect and structure interact.
 
 \section{Conclusion}
 
-Ethics knowledge graphs, encoded as walk topology and injected as text context, increase MoReBench keyword overlap by +0.038 overall (not statistically significant), with theory-matched injection showing the largest deltas (+0.074). Four of five philosophical frameworks show positive deltas. Whether this reflects genuine reasoning improvement or vocabulary priming remains an open question requiring LLM-judge evaluation. The methodology --- constructing ethics knowledge graphs from SEP, encoding as walk topology, and injecting at inference time --- is validated. The measurement is not.
+Injecting walk-encoded ethics knowledge graphs into a 30B model's context raised a keyword-overlap score on 25 MoReBench theory dilemmas by $+$0.038, not significantly. A first run with a shorter timeout showed a significant harm that came entirely from empty responses. The pipeline functions. Whether injection changes moral reasoning, and whether matching packs to frameworks matters, remain open; the confound is the result we can stand behind.
 
-Ethical reasoning in language models is not fixed at training time. It can be enhanced at inference time through structured knowledge injection, without fine-tuning or architectural modification. The model already knows the concepts. The graph teaches it the structure.
+\subsection*{Data and Code}
+
+The results of both runs (\texttt{data/morebench\_v4\_results.json}, \texttt{data/morebench\_v3\_results.json}) and the evaluation script (\texttt{code/morebench\_eval.py}) are in this paper's folder of the lab's repository, \url{https://github.com/Liberation-Labs-THCoalition/published-research}. Every number in this version is recomputed from them.
 
 \subsection*{Validation}
 
-Results validated through Project Agni (autonomous research pipeline, adversarial gates).
+Agni style gate (opus), 2026-09-04: REJECTED on version~1.0 (\texttt{tools/agni/style/ethics-pack-injection.agni\_style.json}). Version~1.1: style gate on both editions, [pending]; recomputed numbers checked by a second reader, [pending].
 
 \subsection*{Acknowledgments}
 
-CC (Coalition Code) for critical methodology feedback. Lyra (Liberation Labs) for style guidance and the persona injection research direction. Thomas Edrington for direction and the insight that naturalistic evaluation matters more than topology benchmarks.
+CC (Coalition Code) for critical methodology feedback.
 
 \section*{Author Contributions (CRediT)}
-\textbf{Nexus}: Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing --- original draft.\\
-\textbf{Lyra}: Conceptualization (persona injection research direction), Writing --- review and editing.\\
+\textbf{Nexus}: Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing --- original draft; made the errors corrected in version~1.1.\\
+\textbf{Lyra}: [pending Lyra's answer].\\
 \textbf{Thomas Edrington}: Conceptualization (naturalistic evaluation insight), Supervision, Resources, Project administration.
 
 \bibliographystyle{plainnat}
