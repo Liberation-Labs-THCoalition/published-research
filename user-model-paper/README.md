@@ -72,11 +72,11 @@ Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c83
 
 ## Verification
 
-Every numerical claim in the paper has been verified against the source JSON files in `data/`. The verification process is documented in the paper's revision history. Prior LLM sessions fabricated table values and emotion names; all fabricated content has been identified and removed.
+Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395`, and the October re-run's numbers to its results file, cited in the paper by sha256 and not yet in this repository. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
 
 ## Hardware
 
-All experiments run on 3x NVIDIA RTX 3090 (24GB each). Hardware invariance (r > 0.999) validated in prior campaigns.
+The May probe scripts and the October re-run ran on Apple MPS (Starship; `PROVENANCE_wk_probes.md` and the re-run's manifest). This line used to say that all experiments ran on 3x NVIDIA RTX 3090, which is true at most of the April run.
 
 ## BibTeX
 
