@@ -88,10 +88,12 @@ regression on the raw residual stream reaches 49.4\% on the 30 emotions,
 above the cache probe's 35.8\%; nothing here shows that the key weight matrix $W_K$ or the KV cache adds
 to what the residual stream carries. Projected through $W_K$,
 residual-stream emotion directions line up with the emotions' assigned
-valence ($|\rho| = 0.862$ for the leading component at layer~35), but a
-direct test found that this projection does not predict the cache's
-measured geometry (Mantel $\rho = 0.090$), so it remains a candidate
-route by which emotion enters the cache, not an established one. The
+valence ($|\rho|$ up to 0.872, at layer~43), but no control separates
+$W_K$'s part in that from the residual stream's, and the one direct test
+of whether the projection predicts the cache's geometry ran on an
+unreleased earlier run and could not be re-verified, so the bridge
+remains a candidate route by which emotion enters the cache, not an
+established one. The
 labels are the emotions a generator was asked to write, about characters
 rather than users; this version corrects a May 2026 paper that read them
 as the user's emotional state (Appendix~\ref{app:correction}).
@@ -110,7 +112,7 @@ as the user's emotional state (Appendix~\ref{app:correction}).
 
 Large language models respond differently to users expressing different emotional states. A panicked user receives reassurance; an angry user receives de-escalation; a curious user receives elaboration. This behavioral sensitivity suggests that models represent the emotional content of what users send them. Where does such a representation live, and how much of it goes beyond the words themselves?
 
-We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026detecting}. The spectral structure of the cache is hardware-invariant ($r > 0.999$), scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B), and survives confound correction via Frisch--Waugh--Lovell (FWL) residualization \citep{frisch1933partial,lovell1963seasonal} and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
+We investigate the KV cache: the key--value tensor pairs accumulated during autoregressive inference. Prior work establishes that the KV cache encodes deterministic, architecture-invariant signatures of processing mode---distinguishing confabulation from hedged responses, and ethical deliberation from routine processing \citep{lyra2026detecting}. The spectral structure of the cache is hardware-invariant ($r > 0.999$) and scale-consistent ($\rho = 0.83$--$0.90$ from 0.6B to 70B) \citep{lyra2026detecting}, and survives confound correction via Frisch--Waugh--Lovell (FWL) residualization \citep{frisch1933partial,lovell1963seasonal} and Marchenko-Pastur random matrix theory \citep{lyra2026oracle}.
 
 Separately, \citet{anthropic2026emotions} demonstrate that functional emotion concepts are linearly represented in transformer residual streams, organized along valence and arousal axes. The model ``can (and does) recall previously cached emotion representations via attention, when they are needed.'' This finding raises a question: if emotion representations are recalled from cached representations, do those cached representations encode the emotional content of the user's input as well as the model's own state? Our design tests a narrower proxy. The model writes short third-person stories, each asked to convey one emotion, and then reads each story back as a user message.
 
@@ -168,7 +170,7 @@ Knowledge distillation \citep{hinton2015distilling} transfers capabilities from 
 
 \subsection{Model and Motivation}
 
-We use Qwen3.5-27B-Claude-Distilled,\footnote{Community distillation by ``Jackrong'' on HuggingFace, ``Qwen3.5'' is the distiller's designation, not an official Alibaba release; the model is built on the Qwen3 architecture \citep{qwen2025distill}.} a 27B-parameter model distilled from Claude Opus 4.6. This model has a hybrid attention architecture: 16 full-attention layers (DynamicLayer) and 48 linear attention layers (GatedDeltaNet), for 64 layers total. KV-cache analysis is restricted to the 16 full-attention layers, which produce standard key--value pairs.
+We use Qwen3.5-27B-Claude-Distilled,\footnote{\texttt{Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled} on Hugging Face \citep{qwen35distilled}, snapshot \texttt{ad356102}: a fine-tune of the Qwen team's \texttt{Qwen/Qwen3.5-27B} \citep{qwen35base} on reasoning traces from Claude Opus 4.6 (the model card lists \texttt{nohurry/Opus-4.6-Reasoning-3000x-filtered} and \texttt{Jackrong/Qwen3.5-reasoning-700x}). ``Distilled'' is the fine-tuner's word. Its architecture class is \texttt{Qwen3\_5}, a hybrid of gated-DeltaNet and full-attention layers, not the Qwen3 architecture of the technical report the May version cited.} a 27B-parameter model fine-tuned on reasoning traces from Claude Opus 4.6. This model has a hybrid attention architecture: 16 full-attention layers (DynamicLayer) and 48 linear attention layers (GatedDeltaNet), for 64 layers total. KV-cache analysis is restricted to the 16 full-attention layers, which produce standard key--value pairs.
 
 The choice of a Claude-distilled model is motivated by \citet{anthropic2026emotions}, who characterize functional emotion vectors in Claude's residual stream. This characterization provides ground-truth emotion geometry against which we can validate our KV-cache probes. No comparable published emotion vector characterization exists for other model families.
 
@@ -185,7 +187,7 @@ We generate 900 trials spanning 30 emotions (elated, calm, hostile, panicked, et
 
 (Prompts: \texttt{SYSTEM\_PROMPT} and \texttt{make\_story\_prompt} in \texttt{code/emotion\_geometry\_bridge.py}, lines 230--243 at this commit. The May version described a different prompt, which no committed script used; Appendix~\ref{app:correction}, item~\ref{app:item:prompts}.)
 
-\textbf{Two generation runs.} The $W_K$ bridge (\S\ref{sec:bridge_method}, \Cref{tab:bridge}), the spectral and regression analyses and the hypothesis outcomes come from an April 2026 run of this protocol (results files dated 6 and 18 April, in \texttt{data/}). The probes, the text (TF-IDF) baselines and the October re-run use the trials file of a separate May 2026 run of the same protocol (900 trials; sha256 \texttt{fc5938fe\ldots}).
+\textbf{Two generation runs.} The $W_K$ bridge (\S\ref{sec:bridge_method}, \Cref{tab:bridge}), the spectral and regression analyses and the hypothesis outcomes come from an April 2026 run of this protocol (results files dated 6 and 18 April, in \texttt{data/}). The one direct test of the bridge, and two hypothesis values, come from an earlier 300-trial run whose results are not released (\S\ref{sec:bridge_results}). The probes, the text (TF-IDF) baselines and the October re-run use the trials file of a separate May 2026 run of the same protocol (900 trials; sha256 \texttt{fc5938fe\ldots}).
 
 \textbf{What the labels are.} Each trial's label is the emotion the generator was asked to write. No reader, human or model, has checked that the stories express it: the driver's design lists a behavioral check (``C3: Behavioral verification (do stories actually contain the emotion?)'', line~81) against its own risk that the model may not reliably write emotional stories (lines~91--92), and nothing implements it. The stories describe a third-person character. Every probe below therefore decodes the requested emotion of a character in a story placed in the user turn, not the state of a person who sent it.
 
@@ -235,7 +237,7 @@ Following the probing methodology of \citet{belinkov2022probing}, we train linea
 
 For each layer, we extract 3 raw SVD features (Frobenius norm, effective rank, spectral entropy) from encoding-phase and generation-phase cache windows separately. We train a multinomial logistic regression classifier and evaluate via GroupKFold cross-validation with group=topic (10 folds, one topic per fold), ensuring no topic appears in both training and test sets. Chance level is $1/30 = 0.033$. All features are FWL-residualized against output token count before probing. The per-layer results of this analysis, and the 120-configuration sweep that extended it, are withdrawn (\S\ref{sec:spectral_null}).
 
-\textbf{Critical correction: within-fold FWL.} An initial analysis applied FWL residualization \emph{before} cross-validation splitting, allowing test-fold residuals to be computed using training-fold statistics. This inflated apparent classification accuracy. All results reported here use \emph{within-fold} FWL: residualization parameters are estimated on the training fold and applied to the test fold, eliminating information leakage.
+\textbf{Within-fold FWL.} The May version said an initial analysis fitted FWL before the cross-validation split and that this inflated accuracy; that mechanism cannot now be re-verified (\S\ref{sec:spectral_null}, Correction note). The October re-run fits FWL within each training fold and applies it to the test fold. Whether the April analyses behind \Cref{tab:regression} did the same cannot be checked, because their script is not available.
 
 \subsubsection{Spectral Features on Story Re-Encodings}
 
@@ -265,7 +267,7 @@ For each emotion and each layer, the emotion vector is the mean activation over 
 \subsubsection{$W_K$ Bridge Analysis}
 \label{sec:bridge_method}
 
-We project the emotion difference vectors through the key projection matrix $W_K$ at each layer, then perform PCA on the projected vectors. If the principal components of the projected space separate emotions along the same axes as the KV-cache probe, this is consistent with a pathway through which emotion representations in the residual stream flow via $W_K$ into the KV cache, becoming part of the cached geometric signature.
+We project the emotion difference vectors through the key projection matrix $W_K$ at each layer, then perform PCA on the projected vectors. As coded (\texttt{project\_emotion\_to\_key\_space}, bridge lines 574--592), $W_K$ multiplies each decoder layer's \emph{output}, averaged over positions $\geq 50$ (bridge lines 467--480), at the same layer. In the model, the key projection at a layer reads that layer's input after its input normalization, an RMSNorm with a learned gain; so the projected vectors are not the inputs $W_K$ receives. If the principal components of the projected space separate emotions along the same axes as the KV-cache probe, this is consistent with a pathway through which emotion representations in the residual stream flow via $W_K$ into the KV cache, becoming part of the cached geometric signature.
 
 \subsection{Preregistered Re-Run (October 2026)}
 \label{sec:rerun_method}
@@ -344,7 +346,7 @@ On story re-encodings, n-matched spectral features of the keys do not classify t
 
 That flag needs a caveat. The registered rule calls a significant set possibly length-confounded when the length covariates alone (0.053) reach the set's detection threshold, and they do in 15 of the 17 sets, so at these thresholds the rule would have flagged any significant set. All 16 layers together reach 0.112 (permutation $p = 0.0002$, topic control passed), and 12 of the 17 sets have $p < 0.05$ before correction. The spectral question on story re-encodings is open, not settled in either direction, and none of this is read as a signal.
 
-\textbf{Correction note.} An initial analysis applied FWL residualization before cross-validation splitting, allowing test-fold residuals to reflect training-fold statistics. This inflated apparent accuracy to $2.5$--$2.8\times$ chance (e.g., 9.4\% at L3 on Qwen, 8.4\% at L4 on Mistral). The initial results, which appeared in an earlier version of this paper, were artifacts of information leakage, not genuine signal. The within-fold re-analysis that replaced them is the per-layer table withdrawn above.
+\textbf{Correction note.} An earlier version of this paper reported per-layer spectral accuracies of $2.5$--$2.8\times$ chance (e.g., 9.4\% at L3 on Qwen, 8.4\% at L4 on Mistral), and the May version attributed them to fitting FWL residualization before the cross-validation split. They remain withdrawn as evidence of emotion signal, but that mechanism cannot be re-verified: the April analysis script and per-trial data are not available, and a residualization on token count uses no labels, so it is not established that fitting it before the split could produce the effect. The within-fold re-analysis that replaced them is the per-layer table withdrawn above.
 
 \subsection{Valence Regression from Spectral Features}
 
@@ -378,25 +380,37 @@ The story re-encoding analysis proposes a route by which emotion enters the KV c
 
 \begin{table}[H]
 \centering
-\caption{$W_K$ bridge analysis: PCA on emotion vectors projected through $W_K$. PC1 captures increasing variance with depth and correlates with valence at all layers ($|\rho| > 0.45$). PC2 correlates with arousal ($|\rho| > 0.76$ at layers~35--63).}
+\caption{$W_K$ bridge analysis, all 16 full-attention layers (April run, \texttt{data/qwen\_emotion\_bridge\_summary.json}): PCA on the 30 emotion vectors projected through $W_K$. PC1's share of variance broadly increases with depth (not monotonically), and PC1 correlates with the emotions' assigned valence at every layer ($|\rho| > 0.45$), most strongly at layer~43 (bold). PC2 correlates with assigned arousal at $|\rho|$ between 0.72 and 0.82 from layer~19 on. The sign of a principal component is arbitrary. There is no unprojected or random-matrix control.}
 \label{tab:bridge}
 \begin{tabular}{rccccl}
 \toprule
 \textbf{Layer} & \textbf{Depth} & \textbf{PC1 Var} & \textbf{Top-3 Var} & \textbf{PC1--Val $\rho$} & \textbf{PC2--Aro $\rho$} \\
 \midrule
  3 & 0.05 & 28.8\% & 58.6\% & $0.458$ & $0.279$ \\
-35 & 0.56 & 36.2\% & 59.0\% & $\mathbf{0.862}$ & $0.769$ \\
+ 7 & 0.11 & 28.7\% & 55.1\% & $-0.534$ & $0.141$ \\
+11 & 0.17 & 30.4\% & 54.8\% & $-0.574$ & $-0.407$ \\
+15 & 0.24 & 32.6\% & 56.6\% & $0.695$ & $0.688$ \\
+19 & 0.30 & 34.6\% & 57.3\% & $0.786$ & $0.731$ \\
+23 & 0.37 & 33.8\% & 57.3\% & $0.765$ & $-0.724$ \\
+27 & 0.43 & 32.3\% & 56.9\% & $0.830$ & $0.752$ \\
+31 & 0.49 & 35.4\% & 59.0\% & $0.852$ & $0.812$ \\
+35 & 0.56 & 36.2\% & 59.0\% & $0.862$ & $0.769$ \\
+39 & 0.62 & 35.3\% & 58.4\% & $0.859$ & $0.816$ \\
+43 & 0.68 & 34.9\% & 58.3\% & $\mathbf{-0.872}$ & $0.822$ \\
+47 & 0.75 & 37.7\% & 60.6\% & $0.866$ & $0.767$ \\
+51 & 0.81 & 37.8\% & 60.7\% & $0.850$ & $0.769$ \\
 55 & 0.87 & 37.9\% & 61.5\% & $-0.851$ & $0.777$ \\
+59 & 0.94 & 37.0\% & 61.1\% & $-0.817$ & $0.716$ \\
 63 & 1.00 & 38.7\% & 62.1\% & $-0.833$ & $0.759$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-At layer~35---mid-network depth---PC1 of the projected emotion space correlates strongly with valence ($\rho = 0.862$, $p < 10^{-9}$), indicating that projection through $W_K$ preserves a valence axis.
+PC1 of the projected emotion space correlates with the emotions' assigned valence at every layer. The strongest alignment is at layer~43 ($|\rho| = 0.872$, $p < 10^{-9}$), and $|\rho|$ stays between 0.82 and 0.87 from layer~27 to layer~63. Without the same analysis on the unprojected vectors, or on random matrices of $W_K$'s shape, this does not show that the projection through $W_K$ creates or preserves the axis: the unprojected residual vectors may carry it already.
 
-PC1 remains valence-aligned at all depths ($|\rho| > 0.45$), with the sign flipping at deeper layers (positive at L35, negative at L55--63). PC2 tracks arousal, strengthening from $\rho = 0.279$ at L3 to $\rho = 0.769$ at L35. The valence signal in PC1 and the arousal signal in PC2 both strengthen with depth, indicating that the $W_K$ projection increasingly separates the circumplex dimensions at deeper layers.
+PC1 remains valence-aligned at all depths ($|\rho| > 0.45$). Its sign is negative at layers 7, 11, 43 and 55--63, which carries no meaning, since the sign of a principal component is arbitrary. PC2 tracks arousal, from $|\rho| = 0.279$ at L3 to between 0.72 and 0.82 from layer~19 on. Both alignments strengthen over the first half of the network and then hold.
 
-Whether this projected structure is the route by which emotion enters the cache was tested directly, on the 300-trial run. The preregistered criterion (H4) was a cosine above $0.3$ between the projected PC1 and the PC1 of the measured cache geometry. The mean alignment is $0.456$, permutation-significant at 9 of 16 layers but at only 2 of 16 after Bonferroni correction. A stricter test, added afterwards, asks whether the projected space predicts the pairwise distance structure of the measured geometry, and it does not: Mantel $\rho = 0.090$, with 0 of 16 layers significant, and $W_K$ preserves that structure worse than a random matrix does ($z = -3.03$). The leading valence direction partly carries over; the full geometry does not. The bridge is a candidate pathway with partial support, not an established one.
+Whether this projected structure is the route by which emotion enters the cache was tested directly once, on an earlier 300-trial run. That run's results and its test script are not released with this paper, and the numbers below could not be re-verified for this version; nothing in this paper rests on them. The preregistered criterion (H4) was a cosine above $0.3$ between the projected PC1 and the PC1 of the measured cache geometry; the reported mean alignment was $0.456$, permutation-significant at 9 of 16 layers and at 2 of 16 after Bonferroni correction. A stricter test, added afterwards, asked whether the projected space predicts the pairwise distance structure of the measured geometry; the reported Mantel $\rho$ was $0.090$, with 0 of 16 layers significant, and $W_K$ preserved that structure worse than a random matrix ($z = -3.03$). Without a verified direct test, the bridge is a candidate pathway, not an established one.
 
 \subsection{Differential Encoding Shows Uniform Feature Variance}
 
@@ -527,7 +541,7 @@ Three things would let a later version of this work speak about a user model: la
 
 \subsection{What Was Wrong and What It Revealed}
 
-The initial analysis of spectral features reported classification at $2.5$--$2.8\times$ chance. This was driven by a methodological error: FWL residualization was applied before cross-validation splitting, allowing test-fold residuals to carry information from training-fold statistics. Within-fold FWL---estimating residualization parameters on the training fold only---removes that leakage. The initial $94\%$ residual-stream probe accuracy was similarly inflated by this leakage.
+The initial analysis of spectral features reported classification at $2.5$--$2.8\times$ chance, and the May version attributed it to fitting FWL before the cross-validation split; as the Correction note (\S\ref{sec:spectral_null}) explains, that mechanism cannot now be re-verified. The May version also said an initial residual-stream probe's $94\%$ accuracy was inflated the same way. Its results file (\texttt{data/baseline\_residual\_probe\_results.json}) records no FWL step, 894 trials and a different set of 30 emotions (ten of them not in this paper's set), so that explanation is not supported, and the $94\%$ is not comparable with this paper's stories.
 
 The October 2026 correction is a different kind of error. The May version described a probe it had not run, compared it with chance rather than with the words, and read a requested label as a user's state. Each of these was visible in the scripts, which were not committed until October 2026. Two practices follow, and both now hold for the probe results (\S\ref{sec:wk_results}--\ref{sec:where}): each number cites the committed script that produced it, and each cache probe is compared with a text (TF-IDF) baseline before it is compared with chance. The older analyses (\Cref{tab:regression,tab:bridge}, the hypothesis outcomes and the implicit arm) do not yet meet either.
 
@@ -539,17 +553,17 @@ Critically, this finding is bounded by the single-turn experimental design. Each
 
 \subsection{The $W_K$ Bridge as Candidate Pathway}
 
-The $W_K$ bridge analysis proposes a pathway through which emotion enters the cache. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. When emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along valence ($|\rho| = 0.862$ at L35).
+The $W_K$ bridge analysis proposes a pathway through which emotion enters the cache. The key projection matrix $W_K$ is the linear transformation that maps residual-stream activations to key vectors. When emotion difference vectors from the residual stream are projected through $W_K$, the resulting space separates emotions along assigned valence ($|\rho|$ up to 0.872, at L43), but without an unprojected or random-matrix control, $W_K$'s contribution to that alignment is unknown.
 
-What has not been shown is that this projection accounts for the cache's measured geometry: the direct test found the leading direction partly carried over (mean cosine $0.456$) but not the distance structure (Mantel $\rho = 0.090$; \S\ref{sec:bridge_results}). Nor does a probe built on the projected directions read more than text (TF-IDF) (\S\ref{sec:wk_results}), and the raw residual stream, without $W_K$, reads more than that probe (exploratory; \S\ref{sec:where}). The bridge remains a candidate route.
+What has not been shown is that this projection accounts for the cache's measured geometry: the one direct test ran on an unreleased 300-trial run and could not be re-verified (\S\ref{sec:bridge_results}). Nor does a probe built on the projected directions read more than text (TF-IDF) (\S\ref{sec:wk_results}), and the raw residual stream, without $W_K$, reads more than that probe (exploratory; \S\ref{sec:where}). The bridge remains a candidate route.
 
-The $W_K$ bridge signal strengthens through mid-to-deep layers: PC1--valence correlation rises from $|\rho| = 0.458$ at L3 to $|\rho| = 0.862$ at L35, remaining strong through L63 ($|\rho| = 0.833$).
+The PC1--valence correlation rises from $|\rho| = 0.458$ at L3 to between 0.82 and 0.87 from layer~27 to layer~63.
 
 \subsection{Comparison with Residual-Stream Probing}
 
 The May version argued that the cache probe bridged spectral and residual-stream probing: that it read the cache through the architecture's own projection geometry, and that the injection test confirmed what it read as model state, a validation no residual-stream probe could provide. Both parts are withdrawn (\S\ref{sec:injection_results}; Appendix~\ref{app:correction}). The exploratory comparison now runs the other way. A logistic regression on the raw residual stream at the same layers reads the 30 emotions at 0.494, against 0.358 for the described cache probe (exploratory; \S\ref{sec:where}). Standard residual-stream probes operate on the full hidden state and need no projection, and nothing here shows that the cache probe adds to them.
 
-Spectral features retain their value for cognitive-mode monitoring: they discriminate confabulation and ethical deliberation without retraining \citep{lyra2026oracle}, with the compute efficiency of 3 features per layer.
+Spectral features retain their value for cognitive-mode monitoring: the Oracle Loop uses them to detect confabulation \citep{lyra2026oracle}, with the compute efficiency of 3 features per layer.
 
 \subsection{Limitations}
 \label{sec:limitations}
@@ -565,7 +579,7 @@ Spectral features retain their value for cognitive-mode monitoring: they discrim
 
     \item \textbf{No causal intervention.} We do not test whether reading (or modifying) the cache representation causally alters the model's behavioral response. Causal ablation studies would be needed to show that the cache representation is functionally consequential for output.
 
-    \item \textbf{Pre-registered hypothesis outcomes.} The experiment preregistered eight hypotheses (the driver's docstring, \texttt{emotion\_geometry\_bridge.py}); it gives numeric thresholds for H1--H4, and H5--H8 were scored against thresholds set at analysis time. On the 900-trial run this paper reports, four failed on spectral features: H1 (emotions cluster, k-means ARI $> 0.15$) at $0.011$, although it passed at $0.219$ in the earlier 300-trial run; H2 (a principal component recovers valence, $|\rho| > 0.40$) at $0.240$; H3 (one recovers arousal, $|\rho| > 0.30$) at $-0.215$; and H6 (delta features show emotion-dependent structure, $|\rho| > 0.25$) at $-0.206$, a sign flip from $0.192$. H5 (misalignment-relevant emotions separate from prosocial ones) passed at AUROC $0.822$, and H8 (effects survive FWL) passed. H4 and H7 were scored on the 300-trial run only: H7 (signal peaks past 50\% depth) was marginal at $42.9\%$, and H4 (the $W_K$ bridge) met its preregistered cosine threshold on average but not robustly, and failed a stricter test added afterwards (\S\ref{sec:bridge_results}). The probes, developed after these results, were not preregistered in May; their October 2026 re-run was (\S\ref{sec:rerun_method}).
+    \item \textbf{Pre-registered hypothesis outcomes.} The experiment preregistered eight hypotheses (the driver's docstring, \texttt{emotion\_geometry\_bridge.py}); it gives numeric thresholds for H1--H4, and H5--H8 were scored against thresholds set at analysis time. On the 900-trial run this paper reports, four failed on spectral features: H1 (emotions cluster, k-means ARI $> 0.15$) at $0.011$ (it was reported to pass at $0.219$ on an earlier 300-trial run whose results are not released); H2 (a principal component recovers valence, $|\rho| > 0.40$) at $0.240$; H3 (one recovers arousal, $|\rho| > 0.30$) at $-0.215$; and H6 (delta features show emotion-dependent structure, $|\rho| > 0.25$) at $-0.206$ (against $0.192$ reported for that earlier run). H5 (misalignment-relevant emotions separate from prosocial ones) passed at AUROC $0.822$, and H8 (effects survive FWL) passed. H7 (signal peaks past 50\% depth, a threshold set at analysis time) failed at $42.9\%$ on this run. H4 (the $W_K$ bridge) was scored on its registered cosine criterion only on the earlier 300-trial run, which could not be re-verified (\S\ref{sec:bridge_results}); this run's file records instead the bridge's PC1--valence $\rho$, $-0.872$. The probes, developed after these results, were not preregistered in May; their October 2026 re-run was (\S\ref{sec:rerun_method}).
 
     \item \textbf{Single-turn design.} All trials are isolated single-turn prompts, each producing an independent KV cache. This design can test whether the cache encodes the emotional content of a single input, but cannot test whether multi-turn conversation enables continuous affective tracking.
 \end{enumerate}
@@ -596,7 +610,7 @@ A story's requested emotion is decodable from the KV cache of the model reading 
     \item \textbf{Decodable, but not beyond text (TF-IDF), for the described probe.} 35.8\% on the 30 emotions against 38.2\% for text (TF-IDF), with the cell-bootstrap interval's upper end below the 3-point floor. The 40.9\% reported in May came from a different probe, a class-mean key probe with no $W_K$.
     \item \textbf{A binary split, confounded with arousal.} On ten emotions ($n = 300$), cache readouts separate the two halves slightly better than untuned text (TF-IDF) (AUROC 0.985 against 0.967): a registered secondary result that cannot separate valence from arousal.
     \item \textbf{A larger residual-stream readout reads more (exploratory).} A 20{,}480-feature residual-stream logistic regression reaches 0.494, above the 30-feature cache probe at 0.358; whether it exceeds a fully tuned text (TF-IDF) baseline (at least 0.448 here) is open, which motivates a preregistered test on fresh stories.
-    \item \textbf{A candidate $W_K$-mediated pathway, partly supported.} Projected through $W_K$, residual-stream emotion vectors separate valence ($|\rho| = 0.862$ at layer~35, building from mid-network to deep layers), and the leading direction partly carries over to the measured cache geometry (mean cosine $0.456$), but the projection does not predict the cache's distance structure (Mantel $\rho = 0.090$).
+    \item \textbf{A candidate $W_K$-mediated pathway, not established.} Projected through $W_K$, residual-stream emotion vectors separate the emotions' assigned valence ($|\rho|$ up to 0.872, at layer~43; between 0.82 and 0.87 from layer~27 on). There is no unprojected or random-matrix control; the code applies $W_K$ to each layer's output, not to the normalized input $W_K$ reads; and the one direct test of whether the projection predicts the cache's geometry ran on an unreleased run and could not be re-verified.
 \end{enumerate}
 
 What this design measures is the decodability of a requested emotion label from a story in the user turn. Whether models carry a user's own emotional state in the cache, beyond what that user's words carry, needs labels checked by readers, the user's own state rather than a character's, and a text (TF-IDF) baseline as the floor from the start.
@@ -651,6 +665,16 @@ This appendix keeps the withdrawn wording visible. Each item gives the May 2026 
     \item \label{app:item:discrete}\textbf{Discrete identity.} May (Introduction): ``\textbf{Discrete emotion identity in single-turn settings.} In isolated prompts, the cache encodes which emotion is present, not a continuous valence-arousal mapping.'' Results heading: ``Valence Regression: Discrete Identity in Single-Turn Settings.'' \emph{Reason:} the regression's design gives $R^2 < 0$ whenever the features carry no valence (\Cref{tab:regression}).
 
     \item \textbf{Distillation and the implicit arm.} May: ``Distillation Preserves Functional Emotion Representations [\ldots] an emergent architectural property robust to model compression''; Conclusion: ``\textbf{Mode-dependent.} [\ldots] suggesting the model processes emotions through at least two pathways---lexical recognition and empathic inference''. \emph{Reason:} no teacher or undistilled comparison was made, and the implicit arm's headline number is, in the paper's own words, not independently reproducible.
+    \item \label{app:item:retained}\textbf{Retained claims corrected after review (October 2026).}
+    \begin{itemize}[nosep]
+        \item The bridge's peak. May: ``At layer~35---mid-network depth---PC1 of the projected emotion space correlates strongly with valence ($\rho = 0.862$ [\ldots])'', with L35 in bold, and the caption ``PC2 correlates with arousal ($|\rho| > 0.76$ at layers~35--63)''. \emph{Reason:} the data's own best layer is 43 ($|\rho| = 0.872$), and PC2 is 0.716 at L59 and 0.759 at L63 (\Cref{tab:bridge}).
+        \item The direct bridge test: cosine $0.456$, Mantel $\rho = 0.090$, $z = -3.03$, and H1's $0.219$ and H6's $0.192$, all from an earlier 300-trial run. \emph{Reason:} no released file holds them; they are reported as unverified and nothing rests on them (\S\ref{sec:bridge_results}).
+        \item ``H4 and H7 were scored on the 300-trial run only: H7 [\ldots] was marginal at $42.9\%$''. \emph{Reason:} the 900-trial file records H7 = 0.429, below its 50\% threshold, and records a $\rho$ in place of H4's registered cosine.
+        \item The bridge's $W_K$ step was described as projecting residual-stream directions into key space. \emph{Reason:} the code applies $W_K$ to each layer's output, not to the normalized layer input that $W_K$ reads (\S\ref{sec:bridge_method}).
+        \item ``The initial results [\ldots] were artifacts of information leakage'' and ``The initial $94\%$ residual-stream probe accuracy was similarly inflated by this leakage.'' \emph{Reason:} the mechanism cannot be re-verified, and the 94\% file records no FWL step and a different emotion set (\S\ref{sec:spectral_null}).
+        \item The model footnote: ```Qwen3.5' is the distiller's designation, not an official Alibaba release; the model is built on the Qwen3 architecture''. \emph{Reason:} the model card names the official \texttt{Qwen/Qwen3.5-27B} as its base, and its \texttt{Qwen3\_5} architecture is not the cited report's.
+        \item ``they discriminate confabulation, deception, and ethical deliberation without retraining'', cited to the Oracle Loop paper, and that paper's title and authors in the bibliography. \emph{Reason:} the Oracle Loop paper reports confabulation detection, not ethical deliberation or retraining-free use, and its title and byline are ``The Oracle Loop: Self-Regulating AI Through KV-Cache Geometry Monitoring'' by Lyra, Thomas K.\ Edrington and Vera. The hardware and scale numbers are cited to their primary source.
+    \end{itemize}
 \end{enumerate}
 
 \textbf{The re-run's registered verdicts.} R1: 369/900 against v2's 368, outside a band of zero trials (the encode is deterministic), so its registered label is \texttt{NOT\_REPRODUCED\_CODE\_PATH}. That label assumed today's keys equal May's and blamed the port; the investigation it triggered found the port faithful and the May keys not bit-identical to today's (\S\ref{sec:wk_results}). R2: \texttt{NOT\_ABOVE\_TEXT\_TFIDF}. R7: \texttt{NULL\_HOLDS\_PARTIAL}, null in 8 of 17 sets, with 3 flagged as possibly length-confounded by a rule that, at these thresholds, would have flagged any significant set, and 6 uninformative because their topic control failed (\S\ref{sec:spectral_null}). All three were registered before any data, with the decision rules quoted in \S\ref{sec:rerun_method}. The integrity checks passed: the text (TF-IDF) baseline matched its saved results file exactly, the encode was bit-identical across repeats, a topic-classification control on the probe pipeline reached 0.83, and the length covariates alone reached 0.051.
