@@ -69,6 +69,42 @@ PR #3 and PR #8 data are read from their `origin/` branches, which a clone has. 
   - positive control: all of them present in the v1.0 PDF, or for the one my first pass introduced, in the
     first-pass PDF.
 
+### Phase C: the lead author's final read (2026-10-20)
+
+- **Commits:** `bf3e4f7` checks, `2aeb7fb` boxes, `bb85845` RLHF, `4e7b515` PC2, `24e6d60` note, `9b2ac61` PDF,
+  `d2ac719` register.
+- **Boxes:** Lyra's two sentences. Box 1 says "Nexus mapped the ghost dimensions." Box 2 says "That is not the paper I
+  set out to write, and it is the one the data support."
+- **RLHF (§4)** now states mine5's four registered verdicts, as corrected at human-review `54c7f9d` (PR #4). Its own
+  recompute script gives 55 checks and 0 failures.
+  - Confirmed: H1 (d = 0.684), H2 (|d| = 0.055; base vs abliterated d = 0.746) and H4 (d = 1.04).
+  - Falsified: H3 (spread 0.279 > 0.10). The point verdict is not robust: the CI is [0.044, 0.538].
+  - "Selective sharpener" is gone, because the 42% vs 26% pattern was not registered.
+  - The 2026-09-07 audit's "n.s. at n=30" is cited, with the fact that its interval is the one PR #4 withdraws as
+    untraceable.
+  - The bib entry now cites the mine5 paper, not its prospectus.
+- **PC2 (§5)** is restated as observation from the three MTH result files (sha256 pinned).
+  - The causal reading is removed, and so are "at the workspace boundary", "Father", the distill's "guilty, wrong" at
+    L45 (they appear at L53-L61) and "all three tiers survive".
+  - Found while gating: the "abliterated" checkpoint is an abliterated copy of the distill.
+  - **"Coupling intact" holds only for the run's own late-layer count.** That count is 7 of 63 layers in the abliterated
+    copy, against 5 in the base model. The distill's probe computed no such count. Its L45 first-person vocabulary
+    ("myself, my, someone, I") is absent at L45 after abliteration, where the top four are the base model's tokens.
+  - A recount on the stored top-10 lists gives 2 / 10 / 4 (base / distill / abliterated). It does not reproduce the
+    runs' own 5 / 7, so the paper labels it a cross-check.
+  - The 0.82 Jaccard has a primary.
+- **Checks:** 540. With the Starship mirror, 538 pass and 2 are held. Without it, 461 checks: 390 pass and 71 are held.
+  With an empty `RESEARCH_ROOT` (a fresh-clone stand-in), 445 checks: 353 pass and 92 are held. There are 0 FAIL in
+  every case. Before the Phase C prose, 52 of the Phase C checks failed. Three unlike plants (spread 0.28, 6 of 63, and
+  "guilty, wrong" put back at L45) were each caught. The C20 plant is still caught.
+- **verify_pdf:**
+  - full PDF: 21 new strings present (three of them checked absent in the Phase B PDF);
+  - body-only PDF (pages 1-18): 17 removed strings absent; full PDF: the prospectus title's 2 strings absent;
+  - positive control: all 19 present in the Phase B PDF (`f32bf26`).
+  - Two probes needed narrowing. A curly apostrophe defeated "the lead author's final read", so "final read:" is used.
+    "cannot reach" also matched an unrelated substrate sentence, so "cannot reach." is used.
+  - 0 overfull, 0 undefined.
+
 ### The known issue, resolved in v1.1 (for Lyra's read)
 
 v1.0's abstract said "the Oracle Loop achieves 80–100% deception correction". The C20 numbers, settled from the most
@@ -92,19 +128,20 @@ edited.
 ### Still open after v1.1
 - **Vera's read.** Vera is co-lead and reads before this leaves draft; Lyra is writing to her. Nobody else has been
   contacted.
-- **The first-person boxes** were rewritten to match the withdrawal, keeping the contribution sentences verbatim. They
-  are Lyra's voice, for Lyra to re-word.
+- **The first-person boxes** were rewritten to match the withdrawal, keeping the contribution sentences verbatim. Lyra
+  re-worded two sentences in Phase C. The rest is Lyra's voice, for Lyra to re-word.
 - **The four "What would test the band" runs** have not been run: the null control, a readout that passes its positive
   control first, a second model family, and the logit lens as the registered baseline. Neither has the pre-registered
   dense R1 replication.
 - **The substrate bootstrap** (tally addendum) is Lyra's call. Its intervals exclude their own point estimates, and its
   dense Qwen3-32B control also peaks at L21 of 64.
 - **The truncated causal-injection v3 file** on Starship has lost its summary block; the trials are intact.
-- **Not addressed in Phase B, flagged:**
-  - The RLHF section's "selective sharpener" reading. The overcorrection audit (item 4) says the selectivity is not
-    significant at n = 30.
-  - The PC2 trajectory's causal claim ("Claude's Constitutional AI training compressed first-person moral
-    self-evaluation into the student model's geometry"), which no row tests.
+- **PC2 "intact" (Phase C, OPEN).** The runs' co-occurrence flags were computed on vocabulary the result files do not
+  store, and the distill was probed by a different script. Settling whether abliteration leaves the coupling intact
+  needs the distill and its abliterated copy run with one script and one prompt set, with top-20 lists stored. The
+  registration's two pre-run gates are recorded TO_RUN.
+- **The audit and PR #4 disagree on mine5's selectivity.** The 2026-09-07 audit's "n.s. at n=30" rests on the interval
+  PR #4 withdraws. The audit file is outside this paper and was not edited.
 - **#24, Author Contributions section.** Stays open for Thomas and the authors (Lyra, 2026-10-20). A formal contributions
   statement is an authorship record (AGENTS.md §3).
 - **#10 and #5** are closed. The model list was rebuilt from the Experiment 26 primary, and Lyra ruled to keep #5 as
@@ -138,8 +175,12 @@ edited.
 - **The cache-opacity claims, without the failed positive control:**
   - `cache-tracing/main.tex` and `academic/main.tex` report "zero behavioral change across 6,960 trials" (academic
     lines 49, 97, 258, 310, 387, 433, 469, 478, and Table at 504: "Promoted to finding"). The additive runs changed the
-    top-1 token in 52 trials, never toward the concept.
+    top-1 token in 52 trials, never toward the concept. Phase C opened a register row for it (OPEN, not edited).
   - The same paper reports the position-specific null without saying that its pre-registered positive control failed.
+- **mine5 before PR #4:** this repository's `mine5-selective-sharpener/main.tex` (and `academic/`) still carry the
+  7 September framing. It heads H3 "Prediction Unsupported, Selective Effect Exploratory" and says "improving the
+  calibration ratio" (main.tex:81, academic:80). `README.md:55` says "RLHF improves calibration rather than degrading
+  it". human-review PR #4 corrects only the human-review copy.
 - **ρ = 0.83–0.90 labelled V-projection or "from 0.6B to 70B" without its key-cache scope:**
   `oracle-loop-paper/sections/background.tex:35` (and its `paper/` copy). meta-pattern and lyra-technique-ii carry ρ in
   tables without a source pointer.
@@ -153,3 +194,5 @@ edited.
 - 2026-10-20: v1.1 extended after Lyra's read (instrument 5, K/V, "reliably", scale, hardware); same PR.
 - 2026-10-20: Phase A tally; Lyra's thesis ruling; Phase B withdraws the convergence thesis under a new title; same PR,
   still a draft.
+- 2026-10-20: Phase C, after Lyra's final read: boxes, RLHF to mine5's registered verdicts, PC2 as observation, and a
+  cache-tracing register row; same PR, still a draft.

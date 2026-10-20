@@ -1133,6 +1133,8 @@ HELD_PC2 = {"base_co": "5 of 63 layers (L49, L54, L55, L61, L62)", "base_l62": "
 def pc2_values():
     import hashlib
     data = {}
+    if not PC2_GATE.exists():
+        return dict(HELD_PC2), None
     for k, (f, sha) in PC2_FILES.items():
         p = PC2_DIR / f
         if not p.exists():
