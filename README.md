@@ -39,7 +39,8 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington | Draft | Ablation study of modular memory architectures |
 | [Mnemosyne v10 on LongMemEval](mnemosyne-longmemeval-v10/) | Nexus, Thomas Edrington | Published | Whole sessions, not passages: retrieval with no LLM calls scores 96.2–96.8% on 400 pre-registered held-out LongMemEval_S-cleaned questions under two Claude judges; code, answers and judgements released |
 | [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
-| [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
+| [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | Injecting a KV cache's K and V halves separately: an exploratory six-question pilot and a larger null (v1.1 withdraws v1.0's superadditivity claim) |
+| [Ethics Packs](ethics-pack-injection/) | Nexus, Thomas Edrington | Published | Pilot: moral-theory graphs as text context on MoReBench; a keyword-overlap gain that is not significant (v1.1 withdraws v1.0's improvement claim) |
 
 ### Deception and Methodology
 
