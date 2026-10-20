@@ -1,11 +1,20 @@
 {
   "title": "Emotion Geometry in the KV Cache",
-  "subtitle": "Emotion readout through W_K projection and injection disambiguation in the KV cache",
+  "subtitle": "Corrected October 2026: story emotion is decodable from the KV cache, but not beyond a text (TF-IDF) baseline",
   "slug": "user-model-emotion",
-  "authors": ["Lyra", "Thomas Edrington"],
+  "authors": [
+    "Lyra",
+    "Thomas Edrington"
+  ],
   "date": "2026-05-05",
-  "tags": ["kv-cache", "emotion", "user-model", "encoding", "safety"],
-  "abstract": "Language models maintain internal representations of user emotional state readable from the KV cache---not through aggregate spectral features (which fail under proper controls), but through directional alignment with emotion vectors projected through the key weight matrix W_K. Projecting key activations onto W_K-transformed emotion directions classifies 30 emotions at 12.3x chance and binary valence at AUROC 0.992 (within-fold FWL-corrected, topic-grouped CV, n=900). Injecting emotion vectors into neutral-text caches proves the signal is model state, not text content (100% detection on text with zero emotional content). Spectral features are null after proper controls: emotions change the direction key vectors point, not the spectral shape of the cache. Projected through W_K, residual-stream emotion vectors separate valence (rho=0.862 at layer 35), but a direct test found the projection does not predict the cache's measured geometry (Mantel rho=0.090), so the W_K bridge is a candidate route of entry, partly supported.",
+  "tags": [
+    "kv-cache",
+    "emotion",
+    "user-model",
+    "encoding",
+    "safety"
+  ],
+  "abstract": "When a language model reads a short third-person story, sent as a user message, whose character was written to feel one of 30 emotions, the requested emotion can be decoded from its KV cache far above chance, but a preregistered test finds that the cache probe the paper describes does not read it better than a text (TF-IDF) classifier on the story's words: 35.8% against 38.2% on the 30 emotions (chance 3.3%), with a 95% interval for the difference of -6.4 to +1.6 points that excludes the 3-point gain the test required (Qwen3.5-27B-Claude-Distilled, 900 stories). On a binary split of ten emotions (n = 300) that confounds valence with arousal, cache readouts separate the halves slightly better than text (TF-IDF), AUROC 0.985 against 0.967, a registered secondary result. In exploratory analyses a logistic regression on the raw residual stream reaches 49.4%, above both the cache probe and a tuned text (TF-IDF) baseline (44.8%). Projected through W_K, residual-stream emotion directions line up with the emotions' assigned valence (|rho| = 0.862 at layer 35), but the projection does not predict the cache's measured geometry (Mantel rho = 0.090), so it remains a candidate route. The labels are the emotions a generator was asked to write, about characters rather than users. This version corrects a May 2026 paper that read them as the user's emotional state and withdraws its injection test and its direction-versus-shape claim.",
   "pdf_filename": "User_Model_Emotion_Geometry.pdf",
   "related_page": "../projects/oracle-loop.html"
 }
