@@ -363,7 +363,7 @@ The bar is honest science, not perfect science. Null results, failed replication
 | Hardware invariance | r > 0.999 (3090 vs H200) | Exp 37 | |
 | Scale invariance | ρ = 0.83–0.90 (0.6B–70B) | Exp 26 | |
 | Hostile vector correction | 96% (base), 91% (distilled) | Formulary | Base n=68 (McNemar significant); distilled n=11 (descriptive only) |
-| KV-Cloak defense | ~~spectral gap 0.903 → 0.614~~ **WITHDRAWN 2026-10** | P7 v1.1 | Per-head rotation leaves SVD features unchanged (replication 0.994 with and without); under the real mechanism signal rank stays at 0.766; inconclusive at n=7. Do not cite as a defense. |
+| KV-Cloak defense | ~~spectral gap 0.903 → 0.614~~ **WITHDRAWN 2026-10** | P7 v1.1 | Per-head rotation cannot change per-head spectra, and in the lab's row-stacked layout it does not remove the signal (clearly on Qwen2.5-7B, marginally on the distilled 27B); the real mechanism is inconclusive at n=7. Do not cite as a defense. |
 | Therapeutic ranking cross-model | ρ = 0.119, p=0.71 (uncorrelated) | Formulary | Steering must be calibrated per model |
 | Text-only baseline | ~~0.755 (avg word length)~~ **WITHDRAWN 2026-10** | KV-Cloak v2 | No run file holds it; stored replies are 150-character previews. Do not cite. |
 
