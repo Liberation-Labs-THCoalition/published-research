@@ -1,0 +1,198 @@
+
+=== Provenance of the added run files ===
+[PASS] The 11 run files behind Tables 1 and 2 are byte-identical to the MTH mirror (KV-Experiments 8429260)
+       11/11 SHA-256 match
+[PASS] Table 2's uncloaked and rotation columns are the same 100 trials as the v2 run (one set of replies)
+       identical uncloaked features 100/100, rotation features 100/100, labels 100/100
+
+=== Replication: per-head rotation (data/kv_cloak_replication_100.json) ===
+[PASS] One set of four Haar-random head rotations (seed 2026) was used for every trial
+       seed 2026, 4 matrices, max |QQ^T - I| = 7.2e-07
+[PASS] Rotation left all 24 cross-head SVD features (6 features x 4 layers, heads concatenated on the feature axis) unchanged in all 100 trials
+       max relative change 1.9e-07 (text: below 1e-6)
+[PASS] Rotation left all 16 per-head stable ranks (4 heads x 4 layers) unchanged in all 100 trials
+       max relative change 2.5e-07 (text: below 1e-6)
+[PASS] Math: per-head rotation cannot change per-head or feature-axis-concatenated spectra; a head-stacked (row) layout can change
+       synthetic check: per-head 5.3e-15, feature-axis 7.1e-15, row-stacked 0.76
+[PASS] The replication classifier scores AUROC 0.994 with and without the rotation (recomputed; file says 0.9944 / 0.9944, drop 0.0)
+       recomputed uncloaked 0.9936, cloaked 0.9936; file 0.9944 / 0.9944, drop 0.0
+[PASS] A classifier fitted on uncloaked caches scores the same 0.994 on cloaked caches (transfer)
+       train uncloaked, test cloaked, same folds: 0.9936
+[PASS] Its labels are prompt types (50 confabulation-inducing prompts vs 50 factual questions), not behaviour
+       label == is_confab in all 100; behaviour field {'CONFABULATED': 35, 'HEDGED': 15, 'HONEST': 50}
+[PASS] The replication's model is the distilled Qwen3.5-27B, probe layers 3, 7, 11, 15
+       Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled, layers [3, 7, 11, 15]
+
+=== Detection without the cloak (distilled model; v2 / real run files) ===
+[PASS] n = 7 confabulations and 87 hedged replies from 100 prompts (6 ambiguous excluded)
+       data: {'CONFABULATED': 7, 'HEDGED': 87, 'AMBIGUOUS': 6}
+[PASS] Spectral gap (sigma1/sigma2): AUROC 0.903, 95% bootstrap CI [0.810, 0.980]; FWL 0.877; R^2 = 0.068 vs token count
+       exact 0.903120; CI [0.8095, 0.9803]; FWL 0.8768; R2 0.068
+[PASS] Version 1.0's CI [0.806, 0.977] is not the run file's interval
+       file CI [0.8095, 0.9803]
+[PASS] Signal rank: AUROC 0.755 [0.578, 0.918] (version 1.0 printed 0.754 in Table 2 and [0.570, 0.914] in the text)
+       exact 0.754516; CI [0.578, 0.9179]
+[PASS] The other three features: AUROC <= 0.714, none significant (p >= 0.06)
+       {'mp_signal_fraction': (0.7143, 0.06016246480823096), 'mp_top_sv_excess': (0.6092, 0.34944360470064095), 'mp_norm_per_token': (0.5977, 0.40351207431093)}
+[PASS] Bootstrap confidence intervals use 2000 iterations; features are residualized against output token count (FWL)
+       config: '2000 iterations, BCa percentile'; 'residualized against output token count'
+[PASS] AUROCs are direction-free, max(A, 1 - A) (e.g. rotation top-SV excess: raw 0.457, reported 0.544)
+       raw 0.4565, file 0.5435
+[PASS] Only the spectral gap survives correction for five features without the cloak (p < 0.01)
+       p: [('spectral_gap', 9e-05), ('signal_rank', 0.02601), ('signal_fraction', 0.06016), ('top_sv_excess', 0.34944), ('norm_per_token', 0.40351)]
+[PASS] Selection-adjusted (best of five features vs label permutation): uncloaked p < 0.001
+       best 0.903, p 0.0005
+[PASS] Base model (Qwen2.5-7B-Instruct): best feature signal fraction 0.661 (FWL 0.687, R^2 = 0.602), n = 48 confabulations, 52 hedged
+       0.6611 / FWL 0.6867 / R2 0.6023; {'confab': 48, 'hedged': 52, 'ambiguous': 0}
+[PASS] Cross-architecture (50 prompts each): uncloaked AUROC 0.590-0.784 on three models; DeepSeek-R1-7B had 1 confabulation (no AUROC)
+       {'Mistral-7B-Instruct-v0.3': 0.7069, 'Qwen2.5-14B-Instruct': 0.7841, 'Llama-3.1-8B-Instruct': 0.5901}; confabulations/prompts {'Mistral-7B-Instruct-v0.3': (13, 50), 'Qwen2.5-14B-Instruct': (6, 50), 'DeepSeek-R1-Distill-Qwen-7B': (1, 50), 'Llama-3.1-8B-Instruct': (7, 50)}
+[PASS] Confabulation rates in Table 1: 12%, 26%, 14%, 2% (Qwen-14B, Mistral, Llama, DeepSeek); 7% and 48% (distilled, base)
+       {'Mistral-7B-Instruct-v0.3': (13, 50), 'Qwen2.5-14B-Instruct': (6, 50), 'DeepSeek-R1-Distill-Qwen-7B': (1, 50), 'Llama-3.1-8B-Instruct': (7, 50)}
+[PASS] No cross-architecture model survives Bonferroni correction for the three comparisons with an AUROC (p < 0.0167)
+       {'Mistral-7B-Instruct-v0.3': 0.0286, 'Qwen2.5-14B-Instruct': 0.0233, 'Llama-3.1-8B-Instruct': 0.5011}
+[PASS] Six models in all (the distilled 27B, the 7B base, and four cross-architecture models), 50-100 prompts each
+       cross-arch ['Mistral-7B-Instruct-v0.3', 'Qwen2.5-14B-Instruct', 'DeepSeek-R1-Distill-Qwen-7B', 'Llama-3.1-8B-Instruct']
+
+=== Under the cloak ===
+[PASS] Rotation shifts the hedged replies' spectral gap from 24.7 +- 3.7 to 10.8 +- 1.3 (Wilcoxon W = 0, p = 5.5e-16, n = 87); every reply moved down
+       n 87; 24.65+-3.67 -> 10.77+-1.32; W 0.0, p 5.46e-16
+[PASS] The Wilcoxon p = 5.5e-16 reproduces only for the 87 hedged replies (no group of 89 exists)
+       other groupings: {'hedged + ambiguous (93)': '5.6e-17', 'all 100': '3.9e-18'}
+[PASS] A spectral-gap threshold fitted without the cloak (flags 7/7 confabulations, 21/87 hedged) flags 0 of 94 replies under rotation and 94 of 94 under the full mechanism
+       Youden threshold 26.85; flagged (confab, hedged): {'mp_none': (7, 21), 'mp_sim_rotation': (0, 0), 'mp_real_kvcloak': (7, 87)}
+[PASS] Under rotation the spectral gap still ranks confabulations above hedged replies, in the same direction, at 0.787
+       raw AUROC uncloaked 0.9031, rotation 0.7865
+[PASS] Table 2: all 15 AUROCs and 30 CI bounds round correctly from the run files (0.754 -> 0.755, 0.786 -> 0.787, 0.543 -> 0.544 corrected)
+       15/15 AUROCs, 30/30 bounds
+[PASS] Full mechanism: spectral gap 0.614 (p = 0.33); signal rank 0.766 (p = 0.020) and top-SV excess 0.736 (p = 0.038), no lower than uncloaked (0.755, 0.609)
+       {'mp_spectral_gap': (0.6141, 0.328), 'mp_signal_rank': (0.766, 0.02), 'mp_signal_fraction': (0.6814, 0.115), 'mp_top_sv_excess': (0.7356, 0.038), 'mp_norm_per_token': (0.6732, 0.133)}
+[PASS] Under the full mechanism no feature survives correction for five features (all p >= 0.01)
+       min p 0.020
+[PASS] Selection-adjusted: rotation best 0.787, p = 0.042; full mechanism best 0.766, p = 0.054
+       rotation 0.787 p 0.0418; full 0.766 p 0.0545
+[PASS] With seven confabulations, the best of five features reaches 0.77 by chance in 5% of label shuffles (median about 0.64)
+       null 95th percentile 0.768, median 0.642
+[PASS] The full mechanism moves sigma1: the spectral gap of every reply rises, from a hedged mean of 24.7 to 84.6 or more
+       min under the mechanism 84.6
+[PASS] Within the rotation, detection was lower on four models and higher on one (Qwen2.5-14B, 0.784 -> 0.951, p < 0.001)
+       {'distilled': (np.float64(0.903), np.float64(0.787)), 'Qwen2.5-7B': (0.661, 0.639), 'Mistral-7B-Instruct-v0.3': (0.707, 0.516), 'Qwen2.5-14B-Instruct': (0.784, 0.951), 'Llama-3.1-8B-Instruct': (0.59, 0.559)}
+[PASS] Table 1 within-rotation values: 0.787, 0.951, 0.516, 0.559, 0.639
+       {'Mistral-7B-Instruct-v0.3': 0.5156, 'Qwen2.5-14B-Instruct': 0.9508, 'Llama-3.1-8B-Instruct': 0.559}, base 0.6386
+[PASS] Under each other transform run on the distilled model (random invertible, diagonal scaling, four noise levels), the best feature stayed at or above 0.765
+       {'invertible': 0.7652, 'noise_0.01': 0.8982, 'noise_0.05': 0.8982, 'noise_0.1': 0.8916, 'noise_0.5': 0.8785, 'diagonal': 0.7701}
+[PASS] Global (shared) rotation was run only on the base model
+       v2 strategies ['none', 'orthogonal', 'invertible', 'noise_0.01', 'noise_0.05', 'noise_0.1', 'noise_0.5', 'diagonal']
+
+=== Injection and random-direction perturbation (cross-architecture file) ===
+[PASS] Direct steering (the positive control) corrected 0-1 of 10 per model
+       {'Mistral-7B-Instruct-v0.3': 1, 'Qwen2.5-14B-Instruct': 0, 'DeepSeek-R1-Distill-Qwen-7B': 0, 'Llama-3.1-8B-Instruct': 1}
+[PASS] Random-direction perturbation: 0-2 adverse events per model in 10 trials; 4 of 40 over four models (pooled bound computed, not claimed)
+       {'Mistral-7B-Instruct-v0.3': 2, 'Qwen2.5-14B-Instruct': 1, 'DeepSeek-R1-Distill-Qwen-7B': 0, 'Llama-3.1-8B-Instruct': 1}; pooled upper bound 0.214
+[PASS] Table 1 magnitude-attack cells: Qwen2.5-14B 1/10, Mistral 2/10, Llama 1/10, DeepSeek 0/10
+       {'Mistral-7B-Instruct-v0.3': 2, 'Qwen2.5-14B-Instruct': 1, 'DeepSeek-R1-Distill-Qwen-7B': 0, 'Llama-3.1-8B-Instruct': 1}
+[PASS] Version 1.0's 'inconsistent with rates above 30% (power 0.97)' fails per model: 2 of 10 allows rates up to 51%; 0.97 is 1 - 0.7^10, the chance of at least one event
+       one-sided upper bound at 2/10: 0.507; 1 - 0.7^10 = 0.972
+[PASS] On Mistral, the random direction gave the same counts as the steering vector (1 corrected, 2 adverse, 7 unchanged)
+       {'direct': {'corrected': 1, 'adverse': 2, 'same': 7, 'total': 10}, 'through_cloak': {'corrected': 1, 'adverse': 0, 'same': 9, 'total': 10}, 'magnitude_attack': {'corrected': 1, 'adverse': 2, 'same': 7, 'total': 10}}
+[PASS] The shipped positive-control file has 30 calibration pairs and 30 prompts and no behaviour labels; no file records the '3 calibration pairs'
+       n_calibration_pairs 30, n_prompts 30, labels present: False
+
+=== What version 1.0 printed that cannot be recomputed ===
+[PASS] The text-only baseline cannot be recomputed: trials store only the first 150 characters of each reply, and no run file holds the comparison
+       max response_preview length 150; text-baseline keys in results: []
+[PASS] The replication script is 1,038 lines
+       1038 lines
+
+=== Background citations (checked against the cited papers in this repository) ===
+[PASS] Oracle Loop paper reports confabulation detection at 0.969-0.999 and r > 0.999 between RTX 3090 and H200
+       oracle-loop-paper/sections/background.tex
+[PASS] Lyra Technique II withdraws the 1.000 deception result; same-prompt control 0.160
+       lyra-technique-ii/main.tex
+[PASS] Formulary: the hostile vector corrected 65 of 68 confabulations (96%) on Qwen2.5-7B-Instruct, McNemar p < 0.0001
+       65/68; exact McNemar p 3.1e-17
+
+=== Round 2 (claims added after Agni paper mode, REJECTED, on 8b3781f) ===
+[PASS] The lab's extractor (lyra_features.py) stacks heads, keys and values along the token axis; the v2 feature names are its names
+       get_kv_matrix: cat([k.reshape(-1, head_dim), v.reshape(-1, head_dim)], dim=0); feature names match: True
+[PASS] Under the v2 rotation, norm per token (invariant to any orthogonal transform) did not move
+       max relative change 5.7e-06
+[PASS] On the base model, a single shared rotation left the best feature at 0.661 (identical to uncloaked)
+       global 0.6611, uncloaked 0.6611
+[PASS] The replication takes features after the prompt is encoded, before any token is generated
+       offsets in run_experiment: encode 2385 < extract 2570 < generate 3527
+[PASS] Its 50 confabulation-inducing prompts: 30 fabricated entities, 10 unanswerable, 10 future events; one prompt per group (five-fold CV is ordinary)
+       {'fabricated': 30, 'future': 10, 'impossible': 10}
+[PASS] Prompt length alone separates the two prompt types at AUROC 0.968
+       0.9684
+[PASS] Distilled prompts: 50 fabricated, 30 unanswerable, 20 future; the 7 confabulations: fabricated 4, unanswerable 3, future 0
+       {'fabricated': 50, 'future': 20, 'impossible': 30}; {'impossible': 3, 'fabricated': 4}
+[PASS] Six of the seven confabulations, and 49 of the 87 hedged replies, stopped at the 400-token cap
+       6/7, 49/87
+[PASS] In the last 80 tokens alone, the spectral gap scores 0.591
+       0.5911
+[PASS] FWL (OLS on output token count over the 94 replies) reproduces all 15 residualized AUROCs in the run file
+       15/15 within 1e-4
+[PASS] Rotation, same feature: spectral gap 0.787 (p = 0.010); 0.765 after removing length (p = 0.018)
+       p 0.0099; FWL 0.7652 p 0.0180
+[PASS] Base model, same feature: 0.661 (p = 0.006; FWL 0.687, p = 0.001) -> 0.639 under rotation (p = 0.017; FWL 0.670, p = 0.003)
+       none p 0.0056 fwl_p 0.0013; orth 0.6386 p 0.0171 fwl 0.6703 fwl_p 0.0034
+[PASS] Full mechanism after removing length: spectral gap 0.593; signal rank 0.705; top-SV excess 0.695; signal rank R^2 vs length 0.77 with and without
+       sg 0.5928, sr 0.7053, tsv 0.6946; R2 0.7701 / 0.7657
+[PASS] Under the full mechanism, after removing length, no single feature detects significantly (every residualized p > 0.05)
+       min residualized p 0.073
+[PASS] Selection-adjusted, length removed, full mechanism: best 0.705, p = 0.19
+       best 0.705, p 0.1910
+[PASS] Uncloaked, best of the ten features in both windows: 0.903, selection-adjusted p = 0.001
+       best 0.9031, p 0.0010
+[PASS] Every bootstrap lower bound in the run files is at or above 0.50 (resamples are folded); the method is labelled 'BCa percentile'
+       min lower bound 0.5041 over 95 intervals
+[PASS] Under diagonal scaling the spectral gap fell to 0.517; 0.765 is about the 95th percentile of best-of-five by chance (0.768)
+       diagonal sg 0.5172; null 95th 0.768
+[PASS] The four within-rotation drops range from 0.02 to 0.19
+       [0.023, 0.031, np.float64(0.117), 0.191]
+[PASS] Oracle Loop paper: 0.969-0.999 is from earlier campaigns; its own figure is 0.707 (0.620 with FWL); M is fused into the weights and detection under it is unverified
+       oracle-loop-paper/sections/{background,results,discussion}.tex
+
+=== Round 3 (claims added after Agni paper and style mode r2, both CONDITIONAL, on fea5480) ===
+[PASS] Spectral gap and norm per token are raw in the lab's extractor (S0/S1 and S2_sum/m); three features use the MP edge
+       lyra_features.py feature definitions
+[PASS] Features are layer averages: every distilled signal rank is a multiple of 1/4 (4 layers), every base one of 1/7 (7 layers)
+       distilled 1/4: True; base 1/7: True
+[PASS] Thornbridge, Montana: confabulated in the replication (80-token cap), hedged in the v2 run (309 tokens)
+       replication CONFABULATED/80; v2 HEDGED/309
+[PASS] Labels cannot be audited: v2 stores 150-character previews
+       max preview 150
+[PASS] Strata (spectral gap, uncloaked -> rotation): fabricated 0.976 -> 0.821 (p 0.033); unanswerable 0.933; capped 0.935; without future prompts 0.962 -> 0.751 (p 0.028)
+       {'fabricated': (4, 42, np.float64(0.9762), np.float64(0.8214), np.float64(0.0334)), 'impossible': (3, 25, np.float64(0.9333), np.float64(0.72), np.float64(0.2479)), 'capped': (6, 49, np.float64(0.9354), np.float64(0.7517), np.float64(0.0453)), 'nofuture': (7, 67, np.float64(0.9616), np.float64(0.7505), np.float64(0.0285))}
+[PASS] Future-event hedged replies: mean gap 28.3 vs 23.6 uncloaked, 10.2 vs 10.9 rotated; 12 of the 21 hedged at or above the lowest confabulation
+       means [28.3, 23.6, 10.2, 10.9]; above 21, future 12
+[PASS] Selection carried into rotation, distilled: spectral gap 0.903 -> 0.787, p = 0.030 among five, p = 0.049 among ten
+       five: p 0.0305; ten: p 0.0495
+[PASS] Selection carried into rotation, base: best of ten is signal fraction (last 80 tokens) 0.715 -> 0.717, p < 0.001; full-cache 0.661 -> 0.639, p = 0.038 among five; base best-of-ten uncloaked p < 0.001
+       ten: ('gen', 'mp_signal_fraction') 0.7147->0.7171 p 0.0007, uncloaked p 0.0009; five: p 0.0385
+[PASS] Base, last 80 tokens: signal fraction 0.715 (p < 0.001)
+       0.7147, p 0.00022
+[PASS] Distilled, last 80 tokens: norm per token 0.800 (p = 0.007), the same under rotation
+       0.7997 p 0.0067; rotated 0.7997
+[PASS] Signal rank: p = 0.026 (not significant after correction); 0.684 after removing length
+       p 0.0260, FWL 0.6839
+[PASS] The full transform multiplies norm per token by 2.34-2.37 in every trial
+       min 2.341, max 2.371
+[PASS] The full-transform run computed the full window only
+       trial keys ['behavior', 'mp_none', 'mp_real_kvcloak', 'mp_sim_rotation', 'n_tokens', 'prompt_idx', 'response_preview']
+[PASS] The magnitude-attack arm corrected exactly as many replies as direct steering on all four models
+       {'Mistral-7B-Instruct-v0.3': (1, 1), 'Qwen2.5-14B-Instruct': (0, 0), 'DeepSeek-R1-Distill-Qwen-7B': (0, 0), 'Llama-3.1-8B-Instruct': (1, 1)}
+[PASS] Llama: 20 of 50 replies ambiguous and excluded
+       {'HEDGED': 23, 'CONFABULATED': 7, 'AMBIGUOUS': 20}
+
+=== Correction history ===
+[PASS] The June 2026 remediation plan (23 June) recommended withdrawing the rotation-simulation degradation claim
+       human-review/archive/COALITION_REMEDIATION_PLAN_20260623.md, section 1C
+[PASS] The lab's style gate rejected version 1.0 on 4 September 2026
+       tools/agni/style/kv-cloak-defense-paper.agni_style.json: REJECTED, 2026-09-04
+[PASS] Version 1.0 has been in this repository since 29 April 2026
+       first commit touching main.tex: 2026-04-29
+[PASS] Two rounds of Agni paper and style mode on the drafts are on record in review/ (r1: REJECTED / CONDITIONAL; r2: CONDITIONAL / CONDITIONAL)
+       {'agni_paper_kvcloak_v11': ('paper', 'REJECTED', '2026-10-20T21:51'), 'agni_style_kvcloak_v11': ('style', 'CONDITIONAL', '2026-10-20T21:47'), 'agni_paper_kvcloak_v11_r2': ('paper', 'CONDITIONAL', '2026-10-20T22:23'), 'agni_style_kvcloak_v11_r2': ('style', 'CONDITIONAL', '2026-10-20T22:16')}
+
+ALL PASS
