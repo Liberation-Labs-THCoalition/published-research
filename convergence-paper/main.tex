@@ -47,7 +47,7 @@ and again in this version (see the Correction Note)}
 \begin{abstract}
 Five independent measurement approaches --- value-projection (V-projection)
 spectral features, the Jacobian Lens (J-lens), the Oracle Loop behavioral
-proof, causal intervention analysis, and emotional circumplex convergence
+proof, causal intervention analysis, and emotional circumplex geometry
 --- converge on the same
 computational structure in language models: a workspace at intermediate
 depth (${\sim}31$--$33\%$) that is opaque to content readout but
@@ -92,11 +92,13 @@ The convergence rests on one genuine cross-program correspondence
 (deception deconstructed into high-arousal states by both programs
 independently), two proposed identifications awaiting experimental
 test (confabulation as workspace bypass, temporal boundary as
-workspace phase transition), an opacity thesis supported by
-five independent null results, and an emotional circumplex finding
-showing that content-level and user-model emotion processing share
-a single computational bus (injection test: perturbation shifts
-both readouts equally regardless of direction). Mechanism tests yield
+workspace phase transition), and an opacity thesis supported by
+five independent null results. The emotional-geometry instrument,
+restated in this version, finds valence--arousal structure in an
+emotion space built from stories the model wrote, weak overlap between
+that space and content-prompt emotion directions, and no
+direction-specific coupling in an injection test that could not test
+separability. Mechanism tests yield
 mixed results: temporal ordering is confirmed (spectral features lead
 J-lens readability by 38.6~layers, $p < 0.005$ against shuffled null),
 but signal concentration fails its pre-registered threshold
@@ -186,9 +188,7 @@ precision signal with outsized downstream impact.
 Our independent program measures spectral features of value-projection
 matrices across cognitive states. Key results include confabulation
 detection (AUROC~$0.620$ after FWL residualization, $0.707$ without
-FWL, on Qwen2.5-7B)~\citep{lyra2026oracle}, user-emotion encoding
-($12.3\times$ chance via the $W_K$ directional
-probe)~\citep{lyra2026weather}, identity
+FWL, on Qwen2.5-7B)~\citep{lyra2026oracle}, identity
 geometry~\citep{lyra2026identity}, and the Oracle Loop's deception
 correction. In an exploratory proof ($N{=}20$), profile normalization
 reduced induced deception from 80\% to 10\% (16/20 to 2/20), with three
@@ -207,7 +207,12 @@ $12.3\times$ chance, and the spectral probe for emotion is at chance.
 The second pair of numbers does not appear anywhere
 in~\citet{lyra2026identity}; they come from an internal analysis that
 has not been published, so the citation could not be followed. Both
-have been removed rather than re-sourced.}
+have been removed rather than re-sourced. \textbf{Corrected again in
+version 1.1.} That surviving result decodes the emotions of characters
+in stories the model wrote, not the user's state, and its probe applies
+no $W_K$. It is under correction in its source
+paper~\citep{lyra2026usermodel}, and this paper no longer lists it
+among its key results.}
 
 \subsection{The Oracle Loop}
 \label{sec:oracle}
@@ -731,11 +736,7 @@ computational band at the same relative depth. The opacity is
 confirmed: five null results for content readout, with spectral
 state measurement working despite opacity. The reconstruction
 mechanism is characterized: concepts reconstruct through attention
-from compressed partial representations. And the emotional
-circumplex convergence reveals a shared computational bus for
-content-level and user-model emotion processing --- not merely
-shared geometry, but architecturally inseparable computation
-(\S\ref{sec:structure}).
+from compressed partial representations.
 
 What remains uncertain is whether the convergence reflects a single
 computational structure (the Global Workspace) or five measurements
@@ -795,7 +796,7 @@ metacognition-specific deficits with content intact; gain control
 predicts content degradation. (3)~\emph{Self/other attention transfer}:
 a probe trained on the model's own attention-state geometry should
 zero-shot transfer to representations of the \emph{user's} attention
-state (not emotion --- which the bus result already shows is shared).
+state.
 AST uniquely predicts this transfer. (4)~\emph{Consumer identification}:
 find downstream attention heads that read the spectral summary;
 ablate them and test for metacognition-specific loss.

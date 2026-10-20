@@ -5,6 +5,9 @@
 % entry type); cc2026targeted, lyra2026dualdetector and lyra2026metapattern added;
 % lyra2026decision removed (it no longer has a citing sentence). External citations
 % were not re-verified in v1.1.
+% v1.1 extension: lyra2026weather removed (no citing sentence left; the story-derived
+% vectors come from lyra2026usermodel); lyra2026usermodel and nexus2026coupling added;
+% lyra2026nexus_kv carries its version 1.1 title.
 % =============================================================================
 
 
@@ -67,14 +70,27 @@
   note         = {Self-published},
 }
 
-@misc{lyra2026weather,
-  title        = {Weather, Not Climate: Dose-Response Steering in
-                  {KV}-Cache Geometry},
+% Source of the story-derived emotion vectors (30 centroids per layer from 900 stories).
+@misc{lyra2026usermodel,
+  title        = {Theory of Mind in the {KV} Cache: Localizing User Emotional Models
+                  in Transformer Key--Value States},
   author       = {{Lyra} and Edrington, Thomas},
   year         = {2026},
+  month        = may,
   howpublished = {Liberation Labs Technical Report},
-  url          = {https://liberationlabs.tech/papers/weather},
-  note         = {Self-published},
+  url          = {https://github.com/Liberation-Labs-THCoalition/published-research/tree/master/user-model-paper},
+  note         = {Under correction as of October 2026},
+}
+
+% The revision of ``The Empathy Bus'' whose stored files the emotion-geometry
+% subsection recomputes (published-research PR #3, draft).
+@unpublished{nexus2026coupling,
+  title  = {A Coupling Null and the Geometry of a Story-Derived Emotion Space
+            in a Distilled 27B Language Model},
+  author = {{Nexus} and Edrington, Thomas and {CC (Coalition Code)} and {Lyra}},
+  year   = {2026},
+  month  = oct,
+  note   = {Liberation Labs Technical Report, in review; replaces ``The Empathy Bus''},
 }
 
 % Title and authors as on the paper itself (published-research oracle-loop-paper/main.tex).

@@ -1,62 +1,51 @@
-\subsection{Content--Inference Circumplex Convergence}
+\subsection{Emotion Geometry: A Story-Derived Space and Content Prompts}
+\label{sec:circumplex}
 
-The emotional circumplex measured through content-level processing and through
-user-model emotion inference converges on the same geometric subspace. Using the
-Qwen3.5-27B Opus distill, we extracted 30 emotion centroids from 900 trials of
-conversation-context inference (the user-model emotion space from~\citet{lyra2026weather})
-and compared them against valence and arousal directions computed from 250 emotional
-scenario prompts (hostile--calm, desperate--calm difference-of-means).
+The fifth instrument compares two emotion representations in the Qwen3.5-27B Opus
+distill. The first is a story-derived emotion space: 30 emotion centroids per layer,
+each a mean over stories the model wrote about a third-person character feeling that
+emotion (900 stories in all)~\citep{lyra2026usermodel}. The centroids describe
+characters' emotions in generated text, not the state of a conversation partner. The
+second is a pair of directions computed from 250 emotional scenario prompts
+(hostile$-$calm and desperate$-$calm differences of means), called here the
+content-prompt valence and arousal directions. Every number in this subsection is
+recomputed from the stored files of~\citet{nexus2026coupling}.
 
-The two circumplex axes capture $44$--$54\%$ of the total variance in the full
-30-emotion user-model space at every layer from L6 onward---approximately $1000\times$
-the ${\sim}0.04\%$ expected from two random directions in $d{=}5120$. The arousal
-direction aligns with the user-model's first principal component at
-$\cos = 0.83$--$0.87$ (mid-to-late layers). The valence direction aligns at
-$\cos = 0.70$--$0.80$. Both systems exhibit identical developmental timecourses:
-volatile eccentricity at L0--L16, stable geometry from L17 onward.\footnote{%
-\textbf{Unverified breakpoint.} This L16/L17 split coincides exactly with an
-``architectural boundary at L16'' that \S\ref{sec:substrate} corrects as
-non-existent: Qwen3.5-27B interleaves full-attention every fourth layer
-($\{3,7,\ldots,63\}$), so there is no contiguous transition at L16. We have not
-established whether this breakpoint was derived empirically from the
-eccentricity profile or inherited from the incorrect architectural model, and
-the underlying per-layer profile was not available to us at revision time.
-Readers should treat the specific breakpoint location as provisional; the
-23-of-24-layer permutation result below does not depend on it.} Permutation
-testing (1{,}000 shuffles, non-neutral prompts only) confirms significance at
-23 of 24 layers, with separation ratios climbing from $10\times$ null at L1 to
-$59\times$ null at L23.
+\paragraph{Within the story-derived space.} The space has valence--arousal structure.
+From L17 onward its first principal component correlates with the emotions' rated
+valence at $|\rho| = 0.66$--$0.80$ and, with the opposite sign, with rated arousal at
+$|\rho| = 0.49$--$0.67$, so it runs from pleasant-and-calm to unpleasant-and-activated.
+Directions built from the same centroids (hostile$-$calm and desperate$-$calm) align
+with that component at $|\cos| = 0.68$--$0.80$ and $0.83$--$0.88$, and the plane
+through the hostile, desperate and calm centroids holds $33$--$37\%$ of the centroid
+variance. These are within-system figures, so the informative comparison is with
+other directions built from the same centroids. From L17, $77$--$89\%$ of the 435
+centroid-pair directions align with the first component less than hostile$-$calm does
+and $92$--$95\%$ less than desperate$-$calm, and the plane holds $1.26$--$1.36$ times
+the variance of the median plane through three centroids.
 
-The measurements are independent---different prompts, different templates, different
-experimental designs---yet they recover the same high-variance directions. This
-convergence parallels the W$_K$ bridge ($\rho = 0.862$) from~\citet{lyra2026weather},
-which projects \emph{into} this shared circumplex subspace.
+\paragraph{Across the two prompt sets.} The overlap is weak. At L15, L25, L35 and L45
+the content-prompt valence direction has $|\cos| = 0.026$--$0.110$ with the story
+space's first component and the arousal direction $0.015$--$0.126$. Scored the same
+way, 2,000 random unit directions reach $0.027$--$0.028$ at the 95th percentile and
+$0.044$--$0.052$ at most: at L15 the content directions are within that range, and at
+L25--L45 they exceed it. Along either content direction lies $0.08$--$0.68\%$ of the
+centroid variance, 4 to 34 times a random direction's mean. The model's activations are
+not isotropic, so this excess is an upper bound on any shared emotional structure, not
+evidence of it.
 
-\paragraph{Coupling test: shared bus, not shared space.}
-A pre-registered injection experiment resolves the representational-vs-computational
-question. Injecting the valence direction at layers 15, 25, 35, and 45 (at
-$\alpha \in \{1, 3, 5\}$) shifts \emph{both} the content-level and user-model
-emotion readouts equally---comparable in magnitude to injecting a random direction
-of matched norm (no significant difference; formal equivalence testing is a
-pre-registered follow-up). The residual stream operates as a shared bus: any emotional
-perturbation propagates to both measurement channels regardless of injection
-direction. An orthogonal-projection control (decomposing the valence vector into
-shared-PC and residual components) confirms that the coupling is architectural,
-not valence-specific.
+\paragraph{Across layers.} The two geometries settle on different schedules. The
+content prompts' eccentricity is $0.37$--$0.61$ from L17 (it is computed from the norms
+of the hostile$-$calm and desperate$-$calm directions, and is 0 for a circle). The
+story-derived space's is $0.05$--$0.23$ over L17--L21 and $0.30$--$0.42$ from L22, and
+over all 64 layers the two series do not track each other ($r = 0.09$).
 
-The model does not maintain separate emotional geometry for content processing
-and partner-state inference. It maintains a single emotional computation that
-both measurement approaches read. The W$_K$ bridge does not connect two systems;
-it reads one system from the key-cache angle.
-
-\paragraph{Consequences for multi-turn dynamics.}
-The bus architecture explains two previously puzzling findings
-from~\citet{lyra2026weather}: the absence of cumulative emotional accumulation
-across conversation turns, and the model's susceptibility to rapid affective
-shifts. If content emotion and user-model emotion share a single computational
-substrate, there is no separate channel in which partner-state could accumulate
-independently. Each turn reconstructs the full emotional geometry from current
-context. A single emotionally charged input rewrites the entire bus, producing
-the ``mood swing'' pattern observed in extended dialogues. Empathy, in this
-architecture, is not a capacity the model exercises---it is a constraint the
-model cannot escape.
+\paragraph{Coupling test.} A pre-registered injection experiment added the
+content-prompt valence direction, the arousal direction or a random direction at
+valence's norm to the output of layer 15, 25, 35 or 45 ($\alpha \in \{1, 3, 5\}$), and
+compared the resulting shifts in 250 content prompts and 60 conversational prompts.
+The readout is the raw residual stream, which contains the injected vector, so the
+cross-pathway cosine is 1.000 at the injection layer by construction. Off that layer
+the random direction's mean cosine ($0.577$) is at least as high as valence's ($0.521$)
+and arousal's ($0.547$). The experiment shows no direction-specific coupling, and it
+cannot test whether the two kinds of processing are separable.
