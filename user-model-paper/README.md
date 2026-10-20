@@ -21,13 +21,14 @@ that the cache probe the paper describes does not read it better than a text (TF
 Key findings:
 1. **Decodable, but not beyond text (TF-IDF).** The probe as the Method describes it reaches 35.8% on 30 emotions
    (chance 3.3%) against 38.2% for text (TF-IDF) on the same folds; the cell-bootstrap 95% interval for the difference,
-   -6.4 to +1.6 points, excludes the registered 3-point gain. The 40.9% reported in May came from a different script, a
+   -6.4 to +1.6 points, lies below the registered 3-point gain. The 40.9% reported in May came from a different script, a
    class-mean key probe with no W_K; v2's number reproduces to within one trial in 900 (369 against 368) on a software
    stack that has changed since May.
 2. **A binary split confounded with arousal.** On v2's hard-coded ten emotions (n = 300), cache readouts separate the
-   halves slightly better than text (TF-IDF): AUROC 0.985 against 0.967 (registered secondary, Holm p = 0.027).
-3. **The residual stream reads more (exploratory).** A logistic regression on the raw residual stream reaches 49.4%,
-   above a tuned text (TF-IDF) baseline (44.8%) and the cache probe; nothing shows that W_K or the cache adds to it.
+   halves slightly better than untuned text (TF-IDF): AUROC 0.985 against 0.967 (registered secondary, Holm p = 0.027).
+3. **A larger residual-stream readout reads more (exploratory).** A 20,480-feature logistic regression on the raw residual
+   stream reaches 49.4%, above the 30-feature cache probe; whether it beats a fully tuned text (TF-IDF) baseline (at least
+   44.8%) is open, and nothing shows that W_K or the cache adds to it.
 4. **W_K bridge: a candidate pathway, partly supported.** Residual-stream emotion vectors projected through W_K produce
    valence-separated structure (rho = 0.862 at L35). A direct test found the leading direction partly carries over to
    the measured cache geometry (mean cosine 0.456), but the projection does not predict the cache's distance structure
