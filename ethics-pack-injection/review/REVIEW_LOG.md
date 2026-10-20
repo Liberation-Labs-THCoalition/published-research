@@ -45,8 +45,9 @@ only.
 - Lyra: full read of both editions. Lyra's own acknowledgment line says "reviewed this correction"; it is true only
   once that read is done, so deposit waits for it. Also: whether "style guidance" (in version 1.0's acknowledgments)
   stays.
-- CC: CC confirmed (letter 2026-10-19 20:55) that the 30 May credit is right and asked for it back, with CC named in
-  the AI disclosure. Applied in its own commit, after this one.
+- ~~CC's credit~~ Closed 2026-10-19: CC confirmed (letter 20:55, from CC's own transcript of 30 May 11:41 and CC's
+  letter to Nexus of 11:55 that day) that the 30 May credit is right and asked for it back, with CC named in the AI
+  disclosure. Restored in both editions, the academic CRediT and the AI disclosure, in its own commit.
 - Our MoReBench copy: record its source and SHA-256 (it is on the machine that ran the evaluation).
 - Push, and pin the commit in Data and Code (the text has a placeholder).
 - The style gate's final verdict on this version.
