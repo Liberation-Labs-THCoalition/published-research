@@ -1078,6 +1078,57 @@ review record that accompanies this version.
 \item \textbf{Bibliography and date.} The Gurnee et al.\ entry is now a
   \texttt{@misc}, and the date line records this version.
 \end{enumerate}
+
+\noindent Added after the lead author's read of this version:
+
+\begin{enumerate}[nosep,leftmargin=*,resume]
+\item \textbf{The emotion-geometry instrument, restated} (\S\ref{sec:circumplex},
+  abstract, Discussion). Version 1.0 called 30 story-derived emotion
+  centroids a user-model emotion space. They are means over stories the model
+  wrote about third-person characters, not a reading of the user's state. Its
+  alignment figures (44--54\% of the variance, about 1000 times a random
+  baseline, cosines 0.70--0.80 and 0.83--0.87) used directions built from those
+  same centroids; against other directions built from them, the plane through
+  the hostile, desperate and calm centroids holds 1.26--1.36 times the median
+  plane's variance, and the content-prompt directions overlap with the space
+  weakly ($|\cos| \le 0.13$). The coupling test's readout contains the injected
+  vector, so its cosine is 1.000 at the injection layer by construction and a
+  random direction does as well as valence: it shows no direction-specific
+  coupling and cannot test separability. Removed with that reading: the shared
+  bus, its account of multi-turn dynamics, identical developmental timecourses
+  (the two series correlate at $r = 0.09$), a permutation count over 24 layers
+  with no primary for this 64-layer model, and the parallel with the $W_K$
+  bridge. Every number in the subsection now comes from the stored files
+  of~\citet{nexus2026coupling}.
+\item \textbf{Story-emotion decoding} (\S\ref{sec:vproj}). Version 1.0 listed
+  a 12.3-times-chance emotion result as user-emotion encoding by a $W_K$ probe.
+  It decodes characters' emotions in generated stories, and its probe applies
+  no $W_K$; it is under correction at source and is no longer listed. The
+  2026-08-14 footnote records this.
+\item \textbf{K/V split injection} (\S\ref{sec:reconstruction}). Version 1.0
+  read Nexus's split-cache result as an interaction between K and V and as a
+  parallel to the readout nulls. In the corrected study~\citep{lyra2026nexus_kv}
+  each half scored 2/6, on two items that can be scored without the graph (one
+  of them also scored by the uninjected baseline, 1/6); the larger runs could
+  not compare the conditions, and the design cannot tell missing information
+  from a cache of mismatched halves. The subsection now says this and draws no
+  parallel.
+\item \textbf{Above chance, not reliable} (abstract, \S\ref{sec:intro},
+  \S\ref{sec:opacity}). The headline discrimination is AUROC 0.620 with
+  permutation $p = 0.023$. The abstract now says modestly above chance and
+  gives the $p$; four other sentences no longer say the features discriminate
+  or measure state reliably.
+\item \textbf{Scale range} (abstract, \S\ref{sec:structure}, setup). The
+  $\rho = 0.83$--$0.90$ comes from Experiment~26 of Campaign~2: Spearman
+  correlations of category-pair AUROC matrices between three size tiers
+  (0.826, 0.867 and 0.896), ten models from Qwen3-0.6B to a 4-bit
+  Llama-3.1-70B. These are key-cache features, not V-projections, so the
+  sentences now say key-cache, and the setup lists the ten models, rebuilding
+  the list that the scale-replication item above removed.
+\item \textbf{Hardware.} Version 1.0 named a Mac Studio M4 Max with 256~GB.
+  The machine is a Mac Studio M3 Ultra with 256~GB, as the lead author
+  confirmed with \texttt{system\_profiler}.
+\end{enumerate}
 % END-CORRECTION-NOTE
 
 \section*{Acknowledgments}
