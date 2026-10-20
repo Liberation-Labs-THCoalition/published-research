@@ -372,14 +372,21 @@ heads, compressing the residual stream $4\times$ (4096~dims to
 provides the $4096$-dimensional decompression context, but are not
 linearly decodable from the $1024$-dimensional K or V alone.
 
-\subsection{KV Superadditivity}
+\subsection{K/V Split Injection}
 
-Nexus demonstrated that K-only and V-only injection each achieve
-$0.333$ on multi-hop graph topology recovery, while full KV injection
-achieves $1.000$~\citep{lyra2026nexus_kv}. The combination is
-superadditive ($0.333 + 0.333 < 1.000$). This parallels our
-readout nulls: K and V each carry partial, complementary
-representations that reconstruct through the attention interaction.
+Nexus's split-cache pilot~\citep{lyra2026nexus_kv} does not support the
+parallel we previously drew. On six hand-written questions about a
+20-node toy graph (Qwen2.5-1.5B, one greedy run), full KV injection
+scored 6/6 and the text in the prompt 5/6. K-only and V-only injection
+scored 2/6 each, on the same two items: the graph's isolated node,
+which the uninjected baseline (1/6) also scored, and a yes/no
+reachability question whose expected answer is ``yes''. Neither half
+alone scored any of the four structural questions, but a cache built
+from halves that never occur together can fail for reasons this design
+cannot separate from missing information, and two larger runs could not
+compare the conditions. Six items in one run support no interaction, so
+we no longer read the pilot as evidence that K and V interact, or as a
+parallel to our readout nulls.
 
 \subsection{The Reconstruction Pathway}
 
