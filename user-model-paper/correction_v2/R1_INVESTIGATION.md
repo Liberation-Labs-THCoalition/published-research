@@ -104,6 +104,9 @@ A net change of −1 could also come from several flips.
   - No launch command survives. Searched: the zsh histories and sessions, `~/user_model_rerun`,
     `~/models/research_results`, `~/lab`, the local Claude transcripts, and episodic memory. The May 21 session's
     chunks hold prose only.
+  - That search, for the script's name (`wk_backtrack_probe_v2`), completed. A broader grep of `.sh` files in the same
+    directories for "backtrack" or "emotion_geometry" was stopped by Claude Code under memory pressure before it
+    returned, and was not rerun.
 - **Every library in observer-env was released after May 21** (PyPI first-upload dates):
 
   | library | today's version | its release date |
