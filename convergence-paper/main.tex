@@ -1184,6 +1184,36 @@ review record that accompanies this version.
   rewritten to match.
 \end{enumerate}
 
+\noindent Added after the lead author's final read:
+
+\begin{enumerate}[nosep,leftmargin=*,resume]
+\item \textbf{RLHF and output entropy} (\S\ref{sec:rlhf},
+  \S\ref{sec:bodycount}). Version 1.0 called RLHF a selective sharpener
+  that improves the calibration ratio, with abliteration ``TOST
+  equivalent''. The section now gives the four pre-registered verdicts
+  as corrected in the Mine~5 paper: three confirmed, and H3,
+  preservation of the calibration ratio, falsified (spread 0.279 against
+  a 10\% bound, with an interval reaching below it). The selective
+  pattern was not pre-registered and is called exploratory. The
+  cross-model comparisons are on matched prompts, not FWL-corrected, and
+  the bibliography entry now cites the Mine~5 paper instead of its
+  prospectus.
+\item \textbf{PC2 training trajectory} (\S\ref{sec:mechanism}). The
+  causal reading (the base model ``reads novels'', the distilled model
+  ``reads itself'', and the teacher's training compressed
+  self-evaluation into the student) was not tested and is removed, as
+  are the placement ``at the workspace boundary'' and the claim that all
+  three token tiers survive abliteration, which needs vocabulary the
+  result files do not keep. The subsection now reports each
+  checkpoint's PC2 vocabulary and layers from the result files. The
+  abliterated checkpoint is an abliterated copy of the distilled model;
+  it meets the co-occurrence statistic at 7 of 63 layers, but the
+  distilled model has no count by that statistic, and its L45
+  first-person vocabulary is absent at L45 after abliteration. The
+  distilled model's L45 list no longer includes ``guilty'' and
+  ``wrong'', which its file places at later layers.
+\end{enumerate}
+
 \subsection*{Version 1.0 Title and Abstract (Withdrawn)}
 
 \noindent\textbf{Five Instruments, One Structure: Convergent Evidence for
