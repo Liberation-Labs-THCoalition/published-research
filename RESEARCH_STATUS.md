@@ -55,8 +55,19 @@ These are from primary work in that window and supersede the corresponding claim
   (permutation floor at n=5 is p=0.063 — significance was never available), 5 false or
   stale Limitations fixed.
 - **decision-state / waystations / mine5**: entity-recognition confound restored to
-  abstract and conclusion; TOST "Confirmed" corrected to "Not Significant (TOST
-  Inconclusive)" across 5 live copies.
+  abstract and conclusion.
+- **mine5 — verdicts by the registered criteria** (final 2026-10-20; human-review PR #4).
+  This bullet previously also read: TOST "Confirmed" corrected to "Not Significant (TOST
+  Inconclusive)" across 5 live copies. That change applied a criterion the pre-registration
+  does not name. Judged by the registered criteria on the per-prompt data: **H1 confirmed**
+  (base vs instruct entropy d = 0.684); **H2 confirmed** (instruct vs abliterated |d| = 0.055,
+  criterion < 0.3; base vs abliterated d = 0.746, criterion > 0.5); **H3 falsified**
+  (calibration ratios 1.97 / 2.51 / 2.40, max/min - 1 = 0.279 against a registered 0.10).
+  H3 is a point verdict and not robust: the paired BCa 95% interval on the spread is
+  [0.044, 0.538]. **H4 confirmed** (base vs instruct stable rank d = 1.04; the earlier
+  "Trend Only" figures were within-model effects). published-research's own
+  `mine5-selective-sharpener` copies still carry the superseded wording until the sync that
+  follows PR #4's merge.
 - **Resolved 2026-10-12**: the body-count citation now points at a real, public document, Nexus's adversarial audit
   of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure is our own
   compilation; that audit is one of its sources. Register 137.
