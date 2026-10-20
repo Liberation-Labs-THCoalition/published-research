@@ -419,19 +419,34 @@ account.
 \section{RLHF and Output Entropy}
 \label{sec:rlhf}
 
-A three-model comparison (base, instruction-tuned, abliterated;
-$N{=}30$ per category, FWL-corrected) reveals that RLHF is a
-selective sharpener, not a miscalibrator~\citep{lyra2026mine5}.
-RLHF compresses logit entropy ($d{=}0.684$, Holm $p{=}0.021$) but
-compresses factual entropy more ($-42\%$) than confabulation entropy
-($-26\%$), improving the calibration ratio from $1.97$ (base) to
-$2.51$ (instruct). Abliteration does not reverse this compression
-(TOST equivalent, $d{=}0.055$).
+A three-model comparison tested four pre-registered hypotheses on
+Qwen3-8B: the base model, its instruction-tuned variant and an
+abliterated variant, with the same 30 confabulation-prone and
+30 factual prompts run through every model~\citep{lyra2026mine5}.
+Three are confirmed. RLHF compresses
+logit entropy on confabulation-prone prompts (H1, $d{=}0.684$, Holm
+$p{=}0.021$). Abliteration does not reverse the compression (H2:
+instruct versus abliterated $|d| = 0.055$; base versus abliterated
+$d = 0.746$), so removing the refusal directions that abliteration
+targets does not undo it; the abliteration itself was checked only for
+refusal wording in three raw completions. V-projection stable rank
+at four pre-selected layers is lower after RLHF (H4, $d = 1.04$).
 
-The geometric compression is deeper than safety directions. RLHF
-reshapes the output distribution at a level that
-abliteration --- which targets specific refusal directions --- cannot
-reach.
+The fourth is falsified. H3 predicted that the calibration ratio
+(confabulation entropy over factual entropy) would stay within 10\%
+across the three models; the ratios are $1.97$, $2.51$ and $2.40$, a
+spread of $0.279$. The point verdict is not robust: the supplementary
+interval on the spread, $[0.044, 0.538]$, reaches below the 10\% bound,
+so 30~prompts per category do not exclude a spread within it.
+
+The ratio rose because RLHF compressed factual entropy more than
+confabulation entropy, by $42\%$ against $26\%$. That pattern was not
+pre-registered. An earlier audit of the corpus called it not
+significant at 30~prompts per category; the interval behind that
+reading cannot be reproduced from the per-prompt data, and the
+corrected Mine~5 paper withdraws it and gives $[+0.010, +0.270]$ for
+the difference. Neither interval is a registered test, so this section
+does not call RLHF a selective sharpener: the pattern is exploratory.
 
 % ============================================================================
 \section{Pre-Registered Mechanism Tests (R1--R3)}
@@ -710,8 +725,8 @@ The pattern holds for the tally, not for every falsification we have
 made. Four falsifications from the convergence sprint are recorded
 outside it:
 \begin{itemize}[nosep]
-\item RLHF miscalibration thesis (calibration ratio improves, not
-  degrades)
+\item RLHF miscalibration thesis (the calibration ratio rose, not
+  fell)
 \item Workspace-noise framing (tail smear is generic uncertainty,
   not workspace-specific)
 \item Cache-tracing observational alignment (selection artifact)

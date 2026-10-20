@@ -1220,7 +1220,7 @@ def check_phase_c():
     present("C.pc2.limit", "the distilled model has no count by the same statistic, and its L45 first-person "
                            "vocabulary is absent at L45 in the abliterated copy")
     present("C.pc2.top20", "the stored results keep the top 10")
-    present("C.pc2.gates", "its two pre-run gate checks are recorded as not run")
+    present("C.pc2.gates", "registration's two pre-run gate checks are recorded as not run")
     present("C.pc2.untested", "Whether the L45 pattern comes from the distillation teacher's training or from "
                               "something else about distillation is untested here.")
     for needle in ("reads novels", "reads itself", "Constitutional AI training compressed", "at the workspace boundary",
@@ -1259,7 +1259,7 @@ def check_phase_c():
                         ("auditci", "the interval behind that reading cannot be reproduced from the per-prompt data"),
                         ("selci", "$[+0.010, +0.270]$ for the difference"),
                         ("nosharp", "this section does not call RLHF a selective sharpener"),
-                        ("raw", "the same prompts run through every model")):
+                        ("raw", "with the same 30 confabulation-prone and 30 factual prompts run through every model")):
         present("C.rlhf.%s" % cid, needle)
     for needle in ("selective sharpener, not a miscalibrator", "improving the calibration ratio", "TOST equivalent",
                    "FWL-corrected) reveals", "cannot reach.", "calibration ratio improves"):
