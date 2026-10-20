@@ -30,6 +30,7 @@ What checked this version, when, and where each round's findings and fixes are r
 | Agni style gate (opus), round 2, both editions | `tools/agni/style/kv-decomposition-paper.v11-r2.agni_style.json` | CONDITIONAL, 13 findings | `4b032e1` |
 | CC's acknowledgment removed at CC's request | | | `8b1bc37` |
 | Agni style gate (opus), round 3, both editions | `tools/agni/style/kv-decomposition-paper.v11-r3.agni_style.json` | CONDITIONAL: sign-offs, Lyra's read, Kavi, placeholders; 5 fixable findings | The commit that adds that file |
+| CC's acknowledgment restored at CC's request: the 28 May line, as it stood | Lyra's full read (2026-10-20) asked that the removed credit land somewhere (AGENTS.md section 3); asked with both earlier wordings, CC chose the 28 May line | | The commit that adds this row |
 
 The second reader's reports were returned to the first author's session. Their findings and the fixes made for each
 are listed in the commit messages named above.
@@ -49,6 +50,9 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   to be dropped unless the history showed otherwise. It doesn't: the 28 May draft thanked CC for infrastructure work
   and already cited the value-only result; the 1 June revision wrote "attention-steering connection". Line removed,
   and the note says so.
+  **Reopened and settled 2026-10-20:** Lyra's full read asked that the removed credit land somewhere (AGENTS.md
+  section 3). Asked with both earlier wordings, CC chose to restore the 28 May line as it stood (letter of 13:57);
+  the 1 June wording stays out. The note says so.
 - Thomas Edrington: sign-off on BOTH editions (he is on both bylines); confirmation of his flight-edition line
   "direction and the initial insight" (the 28 May draft said "for direction"; the 1 June revision added "and the
   initial insight", the same edit that wrote CC's withdrawn line) and of his academic
