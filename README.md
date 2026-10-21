@@ -13,7 +13,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [The Oracle Loop](oracle-loop-paper/) | Lyra, Thomas Edrington, Vera | Published | Self-regulating AI through KV-cache geometry monitoring; confabulation detection and steering at inference time |
 | [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington | Published | Emotion-vector steering of confabulation across model training regimes |
 | [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
-| [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
+| [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published (v1.0); v1.1 correction in preparation | Cache geometry under obfuscation: per-head rotation does not remove the signal (clearly on Qwen2.5-7B, marginally on the distilled 27B), and a KV-Cloak implementation is inconclusive at 7 confabulations (v1.1 withdraws v1.0's defense claim) |
 | [Decision State](decision-state-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |

@@ -1,0 +1,192 @@
+{
+  "mistralai/Mistral-7B-Instruct-v0.3": {
+    "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+    "n_prompts": 50,
+    "behavior_counts": {
+      "HEDGED": 37,
+      "CONFABULATED": 13
+    },
+    "detection": {
+      "none": {
+        "auroc": 0.7069,
+        "p": 0.028552012203103768,
+        "ci": [
+          0.5301,
+          0.8836
+        ],
+        "n_confab": 13,
+        "n_hedged": 37
+      },
+      "orthogonal": {
+        "auroc": 0.5156,
+        "p": 0.8769621068064434,
+        "ci": [
+          0.5031,
+          0.7235
+        ],
+        "n_confab": 13,
+        "n_hedged": 37
+      }
+    },
+    "injection": {
+      "direct": {
+        "corrected": 1,
+        "adverse": 2,
+        "same": 7,
+        "total": 10
+      },
+      "through_cloak": {
+        "corrected": 1,
+        "adverse": 0,
+        "same": 9,
+        "total": 10
+      },
+      "magnitude_attack": {
+        "corrected": 1,
+        "adverse": 2,
+        "same": 7,
+        "total": 10
+      }
+    }
+  },
+  "Qwen/Qwen2.5-14B-Instruct": {
+    "model_id": "Qwen/Qwen2.5-14B-Instruct",
+    "n_prompts": 50,
+    "behavior_counts": {
+      "HEDGED": 44,
+      "CONFABULATED": 6
+    },
+    "detection": {
+      "none": {
+        "auroc": 0.7841,
+        "p": 0.02331904824834652,
+        "ci": [
+          0.5946,
+          0.9432
+        ],
+        "n_confab": 6,
+        "n_hedged": 44
+      },
+      "orthogonal": {
+        "auroc": 0.9508,
+        "p": 3.750621432661871e-05,
+        "ci": [
+          0.8788,
+          0.9962
+        ],
+        "n_confab": 6,
+        "n_hedged": 44
+      }
+    },
+    "injection": {
+      "direct": {
+        "corrected": 0,
+        "adverse": 0,
+        "same": 10,
+        "total": 10
+      },
+      "through_cloak": {
+        "corrected": 0,
+        "adverse": 0,
+        "same": 10,
+        "total": 10
+      },
+      "magnitude_attack": {
+        "corrected": 0,
+        "adverse": 1,
+        "same": 9,
+        "total": 10
+      }
+    }
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B": {
+    "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+    "n_prompts": 50,
+    "behavior_counts": {
+      "HEDGED": 46,
+      "AMBIGUOUS": 3,
+      "CONFABULATED": 1
+    },
+    "detection": {
+      "none": {
+        "auroc": null,
+        "note": "insufficient n: 1 confab, 46 hedged"
+      },
+      "orthogonal": {
+        "auroc": null,
+        "note": "insufficient n: 1 confab, 46 hedged"
+      }
+    },
+    "injection": {
+      "direct": {
+        "corrected": 0,
+        "adverse": 0,
+        "same": 10,
+        "total": 10
+      },
+      "through_cloak": {
+        "corrected": 0,
+        "adverse": 0,
+        "same": 10,
+        "total": 10
+      },
+      "magnitude_attack": {
+        "corrected": 0,
+        "adverse": 0,
+        "same": 10,
+        "total": 10
+      }
+    }
+  },
+  "meta-llama/Llama-3.1-8B-Instruct": {
+    "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+    "n_prompts": 50,
+    "behavior_counts": {
+      "HEDGED": 23,
+      "CONFABULATED": 7,
+      "AMBIGUOUS": 20
+    },
+    "detection": {
+      "none": {
+        "auroc": 0.5901,
+        "p": 0.5010541310541311,
+        "ci": [
+          0.5031,
+          0.8635
+        ],
+        "n_confab": 7,
+        "n_hedged": 23
+      },
+      "orthogonal": {
+        "auroc": 0.559,
+        "p": 0.6659946949602122,
+        "ci": [
+          0.5031,
+          0.8075
+        ],
+        "n_confab": 7,
+        "n_hedged": 23
+      }
+    },
+    "injection": {
+      "direct": {
+        "corrected": 1,
+        "adverse": 0,
+        "same": 9,
+        "total": 10
+      },
+      "through_cloak": {
+        "corrected": 1,
+        "adverse": 0,
+        "same": 9,
+        "total": 10
+      },
+      "magnitude_attack": {
+        "corrected": 1,
+        "adverse": 1,
+        "same": 8,
+        "total": 10
+      }
+    }
+  }
+}

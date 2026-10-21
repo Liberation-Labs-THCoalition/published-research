@@ -157,7 +157,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | User Model Emotion | 30-class emotion **12.3x chance** (W_K directional, 40.9% on 30 classes), valence AUROC 0.992, W_K bridge rho=0.862 | Published, spectral figure retracted 2026-05-21 |
 | Lyra Technique II | W_K valence 0.992, SVD denoising rescues persona | Published, W_K reframed (linearity) |
 | Oracle Formulary | 12 vectors, hostile 95.6%, therapeutic window | Published |
-| KV-Cloak Defense | Reversible obfuscation, defense asymmetry | Published, rotation reframed |
+| KV-Cloak Defense | Reversible obfuscation, defense asymmetry (withdrawn in v1.1, 2026-10-20: the signal survives per-head rotation on the two models whose feature is recorded, marginally on the distilled 27B; the full mechanism is inconclusive at n = 7) | Published, rotation reframed; v1.1 correction in preparation |
 | Decision State | Encoding AUROC 0.93, confidence paradox d=0.91 | Published, entity confound caveated (0.794 survives) |
 | Weather Not Climate | Contrast overshoot d=-3.6, uncertainty scars d=+9.9 | Published |
 | Waystations | 6 pilot findings, encoding null reframed | Published |
@@ -200,7 +200,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 - [x] LT2 deception retraction (text edit, pushed)
 - [x] W_K 0.992 linearity reframe (text edit, pushed)
 - [x] Oracle Loop 0.903 exploratory flag (text edit, pushed)
-- [x] KV-Cloak rotation reframe (text edit, pushed)
+- [x] KV-Cloak rotation reframe (text edit, pushed). The retraction the June plan asked for (section 1C) was not part of it; v1.1 (2026-10-20) makes it
 - [x] Waystations encoding null reframe (text edit, pushed)
 - [x] Decision State entity confound caveat (text edit, pushed)
 - [x] Decision State encoding-only reanalysis (AUROC 1.000, but entity recognition — Agni FAIL)

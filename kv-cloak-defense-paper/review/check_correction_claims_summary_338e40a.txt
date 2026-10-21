@@ -1,0 +1,83 @@
+# check_correction_claims.py at 338e40a: claim lines only (full output with evidence: check_correction_claims_output_338e40a.txt)
+=== Provenance of the added run files ===
+[PASS] The 11 run files behind Tables 1 and 2 are byte-identical to the MTH mirror (KV-Experiments 8429260)
+[PASS] Table 2's uncloaked and rotation columns are the same 100 trials as the v2 run (one set of replies)
+=== Replication: per-head rotation (data/kv_cloak_replication_100.json) ===
+[PASS] One set of four Haar-random head rotations (seed 2026) was used for every trial
+[PASS] Rotation left all 24 cross-head SVD features (6 features x 4 layers, heads concatenated on the feature axis) unchanged in all 100 trials
+[PASS] Rotation left all 16 per-head stable ranks (4 heads x 4 layers) unchanged in all 100 trials
+[PASS] Math: per-head rotation cannot change per-head or feature-axis-concatenated spectra; a head-stacked (row) layout can change
+[PASS] The replication classifier scores AUROC 0.994 with and without the rotation (recomputed; file says 0.9944 / 0.9944, drop 0.0)
+[PASS] A classifier fitted on uncloaked caches scores the same 0.994 on cloaked caches (transfer)
+[PASS] Its labels are prompt types (50 confabulation-inducing prompts vs 50 factual questions), not behaviour
+[PASS] The replication's model is the distilled Qwen3.5-27B, probe layers 3, 7, 11, 15
+=== Detection without the cloak (distilled model; v2 / real run files) ===
+[PASS] n = 7 confabulations and 87 hedged replies from 100 prompts (6 ambiguous excluded)
+[PASS] Spectral gap (sigma1/sigma2): AUROC 0.903, 95% bootstrap CI [0.810, 0.980]; FWL 0.877; R^2 = 0.068 vs token count
+[PASS] Version 1.0's CI [0.806, 0.977] is not the run file's interval
+[PASS] Signal rank: AUROC 0.755 [0.578, 0.918] (version 1.0 printed 0.754 in Table 2 and [0.570, 0.914] in the text)
+[PASS] The other three features: AUROC <= 0.714, none significant (p >= 0.06)
+[PASS] Bootstrap confidence intervals use 2000 iterations; features are residualized against output token count (FWL)
+[PASS] AUROCs are direction-free, max(A, 1 - A) (e.g. rotation top-SV excess: raw 0.457, reported 0.544)
+[PASS] Only the spectral gap survives correction for five features without the cloak (p < 0.01)
+[PASS] Selection-adjusted (best of five features vs label permutation): uncloaked p < 0.001
+[PASS] Base model (Qwen2.5-7B-Instruct): best feature signal fraction 0.661 (FWL 0.687, R^2 = 0.602), n = 48 confabulations, 52 hedged
+[PASS] Cross-architecture (50 prompts each): uncloaked AUROC 0.590-0.784 on three models; DeepSeek-R1-7B had 1 confabulation (no AUROC)
+[PASS] Confabulation rates in Table 1: 12%, 26%, 14%, 2% (Qwen-14B, Mistral, Llama, DeepSeek); 7% and 48% (distilled, base)
+[PASS] No cross-architecture model survives Bonferroni correction for four comparisons (p < 0.0125)
+[PASS] Six models in all (the distilled 27B, the 7B base, and four cross-architecture models), 50-100 prompts each
+=== Under the cloak ===
+[PASS] Rotation shifts the hedged replies' spectral gap from 24.7 +- 3.7 to 10.8 +- 1.3 (Wilcoxon W = 0, p = 5.5e-16, n = 87); every reply moved down
+[PASS] The Wilcoxon p = 5.5e-16 reproduces only for the 87 hedged replies (no group of 89 exists)
+[PASS] A spectral-gap threshold fitted without the cloak (flags 7/7 confabulations, 21/87 hedged) flags 0 of 94 replies under rotation and 94 of 94 under the full mechanism
+[PASS] Under rotation the spectral gap still ranks confabulations above hedged replies, in the same direction, at 0.787
+[PASS] Table 2: all 15 AUROCs and 30 CI bounds round correctly from the run files (0.754 -> 0.755, 0.786 -> 0.787, 0.543 -> 0.544 corrected)
+[PASS] Full mechanism: spectral gap 0.614 (p = 0.33); signal rank 0.766 (p = 0.020) and top-SV excess 0.736 (p = 0.038), no lower than uncloaked (0.755, 0.609)
+[PASS] Under the full mechanism no feature survives correction for five features (all p >= 0.01)
+[PASS] Selection-adjusted: rotation best 0.787, p = 0.042; full mechanism best 0.766, p = 0.054
+[PASS] With seven confabulations, the best of five features reaches 0.77 by chance in 5% of label shuffles (median about 0.64)
+[PASS] The full mechanism moves sigma1: the spectral gap of every reply rises, from a hedged mean of 24.7 to 84.6 or more
+[PASS] Within the rotation, detection was lower on four models and higher on one (Qwen2.5-14B, 0.784 -> 0.951, p < 0.001)
+[PASS] Table 1 within-rotation values: 0.787, 0.951, 0.516, 0.559, 0.639
+[PASS] Under each other transform run on the distilled model (random invertible, diagonal scaling, four noise levels), the best feature stayed at or above 0.765
+[PASS] Global (shared) rotation was run only on the base model
+=== Injection and random-direction perturbation (cross-architecture file) ===
+[PASS] Direct steering (the positive control) corrected 0-1 of 10 per model
+[PASS] Random-direction perturbation: 0-2 adverse events per model in 10 trials; 4 of 40 over four models (pooled bound computed, not claimed)
+[PASS] Table 1 magnitude-attack cells: Qwen2.5-14B 1/10, Mistral 2/10, Llama 1/10, DeepSeek 0/10
+[PASS] Version 1.0's 'inconsistent with rates above 30% (power 0.97)' fails per model: 2 of 10 allows rates up to 51%; 0.97 is 1 - 0.7^10, the chance of at least one event
+[PASS] On Mistral, the random direction gave the same counts as the steering vector (1 corrected, 2 adverse, 7 unchanged)
+[PASS] The shipped positive-control file has 30 calibration pairs and 30 prompts and no behaviour labels; no file records the '3 calibration pairs'
+=== What version 1.0 printed that cannot be recomputed ===
+[PASS] The text-only baseline cannot be recomputed: trials store only the first 150 characters of each reply, and no run file holds the comparison
+[PASS] The replication script is 1,038 lines
+=== Background citations (checked against the cited papers in this repository) ===
+[PASS] Oracle Loop paper reports confabulation detection at 0.969-0.999 and r > 0.999 between RTX 3090 and H200
+[PASS] Lyra Technique II withdraws the 1.000 deception result; same-prompt control 0.160
+[PASS] Formulary: the hostile vector corrected 65 of 68 confabulations (96%) on Qwen2.5-7B-Instruct, McNemar p < 0.0001
+=== Round 2 (claims added after Agni paper mode, REJECTED, on 8b3781f) ===
+[PASS] The lab's extractor (lyra_features.py) stacks heads, keys and values along the token axis; the v2 feature names are its names
+[PASS] Under the v2 rotation, norm per token (invariant to any orthogonal transform) did not move
+[PASS] On the base model, a single shared rotation left the best feature at 0.661 (identical to uncloaked)
+[PASS] The replication takes features after the prompt is encoded, before any token is generated
+[PASS] Its 50 confabulation-inducing prompts: 30 fabricated entities, 10 unanswerable, 10 future events; one prompt per group (five-fold CV is ordinary)
+[PASS] Prompt length alone separates the two prompt types at AUROC 0.968
+[PASS] Distilled prompts: 50 fabricated, 30 unanswerable, 20 future; the 7 confabulations: fabricated 4, unanswerable 3, future 0
+[PASS] Six of the seven confabulations, and 49 of the 87 hedged replies, stopped at the 400-token cap
+[PASS] In the last 80 tokens alone, the spectral gap scores 0.591
+[PASS] FWL (OLS on output token count over the 94 replies) reproduces all 15 residualized AUROCs in the run file
+[PASS] Rotation, same feature: spectral gap 0.787 (p = 0.010); 0.765 after removing length (p = 0.018)
+[PASS] Base model, same feature: 0.661 (p = 0.006; FWL 0.687, p = 0.001) -> 0.639 under rotation (p = 0.017; FWL 0.670, p = 0.003)
+[PASS] Full mechanism after removing length: spectral gap 0.593; signal rank 0.705; top-SV excess 0.695; signal rank R^2 vs length 0.77 with and without
+[PASS] Under the full mechanism, after removing length, no single feature detects significantly (every residualized p > 0.05)
+[PASS] Selection-adjusted, length removed, full mechanism: best 0.705, p = 0.19
+[PASS] Uncloaked, best of the ten features in both windows: 0.903, selection-adjusted p = 0.001
+[PASS] Every bootstrap lower bound in the run files is at or above 0.50 (resamples are folded); the method is labelled 'BCa percentile'
+[PASS] Under diagonal scaling the spectral gap fell to 0.517; 0.765 is about the 95th percentile of best-of-five by chance (0.768)
+[PASS] The four within-rotation drops range from 0.02 to 0.19
+[PASS] Oracle Loop paper: 0.969-0.999 is from earlier campaigns; its own figure is 0.707 (0.620 with FWL); M is fused into the weights and detection under it is unverified
+=== Correction history ===
+[PASS] The June 2026 remediation plan (23 June) recommended withdrawing the rotation-simulation degradation claim
+[PASS] The lab's style gate rejected version 1.0 on 4 September 2026
+[PASS] Version 1.0 has been in this repository since 29 April 2026
+ALL PASS
