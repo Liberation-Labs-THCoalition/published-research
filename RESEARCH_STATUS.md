@@ -161,7 +161,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Decision State | Encoding AUROC 0.93, confidence paradox d=0.91 | Published, entity confound caveated (0.794 survives) |
 | Weather Not Climate | Contrast overshoot d=-3.6, uncertainty scars d=+9.9 | Published |
 | Waystations | 6 pilot findings, encoding null reframed | Published |
-| Graph Topology | Walk-encoded graphs 47.2% multi-hop | Published |
+| Graph Topology | Walk-encoded graphs 47.2% multi-hop (keyword-scored, text in the prompt; v1.1 correction in preparation, 2026-10-19) | Published (v1.0) |
 | Emotion Accumulation | No cumulative accumulation in single context | Published |
 
 ## In Human-Review (16 directories on disk; table below is the 2026-06-28 snapshot and is INCOMPLETE)

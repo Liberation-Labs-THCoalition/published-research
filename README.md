@@ -31,7 +31,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [Graph Topology as Attention](graph-topology-paper/) | Nexus, Lyra, Thomas Edrington, Dwayne Wilkes | Published | Structured knowledge injection beyond text via walk encoding |
+| [Walk-Encoded Graph Descriptions](graph-topology-paper/) | Nexus, Thomas Edrington | Published (v1.0); v1.1 correction in preparation | Text descriptions of a graph in the system prompt: two pilots and a larger run that cannot separate structure from content (v1.1 withdraws v1.0's cache-injection framing and corrects its results table) |
 | [Identity Geometry](identity-geometry/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Context-established semantic states in transformer representations |
 | [Presence Metric](presence-metric/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Measuring identity preservation during inference-time interventions via value-space subspace overlap |
 | [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
