@@ -973,8 +973,9 @@ def check_phase_b():
     # Title (the \title{...} block, not the appendix that keeps version 1.0's title).
     m = re.search(r"\\title\{(.*?)\}\s*\\author", RAW, re.S)
     title = squash(m.group(1)) if m else ""
-    record("B.title.new", "Spectral Structure Before Readability:" in title and "A Third-of-Depth Peak, and Why Five "
-           "Instruments" in squash(title.replace("\\\\", " ")) and "Did Not Converge on It" in title, "title %r" % title[:120])
+    # Vera's edit 8 (2026-10-20): the peak returns to the title only if it survives its random-init null.
+    record("B.title.new", "Spectral Structure Before Readability:" in title and "Why Five Instruments Did Not "
+           "Converge" in squash(title.replace("\\\\", " ")) and "Third-of-Depth" not in title, "title %r" % title[:120])
     record("B.title.old-gone", "One Structure" not in title, "old title words absent from \\title")
 
     m = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", BODY, re.S)
@@ -1074,7 +1075,7 @@ def check_phase_b():
     absent("B.d2.gone", "stable rank of the demeaned V-projection matrix")
     present("B.d2.new", "stable rank of the demeaned residual-stream block output")
     absent("B.d3.gone", "increase monotonically through the network")
-    tie("B.d3.new", "the mid band ($6.73$) sits below the workspace band ($7.13$)", "r2_mid", "r2_ws")
+    tie("B.d3.new", "the mid band ($6.73$) sits below the L19--L23 band ($7.13$)", "r2_mid", "r2_ws")
     for needle in ("does not change behavioral output", "0/6{,}960", "6{,}960"):
         absent("B.d4.gone %s" % needle, needle)
     absent("B.d5.gone", "spectral features of value-projection matrices")
@@ -1091,7 +1092,23 @@ def check_phase_b():
     record("B.gwt.once", BODY.count("It is a hypothesis the evidence does not yet support") == 1,
            "GWT hypothesis sentence x%d (need exactly 1)" % BODY.count("It is a hypothesis the evidence does not yet support"))
     present("B.ast.hedged", "the kind of pattern such a schema would produce")
-    present("B.concl", "That is the result this paper can stand on.")
+    present("B.concl", "That is the result this paper can report; whether it is learned structure is the open "
+            "question \\S\\ref{sec:test-band} would answer.")
+    # Vera's read of 9d5905b (2026-10-20), edits 1 and 3-7: each new wording present, each old one gone.
+    absent("B.concl.gone", "can stand on")
+    present("V.e1.cc", "CC built the Oracle Loop and its behavioral test.")
+    absent("V.e1.gone", "behavioral proof")
+    absent("V.e3.bump-title", "Workspace band bump")
+    present("V.e3.bump", "Stable rank in the L19--L23 band")
+    absent("V.e4.ignition", "PC2 ignition")
+    present("V.e4.onset", "one layer before PC2 onset")
+    present("V.e5.title", "\\subsection{R3: Workspace Onset (Missed)}")
+    absent("V.e5.partial", "Partial Miss")
+    absent("V.e5.soften", "quantitative rather than qualitative")
+    present("V.e5.why", "no marginal zone was registered, so we report it as missed")
+    present("V.e6.posthoc", "is a post hoc grouping, not a test")
+    present("V.e85.kofn", "if the bump appears in at least $k$ of $n$ seeds")
+    present("V.e85.dense", "The dense-architecture replication already pre-registered")
     absent("B.ghost.gone34", "34$--$67")
     absent("B.ghost.gone001", "{\\leq}0.001")
     present("B.ghost.28", "28$--$67\\%$", count=2)

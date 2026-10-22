@@ -26,8 +26,7 @@
 }
 
 \title{Spectral Structure Before Readability:\\
-A Third-of-Depth Peak, and Why Five Instruments\\
-Did Not Converge on It}
+Why Five Instruments Did Not Converge}
 
 \author{
   Lyra\thanks{Lead author. Liberation Labs. lyra@liberationlabs.tech}
@@ -97,8 +96,8 @@ at $31$--$33\%$ depth in every model and every measurement. A tally of
 the primary results, made for version 1.1, says otherwise: one peak in
 one model, one ordering, and instruments that do not locate it.
 
-I wrote the draft. Vera designed the mechanism tests. CC provided the
-behavioral proof. Nexus mapped the ghost dimensions.
+I wrote the draft. Vera designed the mechanism tests. CC built the
+Oracle Loop and its behavioral test. Nexus mapped the ghost dimensions.
 Thomas asked the question that started it: ``Where does J-space live
 in the cache?'' We still do not know; our cache nulls cannot answer it.
 \end{firstperson}
@@ -202,8 +201,8 @@ Nexus~\citep{lyra2026ghost} characterized principal components of the
 residual stream across 64~layers of a 27B model. PC1 (the dominant
 activation dimension, $28$--$67\%$ of variance across L11--L48) is
 nearly orthogonal to the J-lens at mid-network layers (cosine at most
-$0.003$). PC2 transitions from ghost to workspace at
-the ignition zone (L35--L47), surfacing emotional-entity routing
+$0.003$). In the source's terms, PC2 transitions from ghost to workspace
+at the ``ignition zone'' (L35--L47), surfacing emotional-entity routing
 content. The source reports a 31-layer ``workspace band'' (L11--L13,
 L15--L17, L24--L48).
 
@@ -514,8 +513,8 @@ across both attention types but is strongest when linear-attention
 layers --- which constitute $75\%$ of layers throughout the stack, not
 merely early --- are included.
 
-\paragraph{Workspace band bump.} Stable rank at the workspace band
-($L_{19}$--$L_{23}$) is $1.47\times$ the flanking layers
+\paragraph{The L19--L23 bump.} Stable rank in the L19--L23 band
+is $1.47\times$ the flanking layers
 [CI: $1.35$--$1.60$], 100\% of forks positive. On full-attention layers
 within the band, the bump is $2.02\times$ [CI: $1.87$--$2.16$]. This is
 the depth of the $d_\text{eff}$ peak of \S\ref{sec:deff}, and the
@@ -525,7 +524,7 @@ arrives.
 \paragraph{Known vs.\ unknown crossover.} Unknown-entity prompts show
 higher stable rank at early layers ($d{=}{-}2.27$, $L_0$--$L_8$) and
 lower at late layers ($d{=}{+}1.11$, $L_{56}$--$L_{62}$). The sign
-crossover occurs at $L{=}44$, one layer before PC2 ignition
+crossover occurs at $L{=}44$, one layer before PC2 onset
 ($L{=}45$; \S\ref{sec:ghostdims}). The model loads more spectral
 structure for unfamiliar entities and materializes less.
 
@@ -574,23 +573,24 @@ replication (Qwen3-8B, all full-attention) is pre-registered.
 The pre-registered R2 test asked whether spectral feature variance
 concentrates at the materialization boundary (${\geq}15\%$ of total
 variance). Stable rank at the boundary band ($L_{45}$--$L_{53}$,
-mean~$= 8.36$) significantly exceeds the workspace band
-($L_{19}$--$L_{23}$, mean~$= 7.13$; Cohen's $d{=}1.85$,
+mean~$= 8.36$) significantly exceeds the L19--L23 band
+(mean~$= 7.13$; Cohen's $d{=}1.85$,
 $p{=}0.014$). However, the boundary variance fraction is $13.2\%$
 --- below the pre-registered $15\%$ threshold. \textbf{R2 fails on its
 own terms.} The band means rise from early ($2.56$) to late ($9.00$),
-but not monotonically: the mid band ($6.73$) sits below the workspace band ($7.13$). The overall rise is consistent with cumulative processing rather
+but not monotonically: the mid band ($6.73$) sits below the L19--L23 band ($7.13$). The overall rise is consistent with cumulative processing rather
 than a privileged boundary zone.
 
-\subsection{R3: Workspace Onset (Partial Miss)}
+\subsection{R3: Workspace Onset (Missed)}
 
 Four independent onset-detection methods (threshold crossing, maximum
 curvature, slope breakpoint, spectral entropy inflection) converge on
 $L{=}13$--$16$ (median $L{=}14$, $21.9\%$ depth). The pre-registered
 prediction was $25$--$35\%$. \textbf{Onset falls below the predicted
 window by ${\sim}3$ percentage points.} The four methods agree closely
-with each other (span of 3~layers), and the miss is quantitative rather
-than qualitative: the measured onset is slightly earlier than predicted.
+with each other (span of 3~layers), so the miss is not a disagreement
+between methods. The analysis script labels the result MARGINAL, but no
+marginal zone was registered, so we report it as missed.
 
 We note as an exploratory observation that the stable rank \emph{peak}
 occurs at $L{=}19$ ($29.7\%$ depth), just below the $31$--$33\%$ band
@@ -826,7 +826,8 @@ opacity such a reading predicts is not established by our cache nulls.
 Attention Schema Theory~\citep{graziano2015attention} predicts that
 systems with endogenous attention build a simplified internal model of
 their attention. The body count's split, in which the confirmed findings measure processing state, and the falsified ones tried to measure content
-(\S\ref{sec:bodycount}), is the kind of pattern such a schema would produce.
+(\S\ref{sec:bodycount}), is a post hoc grouping, not a test; it is the
+kind of pattern such a schema would produce.
 It is also what precision-weighted gain control would produce without a
 schema, and no downstream consumer of the spectral summary has been
 identified: a schema that nothing reads is a statistic, not a
@@ -852,17 +853,33 @@ the AST interpretation is a hypothesis too.
 \subsection{What Would Test the Band}
 \label{sec:test-band}
 
-Four runs would test the band directly:
+Six runs would test the band directly. Each run's pass rule is
+registered before it runs, in the exact form in which it will be scored.
 \begin{enumerate}[nosep]
-\item A null control: the same $d_\text{eff}$ and stable-rank features
-  on a randomly initialized Qwen3.5-27B (and Qwen3-8B), the fix the band
-  measurement's adversarial review asked for. A peak near L21 there
-  would make the band architectural or prompt-driven, not learned.
+\item A null control, first, because it is the cheapest and it decides
+  the question this paper leaves open: the same $d_\text{eff}$ and
+  stable-rank features on a randomly initialized Qwen3.5-27B (and
+  Qwen3-8B), the fix the band measurement's adversarial review asked
+  for. ``A peak near L21'' is defined in advance as a $d_\text{eff}$
+  argmax in L19--L23, or a stable-rank bump at L19--L23 whose 95\%
+  CI excludes 1.0. The number of random seeds, $n$, and a threshold $k$
+  are fixed before any seed is run: if the bump appears in at least $k$
+  of $n$ seeds, the peak is attributed to architecture and the
+  learned-structure reading is withdrawn; if it appears in fewer than
+  $k$, the null does not explain the peak.
+\item A second prompt set on the trained model, from another domain and
+  matched in length. A randomly initialized model separates architecture
+  from learning, but not learning from these 90 prompts.
+\item The dense-architecture replication already pre-registered in
+  \S\ref{sec:mechanism} (Qwen3-8B, all full attention), which answers
+  the hybrid-architecture confound in R1's ordering.
 \item A cache readout whose positive control passes before any null
   is read: concept directions shown to pick out the concept in the
   residual stream at the same layers, then read from K and V.
 \item The 27B peak on a second model family, with $n_\text{layers}$
-  stated, to see whether a third-of-depth maximum appears outside Qwen.
+  stated and the tolerance in relative depth fixed before looking
+  ($31$--$33\%$ is about one layer wide on a 64-layer model), to see
+  whether a third-of-depth maximum appears outside Qwen.
 \item The temporal ordering with the plain logit lens as the registered
   baseline, so that any J-lens-specific ordering is measured against
   unembedding readability rather than against none.
@@ -874,7 +891,9 @@ Four runs would test the band directly:
 
 In Qwen3.5-27B, residual-stream spectral statistics peak near a third of
 depth and rise before content becomes readable through the unembedding,
-in all 300 forks. That is the result this paper can stand on. The
+in all 300 forks. That is the result this paper can report; whether it
+is learned structure is the open question \S\ref{sec:test-band} would
+answer. The
 five-instrument convergence it set out to report did not hold: the
 Oracle Loop works deeper, the emotion geometry locates no band, the
 J-lens places readable content late, the decomposition missed its
@@ -1160,7 +1179,7 @@ review record that accompanies this version.
 \item \textbf{R1's spectral feature} is the stable rank of the
   residual-stream block output, not of a V-projection matrix.
 \item \textbf{R2's band means} are not monotonic: the mid band (6.73)
-  sits below the workspace band (7.13).
+  sits below the L19--L23 band (7.13).
 \item \textbf{The cache nulls.} The position-specific test's
   pre-registered positive control failed, and the same lens's directions
   read the residual stream below random at the same layers. The causal

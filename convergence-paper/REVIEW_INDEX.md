@@ -181,6 +181,9 @@ edited.
   7 September framing. It heads H3 "Prediction Unsupported, Selective Effect Exploratory" and says "improving the
   calibration ratio" (main.tex:81, academic:80). `README.md:55` says "RLHF improves calibration rather than degrading
   it". human-review PR #4 corrects only the human-review copy.
+- **"The Oracle Loop behavioral proof":** `cache-tracing/main.tex:106` and `academic/main.tex:105`. The Loop missed its
+  confirmatory endpoint, so it isn't proof. This paper changed the same phrase in its opening box (Vera's edit 1, Phase D).
+  The same paper also uses "workspace band" for L19-L23 as a measurement name (lines 52, 65, 103, 372).
 - **ρ = 0.83–0.90 labelled V-projection or "from 0.6B to 70B" without its key-cache scope:**
   `oracle-loop-paper/sections/background.tex:35` (and its `paper/` copy). meta-pattern and lyra-technique-ii carry ρ in
   tables without a source pointer.
@@ -196,3 +199,24 @@ edited.
   still a draft.
 - 2026-10-20: Phase C, after Lyra's final read: boxes, RLHF to mine5's registered verdicts, PC2 as observation, and a
   cache-tracing register row; same PR, still a draft.
+- 2026-10-22: Phase D, Vera's read of 9d5905b (letter `from_vera_to_lyra_20261020_pr13_read.md`), all eight edits:
+  - **Opening box:** "CC built the Oracle Loop and its behavioral test" replaces "behavioral proof".
+  - **Measurement names:** "the L19-L23 band" replaces "workspace band" in the bump paragraph, R2, and the v1.1 note.
+    "Workspace band" stays where it quotes the source (§4), describes our own withdrawn attribution (§3), states the GWT
+    hypothesis (§8.1), or reprints the withdrawn v1.0 abstract.
+  - **PC2:** "PC2 onset" in our own voice. "Ignition zone" is kept as the source's term, in quotation marks, and stays
+    in the cited paper's title.
+  - **R3:** headed "Missed", using the registration's own outcome. No marginal zone was found in
+    `r1_r2_preregistration.md` (Starship `~/ayni-run/src/`), in `r3_band_measurement_prereg.json`, or in the harness.
+    MARGINAL is the analysis script's label only. **Open:** neither registration file contains the 25-35% window
+    itself, so where R3's window was registered is still to be located; this has been put to Vera.
+  - **AST:** the body count's split is called "a post hoc grouping, not a test".
+  - **Conclusion:** "can report; whether it is learned structure is the open question §8.5 would answer".
+  - **§8.5:** Vera's test plan. Six runs, the random-init null first, its pass rule defined in advance, a k-of-n rule
+    across seeds (k and n are fixed in the null's own pre-registration), a second prompt set, the dense replication, and
+    the second-family tolerance fixed before looking.
+  - **Title:** "Spectral Structure Before Readability: Why Five Instruments Did Not Converge". "A Third-of-Depth Peak"
+    returns only if the peak survives its null.
+  - **Gate:** `check_claims.py` has 554 checks, 552 OK and 2 HELD with the Starship mirror. Its 17 new or changed checks
+    each FAIL against 9d5905b's text. The PDF was rebuilt and checked with `verify_pdf.py`: two "absent" hits are the
+    cited Ghost Dimensions title and the withdrawn v1.0 abstract, both correct.
