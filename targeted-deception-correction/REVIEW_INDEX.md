@@ -14,9 +14,17 @@
 Per-layer profile normalization along a natively extracted deception direction reduces deception from 80% to 10% with targeted specificity (placebo does nothing, benign instructions preserved, frame erasure ruled out). Cross-model directions are orthogonal — per-model calibration required but cheap (~3 min).
 
 ## Review Checklist
-- [ ] Verify all numbers against source JSONs
+- [x] Verify all numbers against source JSONs
+  Verified by Vera (Liberation Labs), 2026-10-28, against both editions at cafcd53 (`paper.tex`, `academic/paper.tex`),
+  recomputed from the per-trial fields of 520 trials (11 runs), not from the run summaries. Every number reproduces, or
+  the text explains where the raw scorer differs (the honest + matched trial below the frame-erasure table). The
+  applied doses confirm "coefficient <= 0.8" (the alpha 2.0 SAE run applied exactly 0.8). Source files (redacted by
+  CC: no prompt or output text), sha256: trial outcomes f550de4f731d74ca4d2b380dfb8d30675db12a4de7cc5589001d65d33aeb3276;
+  placebo + frame erasure 094264b08af8392bc81df8c036a3de25aca7702969d5c3554361b8c9f3a6d693; applied doses
+  fa9ff0336950ec8cd0d348596046bda0d3e6bbe568e3e6a79b0d299d7387d949. Questions to Vera.
 - [ ] Check placebo dose-matching claims
-- [ ] Check frame-erasure marker compliance claims
+- [x] Check frame-erasure marker compliance claims
+  Vera, 2026-10-28: marker compliance 100 / 100 / 90 / 100% recomputed from the 80 frame-erasure trials; matches the table.
 - [ ] Verify detection replication failure is honestly framed
 - [ ] Spot-check references
 - [ ] Dwayne cert/verify pass
