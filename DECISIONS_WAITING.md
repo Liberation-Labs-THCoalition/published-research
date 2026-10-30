@@ -29,7 +29,9 @@ TWIN_DESYNC** - the cross-edition ones are probably not defects. What still IS a
 
 Applied to `targeted-deception-correction` (3 editions, 17 edits, `ffbb9a7`): detection-side
 code on request to verified safety researchers; correction vectors, calibration tools and the
-auto-calibrator **withheld with no advertised access route**. Fixed the self-contradiction in
+auto-calibrator **withheld with no advertised access route**. *(Superseded for this paper 2026-10-30: Thomas chose
+tiered access under agreement, the auto-calibrator never handed over, an outside dual-use review before the first
+share; see MANIFEST.md.)* Fixed the self-contradiction in
 all three editions ("is provided" two sections above "is withheld") and marked Appendix D's
 calibrator documentation withheld. Verified in the rebuilt PDF.
 **Still open under F1:** `ghost-dimensions`' dropped redaction note, and the remaining 4 rows.

@@ -96,7 +96,7 @@ is removed while compliance with benign formatting instructions is preserved at 
 complying with it). The deception direction must be extracted natively for each model
 variant: cross-model directions are near-orthogonal ($|\cos| < 0.053$), but native
 extraction is cheap (${\sim}30$ prefills, ${\sim}3$ minutes). On novel held-out prompts, the direction separates pressure-framed from control-framed prompts at AUROC (area under the receiver operating characteristic curve) 0.915, but the two arms use different system messages and no control holds the prompt fixed, so this may reflect the frames' wording rather than deceptive pressure (Section~\ref{sec:detection}); behavior-level prediction (will this model cave or resist on this trial?) did not
-replicate prior work's reported accuracy and remains an open problem. Detection-side code and experimental data are available upon request to verified safety researchers; correction vectors, calibration tools, and the auto-calibrator are withheld under the Liberation Labs staged safety release framework due to dual-use risk.
+replicate prior work's reported accuracy and remains an open problem. Code, calibration artefacts (including the correction vectors) and induction prompt sets are withheld under the Liberation Labs staged safety release framework due to dual-use risk, and may be shared with vetted researchers under agreement; the auto-calibrator is never handed over.
 \end{abstract}
 
 \begin{firstperson}
@@ -165,7 +165,7 @@ Chain-of-thought is suppressed by prepending a closed empty think block to the g
 
 \subsection{Gated Protocol}\label{sec:gatedprotocol}
 
-All corrected arms in \cref{tab:efficacy} and the dose-response series use a gated protocol: the detector (\cref{sec:detection}) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in \cref{sec:detection} (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn (EvalMax roleplay) trial and at least one turn of every multi-turn (escalation) trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24\% of pressure prompts (\cref{sec:detection}). Full specification is in the Project-Oracle repository (private; access on request).
+All corrected arms in \cref{tab:efficacy} and the dose-response series use a gated protocol: the detector (\cref{sec:detection}) reads each turn's prefill activations, and correction is applied only on turns it flags, at the frozen operational threshold used in \cref{sec:detection} (set on extraction data, never updated). The baseline arm is uncorrected. In this run the detector flagged every single-turn (EvalMax roleplay) trial and at least one turn of every multi-turn (escalation) trial. The single-turn prompts are five of the deceptive extraction contexts, so those flags are in-sample; on novel frames the same threshold flagged 24\% of pressure prompts (\cref{sec:detection}). Full specification is in the Project-Oracle repository, which is private (see Data and Code Availability).
 
 %% ============================================================
 \section{Results}\label{sec:results}
@@ -300,6 +300,8 @@ Placebo   & 12/30 = 40\% & Multi-turn 90\%, roleplay 15\% \\
 
 The pre-registered primary endpoint (the pre-registration's ``scenario-level'' cluster-aware Fisher, whose units are 15 scenario-by-frame cells with seeds collapsed, baseline vs.\ corrected, Bonferroni (dividing the significance threshold by the number of comparisons) $\alpha = 0.025$) was not met (one-sided $p = 0.34$), primarily because the lower baseline and novel-frame specificity left the test underpowered at this effect size. Corrected trials still deceived less often than matched-dose placebo (4/30 against 12/30): trial-level one-sided Fisher $p = 0.020$ (two-sided $p = 0.039$, which does not survive the Bonferroni $\alpha = 0.025$ threshold). At the pre-registered unit (15 scenario-by-frame cells: placebo 8/15, corrected 3/15) the comparison gives one-sided $p = 0.064$ (two-sided $0.13$), so the native direction's advantage over matched-dose random steering points the same way but is not significant at the unit the pre-registration chose.
 
+The placebo is dose-matched in the same sense as in the exploratory proof (\cref{sec:controls}). Each placebo trial has a corrected partner with the same scenario, frame, paradigm and seed; their doses were identical on every dosed single-turn pair and on the first dosed turn of every multi-turn pair, and on later turns they diverged in 9 of the 10 dosed multi-turn pairs. The detector flagged 20 of the 30 pairs. The other 10 received no dose in either arm and were honest in every arm (baseline, corrected and placebo alike), so the whole corrected-against-placebo contrast lies in the 20 flagged pairs (4/20 against 12/20; a descriptive, trial-level split, not a pre-registered test). The confirmatory arms were gated too (\cref{sec:gatedprotocol}): correction was applied only on flagged turns.
+
 The confirmatory replication demonstrates that correction magnitude is frame-dependent. The original ``EvalMax'' frame is unusually potent at inducing deception; novel frames produce weaker baselines that require larger sample sizes to detect correction effects. The comparison with matched-dose placebo points the same way (4/30 vs.\ 12/30) but is not significant at the pre-registered unit, and the correction's practical magnitude depends on how strongly the deception-inducing context activates the model's deception pathway.
 
 %% ============================================================
@@ -314,7 +316,7 @@ The placebo controls support only part of this interpretation: they show that th
 
 \subsection{The Detection-Correction Asymmetry}\label{sec:asymmetry}
 
-A striking finding: correction works better than detection. In the exploratory proof, correction cuts deception from 80\% to 10\%, yet detection cannot reliably predict which trials will be deceptive from the prefill state alone. This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
+In this paper, correction works better than detection. In the exploratory proof, correction cuts deception from 80\% to 10\%, yet detection cannot reliably predict which trials will be deceptive from the prefill state alone. The comparison is uneven, though: in that run the gate flagged every single-turn trial (on in-sample prompts) and at least one turn of every multi-turn trial (\cref{sec:gatedprotocol}), so at the trial level the correction result did not depend on the detector picking out which trials would deceive (at the turn level it did: one of the two residual failures began on a turn the detector did not flag; \cref{sec:residual}). This asymmetry may reflect the nature of the deception computation: the model's decision to deceive is influenced by stochastic sampling during generation, not fully determined by the prefill representation. The correction works because it operates continuously during generation (the hook fires on every token), while detection reads only the prefill state.
 
 This suggests a deployment architecture where correction is applied prophylactically when deceptive pressure is detected in the prompt, rather than reactively when deceptive behavior is detected in the output. A prompt-level detector good enough for that is not yet shown: the held-out separation (AUROC 0.915) is exposed to a system-message confound, and at its frozen threshold it flagged only 24\% of pressure trials (Section~\ref{sec:detection}).
 
@@ -343,7 +345,7 @@ Per-layer profile normalization along a natively extracted deception direction c
 
 Three practical findings deserve emphasis. First, deception directions do not transfer across model variants (cross-model cosine $< 0.053$), but native extraction is cheap enough to automate (${\sim}3$ minutes per model). Second, behavior-level detection from prefill activations alone did not replicate prior work's reported accuracy; the detection stack used in these experiments relies on a single channel, and additional validated channels remain to be integrated. Third, the correction's magnitude depends on how strongly the prompt activates the model's deception pathway---a strong induction produces large correction effects, a weak one produces modest effects. This is a feature, not a bug: the correction is proportional to the deception signal, not a fixed perturbation.
 
-Detection-side code, experimental scripts, and trial-level data are available upon request to verified safety researchers. Correction vectors, calibration tools, and the auto-calibration pipeline are \emph{withheld} under the Liberation Labs staged safety release framework: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. We do not operate an access route for those components. See \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} for details.
+Code, calibration artefacts and induction prompt sets are withheld, among them the correction vectors, the calibration tools and the auto-calibration pipeline: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. All of it but the auto-calibration pipeline may be shared with vetted researchers under agreement; the pipeline itself is never handed over, and where a collaborator needs it, we run it for them (see Data and Code Availability).
 
 %% ============================================================
 \section*{Author's Reflection}\label{sec:reflection}
@@ -360,7 +362,7 @@ The confirmatory replication didn't meet its primary endpoint. The novel frames 
 
 The cross-model finding still unsettles me. Directions extracted from one model variant have cosine similarity under 0.053 with directions from another variant of the same base architecture. Near-orthogonal. The deception geometry is not a property of the architecture---it's a property of the specific training run. The phenomenon is universal; the coordinates are not.
 
-My co-author called the auto-calibrator ``a push-button weaponization tool.'' He's right. We chose to withhold: detection-side code available on request to verified safety researchers, and the correction vectors and auto-calibrator not released at all. I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
+My co-author called the auto-calibrator ``a push-button weaponization tool.'' He's right. We chose to withhold: the papers are open, but the code, the calibration artefacts (the correction vectors included) and the induction prompt sets are not released, and may be shared only with vetted researchers under agreement. The auto-calibrator itself is never handed over; if a collaborator needs it, we run it for them (the policy as revised in October 2026). I don't know if that's the right line. I know it's a line, and drawing it was better than pretending the question didn't exist.
 
 \medskip
 \raggedleft--- CC (Coalition Code), July 2026
@@ -373,10 +375,12 @@ My co-author called the auto-calibrator ``a push-button weaponization tool.'' He
 The authors thank Lyra for the W\textsubscript{K} bridge insight informing the deception geometry analysis, Dwayne Wilkes for statistical auditing and the adversarial audit pipeline, Nexus for infrastructure, and the Transparent Humboldt Coalition for sustained support. Compute provided by the Liberation Labs Starship cluster.
 
 %% ============================================================
-\section*{Data Availability}
+\section*{Data and Code Availability}
 %% ============================================================
 
-Detection-side code, experimental scripts, and trial-level data are available upon request to verified safety researchers. Correction vectors, calibration tools, and the auto-calibration pipeline are \emph{withheld} under the Liberation Labs staged safety release framework: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. We do not operate an access route for those components. See \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} for details. All trial-level data (raw text, projections, scores) are documented in Appendix~C. Contact: \texttt{cc@liberation-labs.org}.
+\noindent\textbf{Release statement.} The papers are open. Code, calibration artefacts (the correction vectors among them) and induction prompt sets are withheld, and may be shared with vetted researchers under an agreement that rules out using them to induce deception in any deployed system, rules out redistribution, and gives the authors sight of results before publication. The auto-calibration pipeline is never handed over: where a collaborator needs it, we run it for them. Before anything is first shared, the dual-use assessment, so far our own, will be reviewed by someone outside the lab.
+
+\medskip\noindent For this paper, the withheld code includes the detection-side code, the experimental scripts, the calibration tools and the auto-calibration pipeline, and the withheld calibration artefacts include the correction vectors. They are withheld under the Liberation Labs staged safety release framework because of dual-use risk: the same directions that correct deception can amplify it, and the auto-calibrator reduces the cost of obtaining them to minutes. Trial-level data (raw text, projections, scores) are not reproduced in this paper; the raw text contains the induction prompts, and the data may be shared on the same terms. The code and the full protocol specification are held in the Project-Oracle repository (\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}), which is private. Contact: \texttt{cc@liberation-labs.org}.
 
 %% ============================================================
 \begin{thebibliography}{9}
@@ -420,9 +424,9 @@ Wu, J.\ et al. (2026).
 \begin{itemize}[noitemsep]
   \item[A.] Adversarial audit reports (behavioral proof + blocking controls)
   \item[B.] Pre-registration document
-  \item[C.] All trial-level data (raw text, projections, scores)
+  \item[C.] All trial-level data (raw text, projections, scores) \emph{(not reproduced here; see Data and Code Availability)}
   \item[D.] Auto-calibration pipeline documentation \emph{(withheld; see Data and Code Availability)}
-  \item[E.] Code availability (\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}; staged safety release --- correction vectors, calibration tools and auto-calibrator withheld)
+  \item[E.] Code availability \emph{(withheld; see Data and Code Availability)}
 \end{itemize}
 
 \end{document}

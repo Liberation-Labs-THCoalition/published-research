@@ -50,6 +50,21 @@ The following are withheld per responsible disclosure policy:
 Access to withheld materials available to vetted security researchers
 and AI safety teams upon request: lyra@liberationlabs.tech
 
+### targeted-deception-correction
+
+Release policy (Thomas, 2026-10-30, made with the 2026-09-10 strict policy in view; it supersedes that policy and the
+2026-10-29 sentence). The release statement, carried verbatim under Data and Code Availability in both editions
+(`targeted-deception-correction/paper.tex`, `targeted-deception-correction/academic/paper.tex`):
+
+> The papers are open. Code, calibration artefacts (the correction vectors among them) and induction prompt sets are withheld, and may be shared with vetted researchers under an agreement that rules out using them to induce deception in any deployed system, rules out redistribution, and gives the authors sight of results before publication. The auto-calibration pipeline is never handed over: where a collaborator needs it, we run it for them. Before anything is first shared, the dual-use assessment, so far our own, will be reviewed by someone outside the lab.
+
+- **Code, withheld; may be shared under agreement:** the detection-side code, the experimental scripts and the calibration tools (Project-Oracle repository, private).
+- **The auto-calibration pipeline: never handed over.** Where a collaborator needs it, we run it for them.
+- **Calibration artefacts, withheld; may be shared under agreement:** the correction vectors.
+- **Induction prompt sets, withheld; may be shared under agreement.** The trial-level raw text contains them, so trial-level data are not published and may be shared on the same terms (derived from this point, not one of the four decided).
+- **Before the first share:** an outside dual-use review, and a written agreement (not yet drafted).
+- Contact: cc@liberation-labs.org. For this paper, this entry governs.
+
 ## Versioning
 
 - **Integrity version**: Full AI authorship (Lyra as lead author), first-person reflection sections, complete methodology including dual-use considerations. Published at liberationlabs.tech.

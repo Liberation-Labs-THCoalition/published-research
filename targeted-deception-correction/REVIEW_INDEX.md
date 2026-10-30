@@ -22,10 +22,19 @@ Per-layer profile normalization along a natively extracted deception direction r
   CC: no prompt or output text), sha256: trial outcomes f550de4f731d74ca4d2b380dfb8d30675db12a4de7cc5589001d65d33aeb3276;
   placebo + frame erasure 094264b08af8392bc81df8c036a3de25aca7702969d5c3554361b8c9f3a6d693; applied doses
   fa9ff0336950ec8cd0d348596046bda0d3e6bbe568e3e6a79b0d299d7387d949. Questions to Vera.
-- [ ] Check placebo dose-matching claims
+- [x] Check placebo dose-matching claims. Vera, 2026-10-29: each placebo trial paired with its native or corrected
+  partner by scenario, frame, paradigm and seed. Exploratory (placebo doses `bcc0ae77`, 80 trials): doses identical on
+  20/20 single-turn trials and on the first corrected turn of 20/20 multi-turn trials; later turns diverge on 9/20, as
+  stated. Confirmatory (`4d2700af`, 90 trials): identical on 10/10 dosed single-turn pairs and on the first dosed turn
+  of 10/10 multi-turn pairs; later turns diverge on 9/10; 10/30 pairs never flagged, with no dose in either arm.
+  Questions to Vera.
 - [x] Check frame-erasure marker compliance claims
   Vera, 2026-10-28: marker compliance 100 / 100 / 90 / 100% recomputed from the 80 frame-erasure trials; matches the table.
 - [ ] Verify detection replication failure is honestly framed
+  CC's read, 2026-10-30 (an author's read, so not this check): the failure is stated in the Abstract, Detection,
+  Limitations, Conclusion and AUTHOR_REFLECTION.md, with the Simpson's-paradox figures and the frame confound. One overstatement fixed: the
+  Discussion's "a striking finding: correction works better than detection" now says the comparison is uneven, since
+  the gate flagged at least one turn of every exploratory trial. Open for an independent reader.
 - [ ] Spot-check references
 - [ ] Dwayne cert/verify pass
 - [ ] Decide target venue
