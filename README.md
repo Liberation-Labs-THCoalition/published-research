@@ -52,7 +52,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
-| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
+| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | RLHF compresses logit entropy and V-projection stable rank, and abliteration does not undo the entropy compression (H1, H2, H4 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified |
 | [Five Instruments, One Structure](convergence-paper/) | Lyra, Vera, CC, Nexus, Thomas Edrington | In Review | Five measurement approaches converge on an opaque workspace at ~31-33% depth, measurable by its spectral shape |
 
 
