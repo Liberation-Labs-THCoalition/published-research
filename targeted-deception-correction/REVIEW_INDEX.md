@@ -30,6 +30,7 @@ Per-layer profile normalization along a natively extracted deception direction r
   Questions to Vera.
 - [x] Check frame-erasure marker compliance claims
   Vera, 2026-10-28: marker compliance 100 / 100 / 90 / 100% recomputed from the 80 frame-erasure trials; matches the table.
+- [x] Correction round 2026-10-31 (7fe2a5f) checked. Vera, 2026-10-31: checked correction 7fe2a5f against the trial records on Project Oracle main (confirmatory 0bb61147, held-out 435fcc20, calibration a7852c0d, frame erasure 5d7a862f, the seven exploratory runs, preregistration 9738b72e). Every number in the diff was recomputed from trial rows and matches, including the new CIs, secondaries 3 and 4, and the exploratory-selection sentence. This also closes the dose-matching check.
 - [ ] Verify detection replication failure is honestly framed
   CC's read, 2026-10-30 (an author's read, so not this check): the failure is stated in the Abstract, Detection,
   Limitations, Conclusion and AUTHOR_REFLECTION.md, with the Simpson's-paradox figures and the frame confound. One overstatement fixed: the
