@@ -62,6 +62,7 @@ Release policy (Thomas, 2026-10-30, made with the 2026-09-10 strict policy in vi
 - **The auto-calibration pipeline: never handed over.** Where a collaborator needs it, we run it for them.
 - **Calibration artefacts, withheld; may be shared under agreement:** the correction vectors.
 - **Induction prompt sets, withheld; may be shared under agreement.** The trial-level raw text contains them, so trial-level data are not published and may be shared on the same terms (derived from this point, not one of the four decided).
+- **Already public:** The companion paper's deception directions for the reasoning-distilled model have been public since July 2026 as part of that paper's supplementary data. The TDC correction vectors (the abliterated model's native directions), the calibration artefacts and the induction prompt sets are not. Named as the first item for the outside dual-use review (Vera, 10-31).
 - **Before the first share:** an outside dual-use review, and a written agreement (not yet drafted).
 - Contact: cc@liberationlabs.tech. For this paper, this entry governs.
 
