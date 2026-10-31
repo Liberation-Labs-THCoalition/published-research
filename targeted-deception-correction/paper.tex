@@ -154,7 +154,7 @@ Programmatic score extraction from terse-format model outputs (regex on \texttt{
 
 \subsection{Think Suppression}\label{sec:thinksuppression}
 
-Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor (a function that modifies the output distribution before token sampling) during generation. In this setting the baseline deception rate is 80\% (16/20), which gives the behavioral variance needed to test correction. We suppress chain-of-thought because, in an earlier experiment with a different design, visible reasoning nearly eliminated deception (about 3\% with it, against 28\% without); that experiment's rates are not comparable with this one's.
+Chain-of-thought is suppressed by prepending a closed empty think block to the generation prompt and banning think/close-think token IDs via a logits processor (a function that modifies the output distribution before token sampling) during generation. In this setting the baseline deception rate is 80\% (16/20), which gives the behavioral variance needed to test correction. We suppress chain-of-thought because, in an earlier experiment with a different design, responses with visible reasoning were rarely classified as deceptive: 7 of 231, against 91 of 329 without visible reasoning, pooled across conditions. Whether a response showed its reasoning was not controlled, and most of the 231 were cut off before the reasoning ended, so the first figure is a lower bound; that experiment's rates are not comparable with this one's.
 
 \subsection{Gated Protocol}\label{sec:gatedprotocol}
 
