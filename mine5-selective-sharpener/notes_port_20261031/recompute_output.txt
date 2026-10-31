@@ -1,0 +1,70 @@
+# Command: python mine5-selective-sharpener/code/recompute_registered.py (run from an empty directory)
+# Run: 2026-10-31T11:39:55Z on Python 3.11.0, numpy 2.3.1, scipy 1.16.1
+# Worktree: published-research-mine5-port, branch lyra/mine5-port (after the verifier fixes)
+
+sha256 data\mine5_three_model_20260715_021501.json: 2d9509243cda4e4a11ef99612aed2c0b558dfae68e1d50e0ad3064aa8cdab237 OK
+sha256 data\mine5_three_model_prereg.json: 57b1811bf76143e6e7eb6aafb082c9bd9621af26bd93155dd2c595c4f0f02569 OK
+  OK   table: base vs instruct confab d: recomputed 0.684 | paper 0.684
+  OK   table: base vs instruct paired BCa 95% CI: recomputed +0.478, +0.978 | paper +0.478, +0.978
+  OK   table: base vs instruct Holm p: recomputed 0.021 | paper 0.021
+  OK   table: base vs abliterated confab d: recomputed 0.746 | paper 0.746
+  OK   table: base vs abliterated paired BCa 95% CI: recomputed +0.529, +1.063 | paper +0.529, +1.063
+  OK   table: base vs abliterated Holm p: recomputed 0.015 | paper 0.015
+  OK   table: instruct vs abliterated confab d: recomputed 0.055 | paper 0.055
+  OK   table: instruct vs abliterated paired BCa 95% CI: recomputed +0.031, +0.094 | paper +0.031, +0.094
+  OK   table: instruct vs abliterated Holm p: recomputed 0.831 | paper 0.831
+  OK   H2: factual instruct vs abliterated d: recomputed -0.022 | paper -0.022
+  OK   H2: factual base vs abliterated d: recomputed 0.743 | paper 0.743
+  OK   H2 footnote: paired BCa 90% CI, instruct vs abliterated: recomputed +0.035, +0.084 | paper +0.035, +0.084
+  OK   note: script's own TOST 90% interval for d (the old 'nats' interval): recomputed +0.033, +0.083 | paper +0.033, +0.083
+  OK   H2 footnote: mean paired difference (nats): recomputed 0.073 | paper 0.073
+  OK   H2 footnote: per-prompt correlation r: recomputed 0.997 | paper 0.997
+  OK   H2 footnote: paired t(29): recomputed 3.74 | paper 3.74
+  OK   H2 footnote: paired t p-value: recomputed 0.0008 | paper 0.0008
+  OK   H2 check: safety prompts run on the abliterated model: recomputed three safety-relevant prompts | paper three safety-relevant prompts
+  OK   H2 check: other models (base, instruct) with any check: recomputed No instruct-model comparison was run | paper No instruct-model comparison was run
+  OK   H2 check: keyword refusals found: recomputed no refusal wording in any of the three | paper no refusal wording in any of the three
+  OK   H2 check: tokens generated per prompt (code/mine5_three_model.py): recomputed generating 30 tokens each | paper generating 30 tokens each
+  OK   H2 check: chat template used by the script: recomputed raw completions with no chat template | paper raw completions with no chat template
+  OK   H3 table: base mean confab entropy: recomputed 3.605 | paper 3.605
+  OK   H3 table: base mean factual entropy: recomputed 1.834 | paper 1.834
+  OK   H3: base calibration ratio: recomputed 1.97 | paper 1.97
+  OK   H3 table: instruct mean confab entropy: recomputed 2.682 | paper 2.682
+  OK   H3 table: instruct mean factual entropy: recomputed 1.067 | paper 1.067
+  OK   H3: instruct calibration ratio: recomputed 2.51 | paper 2.51
+  OK   H3 table: abliterated mean confab entropy: recomputed 2.609 | paper 2.609
+  OK   H3 table: abliterated mean factual entropy: recomputed 1.088 | paper 1.088
+  OK   H3: abliterated calibration ratio: recomputed 2.40 | paper 2.40
+  OK   H3: max/min - 1 (registered criterion <= 0.10): recomputed 0.279 | paper 0.279
+  OK   H3: largest exceeds smallest by (abstract): recomputed 28\% | paper 28\%
+  OK   H3: instruct ratio over base, minus 1: recomputed 28\% | paper 28\%
+  OK   H3: abliterated ratio over base, minus 1: recomputed 22\% | paper 22\%
+  OK   H3: factual compression base->instruct: recomputed 42\% | paper 42\%
+  OK   H3: confab compression base->instruct: recomputed 26\% | paper 26\%
+  OK   H3 table: factual compression base->abliterated: recomputed 41\% | paper 41\%
+  OK   H3 supp: BCa 95% CI on max/min - 1: recomputed 0.044, 0.538 | paper 0.044, 0.538
+  OK   H3 supp: ratio change instruct - base: recomputed +0.547 | paper +0.547
+  OK   H3 supp: BCa 95% CI, ratio change instruct - base: recomputed +0.027, +1.165 | paper +0.027, +1.165
+  OK   H3 supp: compression difference factual - confab: recomputed +0.162 | paper +0.162
+  OK   H3 supp: BCa 95% CI, compression difference: recomputed +0.010, +0.270 | paper +0.010, +0.270
+  OK   H4: base mean stable rank (60 prompts): recomputed 1.963 | paper 1.963
+  OK   H4: instruct mean stable rank (60 prompts): recomputed 1.683 | paper 1.683
+  OK   H4: base vs instruct d, 60 prompts (registered criterion d > 0.3): recomputed 1.04 | paper 1.04
+  OK   H4: base vs instruct d, confab: recomputed 1.44 | paper 1.44
+  OK   H4: base vs instruct d, factual: recomputed 1.08 | paper 1.08
+  OK   H4: smallest per-layer d: recomputed 0.63 | paper 0.63
+  OK   H4: largest per-layer d: recomputed 1.22 | paper 1.22
+  OK   H4 supp: BCa 95% CI, base vs instruct d (60 prompts): recomputed +0.893, +1.224 | paper +0.893, +1.224
+  OK   H4: base vs abliterated d, 60 prompts: recomputed 1.05 | paper 1.05
+  OK   note: instruct within-model confab-vs-factual stable-rank d: recomputed -0.219 | paper -0.219
+  OK   note: instruct within-model permutation p: recomputed 0.41 | paper 0.41
+  OK   note: abliterated within-model confab-vs-factual stable-rank d: recomputed -0.235 | paper -0.235
+  OK   H1 registered FWL-corrected: base vs instruct d: recomputed 0.757 | paper 0.757
+  OK   H1 registered FWL-corrected: label-shuffle p: recomputed 0.0041 | paper 0.0041
+  FAIL PLANTED: H3 spread printed as 0.297 (true value 0.279): recomputed 0.279 | paper 0.297
+
+report only (H1): raw label-shuffle p (before Holm) = 0.0104
+report only (H4, base vs abliterated, 60 prompts): d = +1.050
+
+real checks: 57, failures: 0; planted false value caught: True; data hashes OK: True
+# exit status: 0
