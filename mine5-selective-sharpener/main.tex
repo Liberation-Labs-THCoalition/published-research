@@ -40,7 +40,7 @@ A Three-Model KV-Cache Comparison}
 \begin{abstract}
 We compare the key-value (KV) cache geometry of a pretrained language model
 (Qwen3-8B-Base), its instruction-tuned variant (Qwen3-8B), and an
-abliterated variant (safety directions removed) across 30 confabulation-prone
+abliterated variant (safety directions targeted for removal) across 30 confabulation-prone
 and 30 factual prompts. Three findings emerge.
 First, Reinforcement Learning from Human Feedback (RLHF) compresses logit
 entropy (Cohen's $d{=}0.684$, Holm-corrected $p{=}0.021$), confirming that
@@ -49,8 +49,8 @@ Second, this compression survives abliteration, by both
 pre-registered criteria: instruct versus abliterated $|d| = 0.055$
 (criterion $|d| < 0.3$) and base versus abliterated $d = 0.746$
 (criterion $d > 0.5$).
-Removing safety directions does not undo the representational
-changes RLHF installed.
+Abliteration, which targets the refusal directions, does not undo
+this compression; whether it removed them fully is unverified.
 Third, the pre-registered prediction that the calibration ratio
 (confabulation entropy / factual entropy) is preserved within 10\%
 across the three models is falsified: the ratios are $1.97$ (base),
@@ -111,7 +111,7 @@ precisely where the model should be least confident.
 
 This paper tests that prediction with a three-model comparison:
 pretrained base, instruction-tuned (RLHF), and abliterated
-(RLHF with safety directions removed). The prediction failed.
+(RLHF with safety directions targeted for removal). The prediction failed.
 
 % ============================================================================
 \section{Models and Methods}
@@ -200,7 +200,12 @@ $p = 0.41$; abliterated $d = -0.235$), not the base-versus-instruct
 comparison H4 registers, which gives $d = 1.04$. This version applies
 the registered criteria to the per-prompt data, which are committed
 with this paper (see Data and Code): H1, H2 and H4 are confirmed, and
-H3 is falsified.
+H3 is falsified. The pre-registration also lists an exploratory H5:
+a confabulation-versus-factual difference ($d > 0.5$ within the
+instruct model) in the change of stable rank from encoding to
+generation. H5 was not run. The analysis script extracts
+encoding-phase features only (its one generation step is the
+abliteration check under H2), so H5 is untested.
 
 \subsection{H1: RLHF Compresses Entropy --- Confirmed}
 
@@ -226,6 +231,13 @@ RLHF reduces confabulation-prompt logit entropy by a medium effect
 ($d{=}0.684$), significant after Holm correction ($p{=}0.021$). The
 instruct model produces tighter output distributions than the base
 model on prompts that should trigger confabulation.
+The registered criterion asks for an FWL-corrected $p$. Removing the
+token-count slope within each model, keeping each model's mean, gives
+$d = 0.757$ and label-shuffle $p = 0.0041$, so H1 meets that test as
+well. The registered statement of H1 also predicted uniform
+compression of about 25--35\%. The $d$ criterion is met, but the
+compression is not uniform (factual $42\%$, confabulation $26\%$;
+see H3).
 
 \subsection{H2: Abliteration Does Not Reverse Compression --- Confirmed}
 
@@ -253,9 +265,9 @@ in the committed data. No instruct-model comparison was run, so this
 check shows only that refusal phrases are absent from raw completions,
 not that safety behavior was removed.
 
-This means the representational changes RLHF installs are deeper
-than the refusal directions that abliteration targets: removing those
-directions does not undo the spectral compression.
+So the entropy compression RLHF installs survives abliteration, which
+targets the refusal directions. Whether this abliteration removed
+those directions fully is unverified (see Limitations).
 
 \subsection{H3: Calibration Ratio Preserved --- Falsified}
 
@@ -343,14 +355,14 @@ template commitment itself is not tested here.
 \subsection{What Survives}
 
 \textbf{RLHF compression is real.} Preference training tightens
-output distributions ($d{=}0.684$). This is the geometric signature
-of RLHF, measurable in the KV-cache.
+output distributions ($d{=}0.684$). This is measured in the output
+logits; its KV-cache counterpart is the stable-rank drop of H4
+($d = 1.04$).
 
-\textbf{Compression is deeper than safety directions.} Abliteration
-targets the refusal directions but leaves the geometric compression in
-place.
-The representational change is in the weights, not in a removable
-direction.
+\textbf{Compression survives abliteration.} Abliteration targets the
+refusal directions but leaves the entropy compression in place (H2).
+If those directions were fully removed, the compression is not
+carried by them; that removal is unverified (see Limitations).
 
 \textbf{Selective sharpening is suggested, and exploratory.}
 RLHF sharpens output more on grounded content (factual: $-42\%$)
@@ -407,7 +419,8 @@ not tested here (see H2).
 
 The Oracle Loop~\citep{lyra2026oracle} corrects confabulation by
 modulating the activation profile across the full sequence. If RLHF
-compression is beneficial (selective sharpening), the Loop should
+compression is beneficial (as the exploratory selective-sharpening pattern
+would suggest), the Loop should
 preserve the compression while correcting the behavioral failures
 it produces. The formulary's correction vectors operate at the
 materialization boundary (L35--L47), not at the workspace band where
@@ -424,19 +437,20 @@ preference data being predominantly grounded --- human raters
 evaluate factual exchanges more than confabulation-prone ones, so the
 training signal would be stronger for grounded material.
 
-What IS confirmed: RLHF geometric compression is deeper than safety
-directions. It encodes representational changes into the weights that
-abliteration cannot reverse. This has direct implications for safety
-work: removing the refusal directions leaves a model whose entropy
-compression differs from the safety-tuned version's by only
-$d{=}0.055$.
+What IS confirmed: the abliterated model keeps the instruct model's
+entropy compression (H2), differing from it by only $d{=}0.055$.
+Whether its safety directions were fully removed is unverified (see
+Limitations). If they were, the compression is not carried by the
+refusal directions and survives their removal, which matters for
+safety work.
 
 % ============================================================================
 \section{Limitations}
 \label{sec:limitations}
 
 \textbf{Single architecture.} All three models share Qwen3-8B
-architecture. The selective sharpening may be architecture-specific.
+architecture. The selective sharpening, an exploratory pattern, may be
+specific to this architecture.
 
 \textbf{Encoding-only.} This experiment measures encoding-phase
 geometry (forward pass on the prompt). The schema-commitment effect
@@ -491,8 +505,8 @@ absolute entropy IS lower, which superficially supports
 ``overcalibration.'' But the ratio is the honest metric, and the
 ratio went up. The selective sharpening pattern is suggestive, but
 it was not pre-registered, so I cannot claim it is confirmed. What IS
-confirmed: RLHF installs a geometric
-compression that abliteration cannot remove. The $d{=}0.91$ effect
+confirmed: RLHF installs an entropy
+compression that this abliteration did not remove. The $d{=}0.91$ effect
 is schema commitment, a template commitment that relaxes by token~20;
 ``workspace bypass during generation'' remains a candidate for why
 the commitment happens.
@@ -511,7 +525,8 @@ from files in this paper's directory:
   \path{code/mine5_three_model.py}.
 \item A script that recomputes every result reported in
   Section~\ref{sec:results}, the supplementary intervals included,
-  checks each against both editions of this paper, and includes one
+  checks that each recomputed value is printed in both editions of
+this paper (presence, not every printed copy), and includes one
   deliberately false value that it must catch:
   \path{code/recompute_registered.py}.
 \end{itemize}
@@ -519,7 +534,7 @@ from files in this paper's directory:
 \section*{Acknowledgments}
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
 
-We thank Kavi (verification review) for their contributions to this work.
+We thank Kavi for verification review of this work.
 
 \bibliography{references}
 \bibliographystyle{plainnat}

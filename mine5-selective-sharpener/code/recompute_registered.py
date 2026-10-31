@@ -13,6 +13,7 @@ Prereg: data/mine5_three_model_prereg.json          (the registered criteria app
 A check passes only if (1) the recomputed value, formatted as the paper prints it, equals the printed string,
 and (2) that printed string occurs in BOTH editions (main.tex and academic/main.tex), bounded by non-digits
 (so "1.08" is not found inside "1.088"), with any run of whitespace matching a space (LaTeX line breaks).
+It checks presence: a wrong second copy of a value the paper prints more than once is NOT caught.
 The H2 abliteration-check statements are checked against the data file and code/mine5_three_model.py. One PLANTED false value
 is included on purpose; the run succeeds only if it is caught. A checker that cannot fail is not a checker.
 
@@ -241,6 +242,18 @@ def main():
     add("note: instruct within-model confab-vs-factual stable-rank d", cohens_d(*within("instruct")), f3, "-0.219")
     add("note: instruct within-model permutation p", permutation_p(*within("instruct")), f2, "0.41")
     add("note: abliterated within-model confab-vs-factual stable-rank d", cohens_d(*within("abliterated")), f3, "-0.235")
+    # ---- H1's registered criterion: FWL-corrected (token-count slope removed within each model, mean kept) --
+    tok = {c: np.array([r["n_tokens"] for r in R["base"][c]], float) for c in ("confab", "factual")}
+
+    def fwl_keep_mean(v, n):
+        X = np.column_stack([n, np.ones(len(n))])
+        b = np.linalg.lstsq(X, v, rcond=None)[0]
+        return v - b[0] * (n - n.mean())
+
+    xb, xi = fwl_keep_mean(E["base", "confab"], tok["confab"]), fwl_keep_mean(E["instruct", "confab"], tok["confab"])
+    add("H1 registered FWL-corrected: base vs instruct d", cohens_d(xb, xi), f3, "0.757")
+    add("H1 registered FWL-corrected: label-shuffle p", permutation_p(xb, xi), f4, "0.0041")
+
     # ---- PLANTED: a deliberately false printed value. It MUST be reported as a failure. -----------------
     add("PLANTED: H3 spread printed as 0.297 (true value 0.279)", spread, f3, "0.297", planted=True)
 
@@ -260,18 +273,8 @@ def main():
         elif not ok:
             real_fail += 1
 
-    # report-only quantities (not printed in the paper; reported in the PR for H1's FWL-corrected criterion)
-    tok = {c: np.array([r["n_tokens"] for r in R["base"][c]], float) for c in ("confab", "factual")}
-
-    def fwl_keep_mean(v, n):
-        X = np.column_stack([n, np.ones(len(n))])
-        b = np.linalg.lstsq(X, v, rcond=None)[0]
-        return v - b[0] * (n - n.mean())
-
-    xb, xi = fwl_keep_mean(E["base", "confab"], tok["confab"]), fwl_keep_mean(E["instruct", "confab"], tok["confab"])
-    print(f"\nreport only (H1, FWL-corrected: token-count slope removed within each model, mean kept):"
-          f" d = {cohens_d(xb, xi):+.3f}, label-shuffle p = {permutation_p(xb, xi):.4f};"
-          f" raw label-shuffle p (before Holm) = {raw_p[0]:.4f}")
+    # report-only quantities (not printed in the paper)
+    print(f"\nreport only (H1): raw label-shuffle p (before Holm) = {raw_p[0]:.4f}")
     print(f"report only (H4, base vs abliterated, 60 prompts): d = "
           f"{cohens_d(sr_b, np.concatenate([SR['abliterated', 'confab'], SR['abliterated', 'factual']])):+.3f}")
 

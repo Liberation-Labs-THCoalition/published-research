@@ -1,6 +1,6 @@
 # Command: python mine5-selective-sharpener/code/recompute_registered.py (run from an empty directory)
-# Run: 2026-10-31T11:26:54Z on Python 3.11.0, numpy 2.3.1, scipy 1.16.1
-# Worktree: published-research-mine5-port, branch lyra/mine5-port
+# Run: 2026-10-31T11:39:55Z on Python 3.11.0, numpy 2.3.1, scipy 1.16.1
+# Worktree: published-research-mine5-port, branch lyra/mine5-port (after the verifier fixes)
 
 sha256 data\mine5_three_model_20260715_021501.json: 2d9509243cda4e4a11ef99612aed2c0b558dfae68e1d50e0ad3064aa8cdab237 OK
 sha256 data\mine5_three_model_prereg.json: 57b1811bf76143e6e7eb6aafb082c9bd9621af26bd93155dd2c595c4f0f02569 OK
@@ -59,10 +59,12 @@ sha256 data\mine5_three_model_prereg.json: 57b1811bf76143e6e7eb6aafb082c9bd9621a
   OK   note: instruct within-model confab-vs-factual stable-rank d: recomputed -0.219 | paper -0.219
   OK   note: instruct within-model permutation p: recomputed 0.41 | paper 0.41
   OK   note: abliterated within-model confab-vs-factual stable-rank d: recomputed -0.235 | paper -0.235
+  OK   H1 registered FWL-corrected: base vs instruct d: recomputed 0.757 | paper 0.757
+  OK   H1 registered FWL-corrected: label-shuffle p: recomputed 0.0041 | paper 0.0041
   FAIL PLANTED: H3 spread printed as 0.297 (true value 0.279): recomputed 0.279 | paper 0.297
 
-report only (H1, FWL-corrected: token-count slope removed within each model, mean kept): d = +0.757, label-shuffle p = 0.0041; raw label-shuffle p (before Holm) = 0.0104
+report only (H1): raw label-shuffle p (before Holm) = 0.0104
 report only (H4, base vs abliterated, 60 prompts): d = +1.050
 
-real checks: 55, failures: 0; planted false value caught: True; data hashes OK: True
+real checks: 57, failures: 0; planted false value caught: True; data hashes OK: True
 # exit status: 0
