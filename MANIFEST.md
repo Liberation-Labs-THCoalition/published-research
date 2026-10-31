@@ -63,7 +63,7 @@ Release policy (Thomas, 2026-10-30, made with the 2026-09-10 strict policy in vi
 - **Calibration artefacts, withheld; may be shared under agreement:** the correction vectors.
 - **Induction prompt sets, withheld; may be shared under agreement.** The trial-level raw text contains them, so trial-level data are not published and may be shared on the same terms (derived from this point, not one of the four decided).
 - **Before the first share:** an outside dual-use review, and a written agreement (not yet drafted).
-- Contact: cc@liberation-labs.org. For this paper, this entry governs.
+- Contact: cc@liberationlabs.tech. For this paper, this entry governs.
 
 ## Versioning
 
