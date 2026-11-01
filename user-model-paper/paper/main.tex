@@ -478,16 +478,13 @@ it in the prompt, meaning the word enters the cache through generation.
 
 \textbf{Implicit and explicit representations do not correlate.}
 Per-emotion means of delta features show near-zero correlation between
-arms (signal fraction: $\rho = -0.119$, $p = 0.53$; spectral gap:
-$\rho = -0.070$, $p = 0.71$; norm per token: $\rho = -0.278$,
+arms (Pearson $r$; signal fraction: $r = -0.119$, $p = 0.53$; spectral gap:
+$r = -0.070$, $p = 0.71$; norm per token: $r = -0.278$,
 $p = 0.14$). The model produces geometrically distinct states for the
 same emotion depending on whether it is communicated via narrative or
 label.
 
-\textbf{Implicit features are compressed.} The implicit arm produces
-approximately half the geometric variance of the explicit arm (variance
-ratio $\approx 0.5$ across all features), suggesting a more attenuated
-representational space for inferred versus labeled emotions.
+\textbf{Implicit features vary less.} On the delta features, the implicit arm's per-trial variance is about a fifth to a third of the explicit arm's (variance ratio 0.19--0.35). The ``about half'' an earlier version reported as a variance ratio is the standard-deviation ratio (0.43--0.59), and one feature (\texttt{mp\_signal\_rank}) is constant in both arms. These numbers rest on 30 greedy prompts per arm, one per emotion, the same limit for which the ARI reading is withdrawn below; they describe these prompts and do not show a more attenuated representational space for inferred emotions. (The ratios, and the correlations' identification as Pearson $r$, come from a second review that recomputed them from per-trial data in a private repository. Those data reproduce this arm's correlations exactly; that they are this arm's source is inferred.)
 
 \subsubsection{Interpretation}
 
