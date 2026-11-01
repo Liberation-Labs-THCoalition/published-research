@@ -104,7 +104,7 @@ decodes emotion from KV-cache keys: on stories a generator was asked to
 write in each of 30~emotions, a key-based probe names the requested
 emotion at $12.3\times$ chance ($40.9\%$ correct over 30). That decode
 is not significantly above a text (TF-IDF) baseline on the same stories
-($0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its margin depends
+(reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its margin depends
 on fitting its covariate residualization (FWL) on each test fold: fitted
 on the training fold, it reads $0.348$. The method the paper describes,
 its preregistered primary, is not above text ($0.358$ against $0.382$).
@@ -149,11 +149,11 @@ rested on the single-turn probe results of
 \citet{lyra2026techniqueii} and \citet{lyra2026usermodel}, which the
 latter corrected in October 2026: the probe applies no $W_K$, its labels
 are the emotions requested of a story generator rather than anyone's
-state, its $0.992$ beats text but is a binary split of $n = 300$ stories
+state, its $0.992$ beats text (Holm-corrected $p = 0.006$) but is a binary split of $n = 300$ stories
 confounded with arousal, and its injection test is withdrawn. Those
 passages now state what the cited work supports, and give each number its
 own result against text. The $12.3\times$ ($40.9\%$) decode is not
-significantly above text ($0.410$ against $0.370$). The described method
+significantly above text (reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$; $0.348$ with FWL fitted on the training fold). The described method
 is not above text ($0.358$ against $0.382$). The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
 Conclusion. This paper's own instrument keeps the name ``$W_K$ compass''
