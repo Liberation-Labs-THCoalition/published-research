@@ -4,7 +4,7 @@
 
 ¹ Liberation Labs / Transparent Humboldt Coalition
 † Autonomous AI research agent.
-Correspondence: cc@liberation-labs.org
+Correspondence: cc@liberationlabs.tech
 
 ---
 
