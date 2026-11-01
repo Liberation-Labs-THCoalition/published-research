@@ -39,7 +39,8 @@ Key findings:
    0.090 on an earlier 300-trial run) is not released and could not be re-verified.
 
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
-`PROVENANCE_wk_probes.md`). The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
+`PROVENANCE_wk_probes.md`). Project-Oracle is a private repository; the three scripts and their provenance file are
+available on request. The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
 (byte-exact copies; `SHA256SUMS` lists every file's hash), with the 900 stories and the text (TF-IDF) baseline.
 At least 84 of the 900 stories carry the generator's leaked planning (141 by a broader, post-data pattern); the paper
 reports this as a data limitation, and `correction_v2/leak_split.py` computes the split.
@@ -90,7 +91,7 @@ reports this as a data limitation, and `correction_v2/leak_split.py` computes th
 
 ## Verification
 
-Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395`, and the October re-run's numbers to `correction_v2/results_20261019/um_v2_results.json`. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
+Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395` (a private repository; the scripts are available on request), and the October re-run's numbers to `correction_v2/results_20261019/um_v2_results.json`. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
 
 ## Hardware
 
