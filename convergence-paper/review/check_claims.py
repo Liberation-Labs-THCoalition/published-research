@@ -1443,6 +1443,8 @@ def check_vera_1101():
                             ("band", "The band **B** is L19\u2013L23. The flanks **F** are L14\u2013L18 and L24\u2013L28"),
                             ("argmax", "argmax of the d_eff profile over **L0\u2013L62**"),
                             ("floor", "S_floor = 1 + (R_T \u2212 1)/2"), ("no8b", "### 3.8 Qwen3-8B: not in this run"),
+                            ("no8b-localmax", "A strict local maximum somewhere in a four-layer window fires easily "
+                                              "on a rough profile"),
                             ("partial", "Partial:** fewer than 3 seeds at the floor, and at least 3 at or below it")):
             record("V3.e7.sealed-%s" % cid, needle in sp, "sealed prereg holds %a" % needle)
         for cid, needle in (("32b", "32B"), ("p95", "95th percentile"), ("prominence", "prominence"),
@@ -1455,11 +1457,19 @@ def check_vera_1101():
     present("V3.e7.windows", "The band is L19--L23 and the flanks are L14--L18 and L24--L28")
     present("V3.e7.argmax", "argmax over L0--L62")
     present("V3.e9.kofn", "Five seeds (1--5) are fixed, with a threshold of 3: if at least 3 of 5 seeds reach the floor")
-    present("V3.e7.proposed", "Three further rules are proposed for a later amendment (not in the sealed preregistration)")
+    # Post-signature edits Vera proposed (2026-11-01, after her sign-off at 0706c8e): her 8B-arm wording, and her
+    # 95th-percentile magnitude clause withdrawn, so the proposed list holds two rules, not three.
+    present("V3.e7.proposed", "Two further rules are proposed for a later amendment (not in the sealed preregistration)")
+    absent("V3.e7.proposed-three", "Three further rules are proposed")
     present("V3.e7.8b", "L11--L13 of 36")
+    present("V3.e7.8b-vera", "a Qwen3-8B arm with its own window in relative depth, L11--L13 of 36, scored by "
+                             "band-to-flank ratios rather than a local maximum, which the sealed preregistration "
+                             "rejects for a short window (its \\S3.8)")
+    absent("V3.e7.8b-old", "around its local maximum at L12 ($33.3\\%$); a dense")
     present("V3.e7.prompts", "the 90 prompts behind $d_\\text{eff}$ and the 60 prompts (300 forks) behind stable rank")
     present("V3.e8.arm", "a dense Qwen3-32B arm")
-    present("V3.e9.magnitude", "95th percentile of the random-seed prominences")
+    absent("V3.e9.magnitude-withdrawn", "95th percentile of the random-seed prominences")
+    absent("V3.e9.magnitude-clause", "magnitude clause")
     absent("V3.e7.old8b", "Qwen3.5-27B (and Qwen3-8B)")
     absent("V3.e9.blank", "The number of random seeds, $n$, and a threshold $k$")
     sub8 = squash(strip_comments((PAPER / "substrate_independence_section.tex").read_text(encoding="utf-8")))
@@ -1469,7 +1479,7 @@ def check_vera_1101():
     # precision change or a seal-date change slipped into the registered sentences (four plants passed with 0 FAIL).
     # Pin the registered span verbatim, as read sentence by sentence against the sealed file at 6edd635, and forbid
     # the unsealed terms anywhere in it. Any edit to these sentences must be re-read against the sealed file first.
-    reg_i, reg_j = BODY.find('Its rule is sealed in a preregistration'), BODY.find('Three further rules are proposed')
+    reg_i, reg_j = BODY.find('Its rule is sealed in a preregistration'), BODY.find('Two further rules are proposed')
     reg_span = BODY[reg_i:reg_j] if 0 <= reg_i < reg_j else ""
     REGISTERED_8_5 = (
         'Its rule is sealed in a preregistration (sha256 \\texttt{b7856f79\\ldots}, 2026-10-29), which governs '
@@ -1492,6 +1502,21 @@ def check_vera_1101():
     record("V3.e7.registered-nonempty", len(reg_span) > 500, "registered span found (len %d)" % len(reg_span))
     absent_re("V3.e7.registered-unsealed", r"95th|percentile|prominence|32B|L11--L13|bf16|fp16|Qwen3-8B arm",
               where=reg_span)
+    # The proposed list, pinned verbatim: exactly two rules, the 8B arm in Vera's wording and the dense 32B arm,
+    # with no magnitude clause. It runs from 'Two further rules' to the next item.
+    prop_j = BODY.find('\\item A second prompt set', reg_j) if reg_j >= 0 else -1
+    prop_span = BODY[reg_j:prop_j] if 0 <= reg_j < prop_j else ""
+    PROPOSED_8_5 = (
+        'Two further rules are proposed for a later amendment (not in the sealed preregistration): a Qwen3-8B '
+        'arm with its own window in relative depth, L11--L13 of 36, scored by band-to-flank ratios rather than '
+        'a local maximum, which the sealed preregistration rejects for a short window (its \\S3.8); and a dense '
+        "Qwen3-32B arm, since that model's $d_\\text{eff}$ profile also peaks at L21 of 64 in a single, "
+        'unvalidated point estimate (\\S\\ref{sec:substrate}). '
+    )
+    record("V3.e7.proposed-verbatim", prop_span == PROPOSED_8_5,
+           "section 8.5 proposed list matches the pinned two-rule text (len %d vs %d)"
+           % (len(prop_span), len(PROPOSED_8_5)))
+    absent_re("V3.e7.proposed-nomagnitude", r"95th|percentile|prominence|magnitude", where=prop_span)
     # END-VERA-1101
 
 
