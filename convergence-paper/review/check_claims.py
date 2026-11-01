@@ -1403,6 +1403,9 @@ def check_vera_1101():
     absent("V3.e2.materializes", "materializes less")
     present("V3.e2.new", "The sign crossover occurs at $L{=}44$. Unfamiliar entities carry more spectral structure "
                          "early and less late.")
+    # 3. A paper titled "Did Not Converge" does not open its findings with "What converges".
+    present("V3.e3.heading", "\\emph{What the evidence supports.} In Qwen3.5-27B")
+    absent("V3.e3.old", "\\emph{What converges.}")
     # END-VERA-1101
 
 
