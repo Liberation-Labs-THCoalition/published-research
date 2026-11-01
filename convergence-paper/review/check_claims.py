@@ -1465,6 +1465,33 @@ def check_vera_1101():
     sub8 = squash(strip_comments((PAPER / "substrate_independence_section.tex").read_text(encoding="utf-8")))
     present("V3.e8.disclose", "also peaks at L21 of 64. It is a single point estimate, with no interval and no null "
                               "control, and we do not count it as support for the peak", where=sub8)
+    # Finding 2 of VERIFY_vera_answers_20261101.md: the fixed needles above could not see an unsealed rule, a
+    # precision change or a seal-date change slipped into the registered sentences (four plants passed with 0 FAIL).
+    # Pin the registered span verbatim, as read sentence by sentence against the sealed file at 6edd635, and forbid
+    # the unsealed terms anywhere in it. Any edit to these sentences must be re-read against the sealed file first.
+    reg_i, reg_j = BODY.find('Its rule is sealed in a preregistration'), BODY.find('Three further rules are proposed')
+    reg_span = BODY[reg_i:reg_j] if 0 <= reg_i < reg_j else ""
+    REGISTERED_8_5 = (
+        'Its rule is sealed in a preregistration (sha256 \\texttt{b7856f79\\ldots}, 2026-10-29), which governs '
+        'wherever this summary is shorter. Only Qwen3.5-27B runs; Qwen3-8B is not in it, because a local maxi'
+        "mum in a short window fires easily on a rough profile. Each seed takes the library's default initial"
+        'ization (transformers 5.10.2), drawn in fp32. The band is L19--L23 and the flanks are L14--L18 and L'
+        '24--L28. A seed has the bump if its $d_\\text{eff}$ argmax over L0--L62 falls in the band and its ban'
+        'd-to-flank $d_\\text{eff}$ ratio has a 95\\% jackknife lower bound above 1.0, or if its band-to-flank '
+        'stable-rank ratio has a 95\\% bootstrap lower bound above 1.0. It reaches the floor if, on either mea'
+        "sure, the ratio also carries at least half of the trained model's excess over 1. Five seeds (1--5) a"
+        're fixed, with a threshold of 3: if at least 3 of 5 seeds reach the floor, the peak is attributed to'
+        ' architecture and the learned-structure reading is withdrawn; if fewer reach it but at least 3 have '
+        'a bump, learning amplifies an architectural tendency; otherwise, the null does not explain the peak.'
+        ' A collapsed window that would change the verdict makes the null inconclusive, and two depth-scaled '
+        'seeds, not counted among the five, can qualify any verdict. '
+    )
+    record("V3.e7.registered-verbatim", reg_span == REGISTERED_8_5,
+           "section 8.5 registered span matches the pinned text read against the sealed file (len %d vs %d)"
+           % (len(reg_span), len(REGISTERED_8_5)))
+    record("V3.e7.registered-nonempty", len(reg_span) > 500, "registered span found (len %d)" % len(reg_span))
+    absent_re("V3.e7.registered-unsealed", r"95th|percentile|prominence|32B|L11--L13|bf16|fp16|Qwen3-8B arm",
+              where=reg_span)
     # END-VERA-1101
 
 
