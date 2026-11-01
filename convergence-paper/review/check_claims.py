@@ -16,6 +16,9 @@ The correction note quotes what it corrects (AGENTS.md section 4, cause 4), so
 it is cut out of the text before any present/absent check on the body, and
 checked on its own.
 
+OK means the value matches after formatting to the printed precision, not exact
+equality: drift below the printed precision passes (Reader 1's plant D, 2026-11-01).
+
 A PLANTED false value runs on every invocation: the Project-Oracle findings
 registry heading's "exploratory 80%->0%" (i.e. a corrected arm of 0/20). The
 gate must catch it against both the primary and the text. If it does not, the
@@ -1320,6 +1323,65 @@ def check_note_and_date():
         present("NOTE.has %s" % needle[:30], needle, where=NOTE)
 
 
+RESTATED = {  # needle -> exact BODY count on 2026-11-01 (Lyra's full read)
+    '$13.2\\%$': 3,
+    '$1.47\\times$': 3,
+    '$32.8\\%$': 3,
+    '$3.25$': 5,
+    '$0.620$': 3,
+    '$0.707$': 3,
+    '$87.8\\%$': 4,
+    '$54.7$--$73.4\\%$': 3,
+    '$21.9\\%$': 3,
+    '$2.3\\times$': 2,
+    '$0.92\\times$': 4,
+    '$1.12\\times$': 4,
+    '$17.2$--$75.0\\%$': 3,
+    '$33.3\\%$': 3,
+    '$91.7\\%$': 3,
+    '$29.7$--$35.9\\%$': 1,
+    '$0.68$': 3,
+}
+
+
+def check_phase_e():
+    """Lyra's full read, 2026-11-01 (two readers; reports untracked in review/). Written before the prose."""
+    # Numbers. Each same-form restatement of an abstract number is counted at today's count, so one drifted
+    # copy drops the count (Reader 1, finding 1: a plant changing main.tex:810's 13.2 to 12.3 passed the gate).
+    for needle, n in RESTATED.items():
+        present("E.count %s" % needle, needle, count=n)
+    # Body count. The ledger's types stay transcribed (BC.table.diff), but schema commitment is not
+    # metacognition (Key Numbers), and the grouping is post hoc, as Vera's edit 6 already says in the AST section.
+    absent("E.bc.all-meta", "The confirmed findings are all metacognitive")
+    absent("E.bc.itself", "is itself a finding")
+    present("E.bc.schema", "we do not carry that typing for schema commitment")
+    present("E.bc.caption", "this paper does not adopt that type for schema commitment")
+    present("E.bc.post-hoc", "is a post hoc grouping, not a test", count=2)
+    # Substrate section: measurement names, the first-person box, and the R1 evidence it cited.
+    sub_raw = (PAPER / "substrate_independence_section.tex").read_text(encoding="utf-8")
+    sub = squash(strip_comments(sub_raw))
+    absent("E.sub.header", "Five Instruments, One Structure", where=sub_raw)
+    absent_re("E.sub.ws-name", r"workspace (?:geometry|dimensionality)|workspace-shape|measuring the workspace",
+              where=sub)
+    absent("E.sub.null", "the corrected number is a null", where=sub)
+    absent("E.sub.transferred", "the detectors transferred", where=sub)
+    absent("E.sub.held", "the exploratory corrections held", where=sub)
+    present("E.sub.bounded", "small and bounded rather than null", where=sub)
+    absent("E.sub.r1", "provide partial support", where=sub)
+    present("E.sub.r1-split", "far smaller on full-attention layers than on linear-attention layers", where=sub)
+    # "Exploratory proof" -> "exploratory run" (Vera took "proof" out of the box).
+    absent_re("E.proof.body", r"[Ee]xploratory proof")
+    absent_re("E.proof.note", r"[Ee]xploratory proof", where=NOTE)
+    # The 08-14 footnote states the correction before the surviving number, not after it.
+    absent("E.fn.wk", "the surviving result is the $W_K$")
+    present("E.fn.order", "was described here as a $W_K$ directional probe, which it is not")
+    # Correction Note pointers that went stale in Phase B.
+    present("E.note.kv", "\\textbf{K/V split injection} (\\S\\ref{sec:kvsplit})", where=NOTE)
+    absent("E.note.abs-p", "The abstract now says modestly above chance", where=NOTE)
+    present("E.note.keycache-p", "\\S\\ref{sec:keycache} says modestly above chance and gives the $p$", where=NOTE)
+    present("E.note.scale", "\\textbf{Scale range} (abstract, \\S\\ref{sec:keycache}, setup)", where=NOTE)
+
+
 # --------------------------------------------------------------------------
 # The plant
 # --------------------------------------------------------------------------
@@ -1345,6 +1407,7 @@ def main():
     check_phase_b()
     check_phase_c()
     check_note_and_date()
+    check_phase_e()
 
     width = max(len(c) for _, c, _ in RESULTS)
     for status, cid, detail in RESULTS:
