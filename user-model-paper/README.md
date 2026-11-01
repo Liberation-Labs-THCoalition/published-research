@@ -25,7 +25,7 @@ that the cache probe the paper describes does not read it better than a text (TF
 Key findings:
 1. **Decodable, but not beyond text (TF-IDF).** The probe as the Method describes it reaches 35.8% on 30 emotions
    (chance 3.3%) against 38.2% for text (TF-IDF) on the same folds; the cell-bootstrap 95% interval for the difference,
-   -6.4 to +1.6 points, lies below the registered 3-point gain. The 40.9% reported in May came from a different script, a
+   −6.4 to +1.6 points, lies below the registered 3-point gain. The 40.9% reported in May came from a different script, a
    class-mean key probe with no W_K; v2's number reproduces to within one trial in 900 (369 against 368) on a software
    stack that has changed since May.
 2. **A binary split confounded with arousal.** On v2's hard-coded ten emotions (n = 300), cache readouts separate the
