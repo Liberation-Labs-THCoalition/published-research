@@ -1423,6 +1423,13 @@ def check_vera_1101():
     present("V3.e5.control", "Descriptive continuity of $d_\\text{eff}$ across the substrate crossings", where=sub5)
     absent("V3.e5.theory", "For theory", where=sub5)
     absent("V3.e5.phase", "computational phase", where=sub5)
+    # 6. Hardware and scale invariance are reproducibility properties; three of six confirmed are state
+    #    measurements. Retyping them in the meta-pattern ledger is follow-up work, not this PR.
+    present("V3.e6.repro", "two of the six, hardware and scale invariance, are reproducibility properties of a "
+                           "measurement rather than measurements of a state")
+    present("V3.e6.three", "so three of the six are state measurements")
+    present("V3.e6.fn", "retyping them there is follow-up work")
+    present("V3.e6.caption", "does not adopt that type for schema commitment, hardware invariance or scale invariance")
     # END-VERA-1101
 
 
