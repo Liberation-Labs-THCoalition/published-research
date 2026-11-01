@@ -154,7 +154,7 @@ residual stream across cognitive states. Key results include confabulation
 detection (AUROC~$0.620$ after FWL residualization, $0.707$ without
 FWL, on Qwen2.5-7B)~\citep{lyra2026oracle}, identity
 geometry~\citep{lyra2026identity}, and the Oracle Loop's deception
-correction. In an exploratory proof ($N{=}20$), profile normalization
+correction. In an exploratory run ($N{=}20$), profile normalization
 reduced induced deception from 80\% to 10\% (16/20 to 2/20), with three
 mechanism controls. The pre-registered confirmatory replication
 ($N{=}30$, novel frames) did not meet its primary endpoint (30\% to
@@ -166,8 +166,10 @@ level~\citep{cc2026targeted}.\footnote{\textbf{Corrected
 ``$2.5$--$2.8\times$ signal'' and identity geometry at
 ``distinctiveness $0.154$ vs.\ substrate $0.080$.'' The first figure was
 retracted at its source on 2026-05-21 as an FWL-before-CV leakage
-artifact; the surviving result is the $W_K$ \emph{directional} probe at
-$12.3\times$ chance, and the spectral probe for emotion is at chance.
+artifact, and the spectral probe for emotion is at chance. The result
+that survived, at $12.3\times$ chance, was described here as a $W_K$
+directional probe, which it is not (see the version 1.1 correction
+below).
 The second pair of numbers does not appear anywhere
 in~\citet{lyra2026identity}; they come from an internal analysis that
 has not been published, so the citation could not be followed. Both
@@ -186,7 +188,7 @@ correction system operating at the materialization boundary. In the
 deception-correction experiments it detects at L27--L47 and corrects at
 L35, L39, L43 and L47 of an abliterated Qwen3.5-27B checkpoint, by
 sequence-wide activation-profile normalization~\citep{cc2026targeted}.
-The correction was large in the exploratory proof; the pre-registered
+The correction was large in the exploratory run; the pre-registered
 confirmatory replication did not meet its primary endpoint
 (\S\ref{sec:vproj}). We previously attributed the correction to the Loop operating at the depth where
 workspace content materializes into output-facing representations,
@@ -678,9 +680,13 @@ or from something else about distillation is untested here.
 The full audited record comprises 6~confirmed findings, 7~at
 suspected status (signal present, controls incomplete), 10~honestly
 falsified, and 1~withdrawn (\Cref{tab:bodycount}; key numbers and
-sources in~\citet{lyra2026metapattern}). The confirmed findings are all
-metacognitive state measurements. The ten falsified findings in the tally all attempted content-level measurement. This pattern --- the
-metacognition boundary --- is itself a finding. Version 1.0 read it as
+sources in~\citet{lyra2026metapattern}). The ledger types all six
+confirmed findings as metacognitive state measurements; we do not carry
+that typing for schema commitment, which the ledger itself reads as
+early commitment to a response template, not metacognition
+(\S\ref{sec:keycache}). The ten falsified findings in the tally all
+attempted content-level measurement. This pattern --- the metacognition
+boundary --- is a post hoc grouping, not a test. Version 1.0 read it as
 support for an opacity thesis; \S\ref{sec:jlens-readout}--\S\ref{sec:causal}
 show that our cache nulls cannot carry that thesis.
 
@@ -690,8 +696,9 @@ show that our cache nulls cannot carry that thesis.
 \caption{The body count, enumerated. Rows, statuses and types are
 transcribed from the canonical ledger in~\citet{lyra2026metapattern},
 which gives the key number and source for each row. ``Meta'' marks a
-metacognitive-state measurement; ``Meta?'' marks a suspected finding
-whose type is itself unsettled.}
+metacognitive-state measurement as the ledger types it; this paper
+does not adopt that type for schema commitment (see text). ``Meta?''
+marks a suspected finding whose type is itself unsettled.}
 \label{tab:bodycount}
 \begin{tabular}{llc}
 \toprule
@@ -1031,7 +1038,7 @@ review record that accompanies this version.
   \S\ref{sec:oracle}, \S\ref{sec:keycache}, \S\ref{sec:substrate}).
   Version 1.0's abstract stated a range (80--100\%) for deception
   correction and left out the confirmatory replication. The exploratory
-  proof ($N{=}20$, abliterated Qwen3.5-27B) took deception from 80\% to
+  run ($N{=}20$, abliterated Qwen3.5-27B) took deception from 80\% to
   10\% (16/20 to 2/20). The pre-registered confirmatory replication
   ($N{=}30$, novel frames) took it from 30\% to 13\% (9/30 to 4/30) and
   did not meet its primary endpoint: baseline against corrected,
@@ -1105,7 +1112,18 @@ review record that accompanies this version.
   as in the canonical ledger. The setup's FWL sentence no longer claims
   FWL for every AUROC, since the paper also reports AUROCs without it.
   A first-person reflection in \S\ref{sec:substrate} now says the
-  exploratory corrections held.
+  exploratory correction missed its confirmatory endpoint.
+\item \textbf{The body count's grouping} (\S\ref{sec:bodycount}). The
+  text called the six confirmed findings all metacognitive state
+  measurements. The table keeps the canonical ledger's types, but the text
+  no longer carries that typing for schema commitment, which is early
+  commitment to a response template, and it calls the grouping post hoc,
+  as the Attention Schema discussion already did.
+\item \textbf{Substrate section} (\S\ref{sec:substrate}). Its measurement
+  names now say spectral geometry or $d_\text{eff}$; its implications no
+  longer cite R1's ordering as support, since the gap is far smaller on
+  full-attention layers; and its reflection states the corrected substrate
+  difference as bounded, not null, and cross-model transfer as suspected.
 \item \textbf{Data availability.} Version 1.0 said the artifacts were
   deposited on Zenodo. We found no DOI for such a deposit, and the
   sentence now says the paper does not yet have one.
@@ -1139,7 +1157,7 @@ review record that accompanies this version.
   It decodes characters' emotions in generated stories, and its probe applies
   no $W_K$; it is under correction at source and is no longer listed. The
   2026-08-14 footnote records this.
-\item \textbf{K/V split injection} (\S\ref{sec:reconstruction}). Version 1.0
+\item \textbf{K/V split injection} (\S\ref{sec:kvsplit}). Version 1.0
   read Nexus's split-cache result as an interaction between K and V and as a
   parallel to the readout nulls. In the corrected study~\citep{lyra2026nexus_kv}
   each half scored 2/6, on two items that can be scored without the graph (one
@@ -1147,12 +1165,13 @@ review record that accompanies this version.
   not compare the conditions, and the design cannot tell missing information
   from a cache of mismatched halves. The subsection now says this and draws no
   parallel.
-\item \textbf{Above chance, not reliable} (abstract, \S\ref{sec:intro},
-  \S\ref{sec:opacity}). The headline discrimination is AUROC 0.620 with
-  permutation $p = 0.023$. The abstract now says modestly above chance and
-  gives the $p$; four other sentences no longer say the features discriminate
-  or measure state reliably.
-\item \textbf{Scale range} (abstract, \S\ref{sec:structure}, setup). The
+\item \textbf{Above chance, not reliable} (abstract, \S\ref{sec:keycache},
+  \S\ref{sec:intro}, \S\ref{sec:opacity}). The headline discrimination is
+  AUROC 0.620 with permutation $p = 0.023$. The abstract gives the AUROCs
+  without calling them reliable, \S\ref{sec:keycache} says modestly above
+  chance and gives the $p$, and four other sentences no longer say the
+  features discriminate or measure state reliably.
+\item \textbf{Scale range} (abstract, \S\ref{sec:keycache}, setup). The
   $\rho = 0.83$--$0.90$ comes from Experiment~26 of Campaign~2: Spearman
   correlations of category-pair AUROC matrices between three size tiers
   (0.826, 0.867 and 0.896), ten models from Qwen3-0.6B to a 4-bit

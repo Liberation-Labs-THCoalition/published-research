@@ -105,6 +105,36 @@ PR #3 and PR #8 data are read from their `origin/` branches, which a clone has. 
     "cannot reach" also matched an unrelated substrate sentence, so "cannot reach." is used.
   - 0 overfull, 0 undefined.
 
+### Phase E: Lyra's full read (2026-11-01)
+
+Two readers (numbers against primaries; claims, register and editions) and a survey, read-only at
+dfeedfd. Their reports stay untracked in `review/` (`LYRA_READ_numbers_20261101.md`,
+`LYRA_READ_claims_20261101.md`). No UMV-L1 material was opened.
+
+- `13a15ea` merges origin/master (mine5 #16, the TDC rounds, contact addresses). One conflict, README.md:
+  master's MINE5 row (the merged correction) and this branch's convergence row (v1.1).
+- `6522b83` is the gate, first: 38 checks, of which 21 failed against the prior text. 17 restatement
+  counts close the hole Reader 1's plant found (one body copy of 13.2 changed to 12.3 passed the gate).
+- This commit makes the fact and consistency fixes:
+  - the body count no longer types schema commitment as metacognition, and it calls the grouping post hoc;
+  - the substrate section's measurement names, its first-person box and its R1 citation are fixed;
+  - "exploratory proof" now reads "exploratory run";
+  - the 08-14 footnote is reordered;
+  - three stale Correction Note pointers are fixed and two items added;
+  - the PDF is rebuilt.
+- Gate without the Starship mirror: 513 checks, 442 OK, 71 HELD, 0 FAIL, plant caught. Reader 1's plant
+  now fails it. Cite this count; "350/352" was an earlier gate version run with a then-complete mirror.
+- **Open, for Vera** (judgment calls on the argument, not changed): the thesis sentence's "300 of 300"
+  sits beside the unembedding while the count belongs to the J-lens; "PC2 onset (L = 45)" has no source
+  in the paper; the abstract heading "What converges."; registered names that use workspace vocabulary
+  (R3's heading, "workspace band" and "materialization boundary" in the R1 design, Section 2.3); the
+  substrate section's "For theory" paragraph; the invariance rows typed "Meta"; the null's pass rule for
+  the 8B and its prompt count; the 32B argmax (register OPEN); the k-of-n seed rule.
+- **Open, gate (not done here):** 12 of the 18 Starship primaries are not on this machine, so 71 checks
+  are held. Holding is all-or-nothing per mirror. The `det_*` block is held although its primary ships
+  in the repo. 72 body decimals are in no check; Reader 1 traced 30 of them by hand, and all match.
+  No register rows were added for Phase E.
+
 ### The known issue, resolved in v1.1 (for Lyra's read)
 
 v1.0's abstract said "the Oracle Loop achieves 80–100% deception correction". The C20 numbers, settled from the most
