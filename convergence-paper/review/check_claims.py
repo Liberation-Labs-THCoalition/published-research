@@ -1106,7 +1106,7 @@ def check_phase_b():
     present("V.e3.bump", "Stable rank in the L19--L23 band")
     absent("V.e4.ignition", "PC2 ignition")
     absent("V.e4.onset", "one layer before PC2 onset")  # Vera 2026-11-01 item 2: L45 is another model
-    present("V.e5.title", "\\subsection{R3: Workspace Onset (Missed)}")
+    present("V.e5.title", "\\subsection{R3: ``Workspace Onset'' (Missed)}")  # Vera 2026-11-01 item 4: quoted
     absent("V.e5.partial", "Partial Miss")
     absent("V.e5.soften", "quantitative rather than qualitative")
     present("V.e5.why", "no marginal zone was registered, so we report it as missed")
@@ -1406,6 +1406,18 @@ def check_vera_1101():
     # 3. A paper titled "Did Not Converge" does not open its findings with "What converges".
     present("V3.e3.heading", "\\emph{What the evidence supports.} In Qwen3.5-27B")
     absent("V3.e3.old", "\\emph{What converges.}")
+    # 4. Pre-registered names are kept and marked as quoted; our own-voice uses are rewritten.
+    absent("V3.e4.r3-unquoted", "\\subsection{R3: Workspace Onset (Missed)}")
+    present("V3.e4.r3-name", "``Workspace Onset'' is the registration's name for this test.")
+    present("V3.e4.r1-names", "at the registration's ``workspace band'' and J-lens readout at its "
+                              "``materialization boundary''")
+    present("V3.e4.r2-name", "concentrates at the registration's ``materialization boundary''")
+    absent_re("V3.e4.unquoted-boundary", r"(?<!``)materialization boundary")
+    absent("V3.e4.oracle", "operating at the materialization boundary")
+    absent("V3.e4.materializes", "content materializes")
+    absent("V3.e4.structure", "the workspace structure described here")
+    absent("V3.e4.routing", "workspace-specific information routing")
+    absent("V3.e4.processing", "reflects workspace processing")
     # END-VERA-1101
 
 

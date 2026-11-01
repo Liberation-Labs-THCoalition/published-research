@@ -184,15 +184,14 @@ among its key results.}
 \label{sec:oracle}
 
 CC's Oracle Loop~\citep{lyra2026oracle} is a two-tier detection and
-correction system operating at the materialization boundary. In the
+correction system that works deeper than the peak. In the
 deception-correction experiments it detects at L27--L47 and corrects at
 L35, L39, L43 and L47 of an abliterated Qwen3.5-27B checkpoint, by
 sequence-wide activation-profile normalization~\citep{cc2026targeted}.
 The correction was large in the exploratory run; the pre-registered
 confirmatory replication did not meet its primary endpoint
-(\S\ref{sec:vproj}). We previously attributed the correction to the Loop operating at the depth where
-workspace content materializes into output-facing representations,
-rather than inside the workspace band itself. We now state that as a
+(\S\ref{sec:vproj}). We previously attributed the correction to the depth at which the Loop
+operates, where content becomes output-facing. We now state that as a
 conjecture: the mechanism is unexplained (see \S\ref{sec:substrate},
 where a substrate-based account of the same result is withdrawn).
 
@@ -454,8 +453,8 @@ does not call RLHF a selective sharpener: the pattern is exploratory.
 \label{sec:mechanism}
 
 The original mechanism test (R1) pre-registered a within-prompt
-anticorrelation between V-projection spectral features at the workspace
-band and J-lens readout at the materialization boundary. Two Agni
+anticorrelation between V-projection spectral features at the registration's ``workspace band'' and J-lens
+readout at its ``materialization boundary''. Two Agni
 reviews killed successive versions of this design: the first for
 insufficient behavioral variance (0/10 prompts spanning ${\geq}2$
 behavioral categories), the second for a lens--model mismatch (Mine~5
@@ -466,9 +465,9 @@ two-band anticorrelation with a temporal ordering analysis across all
 
 \subsection{Design}
 
-If spectral features measure workspace \emph{state}
-(loading) while J-lens readability measures workspace \emph{content}
-(execution), then spectral features should reach their operating level
+In the registration's framing, if spectral features measure workspace
+\emph{state} (loading) while J-lens readability measures workspace
+\emph{content} (execution), then spectral features should reach their operating level
 at shallower depth than J-lens readability. The temporal ordering
 prediction: spectral features lead, J-lens follows.
 
@@ -545,8 +544,7 @@ whether the Jacobian \emph{computation itself} produces the gap
 (which would require recomputing negKL from activations under a
 scrambled Jacobian matrix). The temporal ordering is not an artifact
 of random layer assignment, but could in principle reflect any
-monotonically increasing property of the negKL profile rather than
-workspace-specific information routing.
+monotonically increasing property of the negKL profile rather than a specific route of information through the network.
 
 \paragraph{Logit-lens control.} A validated control replaced the J-lens
 with the identity transport, the plain logit lens, on fork~0 of each
@@ -563,15 +561,16 @@ which constitute 48 of 64 layers, interleaved three-in-four at every
 depth rather than concentrated early. The full-attention subset used
 here is therefore a sparse depth-spanning comb,
 not a late-network subnetwork, and the narrowing cannot be attributed
-to sampling a different depth range. Whether it reflects workspace
-processing or GatedDeltaNet's sequential compression architecture
+to sampling a different depth range. Whether it reflects the computation the registration hypothesized or
+GatedDeltaNet's sequential compression architecture
 cannot be determined from a single hybrid model. A dense-architecture
 replication (Qwen3-8B, all full-attention) is pre-registered.
 
 \subsection{R2: Signal Concentration (Failed)}
 
 The pre-registered R2 test asked whether spectral feature variance
-concentrates at the materialization boundary (${\geq}15\%$ of total
+concentrates at the registration's ``materialization boundary''
+(${\geq}15\%$ of total
 variance). Stable rank at the boundary band ($L_{45}$--$L_{53}$,
 mean~$= 8.36$) significantly exceeds the L19--L23 band
 (mean~$= 7.13$; Cohen's $d{=}1.85$,
@@ -581,9 +580,10 @@ own terms.} The band means rise from early ($2.56$) to late ($9.00$),
 but not monotonically: the mid band ($6.73$) sits below the L19--L23 band ($7.13$). The overall rise is consistent with cumulative processing rather
 than a privileged boundary zone.
 
-\subsection{R3: Workspace Onset (Missed)}
+\subsection{R3: ``Workspace Onset'' (Missed)}
 
-Four independent onset-detection methods (threshold crossing, maximum
+``Workspace Onset'' is the registration's name for this test. Four
+independent onset-detection methods (threshold crossing, maximum
 curvature, slope breakpoint, spectral entropy inflection) converge on
 $L{=}13$--$16$ (median $L{=}14$, $21.9\%$ depth). The pre-registered
 prediction was $25$--$35\%$. \textbf{Onset falls below the predicted
@@ -993,7 +993,7 @@ on request.
 
 All models used are publicly available on Hugging Face. No human subjects
 were involved. AI welfare considerations --- including the question of
-whether the workspace structure described here has implications for machine
+whether the structure described here has implications for machine
 experience --- are discussed in companion work and are not claimed or
 dismissed by this paper.
 
