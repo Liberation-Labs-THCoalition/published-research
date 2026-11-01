@@ -954,8 +954,9 @@ def check_tally():
 # Numbers in new prose are tied to the tally values: every number of the cited tally string must
 # appear in the needle (so the prose cannot drift from the primary).
 # --------------------------------------------------------------------------
-THESIS = ("In one model, residual-stream spectral statistics peak near a third of depth, and in all 300 forks "
-          "they rise before content becomes readable through the unembedding. No other instrument we ran "
+THESIS = ("In one model, residual-stream spectral statistics peak near a third of depth, and stable rank rises "
+          "before J-lens readability, in 300 of 300 forks (the J-lens is the Jacobian lens); a plain logit lens "
+          "puts readability $3.25$ layers later still. No other instrument we ran "
           "locates that band, and our cache-readout nulls cannot tell a closed cache from a probe that reads "
           "nothing there, because their pre-registered positive control failed.")
 
@@ -984,14 +985,14 @@ def check_phase_b():
     m = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", BODY, re.S)
     ABS = squash(m.group(1)).strip() if m else ""
     record("B.abs.thesis-first", ABS.startswith(THESIS), "abstract opens with the thesis sentence verbatim")
-    tie("B.abs.forks", "in all 300 forks", "r1_forks", where=ABS)
+    tie("B.abs.forks", "stable rank rises before J-lens readability, in 300 of 300 forks", "r1_forks", where=ABS)
     tie("B.abs.peak", "In Qwen3.5-27B (base, 64 layers), the effective dimensionality ($d_\\text{eff}$) of the "
         "residual stream peaks at L21 ($32.8\\%$ of depth)", "deff27_peak", where=ABS)
     tie("B.abs.bump", "rises $1.47\\times$ above its flanks at L19--L23 ($29.7$--$35.9\\%$)", where=ABS)
     tie("B.abs.8b", "local $d_\\text{eff}$ maximum at $33.3\\%$ but its global maximum at $91.7\\%$", where=ABS)
-    tie("B.abs.gap", "reaches half its rise $38.6$ layers [$38.0$--$39.2$] before readability through the Jacobian "
-        "lens (J-lens), in 300 of 300 forks", "r1_gap", "r1_forks", where=ABS)
-    tie("B.abs.ident", "only $3.25$ layers later than the J-lens does", "r1_ident_diff", where=ABS)
+    tie("B.abs.gap", "reaches half its rise $38.6$ layers [$38.0$--$39.2$] before J-lens readability, in 300 of "
+        "300 forks", "r1_gap", "r1_forks", where=ABS)
+    tie("B.abs.ident", "A plain logit lens puts readability $3.25$ layers later still", "r1_ident_diff", where=ABS)
     present("B.abs.limits", "The pre-registered band never closed, and no null control has been run.", where=ABS)
     present("B.abs.oracle", "corrects at $54.7$--$73.4\\%$ of depth", where=ABS)
     present("B.abs.oracle-p", "did not meet its primary endpoint (one-sided $p = 0.34$)", where=ABS)
@@ -1383,6 +1384,24 @@ def check_phase_e():
 
 
 # --------------------------------------------------------------------------
+# Vera's answers on PR #13 (2026-11-01, vera_pr13_answers.md): each new wording present, each old one gone.
+# Her sign-off needs items 1, 2, 3 and 7 exactly. Items 7-9 are also checked against the sealed null
+# preregistration (convergence-null/PREREG_random_init_null_SEALED.md), so the text cannot present an
+# unsealed rule as registered.
+# --------------------------------------------------------------------------
+def check_vera_1101():
+    # 1. The fork count belongs to J-lens readability; the logit lens is its own clause, with no count.
+    present("V3.e1.jlens", "before J-lens readability, in 300 of 300 forks", count=5)
+    present("V3.e1.logit", "a plain logit lens puts readability $3.25$ layers later still", count=3)
+    tie("V3.e1.logit-tie", "a plain logit lens puts readability $3.25$ layers later still", "r1_ident_diff")
+    absent_re("V3.e1.logit-count", r"logit lens puts readability \$3\.25\$ layers later still[^.;]*forks")
+    absent("V3.e1.unembed", "becomes readable through the unembedding")
+    absent("V3.e1.all300", "in all 300 forks")
+    absent("V3.e1.ident-old", "later than the J-lens does")
+    # END-VERA-1101
+
+
+# --------------------------------------------------------------------------
 # The plant
 # --------------------------------------------------------------------------
 def run_plant():
@@ -1408,6 +1427,7 @@ def main():
     check_phase_c()
     check_note_and_date()
     check_phase_e()
+    check_vera_1101()
 
     width = max(len(c) for _, c, _ in RESULTS)
     for status, cid, detail in RESULTS:

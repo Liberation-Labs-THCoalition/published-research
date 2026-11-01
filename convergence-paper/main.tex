@@ -45,8 +45,9 @@ and again in this version (see the Correction Note)}
 % ============================================================================
 \begin{abstract}
 In one model, residual-stream spectral statistics peak near a third of
-depth, and in all 300 forks they rise before content becomes readable
-through the unembedding. No other instrument we ran locates that band,
+depth, and stable rank rises before J-lens readability, in 300 of 300
+forks (the J-lens is the Jacobian lens); a plain logit lens puts
+readability $3.25$ layers later still. No other instrument we ran locates that band,
 and our cache-readout nulls cannot tell a closed cache from a probe that
 reads nothing there, because their pre-registered positive control
 failed.
@@ -58,9 +59,8 @@ above its flanks at L19--L23 ($29.7$--$35.9\%$). Qwen3-8B shows a local
 $d_\text{eff}$ maximum at $33.3\%$ but its global maximum at $91.7\%$.
 The pre-registered band never closed, and no null control has been run.
 In a pre-registered test on the same 27B model, stable rank reaches half
-its rise $38.6$ layers [$38.0$--$39.2$] before readability through the
-Jacobian lens (J-lens), in 300 of 300 forks. A plain logit lens puts
-readability only $3.25$ layers later than the J-lens does, so the
+its rise $38.6$ layers [$38.0$--$39.2$] before J-lens readability, in 300 of 300 forks. A plain logit lens puts
+readability $3.25$ layers later still, so the
 ordering is mostly spectrum before unembedding, not a property of the
 Jacobian.
 
@@ -116,8 +116,8 @@ of model depth. They do not.
 
 This paper reports what holds, what does not, and how each instrument
 fares. First, two positive results on one model: residual-stream
-spectral statistics peak near a third of depth (\S\ref{sec:deff}), and
-they rise before content becomes readable through the unembedding
+spectral statistics peak near a third of depth (\S\ref{sec:deff}), and stable rank rises before J-lens readability, in 300 of 300 forks; a
+plain logit lens puts readability $3.25$ layers later still
 (\S\ref{sec:mechanism}). Second, an account of each instrument in turn
 (\S\ref{sec:instruments}), each ending with its verdict: no other
 instrument locates the band, and our cache-readout nulls cannot separate
@@ -897,8 +897,8 @@ registered before it runs, in the exact form in which it will be scored.
 \label{sec:conclusion}
 
 In Qwen3.5-27B, residual-stream spectral statistics peak near a third of
-depth and rise before content becomes readable through the unembedding,
-in all 300 forks. That is the result this paper can report; whether it
+depth, and stable rank rises before J-lens readability, in 300 of 300
+forks; a plain logit lens puts readability $3.25$ layers later still. That is the result this paper can report; whether it
 is learned structure is the open question \S\ref{sec:test-band} would
 answer. The
 five-instrument convergence it set out to report did not hold: the
