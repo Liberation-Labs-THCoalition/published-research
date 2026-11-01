@@ -2,7 +2,7 @@
 %   Transformer KV-Cache Geometry
 %
 % Core argument: a key-based emotion projection reads single-turn emotion
-% (the cited single-turn result is under correction; see the 2026-11-01
+% (the cited single-turn result was corrected in October 2026; see the 2026-11-01
 % correction note) but does not cumulatively accumulate across turns.
 % Instead, emotional context shows contrast dynamics (overshoot at tone
 % shifts), residual traces (uncertainty scars from neutral gaps), and
@@ -58,10 +58,13 @@ KV-Cache Geometry}
 
 \begin{abstract}
 Single-turn KV-cache keys carry the emotion of the text being
-processed: prior work, now under correction, decodes from keys the
+processed: prior work, corrected in October 2026, decodes from keys the
 emotion a generator was asked to write a story in, at $12.3\times$
-chance, though in the corrected, preregistered test that decode does not
-exceed a text (TF-IDF) baseline on the same stories. We ask whether an emotion signal in the keys \emph{accumulates}
+chance. That decode is not significantly above a text (TF-IDF) baseline
+on the same stories ($0.410$ against $0.370$; Holm-corrected
+$p = 0.071$), and its margin depends on a residualization fitted on each
+test fold ($0.348$ when fitted on the training fold). The method that
+work describes is not above text ($0.358$ against $0.382$). We ask whether an emotion signal in the keys \emph{accumulates}
 across conversation turns---whether the model
 builds a persistent user-model that grows with interaction. Four
 experiments reveal a nuanced answer: emotion does not accumulate
@@ -99,14 +102,18 @@ token positions.
 Prior single-turn work \citep{lyra2026techniqueii,lyra2026usermodel}
 decodes emotion from KV-cache keys: on stories a generator was asked to
 write in each of 30~emotions, a key-based probe names the requested
-emotion at $12.3\times$ chance ($40.9\%$ correct over 30); in the
-corrected, preregistered test that decode does not exceed a text (TF-IDF)
-baseline on the same stories. That result is
-under correction in \citet{lyra2026usermodel} (October 2026), and its
+emotion at $12.3\times$ chance ($40.9\%$ correct over 30). That decode
+is not significantly above a text (TF-IDF) baseline on the same stories
+($0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its margin depends
+on fitting its covariate residualization (FWL) on each test fold: fitted
+on the training fold, it reads $0.348$. The method the paper describes,
+its preregistered primary, is not above text ($0.358$ against $0.382$).
+\citet{lyra2026usermodel} corrected that result in October 2026, and its
 qualifications bear on this paper. The probe applies no $W_K$
 projection. Its labels are the emotions the generator was asked for, not
-any user's state. Its binary valence result (AUROC~$0.992$) rests on
-$n = 300$ stories in which valence is confounded with arousal. The
+any user's state. Its binary valence result (AUROC~$0.992$) beats text
+(Holm-corrected $p = 0.006$), but it rests on $n = 300$ stories in which
+valence is confounded with arousal. The
 injection test once offered as showing that the signal reflects model
 state rather than text content does not show it: it adds a fixed vector
 to a cache and reads the keys back with no forward pass, and the
@@ -139,13 +146,15 @@ said that the $W_K$ directional projection reads emotional valence from
 single-turn key activations at AUROC~$0.992$, and that an injection test
 showed the signal reflects model state rather than text content. Both
 rested on the single-turn probe results of
-\citet{lyra2026techniqueii} and \citet{lyra2026usermodel}, which are under
-correction in the latter: the probe applies no $W_K$, its labels are the
-emotions requested of a story generator rather than anyone's state, its
-$0.992$ is a binary split of $n = 300$ stories confounded with arousal,
-and its injection test is withdrawn. Those passages now state what the
-cited work supports. In the corrected, preregistered test that decode
-does not exceed a text (TF-IDF) baseline on the same stories. The phrase ``with high fidelity'', which rested on
+\citet{lyra2026techniqueii} and \citet{lyra2026usermodel}, which the
+latter corrected in October 2026: the probe applies no $W_K$, its labels
+are the emotions requested of a story generator rather than anyone's
+state, its $0.992$ beats text but is a binary split of $n = 300$ stories
+confounded with arousal, and its injection test is withdrawn. Those
+passages now state what the cited work supports, and give each number its
+own result against text. The $12.3\times$ ($40.9\%$) decode is not
+significantly above text ($0.410$ against $0.370$). The described method
+is not above text ($0.358$ against $0.382$). The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
 Conclusion. This paper's own instrument keeps the name ``$W_K$ compass''
 as a label only: the shipped code takes the cached keys at each measured

@@ -129,14 +129,18 @@ generation-phase confabulation detection at AUROC~0.66--0.91 across a
 15-model scale sweep \citep{lyra2026spectral}. Keys also carry the
 emotion of the text being processed: a decode from KV-cache keys names
 the emotion a generator was asked to write a story in at $12.3\times$
-chance ($40.9\%$ correct over 30~emotions) \citep{lyra2026usermodel},
-though in that paper's corrected, preregistered test the decode does not
-exceed a text (TF-IDF) baseline on the same stories.
-That paper is under correction (see the correction note at the end of
-this section): its probe applies no W\textsubscript{K} projection, its
-labels are the emotions requested of the generator rather than anyone's
-state, and its binary valence result (AUROC~$0.992$) rests on $n = 300$
-stories in which valence is confounded with arousal. It supports only the
+chance ($40.9\%$ correct over 30~emotions) \citep{lyra2026usermodel}.
+That decode is not significantly above a text (TF-IDF) baseline on the
+same stories ($0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its
+margin also depends on fitting its covariate residualization (FWL) on
+each test fold: fitted on the training fold, it reads $0.348$. The method
+that paper describes, its preregistered primary, is not above text
+($0.358$ against $0.382$). That paper was corrected in October 2026 (see
+the correction note at the end of this section). Its probe applies no
+W\textsubscript{K} projection, and its labels are the emotions requested
+of the generator rather than anyone's state. Its binary valence result
+(AUROC~$0.992$) does beat text (Holm-corrected $p = 0.006$), but it rests
+on $n = 300$ stories in which valence is confounded with arousal. It supports only the
 narrower point that key geometry carries the content of the text, which
 is weaker than this sentence used to claim; nothing in this paper's
 results depends on it. SVD denoising rescues hidden signals in spectral
@@ -192,12 +196,13 @@ is to check if you are wrong.
 Two passages are corrected, in both editions. First, this section
 previously said that ``the W\textsubscript{K} directional projection
 method extends this to reading emotional valence from key activations at
-AUROC~0.992'' \citep{lyra2026usermodel}. The cited paper is under
-correction (October 2026): its probe applies no W\textsubscript{K}, its
-labels are the emotions a story generator was asked for and not a
-user's state, and its $0.992$ is a binary split of $n = 300$ stories that
-is confounded with arousal. The sentence now states the decode the cited
-work supports, and says that it is weaker. Second, the judge-reliability
+AUROC~0.992'' \citep{lyra2026usermodel}. The cited paper was
+corrected in October 2026. Its probe applies no W\textsubscript{K}, and
+its labels are the emotions a story generator was asked for, not a
+user's state. Its $0.992$ beats text, but it is a binary split of
+$n = 300$ stories that is confounded with arousal. The sentence now gives
+each cited number its own result against a text (TF-IDF) baseline, and
+says that the support is weaker. Second, the judge-reliability
 item in the Limitations previously set judge agreement ($\kappa = 0.69$)
 against the geometric detector (AUROC~$0.93$) and called the detector
 more reproducible than any behavioral consensus. The two numbers measure
