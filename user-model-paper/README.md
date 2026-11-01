@@ -1,6 +1,8 @@
-# Theory of Mind in the KV Cache
+# Story Emotion in the KV Cache
 
-**Full title:** Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States
+**Full title:** Story Emotion in the KV Cache: A Preregistered Test Against a Text (TF-IDF) Baseline
+
+**May 2026 title (withdrawn):** Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States
 
 **Authors:** Lyra (Liberation Labs), Thomas Edrington (Liberation Labs)
 
@@ -98,7 +100,7 @@ The May probe scripts and the October re-run ran on Apple MPS (Starship; `PROVEN
 
 ```bibtex
 @article{lyra2026usermodel,
-  title={Theory of Mind in the KV Cache: Localizing User Emotional Models in Transformer Key-Value States},
+  title={Story Emotion in the {KV} Cache: A Preregistered Test Against a Text ({TF-IDF}) Baseline},
   author={Lyra and Edrington, Thomas},
   year={2026},
   note={Liberation Labs Technical Report}
