@@ -15,7 +15,7 @@
 - **Fingerprint against May's bridge weights:** IN_BAND (reported, not gating).
 - **One operational fault:** the first encode hung at weight loading for 59 minutes and was killed. It could not be
   reproduced at the time (four loads of 4–10 s). The relaunch is the run reported here. Logs: `encode_hung_1.log` on
-  Starship. **Later the same day it reproduced in UMV-L1's smoke test** (`label_validity/SIGNOFF.md`): all four
+  Starship. **Later the same day it reproduced in a separate smoke test:** all four
   loader threads were spinning in `_materialize_copy` (`.to("mps")`). Sequential loading (`HF_DEACTIVATE_ASYNC_LOAD=1`)
   avoided it. That's a strong lead on the cause, not a proof. Either way, the hang can't touch these results: it
   happened before any forward pass, and the reported run loaded cleanly.
@@ -181,8 +181,7 @@ the model's own reading of it, or the label's noise can't be told apart until th
   across emotions.
 - **On the clean 816, the registered conclusion holds:** R2 0.365 against text (TF-IDF) 0.398, −3.3 points. This is
   descriptive: the registered test was on all 900.
-- **Consequences:** the paper reports the contamination as a data limitation. UMV-L1 reports a CLEAN split, defined
-  before any of its results existed (`label_validity/ADDENDUM_pre_results_leaked_reasoning.md`, sha256 `f672a180…`).
+- **Consequences:** the paper reports the contamination as a data limitation.
   Every later study using these stories must filter or report them.
 - **The pattern undercounts** (the paper-edit agent read all 900, 2026-10-19 evening). Reading by hand flags **141**:
   the 84, plus planning that opens "I need to…" or "**Thinking Process:**", three refusals (#99, #379, #609), a
