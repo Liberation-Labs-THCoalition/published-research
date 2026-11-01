@@ -1418,6 +1418,11 @@ def check_vera_1101():
     absent("V3.e4.structure", "the workspace structure described here")
     absent("V3.e4.routing", "workspace-specific information routing")
     absent("V3.e4.processing", "reflects workspace processing")
+    # 5. "For theory" is cut: two conditionals deep, and it brought back "workspace".
+    sub5 = squash(strip_comments((PAPER / "substrate_independence_section.tex").read_text(encoding="utf-8")))
+    present("V3.e5.control", "Descriptive continuity of $d_\\text{eff}$ across the substrate crossings", where=sub5)
+    absent("V3.e5.theory", "For theory", where=sub5)
+    absent("V3.e5.phase", "computational phase", where=sub5)
     # END-VERA-1101
 
 
