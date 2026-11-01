@@ -1105,7 +1105,7 @@ def check_phase_b():
     absent("V.e3.bump-title", "Workspace band bump")
     present("V.e3.bump", "Stable rank in the L19--L23 band")
     absent("V.e4.ignition", "PC2 ignition")
-    present("V.e4.onset", "one layer before PC2 onset")
+    absent("V.e4.onset", "one layer before PC2 onset")  # Vera 2026-11-01 item 2: L45 is another model
     present("V.e5.title", "\\subsection{R3: Workspace Onset (Missed)}")
     absent("V.e5.partial", "Partial Miss")
     absent("V.e5.soften", "quantitative rather than qualitative")
@@ -1398,6 +1398,11 @@ def check_vera_1101():
     absent("V3.e1.unembed", "becomes readable through the unembedding")
     absent("V3.e1.all300", "in all 300 forks")
     absent("V3.e1.ident-old", "later than the J-lens does")
+    # 2. L45 is the Opus-distilled 27B's PC2 layer; the L44 crossover is the base model's. Cut the comparison.
+    absent("V3.e2.l45", "($L{=}45$")
+    absent("V3.e2.materializes", "materializes less")
+    present("V3.e2.new", "The sign crossover occurs at $L{=}44$. Unfamiliar entities carry more spectral structure "
+                         "early and less late.")
     # END-VERA-1101
 
 
