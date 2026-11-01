@@ -11,6 +11,8 @@
 > character's requested emotion rather than the user's state, and that the probe's margin over a text (TF-IDF) baseline
 > had never been tested. The user-state claim, the injection test and the direction-versus-shape claim are withdrawn.
 > The paper's Appendix A keeps each withdrawn sentence with its reason.
+> The 10 October 2026 correction (`2bcb740`) called the probe results untouched. That was wrong; they are corrected
+> here (Appendix A, last item).
 
 ## Summary
 
