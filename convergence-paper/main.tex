@@ -871,18 +871,39 @@ registered before it runs, in the exact form in which it will be scored.
 \begin{enumerate}[nosep]
 \item A null control, first, because it is the cheapest and it decides
   the question this paper leaves open: the same $d_\text{eff}$ and
-  stable-rank features on a randomly initialized Qwen3.5-27B (and
-  Qwen3-8B), the fix the band measurement's adversarial review asked
-  for. ``A peak near L21'' is defined in advance as a $d_\text{eff}$
-  argmax in L19--L23, or a stable-rank bump at L19--L23 whose 95\%
-  CI excludes 1.0. The number of random seeds, $n$, and a threshold $k$
-  are fixed before any seed is run: if the bump appears in at least $k$
-  of $n$ seeds, the peak is attributed to architecture and the
-  learned-structure reading is withdrawn; if it appears in fewer than
-  $k$, the null does not explain the peak.
+  stable-rank features on randomly initialized copies of Qwen3.5-27B,
+  the fix the band measurement's adversarial review asked for. Its rule
+  is sealed in a preregistration (sha256 \texttt{b7856f79\ldots},
+  2026-10-29), which governs wherever this summary is shorter. Only
+  Qwen3.5-27B runs; Qwen3-8B is not in it, because a local maximum in a
+  short window fires easily on a rough profile. Each seed takes the
+  library's default initialization (transformers 5.10.2), drawn in fp32.
+  The band is L19--L23 and the flanks are L14--L18 and L24--L28. A seed
+  has the bump if its $d_\text{eff}$ argmax over L0--L62 falls in the
+  band and its band-to-flank $d_\text{eff}$ ratio has a 95\% jackknife
+  lower bound above 1.0, or if its band-to-flank stable-rank ratio has a
+  95\% bootstrap lower bound above 1.0. It reaches the floor if, on
+  either measure, the ratio also carries at least half of the trained
+  model's excess over 1. Five seeds (1--5) are fixed, with a threshold
+  of 3: if at least 3 of 5 seeds reach the floor, the peak is attributed
+  to architecture and the learned-structure reading is withdrawn; if
+  fewer reach it but at least 3 have a bump, learning amplifies an
+  architectural tendency; otherwise, the null does not explain the
+  peak. A collapsed window that would change the verdict makes the null
+  inconclusive, and two depth-scaled seeds, not counted among the five,
+  can qualify any verdict. Three further rules are proposed for a later
+  amendment (not in the sealed preregistration): a Qwen3-8B arm with its
+  own window in relative depth, L11--L13 of 36, around its local maximum
+  at L12 ($33.3\%$); a dense Qwen3-32B arm, since that model's
+  $d_\text{eff}$ profile also peaks at L21 of 64 in a single,
+  unvalidated point estimate (\S\ref{sec:substrate}); and a magnitude
+  clause, under which the trained model's peak prominence must exceed
+  the 95th percentile of the random-seed prominences.
 \item A second prompt set on the trained model, from another domain and
-  matched in length. A randomly initialized model separates architecture
-  from learning, but not learning from these 90 prompts.
+  matched in length, for each of the two sets the peak rests on: the 90
+  prompts behind $d_\text{eff}$ and the 60 prompts (300 forks) behind
+  stable rank. A randomly initialized model separates architecture from
+  learning, but not learning from these prompts.
 \item The dense-architecture replication already pre-registered in
   \S\ref{sec:mechanism} (Qwen3-8B, all full attention), which answers
   the hybrid-architecture confound in R1's ordering.

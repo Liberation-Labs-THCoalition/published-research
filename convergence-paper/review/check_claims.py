@@ -1068,7 +1068,7 @@ def check_phase_b():
     present("B.v.kv", "Does not bear on the band")
 
     # What would test the band (four concrete runs).
-    for cid, needle in (("null", "on a randomly initialized Qwen3.5-27B"), ("posctl", "whose positive control passes "
+    for cid, needle in (("null", "on randomly initialized copies of Qwen3.5-27B"), ("posctl", "whose positive control passes "
                         "before any"), ("family", "on a second model family"),
                         ("logit", "with the plain logit lens as the registered baseline")):
         present("B.test.%s" % cid, needle)
@@ -1111,7 +1111,7 @@ def check_phase_b():
     absent("V.e5.soften", "quantitative rather than qualitative")
     present("V.e5.why", "no marginal zone was registered, so we report it as missed")
     present("V.e6.posthoc", "is a post hoc grouping, not a test")
-    present("V.e85.kofn", "if the bump appears in at least $k$ of $n$ seeds")
+    absent("V.e85.kofn", "if the bump appears in at least $k$ of $n$ seeds")  # Vera 2026-11-01 item 9: sealed 3 of 5
     present("V.e85.dense", "The dense-architecture replication already pre-registered")
     absent("B.ghost.gone34", "34$--$67")
     absent("B.ghost.gone001", "{\\leq}0.001")
@@ -1430,6 +1430,41 @@ def check_vera_1101():
     present("V3.e6.three", "so three of the six are state measurements")
     present("V3.e6.fn", "retyping them there is follow-up work")
     present("V3.e6.caption", "does not adopt that type for schema commitment, hardware invariance or scale invariance")
+    # 7-9. Section 8.5 must state the null exactly as sealed; Vera's proposals that the sealed file does not
+    #      hold are labelled as proposed for a later amendment. PRIMARY: the sealed preregistration itself.
+    import hashlib
+    sealed = RESEARCH / "convergence-null" / "PREREG_random_init_null_SEALED.md"
+    if sealed.exists():
+        raw = sealed.read_bytes()
+        sp = raw.decode("utf-8")
+        record("V3.e7.sealed-sha", hashlib.sha256(raw).hexdigest().startswith("b7856f790cb4ff3d"),
+               "sealed prereg sha256 starts b7856f790cb4ff3d")
+        for cid, needle in (("kn", "**k = 3, n = 5.**"), ("seeds", "Seeds **1, 2, 3, 4, 5**"),
+                            ("band", "The band **B** is L19\u2013L23. The flanks **F** are L14\u2013L18 and L24\u2013L28"),
+                            ("argmax", "argmax of the d_eff profile over **L0\u2013L62**"),
+                            ("floor", "S_floor = 1 + (R_T \u2212 1)/2"), ("no8b", "### 3.8 Qwen3-8B: not in this run"),
+                            ("partial", "Partial:** fewer than 3 seeds at the floor, and at least 3 at or below it")):
+            record("V3.e7.sealed-%s" % cid, needle in sp, "sealed prereg holds %a" % needle)
+        for cid, needle in (("32b", "32B"), ("p95", "95th percentile"), ("prominence", "prominence"),
+                            ("8b-window", "L11\u2013L13")):
+            record("V3.e7.unsealed-%s" % cid, needle not in sp, "sealed prereg does NOT hold %a (so 'proposed')" % needle)
+    else:
+        record("V3.e7.sealed", True, "HELD: %s not on this machine" % sealed, held=True)
+    present("V3.e7.sha", "sha256 \\texttt{b7856f79\\ldots}")
+    present("V3.e7.only27", "Only Qwen3.5-27B runs; Qwen3-8B is not in it")
+    present("V3.e7.windows", "The band is L19--L23 and the flanks are L14--L18 and L24--L28")
+    present("V3.e7.argmax", "argmax over L0--L62")
+    present("V3.e9.kofn", "Five seeds (1--5) are fixed, with a threshold of 3: if at least 3 of 5 seeds reach the floor")
+    present("V3.e7.proposed", "Three further rules are proposed for a later amendment (not in the sealed preregistration)")
+    present("V3.e7.8b", "L11--L13 of 36")
+    present("V3.e7.prompts", "the 90 prompts behind $d_\\text{eff}$ and the 60 prompts (300 forks) behind stable rank")
+    present("V3.e8.arm", "a dense Qwen3-32B arm")
+    present("V3.e9.magnitude", "95th percentile of the random-seed prominences")
+    absent("V3.e7.old8b", "Qwen3.5-27B (and Qwen3-8B)")
+    absent("V3.e9.blank", "The number of random seeds, $n$, and a threshold $k$")
+    sub8 = squash(strip_comments((PAPER / "substrate_independence_section.tex").read_text(encoding="utf-8")))
+    present("V3.e8.disclose", "also peaks at L21 of 64. It is a single point estimate, with no interval and no null "
+                              "control, and we do not count it as support for the peak", where=sub8)
     # END-VERA-1101
 
 
