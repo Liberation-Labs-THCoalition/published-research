@@ -731,7 +731,7 @@ HELD_TALLY = {
     "deff_onset27": "L5 (7.8%)", "deff_onset8": "L4 (11.1%)", "deff_kurt_early": "4,677", "deff_kurt_band": "2,271",
     "r3_gate": "REJECTED", "r1_sr": "17.6 [17.2-18.1]", "r1_nkl": "56.2 [55.8-56.7]",
     "r1_gap": "38.6 [38.0-39.2]", "r1_forks": "300 of 300", "r1_linear": "39.0 [38.4-39.6]",
-    "r1_full": "14.5 [11.7-17.4]", "r1_bump": "1.47x [1.35-1.60]", "r1_bump_depth": "29.7-35.9%",
+    "r1_full": "14.5 [11.7-17.4]", "r1_bump": "+1.47 [1.35, 1.60]", "r1_bump_depth": "29.7-35.9%",
     "r1_verdict": "SUPPORTED", "r1_null_gap": "39.0", "r1_null_halves": "L17 and L56", "r1_null_p95": "8.0",
     "r1_ident": "59.4", "r1_ident_real": "56.1", "r1_ident_diff": "3.25", "r1_rho": "0.235",
     "r2_frac": "13.2%", "r2_d": "1.85", "r2_ws": "7.13", "r2_mid": "6.73",
@@ -815,7 +815,7 @@ def _tally_values():
                                     on["all_layers"]["n_forks"]),
              r1_linear=f(on["linear_only"]["gap_half_rise"]), r1_full=f(on["full_attention_only"]["gap_half_rise"]))
     b = a["bump"]["sr_overall"]
-    v["r1_bump"] = "%.2fx [%.2f-%.2f]" % (b["mean"], b["ci_lo"], b["ci_hi"])
+    v["r1_bump"] = "%+.2f [%.2f, %.2f]" % (b["mean"], b["ci_lo"], b["ci_hi"])  # a difference, not a ratio (D1)
     v["r1_bump_depth"] = "%.1f-%.1f%%" % (100 * b["band_layers"][0] / 64, 100 * b["band_layers"][-1] / 64)
     v["r1_verdict"] = a["verdict"]["status"]
     v["r1_rho"] = "%.3f" % a["within_prompt_association_secondary"]["mean_rho"]
@@ -988,7 +988,8 @@ def check_phase_b():
     tie("B.abs.forks", "stable rank rises before J-lens readability, in 300 of 300 forks", "r1_forks", where=ABS)
     tie("B.abs.peak", "In Qwen3.5-27B (base, 64 layers), the effective dimensionality ($d_\\text{eff}$) of the "
         "residual stream peaks at L21 ($32.8\\%$ of depth)", "deff27_peak", where=ABS)
-    tie("B.abs.bump", "rises $1.47\\times$ above its flanks at L19--L23 ($29.7$--$35.9\\%$)", where=ABS)
+    tie("B.abs.bump", "rises " + D1_TEX + ", above its flanks at L19--L23 ($29.7$--$35.9\\%$)", "r1_bump",
+        "r1_bump_depth", where=ABS)
     tie("B.abs.8b", "local $d_\\text{eff}$ maximum at $33.3\\%$ but its global maximum at $91.7\\%$", where=ABS)
     tie("B.abs.gap", "reaches half its rise $38.6$ layers [$38.0$--$39.2$] before J-lens readability, in 300 of "
         "300 forks", "r1_gap", "r1_forks", where=ABS)
@@ -1326,7 +1327,7 @@ def check_note_and_date():
 
 RESTATED = {  # needle -> exact BODY count on 2026-11-01 (Lyra's full read)
     '$13.2\\%$': 3,
-    '$1.47\\times$': 3,
+    '$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$]': 3,  # D1, sealed null prereg
     '$32.8\\%$': 3,
     '$3.25$': 5,
     '$0.620$': 3,
@@ -1521,6 +1522,87 @@ def check_vera_1101():
 
 
 # --------------------------------------------------------------------------
+# X1/D1 of the sealed random-init null prereg (convergence-null/PREREG_random_init_null_SEALED.md, sha256
+# b7856f79...). Its sec. 14 is the amendment Thomas approved (TA1027, TR1029). D1: the paper's "1.47x" and "2.02x"
+# were band-minus-flank differences in stable rank (R1py L443) printed as ratios. Each now prints as the difference
+# with its CI, then the ratio, in the sealed wording. Written before the prose: these checks FAIL on 1748bde's text.
+# --------------------------------------------------------------------------
+SEALED_NULL = RESEARCH / "convergence-null" / "PREREG_random_init_null_SEALED.md"
+SEALED_NULL_SHA = "b7856f790cb4ff3dfdf46c11e469a4ec56bbbd1974f62b31ea328278a40f507f"
+D1_SEALED = "+1.47 [1.35, 1.60] in stable rank, a ratio of 1.27 [1.24, 1.29]"   # sealed L100-101 and sec. 14
+D1_FULL_SEALED = "+2.02 [1.87, 2.16], a ratio of 1.40 [1.37, 1.43]"             # sealed sec. 14, from its sec. 9
+D1_TEX = "$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$]"
+D1_FULL_TEX = "$+2.02$ [$1.87$, $2.16$], a ratio of $1.40$ [$1.37$, $1.43$]"
+HELD_SEALED_S9 = {  # sealed sec. 9 table: (SR ratio, CI lo, CI hi), (SR difference, CI lo, CI hi)
+    "untyped": ((1.2655, 1.2408, 1.2898), (1.4735, 1.3465, 1.5954)),
+    "full attention": ((1.3979, 1.3672, 1.4282), (2.0153, 1.8700, 2.1577)),
+}
+
+
+def check_x1_d1():
+    import hashlib
+    s9, held = HELD_SEALED_S9, True
+    if SEALED_NULL.exists():
+        raw = SEALED_NULL.read_bytes()
+        sha = hashlib.sha256(raw).hexdigest()
+        record("X1.sealed sha256", sha == SEALED_NULL_SHA, "sha256 %s (sealed %s)" % (sha[:16], SEALED_NULL_SHA[:16]))
+        st = squash(raw.decode("utf-8"))
+        record("X1.sealed D1 wording", ('it becomes "%s"' % D1_SEALED) in st, "sealed L100-101: %r" % D1_SEALED)
+        record("X1.sealed L56/L517/L781", ('change to "%s"' % D1_SEALED) in st, "sealed sec. 14, outside L856-869")
+        record("X1.sealed L519", ("From §9 it is %s." % D1_FULL_SEALED) in st, "sealed sec. 14: %r" % D1_FULL_SEALED)
+        rows = {}
+        for name, lab in (("untyped", "untyped: L19–23 vs L14–18 + L24–28"),
+                          ("full attention", "full attention: [19, 23] vs [15, 27]")):
+            m = re.search(re.escape("| %s |" % lab) + r" [\d.]+ \[[\d.]+, [\d.]+\] \| ([\d.]+) \[([\d.]+), ([\d.]+)\] \| "
+                          r"([\d.]+) \[([\d.]+), ([\d.]+)\] \|", st)
+            if m:
+                g = [float(x) for x in m.groups()]
+                rows[name] = (tuple(g[:3]), tuple(g[3:]))
+        record("X1.sealed sec9 rows", rows == HELD_SEALED_S9, "parsed %r" % rows)
+        s9, held = rows or HELD_SEALED_S9, not rows
+    else:
+        record("X1.sealed sha256", True, "sealed prereg not on this machine (%s); sec. 9 held" % SEALED_NULL, held=True)
+    # The printed strings are the sec. 9 values at two decimals: the difference first, then the ratio.
+    for name, printed in (("untyped", D1_SEALED), ("full attention", D1_FULL_SEALED)):
+        (r, rl, rh), (d, dl, dh) = s9[name]
+        want = ("%+.2f [%.2f, %.2f]" % (d, dl, dh), "a ratio of %.2f [%.2f, %.2f]" % (r, rl, rh))
+        record("X1.round %s" % name, printed.startswith(want[0]) and printed.endswith(want[1]),
+               "%r from sec. 9 %r%s" % (printed, want, " [held]" if held else ""), held=held)
+    # The difference against R1's own result file (Starship mirror), independent of the prereg.
+    obj, mheld = mirror_load("ayni/r1_v2_full_results.json")
+    if not mheld:
+        bump = obj["analysis"]["bump"]
+        for name, key, printed in (("untyped", "sr_overall", D1_SEALED),
+                                   ("full attention", "sr_full_attention_only", D1_FULL_SEALED)):
+            b = bump[key]
+            got = "%+.2f [%.2f, %.2f]" % (b["mean"], b["ci_lo"], b["ci_hi"])
+            record("X1.primary %s" % name, printed.startswith(got + " ") or printed.startswith(got + ","),
+                   "R1 %s: %s" % (key, got))
+    else:
+        record("X1.primary", True, "R1 result file not in the mirror; the difference is held from sec. 9", held=True)
+    record("X1.tex renders sealed", D1_TEX.replace("$", "") == D1_SEALED
+           and D1_FULL_TEX.replace("$", "") == D1_FULL_SEALED, "the LaTeX needles drop to the sealed text")
+    # The old forms are gone, in any spacing.
+    absent_re("X1.old times", r"(1\.47|2\.02)\$?\s*\\times")
+    absent("X1.old CI 1.47", "[CI: $1.35$--$1.60$]")
+    absent("X1.old CI 2.02", "[CI: $1.87$--$2.16$]")
+    absent("X1.old ratio phrase", "the flanking layers [CI")
+    # The new forms, at every site the sealed list names: the abstract, the bump paragraph, the conclusion.
+    present("X1.new 1.47 count", D1_TEX, count=3)
+    present("X1.new 2.02", "On full-attention layers within the band, the bump is %s. This is" % D1_FULL_TEX)
+    present("X1.site abstract",
+            "residual-stream stable rank rises %s, above its flanks at L19--L23 ($29.7$--$35.9\\%%$)" % D1_TEX)
+    present("X1.site bump",
+            "Stable rank in the L19--L23 band is %s, above the flanking layers, 100\\%% of forks positive." % D1_TEX)
+    present("X1.site conclusion",
+            "residual-stream stable rank rises %s, above its flanks at L19--L23 (\\S\\ref{sec:deff}" % D1_TEX)
+    tally = squash(TALLY.read_text(encoding="utf-8")) if TALLY.exists() else ""
+    absent("X1.tally old", "1.47x", where=tally)
+    present("X1.tally new", "A stable-rank bump of %s, over flanking layers at L19-L23 (29.7-35.9%%)" % D1_SEALED,
+            where=tally)
+
+
+# --------------------------------------------------------------------------
 # The plant
 # --------------------------------------------------------------------------
 def run_plant():
@@ -1547,6 +1629,7 @@ def main():
     check_note_and_date()
     check_phase_e()
     check_vera_1101()
+    check_x1_d1()
 
     width = max(len(c) for _, c, _ in RESULTS)
     for status, cid, detail in RESULTS:

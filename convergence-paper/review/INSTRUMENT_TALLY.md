@@ -101,7 +101,8 @@ prompts (60 prose + 30 chat), Qwen/Qwen3.5-27B and Qwen/Qwen3-8B base.
 - **Ordering.** Residual-stream stable rank (`ActivationRecorder` on `model.layers`, not V-projections)
   half-rises at 17.6 [17.2-18.1]; readability at 56.2. Gap 38.6 [38.0-39.2], positive in 300 of 300
   forks. Linear-attention only: 39.0 [38.4-39.6]. Full-attention only: 14.5 [11.7-17.4].
-- **Band.** A stable-rank bump of 1.47x [1.35-1.60] over flanking layers at L19-L23 (29.7-35.9%).
+- **Band.** A stable-rank bump of +1.47 [1.35, 1.60] in stable rank, a ratio of 1.27 [1.24, 1.29], over flanking
+  layers at L19-L23 (29.7-35.9%).
   Within-prompt rho 0.235.
 - **Verdict.** SUPPORTED. The run's verdict text gates publication on the shuffled null and a dense
   replication.
