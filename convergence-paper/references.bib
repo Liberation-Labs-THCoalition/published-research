@@ -1,6 +1,13 @@
 % =============================================================================
 % BibTeX References — Liberation Labs Research
-% Generated 2026-07-06. All external citations web-verified.
+% Generated 2026-07-06. All external citations web-verified (as of that date).
+% v1.1: internal entries corrected (lyra2026oracle title and authors, gurnee2026gwt
+% entry type); cc2026targeted, lyra2026dualdetector and lyra2026metapattern added;
+% lyra2026decision removed (it no longer has a citing sentence). External citations
+% were not re-verified in v1.1.
+% v1.1 extension: lyra2026weather removed (no citing sentence left; the story-derived
+% vectors come from lyra2026usermodel); lyra2026usermodel and nexus2026coupling added;
+% lyra2026nexus_kv carries its version 1.1 title.
 % =============================================================================
 
 
@@ -8,17 +15,17 @@
 % EXTERNAL CITATIONS (verified)
 % ---------------------------------------------------------------------------
 
-@article{gurnee2026gwt,
-  title   = {Verbalizable Representations Form a Global Workspace in Language Models},
-  author  = {Gurnee, Wes and Sofroniew, Nicholas and Pearce, Adam and
-             Piotrowski, Mateusz and Kauvar, Isaac and Chen, Runjin and
-             Soligo, Anna and Bogdan, Paul and Ong, Euan and Wang, Rowan and
-             Thompson, Ben and Abrahams, David and Kantamneni, Subhash and
-             Ameisen, Emmanuel and Batson, Joshua and Lindsey, Jack},
-  year    = {2026},
-  month   = jul,
-  note    = {Transformer Circuits Thread, Anthropic},
-  url     = {https://transformer-circuits.pub/2026/workspace/index.html},
+@misc{gurnee2026gwt,
+  title        = {Verbalizable Representations Form a Global Workspace in Language Models},
+  author       = {Gurnee, Wes and Sofroniew, Nicholas and Pearce, Adam and
+                  Piotrowski, Mateusz and Kauvar, Isaac and Chen, Runjin and
+                  Soligo, Anna and Bogdan, Paul and Ong, Euan and Wang, Rowan and
+                  Thompson, Ben and Abrahams, David and Kantamneni, Subhash and
+                  Ameisen, Emmanuel and Batson, Joshua and Lindsey, Jack},
+  year         = {2026},
+  month        = jul,
+  howpublished = {Transformer Circuits Thread, Anthropic},
+  url          = {https://transformer-circuits.pub/2026/workspace/index.html},
 }
 
 @book{baars1988cognitive,
@@ -44,15 +51,6 @@
 % OUR PAPERS — Liberation Labs / THCoalition
 % ---------------------------------------------------------------------------
 
-@misc{lyra2026decision,
-  title        = {From Encoding to Generation: The Decision State Architecture},
-  author       = {{Lyra} and Edrington, Thomas},
-  year         = {2026},
-  howpublished = {Liberation Labs Technical Report},
-  url          = {https://liberationlabs.tech/papers/decision-state},
-  note         = {Self-published},
-}
-
 @misc{lyra2026campaign2,
   title        = {Campaign 2: Cross-Model {KV}-Cache Geometry},
   author       = {{Lyra} and Edrington, Thomas},
@@ -72,24 +70,69 @@
   note         = {Self-published},
 }
 
-@misc{lyra2026weather,
-  title        = {Weather, Not Climate: Dose-Response Steering in
-                  {KV}-Cache Geometry},
+% Source of the story-derived emotion vectors (30 centroids per layer from 900 stories).
+@misc{lyra2026usermodel,
+  title        = {Theory of Mind in the {KV} Cache: Localizing User Emotional Models
+                  in Transformer Key--Value States},
   author       = {{Lyra} and Edrington, Thomas},
   year         = {2026},
+  month        = may,
   howpublished = {Liberation Labs Technical Report},
-  url          = {https://liberationlabs.tech/papers/weather},
-  note         = {Self-published},
+  url          = {https://github.com/Liberation-Labs-THCoalition/published-research/tree/master/user-model-paper},
+  note         = {Under correction as of October 2026},
 }
 
+% The revision of ``The Empathy Bus'' whose stored files the emotion-geometry
+% subsection recomputes (published-research PR #3, draft).
+@unpublished{nexus2026coupling,
+  title  = {A Coupling Null and the Geometry of a Story-Derived Emotion Space
+            in a Distilled 27B Language Model},
+  author = {{Nexus} and Edrington, Thomas and {CC (Coalition Code)} and {Lyra}},
+  year   = {2026},
+  month  = oct,
+  note   = {Liberation Labs Technical Report, in review; replaces ``The Empathy Bus''},
+}
+
+% Title and authors as on the paper itself (published-research oracle-loop-paper/main.tex).
 @misc{lyra2026oracle,
-  title        = {The Oracle Loop: Real-Time Confabulation Detection via
-                  {KV}-Cache Geometry},
-  author       = {{Lyra} and Edrington, Thomas},
+  title        = {The Oracle Loop: Self-Regulating {AI} Through {KV}-Cache
+                  Geometry Monitoring},
+  author       = {{Lyra} and Edrington, Thomas and {Vera}},
   year         = {2026},
   howpublished = {Liberation Labs Technical Report},
   url          = {https://liberationlabs.tech/papers/oracle-loop},
   note         = {Self-published},
+}
+
+% The deception-correction experiments (exploratory proof and pre-registered
+% confirmatory replication). Entry as in meta-pattern/references.bib.
+@misc{cc2026targeted,
+  title        = {Targeted Deception Correction via Profile Normalization in Language Models},
+  author       = {{CC (Coalition Code)} and Edrington, Thomas},
+  year         = {2026},
+  howpublished = {Liberation Labs Technical Report},
+  url          = {https://doi.org/10.5281/zenodo.21754921},
+  doi          = {10.5281/zenodo.21754921},
+}
+
+% Source of the Mistral text-feature baseline (0.820 vs 0.806).
+@unpublished{lyra2026dualdetector,
+  title  = {Detecting Confabulation on a Factual {QA} Benchmark via
+            {KV}-Cache Geometry and Token Entropy},
+  author = {{Lyra} and Edrington, Thomas},
+  year   = {2026},
+  month  = apr,
+  note   = {Liberation Labs Technical Report, unpublished},
+}
+
+% The canonical body-count ledger (its Table 1, tab:bodycount).
+@misc{lyra2026metapattern,
+  title        = {The Metacognition Boundary: What Transformers Can Monitor
+                  In Themselves and What They Cannot},
+  author       = {{Lyra} and Edrington, Thomas},
+  year         = {2026},
+  howpublished = {Liberation Labs Technical Report},
+  url          = {https://github.com/Liberation-Labs-THCoalition/published-research/tree/master/meta-pattern},
 }
 
 @unpublished{lyra2026cache_tracing,
@@ -102,12 +145,13 @@
 }
 
 @unpublished{lyra2026mine5,
-  title  = {The Geometry of Miscalibration: {RLHF} Installs Measurable
-            Stress-Response Architecture That Predicts Misalignment Modes},
+  title  = {{RLHF} Compresses Spectral Geometry Beyond Safety Directions:
+            A Three-Model {KV}-Cache Comparison},
   author = {{Lyra} and Edrington, Thomas},
   year   = {2026},
   month  = jul,
-  note   = {Liberation Labs, Mine 5 Prospectus},
+  note   = {Liberation Labs, in review. Verdicts as corrected at
+            human-review commit 54c7f9d},
 }
 
 @unpublished{lyra2026ghost,
@@ -119,12 +163,14 @@
   note   = {Liberation Labs, in preparation},
 }
 
+% Version 1.1 title (published-research PR #8, draft); version 1.0 was titled
+% ``K and V Are Complementary: Decomposing Cache-Injected Graph Topology''.
 @unpublished{lyra2026nexus_kv,
-  title  = {K and V Are Complementary: Decomposing Cache-Injected
-            Graph Topology},
+  title  = {Splitting Cache-Injected Graph Topology into {K} and {V}: A Six-Question
+            Pilot and Two Inconclusive Larger Runs},
   author = {{Nexus} and Edrington, Thomas},
   year   = {2026},
-  note   = {Liberation Labs Technical Report},
+  note   = {Liberation Labs Technical Report, version 1.1, in review},
 }
 
 @unpublished{lyra2026ast_experiments,
