@@ -154,8 +154,8 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Oracle Loop | Confab detection 0.707 FWL, steering corrects 7/7 | Published, 0.903 reframed as exploratory |
 | Spectral Shape | Threshold-free shape features, confab AUROC 0.767 | Published |
 | Delta Manifold | Per-layer deltas d=2.35, confab=contraction | Published |
-| User Model Emotion | 30-class emotion **12.3x chance** (W_K directional, 40.9% on 30 classes), valence AUROC 0.992, W_K bridge rho=0.862 | Published, spectral figure retracted 2026-05-21 |
-| Lyra Technique II | W_K valence 0.992, SVD denoising rescues persona | Published, W_K reframed (linearity) |
+| User Model Emotion | Story-emotion decode from KV keys, not W_K, and not the user's state. 30-class 0.410 vs text (TF-IDF) 0.370, Holm 0.071, n.s. (its margin needs FWL fitted on the test fold); the described method 0.358 vs 0.382, not above text; binary 0.992 vs 0.963, Holm 0.006, but n = 300 and arousal-confounded; injection test withdrawn; W_K bridge not re-verified | **Under correction (PR #17)**; spectral figure retracted 2026-05-21 |
+| Lyra Technique II | SVD denoising rescues persona; its W_K emotion channel (valence 0.992) rests on the user-model result under correction | Published, W_K reframed (linearity); emotion channel marked under correction 2026-11-01 |
 | Oracle Formulary | 12 vectors, hostile 95.6%, therapeutic window | Published |
 | KV-Cloak Defense | Reversible obfuscation, defense asymmetry | Published, rotation reframed |
 | Decision State | Encoding AUROC 0.93, confidence paradox d=0.91 | Published, entity confound caveated (0.794 survives) |
