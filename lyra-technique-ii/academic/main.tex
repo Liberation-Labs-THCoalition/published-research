@@ -447,6 +447,10 @@ task-dependent:
 This pattern is \emph{predicted} by the shape-vs-direction framework.
 Denoising helps when the target phenomenon alters direction (not captured by
 raw spectral features) rather than shape (already captured).
+For emotion, the result is no longer a test of this prediction: the
+direction-level reading of emotion is withdrawn (see the Correction box on
+the first page), and the denoised gain is an upper bound
+(\S\ref{sec:results_confab}).
 
 \subsection{Injection Disambiguation (Withdrawn)}
 \label{sec:injection}
@@ -972,7 +976,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
 Injection was marked ``confirmed (self-consistency)''; it is now withdrawn$^{\P}$.
-$^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised beside raw spectral values ($1.0\times$, $0.70$); no denoising is involved, so they now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
+$^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised, beside raw spectral cells now removed; the 30-class cell read $1.0\times$, which disagreed with the $1.7\times$ in Table~\ref{tab:emotion_methods} and the \emph{Emotion (spectral)} row. No denoising is involved, so the readout's values now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
 $^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
 $^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
 
@@ -1013,13 +1017,13 @@ The results reveal a spectral hierarchy in KV-cache geometry:
     processing mode.
 
     \item \textbf{Key-vector direction (orthogonal to spectral shape):}
-    Carries \emph{directional alignment} with specific concept vectors.
+    Proposed, not shown. This level would carry \emph{directional
+    alignment} with specific concept vectors (the ``compass bearing'').
     Whether emotion identity, valence and arousal are readable here beyond
     the input text is under correction at source~\citep{lyra_p4}: the readout
     behind this level applies no $W_K$, decodes the emotion a story was asked
     to carry rather than the model's state, and on 30 emotions does not beat
-    a text (TF-IDF) baseline. The ``compass bearing'' is proposed, not
-    shown.
+    a text (TF-IDF) baseline.
 \end{enumerate}
 
 These three levels are complementary, not competing. A complete reading of
@@ -1206,7 +1210,7 @@ show that: the readout applies no $W_K$ and does not beat a text baseline on
     \item Anthropic demonstrated arousal and valence as primary organizing
     axes. We had reported the same structure through a different measurement
     channel:
-    emotion directions projected through the key weights ($W_K$) show
+    emotion directions projected through the key weights ($W_K$) showed
     PC1-valence correlation $|\rho| = 0.862$ at layer~35, although that
     projection does not predict the cache's measured geometry (Mantel
     $\rho = 0.090$)~\citep{lyra_p4}. (The source, now under correction, gives
