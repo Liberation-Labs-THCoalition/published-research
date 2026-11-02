@@ -551,7 +551,7 @@ do not.
 \midrule
 Raw spectral (52-D) & $1.7\times$ chance & 0.70 & 52-D features \\
 SVD-denoised spectral (rank-10) & $12.9\times$ chance & 0.960 & See \S\ref{sec:results_denoise_emo} \\
-TF-IDF text baseline & --- & 0.882 & Injection script \\
+TF-IDF text baseline (story text) & $11.1\times$ chance & 0.963 & $0.370$ accuracy \\
 Class-mean keys & $12.3\times$ chance & 0.992 & Under correction \\
 $W_K$ injection (neutral text) & 100\% (6-class) & --- & Withdrawn \\
 Random direction control & $0.7\times$ chance & --- & Below chance \\
@@ -884,7 +884,7 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \multicolumn{6}{l}{\textit{Direction-level signals (new here; under correction$^{\P}$)}} \\
 30-class story emotion (class-mean keys, no $W_K$) & $1.0\times$ & $12.3\times$ & --- & n.s. & Not above text$^{\P}$ \\
 Binary split, 10 emotions ($n{=}300$, arousal-confounded) & 0.70 & 0.992 & --- & $0.006$ & Suspected$^{\P}$ \\
-Injection (neutral text) & --- & 100\% & --- & $<0.005$ & Withdrawn$^{\P}$ \\
+Injection (neutral text) & --- & 100\% & --- & --- & Withdrawn$^{\P}$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Rescued by denoising$^\|$}} \\
 Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued$^\|$ \\
@@ -918,7 +918,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
 Injection was marked ``confirmed (self-consistency)''; it is now withdrawn$^{\P}$.
-$^{\P}$Under correction at source~\citep{lyra_p4} (corrected here 2026-11-01; for these rows the $p$ column is against text): the probe applies no $W_K$ (its directions were class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
+$^{\P}$Under correction at source~\citep{lyra_p4} (corrected here 2026-11-01; for the two emotion rows the $p$ column is against text; the withdrawn injection row carries no $p$, and gave $p < 0.005$ before): the probe applies no $W_K$ (its directions were class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
 $^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
 $^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
 
@@ -1227,7 +1227,8 @@ our falsified results:
     % was computationally prohibitive. This is an imperfect proxy.
 
     \item \textbf{Text baselines incomplete.} TF-IDF text baselines are
-    available for the emotion experiment (AUROC~0.882) and the dual
+    available for the emotion experiment (AUROC~0.963 on story text; the
+    0.882 given earlier came from the injection script) and the dual
     detector (0.820), but have not been run on the persona intensity or
     sycophancy experiments. Claims about geometry capturing signal
     ``beyond text'' are limited to experiments with text baselines.
@@ -1336,11 +1337,18 @@ state---what the model is \emph{doing} (mode), what it is \emph{encoding}
 Confirmed findings from prior work survive unchanged or are
 strengthened by the new instruments. One prior claim---within-model deception
 at AUROC~1.000---is retracted after a same-prompt control revealed a
-prompt-template confound. Genuine nulls receive mechanistic explanations
-(emotions are direction, not shape; MP thresholding destroys distributed
-signal). Apparent nulls that were measurement failures---persona
-intensity, emotion classification---are rescued by the appropriate
-instrument.
+prompt-template confound. Genuine nulls receive mechanistic explanations (MP thresholding destroys
+distributed signal). The other explanation first given here, that emotions
+are direction, not shape, is withdrawn at source~\citep{lyra_p4} with the
+result it rested on: that probe applies no $W_K$ (its directions were
+class-mean cache keys), its labels are the emotion a story generator was
+asked to write, its 30-class figure does not beat a text (TF-IDF) baseline
+($0.410$ against $0.370$, Holm $p = 0.071$), and its binary $0.992$ beats
+text ($0.963$, Holm $p = 0.006$) only on ten emotions ($n = 300$), where
+valence is confounded with arousal. Apparent nulls that were measurement
+failures---persona intensity, emotion classification from spectral
+features---are rescued by SVD denoising, with the denoised values as upper
+bounds (Table~\ref{tab:body_count}).
 
 The Lyra Technique is not one measurement. It is a toolkit. And the toolkit
 is now substantially more complete.
@@ -1392,11 +1400,18 @@ below.
   binary-valence comparison (the text baseline was given as 0.882 and the
   margin as $+0.110$) and the injection paragraph, now withdrawn.
 \item The emotion-results table and the body-count table: the $W_K$ rows
-  relabelled; the three direction-level rows no longer read Confirmed.
+  relabelled; the three direction-level rows no longer read Confirmed; the
+  TF-IDF row gives the story-text baseline ($0.963$; it gave the injection
+  script's $0.882$, which Limitations also quoted); and the withdrawn
+  injection row no longer carries a $p$ (it gave $p < 0.005$).
 \item Discussion (the three levels, the denoising guide, Tier~1.5, the
   comparison with prior work), Limitations, the reflection and the
   Conclusion: the $W_K$ claims corrected. Tier~1.5 said ``$W_K$ projection
-  reads the model's internal emotional/dispositional state.''
+  reads the model's internal emotional/dispositional state.'' The
+  Conclusion explained a genuine null by ``emotions are direction, not
+  shape'' and said emotion classification was ``rescued by the appropriate
+  instrument''; it now gives the corrected result and names the spectral
+  rescue as an upper bound.
 \item The reference to the source paper is marked as under correction.
 \end{itemize}
 
