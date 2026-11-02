@@ -1103,3 +1103,10 @@ omission gratuitous rather than convenient, and is exactly why it survived revie
   pipeline does not reproduce the shipped fourth decimal, these figures were **not** put
   in the paper. Deciding whether to drop Egypt and re-derive needs the original
   environment — **T4, or T3 if the environment is gone.**
+
+## Added 2026-11-01: from the Agni reviews of PRs 17 and 18
+
+| # | Paper | Defect | Status |
+|---|---|---|---|
+| N1 | Corpus-wide: `oracle-loop-paper/paper/sections/background.tex:33`, `RESEARCH_STATUS.md:70`; the same search matched `convergence-paper`, `meta-pattern`, `lyra-technique-ii` and `kv-cloak-defense-paper` (both editions), not yet read line by line | Hardware invariance cited as "r > 0.999". The primary's own red-team review found r > 0.999 false for two of four features; the primary reports r > 0.998 per prompt, for all 40 prompts. The worst per-feature r is not given anywhere this repository can read. Source: Agni paper review r4 of PR 17, finding 6 (`user-model-paper/review/agni_paper_um_v2_corrections_r4.json`). | OPEN, T1 sweep. `user-model-paper` fixed on PR 17 (per-prompt wording plus the red-team caveat). The worst per-feature r needs the private KV-Experiments primary. |
+| N2 | `lyra-technique-ii` (both editions; `main.tex:98-107` and `:479`, per the review) | Still asserts what the user-model correction withdrew: "This is model state, not text encoding", the W_K 0.992, and the 500-feature TF-IDF baseline at 0.882. Downstream papers cite it beside the corrected paper. Source: Agni paper review r1 of PR 18, finding 6 (`notes/agni_paper_downstream_um_cites_r1.json` on that branch). | OPEN, T1. On PR 18, `emotion-accumulation` now says lyra-technique-ii is uncorrected and takes its numbers from the user-model paper only. |
