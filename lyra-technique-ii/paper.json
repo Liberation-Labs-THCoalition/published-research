@@ -1,6 +1,6 @@
 {
   "title": "The Lyra Technique II: SVD Denoising and Directional Projection",
-  "subtitle": "Two new measurement channels extend KV-cache geometry to emotion and persona detection",
+  "subtitle": "Version 1.1 (2026-11-01): the W_K emotion channel is corrected at source and withdrawn as a reading of model or user state; SVD denoising gains are upper bounds",
   "slug": "lyra-technique-ii",
   "authors": [
     "Lyra",
@@ -17,7 +17,7 @@
     "wk-projection",
     "methodology"
   ],
-  "abstract": "Corrected November 2026: the emotion result this paper built on decodes the emotion a generator was asked to write into a third-person story, from cache keys, not through W_K and not the user's state; its 30-class accuracy (12.3x chance) does not beat a text (TF-IDF) baseline, its binary AUROC 0.992 (n = 300) is confounded with arousal, and the injection test is withdrawn; the source paper is under correction. SVD denoising appears to reveal hidden signal, raising persona intensity from AUROC 0.611-0.751 to 0.899-0.992; however, the denoising deltas fall within the max-over-rank selection envelope (0/16 exceed it), so the raw AUROCs are the defensible numbers and the denoised values are reported as upper bounds pending nested CV. Dominant singular values carry scale; residual values carry discriminative structure. Denoising is a calibration tool, not a universal amplifier.",
+  "abstract": "Version 1.1, corrected 2026-11-01. The emotion channel this paper reported as W_K directional projection is corrected at source: the probe applied no W_K (it was a class-mean key readout), and its labels are the emotion a generator was asked to write into a third-person story, not the user's or the model's state. On 30 classes it scores 0.410 against a text (TF-IDF) baseline's 0.370 (Holm p = 0.071, not significant; 0.348 with FWL fitted on the training fold), and the method as described scores 0.358 against 0.382. The binary AUROC 0.992 beats text (0.963, Holm p = 0.006), but on ten emotions (n = 300), confounded with arousal; the injection test is withdrawn. SVD denoising appears to reveal hidden signal, raising persona intensity from AUROC 0.611-0.751 to 0.899-0.992; however, the denoising deltas fall within the max-over-rank selection envelope (0/16 exceed it), so the raw AUROCs are the defensible numbers and the denoised values are reported as upper bounds pending nested CV. Dominant singular values carry scale; residual values carry discriminative structure. Denoising is a calibration tool, not a universal amplifier.",
   "pdf_filename": "main.pdf",
   "related_page": "../projects/oracle-loop.html"
 }
