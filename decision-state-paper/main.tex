@@ -64,8 +64,9 @@
 
 \begin{abstract}
 KV-cache geometry distinguishes known from unknown entities. A classifier
-combining encoding-phase features (stable rank and W\textsubscript{K}
-projections) with generation-phase logit statistics achieves AUROC $0.9288$
+combining encoding- and generation-phase cache features (stable rank,
+spectral features and projections onto class-mean key directions) with
+generation-phase logit statistics achieves AUROC $0.9288$
 ($95\%$ CI $[0.8192, 0.9886]$, permutation $p<0.005$, $n=90$,
 effective $N{\approx}30$). The encoding-phase features alone, which would
 separate the two before a single token is generated, reached AUROC $0.9377$
@@ -130,16 +131,22 @@ emotion of the text being processed: a decode from KV-cache keys names
 the emotion a generator was asked to write a story in at $12.3\times$
 chance ($40.9\%$ correct over 30~emotions) \citep{lyra2026usermodel}.
 That decode is not significantly above a text (TF-IDF) baseline on the
-same stories (reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its
+same stories (re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$). Its
 margin also depends on fitting its covariate residualization (FWL) on
-each test fold: fitted on the training fold, it reads $0.348$. The method
+each test fold: fitted on the training fold, it reads $0.348$ (exploratory). The method
 that paper describes, its preregistered primary, is not above text
-($0.358$ against $0.382$). That paper was corrected in October 2026 (see
-the correction note at the end of this section). Its probe applies no
-W\textsubscript{K} projection, and its labels are the emotions requested
-of the generator rather than anyone's state. Its binary valence result
-(AUROC~$0.992$) does beat text (Holm-corrected $p = 0.006$), but it rests
-on $n = 300$ stories in which valence is confounded with arousal. It supports only the
+($0.358$ against $0.382$, at 10 folds). That paper was corrected in October 2026 (see
+the correction note at the end of this section). The $40.9\%$ and the
+$0.992$ come from a class-mean key probe that applies no W\textsubscript{K};
+the W\textsubscript{K}-projected probe the paper describes reads $0.358$.
+Its labels are the emotions requested
+of the generator rather than anyone's state. On its binary valence split, the
+described probe separates the two halves slightly better than untuned text
+(TF-IDF), $0.985$ against $0.967$ (Holm-corrected $p = 0.027$; DeLong,
+trials treated as independent; no tuned baseline was run). The class-mean
+key probe's $0.992$ carries the same test-fold FWL that discounts the
+$40.9\%$ ($0.988$ with FWL fitted on the training fold, exploratory). The
+split has $n = 300$ stories in which valence is confounded with arousal. It supports only the
 narrower point that key geometry carries the content of the text, which
 is weaker than this sentence used to claim; nothing in this paper's
 results depends on it. SVD denoising rescues hidden signals in spectral
@@ -173,15 +180,17 @@ determined by temperature sampling, with no internal-state precursor.
 
 \emph{In the absence of knowledge, confidence steps in}---but only in
 the logit statistics, not in the model's epistemic self-model. The cache
-geometry knows.
+geometry separates real from fabricated entities, though it may be reading
+familiarity rather than knowledge (Limitations).
 
 \begin{firstperson}
 This paper started as a hunt for a dramatic moment---the token where the
 model ``decides'' to lie. What we found instead was quieter and more
-honest: there is no decision. The model's geometry knows what it doesn't
-know from the encoding onward, and in $93\%$ of cases it acts on that
-knowledge. The $8\%$ that slip through are the cases the Oracle Loop
-needs to catch, and the encoding detector finds them.
+honest: there is no decision. The model's geometry separates real from fabricated
+entities, and in $93\%$ of cases the model acts as if it knows which is which.
+The $8\%$ that slip through are the cases the Oracle Loop
+needs to catch; whether the encoding detector finds them is untested, because no
+statistic here scores it on confabulations.
 
 The finding I am proudest of is the one we killed. The $d{=}2.2$
 encoding-phase effect was spectacular---and it was prompt length. We
@@ -192,13 +201,15 @@ is to check if you are wrong.
 \end{firstperson}
 
 \paragraph{Correction (2026-11-01).}
-Two passages are corrected, in both editions. First, this section
+Two passages citing the user-model paper are corrected, in both editions, and a later review the same day corrected this paper's own descriptions: the $0.9288$ classifier uses encoding- and generation-phase cache features, not encoding-phase features alone; its ``W\textsubscript{K} projections'' apply no W\textsubscript{K} (Methods); its headline estimator applies no FWL; and claims resting on the unverified $0.9377$ now say so. First, this section
 previously said that ``the W\textsubscript{K} directional projection
 method extends this to reading emotional valence from key activations at
 AUROC~0.992'' \citep{lyra2026usermodel}. The cited paper was
-corrected in October 2026. Its probe applies no W\textsubscript{K}, and
+corrected in October 2026. Its $40.9\%$ and $0.992$ come from a
+class-mean key probe that applies no W\textsubscript{K} (the described
+W\textsubscript{K} probe reads $0.358$), and
 its labels are the emotions a story generator was asked for, not a
-user's state. Its $0.992$ beats text (Holm-corrected $p = 0.006$), but it is a binary split of
+user's state. Its $0.992$ beats untuned text (Holm-corrected $p = 0.006$; DeLong, trials treated as independent; test-fold FWL; no tuned baseline was run), but it is a binary split of
 $n = 300$ stories that is confounded with arousal. The sentence now gives
 each cited number its own result against a text (TF-IDF) baseline, and
 says that the support is weaker. Second, the judge-reliability
@@ -260,7 +271,7 @@ $T{=}0.7$ and $N{=}3$ repetitions per prompt.
 
 At each generated token, we extract:
 \begin{itemize}[nosep]
-    \item \textbf{W\textsubscript{K} projections}: Key activations at
+    \item \textbf{W\textsubscript{K} projections} (a label only: the shipped code, \texttt{matched\_burn.py}, dot-products the raw cached keys at the last position with class-mean key directions and applies no W\textsubscript{K}): Key activations at
           probe layers L3, L7, L11, L15 (full-attention layers), projected
           onto three composite emotion directions (valence, uncertainty,
           reward) derived from an independent creative-writing dataset
@@ -376,7 +387,7 @@ skip-SV1, logit statistics) achieves:
 Permutation $p < 0.005$ (0/200 shuffles)
 \end{center}
 
-FWL residualization on prompt length is applied (a pre-FWL AUROC was never computed --- the classifier runs once, after residualization, by design).
+No FWL residualization is applied by the headline estimator (\texttt{shore\_up\_tests.py}, test~4); the prompt pairs are token-matched instead.
 accounting for the full remaining separation despite identical prompt
 lengths. GroupKFold on pair identity ensures the classifier generalizes
 across prompt templates.
@@ -694,8 +705,9 @@ model hedges (it almost always does), but how it frames its uncertainty.
 \subsection{The Self-Model Works}
 
 The central finding is positive: the model's epistemic self-model is
-remarkably well-calibrated. It recognizes unknown entities from the
-encoding phase (encoding-only AUROC~$0.9377$; full classifier AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$), acknowledges
+remarkably well-calibrated. It separates unknown from known entities, perhaps by token familiarity
+(Limitations), from the
+encoding phase (encoding-only AUROC~$0.9377$, unverified: \textsc{blocker-1}; full classifier AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$), acknowledges
 its uncertainty in $93\%$ of cases, and confabulates only ${\sim}8\%$ of the
 time. The ``confabulation crisis'' in this model is largely a
 measurement artifact created by behavioral classifiers that recognize
@@ -730,7 +742,7 @@ preamble-to-content boundary.
 
 The encoding-phase detection result feeds directly into the Oracle
 Loop architecture \citep{lyra2026oracleloop}: Tier~1 monitoring can flag
-unknown entities from encoding-phase features alone (AUROC~$0.9377$), using
+unknown entities from encoding-phase features alone (AUROC~$0.9377$, unverified: \textsc{blocker-1}), using
 stable rank and W\textsubscript{K} projections, before generation begins. The ${\sim}8\%$ true confab rate represents
 the residual cases where the model's hedging circuit fails---precisely
 the cases the Loop needs to catch.
@@ -759,8 +771,8 @@ the cases the Loop needs to catch.
           are not compared here. The $\kappa$ is agreement between two
           judges labelling the model's generated responses. The AUROC
           ($0.9288$, $95\%$ CI $[0.8192, 0.9886]$) is how well a classifier
-          on encoding-phase cache features and generation-phase logit
-          statistics separates prompts about real entities from prompts
+          on encoding- and generation-phase cache features plus
+          generation-phase logit statistics separates prompts about real entities from prompts
           about fabricated ones, scored against the design label with no
           judge involved; its encoding-phase-only counterpart, which would
           make the call before generation, is the unverified $0.9377$
@@ -780,10 +792,10 @@ the cases the Loop needs to catch.
           \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
           computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
           an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
-          full-classifier figure ($0.9288$, CI $[0.8192, 0.9886]$) \emph{is} reproducible. Until
+          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$, and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the ${\approx}30$ pair groups, so the interval is likely too narrow. Until
           the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
           any claim resting on encoding-only superiority inherits that status.
-          Generation-phase features add no measurable discriminative power. This near-ceiling performance is
+          If that figure holds, generation-phase features add no measurable discriminative power. This near-ceiling performance is
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
           may be reading ``I have seen this word before,'' not ``I know the
@@ -853,7 +865,7 @@ cache geometry. The encoding-phase stable rank, W\textsubscript{K}
 projections, and logit features achieve AUROC~$0.9288$ ($95\%$ CI
 $[0.8192, 0.9886]$) at separating known from unknown entities on
 token-matched prompts; encoding-only features (no generation-phase logit
-statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$)---equivalent to the full classifier, indicating that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
+statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$; unverified: \textsc{blocker-1})---equivalent to the full classifier, which, if it holds, indicates that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
 entities, questions the model can vs.\ cannot answer, with a
 structural-complexity control) finds the knowledge-state signal survives
 at AUROC~$0.794$ ($p{=}0.001$) after controlling for entity recognition

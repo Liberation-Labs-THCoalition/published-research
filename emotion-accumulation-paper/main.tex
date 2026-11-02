@@ -64,8 +64,8 @@ emotion a generator was asked to write a story in, at $12.3\times$
 chance. That decode is not significantly above a text (TF-IDF) baseline
 on the same stories ($0.410$ against $0.370$; Holm-corrected
 $p = 0.071$), and its margin depends on a residualization fitted on each
-test fold ($0.348$ when fitted on the training fold). The method that
-work describes is not above text ($0.358$ against $0.382$). We ask whether an emotion signal in the keys \emph{accumulates}
+test fold ($0.348$, exploratory, when fitted on the training fold). The method that
+work describes is not above text ($0.358$ against $0.382$, at 10 folds). We ask whether an emotion signal in the keys \emph{accumulates}
 across conversation turns---whether the model
 builds a persistent user-model that grows with interaction. Four
 experiments reveal a nuanced answer: emotion does not accumulate
@@ -105,16 +105,21 @@ decodes emotion from KV-cache keys: on stories a generator was asked to
 write in each of 30~emotions, a key-based probe names the requested
 emotion at $12.3\times$ chance ($40.9\%$ correct over 30). That decode
 is not significantly above a text (TF-IDF) baseline on the same stories
-(reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its margin depends
+(re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$). Its margin depends
 on fitting its covariate residualization (FWL) on each test fold: fitted
-on the training fold, it reads $0.348$. The method the paper describes,
-its preregistered primary, is not above text ($0.358$ against $0.382$).
+on the training fold, it reads $0.348$ (exploratory). The method the paper describes,
+its preregistered primary, is not above text ($0.358$ against $0.382$, at 10 folds).
 \citet{lyra2026usermodel} corrected that result in October 2026, and its
-qualifications bear on this paper. The probe applies no $W_K$
-projection. Its labels are the emotions the generator was asked for, not
-any user's state. Its binary valence result (AUROC~$0.992$) beats text
-(Holm-corrected $p = 0.006$), but it rests on $n = 300$ stories in which
-valence is confounded with arousal. The
+qualifications bear on this paper. \citet{lyra2026techniqueii}, which reports the same probe results, has not been corrected and still makes the withdrawn claims; the numbers here are taken from \citet{lyra2026usermodel} only. The $40.9\%$ and the $0.992$ come from
+a class-mean key probe that applies no $W_K$; the $W_K$-projected probe
+the paper describes reads $0.358$. Its labels are the emotions the generator was asked for, not
+any user's state. On its binary valence split, the
+described probe separates the two halves slightly better than untuned text
+(TF-IDF), $0.985$ against $0.967$ (Holm-corrected $p = 0.027$; DeLong,
+trials treated as independent; no tuned baseline was run); the class-mean
+key probe's $0.992$ carries the test-fold FWL that discounts the $40.9\%$
+($0.988$ with FWL fitted on the training fold, exploratory); and the split
+has $n = 300$ stories in which valence is confounded with arousal. The
 injection test once offered as showing that the signal reflects model
 state rather than text content does not show it: it adds a fixed vector
 to a cache and reads the keys back with no forward pass, and the
@@ -122,8 +127,9 @@ correction withdraws it. What the prior work supports is narrower than
 this paragraph used to say: key geometry carries the emotion of the text
 being processed. It does not show that the cache holds a model of the
 user. Companion work on
-epistemic state detection \citep{lyra2026decision} showed that
-encoding-phase cache geometry reads entity recognition at AUROC~0.93,
+epistemic state detection \citep{lyra2026decision} reports that
+a classifier on encoding- and generation-phase cache features plus logit
+statistics separates real from fabricated entities at AUROC~0.93,
 and that models are remarkably well-calibrated about their own
 uncertainty \citep{kadavath2022language}.
 
@@ -147,17 +153,17 @@ said that the $W_K$ directional projection reads emotional valence from
 single-turn key activations at AUROC~$0.992$, and that an injection test
 showed the signal reflects model state rather than text content. Both
 rested on the single-turn probe results of
-\citet{lyra2026techniqueii} and \citet{lyra2026usermodel}, which the
-latter corrected in October 2026: the probe applies no $W_K$, its labels
+\citet{lyra2026techniqueii} and \citet{lyra2026usermodel}. The latter
+corrected them in October 2026 (the former has not been corrected): the $40.9\%$ and the $0.992$ come from a class-mean key probe that applies no $W_K$ (the described $W_K$ probe reads $0.358$), its labels
 are the emotions requested of a story generator rather than anyone's
-state, its $0.992$ beats text (Holm-corrected $p = 0.006$) but is a binary split of $n = 300$ stories
+state, its $0.992$ beats untuned text (Holm-corrected $p = 0.006$; DeLong, trials treated as independent; test-fold FWL; no tuned baseline was run) but is a binary split of $n = 300$ stories
 confounded with arousal, and its injection test is withdrawn. Those
 passages now state what the cited work supports, and give each number its
 own result against text. The $12.3\times$ ($40.9\%$) decode is not
-significantly above text (reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$; $0.348$ with FWL fitted on the training fold). The described method
-is not above text ($0.358$ against $0.382$). The phrase ``with high fidelity'', which rested on
+significantly above text (re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$; $0.348$, exploratory, with FWL fitted on the training fold). The described method
+is not above text ($0.358$ against $0.382$, at 10 folds). The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
-Conclusion. This paper's own instrument keeps the name ``$W_K$ compass''
+Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, below untuned text (TF-IDF) at $0.963$ \citep{lyra2026usermodel}, and the compass itself has never been checked against text. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
 as a label only: the shipped code takes the cached keys at each measured
 position and dot-products them with stored emotion directions
 (\texttt{code/emotional\_dynamics.py}, lines 129--146;
@@ -443,9 +449,11 @@ across positions, allowing the model's hidden state to reflect
 accumulated history. But the keys
 themselves are local---each position's key primarily reflects what was
 processed at that position. The $W_K$ compass reads keys, not the
-attention-weighted aggregation, which is why it suits local
-measurement (single-turn emotion, current-token epistemic state) and
-struggles with global measurement (accumulated emotional trajectory).
+attention-weighted aggregation, which may be why it
+struggles with global measurement (accumulated emotional trajectory). Its
+local readings have not themselves been checked against text: the cited
+single-turn numbers describe other probes (see the correction note), and
+the companion entity result may reflect familiarity rather than epistemic state.
 
 This is a feature, not a limitation. The locality of key-based
 measurement provides a clean, interpretable signal: the projection at
@@ -626,7 +634,7 @@ trajectory has included disruption retains a geometric scar in the
 model's uncertainty representation---even after the surface emotion
 returns to normal.
 
-The compass reads weather accurately and climate slowly. Both readings
+The compass registers changes of weather and follows the climate slowly; after a single emotional turn it reads both cheerful and hostile context as positive (Table~\ref{tab:dose}). Both readings
 are informative. Neither alone tells the whole story.
 
 \paragraph{Data and code availability.}
