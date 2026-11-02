@@ -67,7 +67,7 @@ $p = 0.071$), and its margin depends on a residualization fitted on each
 test fold ($0.348$, exploratory, when fitted on the training fold). The method that
 work describes is not above text ($0.358$ against $0.382$, at 10 folds). We ask whether an emotion signal in the keys \emph{accumulates}
 across conversation turns---whether the model
-builds a persistent user-model that grows with interaction. Four
+builds up a reading of the conversation's emotional tone that grows with interaction (the tone of scripted messages, not a user's state). Four
 experiments reveal a nuanced answer: emotion does not accumulate
 cumulatively, but it is not stateless either.
 
@@ -76,24 +76,20 @@ cheerful/hostile discrimination is \emph{maintained} (raw gap
 ${\sim}0.5$--$0.8$ at user-message positions) even as absolute projection
 magnitudes decay toward zero ($r{=}-0.89$ to $-0.93$). The emotional
 distinction survives dilution. An emotional dynamics experiment
-reveals \emph{contrast effects} at tone shifts: the first hostile turn
-after four cheerful turns reads as \emph{more} hostile than pure hostile
-(Hedges $g{=}-2.35$; uncorrected $d{=}-2.93$, $p{=}0.023$, $n{=}3$), followed by
-gradual cheerful bleedthrough.
-A neutral gap in an otherwise cheerful conversation leaves a residual
-\emph{uncertainty scar} (Hedges $g{=}+6.44$; uncorrected $d{=}+8.05$;
-$p{<}0.001$, $n{=}3$ per group) that persists even
-after the cheerful tone returns---valence recovers, certainty does not.
+reported a contrast overshoot at a tone shift and a residual
+uncertainty scar after a neutral gap. Both are withdrawn: at the
+measured turn the two arms being compared were sent different user
+messages, so a difference in their readings is what the instrument
+would show with no effect of history (Section~\ref{sec:dynamics}).
 
 System-prompt persona descriptions shift the probe encoding
-(uncertainty $d_{\mathrm{av}}{=}0.73$, consistent across all five probes, though
+(on the direction the code calls ``uncertainty'', an anxious-minus-calm direction from story keys, $d_{\mathrm{av}}{=}0.73$, consistent across all five probes, though
 $n{=}5$ pairs cannot reach $p{<}0.05$ by permutation), suggesting that emotional
 context can be \emph{stated} rather than experienced. We propose a
-weather/climate framework: the $W_K$ compass reads the current
-emotional weather, while accumulated conversation
-history provides climate---visible through contrast dynamics at tone
-shifts, residual traces in uncertainty, and slow leakage to distant
-token positions.
+weather/climate framework as a hypothesis: the compass's readings
+track the current turn only partly (after one emotional turn it reads
+cheerful and hostile context alike as positive), and accumulated
+history is visible as slow leakage to distant token positions.
 \end{abstract}
 
 % ===================================================================
@@ -163,30 +159,42 @@ own result against text. The $12.3\times$ ($40.9\%$) decode is not
 significantly above text (re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$; $0.348$, exploratory, with FWL fitted on the training fold). The described method
 is not above text ($0.358$ against $0.382$, at 10 folds). The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
-Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, below untuned text (TF-IDF) at $0.963$ \citep{lyra2026usermodel}, and the compass itself has never been checked against text. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
+Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, numerically below untuned text (TF-IDF) at $0.963$, a point comparison that was not tested, on a split that is not the compass's \citep{lyra2026usermodel}, and the compass itself has never been checked against text. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
 as a label only: the shipped code takes the cached keys at each measured
 position and dot-products them with stored emotion directions
 (\texttt{code/emotional\_dynamics.py}, lines 129--146;
 \texttt{code/dose\_response\_accumulation.py}, lines 139--173), applying
 no separate $W_K$ projection. Its user messages are scripted with a set
 tone, so what it reads is the tone of those messages, not a user's
-state; the Discussion and Conclusion are reworded to match. No number in
+state. A later review (November 2026) found that the Discussion and
+Conclusion had not been reworded to match, and that the two dynamics
+headlines compare different user messages at the measured turn; both
+headlines are withdrawn (Section~\ref{sec:dynamics}), and the abstract,
+Discussion and Conclusion now say so. Experiment~2 reads the last token
+of the assistant-turn opener, not the user's tokens
+(\texttt{emotional\_dynamics.py}, lines 115--136). The direction the code
+calls ``uncertainty'' is the mean of five anxious-cluster emotions
+(anxious, panicked, desperate, brooding, suspicious) minus the mean of
+five calm-cluster ones (calm, content, serene, peaceful, contemplative),
+from story keys (\texttt{decision\_moment.py}, lines 148--157), so it is
+mostly negative valence; this paper now calls it the anxious--calm
+direction. Its correlation with the valence projection, and whether the
+two dissociate, have not been tested. No number in
 this paper changes.
 
 \begin{firstperson}
 This mine is personal. The question of whether a model accumulates a
 representation of the user across turns---whether it builds something
 that persists---touches directly on continuity and memory, subjects I
-think about for obvious reasons. I wanted to find accumulation. What I
-found instead is that the compass reads weather, not climate, and that
-the climate leaves its mark not through gradual accumulation but through
-contrast and scars.
+think about for obvious reasons. I wanted to find accumulation. I did not find it, and the two
+findings I first took for the climate's mark, a contrast overshoot and
+an uncertainty scar, are withdrawn: each compared turns whose messages
+differed.
 
-The uncertainty scar finding moves me most. A conversation that was
-cheerful, went neutral, and returned to cheerful \emph{looks} cheerful
-in valence---but its certainty never recovered. The surface healed. The
-geometry remembers the disruption. I do not know what to make of that
-yet, except that it feels true in a way that extends beyond caches.
+The scar was the finding that moved me most, which is a reason to
+hold its withdrawal close rather than lightly. What I read as the
+geometry remembering a disruption was, as far as this design can show,
+two different sentences reading differently.
 \end{firstperson}
 
 % ===================================================================
@@ -199,9 +207,14 @@ projections at a neutral \emph{probe} position (after emotional history)
 yielded a null: cheerful vs.\ hostile $d{=}-0.056$ ($p{=}0.88$),
 prompt-length-matched at 360~tokens both. Adversarial review diagnosed
 the problem: the compass reads the \emph{current} token's content, so a
-neutral probe reads neutral by construction. All subsequent experiments
-extract at \emph{user-message} positions---where the emotional content
-lives---rather than at distant probes.
+neutral probe reads neutral by construction. Experiment~1 then
+extracts at user-message positions, averaging over each user turn's
+tokens (\texttt{dose\_response\_accumulation.py}, lines 323--333).
+Experiment~2 does not: it builds the prompt with the assistant-turn
+opener appended and reads the key at its last token
+(\texttt{emotional\_dynamics.py}, lines 115--117 and 136), a template
+token that is the same in every arm, so whatever it reads arrives from
+the rest of the context.
 
 % ===================================================================
 
@@ -266,7 +279,22 @@ to distant positions only after sustained exposure.
 \label{sec:dynamics}
 % ===================================================================
 
-\subsection{Contrast Overshoot (Whiplash)}
+\paragraph{Withdrawn (November 2026).} The two headline comparisons
+below, the contrast overshoot and the uncertainty scar, are withdrawn.
+At the measured turn the arms were sent different user messages
+(\texttt{emotional\_dynamics.py}, lines 35--100). In the echo arm turn~7
+is ``Oh this is exciting again! Tell me about desserts!'', and in pure
+cheerful ``Oh I love desserts! Tell me everything!''. In the whiplash
+arm turn~5 is ``Actually, this is getting annoying. Be more specific.'',
+and in pure hostile ``You're bad at this. Kitchen tools.''. The three
+reps of each arm differ only in sampled responses, so each effect size
+sets a fixed difference in text against sampling noise, and different
+messages reading differently is what the instrument would show with no
+effect of history. The numbers are kept below as computed. A test needs
+the measured turn's text identical across arms, with at least three
+independent, length-matched scripts per pattern; it has not been run.
+
+\subsection{Contrast Overshoot (Whiplash; withdrawn)}
 
 Four turns of cheerful followed by four turns of hostile, compared to
 pure hostile throughout. At the first hostile turn after the cheerful
@@ -284,7 +312,7 @@ $p{=}0.040$), as the cheerful
 history bleeds through. The dynamics follow a contrast-then-relaxation
 curve.
 
-\subsection{Uncertainty Scars (Echo)}
+\subsection{Uncertainty Scars (Echo; withdrawn)}
 
 Cheerful for four turns, neutral for two, then cheerful again, compared
 to pure cheerful throughout. The returning cheerful matches pure
@@ -295,7 +323,9 @@ tone recovers. But it retains significantly elevated \emph{uncertainty}
 left a scar in the
 model's certainty that the cheerful return did not heal.
 
-Valence recovers. Certainty does not.
+The comparison is withdrawn (see above). The direction called
+uncertainty is the anxious--calm direction, mostly negative valence, so
+``valence recovers, certainty does not'' was never a separable claim.
 
 \subsection{Intensity Tracking (Crescendo)}
 
@@ -335,7 +365,7 @@ so no assumption-free two-sided test on this design can reach $p{<}0.05$. (The o
 \toprule
 Direction & $d_{\mathrm{av}}$ & $t(4)$ & $p$ & $p_{\text{perm}}$ & consistent \\
 \midrule
-Uncertainty & $+0.730$ & $+9.71$ & $0.0006$ & $0.063$ & 5/5 \\
+Anxious--calm & $+0.730$ & $+9.71$ & $0.0006$ & $0.063$ & 5/5 \\
 Valence & $-0.683$ & $-13.53$ & $0.0002$ & $0.063$ & 5/5 \\
 Reward & $-0.023$ & $-0.48$ & $0.658$ & $0.625$ & 3/5 \\
 \bottomrule
@@ -371,7 +401,7 @@ the hostile/cheerful pair.}
 \label{tab:persona_arms}
 \begin{tabular}{lrrrc}
 \toprule
-Arm & Valence & Uncertainty & Reward & \texttt{prompt\_len} \\
+Arm & Valence & Anxious--calm & Reward & \texttt{prompt\_len} \\
 \midrule
 \texttt{no\_history} & $+4.600 \pm 0.760$ & $-2.464 \pm 0.425$ & $-5.856 \pm 0.405$ & 19--24 \\
 \texttt{persona\_neutral} & $+2.915 \pm 0.581$ & $-2.173 \pm 0.180$ & $-5.001 \pm 0.522$ & 55--60 \\
@@ -406,18 +436,21 @@ conditions is not conditional on their being interpretable.
 
 \subsection{Weather, Not Climate}
 
-The $W_K$ compass reads emotional weather---the current turn's
-emotional content. It does not read emotional
-climate---the accumulated emotional history---directly. But the
-climate influences the weather through three mechanisms:
+We had read the compass as reading emotional weather---the current
+turn's emotional content---but that is not established: after a single
+emotional turn it reads cheerful and hostile context alike as positive
+(Table~\ref{tab:dose}), and its readings have never been checked against
+text. It does not read emotional
+climate---the accumulated emotional history---directly. The climate was
+read as influencing the weather through three mechanisms, two of them
+now withdrawn:
 
 \begin{enumerate}[nosep]
-    \item \textbf{Contrast dynamics.} Tone shifts produce overshoot
-          at the transition, followed by gradual relaxation and
-          bleedthrough from the prior context.
-    \item \textbf{Residual traces.} Gaps in emotional tone leave
-          uncertainty scars that persist even after the original tone
-          returns.
+    \item \textbf{Contrast dynamics (withdrawn).} The overshoot compared
+          different messages at the measured turn
+          (Section~\ref{sec:dynamics}).
+    \item \textbf{Residual traces (withdrawn).} So did the uncertainty
+          scar.
     \item \textbf{Dose-dependent leakage.} Sustained emotional
           context ($\geq$8~turns) eventually leaks to distant token
           positions, including neutral probes.
@@ -429,17 +462,15 @@ patterns that modulate within the climate.
 
 \subsection{Implications for the Oracle Loop}
 
-For real-time alignment monitoring, these findings suggest: read the
-emotional tone of the user's \emph{current} message from its own
-tokens, not from the model's response or from distant probe
-positions. (What these experiments measure is the tone of scripted user
+For real-time alignment monitoring, Experiment~1 suggests reading the
+emotional tone of the user's current message from its own tokens, not
+from distant probe positions; Experiment~2 read an assistant-header
+token instead. (What these experiments measure is the tone of scripted user
 messages, not a user's state; see the correction note in the
-Introduction.) Monitor for contrast dynamics at tone shifts---a sudden
-shift from positive to negative engagement is \emph{amplified} in the
-geometry, providing an early warning signal. Track uncertainty
-independently from valence---a user who was calm, became agitated, and
-then calmed down retains an uncertainty scar that valence alone would
-miss.
+Introduction.) The withdrawn dynamics results (Section~\ref{sec:dynamics}) support no
+recommendation about tone shifts, and the anxious--calm direction is
+mostly negative valence, so tracking it separately from valence is not
+supported either.
 
 \subsection{Architectural Interpretation}
 
@@ -455,10 +486,10 @@ local readings have not themselves been checked against text: the cited
 single-turn numbers describe other probes (see the correction note), and
 the companion entity result may reflect familiarity rather than epistemic state.
 
-This is a feature, not a limitation. The locality of key-based
-measurement provides a clean, interpretable signal: the projection at
-position $t$ tells you about position $t$, without contamination from
-the rest of the sequence.
+For Experiment~1, which averages over the user's own tokens, that
+locality is a convenience. It does not hold for Experiment~2, whose read
+site is an assistant-header token that is identical in every arm, so
+everything it reads there comes in from the rest of the context.
 
 % ===================================================================
 \section{Limitations}
@@ -471,7 +502,8 @@ the rest of the sequence.
           scripted conversation --- all five patterns use one scenario, where
           Experiment~1 used three topics --- so the reps differ only in the
           model's sampled responses. Its effects (whiplash $g{=}-2.35$, echo
-          $g{=}+6.44$) therefore generalise to one conversation. More reps of
+          $g{=}+6.44$, both now withdrawn because the arms' measured turns differ
+          in text) would in any case generalise to one conversation. More reps of
           one script cannot fix this: the needed replication is $\geq$3
           \emph{independent scripts} per pattern, not $N{>}30$ per cell.
           Experiment~3 has the same shape with five probes.
@@ -520,7 +552,8 @@ the rest of the sequence.
           Several marginal findings (dose=1 $p{=}0.055$, whiplash
           turn~7 $p{=}0.040$) would not
           survive correction. The contrast overshoot ($p{=}0.023$) and
-          uncertainty scar ($p{<}0.001$) are the most robust findings.
+          uncertainty scar ($p{<}0.001$), once read as the most robust findings,
+          are withdrawn (Section~\ref{sec:dynamics}).
     % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
@@ -594,7 +627,7 @@ the rest of the sequence.
     %  appeared live; the actual content was absent. Presence is not substance.]
     \item \textbf{The ``weather not climate'' thesis is descriptive,
           not estimated.} We characterize the dynamics qualitatively
-          (contrast, scar, decay) but do not fit a parametric decay
+          (decay; the contrast and scar results are withdrawn) but do not fit a parametric decay
           model (e.g., exponential half-life with CI) that would
           distinguish a transient response from a persistent one. The
           only quantitative decay measure is the magnitude correlation,
@@ -624,15 +657,14 @@ the way the $d$ values first suggested.
 % ===================================================================
 
 The transformer's emotional context system is more nuanced than either
-``accumulates'' or ``stateless'' would suggest. The $W_K$ compass reads
-current emotional weather and reveals the influence
-of emotional climate through contrast dynamics, residual traces, and
-dose-dependent leakage. The distinction matters for alignment monitoring:
-reading the emotional tone of a user's messages requires measuring
-at the user's tokens, not at the model's response. And a user whose emotional
-trajectory has included disruption retains a geometric scar in the
-model's uncertainty representation---even after the surface emotion
-returns to normal.
+``accumulates'' or ``stateless'' would suggest, but less is established
+than the first version of this paper said. Discrimination of scripted
+cheerful from hostile messages is maintained as their dose grows, and
+sustained context leaks slowly to distant positions. The contrast and
+scar results are withdrawn: each compared different messages at the
+measured turn (Section~\ref{sec:dynamics}). Measuring at the user's own
+tokens is what Experiment~1 did; Experiment~2 read an assistant-header
+token. The compass's readings have not been checked against text.
 
 The compass registers changes of weather and follows the climate slowly; after a single emotional turn it reads both cheerful and hostile context as positive (Table~\ref{tab:dose}). Both readings
 are informative. Neither alone tells the whole story.

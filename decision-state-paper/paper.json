@@ -15,7 +15,7 @@
     "safety",
     "alignment"
   ],
-  "abstract": "KV-cache geometry separates known from unknown entities at AUROC 0.9288 [0.8192, 0.9886] (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens when confabulating than when answering honestly (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. LLM-judge reclassification reveals the true confab rate is ~8%, not 73% --- the model is well-calibrated, and regex classifiers masked this.",
+  "abstract": "KV-cache geometry separates known from unknown entities at AUROC 0.9288, a bootstrap mean ([0.8192, 0.9886], not clustered by prompt pair; no text baseline or template-held-out test has been run) (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens when confabulating than when answering honestly (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. LLM-judge reclassification reveals the true confab rate is ~8%, not 73% --- the model is well-calibrated, and regex classifiers masked this.",
   "pdf_filename": "main.pdf",
   "related_page": "../projects/oracle-loop.html"
 }
