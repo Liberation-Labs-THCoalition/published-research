@@ -17,7 +17,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Decision State](decision-state-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
-| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC | Published | SVD denoising extends KV-cache geometry to emotion and persona; the directional emotion channel is under correction (it applies no W_K and does not beat a text baseline 30-way) |
+| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC | Published | SVD denoising extends KV-cache geometry to emotion and persona; v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |
 
 ### Emotion and User Modeling
 
