@@ -41,8 +41,10 @@ Key findings:
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
 `PROVENANCE_wk_probes.md`). Project-Oracle is a private repository; the three scripts and their provenance file are
 available on request. The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
-(byte-exact copies; `SHA256SUMS` lists every file's hash), with the 900 stories and the text (TF-IDF) baseline.
-At least 84 of the 900 stories carry the generator's leaked planning (141 by a broader, post-data pattern); the paper
+(byte-exact copies, except that `R1R2_RESULTS.md` and `R1_INVESTIGATION.md` were edited after copying and
+`leak_split.py` was written for the release; `SHA256SUMS` hashes every file there but itself and `.gitattributes`), with the
+900 stories and the text (TF-IDF) baseline.
+At least 84 of the 900 stories carry the generator's leaked planning (by a broader, post-data pattern, 141 are not clean stories); the paper
 reports this as a data limitation, and `correction_v2/leak_split.py` computes the split.
 
 ## Repository Contents
