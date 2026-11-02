@@ -1,5 +1,52 @@
 # PR #18 merge readiness (SOP gate re-run), 2026-11-01 17:02 PST
 
+## Independent verifier (stop rule check), 2026-11-01 17:48 PST
+
+Checked at head `67e9c7e` (pushed; upstream equals HEAD; PR #18 is a DRAFT and OPEN). The verifier edited only
+this file.
+
+**Verdict: NOT READY.** Agni paper r2 is **REJECTED with one CRITICAL item**. Under the stop rule that triggers
+**another Agni round** (r3 on `aef24fd..HEAD`). #18 also cannot merge before #17.
+
+### Applied conditions, checked against the Agni JSON and the primaries
+- **The CRITICAL is real.** `emotion-accumulation-paper/code/emotional_dynamics.py` shows different measured-turn
+  text in each arm:
+  - line 45, "Oh this is exciting again! Tell me about desserts!", against line 84, "Oh I love desserts! Tell me
+    everything!";
+  - line 56, "Actually, this is getting annoying...", against line 69, "You're bad at this. Kitchen tools."
+- **The withdrawal is applied.** Both editions carry "Withdrawn (November 2026)" and quote the differing messages,
+  and `paper.json`'s subtitle says the results are withdrawn.
+- **Condition 2 matches the code:** `add_generation_prompt=True` at :115-117 and the read `k[0,:,-1,:]` at :136.
+- **The decision-state :326 fix matches the code.**
+  - `shore_up_tests.py` `test_4_bootstrap_ci` (:269 on) has no FWL and no permutation step.
+  - `matched_burn.py:721-728` applies FWL on prompt_len, and `:756` on runs `n_perm = 200`.
+  - The old "FWL residualization on prompt length applied" is gone, and both editions now say "No FWL
+    residualization and no permutation test".
+- **Editions:** `aef24fd` touches both editions of both papers and both `paper.json` files. **LF:** no CR bytes in
+  the 13 changed non-PDF files, and a CR control file was detected.
+
+### SOP gate items 1-6 (range `f7a1f77..HEAD`)
+| # | Gate | Result |
+|---|------|--------|
+| 1 | Private-info scan, planted control | PASS. The control caught all 8 classes, and there were 0 hits in 9 files (760 added lines) and 4 PDFs. |
+| 2 | verify_pdf both ways | PASS. On all 4 PDFs the new build passes and the build at `f7a1f77` fails 2 of 2 or 2 of 3, with a control. The one check that does not tell them apart is "end of user message", which the papers never contained. |
+| 3 | Editions together | PASS. |
+| 4 | Credit | PASS. The only `.bib` change is the title of `lyra2026techniqueii`. The `author=` line in the diff is inside the r2 input-diff record. |
+| 5 | Stale PDFs | PASS. A fresh build of all 4 exits 0 with 0 undefined references, and its text is identical to the committed PDFs. |
+| 6 | merge-tree | PASS. Exit 0 against `1748bde`, which is the merge-base; 0 behind. |
+
+### What is left
+- **Lyra's:** Agni paper r3 on `aef24fd..HEAD`, because r2 was REJECTED and has a CRITICAL item.
+- **Thomas's:**
+  - the identical-text re-run;
+  - the correlation and dissociation test;
+  - the observed-data AUROC;
+  - the pair bootstrap and within-pair permutation;
+  - leave-one-template-out CV and the TF-IDF baselines;
+  - the in-sample relabel in `matched_burn.py` and its JSON;
+  - the d=0.03 vs d=-0.002 norm values;
+  - the PR #19 re-check.
+
 Branch `lyra/downstream-user-model-cites`, gated at head `6564032` (pushed; upstream equals HEAD).
 `origin/master` is `1748bde` and is the merge-base: `6564032` merged it in. The branch is 11 commits ahead and
 0 behind. PR stays a DRAFT. Nothing was merged. The only change in this commit is this file.
