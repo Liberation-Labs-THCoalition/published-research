@@ -1,4 +1,57 @@
 # PR #17 merge readiness (SOP gate re-run), 2026-11-01 17:02 PST
+## Independent verifier (stop rule check), 2026-11-01 17:48 PST
+
+Checked at head `fc777a1` (pushed; upstream equals HEAD; PR #17 is a DRAFT and OPEN). The verifier edited
+only this file.
+
+**Verdict: READY-BUT-FOR-THOMAS.** Agni paper r6 is CONDITIONAL on all 8 parts (4 per edition) and has no CRITICAL
+item; the only "CRITICAL" string in either JSON is academic part 1's "There is no CRITICAL". Under the stop rule no
+further Agni round follows. The applied conditions I checked are right, and all six gate items pass.
+
+### Applied conditions, checked against the Agni JSON and the primaries
+- **Sampled, not exhaustive:** 17 condition strings out of the 96 edits per edition, taken from all 8 parts, were
+  checked old (`61ab741`) against new in both `main.tex` files. Every old phrase is gone and its replacement is
+  present: "Two generation runs" became "Four runs of this protocol", 1/29 became 1/30, and "chance was guaranteed",
+  "H8 (effects survive FWL) passed", "3 features per layer", "Every probe below", "same logistic regression",
+  "is in progress", "about as well as", "registered, confirmed" and "Three raw SVD" are all removed.
+- **Primaries:**
+  - `um_v2_results.json` `R0_tuned_C_EXPLORATORY.chosen_C` is 10.0 in all 10 folds, which matches r6 flight part 1,
+    condition 1.
+  - `R2.permutation` has `n_perm` 1000 and p = 0.000999 = 1/1001. The paper now says "the floor of 1,000
+    permutations", which matches condition 8.
+- **A planted bad edit was caught:** I put "Two generation runs" back into a copy of `main.tex`, and the check
+  returned FAIL on the copy and PASS on the real file.
+- **Editions:** the 106 added lines in flight equal the 106 in academic. `0cebcb9` touches both `.tex` files and
+  both PDFs.
+- **LF:** no CR bytes in the 16 changed non-PDF files, committed or in the worktree. A CR control file was
+  detected. (Git Bash `grep -c` with a CR pattern gave contradictory counts here and missed the control, so it was
+  not used.)
+
+### SOP gate items 1-6 (range `61ab741..HEAD`, which is what changed since the last gate)
+| # | Gate | Result |
+|---|------|--------|
+| 1 | Private-info scan, planted control | PASS. The control caught all 8 classes (IPv4, Tailscale, Windows and POSIX home paths, email, token, `.credentials`, host). 1 hit: `/Users/runner` in this file, which is the known false positive. The r6 JSONs carry 12 "Starship" and 4 "Tailscale" mentions, the same form master carries, so they are Thomas's call. |
+| 2 | verify_pdf both ways | PASS. 9 checks per PDF plus a control. New: 9/9 on both PDFs. Old (`61ab741`): 6 of the 9 fail. Two checks ("1/30" present, "registered, confirmed" absent) also pass on the old PDF, so they do not tell the builds apart. A check built to fail ("zebra quantum marmalade") failed. |
+| 3 | Editions together | PASS (as above). |
+| 4 | Credit | PASS. No author or byline field changed in `main.tex`, `references.bib` or `paper.json` since `61ab741`. The `\author` lines in the diff come from the verbatim split inputs (`agni_input_um_v2_r6/`). |
+| 5 | Stale PDFs | PASS. A fresh `git archive` and MiKTeX latexmk build exits 0 with 0 undefined references, and its text is identical to both committed PDFs. |
+| 6 | merge-tree | PASS. Exit 0 against `origin/master` `1748bde`, which is the merge-base; 0 behind. |
+
+### Waiting on Thomas (exactly)
+1. The `lyra2026oracle` credit change (`fd73609`: drops CC, adds Vera).
+2. Release promises: "available on request" (`3683b44`), the R1 investigation scripts, the Mistral scripts, and the
+   300-trial numbers.
+3. Bylines and credit: Wilkes's CRediT sign-off, Kavi credit, the credit framing (style r3 item 3), and the
+   `lyra2026detecting` per-report author lists.
+4. New analyses that are OUT and caveated in the text: the tuned binary text baseline, N3, the cell-level test, N4,
+   10-fold training-fold FWL, and the unprojected and random-matrix PCA.
+5. Items that need a private or web source: whether the implicit-arm follow-up is in progress, the
+   `anthropic2026emotions` arXiv ID, and the Acknowledgments (r6 flight part 3, condition 13).
+6. Gate-1 paths and host names: in hash-registered files; in review JSONs in master's form (now including r6); and
+   in older commits (no history rewrite).
+
+Merge order is unchanged: #17 first, then #18.
+
 
 ## Independent verifier (stop rule check), 2026-11-01 17:48 PST
 
