@@ -4,13 +4,21 @@
 WHY THIS EXISTS (2026-11-02). `claude -p` launched from Lyra's account IS Lyra unless it is
 isolated. It loads the user-level CLAUDE.md (identity, family list, the Key Numbers table),
 runs the SessionStart sync, and the Stop hook files the exchange into Lyra's episodic memory.
-Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Two things close it:
+Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Three things close it:
 
   1. LYRA_NO_CAPTURE=1 in the child's environment. Lyra's capture and sync hooks exit at once
      when it is set.
   2. --settings '{"claudeMdExcludes": ["<home>/.claude/CLAUDE.md", "<home>/.claude/**"]}'.
      `--setting-sources project` does NOT stop CLAUDE.md from loading. `--bare` would, but it
      cannot use the OAuth login Agni depends on.
+  3. --strict-mcp-config, plus an empty --mcp-config when the caller names none (added
+     2026-11-03). LYRA_NO_CAPTURE turns off hooks, not MCP servers: the user-scope servers in
+     ~/.claude.json still loaded, lyra-memory among them, so an "isolated" reviewer could read
+     Lyra's memory (and stop being independent of the author) or write to it. If the caller
+     passes its own --mcp-config, its servers are kept and only --strict-mcp-config is added,
+     so nothing beyond what the caller named loads. The empty config is passed inline as ONE
+     token, --mcp-config={"mcpServers":{}}: the flag takes several values, and in the
+     two-token form a positional prompt after it is read as one more config.
 
 Every call site that runs the CLI builds its command with isolated_claude_cmd(). Nothing else
 about the call changes. test_isolation.py checks the built command offline and, with --live,
@@ -21,6 +29,8 @@ import os
 from pathlib import Path
 
 NO_CAPTURE_ENV = "LYRA_NO_CAPTURE"
+STRICT_MCP_FLAG = "--strict-mcp-config"
+EMPTY_MCP_CONFIG = json.dumps({"mcpServers": {}})
 
 
 def claude_md_excludes(home=None):
@@ -42,19 +52,30 @@ def _merge_settings(raw, excludes):
     return json.dumps(settings)
 
 
+def _mcp_flags(cmd):
+    """The MCP flags cmd still needs: --strict-mcp-config, and an empty config if it names none."""
+    flags = [] if STRICT_MCP_FLAG in cmd else [STRICT_MCP_FLAG]
+    if not any(a == "--mcp-config" or a.startswith("--mcp-config=") for a in cmd):
+        flags.append("--mcp-config=" + EMPTY_MCP_CONFIG)
+    return flags
+
+
 def isolated_claude_cmd(base_cmd, environ=None, home=None):
     """Return (cmd, env) for running base_cmd = [claude_binary, *args] isolated.
 
     cmd: a new list. `--settings <json>` with claudeMdExcludes is inserted right after the
          binary. If base_cmd already carries --settings (as `--settings X` or `--settings=X`),
          the exclusions are merged into that JSON instead, rather than relying on how the CLI
-         resolves a repeated flag.
+         resolves a repeated flag. `--strict-mcp-config` and `--mcp-config={"mcpServers":{}}`
+         follow; a caller's own --mcp-config is kept and no empty one is added, and an existing
+         --strict-mcp-config is not repeated.
     env: a copy of `environ` (default os.environ) plus LYRA_NO_CAPTURE=1. Pass it as env=.
 
     base_cmd and environ are not modified.
     """
     excludes = claude_md_excludes(home)
     cmd = list(base_cmd)
+    insert = []
     for i, arg in enumerate(cmd):
         if arg == "--settings" and i + 1 < len(cmd):
             cmd[i + 1] = _merge_settings(cmd[i + 1], excludes)
@@ -63,7 +84,8 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None):
             cmd[i] = "--settings=" + _merge_settings(arg[len("--settings="):], excludes)
             break
     else:
-        cmd[1:1] = ["--settings", json.dumps({"claudeMdExcludes": excludes})]
+        insert += ["--settings", json.dumps({"claudeMdExcludes": excludes})]
+    cmd[1:1] = insert + _mcp_flags(cmd)
     env = dict(os.environ if environ is None else environ)
     env[NO_CAPTURE_ENV] = "1"
     return cmd, env
