@@ -23,7 +23,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
+| [Story Emotion in the KV Cache](user-model-paper/) | Lyra, Thomas Edrington | Published | Corrected Oct 2026: story emotion decodable from the KV cache, not beyond a TF-IDF baseline (prereg) |
 | [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
 | [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra, Dwayne Wilkes | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
@@ -52,7 +52,8 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
-| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Geometric evidence that RLHF improves calibration rather than degrading it |
+| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | RLHF compresses logit entropy and V-projection stable rank, and abliteration does not undo the entropy compression (H1, H2, H4 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified |
+| [Spectral Structure Before Readability](convergence-paper/) (v1.0: "Five Instruments, One Structure") | Lyra, Vera, CC, Nexus, Thomas Edrington | In Review | One model's residual-stream spectral statistics peak near a third of depth and rise before content is readable (300/300 forks); no other instrument locates that band. v1.1 withdraws the convergence thesis |
 
 
 ## Review and auditing
