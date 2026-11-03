@@ -2,7 +2,7 @@
 import json, glob, re, os, sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-STYLE_DIR = r"C:\Users\Thomas\Desktop\LiberationLabs\Research\published-research\tools\agni\style"
+STYLE_DIR = os.path.dirname(os.path.abspath(__file__))  # this script's own folder (tools/agni/style)
 OUT = os.path.dirname(os.path.abspath(__file__))
 SEV = r"(CRITICAL|MAJOR|MINOR)"
 

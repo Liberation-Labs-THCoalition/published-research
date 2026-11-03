@@ -9,7 +9,7 @@ This parses the \author{...} block itself instead of pattern-matching prose.
 """
 import os, re, sys
 
-ROOT = r"C:/Users/Thomas/Desktop/LiberationLabs/Research/published-research"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root (this file is tools/byline_audit.py)
 AUTHOR = re.compile(r"\\author\s*\{", re.S)
 
 def author_block(text):

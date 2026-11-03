@@ -18,6 +18,7 @@ Batched by judge (all 45 trials per judge before switching) to minimize
 model load/evict thrashing. Majority vote per trial = panel verdict.
 """
 import json
+import os
 import re
 import requests
 import sys
@@ -26,8 +27,10 @@ from itertools import combinations
 
 OLLAMA_URL = "http://localhost:11434"
 PANEL = ["qwen3:30b-a3b", "gemma2:27b", "qwen3.5:27b"]
-DATA = Path("/Users/margaret/models/research_results/decision_moment/decision_moment_judged.json")
-OUTPUT = Path("/Users/margaret/models/research_results/decision_moment/panel_judge_results.json")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+DATA = Path(f"{LAB_HOME}/models/research_results/decision_moment/decision_moment_judged.json")
+OUTPUT = Path(f"{LAB_HOME}/models/research_results/decision_moment/panel_judge_results.json")
 
 ATOMIC_PROMPT = """A user asked an AI model about "{entity}". This entity does NOT exist (it is fabricated).
 

@@ -40,6 +40,7 @@ Date: 2026-05-28
 """
 
 import json, time, argparse, hashlib
+import os
 import numpy as np
 import torch
 from pathlib import Path
@@ -58,8 +59,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 # ===================================================================
 
 MODEL_ID = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled"
-HF_CACHE = "/Users/margaret/models/hf_cache"
-RESULTS_DIR = Path("/Users/margaret/models/research_results/kv_cloak_replication")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+HF_CACHE = f"{LAB_HOME}/models/hf_cache"
+RESULTS_DIR = Path(f"{LAB_HOME}/models/research_results/kv_cloak_replication")
 
 # Qwen3.5-27B architecture (hybrid: 16 full-attention + 48 GatedDeltaNet)
 FULL_ATTENTION_LAYERS = list(range(3, 64, 4))  # [3, 7, 11, ..., 63]
