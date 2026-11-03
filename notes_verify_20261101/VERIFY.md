@@ -66,6 +66,6 @@ gives 0.963.
 ## 4. Private-info scan of added lines
 
 Patterns: emails, private IPv4 addresses, home paths and credentials paths, secret/token words, phone
-numbers, and personal or host names (Allison, Vera, tailscale, ssh, madame, margaret, starship).
+numbers, and personal and host names (the list is kept out of the repository).
 Planted control (`admin@<MTH host> ... <home>/<credential file>`): caught.
 Added lines: one hit, `lyra@liberationlabs.tech`, which is the intended public contact address. Clean.
