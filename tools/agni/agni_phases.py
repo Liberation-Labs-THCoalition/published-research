@@ -61,6 +61,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path.home() / "lab/projects/agni-open"))
 import llm  # noqa: E402
+# Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
+from claude_isolation import isolated_claude_cmd  # noqa: E402
 
 AGNI_PHASES_VERSION = "1.0.0"
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
@@ -331,9 +333,15 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     # symbols whose UTF-8 bytes are undefined there (crashed on 0x81,
     # 2026-08-30). errors="replace" so a stray byte degrades one glyph
     # rather than destroying a completed review.
+    #
+    # Isolation (2026-11-02): until then this call ran as Lyra -- it loaded their
+    # CLAUDE.md, ran their SessionStart sync, and its exchange landed in their
+    # episodic memory. The helper adds the CLAUDE.md exclusions and
+    # LYRA_NO_CAPTURE=1; nothing else changes. Tested by test_isolation.py.
+    cmd, env = isolated_claude_cmd(cmd)
     r = subprocess.run(cmd, input=full, capture_output=True,
                        text=True, encoding="utf-8", errors="replace",
-                       timeout=timeout)
+                       timeout=timeout, env=env)
     if r.returncode != 0:
         raise RuntimeError("claude CLI exit %d: %s" % (r.returncode, r.stderr[:300]))
     return r.stdout.strip()
