@@ -1128,6 +1128,8 @@ The detection-correction gap is a central open problem in LLM alignment interven
   \textbf{No decision-point measurement.} Entropy was recorded inside the reasoning block, and the margin between the top two logits was not recorded. Uncertainty where the answer commits cannot be checked.
 \item
   \textbf{Numerics.} Generation used bf16 on MPS (Section 3.7), so exact greedy texts may not reproduce on other hardware.
+\item
+  \textbf{Judge independence (added 2026-11-03).} The rerun's judge and the September re-judges ran as \texttt{claude -p} calls under CC's account, and almost certainly loaded CC's user-level Claude Code instruction file. The two fact-check raters of Section 4.1 ran as agents inside CC's session and very likely saw it too. That file held CC's workspace notes, including project statuses about this paper and its findings, so these judges were not isolated from context about the result they were judging. It was rewritten on 2026-10-31, so the text they saw cannot be read back, and whether it changed any label has not been measured. Everything built on these labels carries this caveat: the pre-registered primary result with S1 to S4, the sensitivity analyses, the agreement between passes (\(\kappa\) = 0.91), the human-validation sample and the fact-check items drawn from those labels, the sizing of Amendment 1, the blinding check (160 of 175, \(\kappa\) = 0.87) and the September blind labels on the June generations, from which every primary-study count comes. A re-judge of a sample in an isolated environment is pending, and its result will be added here. Details are in \path{supplementary/JUDGE_INDEPENDENCE.md}.
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
