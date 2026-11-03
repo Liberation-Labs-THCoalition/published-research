@@ -141,7 +141,10 @@ this very sentence excludes --- the spectral probe for emotion is at
 chance, so the example never belonged in a list of spectral
 measurements. The $0.154/0.080$ pair appears nowhere
 in~\citet{lyra2026identity}; it comes from an unpublished internal
-analysis, so the citation could not be followed.}
+analysis, so the citation could not be followed. \textbf{Corrected
+again 2026-11-01:} that directional probe is itself corrected at
+source~\citep{lyra2026usermodel}; it applies no $W_K$, and 30-way it does
+not beat a text baseline (see the footnote in \S\ref{sec:implications}).}
 
 \subsection{The Bridging Hypothesis}
 
@@ -415,8 +418,22 @@ spectral features never claimed to decode workspace content; they
 measure geometric properties (stable rank, spectral entropy, norm
 ratios) that index \emph{how} the model processes, not \emph{what} it
 processes. The confabulation detector reads spectral contraction
-(reduced workspace engagement). The emotion encoder reads $W_K$ valence
-projections (input-evaluation structure). The identity geometry reads
+(reduced workspace engagement). Our emotion readout is corrected
+at source, on the grounds the footnote gives, and is not counted
+here.\footnote{\textbf{Corrected 2026-11-01.} This sentence previously
+read ``The emotion encoder reads $W_K$ valence projections
+(input-evaluation structure).'' The result it referred
+to~\citep{lyra2026usermodel} decodes the emotion a generator was asked to
+write into a third-person story, from cache keys. Its probe applies no
+$W_K$, and its labels are not the user's state. The 30-class figure
+($40.9\%$, $12.3\times$ chance) does not beat a text (TF-IDF) baseline
+($0.410$ against $0.370$, Holm $p = 0.071$, and that margin depends on FWL
+fitted on the test fold). The method as described is not above text
+($0.358$ against $0.382$). The binary AUROC~$0.992$ beats text ($0.963$,
+Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
+confounded with arousal. The injection test is withdrawn, and the $W_K$
+bridge to valence ($|\rho|$ peaking at $0.872$ at L43) is unverified.} The
+identity geometry reads
 subspace overlap (what the workspace contains in aggregate, not per
 concept).
 
