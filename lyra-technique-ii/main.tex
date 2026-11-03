@@ -228,8 +228,7 @@ text baseline on 30 classes:
     emotion).} We reported that emotions change the \emph{direction} key
     vectors point, not the \emph{shape} of the singular value spectrum, and
     that projecting key activations through $W_K$ classifies 30~emotions at
-    $12.3\times$ chance and binary valence at AUROC~0.992. The result is under
-    correction at source~\citep{lyra_p4}: the probe applies no $W_K$, its
+    $12.3\times$ chance and binary valence at AUROC~0.992. The result is corrected at source~\citep{lyra_p4}: the probe applies no $W_K$, its
     labels are the emotion a story generator was asked to write, not the
     user's or the model's state, the 30-class figure does not beat a text
     (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$), and the
@@ -1022,8 +1021,8 @@ The results reveal a spectral hierarchy in KV-cache geometry:
     Proposed, not shown. This level would carry \emph{directional
     alignment} with specific concept vectors (the ``compass bearing'').
     Whether emotion identity, valence and arousal are readable here beyond
-    the input text is under correction at source~\citep{lyra_p4}: the readout
-    behind this level applies no $W_K$, decodes the emotion a story was asked
+    the input text was tested only by a readout now
+    corrected at source~\citep{lyra_p4}: it applies no $W_K$, decodes the emotion a story was asked
     to carry rather than the model's state, and on 30 emotions does not beat
     a text (TF-IDF) baseline.
 \end{enumerate}
@@ -1048,7 +1047,7 @@ The denoising prescription is task-dependent:
     AUROC~0.611--0.751 and emotion at $1.7\times$ chance; the class-mean
     key readout (\S\ref{sec:wk}; it applies no $W_K$) reaches AUROC~0.992
     only on a ten-emotion split that confounds valence with arousal, and it
-    is under correction at source~\citep{lyra_p4}, so there is no confirmed
+    is corrected at source~\citep{lyra_p4}, so there is no confirmed
     instrument for emotion detection here.
 
     \item \textbf{Confabulation detection on weak models:} Denoising
@@ -1215,7 +1214,7 @@ show that: the readout applies no $W_K$ and does not beat a text baseline on
     emotion directions projected through the key weights ($W_K$) showed
     PC1-valence correlation $|\rho| = 0.862$ at layer~35, although that
     projection does not predict the cache's measured geometry (Mantel
-    $\rho = 0.090$)~\citep{lyra_p4}. (The source, now under correction, gives
+    $\rho = 0.090$)~\citep{lyra_p4}. (The source, now corrected, gives
     $|\rho|$ up to 0.872 at layer~43, and its Mantel test ran on an unreleased
     earlier run that could not be re-verified; the bridge is a candidate
     route, not a shown one.)
@@ -1456,7 +1455,7 @@ Starship (M3 Ultra Mac Studio), and MTH (Z420 workstation).
 \section*{Correction Note (version 1.1, 2026-11-01)}
 
 \textbf{This paper's emotion channel is corrected.} The result it built
-on~\citep{lyra_p4} is under correction at source. Its probe applied no $W_K$
+on~\citep{lyra_p4} is corrected at source. Its probe applied no $W_K$
 (it scored class-mean cache keys); its labels are the emotion a generator
 was asked to write into a third-person story, not the user's or the model's
 state; on 30 classes it scores $0.410$ against a text (TF-IDF) baseline's
@@ -1549,7 +1548,7 @@ spectral and SVD-denoising results are not changed by this correction.
   was ``rescued by the appropriate instrument'', and closed with ``The
   compass reads direction'' and ``the toolkit is now substantially more
   complete''.
-\item \textbf{References.} The source paper is marked as under correction.
+\item \textbf{References.} The source paper is marked as corrected.
 \end{itemize}
 
 \begin{thebibliography}{99}
