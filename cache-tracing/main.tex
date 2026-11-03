@@ -528,13 +528,13 @@ Commitment boundary (factual) & L24 & 5 prompts & Survives \\
 Commitment boundary (instruction) & L27 & 5 prompts & Survives \\
 \addlinespace
 J-lens geometric gate & 5/5 concepts & L15--L27 & AUROC $0.78$--$1.00$ \\
-J-lens best-layer accuracy & 43.3\% & 60 items & vs.\ 18.3\% fixed-layer \\
+J-lens per-item best-layer (oracle) accuracy & 43.3\% & 60 items & No null computed \\
 Logit-lens best-layer accuracy & 61.7\% & 60 items & Complementary \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy selects the single layer (of 13 candidate layers) with the highest accuracy across all 60~items. Under a conventional selection-artifact null (each layer at the 18.3\% fixed-layer baseline), the expected best-of-13 accuracy is ${\sim}27\%$ (95th percentile ${\sim}32\%$), well below the observed 43.3\%.
+\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy is a per-item best-layer (oracle) score: each of the 60~items is scored at whichever of the 18 band layers (L8--L25) ranks its target highest. It is not comparable to the 18.3\% fixed-layer accuracy. An earlier version of this note compared it with a best-of-13 selection null (${\sim}27\%$); that null assumed one layer for all items, and 13 rather than 18 candidate layers, so it does not apply. The per-item oracle null has not been computed, and no claim is made that 43.3\% exceeds chance.
 
 \section{Reproduction}
 \label{app:reproduction}
