@@ -8,6 +8,7 @@ Criteria were fixed before this ran (base_model_rerun_proposal.md, commit e9bf98
     python3 mlx_equiv.py compare consts.json OUTDIR
 """
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -16,7 +17,9 @@ import numpy as np
 
 MODE, CONSTS, OUT = sys.argv[1], json.load(open(sys.argv[2])), Path(sys.argv[3])
 OUT.mkdir(parents=True, exist_ok=True)
-SNAP = ("/Users/margaret/.cache/huggingface/hub/models--Qwen--Qwen3.5-27B/snapshots/"
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+SNAP = (f"{LAB_HOME}/.cache/huggingface/hub/models--Qwen--Qwen3.5-27B/snapshots/"
         "fc05daec18b0a78c049392ed2e771dde82bdf654")
 BIASES = [0.0, 2.0]
 N_GREEDY, N_SPEED = 32, 128

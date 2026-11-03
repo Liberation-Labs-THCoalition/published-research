@@ -17,6 +17,7 @@ Comprehensive extraction at every user-message position.
 Run: python3 emotional_dynamics.py --starship
 """
 import json, time
+import os
 import numpy as np
 import torch
 from pathlib import Path
@@ -25,8 +26,10 @@ from collections import defaultdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 MODEL_ID = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled"
-HF_CACHE = "/Users/margaret/models/hf_cache"
-RESULTS_DIR = Path("/Users/margaret/models/research_results/emotional_dynamics")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+HF_CACHE = f"{LAB_HOME}/models/hf_cache"
+RESULTS_DIR = Path(f"{LAB_HOME}/models/research_results/emotional_dynamics")
 PROBE_LAYERS = [3, 7, 11, 15]
 MAX_RESPONSE_TOKENS = 40
 TEMPERATURE = 0.7
@@ -221,7 +224,7 @@ def run():
     if torch.backends.mps.is_available():
         torch.mps.manual_seed(42)
 
-    dir_file = Path("/Users/margaret/models/research_results/decision_moment"
+    dir_file = Path(f"{LAB_HOME}/models/research_results/decision_moment"
                     "/emotion_directions.json")
     with open(dir_file) as f:
         dd = json.load(f)

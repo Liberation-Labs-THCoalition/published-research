@@ -114,7 +114,7 @@ sentences)". §2's "a fixed set of hedge-opening tokens" is unchanged.
 
 ## Provenance of `supplementary/revision_r2/powered_raw_results.json`
 
-- Origin: Studio (Mac Studio, margaret@), `/Users/margaret/oracle-experiments/results/logit_bias_powered/results.json`.
+- Origin: Studio (Mac Studio, margaret@), `<home>/oracle-experiments/results/logit_bias_powered/results.json`.
   It is the primary study's raw output file. The adjudication traces the reasoning-block stripping to
   `logit_bias_powered.py:160`. It was copied read-only to the session scratchpad on 2026-10-09.
 - sha256 `8cdcfee84bed57c9a0628d15984d8b5ac803f41ec0c5fbafdb48dd4106fb64e7`, 256,400 bytes. The hash was checked on

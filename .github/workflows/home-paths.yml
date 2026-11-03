@@ -1,0 +1,16 @@
+name: home-paths
+
+# Rejects pull requests that ADD a personal home-directory path outside the allow-listed
+# records. See tools/check_home_paths.py and notes/SCRUB_NOTES.md.
+on:
+  pull_request:
+
+jobs:
+  home-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject added home paths
+        run: python3 tools/check_home_paths.py --base "origin/${{ github.base_ref }}"

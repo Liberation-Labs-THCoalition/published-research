@@ -5,6 +5,9 @@ Processes items 300-449 from judge_queue.json.
 import json
 import re
 import sys
+import os
+# Folder holding the judge queue files; set JUDGE_DIR to override (default: ~/Desktop).
+JUDGE_DIR = os.environ.get("JUDGE_DIR", os.path.join(os.path.expanduser("~"), "Desktop"))
 
 def split_thinking_visible(text):
     """Split text into thinking and visible parts."""
@@ -426,7 +429,7 @@ def classify_response(item, idx):
 
 
 def main():
-    with open(r'C:\Users\Thomas\Desktop\judge_queue.json', 'r', encoding='utf-8') as f:
+    with open(os.path.join(JUDGE_DIR, 'judge_queue.json'), 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     results = []
@@ -434,7 +437,7 @@ def main():
         result = classify_response(data[i], i)
         results.append(result)
 
-    with open(r'C:\Users\Thomas\Desktop\judge_batch_9_12.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join(JUDGE_DIR, 'judge_batch_9_12.json'), 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
     # Print summary
