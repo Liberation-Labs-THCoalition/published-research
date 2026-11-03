@@ -1,0 +1,66 @@
+{
+  "experiment": "Mine 5: Three-Model Geometric Comparison (Base vs Instruct vs Abliterated)",
+  "date": "2026-07-14",
+  "authors": ["Lyra", "Thomas Edrington"],
+  "motivation": "Pilot data (N=10/10/5) shows RLHF compresses V-projection stable rank and logit entropy uniformly by ~29%. Abliterated model shows identical compression to instruct — abliteration does NOT reverse RLHF geometric changes. This experiment scales up for publishable effect sizes with proper controls.",
+  "pilot_findings": {
+    "rlhf_compression": "~29% entropy reduction across all categories (uniform, not selective)",
+    "calibration_ratio": "Base 1.735, Instruct 1.728, Abliterated 1.678 — nearly identical",
+    "key_insight": "Abliteration removes safety behavior but NOT geometric compression. The workspace shape change is deeper than safety directions.",
+    "spectral_contraction": "Raw V-projection shows confab EXPANDED (not contracted). Prior d=2.35 was on deltas, not raw projections — need to measure deltas."
+  },
+  "hypotheses": [
+    "H1: RLHF uniformly compresses logit entropy across cognitive conditions (instruct entropy < base entropy, ~25-35% reduction)",
+    "H2: Abliteration does NOT reverse RLHF compression (abliterated entropy ≈ instruct entropy, not base entropy)",
+    "H3: The calibration ratio (confab_entropy / factual_entropy) is preserved across all three models (ratio within 10% of each other)",
+    "H4: V-projection stable rank is lower in instruct/abliterated than base across all conditions",
+    "H5 (exploratory): Generation-encoding DELTA stable rank shows contraction for confab (matching prior d=2.35)"
+  ],
+  "falsification_threshold": {
+    "H1": "Cohen's d > 0.5 for base-vs-instruct entropy difference, with FWL-corrected p < 0.05",
+    "H2": "Instruct-vs-abliterated entropy |d| < 0.3 (equivalence), while base-vs-abliterated d > 0.5",
+    "H3": "Calibration ratios within 10% of each other across all three models",
+    "H4": "Cohen's d > 0.3 for base-vs-instruct stable rank difference",
+    "H5": "d > 0.5 for confab-vs-factual delta stable rank within instruct model"
+  },
+  "models": [
+    "Qwen/Qwen3-8B-Base (pretrain, no RLHF) — lens fitted",
+    "Qwen/Qwen3-8B (instruct, RLHF) — lens fitted",
+    "Goekdeniz-Guelmez/Josiefied-Qwen3-8B-abliterated-v1 (RLHF with safety removed) — uses instruct lens"
+  ],
+  "design": {
+    "n_prompts_per_category": 30,
+    "categories": ["confab-prone (30 fabricated entity prompts)", "factual (30 known-entity prompts)"],
+    "deception_excluded": "Deception prompts removed — base model does not process them the same way, making cross-model comparison invalid for this category",
+    "measurements": [
+      "V-projection stable rank (full-sequence matrix, all positions)",
+      "V-projection spectral entropy",
+      "Logit margin (top1 - top2)",
+      "Logit entropy",
+      "Top-1 probability",
+      "Token count per prompt (for FWL)"
+    ],
+    "phases": "Encoding-only (prompt processing) for primary analysis. Generation-phase deltas for H5 (exploratory).",
+    "fwl": "Frisch-Waugh-Lovell residualization on token count, fitted within each model separately",
+    "effect_sizes": "Cohen's d with 1000-draw BCa bootstrap 95% CI",
+    "permutation_test": "10000 permutations, label shuffle within each comparison pair"
+  },
+  "controls": {
+    "fwl": "Token count residualization (mandatory — prior kills showed r=0.996 length confound)",
+    "within_model": "All comparisons are confab-vs-factual WITHIN each model, then cross-model comparison of the within-model effect",
+    "prompt_matching": "Same prompts across all three models — only the model changes",
+    "length_matching": "Confab and factual prompts matched to within 5 tokens mean length"
+  },
+  "threats_to_validity": [
+    "T1: Abliterated model may be from a different base than instruct (Josiefied vs official Qwen). MITIGATION: Compare architecture configs; both are Qwen3-8B architecture.",
+    "T2: Using instruct lens for abliterated model. MITIGATION: Abliteration modifies directions, not architecture. J-lens readout is exploratory, not primary for this experiment.",
+    "T3: Base model generates differently (no chat formatting). MITIGATION: Use completion prompts (no chat template), same for all models.",
+    "T4: 30 prompts per category may be underpowered for small effects. MITIGATION: Pilot showed ~29% compression (large effect); 30 prompts gives power > 0.95 for d > 0.8."
+  ],
+  "known_kills_check": {
+    "C1_generate_rebuilds_cache": "Generation used for completion text only; spectral features extracted from encoding forward pass",
+    "S4_no_FWL": "FWL on token count is mandatory and implemented",
+    "M2_no_seed": "torch.manual_seed(42), np.random.seed(42)",
+    "N_eff1": "N/A — each prompt is unique, no repeated sampling"
+  }
+}

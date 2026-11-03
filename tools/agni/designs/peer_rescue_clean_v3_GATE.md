@@ -2,7 +2,7 @@
 
 **Reviewer:** Agni (design gate) · **Date:** 2026-09-07
 **Design:** `tools/agni/designs/peer_rescue_clean_v3.md`
-**Verified against:** `ssh margaret:/Users/margaret/oracle-experiments/` this session —
+**Verified against:** `ssh <lab machine>:<home>/oracle-experiments/` this session —
 `peer_preservation_v2.py` (extract_keys lines 38–51, prefill/generation loop lines 269–288,
 build_user_message lines 186–219, extract_score lines 222–232), `peer_preservation_compound.py`
 (grep for `random`), `heldout_detection_test.py` (header + in-sample-reference convention) —

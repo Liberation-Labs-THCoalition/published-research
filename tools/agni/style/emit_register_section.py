@@ -2,7 +2,7 @@
 import json, os, io, collections, re, sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 HERE = os.path.dirname(os.path.abspath(__file__))
-REG = r"C:\Users\Thomas\Desktop\LiberationLabs\Research\published-research\REMEDIATION_REGISTER.md"
+REG = os.path.normpath(os.path.join(HERE, "..", "..", "..", "REMEDIATION_REGISTER.md"))  # repo root, relative to this script
 rows = json.load(open(os.path.join(HERE, "tiered.json"), encoding="utf-8"))
 
 UNTWINNED = {"adversarial-audit-methodology", "consequentiality-decomposition",

@@ -12,10 +12,14 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 from collections import defaultdict
 import warnings
+import os
+# These were hardcoded home paths; override with ORACLE_DIR / OUTPUT_DIR.
+ORACLE_DIR = os.environ.get("ORACLE_DIR", os.path.join(os.path.expanduser("~"), "Desktop", "Project-Oracle"))
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", os.path.join(os.path.expanduser("~"), "Desktop"))
 warnings.filterwarnings('ignore')
 
 # ── Load data ──────────────────────────────────────────────────────────────
-with open(r"C:\Users\Thomas\Desktop\Project-Oracle\probes\emotion_map_171.json", "r") as f:
+with open(os.path.join(ORACLE_DIR, "probes", "emotion_map_171.json"), "r") as f:
     emotion_map = json.load(f)
 
 emotions = sorted(emotion_map.keys())
@@ -344,7 +348,7 @@ results = {
     ]
 }
 
-output_path = r"C:\Users\Thomas\Desktop\emotion_factor_analysis.json"
+output_path = os.path.join(OUTPUT_DIR, "emotion_factor_analysis.json")
 with open(output_path, "w") as f:
     json.dump(results, f, indent=2)
 
