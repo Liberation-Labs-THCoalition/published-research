@@ -53,7 +53,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
 | [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington | In Review | The metacognition boundary -- what transformers can monitor in themselves |
-| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington | In Review | RLHF compresses logit entropy and V-projection stable rank, and abliteration does not undo the entropy compression (H1, H2, H4 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified |
+| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington | In Review | RLHF compresses logit entropy, and abliteration does not undo the entropy compression (H1, H2 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified; H4 is met on a computed spectral proxy, not as registered (neither stable rank nor the cached V; Kavi #88) |
 | [Spectral Structure Before Readability](convergence-paper/) (v1.0: "Five Instruments, One Structure") | Lyra, Vera, CC, Nexus, Thomas Edrington | In Review | One model's residual-stream spectral statistics peak near a third of depth and rise before content is readable (300/300 forks); no other instrument locates that band. v1.1 withdraws the convergence thesis |
 
 

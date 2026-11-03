@@ -71,7 +71,7 @@ These are from primary work in that window and supersede the corresponding claim
   criterion < 0.3; base vs abliterated d = 0.746, criterion > 0.5); **H3 falsified**
   (calibration ratios 1.97 / 2.51 / 2.40, max/min - 1 = 0.279 against a registered 0.10).
   H3 is a point verdict and not robust: the paired BCa 95% interval on the spread is
-  [0.044, 0.538]. **H4 confirmed** (base vs instruct stable rank d = 1.04; the earlier
+  [0.044, 0.538]. **H4 met on the computed proxy, not as registered** (base vs instruct d = 1.04 on (sum s)^2 / sum s^2 of layer l's W_V applied to the un-normalised hidden_states[l+1], no input layernorm: neither stable rank nor the cached V; Kavi #88, corrected 2026-11-03; the earlier
   "Trend Only" figures were within-model effects). Both `mine5-selective-sharpener`
   editions on master (`main` and `academic/main`, source and PDF) carry these verdicts since
   PR #16 merged on 2026-10-31 (checked 2026-11-02). Until 2026-11-02 this bullet said they
