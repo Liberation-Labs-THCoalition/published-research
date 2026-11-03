@@ -16,6 +16,7 @@ Usage: python3 entity_deconfound.py
 """
 
 import json
+import os
 import numpy as np
 import torch
 from pathlib import Path
@@ -26,7 +27,9 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
 
 MODEL_ID = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled"
-RESULTS_DIR = Path("/Users/margaret/lab/kv-experiments/results/entity_deconfound")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+RESULTS_DIR = Path(f"{LAB_HOME}/lab/kv-experiments/results/entity_deconfound")
 SEED = 42
 PROBE_LAYERS = [3, 7, 11, 15, 23]
 N_PERM = 1000

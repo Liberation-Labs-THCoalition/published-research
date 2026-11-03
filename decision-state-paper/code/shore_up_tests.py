@@ -34,11 +34,13 @@ from scipy import stats
 REPO_RESULTS = (Path(__file__).resolve().parent.parent
                 / "data" / "matched_burn_results.json")
 
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
 # Where the data lived on the machine the experiment was originally run on.
 # Kept only as a default for --starship; override with STARSHIP_RESULTS_DIR.
 STARSHIP_RESULTS_DIR = Path(os.environ.get(
     "STARSHIP_RESULTS_DIR",
-    "/Users/margaret/models/research_results/matched_burn"))
+    f"{LAB_HOME}/models/research_results/matched_burn"))
 STARSHIP_RESULTS = STARSHIP_RESULTS_DIR / "matched_burn_results.json"
 
 

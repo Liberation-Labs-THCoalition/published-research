@@ -300,7 +300,7 @@ full-cache result and the corrected conclusion), so replacement loses nothing.
   cannot support the claim; the waystations exploratory result keeps the question open in
   the expansion direction.
 - Verification scripts (exact-string, backslash-safe):
-  `C:\Users\Thomas\AppData\Local\Temp\claude\C--Users-Thomas\fedc44e2-d3b2-49fe-9e89-5890ff7e37ba\scratchpad\verify_anchors.py` and `verify_anchor4.py`.
+  `<home>\AppData\Local\Temp\claude\C--Users-Thomas\fedc44e2-d3b2-49fe-9e89-5890ff7e37ba\scratchpad\verify_anchors.py` and `verify_anchor4.py`.
   Re-run both before applying; every count must print 1.
 - Related open item, out of scope here: `community/STYLE_GUIDE.md:49` still *instructs*
   authors to assert the withdrawn 1.000 as load-bearing (PATCHES B12 — the propagation

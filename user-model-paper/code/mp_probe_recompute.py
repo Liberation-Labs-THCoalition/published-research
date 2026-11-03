@@ -70,19 +70,21 @@ BEAST_MODELS = {
     },
 }
 
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
 STARSHIP_MODELS = {
     "mistral": {
         "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
-        "trial_data": "/Users/margaret/models/emotion_bridge_mistral/emotion_bridge_trials.json",
-        "output_dir": "/Users/margaret/models/emotion_bridge_mistral/",
+        "trial_data": f"{LAB_HOME}/models/emotion_bridge_mistral/emotion_bridge_trials.json",
+        "output_dir": f"{LAB_HOME}/models/emotion_bridge_mistral/",
         "n_layers": 32,
         "full_attn_layers": list(range(32)),
         "device_map": {"": 0},
     },
     "qwen": {
         "model_id": "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled",
-        "trial_data": "/Users/margaret/models/emotion_geometry_bridge/emotion_bridge_trials.json",
-        "output_dir": "/Users/margaret/models/emotion_geometry_bridge/",
+        "trial_data": f"{LAB_HOME}/models/emotion_geometry_bridge/emotion_bridge_trials.json",
+        "output_dir": f"{LAB_HOME}/models/emotion_geometry_bridge/",
         "n_layers": 64,
         "full_attn_layers": [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63],
         "device_map": "auto",
@@ -882,7 +884,7 @@ def main():
     parser.add_argument("--model", choices=["mistral", "qwen", "both"],
                         default="both", help="Which model to run")
     parser.add_argument("--starship", action="store_true",
-                        help="Use Starship paths (/Users/margaret/models/) instead of Beast (~KV-Experiments/)")
+                        help="Use Starship paths ($LAB_HOME/models/) instead of Beast (~KV-Experiments/)")
     args = parser.parse_args()
 
     if args.starship:

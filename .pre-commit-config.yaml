@@ -1,0 +1,11 @@
+# Optional. With the pre-commit framework installed: `pre-commit install`.
+# Without it, chain the check into the existing hook instead (see notes/SCRUB_NOTES.md).
+repos:
+  - repo: local
+    hooks:
+      - id: check-home-paths
+        name: reject added home-directory paths
+        entry: python tools/check_home_paths.py --staged
+        language: system
+        pass_filenames: false
+        always_run: true

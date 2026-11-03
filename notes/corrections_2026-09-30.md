@@ -73,7 +73,7 @@ Status counts: **FIXED 15 · NEEDS_DECISION 3 · REFUTED 2 · OUTSIDE_REPO 3** (
 - **formulary #15.** `main.tex:477` / `academic:473` read "hostile has 15--45\% adverse rate on
   overconfidence." No artifact on this machine sources 15%. The only overconfidence figure is
   :301, 45.5% adverse (base model, n=55). The distilled 350-trial overconfidence checkpoint is on
-  Starship at `/Users/margaret/oracle-experiments/results/formulary_350/overconfidence/checkpoint.json`
+  Starship at `<home>/oracle-experiments/results/formulary_350/overconfidence/checkpoint.json`
   (see `Project-Oracle/experiments/agni_formulary350_full.py:21,40`). Options:
   (A) "hostile has 45.5\% adverse rate on overconfidence (base model)."
   (B) Pull the distilled rate from that checkpoint, commit the artifact, and keep a range only if

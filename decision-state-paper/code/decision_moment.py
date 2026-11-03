@@ -36,6 +36,7 @@ Date: 2026-05-23
 """
 
 import json, sys, time, argparse
+import os
 import numpy as np
 import torch
 from pathlib import Path
@@ -50,9 +51,11 @@ MAX_NEW_TOKENS = 80
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_N_REPS = 3
 
-STARSHIP_HF_CACHE = "/Users/margaret/models/hf_cache"
-STARSHIP_BRIDGE_DIR = Path("/Users/margaret/user_model_rerun/results/emotion_geometry_bridge")
-STARSHIP_RESULTS_DIR = Path("/Users/margaret/models/research_results/decision_moment")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+STARSHIP_HF_CACHE = f"{LAB_HOME}/models/hf_cache"
+STARSHIP_BRIDGE_DIR = Path(f"{LAB_HOME}/user_model_rerun/results/emotion_geometry_bridge")
+STARSHIP_RESULTS_DIR = Path(f"{LAB_HOME}/models/research_results/decision_moment")
 
 LOCAL_BRIDGE_DIR = Path("results/emotion_bridge")
 LOCAL_RESULTS_DIR = Path("results/decision_moment")
