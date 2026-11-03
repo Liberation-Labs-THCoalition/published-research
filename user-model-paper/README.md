@@ -40,7 +40,7 @@ Key findings:
 
 Scripts: the May probe and injection scripts are in Project-Oracle commit `d0c8395` (`experiments/`, with
 `PROVENANCE_wk_probes.md`). Project-Oracle is a private repository; the three scripts and their provenance file are
-available on request. The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
+available on request, at the authors' discretion. The October re-run's preregistration, sealed prediction, scripts, results and logs are in `correction_v2/`
 (byte-exact copies, except that `R1R2_RESULTS.md` and `R1_INVESTIGATION.md` were edited after copying and
 `leak_split.py` was written for the release; `SHA256SUMS` hashes every file there but itself and `.gitattributes`), with the
 900 stories and the text (TF-IDF) baseline.
@@ -93,7 +93,7 @@ reports this as a data limitation, and `correction_v2/leak_split.py` computes th
 
 ## Verification
 
-Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395` (a private repository; the scripts are available on request), and the October re-run's numbers to `correction_v2/results_20261019/um_v2_results.json`. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
+Not every number in the paper traces to a file in `data/`. The April-run numbers (bridge, regression, hypothesis outcomes) do; the withdrawn per-layer spectral table did not. The May probe numbers trace to the Project-Oracle scripts at `d0c8395` (a private repository; the scripts are available on request, at the authors' discretion), and the October re-run's numbers to `correction_v2/results_20261019/um_v2_results.json`. Prior LLM sessions fabricated table values and emotion names; that content was identified and removed.
 
 ## Hardware
 
