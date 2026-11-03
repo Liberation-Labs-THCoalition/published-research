@@ -147,9 +147,14 @@ factual~10.
 
 For each prompt and model, a single forward pass extracted:
 \begin{itemize}[nosep]
-\item V-projection stable rank at workspace-band layers
-  (L12, L15, L18, L21; selected from R3 band measurement showing
-  workspace peak at 31--33\% relative depth)
+\item A spectral concentration measure,
+  $(\sum_i \sigma_i)^2 / \sum_i \sigma_i^2$ over the singular values of
+  layer $l$'s $W_V$ applied to the un-normalised hidden states
+  \texttt{hidden\_states[l+1]} (no input layernorm), at workspace-band
+  layers (L12, L15, L18, L21; selected from R3 band measurement showing
+  workspace peak at 31--33\% relative depth). This is neither the
+  cached V nor stable rank, the measure the pre-registration names
+  (see H4)
 \item V-projection spectral entropy at the same layers
 \item Logit margin (top-1 minus top-2 logit)
 \item Logit entropy ($-\sum p_i \log p_i$ over full vocabulary)
@@ -206,6 +211,18 @@ instruct model) in the change of stable rank from encoding to
 generation. H5 was not run. The analysis script extracts
 encoding-phase features only (its one generation step is the
 abliteration check under H2), so H5 is untested.
+
+\paragraph{Correction (2026-11-03).}
+The correction above calls H4 confirmed, and earlier versions
+described its measure as ``V-projection stable rank'', the name the
+pre-registration uses. The analysis script computes a different
+quantity: layer $l$'s $W_V$ applied to the un-normalised hidden states
+\texttt{hidden\_states[l+1]} (no input layernorm), summarised by the
+spectral concentration $(\sum_i \sigma_i)^2 / \sum_i \sigma_i^2$. That
+is neither the cached V nor stable rank. The H4 numbers are unchanged.
+Its verdict is now that the registered threshold is met on the
+computed proxy, not as registered (see H4 below), and the Measurements
+list, the discussion and the conclusion are corrected to match.
 
 \subsection{H1: RLHF Compresses Entropy --- Confirmed}
 
@@ -315,18 +332,25 @@ criterion. The interval on the spread reaches below 10\%, so 30 prompts
 per category do not exclude a spread within the registered bound.
 Selective sharpening was not pre-registered and remains exploratory.
 
-\subsection{H4: Stable Rank --- Confirmed}
+\subsection{H4: Met on the Computed Proxy, Not as Registered}
 
 H4 was pre-registered with the criterion Cohen's $d > 0.3$ for the
-base-versus-instruct difference in V-projection stable rank. Averaged
-over the workspace-band layers (L12, L15, L18, L21) and all 60 prompts,
-stable rank is lower in the instruct model than in the base model:
-$1.683$ against $1.963$, $d = 1.04$ (paired BCa 95\% interval
-$[+0.893, +1.224]$). The criterion is met in each category
-(confabulation $d = 1.44$, factual $d = 1.08$) and at every layer
-separately ($d = 0.63$ to $1.22$). The abliterated model's stable rank
-is lower than the base model's by a similar margin ($d = 1.05$). H4 is
-confirmed.
+base-versus-instruct difference in ``V-projection stable rank
+(full-sequence matrix, all positions)''. The analysis script does not
+compute that. At each layer $l$ it applies layer $l$'s $W_V$ to the
+un-normalised hidden states \texttt{hidden\_states[l+1]}, with no input
+layernorm, and takes $(\sum_i \sigma_i)^2 / \sum_i \sigma_i^2$ over the
+singular values of the result. That is a spectral concentration
+measure, and it is neither the cached V nor stable rank
+($\sum_i \sigma_i^2 / \sigma_{\max}^2$). On this proxy, averaged over
+the workspace-band layers (L12, L15, L18, L21) and all 60 prompts, the
+instruct model is lower than the base model: $1.683$ against $1.963$,
+$d = 1.04$ (paired BCa 95\% interval $[+0.893, +1.224]$). The proxy
+clears the registered threshold in each category (confabulation
+$d = 1.44$, factual $d = 1.08$) and at every layer separately
+($d = 0.63$ to $1.22$). The abliterated model's value is lower than the
+base model's by a similar margin ($d = 1.05$). H4 is met on the
+computed proxy, not as registered: no stable rank was computed.
 
 % ============================================================================
 \section{What This Falsifies and What Survives}
@@ -356,8 +380,9 @@ template commitment itself is not tested here.
 
 \textbf{RLHF compression is real.} Preference training tightens
 output distributions ($d{=}0.684$). This is measured in the output
-logits; its KV-cache counterpart is the stable-rank drop of H4
-($d = 1.04$).
+logits. H4's spectral concentration proxy, computed on $W_V$ applied
+to the hidden states rather than read from the KV cache, is also lower
+in the instruct model ($d = 1.04$).
 
 \textbf{Compression survives abliteration.} Abliteration targets the
 refusal directions but leaves the entropy compression in place (H2).
@@ -488,7 +513,8 @@ instruct, $d = 0.746$ against base); and the calibration ratio rises
 registered point criterion, the prediction that it would be preserved
 within 10\%.
 
-Three findings confirmed and one falsified. The
+Two findings confirmed (H1, H2), one falsified (H3), and one (H4)
+met on the computed proxy, not as registered. The
 falsification is the most informative result: RLHF did not degrade
 the calibration ratio, and it moved in the opposite direction to the
 one the prospectus proposed. The compression RLHF installs
