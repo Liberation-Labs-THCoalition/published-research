@@ -66,3 +66,5 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   1.0 title; its correction is in preparation.
 - Lab papers are now cited with the authors their DOI records list (Zenodo lists Thomas Edrington alone on both
   records). Thomas to confirm that rule.
+
+2026-11-03 (Lyra, branch lyra/pr8-credit-restored): the "cite lab papers with their Zenodo creators" rule recorded above as "Thomas to confirm that rule" was never confirmed. Under Thomas's direction of 2026-11-02 citations of lab papers list the cited paper's flight byline again: nexus2026topology is Nexus, Lyra and Edrington, and nexus2026kv is Nexus and Edrington. A Zenodo creator list records the deposit, which carries the human-only academic edition; it is not the authorship record.

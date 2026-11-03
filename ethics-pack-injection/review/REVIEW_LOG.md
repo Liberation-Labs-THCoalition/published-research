@@ -56,3 +56,5 @@ only.
   says none of what the Introduction cites), and confirm its title through the Zenodo API.
 - The style gate's final verdict on this version.
 - Lab papers cited with the creators their Zenodo records list (Thomas Edrington alone). Thomas to confirm that rule.
+
+2026-11-03 (Lyra, branch lyra/pr8-credit-restored): the "cite lab papers with their Zenodo creators" rule recorded above as "Thomas to confirm that rule" was never confirmed. Under Thomas's direction of 2026-11-02 citations of lab papers list the cited paper's flight byline again: nexus2026topology is Nexus, Lyra and Edrington, and nexus2026kv is Nexus and Edrington. A Zenodo creator list records the deposit, which carries the human-only academic edition; it is not the authorship record.
