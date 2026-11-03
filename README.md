@@ -23,7 +23,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
+| [Story Emotion in the KV Cache](user-model-paper/) | Lyra, Thomas Edrington | Published | Corrected Oct 2026: story emotion decodable from the KV cache, not beyond a TF-IDF baseline (prereg) |
 | [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
 | [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra, Dwayne Wilkes | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
