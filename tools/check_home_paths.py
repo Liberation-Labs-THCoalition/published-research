@@ -29,13 +29,35 @@ import subprocess
 import sys
 
 # Any user's home, not only the three found on 2026-11-03.
+#
+# URLS. _PRE refuses a match glued to a letter, digit, '.', '-' or '_'. A URL's host always ends
+# in one of those, so "https://example.com/home/x" and "http://localhost:8080/Users/x" pass: a
+# path on a web server is nobody's home directory. "file:///home/<user>" IS refused, because a
+# file URL names a local path. "the /home page" passes: a user name must follow "/home/".
+#
+# NOT REFUSED, on purpose: /root/... (root's home carries no person's name and is the default
+# home in containers), and placeholders such as /home/<user>, /Users/<user> and <home>.
 _PRE = r"(?<![A-Za-z0-9_.\-])"   # not inside a URL or a longer word
+_NAME = r"[A-Za-z0-9_][A-Za-z0-9_.\-]*"
 HOME_PATTERNS = [
-    ("macOS home", re.compile(_PRE + r"/Users/(?!Shared\b)[A-Za-z0-9_][A-Za-z0-9_.\-]*")),
-    ("Windows home", re.compile(r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+Users[\\/]+[A-Za-z0-9_][A-Za-z0-9_.\-]*")),
-    ("Git Bash home", re.compile(r"(?i)" + _PRE + r"/[a-z]/Users/[A-Za-z0-9_][A-Za-z0-9_.\-]*")),
+    ("macOS home", re.compile(_PRE + r"/Users/(?!Shared\b)" + _NAME)),
+    ("Windows home", re.compile(r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+Users[\\/]+" + _NAME)),
+    ("Git Bash home", re.compile(r"(?i)" + _PRE + r"/[a-z]/Users/" + _NAME)),
     # /home/linuxbrew is Homebrew's standard install prefix on Linux, not anyone's home.
     ("Linux home", re.compile(_PRE + r"/home/(?!linuxbrew\b)[a-z_][A-Za-z0-9_.\-]*")),
+    # The two rows below catch a home path behind a prefix, where _PRE sees the prefix's last
+    # letter and declines. Neither form was caught before 2026-11-03.
+    # WSL mounts a Windows drive under /mnt, giving /mnt/c/Users/<user>.
+    ("WSL home", re.compile(r"(?i)" + _PRE + r"/mnt/[a-z]/Users/" + _NAME)),
+    # Git Bash rewrites an ARGUMENT that starts with '/' into a path under its own install root
+    # (MSYS path conversion): /home/<user> becomes C:/Program Files/Git/home/<user>, and
+    # /Users/<user> becomes .../Git/Users/<user>. Anything that wrote such an argument out, a
+    # note or a log line, carries the user name in this form. The match is anchored to a drive
+    # letter and a folder whose name ends in "Git" (Program Files/Git, PortableGit), so a web
+    # URL with a /git/home/ or /git/users/ segment passes (a checker's planted case, 2026-11-03).
+    ("Git Bash-rewritten home", re.compile(
+        r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+(?:[^\\/\r\n]+[\\/]+)*?[^\\/\r\n]*Git[\\/]+(?:home|Users)[\\/]+"
+        r"(?!(?:Shared|linuxbrew)\b)" + _NAME)),
 ]
 
 # RECORDS: committed exactly as produced, so a home path in them is evidence, not a leak.
@@ -124,6 +146,16 @@ def self_test():
     win = "C:" + "\\" + "Users" + "\\" + "bob" + "\\" + "Desktop" + "\\" + "q.json"
     gb = "/" + "c/" + "Users/bob/x"
     lin = "/" + "home/carol/runs"
+    # Added 2026-11-03, after a review reported that a planted Linux path was not flagged.
+    lin2 = "/" + "home/asdf/.claude/CLAUDE.md"
+    mac2 = "/" + "Users/margaret/lab"
+    wsl = "/" + "mnt/c/" + "Users/bob/x"
+    gitroot = "C:/Program Files/Git" + "/"
+    web = ["https://example.com" + "/" + "home/", "https://example.com" + "/" + "home/asdf/x",
+           "http://localhost:8080" + "/" + "Users/margaret/x"]
+    gitweb = ["https://wiki.example.org/git" + "/" + "home/start",
+              "https://gitea.example.org/git" + "/" + "users/alice"]
+    gitroot_bs = chr(92).join(["C:", "Program Files", "Git", ""])
 
     def diff(path, *added, removed=()):
         body = "".join("-%s\n" % r for r in removed) + "".join("+%s\n" % a for a in added)
@@ -142,6 +174,17 @@ def self_test():
         ("placeholders, ~ and URLs", diff("notes/y.md", "`<home>/x` and ~/models and https://example.org/home/page"
                                           " and /Users/<user>/x and /Users/Shared/x"), False),
         ("deleted file", "diff --git a/z.md b/z.md\n--- a/z.md\n+++ /dev/null\n@@ -1 +0,0 @@\n-%s\n" % mac, False),
+        ("Linux home, a CLAUDE.md path", diff("notes/r.md", "see %s" % lin2), True),
+        ("macOS home, bare", diff("notes/r.md", mac2), True),
+        ("WSL mount of a Windows home", diff("s.sh", "cd %s" % wsl), True),
+        ("Git Bash-rewritten Linux home", diff("notes/r.md", "read " + gitroot + lin2[1:]), True),
+        ("Git Bash-rewritten macOS home", diff("notes/r.md", "in " + gitroot + mac2[1:]), True),
+        ("file:// URL to a home (a local path)", diff("notes/r.md", "file://" + lin2), True),
+        ("'the /home page'", diff("notes/r.md", "back to the /home page"), False),
+        ("web URL paths with /home/ or /Users/", diff("notes/r.md", " and ".join(web)), False),
+        ("web URL with a /git/home/ or /git/users/ segment", diff("notes/r.md", " and ".join(gitweb)), False),
+        ("Git Bash-rewritten home, backslash form", diff("notes/r.md", "at " + gitroot_bs + "home" + chr(92) + "kavi" + chr(92) + "x"), True),
+        ("root's home (no person's name)", diff("Dockerfile", "ENV HF_HOME=/" + "root/.cache/hf"), False),
     ]
     ok = True
     for name, d, should_fail in cases:
