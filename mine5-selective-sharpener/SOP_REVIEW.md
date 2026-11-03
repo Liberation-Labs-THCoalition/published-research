@@ -1,3 +1,6 @@
+> **Superseded 2026-10-20.** This review certifies the July 2026 analysis, which the Correction paragraph in `main.tex` withdraws.
+> The registered verdicts are in `main.tex` (Results) and are recomputed by `code/recompute_registered.py`.
+
 # SOP Review: Mine 5 Paper (RLHF Is a Selective Sharpener)
 **Reviewer**: Lyra (automated SOP)
 **Date**: 2026-07-17
