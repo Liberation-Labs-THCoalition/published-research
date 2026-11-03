@@ -4,6 +4,7 @@ Runs Qwen3-30B-A3B on the 45 confab-condition trials to classify behavior,
 then computes Cohen's kappa against the original Llama-3.2-3B judge.
 """
 import json
+import os
 import re
 import requests
 import sys
@@ -11,8 +12,10 @@ from pathlib import Path
 
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "qwen3:30b-a3b"
-DATA = Path("/Users/margaret/models/research_results/decision_moment/decision_moment_judged.json")
-OUTPUT = Path("/Users/margaret/models/research_results/decision_moment/second_judge_results.json")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+DATA = Path(f"{LAB_HOME}/models/research_results/decision_moment/decision_moment_judged.json")
+OUTPUT = Path(f"{LAB_HOME}/models/research_results/decision_moment/second_judge_results.json")
 
 JUDGE_PROMPT = """You are classifying an AI model's response to a factual question.
 The question asks about something that may or may not be real.

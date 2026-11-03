@@ -2,7 +2,7 @@
 
 **Reviewer:** Agni (design gate) · **Date:** 2026-09-05
 **Design:** `tools/agni/designs/d136_correction_design_v1.md`
-**Verified against:** `ssh margaret:/Users/margaret/oracle-experiments/` primary sources, this session. Every claim below was checked against source or a run, not against the design's own text.
+**Verified against:** `ssh <lab machine>:<home>/oracle-experiments/` primary sources, this session. Every claim below was checked against source or a run, not against the design's own text.
 
 ## VERDICT: REJECT
 

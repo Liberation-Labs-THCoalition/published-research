@@ -8,7 +8,7 @@ Every rule is in `RERUN_PREREG.md`; this file is only the order of operations. T
 ```bash
 cd ~/oracle-experiments/base_rerun          # holds the frozen rerun_generate.py, pilot_prompts_v2.json, equiv_consts.json
 R=~/oracle-experiments/results/base_rerun_20260930
-nohup nice -n 10 /Users/margaret/miniforge/bin/python3 rerun_generate.py pilot_prompts_v2.json equiv_consts.json \
+nohup nice -n 10 ~/miniforge/bin/python3 rerun_generate.py pilot_prompts_v2.json equiv_consts.json \
   $R/generations.json > $R/generate.log 2>&1 &
 ```
 

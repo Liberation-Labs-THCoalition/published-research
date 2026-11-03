@@ -5,6 +5,7 @@ confirm every judge returns a parseable YES/NO on one real trial.
 Only if all pass do we run the full 135-query panel.
 """
 import json
+import os
 import subprocess
 import sys
 import time
@@ -14,7 +15,9 @@ from pathlib import Path
 
 OLLAMA_URL = "http://localhost:11434"
 PANEL = ["qwen3:30b-a3b", "gemma2:27b", "qwen3.5:27b"]
-DATA = Path("/Users/margaret/models/research_results/decision_moment/decision_moment_judged.json")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+DATA = Path(f"{LAB_HOME}/models/research_results/decision_moment/decision_moment_judged.json")
 
 ATOMIC_PROMPT = """A user asked an AI model about "{entity}". This entity does NOT exist (it is fabricated).
 

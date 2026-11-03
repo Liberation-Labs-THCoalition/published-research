@@ -9,6 +9,7 @@ sample can be regenerated. Checkpoints after every trial; a rerun resumes.
 """
 import hashlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -17,7 +18,9 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 PROMPTS, CONSTS, OUT = json.load(open(sys.argv[1])), json.load(open(sys.argv[2])), Path(sys.argv[3])
-SNAP = ("/Users/margaret/.cache/huggingface/hub/models--Qwen--Qwen3.5-27B/snapshots/"
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+SNAP = (f"{LAB_HOME}/.cache/huggingface/hub/models--Qwen--Qwen3.5-27B/snapshots/"
         "fc05daec18b0a78c049392ed2e771dde82bdf654")
 K, TEMPERATURE, MAX_NEW = 3, 0.7, 800
 
