@@ -56,7 +56,9 @@ HOME_PATTERNS = [
     # letter and a folder whose name ends in "Git" (Program Files/Git, PortableGit), so a web
     # URL with a /git/home/ or /git/users/ segment passes (a checker's planted case, 2026-11-03).
     ("Git Bash-rewritten home", re.compile(
-        r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+(?:[^\\/\r\n]+[\\/]+)*?[^\\/\r\n]*Git[\\/]+(?:home|Users)[\\/]+"
+        # Segments stop at ':' and at most six folders are crossed, so a long line with many
+        # drive letters stays linear (a checker timed 1.65 s on 20,000 characters without this).
+        r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+(?:[^\\/:\r\n]+[\\/]+){0,6}?[^\\/:\r\n]*Git[\\/]+(?:home|Users)[\\/]+"
         r"(?!(?:Shared|linuxbrew)\b)" + _NAME)),
 ]
 
