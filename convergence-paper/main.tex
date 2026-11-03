@@ -54,7 +54,8 @@ failed.
 
 \emph{What the evidence supports.} In Qwen3.5-27B (base, 64 layers), the effective
 dimensionality ($d_\text{eff}$) of the residual stream peaks at L21
-($32.8\%$ of depth), and residual-stream stable rank rises $1.47\times$
+($32.8\%$ of depth), and residual-stream stable rank rises
+$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
 above its flanks at L19--L23 ($29.7$--$35.9\%$). Qwen3-8B shows a local
 $d_\text{eff}$ maximum at $33.3\%$ but its global maximum at $91.7\%$.
 The pre-registered band never closed, and no null control has been run.
@@ -515,9 +516,9 @@ layers --- which constitute $75\%$ of layers throughout the stack, not
 merely early --- are included.
 
 \paragraph{The L19--L23 bump.} Stable rank in the L19--L23 band
-is $1.47\times$ the flanking layers
-[CI: $1.35$--$1.60$], 100\% of forks positive. On full-attention layers
-within the band, the bump is $2.02\times$ [CI: $1.87$--$2.16$]. This is
+is $+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
+above the flanking layers, 100\% of forks positive. On full-attention layers
+within the band, the bump is $+2.02$ [$1.87$, $2.16$], a ratio of $1.40$ [$1.37$, $1.43$]. This is
 the depth of the $d_\text{eff}$ peak of \S\ref{sec:deff}, and the
 elevated spectral structure comes well before J-lens readability
 arrives.
@@ -791,7 +792,9 @@ workspace interpretation has not excluded the deflationary alternative.
 
 Two results hold, both on Qwen3.5-27B base. Residual-stream effective
 dimensionality peaks at L21 ($32.8\%$ of depth), and residual-stream
-stable rank rises $1.47\times$ above its flanks at L19--L23
+stable rank rises
+$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
+above its flanks at L19--L23
 (\S\ref{sec:deff}, \S\ref{sec:mechanism}). And stable rank reaches half
 its rise $38.6$~layers [$38.0$--$39.2$] before J-lens readability, in 300 of 300 forks; the logit-lens control puts unembedding readability
 only $3.25$ layers later still, so the ordering is chiefly spectral
