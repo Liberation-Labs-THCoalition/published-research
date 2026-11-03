@@ -66,8 +66,11 @@ From raters A and B:
 
 ## What cannot be known, and what is not yet known
 
-- **The exact text the judges read.** CC's `CLAUDE.md` was rewritten on 2026-10-31, and the `claude -p` judges ran
-  without session files, so the text they read cannot be read back. The raters' transcripts do record the file's
+- **The exact text the judges read.** CC's `CLAUDE.md` was rewritten on 2026-10-31. Judges run with the lean flags
+  (`--no-session-persistence`) left no session files, so for them the text cannot be read back. Two groups may have
+  left session files that hold it, and neither has been checked: the first ~41 re-judge items, which ran with CC's
+  full hooks before the switch to the lean flags, and the pilot 2 judging, whose flags are not recorded here. The
+  raters' transcripts do record the file's
   contents as of 2026-10-09, which is not necessarily the text the judges read on other dates. It did carry project
   statuses about this paper.
 - **The effect.** Whether any verdict moved has not been measured.
