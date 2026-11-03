@@ -46,7 +46,7 @@ No UMV-L1 or label-validity results were opened.
    - `..._r2.json:10`: a `~/.claude` path.
    - `/Users/<starship-user>/...` appears 16 times, for example `PREREG_um_v2_R1R2.md:122` and `R1R2_DESIGN_NOTES.md:35, :669`. The ssh alias `<starship-user>` is also exposed.
    - `Starship` appears 57 times, for example `user-model-paper/README.md:97`. This is the name the papers already use, so it is likely acceptable.
-   - `results_20261019/encode.log:7`: `/Users/runner`. Also `~/observer-env`, `~/user_model_rerun`, `~/user_model_v2`, `~/agni_runs` and `~/lab`, all in `R1R2_DESIGN_NOTES.md`.
+   - `results_20261019/encode.log:7`: a home path (`<home>`). Also `~/observer-env`, `~/user_model_rerun`, `~/user_model_v2`, `~/agni_runs` and `~/lab`, all in `R1R2_DESIGN_NOTES.md`.
 
    The scan found no IPv4 addresses, keys or emails. Planted control: one line holding a Tailscale IP, a `C:\Users` path, a `~/.credentials` path and a host name was caught as ipv4, win_path, unix_home, key and host. A second control line caught the email pattern. Lines scanned: 1,165,268 added in PR 17, 227 added in PR 18. **Caveat:** the IPv4 pattern skips addresses whose first octet is a single digit, to avoid version strings. **Action:** Thomas decides whether the usernames and paths stay. Several of these files are under `SHA256SUMS`, so any redaction has to update those hashes.
 

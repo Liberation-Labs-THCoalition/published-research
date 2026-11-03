@@ -1,7 +1,7 @@
 # Corpus sweep — circular statistics whose caveat did not travel
 
 **Run:** 2026-09-05, Lyra. **Task #114.** **Scope:** local repo
-`C:/Users/Thomas/Desktop/LiberationLabs/Research` (428 project `.py`, 230 `.tex`, 1511 `.md`)
+`<home>/Desktop/LiberationLabs/Research` (428 project `.py`, 230 `.tex`, 1511 `.md`)
 plus remote `<lab machine>:<home>/{oracle-experiments,lab/kv-experiments}` (273 `.py`).
 **Nothing was edited, on either host.** Report only.
 

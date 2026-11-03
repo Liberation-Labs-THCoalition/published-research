@@ -1,6 +1,6 @@
 # Sweep — post-generation KV extraction described or used as encoding geometry
 
-**Run:** 2026-09-05, Lyra. **Scope:** `<lab machine>:<home>/{oracle-experiments, lab/kv-experiments, oracle-harness}` + local `C:/Users/Thomas/Desktop/LiberationLabs/Research` (incl. `published-research`, `Project-Oracle`, `lyra-s-research-`, `KV-Cache-Experiments`).
+**Run:** 2026-09-05, Lyra. **Scope:** `<lab machine>:<home>/{oracle-experiments, lab/kv-experiments, oracle-harness}` + local `<home>/Desktop/LiberationLabs/Research` (incl. `published-research`, `Project-Oracle`, `lyra-s-research-`, `KV-Cache-Experiments`).
 **Nothing was edited, committed, or pushed.** Report only.
 
 **Framing held throughout:** a defect means *the measurement cannot support the claim*, not that the underlying effect is absent. Nothing below is a refutation.
