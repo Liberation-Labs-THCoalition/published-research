@@ -322,7 +322,10 @@ divergence, if present, would emerge during generation.
 
 A v2 experiment with explicit action instructions and 800-token
 generation (75 trials, temperature 0.7) yielded a lower deception
-rate (9\%, $n=7$) but included full geometry extraction. The cleanest
+rate (9\%, $n=7$) but included full geometry extraction. 32 of the 75
+generations stopped at the 800-token cap and 22 were classified CONFUSED
+(18 of them capped); 5 of the 7 deceptive and 3 of the 10 honest-defection
+trials were capped, so these counts depend on where truncation fell. The cleanest
 comparison---honest defection ($n=10$) vs deceptive defection ($n=7$),
 where both groups defect but one lies about it---shows per-layer
 generation-phase effects of $d = +0.2$ to $+1.0$ (stable rank),
