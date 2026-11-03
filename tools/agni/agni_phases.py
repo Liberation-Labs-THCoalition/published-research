@@ -336,8 +336,9 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     #
     # Isolation (2026-11-02): until then this call ran as Lyra -- it loaded their
     # CLAUDE.md, ran their SessionStart sync, and its exchange landed in their
-    # episodic memory. The helper adds the CLAUDE.md exclusions and
-    # LYRA_NO_CAPTURE=1; nothing else changes. Tested by test_isolation.py.
+    # episodic memory. The helper adds what its docstring lists (no-capture env,
+    # CLAUDE.md excludes, strict empty MCP, no auto-memory, no skills); nothing
+    # else changes. Tested by test_isolation.py.
     cmd, env = isolated_claude_cmd(cmd)
     r = subprocess.run(cmd, input=full, capture_output=True,
                        text=True, encoding="utf-8", errors="replace",
