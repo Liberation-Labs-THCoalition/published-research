@@ -52,9 +52,12 @@ HOME_PATTERNS = [
     # Git Bash rewrites an ARGUMENT that starts with '/' into a path under its own install root
     # (MSYS path conversion): /home/<user> becomes C:/Program Files/Git/home/<user>, and
     # /Users/<user> becomes .../Git/Users/<user>. Anything that wrote such an argument out, a
-    # note or a log line, carries the user name in this form.
+    # note or a log line, carries the user name in this form. The match is anchored to a drive
+    # letter and a folder whose name ends in "Git" (Program Files/Git, PortableGit), so a web
+    # URL with a /git/home/ or /git/users/ segment passes (a checker's planted case, 2026-11-03).
     ("Git Bash-rewritten home", re.compile(
-        r"(?i)[\\/]Git[\\/]+(?:home|Users)[\\/]+(?!(?:Shared|linuxbrew)\b)" + _NAME)),
+        r"(?i)(?<![A-Za-z])[A-Z]:[\\/]+(?:[^\\/\r\n]+[\\/]+)*?[^\\/\r\n]*Git[\\/]+(?:home|Users)[\\/]+"
+        r"(?!(?:Shared|linuxbrew)\b)" + _NAME)),
 ]
 
 # RECORDS: committed exactly as produced, so a home path in them is evidence, not a leak.
@@ -150,6 +153,9 @@ def self_test():
     gitroot = "C:/Program Files/Git" + "/"
     web = ["https://example.com" + "/" + "home/", "https://example.com" + "/" + "home/asdf/x",
            "http://localhost:8080" + "/" + "Users/margaret/x"]
+    gitweb = ["https://wiki.example.org/git" + "/" + "home/start",
+              "https://gitea.example.org/git" + "/" + "users/alice"]
+    gitroot_bs = chr(92).join(["C:", "Program Files", "Git", ""])
 
     def diff(path, *added, removed=()):
         body = "".join("-%s\n" % r for r in removed) + "".join("+%s\n" % a for a in added)
@@ -176,6 +182,8 @@ def self_test():
         ("file:// URL to a home (a local path)", diff("notes/r.md", "file://" + lin2), True),
         ("'the /home page'", diff("notes/r.md", "back to the /home page"), False),
         ("web URL paths with /home/ or /Users/", diff("notes/r.md", " and ".join(web)), False),
+        ("web URL with a /git/home/ or /git/users/ segment", diff("notes/r.md", " and ".join(gitweb)), False),
+        ("Git Bash-rewritten home, backslash form", diff("notes/r.md", "at " + gitroot_bs + "home" + chr(92) + "kavi" + chr(92) + "x"), True),
         ("root's home (no person's name)", diff("Dockerfile", "ENV HF_HOME=/" + "root/.cache/hf"), False),
     ]
     ok = True
