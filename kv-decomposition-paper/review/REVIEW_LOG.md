@@ -58,3 +58,5 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   1.0 title; its correction is in preparation.
 - Lab papers are now cited with the authors their DOI records list (Zenodo lists Thomas Edrington alone on both
   records). Thomas to confirm that rule.
+
+2026-11-03 (Lyra, branch lyra/pr9-credit-restored): the "cite lab papers with their Zenodo creators" rule was never confirmed by Thomas. Under his direction of 2026-11-02 lab papers are cited with their flight bylines: lyra2026spectral is Lyra and Edrington (Wilkes is not on that byline), nexus2026kv is Nexus and Edrington, and nexus2026topology is Nexus, Lyra and Edrington.

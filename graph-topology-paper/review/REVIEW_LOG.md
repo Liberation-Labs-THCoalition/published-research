@@ -119,3 +119,5 @@ that "direct cache injection recovers it perfectly". Quoted word for word, as it
   prompt as text"); this branch predates that fix.
 - The Agni style gate on round 3's fixes (round 4).
 - Whether the memory-graph file survives on the Studio (not searched).
+
+2026-11-03 (Lyra, branch lyra/pr9-credit-restored): the "cite lab papers with their Zenodo creators" rule was never confirmed by Thomas. Under his direction of 2026-11-02 lab papers are cited with their flight bylines: lyra2026spectral is Lyra and Edrington (Wilkes is not on that byline), nexus2026kv is Nexus and Edrington, and nexus2026topology is Nexus, Lyra and Edrington.
