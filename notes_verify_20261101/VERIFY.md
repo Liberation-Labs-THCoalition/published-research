@@ -67,5 +67,5 @@ gives 0.963.
 
 Patterns: emails, private IPv4 addresses, home paths and credentials paths, secret/token words, phone
 numbers, and personal or host names (Allison, Vera, tailscale, ssh, madame, margaret, starship).
-Planted control (`admin@100.112.167.112 ... C:/Users/Thomas/.credentials/lyra_pg`): caught.
+Planted control (`admin@<MTH host> ... <home>/<credential file>`): caught.
 Added lines: one hit, `lyra@liberationlabs.tech`, which is the intended public contact address. Clean.
