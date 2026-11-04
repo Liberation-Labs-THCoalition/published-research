@@ -34,7 +34,8 @@ Folder isolation alone would not have helped: CC tested on 2026-10-24 that a ses
 loads the user-level file as a parent-folder file, even with its own `CLAUDE_CONFIG_DIR`. No copy of this repository
 has a `CLAUDE.md` of its own, so the user-level file is the only `CLAUDE.md` in play.
 
-No `AGENTS.md` was in play either, as far as can be shown. CC checked on 2026-11-03: the oracle-harness repository has
+For the base rerun, no `AGENTS.md` was in play either, as far as can be shown. The folders the 2026-09-30 re-judge
+and the two raters ran from were not checked. CC checked on 2026-11-03: the oracle-harness repository has
 never tracked an `AGENTS.md`, a `CLAUDE.md` or a `.claude/` instruction file in any commit on any branch; its working
 tree today holds only `.claude/worktrees/` (git worktrees, no instructions); and there is none in CC's home folder or
 above it. Untracked files from 2026-10-05 cannot be proven absent, but nothing points to one.
