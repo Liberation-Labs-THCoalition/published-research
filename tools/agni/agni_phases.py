@@ -30,7 +30,9 @@ PHASES
 VERDICT CONTRACT: the reviewer answers APPROVED / CONDITIONAL / REJECTED on a verdict line.
 A verdict line, once markdown markup and whitespace are stripped, is exactly one of those words,
 or starts VERDICT, OVERALL VERDICT or FINAL VERDICT followed by one of them (trailing text
-allowed). Reasoning prose never counts. A verdict line inside a code fence or an indented code
+allowed, unless after a pass it negates, contrasts, asks or points elsewhere, or after APPROVED
+sets a condition: then UNPARSED). Reasoning prose never decides, but any line that names a
+verdict ("verdict", at most two words, the word) vetoes. A verdict line inside a code fence or an indented code
 block is quoted code, not the reviewer speaking: it never decides, but if it disagrees the result is
 UNPARSED, and so is a fence that never closes. Every verdict line must agree.
 APPROVED and CONDITIONAL exit 0, REJECTED exit 1. But APPROVED or CONDITIONAL on input the reviewer
@@ -84,6 +86,7 @@ import re
 import subprocess
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -115,11 +118,13 @@ BINARY_REPLACEMENT_RATIO = 0.01
 JUNK_DIRS = frozenset({".git", "__pycache__", "node_modules", ".venv", ".ipynb_checkpoints"})
 SKIP_JUNK = "junk folder"
 SKIP_LINK_INSIDE = "link to a path inside this tree, not followed"
+SKIP_LINK_INTO_JUNK = "link to a path inside a junk folder of this tree, not followed or read"
 SKIP_LINK_OUTSIDE = "link to outside this tree, not followed"
 SKIP_LINK_BROKEN = "broken link"
 SKIP_SPECIAL = "not a regular file"
 # Skips that cost the reviewer nothing: junk is not input, and an inner link's target is shown
-# under its own name. Anything else skipped means the input is not complete.
+# under its own name. Anything else skipped means the input is not complete. A link into a junk
+# folder is not harmless: nothing there is read, so its target is shown nowhere (round 4).
 HARMLESS_SKIPS = (SKIP_JUNK, SKIP_LINK_INSIDE)
 PREREG_PHASES = ("design", "preflight")
 
@@ -459,6 +464,12 @@ def _inside(root, target):
         return False
 
 
+def _under_junk(real_root, real):
+    """Whether a real path inside the tree lies in a junk folder, which the walk never enters."""
+    junk = {os.path.normcase(j) for j in JUNK_DIRS}
+    return any(part in junk for part in os.path.relpath(real, real_root).split(os.sep))
+
+
 def _list_tree(root):
     """Every regular file under root as (relative name, path), in a fixed order, plus what was
     skipped and why. Only real folders are walked: a link (symlink or Windows junction, both caught
@@ -483,6 +494,8 @@ def _list_tree(root):
                     reason = SKIP_LINK_OUTSIDE
                 elif not os.path.exists(real):
                     reason = SKIP_LINK_BROKEN
+                elif _under_junk(real_root, real):
+                    reason = SKIP_LINK_INTO_JUNK
                 else:
                     reason = SKIP_LINK_INSIDE
                 skipped.append({"name": name, "reason": reason})
@@ -614,7 +627,9 @@ def read_prereg(path, budget):
         return got, "", ""
     try:
         prereg = json.loads(got["text"], object_pairs_hook=_no_duplicate_keys)
-    except ValueError as e:
+    # RecursionError is not a ValueError: a prereg nested a few thousand deep was a traceback,
+    # exit 1, and the older APPROVED record stood (round 4).
+    except (ValueError, RecursionError) as e:
         cov["complete"] = False
         got["problems"].append("secondary: %s is not valid JSON: %s" % (path, e))
         return got, "", ""
@@ -811,6 +826,40 @@ _LABELLED_VERDICT = re.compile(
     re.I)
 _FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 _LIST_ITEM = re.compile(r"^( {0,3})([-+*]|\d{1,9}[.)])( +|$)")
+_THEMATIC_BREAK = re.compile(r"^ {0,3}([-*_])(?: *\1){2,} *$")
+# CommonMark HTML blocks. Kinds 1 to 5 (<pre>, <script>, <style>, <textarea>, comments, <?, <!X,
+# CDATA) run to their end marker; any other tag runs to a blank line (end None).
+_HTML_BLOCKS = (
+    (re.compile(r"^ {0,3}<(?:pre|script|style|textarea)(?=\s|>|$)", re.I),
+     re.compile(r"</(?:pre|script|style|textarea)>", re.I)),
+    (re.compile(r"^ {0,3}<!--"), re.compile(r"-->")),
+    (re.compile(r"^ {0,3}<\?"), re.compile(r"\?>")),
+    (re.compile(r"^ {0,3}<!\[CDATA\["), re.compile(r"\]\]>")),
+    (re.compile(r"^ {0,3}<![A-Za-z]"), re.compile(r">")),
+    (re.compile(r"^ {0,3}</?[A-Za-z][A-Za-z0-9-]*(?=[\s/>]|$)"), None),
+)
+# CommonMark ends a line at LF, CR or CRLF only. str.splitlines also ends one at U+2028, NEL, a
+# form feed and others, so "a<U+2028>```" closed a fence CommonMark keeps open (round 4).
+_LINE_END = re.compile(r"\r\n|\r|\n")
+_VERDICT_STEM = re.compile(r"approved|conditional|rejected")
+# Cyrillic and Greek letters that look Latin, as lower case, read as the Latin letter.
+_LOOKALIKES = str.maketrans(
+    "\u0430\u0432\u0435\u043a\u043c\u043d\u043e\u0440\u0441\u0442\u0443\u0445\u0456\u0458\u0455\u0501"
+    "\u03b1\u03b2\u03b5\u03b6\u03b7\u03b9\u03ba\u03bc\u03bd\u03bf\u03c1\u03c4\u03c5\u03c7",
+    "abekmhopctyxijsd" "abezhikmnoptyx")
+# Between the words of the contract read back: punctuation and "or", nothing else.
+_ECHO_GAP = re.compile(r"^(?:[\s\"'/|,.:;()\[\]*_`~-]|\bor\b)*$")
+# A word that says no, between "verdict" and the verdict it names. "no" only when nothing follows it.
+_NEGATION = re.compile(r"\b(?:not|never|nor)\b|n't\b|\bno\b(?!\s+\w)", re.I)
+# "verdict", at most two words, then a verdict word, on folded (lower-case) text.
+_NAMED_VERDICT = re.compile(r"verdict\W*((?:\w+\W+){0,2}?)(approved|conditional|rejected)")
+# After a pass verdict, what takes it back: a negation, a contrast, a question or an arrow.
+_TAKE_BACK = re.compile(r"\b(?:not|never|nor|but|however|instead|rather|except|although|though)\b"
+                        r"|n't\b|\bno\b(?!\s+\w)|\?|->|=>|<-|[\u2190-\u21ff\u27f0-\u27ff\u2900-\u297f]",
+                        re.I)
+# After APPROVED, what makes it depend on something, which is not APPROVED.
+_CONDITION = re.compile(r"\b(?:if|unless|otherwise|provided|pending|until|once|subject\s+to|"
+                        r"condition\w*)\b", re.I)
 
 
 def _spaces(line):
@@ -818,17 +867,22 @@ def _spaces(line):
 
 
 def _code_lines(review):
-    """Each line of the review as (line, in code), and whether a fence was left open.
+    """Each line of the review as (line, in code), and whether a fence or an HTML block that runs to
+    an end marker was left open.
 
-    CommonMark, as far as a verdict needs it. A fence opens on up to three spaces of indent, then
-    three or more backticks or tildes; after backticks the rest of the line may hold no backtick, so
-    ```x``` is a span, not a fence. Only the same character, at least as long, with nothing after
-    it, closes it. Four spaces or a tab of indent is code, counted from the content of the list item
-    the line continues. Where this reading knowingly differs from CommonMark, it keeps more in code:
-    a closing fence must sit at or right of its opening one, and a line left of the list item that
-    holds a fence leaves the fence open, where CommonMark would end both."""
-    lines, fence, item = [], None, 0
-    for raw in review.splitlines():
+    CommonMark, as far as a verdict needs it. Lines end at LF, CR or CRLF only. A fence opens on up
+    to three spaces of indent, then three or more backticks or tildes; after backticks the rest of
+    the line may hold no backtick, so ```x``` is a span, not a fence. Only the same character, at
+    least as long, with nothing after it, closes it. Four spaces or a tab of indent is code, counted
+    from the content of the list item the line continues. A list marker is consumed before the rest
+    of its line is read, so "- ```" opens a fence and "-     x" is indented code; "- - -" is a
+    thematic break, not a list. HTML blocks count as code: a <pre> or a comment holds lines a reader
+    does not see as text. Where this reading knowingly differs from CommonMark, it keeps more in
+    code: a closing fence must sit at or right of its opening one, a line left of the list item that
+    holds a fence leaves the fence open where CommonMark would end both, and any line that starts
+    with a tag starts an HTML block."""
+    lines, fence, html, item = [], None, None, 0
+    for raw in _LINE_END.split(review):
         line = raw.expandtabs(4)
         indent, blank = _spaces(line), not line.strip()
         if fence:
@@ -839,34 +893,113 @@ def _code_lines(review):
             else:
                 lines.append((raw, True))
             continue
+        if html:
+            lines.append((raw, True))
+            if html[0].search(line) if html[0] else blank:
+                html = None
+            continue
         if not blank and indent < item:
             item = 0
-        rest = line[item:]
-        m = _FENCE_OPEN.match(rest)
-        if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
-            fence = (m.group(1)[0], len(m.group(1)), indent, item)
-            continue
-        if not blank and _spaces(rest) >= 4:
-            lines.append((raw, True))
-            continue
-        m = _LIST_ITEM.match(rest)
-        if m:
+        pos, in_code = item, False
+        while not blank:
+            rest = line[pos:]
+            if _spaces(rest) >= 4:
+                in_code = True
+                break
+            m = _FENCE_OPEN.match(rest)
+            if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
+                fence = (m.group(1)[0], len(m.group(1)), pos + _spaces(rest), pos)
+                in_code = True
+                break
+            start, end = next(((s.match(rest), e) for s, e in _HTML_BLOCKS if s.match(rest)), (None, None))
+            if start:
+                in_code = True
+                if not (end and end.search(rest, start.end())):
+                    html = (end,)
+                break
+            if _THEMATIC_BREAK.match(rest):
+                break
+            m = _LIST_ITEM.match(rest)
+            if not m:
+                break
             gap = len(m.group(3))
-            item += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
-        lines.append((raw, False))
-    return lines, fence is not None
+            pos += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
+            item = pos
+        lines.append((raw, in_code))
+    return lines, fence is not None or bool(html and html[0])
 
 
-def verdict_lines(review):
-    """(verdict, in code) for every verdict line, and whether a fence was left open."""
+def _fold(line):
+    """Lower case, with compatibility forms and accents taken apart, invisible format characters (a
+    zero-width space) dropped, and Cyrillic and Greek lookalikes read as Latin."""
+    s = "".join(c for c in unicodedata.normalize("NFKD", line) if unicodedata.category(c) not in ("Cf", "Mn"))
+    return s.lower().translate(_LOOKALIKES)
+
+
+def _is_echo(folded):
+    """The contract read back, "APPROVED / CONDITIONAL / REJECTED": all three words with nothing
+    but punctuation and "or" between them. It gives no verdict, so it neither decides nor vetoes;
+    otherwise a reviewer that restates its instructions could never parse."""
+    hits = list(_VERDICT_STEM.finditer(folded))
+    return ({h.group() for h in hits} == {"approved", "conditional", "rejected"}
+            and all(_ECHO_GAP.match(folded[a.end():b.start()]) for a, b in zip(hits, hits[1:])))
+
+
+def _named_verdicts(folded):
+    """The verdict words a line names as a verdict, and whether one is negated ("Verdict: not
+    APPROVED"). Named: "verdict", then at most two words, then the word ("| Verdict | REJECTED |",
+    "**Verdict:** <emoji> REJECTED", "the verdict would be REJECTED"), or a line whose letters are one
+    verdict word and nothing else ("| REJECTED |"). Farther apart is prose, not a verdict: replayed
+    over 80 stored reviews, "the registered verdict is CONFOUND_SUSPECTED, ... rejected" turned a
+    real CONDITIONAL into UNPARSED when any word on the line counted."""
+    letters = re.sub(r"[^a-z]+", "", folded)
+    if letters in ("approved", "conditional", "rejected"):
+        return {letters.upper()}, False
+    hits = [(m.group(2).upper(), bool(_NEGATION.search(m.group(1)))) for m in _NAMED_VERDICT.finditer(folded)]
+    return {w for w, _ in hits}, any(negated for _, negated in hits)
+
+
+def _takes_back(verdict, tail):
+    """Whether the text after a pass verdict's word negates it, or makes APPROVED conditional. A
+    REJECTED is not checked: however it is qualified, it cannot pass."""
+    if verdict == "REJECTED":
+        return False
+    return bool(_TAKE_BACK.search(tail) or (verdict == "APPROVED" and _CONDITION.search(tail)))
+
+
+def _verdicts(review, decide):
+    """(verdict, decides) for each verdict the review's lines name, and whether a fence or an HTML
+    block was left open. decide(text) matches a verdict line once markup is stripped.
+
+    Round 4: a line is read whole. Only a verdict line outside code decides, and only if nothing
+    after its word takes it back; one that is taken back lists UNCLEAR. A verdict line lists every
+    verdict word on it as not deciding, and any other line, in code or not, in a form decide() knows
+    or not, lists the verdict words it names (see _named_verdicts), so a word that differs from the
+    decided verdict vetoes. A line outside code that names a verdict and negates it lists UNCLEAR.
+    UNCLEAR is never decided, so it vetoes anything. The contract read back is skipped."""
     lines, unclosed = _code_lines(review)
     found = []
     for line, in_code in lines:
-        text = _MARKUP.sub("", line).strip()
-        m = _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text)
+        folded = _fold(line)
+        if _is_echo(folded):
+            continue
+        words, negated = _named_verdicts(folded)
+        text = re.sub(r"[*_`#]+", "", line).strip()
+        m = None if in_code else decide(text)
         if m:
-            found.append((m.group(1).upper(), in_code))
+            verdict = m.group(1).upper()
+            found.append(("UNCLEAR", False) if _takes_back(verdict, text[m.end():]) else (verdict, True))
+            words = {w.upper() for w in _VERDICT_STEM.findall(folded)}
+        elif negated and not in_code:
+            found.append(("UNCLEAR", False))
+        found += [(w, False) for w in sorted(words)]
     return found, unclosed
+
+
+def verdict_lines(review):
+    """(verdict, decides) for each verdict the review's lines name, and whether a fence or an HTML
+    block was left open: see _verdicts."""
+    return _verdicts(review, lambda text: _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text))
 
 
 def parse_verdict(review):
@@ -891,9 +1024,18 @@ def parse_verdict(review):
     exit 0. Now fences follow CommonMark (see _code_lines); only a verdict line outside code decides;
     a verdict line anywhere, in code too, that disagrees makes it UNPARSED; and so does a fence that
     never closes, or a review whose only verdict lines are in code. Even wrong about what is code,
-    a quoted verdict that differs from the reviewer's can never pass."""
+    a quoted verdict that differs from the reviewer's can never pass.
+
+    A verdict line is read whole (round 4, 2026-11-07). The decision regex anchors only the start of
+    the line, so "VERDICT: APPROVED is not warranted here; this design must be REJECTED" and
+    "APPROVED `VERDICT: REJECTED`" decided APPROVED, exit 0, and a REJECTED it did not know (a table
+    cell, after an emoji, with a Cyrillic E or a zero-width space) could not veto. Now every line
+    that names a verdict vetoes with each verdict word on it, and a pass verdict that is negated, or
+    an APPROVED made conditional, is UNPARSED (see _verdicts). The cost, taken on purpose: a pass
+    qualified that way ("CONDITIONAL - not before a null arm") is UNPARSED, exit 2, and so is a review
+    whose prose names a different verdict within two words of the word "verdict"."""
     found, unclosed = verdict_lines(review)
-    decided = {v for v, in_code in found if not in_code}
+    decided = {v for v, decides in found if decides}
     if unclosed or len(decided) != 1 or any(v not in decided for v, _ in found):
         return "UNPARSED"
     return decided.pop()

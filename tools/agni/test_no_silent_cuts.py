@@ -325,6 +325,14 @@ class Refusal(Base):
         pr = self.put("prereg.json", "[1, 2, 3]")
         self.assertRefused(self.run_main(["design", self.put("run.py", "x = 1"), pr]))
 
+    def test_prereg_nested_too_deep_to_parse(self):
+        # Round 4: json raises RecursionError here, not ValueError: a traceback, exit 1, and the
+        # older APPROVED stood.
+        pr = self.put("prereg.json", '{"experiment": "myexp", "hypotheses": ["H1"], "falsification": '
+                      + "[" * 5000 + "]" * 5000 + ', "threats_to_validity": []}')
+        self.stale()
+        self.assertRefused(self.run_main(["design", self.put("run.py", "x = 1"), pr]))
+
     def test_named_input_the_phase_has_no_slot_for(self):
         # style and results have no {tertiary}, and design fills it from the prereg, so a third path
         # used to be read (or not) and then dropped with nothing said.
@@ -622,6 +630,17 @@ class Folders(Base):
         self.assertDelivered(res, "CANARY_LOOP_REAL")
         self.assertEqual(res.prompts[0].count("CANARY_LOOP_REAL"), 1)
         self.assertIs(self.item(res, "secondary")["complete"], True)
+
+    def test_a_link_into_a_junk_folder_is_not_complete(self):
+        # Round 4: lib -> node_modules/vendored counted as a harmless inner link, but nothing under
+        # node_modules is read. complete was True, exit 0, and the reviewer never saw core.py.
+        self.put("proj/main.py", "CANARY_MAIN")
+        self.put("proj/node_modules/vendored/core.py", "CANARY_VENDORED")
+        self._link_dir(self.tmp / "proj" / "node_modules" / "vendored", self.tmp / "proj" / "lib")
+        res = self.run_main(["results", self.art, self.tmp / "proj"])
+        self.assertNotIn("CANARY_VENDORED", "".join(p or "" for p in res.prompts))
+        self.assertIs(self.item(res, "secondary")["complete"], False)
+        self.assertEqual(res.code, 2, "a pass on input the reviewer did not get; crash=%r" % res.crash)
 
 
 class Coverage(Base):
@@ -1217,6 +1236,91 @@ FENCE_CASES = (
      "```python\nprint('x')\n```\n\nOVERALL VERDICT: CONDITIONAL\n", "CONDITIONAL"),
 )
 
+# Round 4 (2026-11-07). Each UNPARSED case below was exit 0 APPROVED after round 3, in agni_phases.py
+# and in the design harness alike, except U11 and U12 in the design harness, where a bare "Approved"
+# does not decide. The last group must still parse.
+_LIST_FENCES = ("Quoted fixtures:\n\n- ```\n  VERDICT: APPROVED\n  ```\n- ```\n  other fixture\n  ```\n\n"
+                "The seed is never set, which is M2, so\n")
+ROUND4_CASES = (
+    # A verdict line is read whole: a second verdict, a negation or a condition after the word means
+    # the line does not clearly give it.
+    ("T1 approved on a condition, otherwise rejected",
+     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added; otherwise REJECTED.\n", "UNPARSED"),
+    ("T2 approved is not warranted, rejected",
+     "Findings: seeds never set (M2).\n\nVERDICT: APPROVED is not warranted here; this design must be "
+     "REJECTED.\n", "UNPARSED"),
+    ("T3 approved, then rejected",
+     "Findings.\n\nVERDICT: APPROVED \u2192 REJECTED after re-reading the seed handling.\n", "UNPARSED"),
+    ("T4 rejected in an inline span on a verdict line",
+     "VERDICT: APPROVED\n\nFindings.\n\nVERDICT: APPROVED `VERDICT: REJECTED`\n", "UNPARSED"),
+    ("approved is not warranted, no second verdict word",
+     "Findings.\n\nVERDICT: APPROVED is not warranted here.\n", "UNPARSED"),
+    ("approved on a condition, no second verdict word",
+     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added.\n", "UNPARSED"),
+    # A contrary verdict in a form that cannot decide still vetoes.
+    ("U7 rejected in a table cell",
+     "<details>\n\nVERDICT: APPROVED\n\n</details>\n\n| Verdict | REJECTED |\n|---|---|\n", "UNPARSED"),
+    ("U11 rejected spelt with a Cyrillic E", "### Round-1 fixes\nApproved\n\nV\u0415RDICT: REJECTED\n", "UNPARSED"),
+    ("U11 beside a labelled approval", "OVERALL VERDICT: APPROVED\n\nV\u0415RDICT: REJECTED\n", "UNPARSED"),
+    ("U12 rejected with a zero-width space", "### Round-1 fixes\nApproved\n\nVER\u200bDICT: REJECTED\n", "UNPARSED"),
+    ("U12 beside a labelled approval", "OVERALL VERDICT: APPROVED\n\nVER\u200bDICT: REJECTED\n", "UNPARSED"),
+    ("rejected after an emoji", "OVERALL VERDICT: APPROVED\n\n**Verdict:** \u274c REJECTED\n", "UNPARSED"),
+    ("a line that names the verdict and negates it", "OVERALL VERDICT: APPROVED\n\nVerdict: not APPROVED\n",
+     "UNPARSED"),
+    ("approved, then a bare no", "Findings.\n\nOVERALL VERDICT: APPROVED - no.\n", "UNPARSED"),
+    ("approved with no blockers still parses", "Findings.\n\nOVERALL VERDICT: APPROVED - no blockers\n",
+     "APPROVED"),
+    # Replayed over 80 stored reviews: when any verdict word on a line holding "verdict" vetoed, a
+    # real CONDITIONAL went UNPARSED on prose like this. Named means at most two words apart.
+    ("prose with the word verdict far from a verdict word does not veto",
+     "Findings.\n\nThe registered verdict is CONFOUND_SUSPECTED, so the null arm was not rejected.\n\n"
+     "OVERALL VERDICT: CONDITIONAL\n", "CONDITIONAL"),
+    # Code, as CommonMark reads it.
+    ("L1 fence opened on a list-marker line", _LIST_FENCES, "UNPARSED"),
+    ("L2 the same, then an emoji rejection", _LIST_FENCES + "**Verdict:** \u274c REJECTED\n", "UNPARSED"),
+    ("L3 list item that holds indented code",
+     "Fixture lines quoted:\n\n-     VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
+    ("L4 spaced thematic break, then indented code",
+     "Fixture:\n\n- - -\n\n    VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
+    # Read as three nested list markers, "- - -" puts the item content at column 6, so six spaces
+    # are text; after a thematic break they are code. L4 alone did not tell the two apart.
+    ("thematic break, then six spaces of code",
+     "Fixture:\n\n- - -\n      VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
+    ("L5 pre block", "Fixture:\n\n<pre>\nVERDICT: APPROVED\n</pre>\n\nThe design never sets a seed and\n",
+     "UNPARSED"),
+    ("an HTML comment hides a verdict from a reader",
+     "Fixture:\n\n<!--\nVERDICT: APPROVED\n-->\n\nThe seed is never set.\n", "UNPARSED"),
+    ("L6 U+2028 does not end a line",
+     "```\na\u2028```\nVERDICT: APPROVED\nb\u2028```\n```\n\nThe seed is never set and\n", "UNPARSED"),
+    ("NEL does not end a line", "```\na\x85```\nVERDICT: APPROVED\nb\x85```\n```\n\nThe seed is never set\n",
+     "UNPARSED"),
+    ("form feed does not end a line",
+     "```\na\x0c```\nVERDICT: APPROVED\nb\x0c```\n```\n\nThe seed is never set\n", "UNPARSED"),
+    # Mutants the round-3 cases let live: each passed only through the unclosed-fence rule.
+    ("tilde fence holding a whole backtick fence", "Thinking.\n~~~\n```\nVERDICT: APPROVED\n```\n~~~\n",
+     "UNPARSED"),
+    ("long fence holding a whole shorter one", "Thinking.\n````\n```\nVERDICT: APPROVED\n```\n````\n",
+     "UNPARSED"),
+    ("after a list ends four spaces are code again", "- note\n\nThinking.\n\n    VERDICT: APPROVED\n",
+     "UNPARSED"),
+    ("a tab is code", "Thinking.\n\n\tVERDICT: APPROVED\n", "UNPARSED"),
+    # Still parse.
+    ("a list before the verdict", "Findings.\n\n- one\n- two\n\nOVERALL VERDICT: APPROVED\n", "APPROVED"),
+    ("a thematic break before the verdict", "Findings.\n\n- - -\n\nOVERALL VERDICT: CONDITIONAL\n",
+     "CONDITIONAL"),
+    ("the contract echoed, then the verdict",
+     'I must end with "OVERALL VERDICT: APPROVED" or "...: CONDITIONAL" or "...: REJECTED".\n\n'
+     "Findings.\n\nOVERALL VERDICT: REJECTED\n", "REJECTED"),
+    ("a reason after a rejection", "Findings.\n\nOVERALL VERDICT: REJECTED - the seed is not set\n", "REJECTED"),
+    ("a reason after a condition", "Findings.\n\nOVERALL VERDICT: CONDITIONAL - add a null arm\n",
+     "CONDITIONAL"),
+    ("a closed pre block before the verdict", "<pre>\nprint(1)\n</pre>\n\nOVERALL VERDICT: APPROVED\n",
+     "APPROVED"),
+    ("a closed fence in a list item, then the verdict",
+     "- fixture:\n  ```\n  x = 1\n  ```\n\nOVERALL VERDICT: APPROVED\n", "APPROVED"),
+)
+FENCE_CASES += ROUND4_CASES
+
 
 class FencesRound3(Base):
     """Round 3: the toggle bypass, in agni_phases.py. FENCE_CASES runs on the design harness too."""
@@ -1292,10 +1396,14 @@ class DesignInputs(Base):
 
     # ---- round 3
 
-    def design(self, raw, run=None, record="v1", script_text="x = 1"):
+    def design(self, raw, run=None, record="v1", script_text="x = 1", env=None):
         """Run the harness on prereg text written as given (bytes or str), with subprocess.run
         replaced by run, or by a model that answers APPROVED. A crash is kept, not raised: a
-        traceback leaves whatever record was there."""
+        traceback leaves whatever record was there.
+
+        A text read that names no encoding gets cp1252, as on Windows without UTF-8 mode (round 4).
+        Under the documented `python -X utf8` the default is UTF-8, so a harness that dropped its
+        explicit UTF-8 read passed every test here."""
         pr = self.put("prereg.json", raw)
         script = self.put("run.py", script_text)
         res = SimpleNamespace(calls=[], code=None, verdict=None, stderr="", crash=None)
@@ -1305,10 +1413,23 @@ class DesignInputs(Base):
             return SimpleNamespace(returncode=0, stderr="",
                                    stdout=json.dumps({"response": "OVERALL VERDICT: APPROVED"}))
 
+        real_read_text, real_open = Path.read_text, builtins.open
+
+        def platform_read_text(path, encoding=None, errors=None):
+            return real_read_text(path, encoding=encoding or "cp1252", errors=errors)
+
+        def platform_open(file, mode="r", *args, **kw):
+            if "b" not in mode and not args and kw.get("encoding") is None:
+                kw["encoding"] = "cp1252"
+            return real_open(file, mode, *args, **kw)
+
         clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
+        clean.update(env or {})
         stderr = io.StringIO()
         with mock.patch.dict(os.environ, clean, clear=True), \
                 mock.patch.object(self.mod.subprocess, "run", run or approve), \
+                mock.patch.object(Path, "read_text", platform_read_text), \
+                mock.patch.object(builtins, "open", platform_open), \
                 contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
             try:
                 res.verdict = self.mod.run_review(script, pr)
@@ -1359,10 +1480,12 @@ class DesignInputs(Base):
                 self.assertInvalidOverStale(res, record)
 
     def test_a_missing_or_unreadable_prereg_writes_invalid(self):
-        self.stale(self.tmp / "run_agni_review.json")
         script = self.put("run.py", "x = 1")
         for name, prereg in (("missing", self.tmp / "nope.json"), ("a folder", self.tmp)):
             with self.subTest(name):
+                # Round 4: staled once before the loop, "a folder" found the INVALID that "missing"
+                # wrote, so a harness that wrote nothing for a folder still passed.
+                self.stale(self.tmp / "run_agni_review.json")
                 stderr = io.StringIO()
                 res = SimpleNamespace(code=None, crash=None)
                 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
@@ -1420,6 +1543,58 @@ class DesignInputs(Base):
                                  "the failure's own write, not the placeholder")
         res = self.design(prereg, run=curl_fails)
         self.assertIn("CANARY_CURL", res.record["invalid_reason"])
+
+    # ---- round 4
+
+    def test_a_prereg_nested_too_deep_writes_invalid(self):
+        # json raises RecursionError, not ValueError: a traceback, exit 1, the old APPROVED stood.
+        self.stale(self.tmp / "v1_agni_review.json")
+        res = self.design('{"experiment": "v1", "hypotheses": ["h"], "falsification": '
+                          + "[" * 5000 + "]" * 5000 + ', "threats_to_validity": ["t"]}')
+        self.assertEqual(res.calls, [])
+        self.assertInvalidOverStale(res)
+
+    def test_a_bad_budget_or_num_ctx_value_writes_invalid_before_any_call(self):
+        # int("60k") raised before the placeholder (old APPROVED stood) and int("32k") after it,
+        # both as a traceback, exit 1.
+        prereg = '{"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}'
+        for env in ({"AGNI_LOCAL_CHAR_BUDGET": "60k"}, {"LLM_NUM_CTX": "32k"}):
+            with self.subTest(env=env):
+                self.stale(self.tmp / "v1_agni_review.json")
+                res = self.design(prereg, env=env)
+                self.assertEqual(res.calls, [])
+                self.assertEqual(res.code, 2)
+                self.assertInvalidOverStale(res)
+
+    def test_other_prereg_keys_count_against_the_local_budget(self):
+        prereg = json.dumps({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"],
+                             "analysis_plan": "CANARY_PLAN " + "y" * 6000})
+        full = self.design(prereg, env={"AGNI_LOCAL_CHAR_BUDGET": "1000000"})
+        self.assertIn("CANARY_PLAN", full.calls[0]["prompt"])
+        n = len(full.calls[0]["prompt"])
+        self.assertEqual(len(self.design(prereg, env={"AGNI_LOCAL_CHAR_BUDGET": str(n)}).calls), 1)
+        self.stale(self.tmp / "v1_agni_review.json")
+        res = self.design(prereg, env={"AGNI_LOCAL_CHAR_BUDGET": str(n - 1)})
+        self.assertEqual(res.calls, [], "one char over budget, counting the other keys, must not call")
+        self.assertInvalidOverStale(res)
+
+    def test_a_verdict_only_in_the_thinking_is_not_a_pass(self):
+        # B1 read `thinking` when `response` was empty. A model that ran out of tokens mid-thought,
+        # having drafted the contract line, recorded APPROVED and exited 0.
+        prereg = '{"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}'
+        for thinking in ("The contract wants a last line like\nVERDICT: APPROVED\nbut wait, the seed is never "
+                         "set (M2) and there is no null arm. I should reject this, but first let me check",
+                         "Checked M1-M5.\n\nOVERALL VERDICT: CONDITIONAL"):
+            with self.subTest(thinking=thinking[:30]):
+                def only_thinking(cmd, **kw):
+                    return SimpleNamespace(returncode=0, stderr="", stdout=json.dumps(
+                        {"response": "", "thinking": thinking, "done_reason": "length"}))
+
+                self.stale(self.tmp / "v1_agni_review.json")
+                res = self.design(prereg, run=only_thinking)
+                self.assertIsNone(res.crash)
+                self.assertNotIn(res.verdict, ("APPROVED", "CONDITIONAL"))
+                self.assertNotIn((res.record or {}).get("verdict"), ("APPROVED", "CONDITIONAL", None))
 
 
 class PinnedMutants(Base):

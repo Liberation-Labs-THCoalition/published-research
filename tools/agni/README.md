@@ -66,6 +66,20 @@ recorded the cut.
   decides. Any verdict line in code that disagrees, a fence that never closes, or verdict lines only
   in code give `UNPARSED`, exit 2. Replayed over 144 stored records (85 distinct reviews, 30 with a
   fence): no parse changed, under either harness's parser.
+- **Round 4: a verdict line is read whole** (both harnesses). The decision regex anchored only the
+  start of a line, so "VERDICT: APPROVED is not warranted here; this design must be REJECTED"
+  passed, exit 0, and a `REJECTED` in a table cell, after an emoji, or spelt with a Cyrillic E or a
+  zero-width space could not veto. Now every line that names a verdict vetoes with each verdict word
+  on it; a pass verdict followed by a negation, a contrast, a question or an arrow, or an `APPROVED`
+  followed by a condition, is `UNPARSED`; the contract read back is ignored. Code follows CommonMark
+  further: a list marker is consumed before its line is read ("- ```" opens a fence, "-     x" is
+  indented code), "- - -" is a thematic break, HTML blocks such as `<pre>` and comments are code,
+  and lines end only at LF, CR or CRLF. The cost, taken on purpose: a pass qualified that way, or a
+  review whose prose names a different verdict within two words of "verdict", is `UNPARSED`, exit 2.
+  The design harness no longer passes on a verdict read only from the model's `thinking`, refuses
+  a non-integer `AGNI_LOCAL_CHAR_BUDGET` or `LLM_NUM_CTX` as `INVALID` before any call, and both
+  harnesses refuse a prereg nested too deep for `json` as `INVALID` (each was a traceback, exit 1,
+  beside the older record). A folder link into a junk folder now makes the input not complete.
 - **Round 3: the design harness leaves no stale record.** A prereg that is missing, unreadable, not
   UTF-8, not JSON, not an object or has a duplicate key, a script that is not UTF-8, and a curl or
   backend failure each write `INVALID` with its cause over any older record and exit non-zero. Files
@@ -97,11 +111,15 @@ read; weigh them accordingly.
 - File classification is unchanged: a text file saved as UTF-16 or cp1252 is still read as binary
   and not shown. It now makes the run not a pass, but the reviewer still does not see it. Save such
   files as UTF-8.
-- The CommonMark reading of code is partial: block quotes and HTML blocks are not tracked, a list is
-  known only by its marker, and an inline code span on a verdict line counts as markup, not code.
-  Where it knowingly differs from CommonMark it keeps more lines in code. A misreading cannot let a
-  quoted verdict outvote a different real one, since any disagreeing line gives `UNPARSED`; it could
-  let a verdict that is only quoted, with no other verdict line, count as the reviewer's.
+- The CommonMark reading of code is partial: block quotes are not tracked, a list is known only by
+  its marker and indent, any line that starts with a tag starts an HTML block, and an inline code
+  span on a verdict line counts as markup, not code. Where it knowingly differs from CommonMark it
+  keeps more lines in code. A misreading cannot let a quoted verdict outvote a different real one,
+  since any line that names a different verdict gives `UNPARSED`; it could let a verdict that is
+  only quoted, with no other verdict line, count as the reviewer's.
+- A contrary verdict more than two words after "verdict", or on a line without that word that is
+  more than the bare word ("| Overall | REJECTED |", "Decision: REJECTED"), still cannot veto,
+  and lookalike letters are folded for Cyrillic and Greek only.
 - A prereg the design harness cannot parse cannot name its experiment. `INVALID` goes at the
   script-named path and at any `"experiment"` value still readable in the text; an older record at
   some other path is not reached.
