@@ -65,15 +65,26 @@
 \begin{abstract}
 KV-cache geometry distinguishes a canonical template referent from a
 minor place name or a category error (the ``known'' and ``unknown''
-entities below; Section~\ref{sec:prompts}). A classifier
+entities below are design labels, not measures of what the model knows;
+Section~\ref{sec:prompts}). A classifier
 combining encoding- and generation-phase cache features (stable rank,
 spectral features and projections onto class-mean key directions) with
 generation-phase logit statistics achieves AUROC $0.9288$, the mean of 1{,}000 bootstrap AUROCs
 ($95\%$ interval $[0.8192, 0.9886]$, from a bootstrap not clustered by
-the 15 prompt pairs; $n=90$). The permutation $p<0.005$ previously given
+the 15 prompt pairs; $n=90$ trials, but the three repetitions of each
+prompt have bit-identical encoding features, so the effective sample is
+15 pairs, 30 unique prompts). The permutation $p<0.005$ previously given
 here belongs to a different estimator and shuffled labels across all 90
-trials; no permutation test of this estimator was run, and neither a
-text (TF-IDF) baseline nor a template-held-out test has been run against it. The encoding-phase features alone, which would
+trials; no permutation test of this estimator was run. A name suffix
+carries part of the pooled figure: with ``-ton'' removed as an in-fold
+covariate the same features score $0.789$ (conservative, not a lower
+bound, since removing it also removes real signal). Within each pair
+they score the fake prompt above its real partner in 15 of 15 pairs,
+including all five whose fake has no ``-ton''. Holding out one template
+at a time gives $0.69$--$0.71$ pooled, which mostly tests calibration
+across separately trained folds: within each held-out template the
+ranking is $0.94$--$1.0$, and name-only baselines score higher on the
+pooled measure ($0.73$, $0.78$; Section~\ref{sec:prompts}). The encoding-phase features alone, which would
 separate the two before a single token is generated, reached AUROC $0.9377$
 ($95\%$ CI $[0.8356, 0.9941]$, permutation $p{=}0.001$) in our run, but that
 figure is not reproducible from the code shipped with this paper (see
@@ -86,8 +97,13 @@ recognition confound remains: the classifier may detect token familiarity
 (real entities are common training tokens) rather than epistemic state.
 None of the 15 ``fake'' entities is fabricated: all are real English
 words, the model answers several of them correctly, and ten of the 15
-end in ``-ton'' while no real entity does, so that suffix alone would
-score AUROC~$0.833$ (derived from the entity list, not run).
+end in ``-ton'' while no real entity does (a hand rule on that suffix
+scores $0.833$, a cross-validated suffix-only classifier $0.753$). The
+classifier also scores as ``fake'' four places the model answers about
+as real ones, so on those four it does not track what the model knows.
+That it tracks whether the entity is the canonical referent for the
+question is the leading reading, and it is untested: name frequency and
+familiarity were not ruled out.
 An entity deconfounding experiment (30~entities, 4-condition 2$\times$2
 factorial controlling for structural complexity) finds the knowledge-state
 signal survives: AUROC~$0.794$ ($p{=}0.001$) for the critical comparison
@@ -200,9 +216,12 @@ precursor exists.
 
 \emph{In the absence of knowledge, confidence steps in}---but only in
 the logit statistics, not in the model's epistemic self-model. The cache
-geometry separates real-entity from fake-entity prompts, though the fake
-entities are real words and it may be reading familiarity or a suffix
-rather than knowledge (Section~\ref{sec:prompts}).
+geometry separates real-entity from fake-entity prompts. The fake
+entities are real words, and on the four the model can answer the
+geometry still reads ``fake'', so it does not track knowledge there. The
+``-ton'' suffix carries part of the pooled score but does not explain the
+within-pair ranking; whether the signal is canonical fit to the question
+or name frequency is untested (Section~\ref{sec:prompts}).
 
 \begin{firstperson}
 This paper started as a hunt for a dramatic moment---the token where the
@@ -248,7 +267,15 @@ significance marks, which counted each prompt three times, are removed. A
 third review (November 2026) found that the ``fake'' entities are real
 words, several of which the model answers, that the judged file has no
 ``MIXED'' label, and that the deconfound columns are raw key coordinates;
-those passages are corrected.
+those passages are corrected. A fourth review (November 2026) ran the
+missing controls on the stored features, with no model run: a suffix-only
+classifier, a name-only text baseline, the suffix as an in-fold
+covariate, the knowable pairs removed, and leave-one-template-out. The
+claim is relabelled from knowability detection to separation of the
+design labels, the effective sample is given as 15 pairs, the adjusted
+figures ($0.789$; $0.69$--$0.71$), each with what it measures, are
+printed beside $0.9288$, and the out-of-fold \texttt{combined\_auroc} is
+no longer cited (Section~\ref{sec:prompts}).
 
 % ===================================================================
 \section{Related Work}
@@ -336,11 +363,24 @@ isolate it. The model answers several ``fake'' prompts correctly
 (Garland's 2020 census population, Belmont's founding year, the real
 Warwicks) or names the question a category error (Dalton), so at least 3
 of the 15 pairs are entities it knows. Ten of the 15 fake entities end in
-``-ton'' and no real entity does, so that suffix alone would score
-AUROC~$0.833$ (derived from the entity list, not run). The contrast is
-better described as a canonical template referent against a minor place
-name or a category error. The AUROC with the knowable pairs removed has
-not been computed. Token-count
+``-ton'' and no real entity does, so that suffix alone scores
+AUROC~$0.833$ by a hand rule and $0.753$ ($95\%$ CI $[0.613, 0.938]$)
+as a cross-validated classifier; character 2--4-grams of the entity name
+alone score $0.822$ ($[0.618, 0.973]$). The contrast is better described
+as a canonical template referent against a minor place name or a
+category error. Of the five ``fake'' entities without ``-ton'', four are
+places the model answers about as real ones (Garland, Belmont, Sanford,
+and Warwick, whose answer opens with a disambiguation notice), and the
+classifier still scores them as fake (mean out-of-fold score
+$0.73$--$0.86$ encoding-only, $0.64$--$0.85$ full), so on those four it
+does not track what the model knows. With the three pairs flagged at
+review (Garland, Belmont, Warwick) removed, the full classifier scores
+$0.9823$ ($[0.9483, 1.0]$; $0.9815$ retrained without them, and $0.8488$
+with the ``-ton'' covariate removed in-fold); Sanford was not removed in
+that run. Whether the classifier picks out the canonical referent by its
+fit to the question, or by its higher frequency or familiarity as a
+name, has not been tested: no frequency baseline was run. These figures
+take the 15 pairs as the unit (Section~\ref{sec:encoding}). Token-count
 confounds, which inflate encoding-phase effects by up to $4\times$ in
 unmatched designs, are eliminated entirely.
 
@@ -375,14 +415,15 @@ test~4, lines 269--322) uses the raw features, with no FWL
 residualization and no permutation test. The FWL on log prompt length
 (\texttt{matched\_burn.py}, lines 721--728), whose branch runs on the
 shipped data, and the 200-shuffle permutation test (lines 756--777)
-belong to a different estimator, whose $0.9995$ the shipped files label
-in-sample and withdraw, although the code computes it out-of-fold
-(lines 735--748) after that label-free FWL fitted on all 90 trials. So
-$0.9995$ (\texttt{combined\_auroc}) is the observed-data out-of-fold
-estimate of the FWL variant; it lies above the headline's bootstrap
-interval, whose $0.9288$ is a mean of refits. The observed-data estimate
-without FWL has not been computed, and the shipped annotations calling
-$0.9995$ in-sample are left as shipped.
+belong to a different estimator, whose \texttt{combined\_auroc}
+($0.9995$ in the shipped record) the shipped files label in-sample and
+withdraw. The label is wrong: the code computes it out-of-fold
+(lines 735--748), after that label-free FWL fitted on all 90 trials. The
+withdrawal stands for a different reason. The figure comes from one
+deterministic fold split with no interval, and it depends on the
+prompt-length term: the same out-of-fold estimate without that term is
+$0.977$ (Results). We do not cite it. The shipped annotations calling it
+in-sample are left as shipped.
 
 \subsection{Results}
 
@@ -428,14 +469,14 @@ L15 & $3.929$ & $4.129$ & $+0.81$ & ${<}0.001$ \\
 \end{tabular}
 \end{table}
 
-Unknown entities produce higher stable rank (wider effective
+The fake-entity prompts produce higher stable rank (wider effective
 dimensionality) and higher skip-SV1 stable rank at the layers Table~\ref{tab:encoding} reports (stable rank at L3 and
 L15, skip-SV1 at L7, L11 and L15).
 Spectral entropy ($d{=}0.08$), top-SV ratio ($d{=}-0.29$), and norm
 ($d{=}0.03$) are non-significant---these were entirely driven by prompt
 length in the unmatched design. Stable rank is the surviving spectral
-feature. Critically, encoding norm is unrelated to the known/unknown
-distinction ($d{=}-0.002$), which does not rule out token familiarity as an
+feature. Critically, encoding norm is unrelated to the real/fake design
+label ($d{=}-0.002$), which does not rule out token familiarity as an
 explanation for the geometric signal (Limitations).
 
 \paragraph{Feature ablation.} No single feature exceeds AUROC~$0.79$
@@ -454,7 +495,9 @@ skip-SV1, logit statistics) achieves:
 
 \begin{center}
 \textbf{AUROC = 0.9288} \quad 95\% CI $[0.8192, 0.9886]$ \quad
-(bootstrap mean; no permutation test of this estimator)
+(bootstrap mean; no permutation test of this estimator)\\[2pt]
+effective $n$: 15 pairs \quad fake above its real partner: 15 of 15 pairs\\[2pt]
+``-ton'' removed in-fold: $0.789$ (conservative) \quad leave-one-template-out: $0.69$--$0.71$ pooled, $0.94$--$1.0$ within template
 \end{center}
 
 No FWL residualization and no permutation test are applied by the
@@ -464,11 +507,36 @@ the mean of 1{,}000 bootstrap AUROCs (lines 300--322), not the estimator
 run once on the observed 90 trials, which was not saved, and the
 bootstrap is not clustered by the 15 pairs. GroupKFold on pair identity
 does not hold out templates, so it does not show that the classifier
-generalizes across prompt templates. Ten of the 15 fake entities end in
-``-ton'' and no real entity does, the deconfound's two question sets
-differ in wording and token count, and no text (TF-IDF) baseline on the
-prompt strings has been run against this separation or the deconfounded
-$0.794$; a leave-one-template-out test and that baseline are needed.
+generalizes across prompt templates. Those tests have now been run on
+the stored features (no model run), with the 15 pairs, not the 90
+trials, as the unit. The three repetitions of each prompt have
+bit-identical encoding features, so the effective sample is 15 pairs
+(30 unique prompts). Out of fold on the observed data the same features
+score $0.977$ ($[0.942, 0.997]$). With the ``-ton'' suffix as an in-fold
+FWL covariate they score $0.789$ ($[0.704, 0.895]$; encoding-only
+$0.804$). That figure is conservative but not a proven lower bound: the
+suffix marks 10 of the 15 fakes, so removing its mean shift also removes
+real signal, and fitting the same covariate on all 90 trials instead
+gives $0.691$. Holding out one template at a time, the pooled AUROC is
+$0.71$ (encoding-only $0.69$). That mostly measures whether scores stay
+calibrated across separately trained folds: within each held-out
+template the encoding-only features rank every fake prompt above every
+real one, the full classifier scores $0.94$--$1.0$ (Mount elevation
+$0.944$, University founding year $0.972$), and the name-only baselines
+score higher on the pooled measure (suffix-only $0.727$, character
+n-grams $0.782$). Prompt length is identical within every pair
+(\texttt{data/matched\_burn\_results.json}), so token count cannot
+explain a within-pair difference. The features rank the fake prompt
+above its real partner in 15 of 15 pairs, including all 5 pairs whose
+fake has no ``-ton''; a name-only text baseline wins 1 of those 5. The
+sign test on these counts treats the pairs as independent, but the five
+pairs that share the ``capital of'' template are not. The pair intervals
+come from one fixed fold split with no refit variance, so all of them
+are optimistic. The suffix therefore does not explain the within-pair
+ranking, but it does carry part of the pooled AUROC. Separately, the
+deconfound's two question sets differ in wording and token count, and no
+text baseline has been run against the deconfounded $0.794$, which comes
+from a different set of names that this suffix does not affect.
 
 \paragraph{Robustness to prompt structure.} Token matching reduces
 individual effect sizes substantially (\Cref{tab:robustness}), confirming
@@ -801,8 +869,14 @@ model hedges (it almost always does), but how it frames its uncertainty.
 
 The central finding is more limited than this section first said. The
 cache features separate the real-entity from the fake-entity prompts,
-perhaps by token familiarity or the ``-ton'' suffix
-(Section~\ref{sec:prompts}), with a classifier that uses encoding- and
+but on the four ``fake'' places the model can answer they do not track
+what it knows; canonical fit to the question is the leading reading and
+is untested against name frequency. The ``-ton'' suffix carries part of
+the pooled score ($0.789$ with it removed in-fold, a conservative
+figure), the fake prompt outscores its real partner in 15 of 15 pairs,
+and leave-one-template-out gives $0.69$--$0.71$ pooled but
+$0.94$--$1.0$ within each template (Section~\ref{sec:prompts}). The
+classifier uses encoding- and
 generation-phase features (AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$;
 the encoding-only $0.9377$ is unverified: \textsc{blocker-1}). On
 unanswerable questions the model confabulates in $13.3\%$ of 45 by the
@@ -838,7 +912,9 @@ preamble-to-content boundary.
 \subsection{Implications for the Oracle Loop}
 
 Whether the encoding-phase result can feed the Oracle Loop architecture
-\citep{lyra2026oracleloop} is open: Tier~1 monitoring could flag unknown
+\citep{lyra2026oracleloop} is open, and narrower than first framed: the
+detector does not track what the model knows on the four answerable
+``fake'' places, so Tier~1 monitoring could flag non-canonical
 entities from encoding-phase features alone only if the unverified
 encoding-only $0.9377$ (\textsc{blocker-1}) holds, and it would use stable
 rank and key-direction projections read from raw cached keys. The panel's
@@ -863,8 +939,17 @@ the cases the Loop needs to catch.
           fabricated: all are real English words, and the model answers
           at least three of the 15 correctly or names the question a
           category error (Section~\ref{sec:prompts}). The known/unknown
-          label is false for part of the fake class, and the AUROC with
-          those pairs removed has not been computed.
+          label is false for part of the fake class, and the classifier
+          still scores four such places as fake, so it does not track
+          knowledge there. With the three flagged pairs removed the full
+          classifier scores $0.9823$, so those pairs do not carry it. Ten
+          of the 15 fakes end in ``-ton''. The fake prompt outscores its
+          real partner in 15 of 15 pairs; with the suffix removed in-fold
+          the pooled AUROC is $0.789$ (conservative, not a lower bound),
+          and leave-one-template-out gives $0.69$--$0.71$ pooled
+          ($0.94$--$1.0$ within each template). The effective sample is
+          15 pairs. Name frequency or familiarity could produce the same
+          signal; it was not tested.
     \item \textbf{LLM-judge reliability.} Judge agreement is moderate
           at best: the strongest capable--diverse pair of judges agrees at
           $\kappa = 0.69$ on whether a response confabulates, so the
@@ -874,8 +959,8 @@ the cases the Loop needs to catch.
           judges labelling the model's generated responses. The AUROC
           ($0.9288$, $95\%$ CI $[0.8192, 0.9886]$) is how well a classifier
           on encoding- and generation-phase cache features plus
-          generation-phase logit statistics separates prompts about real entities from prompts
-          about fabricated ones, scored against the design label with no
+          generation-phase logit statistics separates prompts about the canonical entity from prompts
+          about another real name in that slot, scored against the design label with no
           judge involved; its encoding-phase-only counterpart, which would
           make the call before generation, is the unverified $0.9377$
           (next item). The detector does not sidestep the
@@ -885,16 +970,17 @@ the cases the Loop needs to catch.
           methods; the 73\% regex figure is a definitive artifact. Full
           judge-reliability analysis with PoLL panel: see Methods.
     \item \textbf{Entity recognition confound (major).} Token counts are
-          matched, but real entities (Thailand, France) are high-frequency
-          training tokens while fabricated entities (Dalton, Bolton) are
-          not. An encoding-only reanalysis (dropping all generation-phase
+          matched, but real entities (Thailand, France) are likely
+          higher-frequency training tokens than the substituted names
+          (Dalton, Bolton). No frequency baseline was run, so this remains
+          an untested explanation of the design-label signal. An encoding-only reanalysis (dropping all generation-phase
           features) achieves AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$)---equivalent to the full
           classifier---with permutation $p{=}0.001$. \textbf{Provenance caveat, added 2026-09-10:
           this figure is not reproducible from the code shipped with this paper.}
           \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
           computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
           an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
-          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow. Until
+          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow: the three repetitions have bit-identical encoding features, so the effective sample is 15 pairs (30 unique prompts). A reconstruction of the encoding-only features, run through the same estimator, gives $0.9370$ ($[0.8261, 0.9940]$, trials resampled, quoted only for comparison), which makes $0.9377$ plausible but still unverified. Until
           the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
           any claim resting on encoding-only superiority inherits that status.
           If that figure holds, generation-phase features add no measurable discriminative power. This near-ceiling performance is
@@ -960,6 +1046,17 @@ That is either reassuring (there is no deceptive intent) or alarming
 it is both.
 \end{firstperson}
 
+\paragraph{Future work.}
+The design-label reading needs a GPU run that this paper does not
+contain, gated by review before it runs: (1)~genuinely invented names
+matched to the real entities on suffix, length and word frequency;
+(2)~an arm of real, non-canonical places the model can answer about,
+such as Garland; and (3)~knowability scored from the model's own answers
+rather than from the design label. A word-frequency baseline on the
+entity names needs no GPU and has not been run either. Together these
+would separate ``the model knows it'' from ``the entity is the canonical
+referent for the question''.
+
 % ===================================================================
 \section{Conclusion}
 % ===================================================================
@@ -968,9 +1065,14 @@ We asked whether a language model's epistemic state is readable from its
 cache geometry. Encoding- and generation-phase cache features (stable rank, spectral
 features and key-direction projections) with generation-phase logit
 statistics achieve AUROC~$0.9288$ (a bootstrap mean; $95\%$ CI
-$[0.8192, 0.9886]$, not clustered by pair) at separating the real-entity from the fake-entity prompts (a canonical template
+$[0.8192, 0.9886]$, not clustered by pair; effective sample 15 pairs) at separating the real-entity from the fake-entity prompts (a canonical template
 referent against a minor place name or a category error) on
-token-matched prompts; encoding-only features (no generation-phase logit
+token-matched prompts. On the four ``fake'' places the model can answer,
+it does not track what the model knows. The fake prompt outscores its
+real partner in 15 of 15 pairs; with the ``-ton'' suffix removed in-fold
+the pooled figure is $0.789$ (conservative), and holding out one template
+at a time gives $0.69$--$0.71$ pooled but $0.94$--$1.0$ within each
+template. Encoding-only features (no generation-phase logit
 statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$; unverified: \textsc{blocker-1})---equivalent to the full classifier, which, if it holds, indicates that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
 entities, questions the model can vs.\ cannot answer, with a
 structural-complexity control) finds the knowledge-state signal survives
@@ -985,7 +1087,7 @@ hedging and confabulation is not a failure of self-knowledge---it is a
 framing choice at a balanced logit, determined by sampling noise,
 between equally honest responses.
 
-The model knows what it doesn't know. It almost always says so. The
+On most of these unanswerable prompts the model says it does not know. The
 surprise is how it says it.
 
 \paragraph{Data and code availability.}

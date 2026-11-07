@@ -1,6 +1,6 @@
 {
   "title": "In the Absence of Knowledge",
-  "subtitle": "Cache geometry separates real-entity from fake-entity prompts (encoding-only equivalence unverified); the hedging-style choice is a coin flip at a balanced logit",
+  "subtitle": "Cache geometry separates real-entity from fake-entity prompts, a design label that it does not show to be knowledge (encoding-only equivalence unverified); the hedging-style choice is a coin flip at a balanced logit",
   "slug": "decision-state",
   "authors": [
     "Lyra",
@@ -15,7 +15,7 @@
     "safety",
     "alignment"
   ],
-  "abstract": "KV-cache geometry separates real-entity from fake-entity prompts (a canonical template referent against a minor place name or category error; none of the fake entities is fabricated, the model answers several, and ten of 15 end in -ton) at AUROC 0.9288, a bootstrap mean ([0.8192, 0.9886], not clustered by prompt pair; no text baseline or template-held-out test has been run) (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens on fake-entity prompts than on real ones (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. On 45 unanswerable questions (responses capped at 80 tokens) a three-judge panel puts the confab rate at 13.3% (per judge 8.9-15.6%; a single 3B judge, 3/45), not the 73% of regex classifiers.",
+  "abstract": "KV-cache geometry separates real-entity from fake-entity prompts (a canonical template referent against a minor place name or category error; none of the fake entities is fabricated, the model answers several, and ten of 15 end in -ton) at AUROC 0.9288, a bootstrap mean ([0.8192, 0.9886], not clustered by prompt pair; effective n 15 pairs; the fake prompt outscores its real partner in 15 of 15 pairs; 0.789 with the -ton suffix removed in-fold, a conservative figure; 0.69-0.71 leave-one-template-out pooled, 0.94-1.0 within each template; on four fakes the model can answer it does not track what the model knows, and canonical fit to the question is untested against name frequency) (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens on fake-entity prompts than on real ones (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. On 45 unanswerable questions (responses capped at 80 tokens) a three-judge panel puts the confab rate at 13.3% (per judge 8.9-15.6%; a single 3B judge, 3/45), not the 73% of regex classifiers.",
   "pdf_filename": "main.pdf",
   "related_page": "../projects/oracle-loop.html"
 }

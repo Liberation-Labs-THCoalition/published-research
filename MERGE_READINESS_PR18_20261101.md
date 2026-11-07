@@ -1,4 +1,118 @@
 # PR #18 merge readiness (SOP gate re-run), 2026-11-01 17:02 PST
+
+## Round of 2026-11-07: master merged in; decision-state suffix patch applied (both editions)
+
+Starting head `0bf4389`. This round made two commits: the merge `b6d8691` and the patch commit that adds this
+section. Nothing was pushed. The PR stays a DRAFT. No Agni round has seen this patch.
+
+**This file moved.** Master already carries `MERGE_READINESS_20261101.md` as PR #17's record. The merge kept master's
+copy at that path, byte for byte, and moved this record, unchanged, to `MERGE_READINESS_PR18_20261101.md`.
+
+### Waiting items carried from the previous version of this file (reported, not resolved)
+- **Thomas's:**
+  - the identical-text re-run;
+  - the correlation and dissociation test;
+  - the observed-data AUROC;
+  - the pair bootstrap and within-pair permutation;
+  - leave-one-template-out CV and the TF-IDF baselines;
+  - the in-sample relabel in `matched_burn.py` and its JSON;
+  - the d=0.03 vs d=-0.002 norm values;
+  - the PR #19 re-check;
+  - the host-name mentions master already carries;
+  - the home path in the r1 JSON in history before `2140fb7`;
+  - paper r1 items 10 and 12d.
+- **"#17 first" is met:** #17 is on master as `bb9dfd7`, and #19 is on master as `d6416f8`.
+- **Lyra's:** Agni paper r3 ran in `5df2901` and was REJECTED with CRITICAL items. The stop rule therefore calls for
+  r4. **No independent check of `5df2901` is on record:** the section `0bf4389` added ("check at 5df2901") is a
+  verbatim copy of the `67e9c7e` check.
+- **This round prints new figures for four of Thomas's items, all from stored features on CPU:**
+  - the observed-data AUROC (0.977);
+  - pair-unit intervals;
+  - leave-one-template-out;
+  - name-only TF-IDF baselines.
+
+  Whether those figures close the items is Thomas's call. The within-pair permutation is not cited, and the
+  in-sample relabel in the code and JSON is still not done.
+
+### Merge (`b6d8691`, `origin/master` at `3971a85`; 0 behind afterwards)
+- **`MERGE_READINESS_20261101.md` (add/add):** master's copy kept, as described above.
+- **`notes/verify_2026-11-01_2_fidelity.md` (add/add):** master's copy taken. The only difference was master's
+  home-path scrub of one line (`443d836`).
+- **The two decision-state PDFs (binary):** rebuilt from the merged sources. verify_pdf with control "Edrington"
+  found master's citation change ("Thomas Edrington, and Vera") and the branch's text in both.
+- **Auto-merged:**
+  - master's Oracle Loop citation author change, `93f0645`, a credit change named in the merge subject;
+  - master's home-path scrub of the code files.
+- **Emotion-accumulation PDFs:** not rebuilt, because neither edition cites `lyra2026oracleloop`.
+
+### Patch (`corrections/decision_state_suffix_20261102`, PATCH_PROPOSAL as amended by PATCH_CRITIQUE)
+**Sources.** Every new number comes from `results.json` or `results_pairwise.json` in that folder, except one.
+"Prompt length identical within every pair" was checked here against `data/matched_burn_results.json`: 15 pairs,
+0 mismatches.
+
+**How the critique was applied:**
+1. A4, A5, A10 and A11 are applied to the academic edition too.
+2. "Unknown entities produce" and "known/unknown distinction" are relabelled in both editions.
+3. "Every fake above every real" within a held-out template is said of encoding-only only. Full is 0.94-1.0
+   (Mount elevation 0.944, University 0.972).
+4. **Summary sites:**
+   - Each one now says what 0.789 and 0.69-0.71 measure (conservative; calibration across folds; 0.94-1.0 within
+     template; name-only baselines 0.73 and 0.78 pooled).
+   - 15 of 15 within-pair is carried to the box, discussion, limitations, both conclusions and `paper.json`.
+   - "Inflated by" became "carries part of".
+5. **S4 is reported:** 0.9823 [0.9483, 1.0], 0.9815 retrained, 0.8488 with in-fold -ton FWL. Four answerable places
+   are named, but S4 dropped three, and the text says Sanford was not removed in that run.
+6. **Not cited, because no results file holds them:**
+   - "14 of 15 after in-fold suffix removal";
+   - 0.968 / 0.999 for the length-term forms.
+
+   A7 instead cites 0.9995 against 0.977 (`A3_matched_burn_fwl_promptlen_oof` against `main/full_52feat` oof).
+7. **B1, B4 and A11 are hedged:** the classifier "does not track what the model knows on the four answerable fakes;
+   canonical fit is the leading, untested reading". A1 was softened the same way.
+8. **A15 no longer repeats the 0.928 reproduction.** It adds only the effective n and the reconstructed encoding-only
+   0.9370.
+
+**Beyond the documents:** the closing line says "On most of these unanswerable prompts the model says it does not
+know", not the proposal's "almost always". "Most" matches the paper's own introduction and the panel's 13.3%.
+
+### Checks this round
+- **Build:** both editions build with latexmk, exit 0, 0 undefined references.
+- **verify_pdf both ways,** control "Edrington", plus a planted check that must fail ("zebra quantum marmalade"),
+  which failed:
+  - **New PDFs:** 9 discriminating checks pass on both.
+  - **Previous build:** all 9 fail on both.
+  - **Discriminating checks, present:** "15 of 15 pairs", "does not track what the model knows", "A fourth review
+    (November 2026)", "another real name in that slot", "On most of these unanswerable prompts", "Sanford was not
+    removed in that run".
+  - **Discriminating checks, absent:** "derived from the entity list, not run", "The model knows what it doesn",
+    "about fabricated ones".
+  - **Not counted:** two needles failed on both builds, so they were broken needles: "effective sample is 15
+    pairs", which hits a ligature or wrap, and an en-dash range. One absent check passed on both builds.
+- **Editions:** the same substantive change is in `main.tex` and `academic/main.tex`. `paper.json` was updated.
+- **Source integrity:** LF only, with no CR introduced. The double-backslash count rose by exactly 2 per edition
+  (the two `\\[2pt]` box breaks).
+
+### Not done, deliberately
+- **Title** kept. A retitle changes the Zenodo and DOI records, so it is Lyra's and Thomas's decision.
+- **Left as shipped:**
+  - C1, the "in-sample" comments in `matched_burn.py`;
+  - `matched_burn_analysis.json`.
+- **Untouched:**
+  - the 0.794 deconfound (out of scope per REPORT);
+  - the "unknown-entity" wording at the logit-margin sites (the wording is Lyra's).
+- **`verify_key_numbers.py`:** not run. It is not in this repository.
+
+### Waiting on others after this round
+- **Lyra:**
+  - Agni paper r4 on `5df2901` plus this patch;
+  - an independent check of `5df2901` and of this round;
+  - whether to ask CC first: the patch proposal reports an unsourced "CC may own this paper" note, and no message
+    was sent;
+  - a script and JSON row for the 14 of 15 in-fold-FWL within-pair figure, if it is wanted in the paper.
+- **Lyra and Thomas:** the branch's decision-state bib now cites Lyra Technique II by its v1.0 title, but master's
+  paper is v1.1, "SVD Denoising and Persona Intensity in KV-Cache Geometry". Decide which title the citation names.
+- **Thomas:** the items listed above, plus the title.
+
 ## Independent verifier (stop rule check), 2026-11-01 17:48 PST
 
 Checked at head `67e9c7e` (pushed; upstream equals HEAD; PR #18 is a DRAFT and OPEN). The verifier edited only
