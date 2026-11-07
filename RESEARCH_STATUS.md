@@ -78,7 +78,7 @@ These are from primary work in that window and supersede the corresponding claim
   carried the superseded wording "until the sync that follows PR #4's merge"; PR #4 never
   merged, and the sync came as PR #16 instead.
 - **Resolved 2026-10-12**: the body-count citation now points at a real, public document, Nexus's adversarial audit
-  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure is our own
+  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 9 falsified / 2 withdrawn figure (since 2026-11-07) is our own
   compilation; that audit is one of its sources. Register 137.
 
 See `REMEDIATION_REGISTER.md` for the full defect list sorted by cost, not severity.
@@ -158,7 +158,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 ## What We've Killed (Honestly)
 
-10 falsified findings (post-audit). The pattern: content-level claims die, metacognitive-level claims survive.
+9 falsified findings in the meta-pattern ledger (post-audit; 10 until 2026-11-07, when the MP-features-for-emotion null was withdrawn). This older list differs from the ledger by one row (it has Hybrid deception instruction where the ledger has Encoding-phase confab). The pattern: content-level claims die, metacognitive-level claims survive.
 
 | Finding | How it died | Lesson |
 |---------|------------|--------|
@@ -169,7 +169,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Same-prompt deception | 0.920 → 0.160 after residualization | Fatal input confound |
 | Bloom taxonomy | 90–98% length confound | Complexity ≠ cognition |
 | Propaganda detection | d < 0.7 | Geometry reads refusal, not lies |
-| MP features for emotion | 0.033 (chance) | MP thresholding destroys distributed signal |
+| MP features for emotion | **WITHDRAWN 2026-11-07, not falsified.** Was 0.033 (chance). The source (user-model correction, PR #17) found the SVD fallback fired on every call: rank and entropy constant across all 900 trials, MP features empty. Re-run: all 16 layers 0.112 vs 0.033 chance, perm p = 0.0002, flagged as possibly length-confounded. Open; no signal claimed | A null needs a measurement that could have found something |
 | Valence continuum | R² < 0 (null) | Cache encodes discrete identity, not smooth valence |
 | Hybrid deception instruction | d = 1.438 is instruction-following | Instructed ≠ organic |
 
@@ -247,7 +247,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 ## Body Count Summary
 
-**6 confirmed / 7 suspected / 10 falsified / 1 withdrawn** (corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
+**6 confirmed / 7 suspected / 9 falsified / 2 withdrawn** (corrected 2026-11-07: *MP features for emotion* withdrawn, its null came from an SVD fallback that left the rank and entropy features constant; the re-run leaves the question open, no signal claimed. Corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
 
 The ratio is the point. Honest falsification is how the surviving findings earn trust.
 
