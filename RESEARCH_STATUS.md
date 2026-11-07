@@ -78,7 +78,7 @@ These are from primary work in that window and supersede the corresponding claim
   carried the superseded wording "until the sync that follows PR #4's merge"; PR #4 never
   merged, and the sync came as PR #16 instead.
 - **Resolved 2026-10-12**: the body-count citation now points at a real, public document, Nexus's adversarial audit
-  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 9 falsified / 2 withdrawn figure (since 2026-11-07) is our own
+  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure is our own
   compilation; that audit is one of its sources. Register 137.
 
 See `REMEDIATION_REGISTER.md` for the full defect list sorted by cost, not severity.
@@ -247,7 +247,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 ## Body Count Summary
 
-**6 confirmed / 7 suspected / 9 falsified / 2 withdrawn** (corrected 2026-11-07: *MP features for emotion* withdrawn, its null came from an SVD fallback that left the rank and entropy features constant; the re-run leaves the question open, no signal claimed. Corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
+**6 confirmed / 7 suspected / 9 falsified / 2 withdrawn** (corrected 2026-11-07: *MP features for emotion* withdrawn, its values cannot be traced to a released results file, and the May trial file they would be recomputed from has constant rank and entropy features, from an SVD fallback; the re-run leaves the question open, no signal claimed. Corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
 
 The ratio is the point. Honest falsification is how the surviving findings earn trust.
 

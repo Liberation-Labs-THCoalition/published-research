@@ -214,10 +214,12 @@ But two classes of phenomena resisted spectral analysis: \emph{emotions} and
 \emph{persona identity}. Raw spectral probes on 30~emotions returned chance
 performance---exactly $1/30 = 0.0333$---at every layer, on both architectures
 tested. (Corrected 2026-11-07, following the source
-correction~\citep{lyra_p4}: that chance result is withdrawn. Its per-layer
-values cannot be traced to a released results file, and the trial file they
-would be recomputed from has constant rank and entropy features, from an SVD
-fallback, so it never tested spectral shape. The source's re-run leaves the
+correction~\citep{lyra_p4}: that chance result is withdrawn. For Qwen, its
+per-layer values cannot be traced to a released results file, and the trial
+file they would be recomputed from has constant rank and entropy features,
+from an SVD fallback, so that file cannot test spectral shape. For Mistral,
+the source's driver and analysis script are not released, so its values
+cannot be re-verified from the released files. The source's re-run leaves the
 spectral question open, and no signal is claimed.) Persona intensity showed moderate effects that failed to cross
 significance thresholds after proper controls. Self-reference and
 individuation showed tantalizing but inconsistent signals. The question was:
@@ -981,7 +983,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 \end{table}
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
-$^{\#}$Corrected 2026-11-07, following the source correction~\citep{lyra_p4}. This row read Dead at exactly chance. The source withdrew that null: in the trial file it rests on, the SVD fallback fired on every call, so effective rank and spectral entropy are constant across all 900 trials and every Marchenko--Pastur feature is empty, and the per-layer values cannot be traced to a released results file. The source's re-run on story re-encodings reaches 0.112 with all 16 layers together, against chance 0.033 (permutation $p = 0.0002$), but its registered rule flags that set as possibly confounded with length. The question is open, and no signal is claimed.
+$^{\#}$Corrected 2026-11-07, following the source correction~\citep{lyra_p4}. This row read Dead at exactly chance. The source withdrew that null: the per-layer values cannot be traced to a released results file, and in the trial file they would be recomputed from, the SVD fallback fired on every call, so effective rank and spectral entropy are constant across all 900 trials and every Marchenko--Pastur feature is empty. The source's re-run on story re-encodings reaches 0.112 with all 16 layers together, against chance 0.033 (permutation $p = 0.0002$), but its registered rule flags that set as possibly confounded with length. The question is open, and no signal is claimed.
 Injection was marked ``confirmed (self-consistency)''; it is now withdrawn$^{\P}$.
 $^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised, beside raw spectral cells now removed; the 30-class cell read $1.0\times$, which disagreed with the $1.7\times$ in Table~\ref{tab:emotion_methods} and the \emph{Emotion (spectral)} row. No denoising is involved, so the readout's values now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
 $^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
@@ -1420,7 +1422,10 @@ Confirmed findings from prior work survive unchanged or are
 strengthened by the new instruments. One prior claim---within-model deception
 at AUROC~1.000---is retracted after a same-prompt control revealed a
 prompt-template confound. Genuine nulls receive mechanistic explanations (MP thresholding destroys
-distributed signal). The other explanation first given here, that emotions
+distributed signal). Corrected 2026-11-07: the null that example explained,
+MP features for emotion at chance, is itself withdrawn at
+source~\citep{lyra_p4} (see the body count's $^{\#}$ note), so the example
+no longer stands; that question is open, and no signal is claimed. The other explanation first given here, that emotions
 are direction, not shape, is withdrawn at source~\citep{lyra_p4} with the
 result it rested on: that probe applies no $W_K$ (its directions were
 class-mean cache keys), its labels are the emotion a story generator was
