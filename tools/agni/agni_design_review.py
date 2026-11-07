@@ -447,6 +447,9 @@ def read_prereg(script_path, prereg_path):
               re.findall(r'"experiment"\s*:\s*"((?:[^"\\]|\\.)*)"', raw.decode("utf-8", errors="replace"))]
     try:
         prereg = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicate_keys)
+        # Python 3.12 parses nesting its indented encoder cannot write back (Linux, 2026-11-07), and
+        # run_review writes every key back out. Do it here, where the failure is caught.
+        json.dumps(prereg, indent=2)
     except (UnicodeDecodeError, ValueError, RecursionError) as e:   # deep nesting: round 4
         fail_invalid(paths, {}, f"the prereg {prereg_path} is not valid UTF-8 JSON: {e}")
     if not isinstance(prereg, dict):

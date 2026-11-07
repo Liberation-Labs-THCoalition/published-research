@@ -61,6 +61,11 @@ def sut(filename, name):
     return load_by_path(path if path.exists() else HERE / filename, name)
 
 
+# The suite tests this repo's llm.py. agni_phases puts agni-open's copy first on sys.path on machines
+# that have it, and that copy differs (no num_ctx, no thinking split), so there five tests exercised
+# the other file and failed (Linux, 2026-11-07). Loaded first, this one is what "import llm" finds.
+# The foreign-copy path keeps its own test, which patches llm.__file__.
+sys.modules["llm"] = sut("llm.py", "llm")
 PHASES = load_by_path(SUT_PHASES, "agni_phases_under_test")
 
 
