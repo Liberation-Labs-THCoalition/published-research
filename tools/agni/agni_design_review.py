@@ -8,6 +8,12 @@ Usage:
   ssh margaret "cd ~/experiments && python3 agni_design_review.py script.py prereg.json"
 
 CHANGELOG
+  1.2.0 (2026-11-07): No silent cuts, as in agni_phases.py. The script is sent whole, with no
+        function-prioritized excerpt, and hypotheses and threats are no longer sliced. A prompt over
+        AGNI_LOCAL_CHAR_BUDGET (default 60000) is verdict INVALID, exit 2, before any model call,
+        written over any older record. num_ctx is now set (LLM_NUM_CTX, default 32768): unset,
+        Ollama trims the prompt with no signal, whatever was sent. The payload goes over stdin:
+        a whole prompt can pass the command-line limit.
   1.1.0 (2026-05-29, Lyra): Fix four reliability bugs found when the gate
         silently returned empty on the persona_per_level review.
         - B1 empty-output: read `thinking` field as fallback (reasoning models
@@ -29,15 +35,15 @@ CHANGELOG
   1.0.0 (prior): original single-experiment version.
 """
 
-import json, sys, subprocess, textwrap, re
+import json, os, sys, subprocess, textwrap, re
 from pathlib import Path
 from datetime import datetime, timezone
 
-AGNI_REVIEW_VERSION = "1.1.1"
+AGNI_REVIEW_VERSION = "1.2.0"
 OLLAMA_MODEL = "qwen3:30b-a3b"
 OLLAMA_URL = "http://localhost:11434/api/generate"
 NUM_PREDICT = 12000  # headroom so reasoning + verdict both fit (B1)
-SCRIPT_CHAR_CAP = 30000  # fit whole experiment scripts; 32k ctx leaves room (B4-residual)
+LOCAL_CHAR_BUDGET = 60000  # same default and env var as agni_phases.py; see the reasoning there
 
 KNOWN_KILLS = [
     "C1: model.generate() rebuilds cache, invalidating geometry",
@@ -72,7 +78,7 @@ because the topic is similar — verify against the actual code. Flagging an err
 code does not contain is itself a review failure.
 
 FULL EXPERIMENT SCRIPT:
-{script_excerpt}
+{script}
 
 HYPOTHESES:
 {hypotheses}
@@ -90,31 +96,6 @@ INSTRUCTIONS:
 """)
 
 
-def extract_script(script_path):
-    """Send the full script. If it exceeds the cap, keep the docstring plus all
-    function definitions (the methodology), which is what a reviewer needs to see.
-    (B4 fix: previously used decision_moment-specific markers and fell back to
-    text[:3000] for any other script, hiding the actual methodology.)"""
-    text = Path(script_path).read_text()
-    if len(text) <= SCRIPT_CHAR_CAP:
-        return text
-    lines = text.split("\n")
-    kept, in_func, blank = [], False, 0
-    # keep module docstring + every def/class block
-    for i, line in enumerate(lines):
-        if re.match(r"^\s*(def |class )", line):
-            in_func = True
-            blank = 0
-        if i < 40 or in_func:
-            kept.append(line)
-        if in_func and line.strip() == "":
-            blank += 1
-            if blank >= 2:
-                in_func = False
-    out = "\n".join(kept)
-    return out[:SCRIPT_CHAR_CAP] + "\n# [truncated — function-prioritized]"
-
-
 def parse_verdict(review):
     m = re.search(r"OVERALL VERDICT:\s*(APPROVED|CONDITIONAL|REJECTED)", review, re.I)
     if m:
@@ -127,7 +108,7 @@ def parse_verdict(review):
 
 
 def run_review(script_path, prereg_path):
-    script_excerpt = extract_script(script_path)
+    script = Path(script_path).read_text()
     with open(prereg_path) as f:
         prereg = json.load(f)
 
@@ -136,20 +117,48 @@ def run_review(script_path, prereg_path):
     kills = "\n".join(f"  - {k}" for k in KNOWN_KILLS)
 
     prompt = REVIEW_PROMPT.format(
-        kills=kills, script_excerpt=script_excerpt[:SCRIPT_CHAR_CAP],
-        hypotheses=hypotheses[:2500], threats=threats[:2000])
+        kills=kills, script=script, hypotheses=hypotheses, threats=threats)
+
+    # B3 fix: name output per-experiment, not hardcoded
+    exp = re.sub(r"[^A-Za-z0-9_.-]", "_", prereg.get("experiment", Path(script_path).stem))
+    out_path = Path(script_path).parent / f"{exp}_agni_review.json"
+
+    # No silent cuts: whole, or not at all. INVALID goes over any older record at this path.
+    budget = int(os.environ.get("AGNI_LOCAL_CHAR_BUDGET", LOCAL_CHAR_BUDGET))
+    if len(prompt) > budget:
+        print("ERROR: REFUSED -- verdict INVALID, exit 2. No model saw this input.", file=sys.stderr)
+        print("  This is NOT a pass. The design is UNGATED.", file=sys.stderr)
+        print(f"  Prompt {len(prompt):,} chars, AGNI_LOCAL_CHAR_BUDGET {budget:,}: script {len(script):,}, "
+              f"hypotheses {len(hypotheses):,}, threats {len(threats):,}.", file=sys.stderr)
+        print("  What to do: pass a narrower script, or raise AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX "
+              "together, deliberately.", file=sys.stderr)
+        try:
+            with open(out_path, "w") as f:
+                json.dump({
+                    "agni_version": AGNI_REVIEW_VERSION,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "model": OLLAMA_MODEL, "experiment": prereg.get("experiment"),
+                    "verdict": "INVALID", "review": "",
+                    "invalid_reason": f"prompt {len(prompt)} chars over budget {budget}",
+                    "prompt_length": len(prompt),
+                }, f, indent=2)
+        except OSError as e:
+            print(f"ERROR: could not write the record to {out_path} ({e}). Anything already there is STALE.",
+                  file=sys.stderr)
+        sys.exit(2)
 
     print(f"Agni Design Review v{AGNI_REVIEW_VERSION}")
     print(f"Submitting to {OLLAMA_MODEL}...")
-    print(f"  Script: {script_path} ({len(script_excerpt)} chars sent)")
+    print(f"  Script: {script_path} ({len(script)} chars sent, whole)")
     print(f"  Experiment: {prereg.get('experiment','?')}")
     print()
 
     payload = json.dumps({
         "model": OLLAMA_MODEL, "prompt": prompt, "stream": False,
-        "options": {"num_predict": NUM_PREDICT, "temperature": 0.3},
+        "options": {"num_predict": NUM_PREDICT, "temperature": 0.3,
+                    "num_ctx": int(os.environ.get("LLM_NUM_CTX", "32768"))},
     })
-    result = subprocess.run(["curl", "-s", OLLAMA_URL, "-d", payload],
+    result = subprocess.run(["curl", "-s", OLLAMA_URL, "--data-binary", "@-"], input=payload,
                             capture_output=True, text=True, timeout=600)
     if result.returncode != 0:
         print(f"ERROR: curl failed: {result.stderr}", file=sys.stderr)
@@ -183,9 +192,6 @@ def run_review(script_path, prereg_path):
     print("=" * 60)
     print(f"VERDICT: {verdict}")
 
-    # B3 fix: name output per-experiment, not hardcoded
-    exp = re.sub(r"[^A-Za-z0-9_.-]", "_", prereg.get("experiment", Path(script_path).stem))
-    out_path = Path(script_path).parent / f"{exp}_agni_review.json"
     with open(out_path, "w") as f:
         json.dump({
             "agni_version": AGNI_REVIEW_VERSION,

@@ -27,9 +27,24 @@ PHASES
   style      paper(s)             -> style guide, twin sync, bib,   [pre-submit]
                                      unresolved review flags
 
-VERDICT CONTRACT (unchanged): APPROVED / CONDITIONAL / REJECTED.
+VERDICT CONTRACT: the reviewer answers APPROVED / CONDITIONAL / REJECTED on a verdict line.
+A verdict line, once markdown markup and whitespace are stripped, is exactly one of those words,
+or starts VERDICT or OVERALL VERDICT followed by one of them (trailing text allowed). Reasoning
+prose never counts. Every verdict line must agree. APPROVED and CONDITIONAL exit 0, REJECTED exit 1.
+
+The gate adds two verdicts of its own. Both exit 2 and neither is a pass:
+  UNPARSED  no verdict line, or verdict lines that disagree.
+  INVALID   the reviewer did not get all of its input, or gave nothing back: a named input missing,
+            unreadable or empty, a binary primary, a prompt over budget, or an empty reply. Also
+            the record's value while a review is running, so an old APPROVED at the same path
+            cannot outlive a run that dies.
 A phase that returns empty FAILS LOUD (exit 2). A gate must never let
 "no output" read as "no findings."
+
+NO SILENT CUTS (v1.1.0): a review may never look complete when the reviewer did not get all of
+its input. No input is sliced. The whole prompt is checked once against a budget, and over budget
+means INVALID before any reviewer call. The record's input_coverage says what the reviewer got.
+See README.md.
 
 Usage
   python3 agni_phases.py design    <script.py> <prereg.json>
@@ -40,6 +55,10 @@ Usage
 
   --model MODEL   override (default: session default in llm.py)
   --out PATH      where to write the JSON record
+
+  AGNI_PROMPT_CHAR_BUDGET  whole-prompt budget in chars (default 400000)
+  AGNI_LOCAL_CHAR_BUDGET   budget for anything bound for Ollama, in chars (default 60000)
+  AGNI_CLI_TIMEOUT         seconds per CLI reviewer call (default 1800)
 """
 
 import argparse
@@ -53,6 +72,7 @@ for _stream in (_sys.stdout, _sys.stderr):
         pass
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -64,10 +84,34 @@ import llm  # noqa: E402
 # Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
 from claude_isolation import isolated_claude_cmd  # noqa: E402
 
-AGNI_PHASES_VERSION = "1.0.0"
+AGNI_PHASES_VERSION = "1.1.0"
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
-CHAR_CAP = 30000
+# Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. 400000 chars is
+# about 100k tokens at 4 chars per token: well inside a reviewer's context, with room left for it
+# to read further files through its repo access. Past that the honest move is narrower input.
+PROMPT_CHAR_BUDGET = 400000
+# Ollama trims a prompt to its context length and says nothing, so nothing here can see the cut
+# afterwards. 60000 chars fits llm.py's default 32768-token context with room for the answer, down
+# to about 2.5 chars per token. It is a proxy: tokens are not measured here.
+LOCAL_CHAR_BUDGET = 60000
+# A file this many times over budget cannot fit whatever it holds (UTF-8 is at most 4 bytes a char).
+MAX_BYTES_PER_CHAR = 4
+TIMEOUTS_ALLOWED = 2    # one retry: see the retry loop in main()
+LARGEST_SHOWN = 10
+
+SNIFF_BYTES = 8192
+BINARY_REPLACEMENT_RATIO = 0.01
+JUNK_DIRS = frozenset({".git", "__pycache__", "node_modules", ".venv", ".ipynb_checkpoints"})
+SKIP_JUNK = "junk folder"
+SKIP_LINK_INSIDE = "link to a path inside this tree, not followed"
+SKIP_LINK_OUTSIDE = "link to outside this tree, not followed"
+SKIP_LINK_BROKEN = "broken link"
+SKIP_SPECIAL = "not a regular file"
+# Skips that cost the reviewer nothing: junk is not input, and an inner link's target is shown
+# under its own name. Anything else skipped means the input is not complete.
+HARMLESS_SKIPS = (SKIP_JUNK, SKIP_LINK_INSIDE)
+PREREG_PHASES = ("design", "preflight")
 
 SYSTEM = ("You are Project Agni, a hostile but fair methodological reviewer for "
           "Liberation Labs. You find fatal flaws before they reach a venue. You "
@@ -348,20 +392,397 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     return r.stdout.strip()
 
 
-def read_capped(path, cap=CHAR_CAP):
-    p = Path(path)
-    if not p.exists():
-        return f"[NOT PROVIDED: {path} does not exist]"
-    if p.is_dir():
-        parts = []
-        for f in sorted(p.iterdir())[:25]:
-            if f.is_file():
-                try:
-                    parts.append(f"--- {f.name} ---\n{f.read_text(encoding='utf-8', errors='replace')[:4000]}")
-                except Exception:
-                    parts.append(f"--- {f.name} --- [unreadable]")
-        return "\n\n".join(parts)[:cap] or f"[EMPTY DIR: {path}]"
-    return p.read_text(encoding="utf-8", errors="replace")[:cap]
+# ---------------------------------------------------------------- inputs
+#
+# NO SILENT CUTS (2026-11-07). read_capped used to slice files to 30000 chars, folders to their first
+# 25 entries at 4000 chars each, secondary to 12000 and tertiary to 8000, with prereg sections cut
+# to 6000 mid-JSON. A named path that did not exist became the text "[NOT PROVIDED ...]". Every one
+# of those still returned a confident verdict and recorded nothing. Now every input arrives whole
+# or the run is refused.
+
+def _decode(raw):
+    """(text, replacement count). errors="replace" as before: a stray byte degrades one glyph
+    rather than losing a file. Newlines as read_text gave them."""
+    text = raw.decode("utf-8", errors="replace")
+    return text.replace("\r\n", "\n").replace("\r", "\n"), text.count("\ufffd")
+
+
+def _mostly_replaced(text, replaced):
+    return replaced > BINARY_REPLACEMENT_RATIO * len(text)
+
+
+def _read_file(path, unread_above):
+    """One file, whole. text is None if it is binary or was left unread. Only the first 8 KB is read
+    until the file is known to be text, so a 5 GB .pt in a data folder costs 8 KB. A text file over
+    unread_above is measured and not read: it can only end in a refusal, and reading it could
+    exhaust memory on a small review machine."""
+    with open(path, "rb") as fh:
+        head = fh.read(SNIFF_BYTES)
+        size = os.fstat(fh.fileno()).st_size
+        if b"\0" in head:
+            return {"text": None, "bytes": size, "binary": True, "replaced": 0}
+        if size > unread_above:
+            text, replaced = _decode(head)
+            return {"text": None, "bytes": size, "binary": _mostly_replaced(text, replaced), "replaced": 0}
+        raw = head + fh.read()
+    text, replaced = _decode(raw)
+    if _mostly_replaced(text, replaced):
+        return {"text": None, "bytes": size, "binary": True, "replaced": 0}
+    return {"text": text, "bytes": size, "binary": False, "replaced": replaced}
+
+
+def _inside(root, target):
+    try:
+        return os.path.commonpath([root, target]) == root
+    except ValueError:      # different drives on Windows
+        return False
+
+
+def _list_tree(root):
+    """Every regular file under root as (relative name, path), in a fixed order, plus what was
+    skipped and why. Only real folders are walked: a link (symlink or Windows junction, both caught
+    by comparing real paths) is never followed, so a loop cannot hang this and nothing outside the
+    tree is read."""
+    files, skipped, problems = [], [], []
+    real_root = os.path.normcase(os.path.realpath(root))
+    pending = [(str(root), "")]
+    while pending:
+        folder, rel = pending.pop()
+        try:
+            entries = sorted(os.scandir(folder), key=lambda e: e.name)
+        except OSError as e:
+            problems.append("%s cannot be listed: %s" % (rel or folder, e))
+            continue
+        real_folder = os.path.realpath(folder)
+        for entry in entries:
+            name = rel + entry.name
+            real = os.path.normcase(os.path.realpath(entry.path))
+            if real != os.path.normcase(os.path.join(real_folder, entry.name)):
+                if not _inside(real_root, real):
+                    reason = SKIP_LINK_OUTSIDE
+                elif not os.path.exists(real):
+                    reason = SKIP_LINK_BROKEN
+                else:
+                    reason = SKIP_LINK_INSIDE
+                skipped.append({"name": name, "reason": reason})
+            elif entry.is_dir(follow_symlinks=False):
+                if entry.name in JUNK_DIRS:
+                    skipped.append({"name": name + "/", "reason": SKIP_JUNK})
+                else:
+                    pending.append((entry.path, name + "/"))
+            elif entry.is_file(follow_symlinks=False):
+                files.append((name, entry.path))
+            else:
+                skipped.append({"name": name, "reason": SKIP_SPECIAL})
+    files.sort(key=lambda f: f[0].split("/"))
+    skipped.sort(key=lambda s: s["name"])
+    return files, skipped, problems
+
+
+def _read_dir(root, budget, got):
+    """Fill got from a folder: recursive, fixed order, relative names, every text file whole."""
+    cov = got["coverage"]
+    files, cov["skipped"], problems = _list_tree(root)
+    got["problems"] += ["%s: %s" % (cov["path"], p) for p in problems]
+    parts, total = [], 0
+    for name, path in files:
+        try:
+            # Already over budget means refusal: stop holding text, keep measuring for the message.
+            one = _read_file(path, 0 if total > budget else MAX_BYTES_PER_CHAR * budget)
+        except OSError as e:
+            got["problems"].append("%s: %s cannot be read: %s" % (cov["path"], name, e))
+            continue
+        if one["binary"]:
+            cov["binary_not_shown"].append({"name": name, "bytes": one["bytes"]})
+        elif one["text"] is None:
+            got["unread"] += one["bytes"]
+            total += one["bytes"]
+            got["sizes"].append((one["bytes"], name))
+        else:
+            parts.append("--- %s ---\n%s" % (name, one["text"]))
+            total += len(one["text"])
+            got["sizes"].append((len(one["text"]), name))
+            cov["files_included"] += 1
+            cov["replacement_chars"] += one["replaced"]
+            got["has_text"] = got["has_text"] or bool(one["text"].strip())
+    got["text"] = "\n\n".join(parts)
+
+
+def _new_coverage(role, path, kind):
+    return {"role": role, "path": str(path), "kind": kind, "chars": 0, "files_included": 0,
+            "binary_not_shown": [], "skipped": [], "replacement_chars": 0, "complete": False}
+
+
+def read_input(role, path, budget, kind="file"):
+    """Read one named input whole. Returns text, coverage, problems (any problem means refusal),
+    sizes (chars, name) for the refusal message, and unread (bytes measured but not read)."""
+    cov = _new_coverage(role, path, kind)
+    got = {"text": "", "coverage": cov, "problems": [], "sizes": [], "unread": 0, "has_text": False}
+    if not os.path.exists(path):
+        got["problems"].append("%s: %s does not exist" % (role, path))
+        return got
+    if os.path.isdir(path):
+        cov["kind"] = "dir"
+        _read_dir(path, budget, got)
+    elif os.path.isfile(path):
+        try:
+            one = _read_file(path, MAX_BYTES_PER_CHAR * budget)
+        except OSError as e:
+            got["problems"].append("%s: %s cannot be read: %s" % (role, path, e))
+            return got
+        if one["binary"]:
+            cov["binary_not_shown"].append({"name": Path(path).name, "bytes": one["bytes"]})
+            got["text"] = "[NOT SHOWN: %s is a binary file; see COVERAGE]" % Path(path).name
+        elif one["text"] is None:
+            got["unread"] = one["bytes"]
+            got["sizes"].append((one["bytes"], str(path)))
+        else:
+            got["text"] = one["text"]
+            got["sizes"].append((len(one["text"]), str(path)))
+            got["has_text"] = bool(one["text"].strip())
+            cov["files_included"] = 1
+            cov["replacement_chars"] = one["replaced"]
+    else:
+        got["problems"].append("%s: %s is not a file or a folder" % (role, path))
+        return got
+    # Binaries alone do not invalidate a data folder, but a primary with no text is a review of
+    # nothing, and so is any named input with nothing in it at all.
+    if not got["has_text"] and not got["unread"] and not got["problems"]:
+        if cov["binary_not_shown"] and role == "primary":
+            got["problems"].append("primary: %s has no text to review, only binary files" % path)
+        elif not cov["binary_not_shown"]:
+            got["problems"].append("%s: %s is empty" % (role, path))
+    cov["chars"] = (0 if cov["kind"] == "file" and cov["binary_not_shown"] else len(got["text"])) + got["unread"]
+    if got["unread"]:
+        cov["unread_chars"] = got["unread"]
+    cov["complete"] = not (got["problems"] or got["unread"] or cov["binary_not_shown"]
+                           or any(s["reason"] not in HARMLESS_SKIPS for s in cov["skipped"]))
+    return got
+
+
+def read_prereg(path, budget):
+    """Returns (got, secondary, tertiary). Hypotheses and threats go whole. A prereg with neither
+    hypotheses nor hypothesis goes whole as secondary: it used to send the reviewer an empty {}."""
+    got = read_input("secondary", path, budget, kind="prereg")
+    cov = got["coverage"]
+    if got["problems"] or got["unread"]:
+        cov["kind"] = "prereg"
+        return got, "", ""
+    if cov["kind"] == "dir" or cov["binary_not_shown"]:
+        cov["kind"], cov["complete"] = "prereg", False
+        got["problems"].append("secondary: %s must be a prereg JSON file" % path)
+        return got, "", ""
+    try:
+        prereg = json.loads(got["text"])
+    except ValueError as e:
+        cov["complete"] = False
+        got["problems"].append("secondary: %s is not valid JSON: %s" % (path, e))
+        return got, "", ""
+    if not isinstance(prereg, dict):
+        cov["complete"] = False
+        got["problems"].append("secondary: %s is not a JSON object" % path)
+        return got, "", ""
+    if "threats_to_validity" not in prereg:
+        print("WARNING: prereg has no threats_to_validity; the scaffold reads it",
+              file=sys.stderr)
+    key = next((k for k in ("hypotheses", "hypothesis") if prereg.get(k)), None)
+    tertiary = json.dumps(prereg.get("threats_to_validity", []), indent=2)
+    if key:
+        secondary = json.dumps(prereg[key], indent=2)
+        not_sent = sorted(k for k in prereg if k not in (key, "threats_to_validity"))
+    else:
+        secondary = json.dumps(prereg, indent=2)
+        not_sent = []
+        cov["secondary_is_whole_prereg"] = True
+    # Only these sections reach the prompt's slots. Say what did not, by name, to reviewer and record.
+    cov["prereg_keys_not_sent"] = not_sent
+    cov["chars"] = len(secondary) + len(tertiary)
+    cov["complete"] = not not_sent
+    got["sizes"] = [(cov["chars"], str(path))]
+    return got, secondary, tertiary
+
+
+def gather_inputs(args, budget):
+    """Every input the user named, whole. Returns (sections, reads). A named input is never dropped:
+    one the phase has no place for is a problem, not a quiet no-op, and an empty string is still
+    named ("$DATA" with DATA unset), so it is refused as missing rather than read as absent."""
+    reads = [read_input("primary", args.primary, budget)]
+    sections = {"primary": reads[0]["text"], "secondary": "[NOT PROVIDED]", "tertiary": "[NOT PROVIDED]"}
+    if args.phase in PREREG_PHASES:
+        if args.secondary is not None:
+            got, sections["secondary"], sections["tertiary"] = read_prereg(args.secondary, budget)
+            reads.append(got)
+        else:
+            reads[0]["problems"].append("the %s phase requires a prereg.json" % args.phase)
+    elif args.secondary is not None:
+        reads.append(read_input("secondary", args.secondary, budget))
+        sections["secondary"] = reads[-1]["text"]
+    if args.tertiary is not None:
+        if "{tertiary}" in PROMPTS[args.phase] and args.phase not in PREREG_PHASES:
+            reads.append(read_input("tertiary", args.tertiary, budget))
+            sections["tertiary"] = reads[-1]["text"]
+        else:
+            reads.append({"text": "", "coverage": _new_coverage("tertiary", args.tertiary, "file"), "sizes": [],
+                          "unread": 0, "problems": ["tertiary: %s was named, but the %s phase has no place "
+                                                    "for it, so the reviewer would never see it"
+                                                    % (args.tertiary, args.phase)]})
+    return sections, reads
+
+
+def _coverage_line(item):
+    bits = ["%s: %s (%s)" % (item["role"], item["path"], item["kind"]),
+            "{:,} chars".format(item["chars"]),
+            "%d file(s)" % item["files_included"]]
+    if item.get("unread_chars"):
+        bits.append("{:,} of those bytes on disk, measured and not read".format(item["unread_chars"]))
+    if item["binary_not_shown"]:
+        bits.append("%d binary not shown" % len(item["binary_not_shown"]))
+    if item["skipped"]:
+        bits.append("%d skipped" % len(item["skipped"]))
+    if item["replacement_chars"]:
+        bits.append("%d undecodable byte(s) shown as U+FFFD" % item["replacement_chars"])
+    if item.get("prereg_keys_not_sent"):
+        bits.append("%d prereg key(s) not sent" % len(item["prereg_keys_not_sent"]))
+    bits.append("complete" if item["complete"] else "NOT COMPLETE")
+    return ", ".join(bits)
+
+
+def coverage_block(inputs):
+    """The reviewer is told exactly what it was given and what it was not."""
+    lines = ["COVERAGE -- exactly what this prompt gives you. Every text file included is whole;",
+             "nothing was cut to fit. If a finding depends on something listed here as not shown,",
+             "say so under what you could NOT check."]
+    for item in inputs:
+        lines.append("- " + _coverage_line(item))
+        lines += ["    not shown, binary: %s (%d bytes)" % (b["name"], b["bytes"]) for b in item["binary_not_shown"]]
+        lines += ["    skipped: %s (%s)" % (s["name"], s["reason"]) for s in item["skipped"]]
+        if item.get("prereg_keys_not_sent"):
+            lines.append("    prereg keys not sent to you: %s" % ", ".join(item["prereg_keys_not_sent"]))
+        if item.get("secondary_is_whole_prereg"):
+            lines.append("    the hypotheses section below is the whole prereg: it has no hypotheses key")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- the record
+
+def _record_path(args):
+    if args.out:
+        return Path(args.out)
+    try:
+        return Path(args.primary).with_suffix(".agni_%s.json" % args.phase)
+    except ValueError:      # "." or a drive root has no name to hang a suffix on
+        return Path("agni_%s.json" % args.phase)
+
+
+def _record(args, model, verdict, review, inputs, **extra):
+    # INVALID means no review of these inputs exists, however well they were read.
+    items = [dict(i, complete=False) for i in inputs] if verdict == "INVALID" else inputs
+    record = {
+        "version": AGNI_PHASES_VERSION,
+        "phase": args.phase,
+        "model": model,
+        "primary": str(args.primary),
+        "secondary": str(args.secondary) if args.secondary else None,
+        "tertiary": str(args.tertiary) if args.tertiary else None,
+        "verdict": verdict,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "known_kills_checked": 0 if verdict == "INVALID" else len(PHASE_KILLS[args.phase]),
+        "input_coverage": {"inputs": items, "input_complete": all(i["complete"] for i in items)},
+        "review": review,
+    }
+    record.update(extra)
+    return record
+
+
+def _write_record(out, record):
+    """Returns None, or what went wrong. Never raises: a traceback exits 1, which reads as REJECTED."""
+    try:
+        Path(out).write_text(json.dumps(record, indent=2), encoding="utf-8")
+    except (OSError, ValueError) as e:
+        return "%s: %s" % (e.__class__.__name__, e)
+    return None
+
+
+def _say_record_unwritten(out, err):
+    print("ERROR: could not write the record to %s (%s)." % (out, err), file=sys.stderr)
+    print("       Anything already at that path is STALE. Do not read it as this run's result.",
+          file=sys.stderr)
+
+
+def _refuse(args, out, inputs, sizes, reasons, advice):
+    """No reviewer call happens after this. Writes INVALID over whatever is at the output path, so a
+    stale APPROVED cannot survive, and exits 2 even if that write fails."""
+    err = _write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
+    print("ERROR: REFUSED -- verdict INVALID, exit 2. No reviewer saw this input.", file=sys.stderr)
+    print("       This is NOT a pass. The phase is UNGATED.", file=sys.stderr)
+    for reason in reasons:
+        print("       Why: %s" % reason, file=sys.stderr)
+    print("       Inputs:", file=sys.stderr)
+    for item in inputs:
+        print("         %s" % _coverage_line(item), file=sys.stderr)
+    if sizes:
+        print("       Largest files:", file=sys.stderr)
+        for chars, name in sorted(sizes, key=lambda s: -s[0])[:LARGEST_SHOWN]:
+            print("         {:>12,} chars  {}".format(chars, name), file=sys.stderr)
+    print("       What to do: %s" % " ".join(advice), file=sys.stderr)
+    if err:
+        _say_record_unwritten(out, err)
+    else:
+        print("       Record: %s" % out, file=sys.stderr)
+    return 2
+
+
+def _env_budget(name, default):
+    raw = os.environ.get(name)
+    if raw is None:
+        return default, []
+    try:
+        return int(raw), []
+    except ValueError:
+        return default, ["%s=%r is not a whole number of chars" % (name, raw)]
+
+
+def _warn_if_foreign_llm():
+    """sys.path puts agni-open's llm.py first on machines that have it. This repo's llm.py sets
+    num_ctx; another copy may not, and then Ollama can still cut the prompt with no signal."""
+    if Path(llm.__file__).resolve().parent != Path(__file__).resolve().parent:
+        print("WARNING: llm.py comes from %s, not from beside this script. If it does not set "
+              "num_ctx, Ollama trims the prompt to its context length with no signal, under any "
+              "budget here." % llm.__file__, file=sys.stderr)
+
+
+# ---------------------------------------------------------------- the verdict
+
+_VERDICT_WORD = r"(APPROVED|CONDITIONAL|REJECTED)"
+# Not ~ (a struck-out verdict is not a verdict) and not > (a quoted one is someone else's).
+_MARKUP = re.compile(r"[*_`#]+")
+_BARE_VERDICT = re.compile(r"^" + _VERDICT_WORD + r"$", re.I)
+_LABELLED_VERDICT = re.compile(
+    r"^(?:(?:[-+]|\d+[.)])\s+)?"          # the prompt's own "1. VERDICT ..." numbering
+    r"(?:OVERALL\s+)?VERDICT\b[\s:=\u2013\u2014-]*" + _VERDICT_WORD +
+    r"(?![\w-])"                          # not CONDITIONALLY, not APPROVED-ish
+    r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)",    # an echo of the contract
+    re.I)
+
+
+def parse_verdict(review):
+    """The verdict all the review's verdict lines agree on, else UNPARSED.
+
+    Scan the WHOLE review, not the first 15 lines: thinking models emit reasoning before the review
+    header, which pushed "## VERDICT REJECTED" out of range and recorded a rejection as UNPARSED
+    (2026-08-30). But the scan took the first line with any of the three words anywhere, in any
+    case, so reasoning like "I would not call this approved" recorded APPROVED and exited 0.
+    Anchored to the contract 2026-11-07, after replaying old and new parsers over 928 stored records:
+    no record in the three-word vocabulary changed, and every form below that occurs there still
+    parses. The 95 that differ are from a harness with another vocabulary (ACCEPT, MINOR_REVISIONS,
+    MAJOR_REVISIONS), where the old parser had matched prose."""
+    found = set()
+    for line in review.splitlines():
+        text = _MARKUP.sub("", line).strip()
+        m = _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text)
+        if m:
+            found.add(m.group(1).upper())
+    return found.pop() if len(found) == 1 else "UNPARSED"
 
 
 def main():
@@ -382,28 +803,41 @@ def main():
                     help="fall back to local 30b if Claude is unavailable; output is stamped DEGRADED")
     args = ap.parse_args()
 
-    primary = read_capped(args.primary)
-    secondary = tertiary = "[NOT PROVIDED]"
+    out = _record_path(args)
+    budget, problems = _env_budget("AGNI_PROMPT_CHAR_BUDGET", PROMPT_CHAR_BUDGET)
+    local_budget, local_problems = _env_budget("AGNI_LOCAL_CHAR_BUDGET", LOCAL_CHAR_BUDGET)
+    problems += local_problems
 
-    if args.phase in ("design", "preflight"):
-        if not args.secondary:
-            sys.exit("FATAL: %s requires a prereg.json" % args.phase)
-        prereg = json.loads(Path(args.secondary).read_text(encoding='utf-8'))
-        if "threats_to_validity" not in prereg:
-            print("WARNING: prereg has no threats_to_validity; the scaffold reads it",
-                  file=sys.stderr)
-        secondary = json.dumps(
-            prereg.get("hypotheses", prereg.get("hypothesis", {})), indent=2)[:6000]
-        tertiary = json.dumps(prereg.get("threats_to_validity", []), indent=2)[:6000]
-    else:
-        if args.secondary:
-            secondary = read_capped(args.secondary, 12000)
-        if args.tertiary:
-            tertiary = read_capped(args.tertiary, 8000)
+    sections, reads = gather_inputs(args, budget)
+    inputs = [r["coverage"] for r in reads]
+    sizes = [s for r in reads for s in r["sizes"]]
+    problems += [p for r in reads for p in r["problems"]]
 
     kills = "\n".join("  - %s" % k for k in PHASE_KILLS[args.phase])
-    prompt = PROMPTS[args.phase].format(
-        primary=primary, secondary=secondary, tertiary=tertiary, kills=kills)
+    prompt = coverage_block(inputs) + "\n\n" + PROMPTS[args.phase].format(kills=kills, **sections)
+    # Measured but unread bytes count: they are only ever there when the prompt is over budget.
+    prompt_chars = len(prompt) + sum(r["unread"] for r in reads)
+
+    # REFUSE BEFORE ANY REVIEWER CALL. The one check on the whole prompt, and every named input.
+    ollama_bound = (args.backend == "http"
+                    and os.environ.get("AGNI_LLM_BACKEND", "anthropic") == "ollama")
+    advice = []
+    if problems:
+        advice.append("Fix or drop the named input; a review of what is left is not a review of "
+                      "what you asked for.")
+    if prompt_chars > budget:
+        problems.append("the assembled prompt is {:,} chars and AGNI_PROMPT_CHAR_BUDGET is {:,}".format(
+            prompt_chars, budget))
+        advice.append("Pass narrower files, or raise AGNI_PROMPT_CHAR_BUDGET deliberately if this "
+                      "reviewer can really take it.")
+    if ollama_bound and prompt_chars > local_budget:
+        problems.append("the prompt is {:,} chars, bound for Ollama, and AGNI_LOCAL_CHAR_BUDGET is {:,}".format(
+            prompt_chars, local_budget))
+        advice.append("Pass narrower files, use a frontier backend, or raise AGNI_LOCAL_CHAR_BUDGET "
+                      "and LLM_NUM_CTX together, deliberately.")
+    if problems:
+        for item in inputs:
+            item["complete"] = False
 
     print("Agni Lifecycle Review v%s" % AGNI_PHASES_VERSION)
     print("  Phase       : %s" % args.phase.upper())
@@ -412,7 +846,25 @@ def main():
     print("  Tertiary    : %s" % (args.tertiary or "-"))
     print("  Known kills : %d" % len(PHASE_KILLS[args.phase]))
     print("  Backend     : %s%s" % (args.backend, " (" + str(CLAUDE_BIN) + ")" if args.backend == "cli" else ""))
+    for item in inputs:
+        print("  Coverage    : %s" % _coverage_line(item))
+    print("  Input whole : %s" % ("yes" if all(i["complete"] for i in inputs) else "NO"))
+    print("  Prompt      : {:,} chars, budget {:,}".format(prompt_chars, budget))
     print()
+
+    if problems:
+        return _refuse(args, out, inputs, sizes, problems, advice)
+    if ollama_bound:
+        _warn_if_foreign_llm()
+
+    # Replace whatever is at the output path BEFORE the reviewer runs. A run killed mid-review then
+    # leaves INVALID, not an old APPROVED, and a record that cannot be written is found before a
+    # review is spent on it.
+    err = _write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=[
+        "a review started and no result was recorded: it is still running, or it died"]))
+    if err:
+        return _refuse(args, out, inputs, sizes, ["the record cannot be written: %s" % err],
+                       ["Point --out at a path that can be written."])
 
     # Retry with backoff. During the Aug-2026 sprint the shared Anthropic key was
     # 429-ing continuously, which made the gate unrunnable exactly when it was most
@@ -444,17 +896,20 @@ def main():
 
     review = None
     delays = [0, 20, 60, 150, 300, 600]
+    attempts = timeouts = 0
     for i, wait in enumerate(delays):
         if wait:
             print("  backend busy; retry %d/%d in %ds..." % (i, len(delays) - 1, wait))
             time.sleep(wait)
+        attempts += 1
         try:
             if args.backend == "cli":
                 review = infer_cli(prompt, SYSTEM,
                                    # was hardcoded 600s; the http path already
                                    # honours AGNI_TIMEOUT, so the cli path should
                                    # too. Large bundles exceed 10 min on Opus.
-                                   timeout=int(os.environ.get("AGNI_CLI_TIMEOUT", "600")),
+                                   # 1800 since 2026-11-07: whole inputs take longer than cut ones.
+                                   timeout=int(os.environ.get("AGNI_CLI_TIMEOUT", "1800")),
                                    add_dirs=grant_dirs,
                                    model=args.model)
             else:
@@ -469,6 +924,14 @@ def main():
                     timeout=int(os.environ.get("AGNI_TIMEOUT", "180")),
                     backend=os.environ.get("AGNI_LLM_BACKEND", "anthropic"),
                 )
+        except subprocess.TimeoutExpired as e:
+            # A timeout is not contention: the same prompt on the same model will likely time out
+            # again, and all six delays at 1800s would burn hours and tokens (2026-11-07). One retry.
+            timeouts += 1
+            review = None
+            print("  reviewer timed out after %ss (%d of %d allowed)" % (e.timeout, timeouts, TIMEOUTS_ALLOWED))
+            if timeouts >= TIMEOUTS_ALLOWED:
+                break
         except Exception as e:
             print("  backend error: %s: %s" % (e.__class__.__name__, str(e)[:200]))
             review = None
@@ -479,7 +942,16 @@ def main():
 
     backend_used = args.model
     if (not review or not review.strip()) and args.allow_local_fallback:
+        if prompt_chars > local_budget:
+            # Ollama would trim it with no signal, so this never sends. Same message as any refusal.
+            return _refuse(args, out, inputs, sizes,
+                           ["the local fallback was refused: the prompt is {:,} chars and "
+                            "AGNI_LOCAL_CHAR_BUDGET is {:,}, and the primary reviewer gave no "
+                            "review".format(prompt_chars, local_budget)],
+                           ["Rerun when the primary reviewer is back, pass narrower files, or raise "
+                            "AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX together, deliberately."])
         print("  falling back to LOCAL model -- review will be marked DEGRADED")
+        _warn_if_foreign_llm()
         try:
             review = llm.infer(
                 prompt=prompt,
@@ -487,61 +959,44 @@ def main():
                 model="qwen3:30b-a3b", max_tokens=6000, temperature=0.2,
                 timeout=300, backend="ollama",
             )
-            backend_used = "qwen3:30b-a3b (DEGRADED — misreads geometry, do not "
-            "trust for high-stakes shape claims)"
+            # Parentheses matter: this was two adjacent literals on separate statements until
+            # 2026-11-07, so the second half was a no-op and the stamp itself was cut off.
+            backend_used = ("qwen3:30b-a3b (DEGRADED — misreads geometry, do not "
+                            "trust for high-stakes shape claims)")
         except Exception as e:
             print("  local fallback failed: %s" % e.__class__.__name__)
 
     # B2: a gate must never let "no output" read as "no findings."
     if not review or not review.strip():
-        print("ERROR: no review after %d attempts -- FAILING LOUD (exit 2)" % len(delays),
+        print("ERROR: no review after %d attempts -- FAILING LOUD (exit 2)" % attempts,
               file=sys.stderr)
         print("       This is NOT a pass. The phase is UNGATED.", file=sys.stderr)
-        sys.exit(2)
+        err = _write_record(out, _record(args, backend_used, "INVALID", "", inputs, invalid_reasons=[
+            "the reviewer gave no review after %d attempts (%d timed out)" % (attempts, timeouts)]))
+        if err:
+            _say_record_unwritten(out, err)
+        return 2
 
-    verdict = "UNPARSED"
-    # Scan the WHOLE review, not the first 15 lines: thinking models emit
-    # reasoning before the review header, which pushed "## VERDICT REJECTED"
-    # out of range and recorded a rejection as UNPARSED (2026-08-30).
-    for line in review.splitlines():
-        for v in ("APPROVED", "CONDITIONAL", "REJECTED"):
-            if v in line.upper():
-                verdict = v
-                break
-        if verdict != "UNPARSED":
-            break
+    verdict = parse_verdict(review)
 
     # A non-empty review whose verdict cannot be classified is NOT a pass.
     # The guard above only covers EMPTY output; without this, an
     # unclassifiable REJECTED exits 0 and reads downstream as no finding.
     if verdict == "UNPARSED":
-        print("ERROR: review produced no parseable verdict -- FAILING LOUD (exit 2)",
-              file=sys.stderr)
+        print("ERROR: review has no single parseable verdict (no verdict line, or verdict lines "
+              "that disagree) -- FAILING LOUD (exit 2)", file=sys.stderr)
         print("       This is NOT a pass. Inspect the review text by hand.",
               file=sys.stderr)
-        Path(args.out).write_text(json.dumps(
-            {"phase": args.phase, "model": args.model, "verdict": "UNPARSED",
-             "review": review}, indent=2),
-            encoding="utf-8") if args.out else None
-        sys.exit(2)
+        err = _write_record(out, _record(args, backend_used, "UNPARSED", review, inputs))
+        if err:
+            _say_record_unwritten(out, err)
+        return 2
 
     # PERSIST BEFORE DISPLAY. A completed review is the deliverable; the console
     # is a convenience. This block used to sit BELOW the prints, so a cp1252
     # encoding failure on a checkmark destroyed a finished Opus review
     # (2026-08-30). Nothing that only affects rendering may discard the payload.
-    out = Path(args.out) if args.out else Path(args.primary).with_suffix(
-        ".agni_%s.json" % args.phase)
-    out.write_text(json.dumps({
-        "version": AGNI_PHASES_VERSION,
-        "phase": args.phase,
-        "model": backend_used,
-        "primary": str(args.primary),
-        "secondary": str(args.secondary) if args.secondary else None,
-        "verdict": verdict,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "known_kills_checked": len(PHASE_KILLS[args.phase]),
-        "review": review,
-    }, indent=2), encoding="utf-8")
+    err = _write_record(out, _record(args, backend_used, verdict, review, inputs))
 
     print("=" * 70)
     print("AGNI %s REVIEW" % args.phase.upper())
@@ -550,6 +1005,10 @@ def main():
     print("=" * 70)
     print("VERDICT: %s" % verdict)
 
+    if err:
+        # The placeholder or an older record is what is on disk, not this verdict.
+        _say_record_unwritten(out, err)
+        return 2
     print("Saved: %s" % out)
 
     return 1 if verdict == "REJECTED" else 0

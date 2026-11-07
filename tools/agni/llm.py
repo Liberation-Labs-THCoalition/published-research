@@ -11,6 +11,7 @@ Configuration via environment variables:
   AGNI_LLM_URL       — endpoint URL (ollama/openai only)
   AGNI_LLM_API_KEY   — API key (anthropic/openai only)
   AGNI_LLM_MAX_TOKENS — max response tokens (default 512)
+  LLM_NUM_CTX        — Ollama context length in tokens (default 32768)
 
 Per-module model override: set BOUNTY_MODEL, WOO_MODEL, AP_MODEL etc.
 to override the default for specific subsystems. The module-level env var
@@ -84,7 +85,10 @@ def _ollama(prompt, system, model, max_tokens, temperature, timeout, url):
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": temperature, "num_predict": max_tokens},
+        # num_ctx (2026-11-07): unset, Ollama trims any prompt to its default context length and says
+        # nothing. A reviewer given the end of a paper still returns a confident verdict.
+        "options": {"temperature": temperature, "num_predict": max_tokens,
+                    "num_ctx": int(os.environ.get("LLM_NUM_CTX", "32768"))},
     }
     if system:
         body["system"] = system

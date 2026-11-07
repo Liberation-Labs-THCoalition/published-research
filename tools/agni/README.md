@@ -5,6 +5,72 @@ preflight, results, paper, style); `agni_design_review.py` is the older design-o
 `run_style_survey.py` drives `agni_phases.py style` across papers. The phases, kill lists and
 verdict contract are documented at the top of `agni_phases.py`.
 
+## No silent cuts
+
+**The rule: a review may never look complete when the reviewer did not get all of its input.**
+Until 2026-11-07 a reviewer that saw part of its input still returned a confident verdict, and nothing
+recorded the cut.
+
+**What changed** (`agni_phases.py` 1.1.0, `agni_design_review.py` 1.2.0):
+
+- **No input is sliced.** The caps are gone: 30000 per file, the first 25 entries and 4000 chars per
+  file in a folder, 12000 for secondary, 8000 for tertiary, 6000 for prereg sections. The whole
+  prompt is checked once against `AGNI_PROMPT_CHAR_BUDGET` (default 400000 chars).
+- **Refuse before any reviewer call.** Over budget, or a named input that is missing, unreadable,
+  empty or has no place in the phase's prompt, means verdict `INVALID` and exit 2. Stderr says it is
+  not a pass, names each input's size and the largest files, and says what to do. The `INVALID`
+  record is written over whatever is at the output path. If that write fails it still exits 2 and
+  says so. The record is also `INVALID` while a review runs, so a run that dies cannot leave an old
+  `APPROVED` standing, and a run with no review writes `INVALID` as well.
+- **The record says what the reviewer got.** `input_coverage` holds `inputs` (per input: `role`,
+  `path`, `kind`, `chars`, `files_included`, `binary_not_shown`, `skipped`, `complete`) and a
+  run-level `input_complete`. The header prints a summary, and a short COVERAGE block at the top of
+  the prompt tells the reviewer what it was given and what it was not.
+- **Folders are recursive,** in a fixed order, with relative names and every text file whole. Junk
+  folders (`.git`, `__pycache__`, `node_modules`, `.venv`, `.ipynb_checkpoints`) are skipped and
+  counted. Binary files (a NUL in the first 8 KB, or over about 1% replacement characters) are listed
+  by name and size as not shown: that makes `complete` false but does not refuse the run, unless the
+  primary has no text at all. Links are never followed. An empty folder is `INVALID`.
+- **Preregs.** Hypotheses and threats go whole. A prereg with neither `hypotheses` nor `hypothesis`
+  goes whole as secondary. Its other keys are not sent: they are named as `prereg_keys_not_sent`, in
+  the record and in the COVERAGE block, and they make `complete` false. Most real preregs will read
+  `input_complete: false` for that reason, and that is what the reviewer really got.
+- **The verdict comes from a verdict line, not from a word.** The contract is at the top of
+  `agni_phases.py`. Reasoning prose never counts, and verdict lines that disagree give `UNPARSED`.
+- **Local path.** `llm.py` sets `num_ctx` (`LLM_NUM_CTX`, default 32768). Unset, Ollama trims a prompt
+  to its context length with no signal. Anything bound for Ollama over `AGNI_LOCAL_CHAR_BUDGET`
+  (default 60000 chars) is refused and never sent cut. The `DEGRADED` stamp is whole again.
+- **Timeouts.** `AGNI_CLI_TIMEOUT` defaults to 1800 s, and a timeout is retried at most once. Other
+  retry behaviour is unchanged.
+- `run_style_survey.py` counts `INVALID` as a failure, and also any exit other than 0 or 1, whatever
+  the file on disk says. `summarize_style.py` shows `INVALID - NOT REVIEWED`.
+
+**How to check it.**
+
+```bash
+python -X utf8 tools/agni/test_no_silent_cuts.py    # offline: patches the reviewer, sends nothing
+```
+
+Point `AGNI_PHASES_PATH` at a copy of `agni_phases.py` from before this change, with its sibling
+modules beside it, and watch it fail on the canaries, verdicts and exit codes. On a real run, read
+`input_coverage` in the record, or the Coverage lines in the header.
+
+**Reviews before this date.** Reviews before this date of anything over the caps got a cut prompt;
+CLI reviewers also had read access to the repo, so the record cannot show how much of the rest they
+read; weigh them accordingly.
+
+**Not covered.**
+
+- `sys.path` puts agni-open's `llm.py` first on machines that have it. That copy is not edited here
+  and may not set `num_ctx`. An Ollama-bound call prints a warning when `llm.py` is not the copy beside
+  `agni_phases.py`, but it does not stop the call.
+- The char budgets are proxies. Tokens are not measured, so a very dense 60000 chars could still pass
+  `num_ctx` in principle.
+- A local server reached through `AGNI_LLM_BACKEND=openai` is not recognised as local, so the local
+  budget does not apply to it.
+- `agni_design_review.py` follows the rule for cuts only. Its `parse_verdict` still falls back to a
+  verdict word anywhere in the text.
+
 ## Reviewer isolation: why every CLI call goes through `claude_isolation.py`
 
 **Until 2026-11-02, Agni's reviews ran as Lyra.** The default `cli` backend (`infer_cli`) ran

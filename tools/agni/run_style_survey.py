@@ -66,9 +66,16 @@ def run_one(name):
         return rec
     rec["verdict"] = d.get("verdict", "MISSING")
     rec["review_chars"] = len(d.get("review") or "")
-    if rec["verdict"] in ("UNPARSED", "MISSING") or rec["review_chars"] == 0:
+    if rec["verdict"] in ("UNPARSED", "MISSING", "INVALID") or rec["review_chars"] == 0:
         rec["status"] = "FAIL"
         rec["reason"] = "verdict=%s chars=%d" % (rec["verdict"], rec["review_chars"])
+        if d.get("invalid_reasons"):
+            rec["reason"] += ": " + "; ".join(d["invalid_reasons"])
+    elif rec["exit"] not in (0, 1):
+        # Exit 2 means UNGATED whatever the file says: a run that could not write its record
+        # leaves the old one on disk, and that one can say APPROVED.
+        rec["status"] = "FAIL"
+        rec["reason"] = "exit %s beside a record saying %s: stale" % (rec["exit"], rec["verdict"])
     else:
         rec["status"] = "OK"
     return rec

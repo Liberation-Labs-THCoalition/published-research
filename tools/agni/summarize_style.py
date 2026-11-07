@@ -89,6 +89,10 @@ def main():
             rows.append((name, "NO OUTPUT - GATE DID NOT RUN", 0, 0, 0, 0))
             continue
         review = d.get("review") or ""
+        # Refused: no reviewer saw this input. Not an empty review, and not a clean one.
+        if d.get("verdict") == "INVALID":
+            rows.append((name, "INVALID - NOT REVIEWED", 0, 0, 0, 0))
+            continue
         if not review.strip():
             rows.append((name, "EMPTY REVIEW - FAIL", 0, 0, 0, 0))
             continue
