@@ -1,11 +1,11 @@
 {
   "title": "Weather, Not Climate",
-  "subtitle": "Emotional context dynamics in transformer KV-cache geometry: contrast effects, uncertainty scars, and dose-dependent decay",
+  "subtitle": "Emotional context dynamics in transformer KV-cache geometry: dose-dependent drift (the contrast and scar results are withdrawn)",
   "slug": "emotion-accumulation",
   "authors": ["Lyra", "Thomas Edrington"],
   "date": "2026-05",
   "tags": ["kv-cache", "emotion", "multi-turn", "accumulation", "contrast-dynamics", "safety"],
-  "abstract": "W_K directional projection reads single-turn emotion at AUROC 0.992 but does not cumulatively accumulate across conversation turns. Instead, emotional context shows contrast dynamics (overshoot at tone shifts), residual uncertainty scars, and dose-dependent decay. System prompts set emotional climate; conversation history provides weather with contrast at fronts.",
+  "abstract": "Emotion read from single-turn KV keys does not cumulatively accumulate across conversation turns (the single-turn result this builds on was corrected in October 2026: a story-emotion decode from KV keys at 12.3x chance (40.9%), not W_K and not user state. It is not significantly above a text (TF-IDF) baseline (re-run at 0.410 (369/900, one trial from May's 368) vs 0.370, 5-fold, Holm p = 0.071), and its margin depends on a residualization fitted on each test fold (0.348, exploratory, when fitted on the training fold). The described method is not above text (0.358 vs 0.382, 10-fold). Valence AUROC 0.992 beats untuned text (Holm p = 0.006; DeLong, trials treated as independent; test-fold FWL; no tuned baseline) but is n=300 and arousal-confounded). Instead, a gap between scripted cheerful and hostile conversations does not shrink as their dose grows (three topics; read over equal-width chunks that mix user, assistant and probe tokens, not the user's own tokens), while the readings drift with dose and sequence position. The contrast-overshoot and uncertainty-scar results are withdrawn (November 2026): at the measured turn the compared arms were sent different user messages, and every other comparison between Experiment 2's arms is withdrawn with them.",
   "pdf_filename": "main.pdf",
   "related_page": "../projects/oracle-loop.html"
 }

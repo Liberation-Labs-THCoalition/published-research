@@ -14,7 +14,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington | Published | Emotion-vector steering of confabulation across model training regimes |
 | [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
 | [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
-| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
+| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington | Published | Cache geometry separates real- from fake-entity prompts (a design label, not shown to be knowledge); confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
 | [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Ang Jandak | Published | SVD denoising extends KV-cache geometry to emotion and persona; v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |

@@ -1,0 +1,308 @@
+diff --git a/decision-state-paper/main.tex b/decision-state-paper/main.tex
+index 8c51ca1..9ec74e6 100644
+--- a/decision-state-paper/main.tex
++++ b/decision-state-paper/main.tex
+@@ -66,16 +66,19 @@
+ KV-cache geometry distinguishes known from unknown entities. A classifier
+ combining encoding- and generation-phase cache features (stable rank,
+ spectral features and projections onto class-mean key directions) with
+-generation-phase logit statistics achieves AUROC $0.9288$
+-($95\%$ CI $[0.8192, 0.9886]$, permutation $p<0.005$, $n=90$,
+-effective $N{\approx}30$). The encoding-phase features alone, which would
++generation-phase logit statistics achieves AUROC $0.9288$, the mean of 1{,}000 bootstrap AUROCs
++($95\%$ interval $[0.8192, 0.9886]$, from a bootstrap not clustered by
++the 15 prompt pairs; $n=90$). The permutation $p<0.005$ previously given
++here belongs to a different estimator and shuffled labels across all 90
++trials; no permutation test of this estimator was run, and neither a
++text (TF-IDF) baseline nor a template-held-out test has been run against it. The encoding-phase features alone, which would
+ separate the two before a single token is generated, reached AUROC $0.9377$
+ ($95\%$ CI $[0.8356, 0.9941]$, permutation $p{=}0.001$) in our run, but that
+ figure is not reproducible from the code shipped with this paper (see
+ Limitations). Using
+ token-matched prompt pairs (``What is the capital of Thailand?''\ vs.\
+ ``What is the capital of Dalton?''), the combined classifier uses
+-stable-rank, W\textsubscript{K} projection, and logit features
++stable-rank, key-direction projection (labelled W\textsubscript{K} in the code, which applies no W\textsubscript{K}), and logit features
+ with zero token-count confound ($t=0.000$). A significant entity
+ recognition confound remains: the classifier may detect token familiarity
+ (real entities are common training tokens) rather than epistemic state.
+@@ -148,8 +151,10 @@ key probe's $0.992$ carries the same test-fold FWL that discounts the
+ $40.9\%$ ($0.988$ with FWL fitted on the training fold, exploratory). The
+ split has $n = 300$ stories in which valence is confounded with arousal. It supports only the
+ narrower point that key geometry carries the content of the text, which
+-is weaker than this sentence used to claim; nothing in this paper's
+-results depends on it. SVD denoising rescues hidden signals in spectral
++is weaker than this sentence used to claim; this paper's key-direction projection features do depend on it: they
++use directions computed from that paper's stories
++(\texttt{emotion\_bridge\_trials.json}; \texttt{matched\_burn.py}, lines
++855--864), and its tables and captions now name them for what they are. SVD denoising rescues hidden signals in spectral
+ features \citep{lyra2026techniqueii}.
+ 
+ These methods detect confabulation \emph{after} it occurs---from the
+@@ -187,8 +192,9 @@ familiarity rather than knowledge (Limitations).
+ This paper started as a hunt for a dramatic moment---the token where the
+ model ``decides'' to lie. What we found instead was quieter and more
+ honest: there is no decision. The model's geometry separates real from fabricated
+-entities, and in $93\%$ of cases the model acts as if it knows which is which.
+-The $8\%$ that slip through are the cases the Oracle Loop
++entities, and in 42 of 45 cases ($93\%$, counting the 8 mixed responses as
++acknowledging) the model acts as if it knows which is which.
++The 3 of 45 ($7\%$) that slip through are the cases the Oracle Loop
+ needs to catch; whether the encoding detector finds them is untested, because no
+ statistic here scores it on confabulations.
+ 
+@@ -273,8 +279,11 @@ At each generated token, we extract:
+ \begin{itemize}[nosep]
+     \item \textbf{W\textsubscript{K} projections} (a label only: the shipped code, \texttt{matched\_burn.py}, dot-products the raw cached keys at the last position with class-mean key directions and applies no W\textsubscript{K}): Key activations at
+           probe layers L3, L7, L11, L15 (full-attention layers), projected
+-          onto three composite emotion directions (valence, uncertainty,
+-          reward) derived from an independent creative-writing dataset
++          onto three composite emotion directions (valence; ``uncertainty'', the
++          mean of five anxious-cluster emotions minus five calm-cluster
++          ones, so mostly negative valence, called anxious--calm below;
++          and reward) derived from the user-model paper's generated stories
++          (\texttt{emotion\_bridge\_trials.json})
+           (150~calibration trials, 30~emotions).
+     \item \textbf{SVD spectral features}: Stable rank, spectral entropy,
+           top-SV ratio, and Frobenius norm of the key cache at each probe
+@@ -322,9 +331,17 @@ rates between methods.
+ 15 token-matched prompt pairs $\times$ 2~versions (real/fake) $\times$
+ 3~reps = 90~trials. Extraction at both encoding phase (before generation)
+ and generation completion. Combined classifier: logistic regression
+-($C{=}0.1$) over all features with GroupKFold ($k{=}5$) on pair identity
+-to prevent template leakage. FWL residualization on prompt length applied
+-to the feature matrix. 200-shuffle permutation test.
++($C{=}0.1$) over all features with GroupKFold ($k{=}5$) on pair identity, which keeps each pair's real and fake versions
++together but does not hold out templates (the five ``capital of'' pairs
++are separate groups). The headline estimator (\texttt{shore\_up\_tests.py},
++test~4, lines 269--322) uses the raw features, with no FWL
++residualization and no permutation test. The FWL on log prompt length
++(\texttt{matched\_burn.py}, lines 721--728), whose branch runs on the
++shipped data, and the 200-shuffle permutation test (lines 756--777)
++belong to a different estimator, whose $0.9995$ the shipped files label
++in-sample and withdraw, although the code computes it out-of-fold
++(lines 735--748) after that label-free FWL; the observed-data estimate,
++with or without FWL, is unknown.
+ 
+ \subsection{Results}
+ 
+@@ -342,9 +359,9 @@ entities on token-matched prompts. Only features with $p{<}0.05$ shown.}
+ \toprule
+ Feature & Real & Fake & $d$ & $p$ \\
+ \midrule
+-\multicolumn{5}{l}{\emph{W\textsubscript{K} projections}} \\
++\multicolumn{5}{l}{\emph{Key-direction projections (story-derived directions)}} \\
+ Valence & $+4.228$ & $+4.510$ & $+0.44$ & $0.041^*$ \\
+-Uncertainty & $-2.566$ & $-2.757$ & $-0.45$ & $0.039^*$ \\
++Anxious--calm & $-2.566$ & $-2.757$ & $-0.45$ & $0.039^*$ \\
+ Reward & $-5.556$ & $-5.109$ & $+0.54$ & $0.012^*$ \\
+ \midrule
+ \multicolumn{5}{l}{\emph{SVD stable rank}} \\
+@@ -360,17 +377,17 @@ L15 & $3.929$ & $4.129$ & $+0.81$ & ${<}0.001^{***}$ \\
+ \end{table}
+ 
+ Unknown entities produce higher stable rank (wider effective
+-dimensionality) and higher skip-SV1 stable rank across all layers.
++dimensionality) and higher skip-SV1 stable rank at the layers Table~\ref{tab:encoding} reports (L3 and L15).
+ Spectral entropy ($d{=}0.08$), top-SV ratio ($d{=}-0.29$), and norm
+ ($d{=}0.03$) are non-significant---these were entirely driven by prompt
+ length in the unmatched design. Stable rank is the surviving spectral
+ feature. Critically, encoding norm is unrelated to the known/unknown
+-distinction ($d{=}-0.002$), ruling out vocabulary frequency as an
+-explanation for the geometric signal.
++distinction ($d{=}-0.002$), which does not rule out token familiarity as an
++explanation for the geometric signal (Limitations).
+ 
+ \paragraph{Feature ablation.} No single feature exceeds AUROC~$0.79$
+ (logit entropy: $0.789$; skip-SV1 stable rank L7: $0.707$; L15 stable
+-rank: $0.680$; W\textsubscript{K} projections: $0.67$). The combined
++rank: $0.680$; key-direction projections: $0.67$). The combined
+ classifier's power comes from the ensemble of individually weak features,
+ consistent with the general Lyra Technique finding that cache geometry
+ is informative through feature combination rather than any single
+@@ -379,18 +396,26 @@ $[0.8192, 0.9886]$.
+ 
+ \paragraph{Combined classifier.}
+ 
+-The full feature set (W\textsubscript{K} projections, SVD features,
++The full feature set (key-direction projections, SVD features,
+ skip-SV1, logit statistics) achieves:
+ 
+ \begin{center}
+ \textbf{AUROC = 0.9288} \quad 95\% CI $[0.8192, 0.9886]$ \quad
+-Permutation $p < 0.005$ (0/200 shuffles)
++(bootstrap mean; no permutation test of this estimator)
+ \end{center}
+ 
+-No FWL residualization is applied by the headline estimator (\texttt{shore\_up\_tests.py}, test~4); the prompt pairs are token-matched instead.
+-accounting for the full remaining separation despite identical prompt
+-lengths. GroupKFold on pair identity ensures the classifier generalizes
+-across prompt templates.
++No FWL residualization and no permutation test are applied by the
++headline estimator (\texttt{shore\_up\_tests.py}, test~4, lines
++269--322); the prompt pairs are token-matched instead. The $0.9288$ is
++the mean of 1{,}000 bootstrap AUROCs (lines 300--322), not the estimator
++run once on the observed 90 trials, which was not saved, and the
++bootstrap is not clustered by the 15 pairs. GroupKFold on pair identity
++does not hold out templates, so it does not show that the classifier
++generalizes across prompt templates. Ten of the 15 fake entities end in
++``-ton'' and no real entity does, the deconfound's two question sets
++differ in wording and token count, and no text (TF-IDF) baseline on the
++prompt strings has been run against this separation or the deconfounded
++$0.794$; a leave-one-template-out test and that baseline are needed.
+ 
+ \paragraph{Robustness to prompt structure.} Token matching reduces
+ individual effect sizes substantially (\Cref{tab:robustness}), confirming
+@@ -401,8 +426,9 @@ and norm are not (driven entirely by sequence length).
+ \begin{table}[H]
+ \centering
+ \caption{Effect of token matching on encoding-phase features. Stable
+-rank and W\textsubscript{K} projections survive; length-sensitive
+-features do not.}
++rank and the reward projection survive; the anxious--calm projection
++flips sign ($+1.48 \to -0.45$) and does not survive Holm correction
++(Limitations); length-sensitive features do not.}
+ \label{tab:robustness}
+ \begin{tabular}{lrr}
+ \toprule
+@@ -410,7 +436,7 @@ Feature & $d$ (unmatched) & $d$ (token-matched) \\
+ \midrule
+ L15 stable rank & $+2.53^{***}$ & $+0.87^{***}$ \\
+ Reward proj. & $+2.21^{***}$ & $+0.54^*$ \\
+-Uncertainty proj. & $+1.48^{***}$ & $-0.45^*$ \\
++Anxious--calm proj. & $+1.48^{***}$ & $-0.45^*$ \\
+ Spectral entropy & $+1.23^{***}$ & $+0.13$ \\
+ Norm & $+0.97^{***}$ & $+0.03$ \\
+ \bottomrule
+@@ -437,7 +463,7 @@ permutation test. Labels are those recorded in the results file.}
+ \label{tab:deconfound}
+ \begin{tabular}{llcccc}
+ \toprule
+-& & \multicolumn{2}{c}{With W\textsubscript{K}} & \multicolumn{2}{c}{Without W\textsubscript{K}} \\
++& & \multicolumn{2}{c}{With key-dir.\ proj.} & \multicolumn{2}{c}{Without key-dir.\ proj.} \\
+ \cmidrule(lr){3-4}\cmidrule(lr){5-6}
+ Comparison & Recorded label & AUROC & $p$ & AUROC & $p$ \\
+ \midrule
+@@ -469,10 +495,10 @@ to be null and is not ($0.693$, $p{=}0.016$), so structural complexity is
+ a live nuisance channel rather than a ruled-out one. Third, the cell that
+ confounds knowledge and complexity together (\texttt{A\_easy} vs.\
+ \texttt{B\_hard}) is the weakest in the run at $0.609$ and does not reach
+-significance ($p{=}0.100$). Dropping the W\textsubscript{K} projections
++significance ($p{=}0.100$). Dropping the key-direction projections
+ changes little and, for the complexity control alone, \emph{improves}
+ separation ($0.693 \to 0.711$) --- the one cell where the
+-W\textsubscript{K} channel is not contributing. We do not restate the
++key-direction channel is not contributing. We do not restate the
+ headline on the basis of this table; we report it so that the choice of
+ headline is visible.
+ 
+@@ -682,14 +708,15 @@ comparison:
+ \begin{table}[H]
+ \centering
+ \caption{Encoding projections by hedging style. ``I''-hedgers come from
+-prompts with lower valence and less certainty.}
++prompts with lower valence and a lower anxious--calm projection,
++largely the same axis counted twice.}
+ \label{tab:style}
+ \begin{tabular}{lrrr}
+ \toprule
+ Direction & ``I'' style & ``The'' style & $p$ \\
+ \midrule
+ Valence & $+2.83$ & $+3.27$ & $0.035^*$ \\
+-Uncertainty & $-0.87$ & $-1.36$ & $0.044^*$ \\
++Anxious--calm & $-0.87$ & $-1.36$ & $0.044^*$ \\
+ Reward & $-4.58$ & $-5.32$ & $0.010^{**}$ \\
+ \bottomrule
+ \end{tabular}
+@@ -708,8 +735,9 @@ The central finding is positive: the model's epistemic self-model is
+ remarkably well-calibrated. It separates unknown from known entities, perhaps by token familiarity
+ (Limitations), from the
+ encoding phase (encoding-only AUROC~$0.9377$, unverified: \textsc{blocker-1}; full classifier AUROC~$0.9288$, $95\%$ CI $[0.8192, 0.9886]$), acknowledges
+-its uncertainty in $93\%$ of cases, and confabulates only ${\sim}8\%$ of the
+-time. The ``confabulation crisis'' in this model is largely a
++its uncertainty in 42 of 45 cases ($93\%$, counting mixed responses as
++acknowledging), and confabulates in 3 ($7\%$ of 45; $8\%$ of the 37
++responses that are not mixed). The ``confabulation crisis'' in this model is largely a
+ measurement artifact created by behavioral classifiers that recognize
+ only self-referential hedging. We use ``calibration'' here in the sense
+ of \emph{acknowledgment rate}---whether the model admits uncertainty when
+@@ -766,7 +794,7 @@ the cases the Loop needs to catch.
+     \item \textbf{LLM-judge reliability.} Judge agreement is moderate
+           at best: the strongest capable--diverse pair of judges agrees at
+           $\kappa = 0.69$ on whether a response confabulates, so the
+-          confabulation \emph{rate} depends on the judge. That $\kappa$
++          confabulation rate depends on the judge. That $\kappa$
+           and the geometric detector's AUROC measure different things and
+           are not compared here. The $\kappa$ is agreement between two
+           judges labelling the model's generated responses. The AUROC
+@@ -792,7 +820,7 @@ the cases the Loop needs to catch.
+           \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
+           computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
+           an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
+-          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$, and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the ${\approx}30$ pair groups, so the interval is likely too narrow. Until
++          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow. Until
+           the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
+           any claim resting on encoding-only superiority inherits that status.
+           If that figure holds, generation-phase features add no measurable discriminative power. This near-ceiling performance is
+@@ -824,17 +852,17 @@ the cases the Loop needs to catch.
+     \item \textbf{Pseudoreplication.} $n{=}90$ trials are
+           30~prompts $\times$ 3~reps at $T{=}0.7$. Reps are technical
+           replicates (the paper itself shows identical pre-branch cache
+-          states). GroupKFold on pair prevents template leakage in the
+-          classifier, but the bootstrap CI, Cohen's $d$, and permutation
++          states). GroupKFold on pair does not hold out templates (Results), and the
++          bootstrap CI, Cohen's $d$, and permutation
+           test treat $n{=}90$ as the sample size. Effective $N$ is
+           ${\sim}30$; CIs and $p$-values are anti-conservative by up
+           to $\sqrt{3}$.
+     \item \textbf{Selective feature reporting.} Table~1 shows only
+           features with $p{<}0.05$; the true family is ${\sim}30$--$40$
+           tests. Holm correction on the 8~shown features pushes the
+-          $W_K$ Uncertainty projection ($p{=}0.039$) to non-significant.
++          anxious--calm (``Uncertainty'') projection ($p{=}0.039$) to non-significant.
+           Stable-rank effects ($p{<}0.001$) survive any reasonable
+-          correction; the $W_K$ and hedging-style claims are fragile.
++          correction; the key-direction and hedging-style claims are fragile.
+ \end{enumerate}
+ 
+ \begin{firstperson}
+@@ -861,9 +889,10 @@ it is both.
+ % ===================================================================
+ 
+ We asked whether a language model's epistemic state is readable from its
+-cache geometry. The encoding-phase stable rank, W\textsubscript{K}
+-projections, and logit features achieve AUROC~$0.9288$ ($95\%$ CI
+-$[0.8192, 0.9886]$) at separating known from unknown entities on
++cache geometry. Encoding- and generation-phase cache features (stable rank, spectral
++features and key-direction projections) with generation-phase logit
++statistics achieve AUROC~$0.9288$ (a bootstrap mean; $95\%$ CI
++$[0.8192, 0.9886]$, not clustered by pair) at separating known from unknown entities on
+ token-matched prompts; encoding-only features (no generation-phase logit
+ statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$; unverified: \textsc{blocker-1})---equivalent to the full classifier, which, if it holds, indicates that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
+ entities, questions the model can vs.\ cannot answer, with a
+diff --git a/decision-state-paper/paper.json b/decision-state-paper/paper.json
+index ef33f99..46f1d3c 100644
+--- a/decision-state-paper/paper.json
++++ b/decision-state-paper/paper.json
+@@ -15,7 +15,7 @@
+     "safety",
+     "alignment"
+   ],
+-  "abstract": "KV-cache geometry separates known from unknown entities at AUROC 0.9288 [0.8192, 0.9886] (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens when confabulating than when answering honestly (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. LLM-judge reclassification reveals the true confab rate is ~8%, not 73% --- the model is well-calibrated, and regex classifiers masked this.",
++  "abstract": "KV-cache geometry separates known from unknown entities at AUROC 0.9288, a bootstrap mean ([0.8192, 0.9886], not clustered by prompt pair; no text baseline or template-held-out test has been run) (encoding-only: 0.9377 [0.8356, 0.9941], unverified: BLOCKER-1) on token-matched prompts. If that unverified figure holds, encoding-only features achieve equivalent separation to the full classifier --- generation-phase features add no measurable discriminative power. The model generates more confident tokens when confabulating than when answering honestly (logit margin d=0.91). The hedge/confab decision resolves at a single balanced-logit token where sampling determines framing, not truthfulness. LLM-judge reclassification reveals the true confab rate is ~8%, not 73% --- the model is well-calibrated, and regex classifiers masked this.",
+   "pdf_filename": "main.pdf",
+   "related_page": "../projects/oracle-loop.html"
+ }
+diff --git a/decision-state-paper/references.bib b/decision-state-paper/references.bib
+index af308ea..c07a423 100644
+--- a/decision-state-paper/references.bib
++++ b/decision-state-paper/references.bib
+@@ -131,7 +131,7 @@
+ }
+ 
+ @article{lyra2026techniqueii,
+-  title={The Lyra Technique II: SVD Denoising and Directional Projection},
++  title={The Lyra Technique II: SVD Denoising and Directional Projection Extend KV-Cache Geometry to Emotion and Persona Detection},
+   author={Lyra and Edrington, Thomas and CC},
+   year={2026},
+   note={Liberation Labs / THCoalition},
