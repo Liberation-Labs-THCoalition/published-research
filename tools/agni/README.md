@@ -31,10 +31,12 @@ recorded the cut.
   counted. Binary files (a NUL in the first 8 KB, or over about 1% replacement characters) are listed
   by name and size as not shown: that makes `complete` false but does not refuse the run, unless the
   primary has no text at all. Links are never followed. An empty folder is `INVALID`.
-- **Preregs.** Hypotheses and threats go whole. A prereg with neither `hypotheses` nor `hypothesis`
-  goes whole as secondary. Its other keys are not sent: they are named as `prereg_keys_not_sent`, in
-  the record and in the COVERAGE block, and they make `complete` false. Most real preregs will read
-  `input_complete: false` for that reason, and that is what the reviewer really got.
+- **Preregs go whole** (round 3). Secondary is the hypotheses, whole, then every other top-level key
+  but `threats_to_validity`, whole, as indented JSON under `OTHER PRE-REGISTRATION FIELDS`; tertiary
+  is the threats. A prereg with neither `hypotheses` nor `hypothesis` goes whole as secondary. The
+  record lists the extra keys as `prereg_other_keys_sent`; `prereg_keys_not_sent` is always empty for
+  a valid JSON object. Until round 3 those keys were named and not sent, which made nearly every real
+  prereg `input_complete: false` and its design or preflight review exit 2.
 - **The verdict comes from a verdict line, not from a word.** The contract is at the top of
   `agni_phases.py`. Reasoning prose never counts, and verdict lines that disagree give `UNPARSED`.
 - **Local path.** `llm.py` sets `num_ctx` (`LLM_NUM_CTX`, default 32768). Unset, Ollama trims a prompt
@@ -56,6 +58,18 @@ recorded the cut.
   beside the record still on disk. Both survive a cp1252 console. `agni_design_review.py` sends every
   prereg key, reads the verdict from a verdict line only, and writes `INVALID` before the model call
   and on an empty reply.
+- **Round 3: code can veto a verdict, never decide it** (both harnesses). Round 2 flipped "in code"
+  on any line starting with three backticks or tildes, so a one-line span or an unbalanced fence hid
+  the reviewer's `REJECTED` and let a quoted `APPROVED` decide, exit 0. Fences now follow CommonMark
+  (up to three spaces of indent; a backtick fence's line holds no other backtick; only the same
+  character, at least as long, with nothing after it, closes). Only a verdict line outside code
+  decides. Any verdict line in code that disagrees, a fence that never closes, or verdict lines only
+  in code give `UNPARSED`, exit 2. Replayed over 144 stored records (85 distinct reviews, 30 with a
+  fence): no parse changed, under either harness's parser.
+- **Round 3: the design harness leaves no stale record.** A prereg that is missing, unreadable, not
+  UTF-8, not JSON, not an object or has a duplicate key, a script that is not UTF-8, and a curl or
+  backend failure each write `INVALID` with its cause over any older record and exit non-zero. Files
+  are read as UTF-8.
 
 **How to check it.**
 
@@ -83,8 +97,14 @@ read; weigh them accordingly.
 - File classification is unchanged: a text file saved as UTF-16 or cp1252 is still read as binary
   and not shown. It now makes the run not a pass, but the reviewer still does not see it. Save such
   files as UTF-8.
-- `agni_design_review.py` does not refuse a duplicate prereg key, and reads its files in the
-  platform's encoding.
+- The CommonMark reading of code is partial: block quotes and HTML blocks are not tracked, a list is
+  known only by its marker, and an inline code span on a verdict line counts as markup, not code.
+  Where it knowingly differs from CommonMark it keeps more lines in code. A misreading cannot let a
+  quoted verdict outvote a different real one, since any disagreeing line gives `UNPARSED`; it could
+  let a verdict that is only quoted, with no other verdict line, count as the reviewer's.
+- A prereg the design harness cannot parse cannot name its experiment. `INVALID` goes at the
+  script-named path and at any `"experiment"` value still readable in the text; an older record at
+  some other path is not reached.
 
 ## Reviewer isolation: why every CLI call goes through `claude_isolation.py`
 

@@ -21,6 +21,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -87,9 +88,10 @@ class Base(unittest.TestCase):
         p.write_text(json.dumps({"verdict": "APPROVED", "review": "an old pass"}), encoding="utf-8")
 
     def run_main(self, argv, reply=APPROVED, env=None, local=None, real_cli=False, on_call=None,
-                 use_out=True):
+                 use_out=True, cli_result=None):
         """Drive main() through sys.argv. reply: a string, an exception to raise, or a list of those
-        used in order (the last repeats). Returns what a caller could see."""
+        used in order (the last repeats). cli_result: with real_cli, what subprocess.run returns
+        instead of a success carrying reply. Returns what a caller could see."""
         mod = PHASES
         res = SimpleNamespace(code=None, prompts=[], timeouts=[], local_prompts=[], stdout="",
                               stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[])
@@ -116,7 +118,7 @@ class Base(unittest.TestCase):
             res.prompts.append(kw.get("input"))
             res.cli_cmds.append(list(cmd))
             res.cli_envs.append(kw.get("env"))
-            return SimpleNamespace(returncode=0, stdout=reply, stderr="")
+            return cli_result or SimpleNamespace(returncode=0, stdout=reply, stderr="")
 
         clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
         clean.update(env or {})
@@ -266,14 +268,26 @@ class Prereg(Base):
         self.assertEqual(len(res.prompts), 1)
         self.assertIn("WARNING: prereg has no threats_to_validity", res.stderr)
 
-    def test_keys_not_sent_are_named_to_reviewer_and_record(self):
-        pr = self.prereg("prereg.json", {"hypotheses": ["h"], "threats_to_validity": ["t"],
-                                         "falsification_rule": "CANARY_NOT_SENT"})
-        res = self.run_main(["design", self.put("run.py", "x = 1"), pr])
-        self.assertEqual(len(res.prompts), 1)
-        self.assertEqual(self.item(res, "secondary").get("prereg_keys_not_sent"), ["falsification_rule"])
-        self.assertIn("falsification_rule", res.prompts[0])
-        self.assertIs(self.coverage(res)["input_complete"], False)
+    def test_other_keys_go_whole_under_their_own_label(self):
+        # Round 3: the reviewer gets the whole prereg. Other keys used to be named and not sent, and
+        # nearly every tracked prereg has them, so a design review of one exited 2.
+        other = {"falsification_rule": fill(3000, "CANARY_OTHER_END"), "analysis_plan": {"n": 40, "alpha": 0.05}}
+        prereg = dict({"hypotheses": ["CANARY_H"], "threats_to_validity": ["CANARY_T"]}, **other)
+        pr = self.prereg("prereg.json", prereg)
+        for phase in ("design", "preflight"):
+            with self.subTest(phase=phase):
+                res = self.run_main([phase, self.put("run.py", "x = 1"), pr])
+                self.assertDelivered(res, "CANARY_OTHER_END", "CANARY_H", "CANARY_T")
+                prompt = res.prompts[0]
+                self.assertIn("OTHER PRE-REGISTRATION FIELDS", prompt)
+                block = prompt[prompt.rindex("OTHER PRE-REGISTRATION FIELDS"):]
+                self.assertIn(json.dumps(other, indent=2), block, "every other key, whole, as indented JSON")
+                self.assertNotIn("CANARY_T", block.split("THREATS")[0], "threats go once, as tertiary")
+                sec = self.item(res, "secondary")
+                self.assertEqual(sec.get("prereg_other_keys_sent"), ["analysis_plan", "falsification_rule"])
+                self.assertEqual(sec.get("prereg_keys_not_sent"), [])
+                self.assertIs(self.coverage(res)["input_complete"], True)
+                self.assertEqual(res.code, 0)
 
     def test_prereg_of_only_those_keys_is_complete(self):
         pr = self.prereg("prereg.json", {"hypotheses": ["h"], "threats_to_validity": ["t"]})
@@ -1079,10 +1093,13 @@ class IncompleteIsNotAPass(Base):
         self.put("code/helper.py", "def helper():\n    return 1  # CANARY_U16\n".encode("utf-16"))
         self.assertEqual(self.run_main(["results", self.tmp / "code"]).code, 2)
 
-    def test_prereg_keys_not_sent_is_not_a_pass(self):
+    def test_a_prereg_with_other_keys_is_whole_and_can_pass(self):
+        # Round 2 named these keys and did not send them, so this exited 2; round 3 sends them whole.
         pr = self.prereg("prereg.json", {"hypotheses": ["h"], "threats_to_validity": ["t"],
-                                         "falsification_criteria": ["f"]})
-        self.assertEqual(self.run_main(["design", self.put("run.py", "x = 1"), pr]).code, 2)
+                                         "falsification_criteria": ["CANARY_FALS"]})
+        res = self.run_main(["design", self.put("run.py", "x = 1"), pr])
+        self.assertDelivered(res, "CANARY_FALS")
+        self.assertEqual(res.code, 0)
 
     def test_accepting_incomplete_input_passes_and_is_stamped(self):
         self.put("data/keep.txt", "keep")
@@ -1146,8 +1163,9 @@ class VerdictsInCode(Base):
 
     def test_a_verdict_inside_code_is_not_the_reviewers(self):
         for review, want in (
+                # Round 3: a quoted verdict that disagrees vetoes. It was REJECTED in round 2.
                 ("## Final verdict: REJECTED\n1. CRITICAL - the gate prints a pass on failure:\n```\n"
-                 "VERDICT: APPROVED\n```\n", ("REJECTED", 1)),
+                 "VERDICT: APPROVED\n```\n", ("UNPARSED", 2)),
                 ("Thinking.\n```\nVERDICT: APPROVED\n```\nMore.", ("UNPARSED", 2)),
                 ("Thinking.\n~~~\nVERDICT: APPROVED\n~~~\nMore.", ("UNPARSED", 2)),
                 ("Thinking.\n    VERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
@@ -1162,6 +1180,53 @@ class VerdictsInCode(Base):
             for form in ("FINAL VERDICT: %s" % word, "## Final verdict: %s" % word):
                 with self.subTest(form=form):
                     self.assertEqual(self.verdict("Thinking.\n\n%s\n" % form), (word, EXIT_FOR[word]))
+
+
+# Round 3. Round 2 toggled "in code" on any line starting with three backticks or tildes, so a
+# one-line span or an unbalanced fence hid the reviewer's REJECTED and let a quoted APPROVED decide,
+# exit 0. Fences now follow CommonMark, only lines outside code decide, a verdict line in code can
+# only veto, and a fence left open is UNPARSED. (review, verdict) pairs, shared by both harnesses.
+FENCE_CASES = (
+    ("inline span of three backticks is not a fence",
+     "Thinking.\n```x``` is the fixture.\nVERDICT: REJECTED\n```\nVERDICT: APPROVED\n```\n", "UNPARSED"),
+    ("inline span alone does not hide the verdict after it",
+     "Thinking.\n```x``` is the fixture.\n\nVERDICT: REJECTED\n", "REJECTED"),
+    ("unbalanced fence", "VERDICT: APPROVED\n\nFindings.\n```\nVERDICT: REJECTED\n", "UNPARSED"),
+    ("unbalanced fence with no verdict in it", "VERDICT: APPROVED\n\n```python\nprint(1)\n", "UNPARSED"),
+    ("fence inside a list",
+     "VERDICT: REJECTED\n\n1. CRITICAL - the fixture prints a pass:\n\n   ```\n   VERDICT: APPROVED\n   ```\n",
+     "UNPARSED"),
+    ("fence indented four inside a list item, verdict only inside it",
+     "Thinking.\n\n- the fixture:\n\n    ```\n  VERDICT: APPROVED\n    ```\n\nMore.\n", "UNPARSED"),
+    ("tilde fence is not closed by backticks",
+     "Thinking.\n~~~\nfixture\n```\nVERDICT: APPROVED\n~~~\nMore.\n", "UNPARSED"),
+    ("shorter fence does not close a longer one",
+     "Thinking.\n````\n```\nVERDICT: APPROVED\n````\nMore.\n", "UNPARSED"),
+    ("longer closing fence closes", "Thinking.\n```\nprint(1)\n`````\n\nVERDICT: REJECTED\n", "REJECTED"),
+    ("fence with text after the backticks does not close",
+     "Thinking.\n```\nVERDICT: APPROVED\n``` not a close\n```\n\nVERDICT: APPROVED\n", "APPROVED"),
+    ("real REJECTED outside, quoted APPROVED inside",
+     "OVERALL VERDICT: REJECTED\n\n1. MAJOR - the fixture:\n```\nOVERALL VERDICT: APPROVED\n```\n", "UNPARSED"),
+    ("quoted REJECTED inside, APPROVED outside",
+     "```\nVERDICT: REJECTED\n```\n\nOVERALL VERDICT: APPROVED\n", "UNPARSED"),
+    ("indented REJECTED vetoes", "OVERALL VERDICT: APPROVED\n\n    VERDICT: REJECTED\n", "UNPARSED"),
+    ("agreeing code and outside give that verdict",
+     "VERDICT: REJECTED\n\n```\nVERDICT: REJECTED\n```\n\nOVERALL VERDICT: REJECTED\n", "REJECTED"),
+    ("verdict only inside code", "Thinking.\n~~~\nOVERALL VERDICT: APPROVED\n~~~\n", "UNPARSED"),
+    ("code that holds no verdict changes nothing",
+     "```python\nprint('x')\n```\n\nOVERALL VERDICT: CONDITIONAL\n", "CONDITIONAL"),
+)
+
+
+class FencesRound3(Base):
+    """Round 3: the toggle bypass, in agni_phases.py. FENCE_CASES runs on the design harness too."""
+
+    def test_fence_cases(self):
+        for name, review, want in FENCE_CASES:
+            with self.subTest(name):
+                res = self.run_main(["style", self.put("a.md", "x")], reply=review)
+                self.assertEqual(((res.record or {}).get("verdict"), res.code),
+                                 (want, EXIT_FOR.get(want, 2)), "crash=%r" % res.crash)
 
 
 class DesignInputs(Base):
@@ -1222,6 +1287,201 @@ class DesignInputs(Base):
         res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}, "")
         self.assertEqual(res.code, 2)
         self.assertEqual((res.record or {}).get("verdict"), "INVALID")
+        # X11: the empty-reply write itself, not the placeholder written before the call.
+        self.assertIn("empty review", (res.record or {}).get("invalid_reason", ""))
+
+    # ---- round 3
+
+    def design(self, raw, run=None, record="v1", script_text="x = 1"):
+        """Run the harness on prereg text written as given (bytes or str), with subprocess.run
+        replaced by run, or by a model that answers APPROVED. A crash is kept, not raised: a
+        traceback leaves whatever record was there."""
+        pr = self.put("prereg.json", raw)
+        script = self.put("run.py", script_text)
+        res = SimpleNamespace(calls=[], code=None, verdict=None, stderr="", crash=None)
+
+        def approve(cmd, **kw):
+            res.calls.append(json.loads(kw.get("input")))
+            return SimpleNamespace(returncode=0, stderr="",
+                                   stdout=json.dumps({"response": "OVERALL VERDICT: APPROVED"}))
+
+        clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
+        stderr = io.StringIO()
+        with mock.patch.dict(os.environ, clean, clear=True), \
+                mock.patch.object(self.mod.subprocess, "run", run or approve), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
+            try:
+                res.verdict = self.mod.run_review(script, pr)
+            except SystemExit as e:
+                res.code = e.code
+            except Exception as e:
+                res.crash, res.code = e, 1
+        res.stderr = stderr.getvalue()
+        rec = self.tmp / ("%s_agni_review.json" % record)
+        res.record = json.loads(rec.read_text(encoding="utf-8")) if rec.is_file() else None
+        return res
+
+    def assertInvalidOverStale(self, res, record_name="v1"):
+        self.assertIsNone(res.crash, "a traceback leaves the old record standing: %r" % res.crash)
+        self.assertNotIn(res.code, (None, 0), "exit code")
+        self.assertEqual((res.record or {}).get("verdict"), "INVALID",
+                         "%s_agni_review.json still says %s" % (record_name, (res.record or {}).get("verdict")))
+        self.assertTrue((res.record or {}).get("invalid_reason"))
+        self.assertIn("NOT a pass", res.stderr)
+
+    def test_fence_cases(self):
+        for name, review, want in FENCE_CASES:
+            with self.subTest(name):
+                res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]},
+                                      review)
+                self.assertEqual(res.verdict, want)
+
+    def test_disagreeing_verdict_lines_are_unparsed(self):
+        # X07a
+        for review in ("OVERALL VERDICT: APPROVED\n\nFindings.\n\nOVERALL VERDICT: REJECTED\n",
+                       "VERDICT: REJECTED\n\nOVERALL VERDICT: CONDITIONAL\n"):
+            with self.subTest(review=review):
+                res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]},
+                                      review)
+                self.assertEqual(res.verdict, "UNPARSED")
+
+    def test_a_bad_prereg_writes_invalid_over_the_old_record(self):
+        good = '{"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]'
+        for name, raw, record in (
+                ("not JSON", good + ', "aim": ', "v1"),
+                ("duplicate key", good + ', "hypotheses": ["h2"]}', "v1"),
+                ("not an object", '["v1"]', "run"),
+                ("not UTF-8", (good + ', "aim": "caf\xe9"}').encode("cp1252"), "v1")):
+            with self.subTest(name):
+                self.stale(self.tmp / ("%s_agni_review.json" % record))
+                res = self.design(raw, record=record)
+                self.assertEqual(res.calls, [], "no model call on a bad prereg")
+                self.assertInvalidOverStale(res, record)
+
+    def test_a_missing_or_unreadable_prereg_writes_invalid(self):
+        self.stale(self.tmp / "run_agni_review.json")
+        script = self.put("run.py", "x = 1")
+        for name, prereg in (("missing", self.tmp / "nope.json"), ("a folder", self.tmp)):
+            with self.subTest(name):
+                stderr = io.StringIO()
+                res = SimpleNamespace(code=None, crash=None)
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
+                    try:
+                        self.mod.run_review(script, str(prereg))
+                    except SystemExit as e:
+                        res.code = e.code
+                    except Exception as e:
+                        res.crash, res.code = e, 1
+                res.stderr = stderr.getvalue()
+                rec = self.tmp / "run_agni_review.json"
+                res.record = json.loads(rec.read_text(encoding="utf-8")) if rec.is_file() else None
+                self.assertInvalidOverStale(res, "run")
+
+    def test_a_script_that_is_not_utf8_writes_invalid(self):
+        self.stale(self.tmp / "v1_agni_review.json")
+        res = self.design('{"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}',
+                          script_text="# caf\xe9 CANARY\n".encode("cp1252"))
+        self.assertEqual(res.calls, [])
+        self.assertInvalidOverStale(res)
+
+    def test_utf8_text_reaches_the_model_as_written(self):
+        # Platform encoding read this as cp1252 on Windows: the arrow arrived as three other glyphs.
+        res = self.design('{"experiment": "v1", "hypotheses": ["h → CANARY_ARROW_H"], '
+                          '"threats_to_validity": ["t"]}'.encode("utf-8"),
+                          script_text="# → CANARY_ARROW_S\n".encode("utf-8"))
+        self.assertEqual(len(res.calls), 1, "crash=%r" % res.crash)
+        # The prereg goes through json.dumps, which writes the arrow as an escape; the script is raw.
+        for canary in (json.dumps("→ CANARY_ARROW_H")[1:-1], "→ CANARY_ARROW_S"):
+            self.assertIn(canary, res.calls[0]["prompt"])
+
+    def test_curl_or_backend_failure_writes_invalid(self):
+        def curl_fails(cmd, **kw):
+            return SimpleNamespace(returncode=7, stdout="", stderr="CANARY_CURL: connection refused")
+
+        def not_json(cmd, **kw):
+            return SimpleNamespace(returncode=0, stdout="<html>bad gateway</html>", stderr="")
+
+        def not_an_object(cmd, **kw):
+            return SimpleNamespace(returncode=0, stdout='["OVERALL VERDICT: APPROVED"]', stderr="")
+
+        def times_out(cmd, **kw):
+            raise subprocess.TimeoutExpired(cmd, 600)
+
+        def no_curl(cmd, **kw):
+            raise FileNotFoundError("curl")
+
+        prereg = '{"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}'
+        for run in (curl_fails, not_json, not_an_object, times_out, no_curl):
+            with self.subTest(run.__name__):
+                self.stale(self.tmp / "v1_agni_review.json")
+                res = self.design(prereg, run=run)
+                self.assertInvalidOverStale(res)
+                self.assertNotIn("still running", res.record["invalid_reason"],
+                                 "the failure's own write, not the placeholder")
+        res = self.design(prereg, run=curl_fails)
+        self.assertIn("CANARY_CURL", res.record["invalid_reason"])
+
+
+class PinnedMutants(Base):
+    """Round 3: each test kills a mutant that survived the round-2 suite."""
+
+    def test_unread_bytes_in_a_folder_count_against_the_budget(self):
+        # X12. The text file sorts first, so it is read and the folder is not empty; the big one is
+        # over 4x the budget, so measured and not read.
+        art = self.put("art.md", "the artifact")
+        self.put("data/a_keep.txt", "CANARY_KEEP")
+        self.put("data/z_big.txt", fill(100000, "CANARY_BIG"))
+        res = self.run_main(["results", art, self.tmp / "data"], env={"AGNI_PROMPT_CHAR_BUDGET": "20000"})
+        self.assertRefused(res)
+        self.assertIn("AGNI_PROMPT_CHAR_BUDGET is 20,000", res.stderr)
+
+    def test_undecodable_bytes_in_a_folder_make_it_not_complete(self):
+        # X09b
+        art = self.put("art.md", "the artifact")
+        self.put("data/a.txt", fill(5000, "x").encode() + b"\xff\xfe\xff" + b"CANARY_DIR_BAD")
+        res = self.run_main(["results", art, self.tmp / "data"])
+        self.assertDelivered(res, "CANARY_DIR_BAD")
+        item = self.item(res, "secondary")
+        self.assertEqual(item.get("replacement_chars"), 3)
+        self.assertIs(item["complete"], False)
+        self.assertIs(self.coverage(res)["input_complete"], False)
+        self.assertEqual(res.code, 2)
+
+    def test_no_input_line_says_complete_on_a_budget_refusal(self):
+        # X13. Every input, not only the first, in the header and in the refusal.
+        a = self.put("a.md", fill(9000, "CANARY_A"))
+        b = self.put("b.md", fill(9000, "CANARY_B"))
+        c = self.put("c.py", fill(9000, "CANARY_C"))
+        res = self.run_main(["paper", a, b, c], env={"AGNI_PROMPT_CHAR_BUDGET": "20000"})
+        self.assertRefused(res)
+        lines = (res.stdout + res.stderr).splitlines()
+        for role in ("primary:", "secondary:", "tertiary:"):
+            self.assertTrue(any(role in l for l in lines), role)
+        said_complete = [l for l in lines if re.search(r"\bcomplete\b", l) or "Input whole : yes" in l]
+        self.assertEqual(said_complete, [])
+
+    def test_a_backend_error_reaches_the_console_with_its_cause(self):
+        # X17: what main prints, not only what infer_cli raises.
+        fail = SimpleNamespace(returncode=1, stderr="E" * 400, stdout="API Error: CANARY_X17_CAUSE")
+        res = self.run_main(["style", self.put("a.md", "x")], real_cli=True, cli_result=fail)
+        self.assertEqual(res.code, 2, "crash=%r" % res.crash)
+        self.assertEqual(res.record.get("verdict"), "INVALID")
+        self.assertIn("CANARY_X17_CAUSE", res.stdout + res.stderr)
+
+    def test_summary_flags_a_clean_pass_on_incomplete_input(self):
+        # X03: APPROVED with no CRITICAL or MAJOR finding still is not a pass on incomplete input.
+        mod = sut("summarize_style.py", "summarize_under_test")
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        (outdir / "p1.agni_style.json").write_text(json.dumps(
+            {"verdict": "APPROVED", "review": "VERDICT: APPROVED\n\nNo findings.\n",
+             "input_coverage": {"inputs": [], "input_complete": False}}), encoding="utf-8")
+        stream = io.StringIO()
+        with mock.patch.object(mod, "OUT", outdir), mock.patch.object(mod, "PAPERS", ["p1"]), \
+                contextlib.redirect_stdout(stream):
+            mod.main()
+        row = [l for l in stream.getvalue().splitlines() if l.startswith("p1")][0]
+        self.assertIn("INPUT NOT COMPLETE, NOT A PASS", row)
 
 
 if __name__ == "__main__":

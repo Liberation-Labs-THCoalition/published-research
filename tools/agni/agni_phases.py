@@ -30,8 +30,9 @@ PHASES
 VERDICT CONTRACT: the reviewer answers APPROVED / CONDITIONAL / REJECTED on a verdict line.
 A verdict line, once markdown markup and whitespace are stripped, is exactly one of those words,
 or starts VERDICT, OVERALL VERDICT or FINAL VERDICT followed by one of them (trailing text
-allowed). Reasoning prose never counts, and neither does a line inside a code fence or an indented
-code block: that is quoted code, not the reviewer speaking. Every verdict line must agree.
+allowed). Reasoning prose never counts. A verdict line inside a code fence or an indented code
+block is quoted code, not the reviewer speaking: it never decides, but if it disagrees the result is
+UNPARSED, and so is a fence that never closes. Every verdict line must agree.
 APPROVED and CONDITIONAL exit 0, REJECTED exit 1. But APPROVED or CONDITIONAL on input the reviewer
 did not get whole (input_complete false) exits 2 and is NOT a pass, unless --accept-incomplete-input
 says to take a review of what it got; the record then carries incomplete_input_accepted.
@@ -61,7 +62,7 @@ Usage
   --out PATH      where to write the JSON record
   --accept-incomplete-input
                   exit 0 on APPROVED/CONDITIONAL although input_complete is false (binaries in a
-                  data folder, prereg keys not sent); the record is stamped
+                  data folder, undecodable bytes); the record is stamped
 
   AGNI_PROMPT_CHAR_BUDGET  whole-prompt budget in chars (default 400000)
   AGNI_LOCAL_CHAR_BUDGET   budget for anything bound for Ollama, in chars (default 60000)
@@ -593,8 +594,15 @@ def _no_duplicate_keys(pairs):
 
 
 def read_prereg(path, budget):
-    """Returns (got, secondary, tertiary). Hypotheses and threats go whole. A prereg with neither
-    hypotheses nor hypothesis goes whole as secondary: it used to send the reviewer an empty {}."""
+    """Returns (got, secondary, tertiary). The reviewer gets the whole prereg. Secondary is the
+    hypotheses, then every other key but threats_to_validity under OTHER PRE-REGISTRATION FIELDS;
+    tertiary is the threats. A prereg with neither hypotheses nor hypothesis goes whole as
+    secondary: it used to send the reviewer an empty {}.
+
+    Round 3 (2026-11-07): other keys used to be named and not sent, which made the input not
+    complete, and nearly every tracked prereg has such keys, so their design and preflight reviews
+    could not pass without --accept-incomplete-input. Falsification criteria and analysis plans are
+    what a design reviewer most needs to see."""
     got = read_input("secondary", path, budget, kind="prereg")
     cov = got["coverage"]
     if got["problems"] or got["unread"]:
@@ -621,15 +629,18 @@ def read_prereg(path, budget):
     tertiary = json.dumps(prereg.get("threats_to_validity", []), indent=2)
     if key:
         secondary = json.dumps(prereg[key], indent=2)
-        not_sent = sorted(k for k in prereg if k not in (key, "threats_to_validity"))
+        other = [k for k in prereg if k not in (key, "threats_to_validity")]
+        if other:
+            secondary += ("\n\nOTHER PRE-REGISTRATION FIELDS (every other key in the prereg but "
+                          "threats_to_validity, whole):\n" + json.dumps({k: prereg[k] for k in other}, indent=2))
+        cov["prereg_other_keys_sent"] = sorted(other)
     else:
         secondary = json.dumps(prereg, indent=2)
-        not_sent = []
         cov["secondary_is_whole_prereg"] = True
-    # Only these sections reach the prompt's slots. Say what did not, by name, to reviewer and record.
-    cov["prereg_keys_not_sent"] = not_sent
+    # Every key reaches the prompt, so none is left out. Kept, empty, so a record says so outright.
+    cov["prereg_keys_not_sent"] = []
     cov["chars"] = len(secondary) + len(tertiary)
-    cov["complete"] = not not_sent
+    cov["complete"] = True
     got["sizes"] = [(cov["chars"], str(path))]
     return got, secondary, tertiary
 
@@ -690,6 +701,9 @@ def coverage_block(inputs):
         lines += ["    skipped: %s (%s)" % (s["name"], s["reason"]) for s in item["skipped"]]
         if item.get("prereg_keys_not_sent"):
             lines.append("    prereg keys not sent to you: %s" % ", ".join(item["prereg_keys_not_sent"]))
+        if item.get("prereg_other_keys_sent"):
+            lines.append("    other prereg keys, sent whole after the hypotheses: %s"
+                         % ", ".join(item["prereg_other_keys_sent"]))
         if item.get("secondary_is_whole_prereg"):
             lines.append("    the hypotheses section below is the whole prereg: it has no hypotheses key")
     return "\n".join(lines)
@@ -795,8 +809,64 @@ _LABELLED_VERDICT = re.compile(
     r"(?![\w-])"                          # not CONDITIONALLY, not APPROVED-ish
     r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)",    # an echo of the contract
     re.I)
-_FENCE = re.compile(r"^\s*(```|~~~)")
-_CODE_INDENT = re.compile(r"^( {4}|\t)")
+_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+_LIST_ITEM = re.compile(r"^( {0,3})([-+*]|\d{1,9}[.)])( +|$)")
+
+
+def _spaces(line):
+    return len(line) - len(line.lstrip(" "))
+
+
+def _code_lines(review):
+    """Each line of the review as (line, in code), and whether a fence was left open.
+
+    CommonMark, as far as a verdict needs it. A fence opens on up to three spaces of indent, then
+    three or more backticks or tildes; after backticks the rest of the line may hold no backtick, so
+    ```x``` is a span, not a fence. Only the same character, at least as long, with nothing after
+    it, closes it. Four spaces or a tab of indent is code, counted from the content of the list item
+    the line continues. Where this reading knowingly differs from CommonMark, it keeps more in code:
+    a closing fence must sit at or right of its opening one, and a line left of the list item that
+    holds a fence leaves the fence open, where CommonMark would end both."""
+    lines, fence, item = [], None, 0
+    for raw in review.splitlines():
+        line = raw.expandtabs(4)
+        indent, blank = _spaces(line), not line.strip()
+        if fence:
+            char, length, opened_at, container = fence
+            if (opened_at <= indent <= container + 3
+                    and re.match(r"^ *%s{%d,}[ \t]*$" % (re.escape(char), length), line)):
+                fence = None
+            else:
+                lines.append((raw, True))
+            continue
+        if not blank and indent < item:
+            item = 0
+        rest = line[item:]
+        m = _FENCE_OPEN.match(rest)
+        if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
+            fence = (m.group(1)[0], len(m.group(1)), indent, item)
+            continue
+        if not blank and _spaces(rest) >= 4:
+            lines.append((raw, True))
+            continue
+        m = _LIST_ITEM.match(rest)
+        if m:
+            gap = len(m.group(3))
+            item += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
+        lines.append((raw, False))
+    return lines, fence is not None
+
+
+def verdict_lines(review):
+    """(verdict, in code) for every verdict line, and whether a fence was left open."""
+    lines, unclosed = _code_lines(review)
+    found = []
+    for line, in_code in lines:
+        text = _MARKUP.sub("", line).strip()
+        m = _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text)
+        if m:
+            found.append((m.group(1).upper(), in_code))
+    return found, unclosed
 
 
 def parse_verdict(review):
@@ -813,20 +883,20 @@ def parse_verdict(review):
 
     Code is skipped (round 2, 2026-11-07): a fenced block, or a line indented as code (a tab, or four
     spaces). Agni reviews its own tooling, whose fixtures hold "VERDICT: APPROVED" lines, and a
-    quoted one turned a "Final verdict: REJECTED" into APPROVED, exit 0."""
-    found = set()
-    fenced = False
-    for line in review.splitlines():
-        if _FENCE.match(line):
-            fenced = not fenced
-            continue
-        if fenced or _CODE_INDENT.match(line):
-            continue
-        text = _MARKUP.sub("", line).strip()
-        m = _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text)
-        if m:
-            found.add(m.group(1).upper())
-    return found.pop() if len(found) == 1 else "UNPARSED"
+    quoted one turned a "Final verdict: REJECTED" into APPROVED, exit 0.
+
+    Code can veto but never decide (round 3, 2026-11-07). Round 2 flipped "in code" on any line
+    that started with three backticks or tildes, so a one-line ```span```, a tilde fence "closed" by
+    backticks, or a fence left open hid the reviewer's REJECTED and let a quoted APPROVED decide,
+    exit 0. Now fences follow CommonMark (see _code_lines); only a verdict line outside code decides;
+    a verdict line anywhere, in code too, that disagrees makes it UNPARSED; and so does a fence that
+    never closes, or a review whose only verdict lines are in code. Even wrong about what is code,
+    a quoted verdict that differs from the reviewer's can never pass."""
+    found, unclosed = verdict_lines(review)
+    decided = {v for v, in_code in found if not in_code}
+    if unclosed or len(decided) != 1 or any(v not in decided for v, _ in found):
+        return "UNPARSED"
+    return decided.pop()
 
 
 def main():
