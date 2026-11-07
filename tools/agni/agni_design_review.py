@@ -8,6 +8,28 @@ Usage:
   ssh margaret "cd ~/experiments && python3 agni_design_review.py script.py prereg.json"
 
 CHANGELOG
+  1.2.0 (2026-11-07): No silent cuts, as in agni_phases.py. The script is sent whole, with no
+        function-prioritized excerpt, and hypotheses and threats are no longer sliced. A prompt over
+        AGNI_LOCAL_CHAR_BUDGET (default 60000) is verdict INVALID, exit 2, before any model call,
+        written over any older record. num_ctx is now set (LLM_NUM_CTX, default 32768): unset,
+        Ollama trims the prompt with no signal, whatever was sent. The payload goes over stdin:
+        a whole prompt can pass the command-line limit.
+        Round 2: every prereg key reaches the model (a singular `hypothesis` key, or any key
+        beyond hypotheses and threats such as falsification_criteria, used to be dropped without a
+        word); the record lists them. The verdict comes from a line that starts VERDICT, OVERALL
+        VERDICT or FINAL VERDICT, outside code: the fallback to a verdict word anywhere read "I would
+        not call this design approved" as APPROVED, exit 0. INVALID is written before the model call
+        and on an empty reply, so an older APPROVED cannot outlive a run that gave no review.
+        Round 3: fences are read as CommonMark reads them, and a verdict line in code can veto but
+        never decide (see parse_verdict). A prereg that is missing, unreadable, not UTF-8, not JSON,
+        not an object or has a duplicate key, a script that is not UTF-8, and a curl or backend
+        failure each write INVALID with its cause over any older record and exit non-zero; they
+        used to raise a traceback (exit 1, which reads as REJECTED) and leave that record standing.
+        Files are read as UTF-8, not in the platform's encoding.
+        Round 5: the verdict is decided by protocol. The reply's last non-blank line, outside
+        code and markup stripped, must be "OVERALL VERDICT: <word>", and every other VERDICT,
+        OVERALL VERDICT or FINAL VERDICT line outside code must agree with it. Prose and code
+        never decide or veto (see parse_verdict). The prompt asks for that line last.
   1.1.0 (2026-05-29, Lyra): Fix four reliability bugs found when the gate
         silently returned empty on the persona_per_level review.
         - B1 empty-output: read `thinking` field as fallback (reasoning models
@@ -29,15 +51,15 @@ CHANGELOG
   1.0.0 (prior): original single-experiment version.
 """
 
-import json, sys, subprocess, textwrap, re
+import json, os, sys, subprocess, textwrap, re, unicodedata
 from pathlib import Path
 from datetime import datetime, timezone
 
-AGNI_REVIEW_VERSION = "1.1.1"
+AGNI_REVIEW_VERSION = "1.2.0"
 OLLAMA_MODEL = "qwen3:30b-a3b"
 OLLAMA_URL = "http://localhost:11434/api/generate"
 NUM_PREDICT = 12000  # headroom so reasoning + verdict both fit (B1)
-SCRIPT_CHAR_CAP = 30000  # fit whole experiment scripts; 32k ctx leaves room (B4-residual)
+LOCAL_CHAR_BUDGET = 60000  # same default and env var as agni_phases.py; see the reasoning there
 
 KNOWN_KILLS = [
     "C1: model.generate() rebuilds cache, invalidating geometry",
@@ -72,7 +94,7 @@ because the topic is similar — verify against the actual code. Flagging an err
 code does not contain is itself a review failure.
 
 FULL EXPERIMENT SCRIPT:
-{script_excerpt}
+{script}
 
 HYPOTHESES:
 {hypotheses}
@@ -80,92 +102,441 @@ HYPOTHESES:
 SELF-IDENTIFIED THREATS:
 {threats}
 
+OTHER PRE-REGISTRATION FIELDS (every other key in the prereg, whole):
+{other}
+
 INSTRUCTIONS:
 1. Check each known fatal error against this design. PASS or FAIL each, citing the
    specific line/construct. If the construct is absent, mark PASS (not applicable).
 2. Identify NEW concerns not in the checklist.
 3. For each concern: severity (CRITICAL/MAJOR/MINOR), attack, mitigation.
-4. End with exactly one line: "OVERALL VERDICT: APPROVED" or "...: CONDITIONAL" or "...: REJECTED".
-5. If CONDITIONAL, state what must change.
+4. If CONDITIONAL, state what must change.
+5. End with exactly one line, as the very last line, nothing after it: "OVERALL VERDICT: APPROVED"
+   or "...: CONDITIONAL" or "...: REJECTED".
 """)
 
 
-def extract_script(script_path):
-    """Send the full script. If it exceeds the cap, keep the docstring plus all
-    function definitions (the methodology), which is what a reviewer needs to see.
-    (B4 fix: previously used decision_moment-specific markers and fell back to
-    text[:3000] for any other script, hiding the actual methodology.)"""
-    text = Path(script_path).read_text()
-    if len(text) <= SCRIPT_CHAR_CAP:
-        return text
-    lines = text.split("\n")
-    kept, in_func, blank = [], False, 0
-    # keep module docstring + every def/class block
-    for i, line in enumerate(lines):
-        if re.match(r"^\s*(def |class )", line):
-            in_func = True
-            blank = 0
-        if i < 40 or in_func:
-            kept.append(line)
-        if in_func and line.strip() == "":
-            blank += 1
-            if blank >= 2:
-                in_func = False
-    out = "\n".join(kept)
-    return out[:SCRIPT_CHAR_CAP] + "\n# [truncated — function-prioritized]"
+_VERDICT_WORD = r"(APPROVED|CONDITIONAL|REJECTED)"
+# The label of a contract-form line, as in agni_phases.py. Round 6: round 5's label here took no list
+# number and no AGNI- prefix, so "1. VERDICT: REJECTED" or "AGNI-VERDICT: REJECTED" above an approval
+# did not veto, where agni_phases.py vetoed the same lines.
+_LABEL = (r"^(?:(?:[-+]|\d+[.)])\s+)?"                   # the prompt's own "1. VERDICT ..." numbering
+          r"(?:(?:OVERALL|FINAL|AGNI)(?:\s+|-)){0,2}VERDICT\b(?:\s*\([^()]*\))?")
+_VERDICT_LINE = re.compile(
+    _LABEL + r"[\s:=\u2013\u2014-]*" + _VERDICT_WORD + r"(?![\w-])"
+    r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)", re.I)
+# A label alone, "## Verdict", with its word on the next line (round 6).
+_LABEL_ONLY = re.compile(_LABEL + r"[\s:=\u2013\u2014-]*$", re.I)
+# Round 5: the reply's last line, which decides. Exactly this once markup is stripped, nothing after.
+_PROTOCOL = re.compile(r"^OVERALL VERDICT:\s*(APPROVED|CONDITIONAL|REJECTED)$", re.I)
+_MARKUP = re.compile(r"[*_`#]+")
+
+
+_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+_LIST_ITEM = re.compile(r"^( {0,3})([-+*]|\d{1,9}[.)])( +|$)")
+_THEMATIC_BREAK = re.compile(r"^ {0,3}([-*_])(?: *\1){2,} *$")
+# CommonMark HTML blocks. Kinds 1 to 5 (<pre>, <script>, <style>, <textarea>, comments, <?, <!X,
+# CDATA) run to their end marker; any other tag runs to a blank line (end None).
+_HTML_BLOCKS = (
+    (re.compile(r"^ {0,3}<(?:pre|script|style|textarea)(?=\s|>|$)", re.I),
+     re.compile(r"</(?:pre|script|style|textarea)>", re.I)),
+    (re.compile(r"^ {0,3}<!--"), re.compile(r"-->")),
+    (re.compile(r"^ {0,3}<\?"), re.compile(r"\?>")),
+    (re.compile(r"^ {0,3}<!\[CDATA\["), re.compile(r"\]\]>")),
+    (re.compile(r"^ {0,3}<![A-Za-z]"), re.compile(r">")),
+    (re.compile(r"^ {0,3}</?[A-Za-z][A-Za-z0-9-]*(?=[\s/>]|$)"), None),
+)
+# CommonMark ends a line at LF, CR or CRLF only. str.splitlines also ends one at U+2028, NEL, a
+# form feed and others, so "a<U+2028>```" closed a fence CommonMark keeps open (round 4).
+_LINE_END = re.compile(r"\r\n|\r|\n")
+_VERDICT_STEM = re.compile(r"approved|conditional|rejected")
+# Cyrillic and Greek letters that look Latin, as lower case, read as the Latin letter.
+_LOOKALIKES = str.maketrans(
+    "\u0430\u0432\u0435\u043a\u043c\u043d\u043e\u0440\u0441\u0442\u0443\u0445\u0456\u0458\u0455\u0501"
+    "\u03b1\u03b2\u03b5\u03b6\u03b7\u03b9\u03ba\u03bc\u03bd\u03bf\u03c1\u03c4\u03c5\u03c7",
+    "abekmhopctyxijsd" "abezhikmnoptyx")
+# Between the words of the contract read back: punctuation and "or", nothing else.
+_ECHO_GAP = re.compile(r"^(?:[\s\"'/|,.:;()\[\]*_`~-]|\bor\b)*$")
+# After a pass verdict, what takes it back: a negation, a contrast, a question or an arrow.
+_TAKE_BACK = re.compile(r"\b(?:not|never|nor|but|however|instead|rather|except|although|though)\b"
+                        r"|n't\b|\bno\b(?!\s+\w)|\?|->|=>|<-|[\u2190-\u21ff\u27f0-\u27ff\u2900-\u297f]",
+                        re.I)
+# After APPROVED, what makes it depend on something, which is not APPROVED.
+_CONDITION = re.compile(r"\b(?:if|unless|otherwise|provided|pending|until|once|subject\s+to|"
+                        r"condition\w*)\b", re.I)
+
+
+def _spaces(line):
+    return len(line) - len(line.lstrip(" "))
+
+
+# An ATX heading or a setext underline: not a paragraph line, so indented code may follow it.
+_HEADING = re.compile(r"^ {0,3}(?:#{1,6}(?:[ \t]|$)|=+[ \t]*$)")
+
+
+def _code_lines(review, faithful=False):
+    """Each line of the review as (line, in code). A fence's closing line is code too, and a fence or
+    an HTML block left open keeps every line after it in code.
+
+    CommonMark, as far as a verdict needs it. Lines end at LF, CR or CRLF only. A fence opens on up
+    to three spaces of indent, then three or more backticks or tildes; after backticks the rest of
+    the line may hold no backtick, so ```x``` is a span, not a fence. Only the same character, at
+    least as long, with nothing after it, closes it. Four spaces or a tab of indent is code, counted
+    from the content of the list item the line continues. A list marker is consumed before the rest
+    of its line is read, so "- ```" opens a fence and "-     x" is indented code; "- - -" is a
+    thematic break, not a list. HTML blocks count as code: a <pre> or a comment holds lines a reader
+    does not see as text. Where this reading knowingly differs from CommonMark, it keeps more in
+    code: a closing fence must sit at or right of its opening one, a line left of the list item that
+    holds a fence leaves the fence open where CommonMark would end both, and any line that starts
+    with a tag starts an HTML block.
+
+    faithful (round 6, 2026-11-07) is the reading as close to CommonMark as this gets, and where it
+    is unsure it keeps less in code: a fence closes at up to three spaces of indent and ends with its
+    list item; an HTML block other than <pre>, <script>, <style>, <textarea>, a comment, <?, <!X or
+    CDATA is text, since a reader sees its text; and four spaces of indent right after a paragraph
+    line are more of that paragraph, since indented code cannot interrupt one. Round 5 let code
+    neither decide nor veto, so every line the wider reading kept in code was a place a visible
+    REJECTED could hide. _contract_verdicts reads both: a line decides only when neither puts it in
+    code, and is skipped as code only when both do."""
+    lines, fence, html, item, para = [], None, None, 0, False
+    for raw in _LINE_END.split(review):
+        line = raw.expandtabs(4)
+        indent, blank = _spaces(line), not line.strip()
+        if fence:
+            char, length, opened_at, container = fence
+            if not (faithful and not blank and indent < container):
+                if ((container if faithful else opened_at) <= indent <= container + 3
+                        and re.match(r"^ *%s{%d,}[ \t]*$" % (re.escape(char), length), line)):
+                    fence = None
+                lines.append((raw, True))
+                continue
+            fence, item = None, 0                 # faithful: the list item ends, and its fence with it
+        if html:
+            lines.append((raw, not faithful or html[0] is not None))
+            if html[0].search(line) if html[0] else blank:
+                html = None
+            para = False
+            continue
+        if not blank and indent < item:
+            item = 0
+        pos, in_code, text, marker = item, False, False, False
+        while not blank:
+            rest = line[pos:]
+            if _spaces(rest) >= 4:
+                in_code = not (faithful and para and not marker)
+                text = not in_code
+                break
+            m = _FENCE_OPEN.match(rest)
+            if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
+                fence = (m.group(1)[0], len(m.group(1)), pos + _spaces(rest), pos)
+                in_code = True
+                break
+            start, end = next(((s.match(rest), e) for s, e in _HTML_BLOCKS if s.match(rest)), (None, None))
+            if start:
+                in_code = not faithful or end is not None
+                if not (end and end.search(rest, start.end())):
+                    html = (end,)
+                break
+            if _THEMATIC_BREAK.match(rest) or _HEADING.match(rest):
+                break
+            m = _LIST_ITEM.match(rest)
+            if not m:
+                text = True
+                break
+            gap = len(m.group(3))
+            pos += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
+            item, marker = pos, True
+        lines.append((raw, in_code))
+        para = text
+    return lines
+
+
+def _fold(line):
+    """Lower case, with compatibility forms and accents taken apart, invisible format characters (a
+    zero-width space) dropped, and Cyrillic and Greek lookalikes read as Latin."""
+    s = "".join(c for c in unicodedata.normalize("NFKD", line) if unicodedata.category(c) not in ("Cf", "Mn"))
+    return s.lower().translate(_LOOKALIKES)
+
+
+def _is_echo(folded):
+    """The contract read back, "APPROVED / CONDITIONAL / REJECTED": all three words with nothing
+    but punctuation and "or" between them. It gives no verdict, so it neither decides nor vetoes;
+    otherwise a reviewer that restates its instructions could never parse."""
+    hits = list(_VERDICT_STEM.finditer(folded))
+    return ({h.group() for h in hits} == {"approved", "conditional", "rejected"}
+            and all(_ECHO_GAP.match(folded[a.end():b.start()]) for a, b in zip(hits, hits[1:])))
+
+
+# After a CONDITIONAL, what takes it back: a question or an arrow right after the word (round 6).
+_CONDITIONAL_TAKE_BACK = re.compile(r"^\W*?(?:\?|->|=>|<-|[\u2190-\u21ff\u27f0-\u27ff\u2900-\u297f])")
+# CommonMark inline code: a run of backticks, closed by a run of the same length.
+_CODE_SPAN = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
+_TAG = re.compile(r"</?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?/?>")
+_QUOTE = re.compile(r"^(?:\s*>)+")
+
+
+def _takes_back(verdict, tail):
+    """Whether the text after a pass verdict's word takes it back. A REJECTED is not checked: however
+    it is qualified, it cannot pass. An APPROVED is taken back by a negation, a contrast, a question,
+    an arrow or a condition after it. A CONDITIONAL is qualified by nature ("CONDITIONAL -- not
+    runnable until fix 1 lands"), so only a question or an arrow right after its word takes it back
+    (round 6: round 4 read its conditions as a take-back, and a well-formed CONDITIONAL was UNPARSED)."""
+    if verdict == "REJECTED":
+        return False
+    if verdict == "CONDITIONAL":
+        return bool(_CONDITIONAL_TAKE_BACK.match(tail))
+    return bool(_TAKE_BACK.search(tail) or _CONDITION.search(tail))
+
+
+def _clear(word, tail, named):
+    """The word a contract-form line gives, or UNCLEAR. Any other verdict word on the line makes it
+    unclear, except an APPROVED on a CONDITIONAL line, which names where its conditions lead:
+    "VERDICT: CONDITIONAL (can be APPROVED once fix 1 is in)" (round 6)."""
+    others = named - {word} - ({"APPROVED"} if word == "CONDITIONAL" else set())
+    return "UNCLEAR" if others or _takes_back(word, tail) else word
+
+
+def _plain(line):
+    """A line as a reader sees its words: markup characters and surrounding white space gone."""
+    return _MARKUP.sub("", line).strip()
+
+
+def _quotes_a_verdict(span):
+    folded = _fold(span)
+    return "verdict" in folded and bool(_VERDICT_STEM.search(folded))
+
+
+def _seen(line):
+    """A line as a reader sees it, for a veto, and whether it is blockquoted (round 6). An inline code
+    span that holds a verdict line, "`VERDICT: APPROVED`", quotes a fixture and is dropped; a span
+    round only the word, "VERDICT: `REJECTED`", is the reviewer's own formatting and stays. Then
+    blockquote markers, HTML tags and markup go: "> **VERDICT: REJECTED**" and "<b>VERDICT:
+    REJECTED</b>" are verdict lines a reader sees."""
+    line = _CODE_SPAN.sub(lambda m: " " if _quotes_a_verdict(m.group(2)) else m.group(0), line)
+    return _plain(_TAG.sub("", _QUOTE.sub("", line))), bool(_QUOTE.match(line))
+
+
+def _contract_verdicts(review, protocol, contract_line):
+    """The verdict the review gives by protocol, or None, and what each other verdict line in a form
+    of the contract gives.
+
+    The protocol line is the last non-blank line: outside code, and matched by protocol() once
+    markup is stripped. Any other line not in code is in a form of the contract when
+    contract_line() matches it as _seen gives it, as written or folded (a Cyrillic E or a zero-width
+    space does not hide one). It gives its verdict, or UNCLEAR when the line does not clearly give
+    it (see _clear; round 4: a verdict line is read whole). The contract read back is skipped. Prose
+    and lines in code give nothing (round 5).
+
+    Round 6 (2026-11-07). Code is read twice (see _code_lines): the protocol line counts only when
+    neither reading puts it in code, and a line is skipped as code only when both do, so a line the
+    reading is unsure of cannot decide and can veto. A label alone, "## Verdict", reads the next
+    line as its verdict when that line starts with a verdict word. A blockquoted line can stop a pass
+    but cannot turn a rejection into UNPARSED, since a quote may be someone else's verdict."""
+    wide, faithful = _code_lines(review), _code_lines(review, faithful=True)
+    lines = [(line, a, b) for (line, a), (_, b) in zip(wide, faithful) if line.strip()]
+    if not lines:
+        return None, []
+    last, last_wide, last_faithful = lines[-1]
+    said = None if last_wide or last_faithful else protocol.match(_plain(last))
+    said = said.group(1).upper() if said else None
+    others, label = [], False
+    for line, in_wide_code, in_faithful_code in lines[:-1]:
+        folded = _fold(line)
+        after_label, label = label, False
+        if (in_wide_code and in_faithful_code) or _is_echo(folded):
+            continue
+        named = {w.upper() for w in _VERDICT_STEM.findall(folded)}
+        for text, quoted in (_seen(line), _seen(folded)):
+            if _LABEL_ONLY.match(text):
+                label = True
+                continue
+            if after_label and not contract_line(text):
+                text = "VERDICT: " + text
+            m = contract_line(text)
+            if m and not (quoted and said == "REJECTED"):
+                others.append(_clear(m.group(1).upper(), text[m.end():], named))
+    return said, others
 
 
 def parse_verdict(review):
-    m = re.search(r"OVERALL VERDICT:\s*(APPROVED|CONDITIONAL|REJECTED)", review, re.I)
-    if m:
-        return m.group(1).upper()
-    # fallback: last standalone verdict word
-    for word in ("REJECTED", "CONDITIONAL", "APPROVED"):
-        if re.search(rf"\b{word}\b", review, re.I):
-            return word
-    return "UNPARSED"
+    """The verdict the review's last line gives by protocol, if every other verdict line agrees, else
+    UNPARSED. The rule of agni_phases.py, kept here because this harness runs on its own: a verdict
+    line starts VERDICT, OVERALL VERDICT or FINAL VERDICT once markup is stripped, and a line in a
+    code fence or indented as code is quoted code, not the reviewer. The old fallback to a verdict
+    word anywhere read
+    "I would not call this design approved" as APPROVED, exit 0 (round 2, 2026-11-07).
+    Round 3 (2026-11-07): any line starting with three backticks or tildes flipped "in code", so a
+    one-line ```span``` or a fence left open hid a REJECTED and let a quoted APPROVED decide. Now
+    fences follow CommonMark; only a line outside code decides; a verdict line in code that disagrees,
+    a fence that never closes, or verdict lines only in code give UNPARSED.
+    Round 4 (2026-11-07): a line is read whole, as in agni_phases.py. A second verdict word on a
+    verdict line, a REJECTED in a form the regex does not know (a table cell, after an emoji, a
+    lookalike letter, a zero-width space), or a pass verdict that is negated or made conditional
+    gives UNPARSED.
+    Round 5 (2026-11-07): decided by protocol, as in agni_phases.py, which tells the replay that
+    led to it. The prompt asks for "OVERALL VERDICT: <word>" as the very last line, and that line
+    decides: the last non-blank line must be outside code and, markup stripped, exactly that, or the
+    review is UNPARSED. Every other VERDICT, OVERALL VERDICT or FINAL VERDICT line outside code must
+    give the same word, read whole and not taken back. Prose and lines in code never decide or veto.
+    A pass read only from the model's thinking is still recorded UNPARSED (see run_review).
+    Round 6 (2026-11-07): the label is agni_phases.py's, so "1. VERDICT: REJECTED", "- VERDICT:
+    REJECTED" and "AGNI-VERDICT: REJECTED" above an approval veto here too, and lines are read as a
+    reader sees them, as there (see _contract_verdicts)."""
+    said, others = _contract_verdicts(review, _PROTOCOL, _VERDICT_LINE.match)
+    if said is None or any(v != said for v in others):
+        return "UNPARSED"
+    return said
+
+
+def write_invalid(out_path, prereg, reason, prompt_length):
+    """INVALID over whatever is at out_path, so an older APPROVED cannot stand for this run."""
+    try:
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "agni_version": AGNI_REVIEW_VERSION,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "model": OLLAMA_MODEL, "experiment": prereg.get("experiment"),
+                "verdict": "INVALID", "review": "",
+                "invalid_reason": reason,
+                "prompt_length": prompt_length,
+            }, f, indent=2)
+    except OSError as e:
+        print(f"ERROR: could not write the record to {out_path} ({e}). Anything already there is STALE.",
+              file=sys.stderr)
+
+
+def _record_path(script_path, experiment):
+    exp = re.sub(r"[^A-Za-z0-9_.-]", "_", experiment if isinstance(experiment, str) else Path(script_path).stem)
+    return Path(script_path).parent / f"{exp}_agni_review.json"
+
+
+def fail_invalid(paths, prereg, reason, prompt_length=0, code=2):
+    """Exit non-zero with INVALID written at every path an older record of this run could be at."""
+    print(f"ERROR: {reason}", file=sys.stderr)
+    print("  Verdict INVALID. This is NOT a pass. The design is UNGATED.", file=sys.stderr)
+    for p in dict.fromkeys(paths):
+        write_invalid(p, prereg, reason, prompt_length)
+    sys.exit(code)
+
+
+def _no_duplicate_keys(pairs):
+    """json.loads keeps the last of two equal keys and drops the first without a word."""
+    seen = set()
+    for key, _ in pairs:
+        if key in seen:
+            raise ValueError(f"duplicate key {key!r}: one of its values would never reach the model")
+        seen.add(key)
+    return dict(pairs)
+
+
+def _read_utf8(path):
+    """UTF-8, strictly. The platform encoding (cp1252 on Windows) used to turn an arrow into three
+    other glyphs without a word, or crash with a traceback that left an older record standing."""
+    return Path(path).read_bytes().decode("utf-8")
+
+
+def read_prereg(script_path, prereg_path):
+    """The prereg as a dict, or INVALID and exit 2. A prereg that cannot be read cannot name its
+    experiment, so INVALID goes at the script-named path and at any path its text still names (round 3)."""
+    paths = [_record_path(script_path, None)]
+    try:
+        raw = Path(prereg_path).read_bytes()
+    except OSError as e:
+        fail_invalid(paths, {}, f"the prereg {prereg_path} cannot be read: {e.__class__.__name__}: {e}")
+    paths += [_record_path(script_path, m) for m in
+              re.findall(r'"experiment"\s*:\s*"((?:[^"\\]|\\.)*)"', raw.decode("utf-8", errors="replace"))]
+    try:
+        prereg = json.loads(raw.decode("utf-8"), object_pairs_hook=_no_duplicate_keys)
+    except (UnicodeDecodeError, ValueError, RecursionError) as e:   # deep nesting: round 4
+        fail_invalid(paths, {}, f"the prereg {prereg_path} is not valid UTF-8 JSON: {e}")
+    if not isinstance(prereg, dict):
+        fail_invalid(paths, {}, f"the prereg {prereg_path} is not a JSON object")
+    return prereg
 
 
 def run_review(script_path, prereg_path):
-    script_excerpt = extract_script(script_path)
-    with open(prereg_path) as f:
-        prereg = json.load(f)
+    prereg = read_prereg(script_path, prereg_path)
+    # B3 fix: name output per-experiment, not hardcoded
+    out_path = _record_path(script_path, prereg.get("experiment"))
+    try:
+        script = _read_utf8(script_path)
+    except (OSError, UnicodeDecodeError) as e:
+        fail_invalid([out_path], prereg, f"the script {script_path} cannot be read as UTF-8: "
+                     f"{e.__class__.__name__}: {e}")
 
-    hypotheses = json.dumps(prereg.get("hypotheses", prereg.get("primary_hypothesis", [])), indent=2)
-    threats = json.dumps(prereg.get("threats_to_validity", prereg.get("red_team_controls", [])), indent=2)
+    # Every key reaches the model (round 2): a singular "hypothesis" fell back to [] and any other
+    # key, falsification criteria included, was dropped without a word, and the run exited 0 APPROVED.
+    hyp_key = next((k for k in ("hypotheses", "hypothesis", "primary_hypothesis") if prereg.get(k)), None)
+    threat_key = next((k for k in ("threats_to_validity", "red_team_controls") if prereg.get(k)), None)
+    hypotheses = json.dumps(prereg[hyp_key] if hyp_key else [], indent=2)
+    threats = json.dumps(prereg[threat_key] if threat_key else [], indent=2)
+    other_keys = [k for k in prereg if k not in (hyp_key, threat_key)]
+    other = json.dumps({k: prereg[k] for k in other_keys}, indent=2) if other_keys else "(none)"
     kills = "\n".join(f"  - {k}" for k in KNOWN_KILLS)
 
     prompt = REVIEW_PROMPT.format(
-        kills=kills, script_excerpt=script_excerpt[:SCRIPT_CHAR_CAP],
-        hypotheses=hypotheses[:2500], threats=threats[:2000])
+        kills=kills, script=script, hypotheses=hypotheses, threats=threats, other=other)
+
+    # No silent cuts: whole, or not at all. INVALID goes over any older record at this path.
+    # Both read before anything is sent, and a value that is not a whole number is INVALID, not a
+    # traceback (round 4): int("60k") raised here, exit 1, before the placeholder, so an older
+    # APPROVED stood; int("32k") for num_ctx raised after it, exit 1.
+    try:
+        budget = int(os.environ.get("AGNI_LOCAL_CHAR_BUDGET", LOCAL_CHAR_BUDGET))
+        num_ctx = int(os.environ.get("LLM_NUM_CTX", "32768"))
+    except ValueError as e:
+        fail_invalid([out_path], prereg, "AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX must be whole "
+                     f"numbers: {e}", len(prompt))
+    if len(prompt) > budget:
+        print("ERROR: REFUSED -- verdict INVALID, exit 2. No model saw this input.", file=sys.stderr)
+        print("  This is NOT a pass. The design is UNGATED.", file=sys.stderr)
+        print(f"  Prompt {len(prompt):,} chars, AGNI_LOCAL_CHAR_BUDGET {budget:,}: script {len(script):,}, "
+              f"hypotheses {len(hypotheses):,}, threats {len(threats):,}.", file=sys.stderr)
+        print("  What to do: pass a narrower script, or raise AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX "
+              "together, deliberately.", file=sys.stderr)
+        write_invalid(out_path, prereg, f"prompt {len(prompt)} chars over budget {budget}", len(prompt))
+        sys.exit(2)
 
     print(f"Agni Design Review v{AGNI_REVIEW_VERSION}")
     print(f"Submitting to {OLLAMA_MODEL}...")
-    print(f"  Script: {script_path} ({len(script_excerpt)} chars sent)")
+    print(f"  Script: {script_path} ({len(script)} chars sent, whole)")
     print(f"  Experiment: {prereg.get('experiment','?')}")
     print()
 
+    # Before the call, as in agni_phases.py: a run that dies, fails in curl or gets no review then
+    # leaves INVALID, not an older APPROVED (round 2).
+    write_invalid(out_path, prereg, "a review started and no result was recorded: it is still running, "
+                  "or it died", len(prompt))
     payload = json.dumps({
         "model": OLLAMA_MODEL, "prompt": prompt, "stream": False,
-        "options": {"num_predict": NUM_PREDICT, "temperature": 0.3},
+        "options": {"num_predict": NUM_PREDICT, "temperature": 0.3,
+                    "num_ctx": num_ctx},
     })
-    result = subprocess.run(["curl", "-s", OLLAMA_URL, "-d", payload],
-                            capture_output=True, text=True, timeout=600)
+    # Each failure writes its own INVALID with its cause, exit 3 (round 3): the placeholder above
+    # says only that a review started, and a traceback here used to exit 1, which reads as REJECTED.
+    try:
+        result = subprocess.run(["curl", "-s", OLLAMA_URL, "--data-binary", "@-"], input=payload,
+                                capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                timeout=600)
+    except (OSError, subprocess.SubprocessError) as e:
+        fail_invalid([out_path], prereg, f"curl did not run: {e.__class__.__name__}: {e}", len(prompt), 3)
     if result.returncode != 0:
-        print(f"ERROR: curl failed: {result.stderr}", file=sys.stderr)
-        sys.exit(3)
-
+        fail_invalid([out_path], prereg, f"curl failed, exit {result.returncode}: "
+                     f"{(result.stderr or '').strip()[:500] or '(no stderr)'}", len(prompt), 3)
     try:
         resp = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        print("ERROR: could not parse Ollama response", file=sys.stderr)
-        print(result.stdout[:500], file=sys.stderr)
-        sys.exit(3)
+    except ValueError:
+        resp = None
+    if not isinstance(resp, dict):
+        fail_invalid([out_path], prereg, "the backend reply is not a JSON object: "
+                     f"{(result.stdout or '').strip()[:500] or '(empty)'}", len(prompt), 3)
 
     # B1 fix: reasoning models put output in `thinking` when `response` is empty
-    review = (resp.get("response") or "").strip()
-    thinking = (resp.get("thinking") or "").strip()
-    if not review and thinking:
+    review = resp.get("response") if isinstance(resp.get("response"), str) else ""
+    thinking = resp.get("thinking") if isinstance(resp.get("thinking"), str) else ""
+    review, thinking = review.strip(), thinking.strip()
+    recovered = bool(not review and thinking)
+    if recovered:
         review = "[recovered from thinking field]\n\n" + thinking
 
     # B2 fix: a gate must FAIL LOUD on empty — never let silence read as pass
@@ -173,9 +544,19 @@ def run_review(script_path, prereg_path):
         print("ERROR: Agni returned an EMPTY review. This is NOT a pass.", file=sys.stderr)
         print(f"  done_reason={resp.get('done_reason')} eval_count={resp.get('eval_count')}", file=sys.stderr)
         print("  Raise NUM_PREDICT or check the model. Gate result is INVALID.", file=sys.stderr)
+        write_invalid(out_path, prereg, "the model gave an empty review"
+                      + (f"; backend error: {resp['error']}" if resp.get("error") else ""), len(prompt))
         sys.exit(2)
 
     verdict = parse_verdict(review)
+    # Round 4: thinking is not the answer. A model that ran out of tokens mid-thought, having
+    # drafted the contract line there, recorded APPROVED and exited 0. A pass read only from the
+    # thinking is UNPARSED; a rejection read there is kept, since it cannot pass.
+    if recovered and verdict in ("APPROVED", "CONDITIONAL"):
+        print(f"WARNING: {verdict} was read only from the model's thinking (done_reason="
+              f"{resp.get('done_reason')}), not from an answer. Recorded UNPARSED: NOT a pass.",
+              file=sys.stderr)
+        verdict = "UNPARSED"
     print("=" * 60)
     print(f"AGNI DESIGN REVIEW — VERDICT: {verdict}")
     print("=" * 60)
@@ -183,17 +564,16 @@ def run_review(script_path, prereg_path):
     print("=" * 60)
     print(f"VERDICT: {verdict}")
 
-    # B3 fix: name output per-experiment, not hardcoded
-    exp = re.sub(r"[^A-Za-z0-9_.-]", "_", prereg.get("experiment", Path(script_path).stem))
-    out_path = Path(script_path).parent / f"{exp}_agni_review.json"
-    with open(out_path, "w") as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump({
             "agni_version": AGNI_REVIEW_VERSION,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "model": OLLAMA_MODEL, "experiment": prereg.get("experiment"),
             "verdict": verdict, "review": review,
-            "recovered_from_thinking": bool(not resp.get("response") and thinking),
+            "recovered_from_thinking": recovered, "done_reason": resp.get("done_reason"),
             "prompt_length": len(prompt),
+            "prereg_keys_sent": sorted(prereg),
+            "prereg_other_keys_sent": sorted(other_keys),
         }, f, indent=2)
     print(f"Saved to {out_path}")
     return verdict
