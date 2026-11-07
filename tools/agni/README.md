@@ -44,6 +44,18 @@ recorded the cut.
   retry behaviour is unchanged.
 - `run_style_survey.py` counts `INVALID` as a failure, and also any exit other than 0 or 1, whatever
   the file on disk says. `summarize_style.py` shows `INVALID - NOT REVIEWED`.
+- **Round 2 (findings from independent verifiers, same day).** A pass on incomplete input is not a
+  pass: `APPROVED` or `CONDITIONAL` with `input_complete: false` exits 2 unless
+  `--accept-incomplete-input` is given, which stamps `incomplete_input_accepted` in the record.
+  `REJECTED` still exits 1. Undecodable bytes shown as U+FFFD make an input not complete; a U+FFFD
+  the file really holds does not. A prereg with a duplicate key is refused. The budget counts the
+  system text the reviewer is sent, not the prompt alone. A verdict line inside a code fence or
+  indented as code does not count, and `FINAL VERDICT` is a label. The survey fails a record whose
+  input is not complete or that has no `input_coverage`, and logs `input_complete`. The summary never
+  shows those as a plain pass, and shows `LAST RUN FAILED` when the run log says the last run failed
+  beside the record still on disk. Both survive a cp1252 console. `agni_design_review.py` sends every
+  prereg key, reads the verdict from a verdict line only, and writes `INVALID` before the model call
+  and on an empty reply.
 
 **How to check it.**
 
@@ -68,8 +80,11 @@ read; weigh them accordingly.
   `num_ctx` in principle.
 - A local server reached through `AGNI_LLM_BACKEND=openai` is not recognised as local, so the local
   budget does not apply to it.
-- `agni_design_review.py` follows the rule for cuts only. Its `parse_verdict` still falls back to a
-  verdict word anywhere in the text.
+- File classification is unchanged: a text file saved as UTF-16 or cp1252 is still read as binary
+  and not shown. It now makes the run not a pass, but the reviewer still does not see it. Save such
+  files as UTF-8.
+- `agni_design_review.py` does not refuse a duplicate prereg key, and reads its files in the
+  platform's encoding.
 
 ## Reviewer isolation: why every CLI call goes through `claude_isolation.py`
 

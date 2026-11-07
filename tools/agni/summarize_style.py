@@ -5,6 +5,12 @@ and dump every CRITICAL / MAJOR finding heading.
 Rebuilt from the per-paper JSONs, NOT from the run log -- the four parallel
 workers share one log file and race each other's writes, so the log is not
 authoritative. The JSON artifacts are.
+
+One exception (round 2, 2026-11-07): a run that exits 2 and cannot write its record leaves the old
+one on disk, and that one can say APPROVED. When the log says the last run of a paper FAILED beside
+the very record on disk (same timestamp, or an entry from before timestamps were logged), the row
+says so and its findings are not counted. A record the log shows was written later wins the race.
+A record whose input_coverage is not complete, or absent, is never shown as a plain pass.
 """
 import json
 import re
@@ -80,7 +86,23 @@ def findings(review):
     return out
 
 
+def last_runs():
+    """paper -> its run-log entry. A missing or broken log means no entries, not a crash."""
+    try:
+        log = json.loads((OUT / "_run_log.json").read_text(encoding="utf-8"))
+        return {e.get("paper"): e for e in log if isinstance(e, dict)}
+    except Exception:
+        return {}
+
+
 def main():
+    # A cp1252 console cannot print an arrow in a finding heading (round 2). Same fix as agni_phases.py.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+    runs = last_runs()
     rows = []
     details = []
     for name in PAPERS:
@@ -93,6 +115,12 @@ def main():
         if d.get("verdict") == "INVALID":
             rows.append((name, "INVALID - NOT REVIEWED", 0, 0, 0, 0))
             continue
+        complete = (d.get("input_coverage") or {}).get("input_complete")
+        run = runs.get(name) or {}
+        if (run.get("status") == "FAIL" and complete is not False
+                and run.get("record_timestamp", d.get("timestamp")) == d.get("timestamp")):
+            rows.append((name, "LAST RUN FAILED - %s ON DISK, NOT A PASS" % d.get("verdict", "?"), 0, 0, 0, 0))
+            continue
         if not review.strip():
             rows.append((name, "EMPTY REVIEW - FAIL", 0, 0, 0, 0))
             continue
@@ -100,7 +128,12 @@ def main():
         c = sum(1 for s, _ in f if s == "CRITICAL")
         j = sum(1 for s, _ in f if s == "MAJOR")
         n = sum(1 for s, _ in f if s == "MINOR")
-        rows.append((name, d.get("verdict", "?"), c, j, n, len(f)))
+        shown = d.get("verdict", "?")
+        if complete is False:
+            shown += " - INPUT NOT COMPLETE, NOT A PASS"
+        elif complete is None:
+            shown += " - COVERAGE NOT RECORDED"
+        rows.append((name, shown, c, j, n, len(f)))
         for sev, head in f:
             if sev in ("CRITICAL", "MAJOR"):
                 details.append((name, sev, head))

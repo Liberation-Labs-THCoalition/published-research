@@ -66,22 +66,38 @@ def run_one(name):
         return rec
     rec["verdict"] = d.get("verdict", "MISSING")
     rec["review_chars"] = len(d.get("review") or "")
+    rec["input_complete"] = (d.get("input_coverage") or {}).get("input_complete")
+    rec["record_timestamp"] = d.get("timestamp")    # summarize_style.py matches the record on this
     if rec["verdict"] in ("UNPARSED", "MISSING", "INVALID") or rec["review_chars"] == 0:
         rec["status"] = "FAIL"
         rec["reason"] = "verdict=%s chars=%d" % (rec["verdict"], rec["review_chars"])
         if d.get("invalid_reasons"):
             rec["reason"] += ": " + "; ".join(d["invalid_reasons"])
-    elif rec["exit"] not in (0, 1):
+    elif rec["exit"] not in (0, 1) and rec["input_complete"] is not False:
         # Exit 2 means UNGATED whatever the file says: a run that could not write its record
         # leaves the old one on disk, and that one can say APPROVED.
         rec["status"] = "FAIL"
         rec["reason"] = "exit %s beside a record saying %s: stale" % (rec["exit"], rec["verdict"])
+    elif rec["input_complete"] is not True:
+        # A review of part of the input is not a pass (round 2), and a record with no
+        # input_coverage cannot show that the reviewer got all of it.
+        rec["status"] = "FAIL"
+        rec["reason"] = ("input not complete: %s from a reviewer that did not get all of its input"
+                         % rec["verdict"] if rec["input_complete"] is False else
+                         "the record has no input_coverage, so it cannot show the input was whole")
     else:
         rec["status"] = "OK"
     return rec
 
 
 def main():
+    # A cp1252 console cannot print an arrow from a path in invalid_reasons, and the summary died
+    # after its first row (round 2). Same fix as agni_phases.py.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     todo = sys.argv[1:] or PAPERS
     log = []
     if LOG.exists():

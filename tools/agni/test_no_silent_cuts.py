@@ -366,14 +366,18 @@ class Refusal(Base):
         self.assertDelivered(self.run_main(["style", p]), "CANARY_INSIDE")
 
     def test_exact_budget_passes_and_one_over_refuses(self):
+        # Measured on the stdin the CLI gets: infer_cli puts SYSTEM and HONESTY_CLAUSE before the
+        # prompt, and a budget equal to the prompt alone let 1,179 more chars through (round 2).
         p = self.put("paper.md", fill(5000, "CANARY_EXACT"))
-        probe = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "100000000"})
+        probe = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "100000000"}, real_cli=True)
         self.assertEqual(len(probe.prompts), 1)
         size = len(probe.prompts[0])
-        at = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": str(size)})
+        self.assertIn("{:,} chars".format(size), probe.stdout, "the header must count what is sent")
+        at = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": str(size)}, real_cli=True)
         self.assertDelivered(at, "CANARY_EXACT")
         self.assertEqual(at.prompts[0], probe.prompts[0], "the prompt must not depend on the budget")
-        self.assertRefused(self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": str(size - 1)}))
+        self.assertRefused(self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": str(size - 1)},
+                                         real_cli=True))
 
     def test_budget_counts_chars_not_bytes(self):
         # 3-byte chars: the file on disk is far over the budget in bytes, and inside it in chars.
@@ -454,6 +458,8 @@ class Refusal(Base):
         self.assertEqual(res.code, 2)
         self.assertEqual((res.record or {}).get("verdict"), "INVALID")
         self.assertIn("NOT a pass", res.stderr)
+        # The no-review write itself, not the placeholder from before the call (mutant R06c).
+        self.assertIn("gave no review", " ".join((res.record or {}).get("invalid_reasons") or []))
 
     def test_unparsed_replaces_a_stale_approved_at_the_default_path(self):
         p = self.put("paper.md", "content")
@@ -498,7 +504,7 @@ class Folders(Base):
         self.assertEqual(sorted(b["name"] for b in item["binary_not_shown"]), ["noise.dat", "nul.bin"])
         self.assertEqual({b["name"]: b["bytes"] for b in item["binary_not_shown"]}["nul.bin"], 20)
         self.assertEqual(item["files_included"], 1)
-        self.assertEqual(res.code, 0)
+        self.assertEqual(res.code, 2, "an APPROVED on incomplete input is not a pass")
         self.assertIs(item["complete"], False, "the reviewer did not get the binary's content")
         self.assertIs(self.coverage(res)["input_complete"], False)
 
@@ -530,7 +536,9 @@ class Folders(Base):
         res = self.run_main(["style", p])
         self.assertDelivered(res, "CANARY_AFTER_BAD")
         self.assertEqual(self.item(res, "primary").get("replacement_chars"), 3)
-        self.assertIs(self.item(res, "primary")["complete"], True)
+        # The reviewer got U+FFFD where the file had something else: not all of its input (round 2).
+        self.assertIs(self.item(res, "primary")["complete"], False)
+        self.assertEqual(res.code, 2)
 
     def test_empty_folder_is_invalid(self):
         (self.tmp / "data").mkdir()
@@ -732,7 +740,7 @@ class LocalPath(Base):
         argv = ["style", p, "--backend", "http"]
         probe = self.run_main(argv, env=dict(self.OLLAMA, AGNI_LOCAL_CHAR_BUDGET="100000000"), local=APPROVED)
         self.assertEqual(len(probe.local_prompts), 1)
-        size = len(probe.local_prompts[0])
+        size = len(probe.local_prompts[0]) + len(PHASES.SYSTEM)    # the system text reaches Ollama too
         at = self.run_main(argv, env=dict(self.OLLAMA, AGNI_LOCAL_CHAR_BUDGET=str(size)), local=APPROVED)
         self.assertEqual(len(at.local_prompts), 1)
         self.assertIn("CANARY_LOCAL_EXACT", at.local_prompts[0])
@@ -906,8 +914,11 @@ class Survey(Base):
         self.assertEqual(rec["status"], "FAIL", "exit 2 means UNGATED whatever the file says")
 
     def test_real_verdicts_still_ok(self):
-        self.assertEqual(self.survey_one({"verdict": "REJECTED", "review": "text"}, exit_code=1)["status"], "OK")
-        self.assertEqual(self.survey_one({"verdict": "APPROVED", "review": "text"})["status"], "OK")
+        whole = {"inputs": [], "input_complete": True}
+        self.assertEqual(self.survey_one({"verdict": "REJECTED", "review": "text", "input_coverage": whole},
+                                         exit_code=1)["status"], "OK")
+        self.assertEqual(self.survey_one({"verdict": "APPROVED", "review": "text", "input_coverage": whole})
+                         ["status"], "OK")
 
     def test_summary_renders_invalid_as_not_reviewed(self):
         mod = sut("summarize_style.py", "summarize_under_test")
@@ -922,6 +933,295 @@ class Survey(Base):
         row = [l for l in stdout.getvalue().splitlines() if l.startswith("p1")][0]
         self.assertIn("INVALID", row)
         self.assertNotIn("EMPTY REVIEW", row)
+
+    # Round 2: neither the survey nor the summary may show a pass the gate did not give.
+
+    def summary(self, outdir, stream=None):
+        mod = sut("summarize_style.py", "summarize_under_test")
+        stream = stream if stream is not None else io.StringIO()
+        with mock.patch.object(mod, "OUT", outdir), mock.patch.object(mod, "PAPERS", ["p1"]), \
+                contextlib.redirect_stdout(stream):
+            mod.main()
+        return stream
+
+    def summary_row(self, outdir):
+        return [l for l in self.summary(outdir).getvalue().splitlines() if l.startswith("p1")][0]
+
+    def cp1252_console(self):
+        buf = io.BytesIO()
+        return buf, io.TextIOWrapper(buf, encoding="cp1252", errors="strict")
+
+    def test_survey_fails_a_pass_on_incomplete_input(self):
+        for code in (0, 2):
+            with self.subTest(exit_code=code):
+                rec = self.survey_one({"verdict": "APPROVED", "review": "text",
+                                       "input_coverage": {"inputs": [], "input_complete": False}}, exit_code=code)
+                self.assertEqual(rec["status"], "FAIL")
+                self.assertIn("not complete", rec["reason"])
+                self.assertIs(rec.get("input_complete"), False, "the run log must carry coverage")
+
+    def test_survey_fails_a_record_with_no_coverage(self):
+        rec = self.survey_one({"verdict": "APPROVED", "review": "text"}, exit_code=0)
+        self.assertEqual(rec["status"], "FAIL")
+
+    def test_summary_shows_a_pass_on_incomplete_input_as_not_a_pass(self):
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        for cov, needle in (({"inputs": [], "input_complete": False}, "NOT COMPLETE"),
+                            (None, "COVERAGE NOT RECORDED")):
+            with self.subTest(needle=needle):
+                rec = {"verdict": "APPROVED", "review": "VERDICT: APPROVED\n\n## 1. MAJOR - a finding\n"}
+                if cov:
+                    rec["input_coverage"] = cov
+                (outdir / "p1.agni_style.json").write_text(json.dumps(rec), encoding="utf-8")
+                self.assertIn(needle, self.summary_row(outdir))
+
+    def run_survey(self, outdir, exit_code):
+        mod = sut("run_style_survey.py", "survey_under_test")
+        self.put("papers/p1/main.tex", "flight")
+        self.put("papers/p1/academic/main.tex", "twin")
+
+        def fake_run(cmd, **kw):    # writes nothing: the record could not be replaced
+            return SimpleNamespace(returncode=exit_code, stderr="could not write the record", stdout="")
+
+        with mock.patch.object(mod, "PR", self.tmp / "papers"), mock.patch.object(mod, "OUT", outdir), \
+                mock.patch.object(mod, "LOG", outdir / "_run_log.json"), \
+                mock.patch.object(mod.subprocess, "run", fake_run), \
+                mock.patch.object(sys, "argv", ["run_style_survey.py", "p1"]), \
+                contextlib.redirect_stdout(io.StringIO()):
+            mod.main()
+
+    def test_summary_does_not_show_a_stale_approved_the_survey_failed(self):
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        (outdir / "p1.agni_style.json").write_text(json.dumps(
+            {"verdict": "APPROVED", "review": "VERDICT: APPROVED\n\n## 1. CRITICAL - CANARY_OLD_FINDING\n",
+             "timestamp": "2026-01-01T00:00:00+00:00",
+             "input_coverage": {"inputs": [], "input_complete": True}}), encoding="utf-8")
+        self.run_survey(outdir, exit_code=2)
+        out = self.summary(outdir).getvalue()
+        row = [l for l in out.splitlines() if l.startswith("p1")][0]
+        self.assertIn("LAST RUN FAILED", row)
+        self.assertEqual(row.split()[-4:], ["0", "0", "0", "0"], "a stale review's findings are not current")
+        self.assertNotIn("CANARY_OLD_FINDING", out)
+
+    def test_summary_trusts_a_record_written_after_the_failed_run(self):
+        # The workers race on the log: a FAIL entry about an older record must not hide a newer one.
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        (outdir / "_run_log.json").write_text(json.dumps([{"paper": "p1", "status": "FAIL", "verdict": "APPROVED",
+                                                           "record_timestamp": "2026-01-01T00:00:00+00:00"}]),
+                                              encoding="utf-8")
+        (outdir / "p1.agni_style.json").write_text(json.dumps(
+            {"verdict": "APPROVED", "review": "VERDICT: APPROVED\n", "timestamp": "2026-02-01T00:00:00+00:00",
+             "input_coverage": {"inputs": [], "input_complete": True}}), encoding="utf-8")
+        row = self.summary_row(outdir)
+        self.assertNotIn("FAILED", row)
+        self.assertIn("APPROVED", row)
+
+    def test_summary_survives_a_cp1252_console(self):
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        (outdir / "p1.agni_style.json").write_text(json.dumps(
+            {"verdict": "REJECTED", "input_coverage": {"inputs": [], "input_complete": True},
+             "review": "VERDICT: REJECTED\n\n## 1. CRITICAL — the claim → CANARY_ARROW_HEADING\n"}),
+            encoding="utf-8")
+        buf, console = self.cp1252_console()
+        self.summary(outdir, console)
+        console.flush()
+        self.assertIn("CANARY_ARROW_HEADING", buf.getvalue().decode("utf-8", "replace"))
+
+    def test_survey_summary_survives_a_cp1252_console(self):
+        mod = sut("run_style_survey.py", "survey_under_test")
+        outdir = self.tmp / "style"
+        outdir.mkdir()
+        rows = {"p1": {"paper": "p1", "status": "FAIL", "verdict": "INVALID",
+                       "reason": "verdict=INVALID chars=0: pr—→/p1/academic/main.tex is empty"},
+                "p2": {"paper": "p2", "status": "FAIL", "verdict": "APPROVED", "reason": "CANARY_SECOND_ROW"}}
+        buf, console = self.cp1252_console()
+        with mock.patch.object(mod, "OUT", outdir), mock.patch.object(mod, "LOG", outdir / "_run_log.json"), \
+                mock.patch.object(mod, "run_one", lambda name: dict(rows[name])), \
+                mock.patch.object(sys, "argv", ["run_style_survey.py", "p1", "p2"]), \
+                contextlib.redirect_stdout(console):
+            mod.main()
+        console.flush()
+        self.assertIn("CANARY_SECOND_ROW", buf.getvalue().decode("utf-8", "replace"))
+
+
+class IncompleteIsNotAPass(Base):
+    """Round 2: input_complete false used to stop at the record. Exit 0 with a stub in place of a
+    twin read as binary was possible; now a pass on incomplete input exits 2 unless accepted."""
+
+    def setUp(self):
+        super().setUp()
+        self.art = self.put("artifact.md", "CANARY_ART")
+
+    def test_a_pass_on_incomplete_input_exits_2_and_a_rejection_still_exits_1(self):
+        self.put("data/keep.txt", "keep")
+        self.put("data/blob.npz", b"\x00\x01")
+        for reply, code in ((APPROVED, 2), ("VERDICT: CONDITIONAL", 2), ("VERDICT: REJECTED", 1)):
+            with self.subTest(reply=reply):
+                res = self.run_main(["results", self.art, self.tmp / "data"], reply=reply)
+                self.assertEqual(res.code, code, "crash=%r" % res.crash)
+                self.assertIs(self.coverage(res)["input_complete"], False)
+                if code == 2:
+                    self.assertIn("NOT a pass", res.stderr)
+
+    def test_text_twin_read_as_binary_is_not_a_pass(self):
+        twin = self.put("academic/main.tex", ("café résumé naïve " * 300 +
+                                              "CANARY_TWIN").encode("cp1252"))
+        res = self.run_main(["style", self.art, twin])
+        self.assertNotIn("CANARY_TWIN", res.prompts[0])
+        self.assertEqual(res.code, 2)
+
+    def test_utf16_file_in_a_primary_folder_is_not_a_pass(self):
+        self.put("code/a.md", "CANARY_A")
+        self.put("code/helper.py", "def helper():\n    return 1  # CANARY_U16\n".encode("utf-16"))
+        self.assertEqual(self.run_main(["results", self.tmp / "code"]).code, 2)
+
+    def test_prereg_keys_not_sent_is_not_a_pass(self):
+        pr = self.prereg("prereg.json", {"hypotheses": ["h"], "threats_to_validity": ["t"],
+                                         "falsification_criteria": ["f"]})
+        self.assertEqual(self.run_main(["design", self.put("run.py", "x = 1"), pr]).code, 2)
+
+    def test_accepting_incomplete_input_passes_and_is_stamped(self):
+        self.put("data/keep.txt", "keep")
+        self.put("data/blob.npz", b"\x00\x01")
+        res = self.run_main(["results", self.art, self.tmp / "data", "--accept-incomplete-input"])
+        self.assertEqual(res.code, 0, "crash=%r" % res.crash)
+        self.assertIs(res.record.get("incomplete_input_accepted"), True)
+        self.assertIs(self.coverage(res)["input_complete"], False)
+
+    def test_duplicate_prereg_keys_are_refused(self):
+        for raw in ('{"hypotheses": ["CANARY_DUP_FIRST"], "threats_to_validity": ["t"], "hypotheses": ["h"]}',
+                    '{"hypotheses": ["h"], "threats_to_validity": ["CANARY_DUP_T"], "threats_to_validity": ["t"]}',
+                    '{"hypotheses": [{"id": "CANARY_DUP_NESTED", "id": "h1"}], "threats_to_validity": ["t"]}'):
+            with self.subTest(raw=raw):
+                res = self.run_main(["design", self.put("run.py", "x = 1"), self.put("prereg.json", raw)])
+                self.assertRefused(res)
+                self.assertIn("duplicate", res.stderr)
+
+    def test_literal_replacement_char_is_not_counted_as_undecodable(self):
+        res = self.run_main(["style", self.put("paper.md", "a � b � CANARY_LITERAL")])
+        self.assertDelivered(res, "CANARY_LITERAL")
+        self.assertEqual(self.item(res, "primary")["replacement_chars"], 0)
+        self.assertIs(self.item(res, "primary")["complete"], True)
+        self.assertEqual(res.code, 0)
+
+    def test_unread_bytes_count_against_the_budget(self):
+        # Over 4x the budget, so measured and never read. Leaving those bytes out of the check let the
+        # reviewer approve a prompt that did not hold the file (mutant U01).
+        p = self.put("far.md", fill(100000, "CANARY_FAR"))
+        res = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "20000"})
+        self.assertRefused(res)
+        self.assertIn("AGNI_PROMPT_CHAR_BUDGET is 20,000", res.stderr)
+
+    def test_a_refused_run_never_reads_as_whole(self):
+        # Read, then refused over budget: header and refusal must both say NOT COMPLETE (mutant U16).
+        p = self.put("mid.md", fill(30500, "CANARY_MID"))
+        res = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "20000"})
+        self.assertRefused(res)
+        self.assertIn("Input whole : NO", res.stdout)
+        self.assertNotIn("Input whole : yes", res.stdout)
+        cov = [l for l in res.stdout.splitlines() if "Coverage" in l]
+        self.assertTrue(cov and all(l.endswith("NOT COMPLETE") for l in cov), cov)
+        self.assertTrue(all("NOT COMPLETE" in l for l in res.stderr.splitlines() if "primary:" in l))
+
+    def test_cli_failure_says_why_even_when_stderr_is_empty(self):
+        fail = SimpleNamespace(returncode=1, stderr="", stdout="API Error: CANARY_CLI_REFUSAL")
+        with mock.patch.object(PHASES, "CLAUDE_BIN", "claude-under-test"), \
+                mock.patch.object(PHASES.subprocess, "run", lambda cmd, **kw: fail):
+            with self.assertRaises(RuntimeError) as cm:
+                PHASES.infer_cli("prompt", PHASES.SYSTEM, 10)
+        self.assertIn("CANARY_CLI_REFUSAL", str(cm.exception))
+
+
+class VerdictsInCode(Base):
+    """Round 2: a verdict quoted inside code (a fixture, or output of the script under review) is
+    not the reviewer's verdict."""
+
+    def verdict(self, review):
+        res = self.run_main(["style", self.put("a.md", "x")], reply=review)
+        return (res.record or {}).get("verdict"), res.code
+
+    def test_a_verdict_inside_code_is_not_the_reviewers(self):
+        for review, want in (
+                ("## Final verdict: REJECTED\n1. CRITICAL - the gate prints a pass on failure:\n```\n"
+                 "VERDICT: APPROVED\n```\n", ("REJECTED", 1)),
+                ("Thinking.\n```\nVERDICT: APPROVED\n```\nMore.", ("UNPARSED", 2)),
+                ("Thinking.\n~~~\nVERDICT: APPROVED\n~~~\nMore.", ("UNPARSED", 2)),
+                ("Thinking.\n    VERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
+                ("Thinking.\n\tVERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
+                ("My verdict: REJECTED\n\n    VERDICT: APPROVED\n", ("UNPARSED", 2)),
+                ("```python\nprint('x')\n```\n\nVERDICT: CONDITIONAL\n", ("CONDITIONAL", 0))):
+            with self.subTest(review=review):
+                self.assertEqual(self.verdict(review), want)
+
+    def test_final_verdict_label(self):
+        for word in WORDS:
+            for form in ("FINAL VERDICT: %s" % word, "## Final verdict: %s" % word):
+                with self.subTest(form=form):
+                    self.assertEqual(self.verdict("Thinking.\n\n%s\n" % form), (word, EXIT_FOR[word]))
+
+
+class DesignInputs(Base):
+    """Round 2: agni_design_review.py sends every prereg key, reads no prose as a verdict, and
+    leaves no old APPROVED behind an empty reply."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = sut("agni_design_review.py", "agni_design_under_test")
+
+    def run_design(self, prereg, response="OVERALL VERDICT: APPROVED"):
+        pr = self.prereg("prereg.json", prereg)
+        script = self.put("run.py", "x = 1")
+        res = SimpleNamespace(calls=[], code=None, verdict=None, stderr="")
+
+        def fake_run(cmd, **kw):
+            res.calls.append(json.loads(kw.get("input")))
+            return SimpleNamespace(returncode=0, stderr="", stdout=json.dumps({"response": response}))
+
+        clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
+        stderr = io.StringIO()
+        with mock.patch.dict(os.environ, clean, clear=True), \
+                mock.patch.object(self.mod.subprocess, "run", fake_run), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
+            try:
+                res.verdict = self.mod.run_review(script, pr)
+            except SystemExit as e:
+                res.code = e.code
+        res.stderr = stderr.getvalue()
+        rec = self.tmp / "v1_agni_review.json"
+        res.record = json.loads(rec.read_text()) if rec.is_file() else None
+        return res
+
+    def test_every_prereg_key_reaches_the_model(self):
+        for prereg, canary in (({"experiment": "v1", "hypothesis": ["CANARY_V_SING"], "threats_to_validity": ["t"]},
+                                "CANARY_V_SING"),
+                               ({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"],
+                                 "falsification_criteria": ["CANARY_V_FALS"]}, "CANARY_V_FALS")):
+            with self.subTest(canary=canary):
+                res = self.run_design(prereg)
+                self.assertEqual(len(res.calls), 1)
+                self.assertIn(canary, res.calls[0]["prompt"])
+
+    def test_prose_and_echoes_are_not_verdicts(self):
+        for response, want in (("Thinking... I would not call this design approved.", "UNPARSED"),
+                               ('4. End with exactly one line: "OVERALL VERDICT: APPROVED" or "...: REJECTED"',
+                                "UNPARSED"),
+                               ("```\nOVERALL VERDICT: APPROVED\n```", "UNPARSED"),
+                               ("Findings.\n\nOVERALL VERDICT: REJECTED", "REJECTED"),
+                               ("Findings.\n\n**OVERALL VERDICT: CONDITIONAL**", "CONDITIONAL")):
+            with self.subTest(response=response):
+                res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]},
+                                      response)
+                self.assertEqual(res.verdict, want)
+
+    def test_empty_reply_replaces_a_stale_approved(self):
+        self.stale(self.tmp / "v1_agni_review.json")
+        res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]}, "")
+        self.assertEqual(res.code, 2)
+        self.assertEqual((res.record or {}).get("verdict"), "INVALID")
 
 
 if __name__ == "__main__":

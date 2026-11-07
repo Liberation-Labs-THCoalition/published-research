@@ -14,6 +14,12 @@ CHANGELOG
         written over any older record. num_ctx is now set (LLM_NUM_CTX, default 32768): unset,
         Ollama trims the prompt with no signal, whatever was sent. The payload goes over stdin:
         a whole prompt can pass the command-line limit.
+        Round 2: every prereg key reaches the model (a singular `hypothesis` key, or any key
+        beyond hypotheses and threats such as falsification_criteria, used to be dropped without a
+        word); the record lists them. The verdict comes from a line that starts VERDICT, OVERALL
+        VERDICT or FINAL VERDICT, outside code: the fallback to a verdict word anywhere read "I would
+        not call this design approved" as APPROVED, exit 0. INVALID is written before the model call
+        and on an empty reply, so an older APPROVED cannot outlive a run that gave no review.
   1.1.0 (2026-05-29, Lyra): Fix four reliability bugs found when the gate
         silently returned empty on the persona_per_level review.
         - B1 empty-output: read `thinking` field as fallback (reasoning models
@@ -86,6 +92,9 @@ HYPOTHESES:
 SELF-IDENTIFIED THREATS:
 {threats}
 
+OTHER PRE-REGISTRATION FIELDS (every other key in the prereg, whole):
+{other}
+
 INSTRUCTIONS:
 1. Check each known fatal error against this design. PASS or FAIL each, citing the
    specific line/construct. If the construct is absent, mark PASS (not applicable).
@@ -96,15 +105,45 @@ INSTRUCTIONS:
 """)
 
 
+_VERDICT_LINE = re.compile(
+    r"^(?:(?:OVERALL|FINAL)\s+)?VERDICT\b[\s:=\u2013\u2014-]*(APPROVED|CONDITIONAL|REJECTED)(?![\w-])"
+    r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)", re.I)
+
+
 def parse_verdict(review):
-    m = re.search(r"OVERALL VERDICT:\s*(APPROVED|CONDITIONAL|REJECTED)", review, re.I)
-    if m:
-        return m.group(1).upper()
-    # fallback: last standalone verdict word
-    for word in ("REJECTED", "CONDITIONAL", "APPROVED"):
-        if re.search(rf"\b{word}\b", review, re.I):
-            return word
-    return "UNPARSED"
+    """The verdict all of the review's verdict lines agree on, else UNPARSED. The rule of
+    agni_phases.py, kept here because this harness runs on its own: a verdict line starts VERDICT,
+    OVERALL VERDICT or FINAL VERDICT once markup is stripped, and a line in a code fence or indented
+    as code is quoted code, not the reviewer. The old fallback to a verdict word anywhere read
+    "I would not call this design approved" as APPROVED, exit 0 (round 2, 2026-11-07)."""
+    found, fenced = set(), False
+    for line in review.splitlines():
+        if re.match(r"^\s*(```|~~~)", line):
+            fenced = not fenced
+            continue
+        if fenced or re.match(r"^( {4}|\t)", line):
+            continue
+        m = _VERDICT_LINE.match(re.sub(r"[*_`#]+", "", line).strip())
+        if m:
+            found.add(m.group(1).upper())
+    return found.pop() if len(found) == 1 else "UNPARSED"
+
+
+def write_invalid(out_path, prereg, reason, prompt_length):
+    """INVALID over whatever is at out_path, so an older APPROVED cannot stand for this run."""
+    try:
+        with open(out_path, "w") as f:
+            json.dump({
+                "agni_version": AGNI_REVIEW_VERSION,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "model": OLLAMA_MODEL, "experiment": prereg.get("experiment"),
+                "verdict": "INVALID", "review": "",
+                "invalid_reason": reason,
+                "prompt_length": prompt_length,
+            }, f, indent=2)
+    except OSError as e:
+        print(f"ERROR: could not write the record to {out_path} ({e}). Anything already there is STALE.",
+              file=sys.stderr)
 
 
 def run_review(script_path, prereg_path):
@@ -112,12 +151,18 @@ def run_review(script_path, prereg_path):
     with open(prereg_path) as f:
         prereg = json.load(f)
 
-    hypotheses = json.dumps(prereg.get("hypotheses", prereg.get("primary_hypothesis", [])), indent=2)
-    threats = json.dumps(prereg.get("threats_to_validity", prereg.get("red_team_controls", [])), indent=2)
+    # Every key reaches the model (round 2): a singular "hypothesis" fell back to [] and any other
+    # key, falsification criteria included, was dropped without a word, and the run exited 0 APPROVED.
+    hyp_key = next((k for k in ("hypotheses", "hypothesis", "primary_hypothesis") if prereg.get(k)), None)
+    threat_key = next((k for k in ("threats_to_validity", "red_team_controls") if prereg.get(k)), None)
+    hypotheses = json.dumps(prereg[hyp_key] if hyp_key else [], indent=2)
+    threats = json.dumps(prereg[threat_key] if threat_key else [], indent=2)
+    other_keys = [k for k in prereg if k not in (hyp_key, threat_key)]
+    other = json.dumps({k: prereg[k] for k in other_keys}, indent=2) if other_keys else "(none)"
     kills = "\n".join(f"  - {k}" for k in KNOWN_KILLS)
 
     prompt = REVIEW_PROMPT.format(
-        kills=kills, script=script, hypotheses=hypotheses, threats=threats)
+        kills=kills, script=script, hypotheses=hypotheses, threats=threats, other=other)
 
     # B3 fix: name output per-experiment, not hardcoded
     exp = re.sub(r"[^A-Za-z0-9_.-]", "_", prereg.get("experiment", Path(script_path).stem))
@@ -132,19 +177,7 @@ def run_review(script_path, prereg_path):
               f"hypotheses {len(hypotheses):,}, threats {len(threats):,}.", file=sys.stderr)
         print("  What to do: pass a narrower script, or raise AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX "
               "together, deliberately.", file=sys.stderr)
-        try:
-            with open(out_path, "w") as f:
-                json.dump({
-                    "agni_version": AGNI_REVIEW_VERSION,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "model": OLLAMA_MODEL, "experiment": prereg.get("experiment"),
-                    "verdict": "INVALID", "review": "",
-                    "invalid_reason": f"prompt {len(prompt)} chars over budget {budget}",
-                    "prompt_length": len(prompt),
-                }, f, indent=2)
-        except OSError as e:
-            print(f"ERROR: could not write the record to {out_path} ({e}). Anything already there is STALE.",
-                  file=sys.stderr)
+        write_invalid(out_path, prereg, f"prompt {len(prompt)} chars over budget {budget}", len(prompt))
         sys.exit(2)
 
     print(f"Agni Design Review v{AGNI_REVIEW_VERSION}")
@@ -153,6 +186,10 @@ def run_review(script_path, prereg_path):
     print(f"  Experiment: {prereg.get('experiment','?')}")
     print()
 
+    # Before the call, as in agni_phases.py: a run that dies, fails in curl or gets no review then
+    # leaves INVALID, not an older APPROVED (round 2).
+    write_invalid(out_path, prereg, "a review started and no result was recorded: it is still running, "
+                  "or it died", len(prompt))
     payload = json.dumps({
         "model": OLLAMA_MODEL, "prompt": prompt, "stream": False,
         "options": {"num_predict": NUM_PREDICT, "temperature": 0.3,
@@ -182,6 +219,7 @@ def run_review(script_path, prereg_path):
         print("ERROR: Agni returned an EMPTY review. This is NOT a pass.", file=sys.stderr)
         print(f"  done_reason={resp.get('done_reason')} eval_count={resp.get('eval_count')}", file=sys.stderr)
         print("  Raise NUM_PREDICT or check the model. Gate result is INVALID.", file=sys.stderr)
+        write_invalid(out_path, prereg, "the model gave an empty review", len(prompt))
         sys.exit(2)
 
     verdict = parse_verdict(review)
@@ -200,6 +238,7 @@ def run_review(script_path, prereg_path):
             "verdict": verdict, "review": review,
             "recovered_from_thinking": bool(not resp.get("response") and thinking),
             "prompt_length": len(prompt),
+            "prereg_keys_sent": sorted(prereg),
         }, f, indent=2)
     print(f"Saved to {out_path}")
     return verdict

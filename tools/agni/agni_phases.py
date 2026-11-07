@@ -29,8 +29,12 @@ PHASES
 
 VERDICT CONTRACT: the reviewer answers APPROVED / CONDITIONAL / REJECTED on a verdict line.
 A verdict line, once markdown markup and whitespace are stripped, is exactly one of those words,
-or starts VERDICT or OVERALL VERDICT followed by one of them (trailing text allowed). Reasoning
-prose never counts. Every verdict line must agree. APPROVED and CONDITIONAL exit 0, REJECTED exit 1.
+or starts VERDICT, OVERALL VERDICT or FINAL VERDICT followed by one of them (trailing text
+allowed). Reasoning prose never counts, and neither does a line inside a code fence or an indented
+code block: that is quoted code, not the reviewer speaking. Every verdict line must agree.
+APPROVED and CONDITIONAL exit 0, REJECTED exit 1. But APPROVED or CONDITIONAL on input the reviewer
+did not get whole (input_complete false) exits 2 and is NOT a pass, unless --accept-incomplete-input
+says to take a review of what it got; the record then carries incomplete_input_accepted.
 
 The gate adds two verdicts of its own. Both exit 2 and neither is a pass:
   UNPARSED  no verdict line, or verdict lines that disagree.
@@ -55,6 +59,9 @@ Usage
 
   --model MODEL   override (default: session default in llm.py)
   --out PATH      where to write the JSON record
+  --accept-incomplete-input
+                  exit 0 on APPROVED/CONDITIONAL although input_complete is false (binaries in a
+                  data folder, prereg keys not sent); the record is stamped
 
   AGNI_PROMPT_CHAR_BUDGET  whole-prompt budget in chars (default 400000)
   AGNI_LOCAL_CHAR_BUDGET   budget for anything bound for Ollama, in chars (default 60000)
@@ -87,9 +94,11 @@ from claude_isolation import isolated_claude_cmd  # noqa: E402
 AGNI_PHASES_VERSION = "1.1.0"
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
-# Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. 400000 chars is
-# about 100k tokens at 4 chars per token: well inside a reviewer's context, with room left for it
-# to read further files through its repo access. Past that the honest move is narrower input.
+# Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. It counts
+# everything the reviewer is sent, system text included. 4 chars per token was assumed here, and is
+# wrong: measured on claude-haiku-5-5 it is about 2.45 (a filler prompt) to 2.48 (prose with
+# numbers), so 400000 chars is about 160k tokens, not 100k. Haiku took that without a cut; the rate
+# for the default model (opus) has not been measured. Past that the honest move is narrower input.
 PROMPT_CHAR_BUDGET = 400000
 # Ollama trims a prompt to its context length and says nothing, so nothing here can see the cut
 # afterwards. 60000 chars fits llm.py's default 32768-token context with room for the answer, down
@@ -364,7 +373,7 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     """
     if not CLAUDE_BIN:
         raise RuntimeError("no claude binary found")
-    full = (system + "\n\n" + HONESTY_CLAUSE + "\n\n" + prompt) if system else prompt
+    full = cli_stdin(prompt, system)
     cmd = [CLAUDE_BIN, "-p"]
     # Forward the model. Ollama tags ("qwen3.8:27b-mxfp8") carry a colon and
     # are meaningless to the CLI, so they are never passed through.
@@ -388,8 +397,16 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
                        text=True, encoding="utf-8", errors="replace",
                        timeout=timeout, env=env)
     if r.returncode != 0:
-        raise RuntimeError("claude CLI exit %d: %s" % (r.returncode, r.stderr[:300]))
+        # The CLI prints an API error (a refusal, say) on stdout, and stderr can be empty: a real
+        # refusal came back as "claude CLI exit 1: " with no cause (2026-11-07). Report both.
+        raise RuntimeError("claude CLI exit %d: stderr: %s | stdout: %s" % (
+            r.returncode, (r.stderr or "").strip()[:300] or "(empty)", (r.stdout or "").strip()[:300] or "(empty)"))
     return r.stdout.strip()
+
+
+def cli_stdin(prompt, system):
+    """Exactly what infer_cli sends. The budget is checked against this, not the prompt alone."""
+    return (system + "\n\n" + HONESTY_CLAUSE + "\n\n" + prompt) if system else prompt
 
 
 # ---------------------------------------------------------------- inputs
@@ -402,9 +419,12 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
 
 def _decode(raw):
     """(text, replacement count). errors="replace" as before: a stray byte degrades one glyph
-    rather than losing a file. Newlines as read_text gave them."""
+    rather than losing a file, but the count makes the input not complete. A U+FFFD the file
+    really holds, validly encoded, is the file's own text and is not counted. Newlines as read_text
+    gave them."""
     text = raw.decode("utf-8", errors="replace")
-    return text.replace("\r\n", "\n").replace("\r", "\n"), text.count("\ufffd")
+    replaced = text.count("\ufffd") - raw.count("\ufffd".encode("utf-8"))
+    return text.replace("\r\n", "\n").replace("\r", "\n"), replaced
 
 
 def _mostly_replaced(text, replaced):
@@ -555,9 +575,21 @@ def read_input(role, path, budget, kind="file"):
     cov["chars"] = (0 if cov["kind"] == "file" and cov["binary_not_shown"] else len(got["text"])) + got["unread"]
     if got["unread"]:
         cov["unread_chars"] = got["unread"]
+    # A reviewer shown "12.3" and U+FFFD where the file says 12.3 times did not get all of its input.
     cov["complete"] = not (got["problems"] or got["unread"] or cov["binary_not_shown"]
+                           or cov["replacement_chars"]
                            or any(s["reason"] not in HARMLESS_SKIPS for s in cov["skipped"]))
     return got
+
+
+def _no_duplicate_keys(pairs):
+    """json.loads keeps the last of two equal keys and drops the first without a word."""
+    seen = set()
+    for key, _ in pairs:
+        if key in seen:
+            raise ValueError("duplicate key %r: one of its values would never reach the reviewer" % key)
+        seen.add(key)
+    return dict(pairs)
 
 
 def read_prereg(path, budget):
@@ -573,7 +605,7 @@ def read_prereg(path, budget):
         got["problems"].append("secondary: %s must be a prereg JSON file" % path)
         return got, "", ""
     try:
-        prereg = json.loads(got["text"])
+        prereg = json.loads(got["text"], object_pairs_hook=_no_duplicate_keys)
     except ValueError as e:
         cov["complete"] = False
         got["problems"].append("secondary: %s is not valid JSON: %s" % (path, e))
@@ -759,10 +791,12 @@ _MARKUP = re.compile(r"[*_`#]+")
 _BARE_VERDICT = re.compile(r"^" + _VERDICT_WORD + r"$", re.I)
 _LABELLED_VERDICT = re.compile(
     r"^(?:(?:[-+]|\d+[.)])\s+)?"          # the prompt's own "1. VERDICT ..." numbering
-    r"(?:OVERALL\s+)?VERDICT\b[\s:=\u2013\u2014-]*" + _VERDICT_WORD +
+    r"(?:(?:OVERALL|FINAL)\s+)?VERDICT\b[\s:=\u2013\u2014-]*" + _VERDICT_WORD +
     r"(?![\w-])"                          # not CONDITIONALLY, not APPROVED-ish
     r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)",    # an echo of the contract
     re.I)
+_FENCE = re.compile(r"^\s*(```|~~~)")
+_CODE_INDENT = re.compile(r"^( {4}|\t)")
 
 
 def parse_verdict(review):
@@ -775,9 +809,19 @@ def parse_verdict(review):
     Anchored to the contract 2026-11-07, after replaying old and new parsers over 928 stored records:
     no record in the three-word vocabulary changed, and every form below that occurs there still
     parses. The 95 that differ are from a harness with another vocabulary (ACCEPT, MINOR_REVISIONS,
-    MAJOR_REVISIONS), where the old parser had matched prose."""
+    MAJOR_REVISIONS), where the old parser had matched prose.
+
+    Code is skipped (round 2, 2026-11-07): a fenced block, or a line indented as code (a tab, or four
+    spaces). Agni reviews its own tooling, whose fixtures hold "VERDICT: APPROVED" lines, and a
+    quoted one turned a "Final verdict: REJECTED" into APPROVED, exit 0."""
     found = set()
+    fenced = False
     for line in review.splitlines():
+        if _FENCE.match(line):
+            fenced = not fenced
+            continue
+        if fenced or _CODE_INDENT.match(line):
+            continue
         text = _MARKUP.sub("", line).strip()
         m = _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text)
         if m:
@@ -801,6 +845,9 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--allow-local-fallback", action="store_true",
                     help="fall back to local 30b if Claude is unavailable; output is stamped DEGRADED")
+    ap.add_argument("--accept-incomplete-input", action="store_true",
+                    help="exit 0 on APPROVED/CONDITIONAL although the reviewer did not get all of its "
+                         "input (see input_coverage); the record is stamped incomplete_input_accepted")
     args = ap.parse_args()
 
     out = _record_path(args)
@@ -816,7 +863,10 @@ def main():
     kills = "\n".join("  - %s" % k for k in PHASE_KILLS[args.phase])
     prompt = coverage_block(inputs) + "\n\n" + PROMPTS[args.phase].format(kills=kills, **sections)
     # Measured but unread bytes count: they are only ever there when the prompt is over budget.
-    prompt_chars = len(prompt) + sum(r["unread"] for r in reads)
+    # So does the system text: infer_cli puts SYSTEM and HONESTY_CLAUSE before the prompt, and the
+    # http backend sends SYSTEM beside it. Counting the prompt alone let 1,179 chars past (round 2).
+    sent = len(cli_stdin(prompt, SYSTEM)) if args.backend == "cli" else len(SYSTEM) + len(prompt)
+    prompt_chars = sent + sum(r["unread"] for r in reads)
 
     # REFUSE BEFORE ANY REVIEWER CALL. The one check on the whole prompt, and every named input.
     ollama_bound = (args.backend == "http"
@@ -933,7 +983,7 @@ def main():
             if timeouts >= TIMEOUTS_ALLOWED:
                 break
         except Exception as e:
-            print("  backend error: %s: %s" % (e.__class__.__name__, str(e)[:200]))
+            print("  backend error: %s: %s" % (e.__class__.__name__, str(e)[:700]))
             review = None
         if review and review.strip():
             if i:
@@ -996,7 +1046,9 @@ def main():
     # is a convenience. This block used to sit BELOW the prints, so a cp1252
     # encoding failure on a checkmark destroyed a finished Opus review
     # (2026-08-30). Nothing that only affects rendering may discard the payload.
-    err = _write_record(out, _record(args, backend_used, verdict, review, inputs))
+    incomplete = not all(i["complete"] for i in inputs)
+    stamp = {"incomplete_input_accepted": args.accept_incomplete_input} if incomplete else {}
+    err = _write_record(out, _record(args, backend_used, verdict, review, inputs, **stamp))
 
     print("=" * 70)
     print("AGNI %s REVIEW" % args.phase.upper())
@@ -1011,7 +1063,20 @@ def main():
         return 2
     print("Saved: %s" % out)
 
-    return 1 if verdict == "REJECTED" else 0
+    if verdict == "REJECTED":
+        return 1
+    # Round 2 (2026-11-07): input_complete false used to stop at the record, so a twin read as
+    # binary was reviewed against a stub and exited 0 APPROVED. A rejection on part of the input is
+    # still a rejection; a pass on part of it is not a pass unless someone says so on purpose.
+    if incomplete and not args.accept_incomplete_input:
+        print("ERROR: %s on INCOMPLETE INPUT -- exit 2. The reviewer did not get all of its input "
+              "(see Coverage above and input_coverage in the record)." % verdict, file=sys.stderr)
+        print("       This is NOT a pass. Fix the input, or rerun with --accept-incomplete-input "
+              "to take a review of what it got; the record is stamped.", file=sys.stderr)
+        return 2
+    if incomplete:
+        print("NOTE: input NOT COMPLETE, accepted by --accept-incomplete-input; the record says so.")
+    return 0
 
 
 if __name__ == "__main__":
