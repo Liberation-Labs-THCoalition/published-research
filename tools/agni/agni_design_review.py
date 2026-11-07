@@ -116,9 +116,17 @@ INSTRUCTIONS:
 """)
 
 
+_VERDICT_WORD = r"(APPROVED|CONDITIONAL|REJECTED)"
+# The label of a contract-form line, as in agni_phases.py. Round 6: round 5's label here took no list
+# number and no AGNI- prefix, so "1. VERDICT: REJECTED" or "AGNI-VERDICT: REJECTED" above an approval
+# did not veto, where agni_phases.py vetoed the same lines.
+_LABEL = (r"^(?:(?:[-+]|\d+[.)])\s+)?"                   # the prompt's own "1. VERDICT ..." numbering
+          r"(?:(?:OVERALL|FINAL|AGNI)(?:\s+|-)){0,2}VERDICT\b(?:\s*\([^()]*\))?")
 _VERDICT_LINE = re.compile(
-    r"^(?:(?:OVERALL|FINAL)\s+)?VERDICT\b[\s:=\u2013\u2014-]*(APPROVED|CONDITIONAL|REJECTED)(?![\w-])"
+    _LABEL + r"[\s:=\u2013\u2014-]*" + _VERDICT_WORD + r"(?![\w-])"
     r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)", re.I)
+# A label alone, "## Verdict", with its word on the next line (round 6).
+_LABEL_ONLY = re.compile(_LABEL + r"[\s:=\u2013\u2014-]*$", re.I)
 # Round 5: the reply's last line, which decides. Exactly this once markup is stripped, nothing after.
 _PROTOCOL = re.compile(r"^OVERALL VERDICT:\s*(APPROVED|CONDITIONAL|REJECTED)$", re.I)
 _MARKUP = re.compile(r"[*_`#]+")
@@ -162,7 +170,11 @@ def _spaces(line):
     return len(line) - len(line.lstrip(" "))
 
 
-def _code_lines(review):
+# An ATX heading or a setext underline: not a paragraph line, so indented code may follow it.
+_HEADING = re.compile(r"^ {0,3}(?:#{1,6}(?:[ \t]|$)|=+[ \t]*$)")
+
+
+def _code_lines(review, faithful=False):
     """Each line of the review as (line, in code). A fence's closing line is code too, and a fence or
     an HTML block left open keeps every line after it in code.
 
@@ -176,30 +188,43 @@ def _code_lines(review):
     does not see as text. Where this reading knowingly differs from CommonMark, it keeps more in
     code: a closing fence must sit at or right of its opening one, a line left of the list item that
     holds a fence leaves the fence open where CommonMark would end both, and any line that starts
-    with a tag starts an HTML block."""
-    lines, fence, html, item = [], None, None, 0
+    with a tag starts an HTML block.
+
+    faithful (round 6, 2026-11-07) is the reading as close to CommonMark as this gets, and where it
+    is unsure it keeps less in code: a fence closes at up to three spaces of indent and ends with its
+    list item; an HTML block other than <pre>, <script>, <style>, <textarea>, a comment, <?, <!X or
+    CDATA is text, since a reader sees its text; and four spaces of indent right after a paragraph
+    line are more of that paragraph, since indented code cannot interrupt one. Round 5 let code
+    neither decide nor veto, so every line the wider reading kept in code was a place a visible
+    REJECTED could hide. _contract_verdicts reads both: a line decides only when neither puts it in
+    code, and is skipped as code only when both do."""
+    lines, fence, html, item, para = [], None, None, 0, False
     for raw in _LINE_END.split(review):
         line = raw.expandtabs(4)
         indent, blank = _spaces(line), not line.strip()
         if fence:
             char, length, opened_at, container = fence
-            if (opened_at <= indent <= container + 3
-                    and re.match(r"^ *%s{%d,}[ \t]*$" % (re.escape(char), length), line)):
-                fence = None
-            lines.append((raw, True))
-            continue
+            if not (faithful and not blank and indent < container):
+                if ((container if faithful else opened_at) <= indent <= container + 3
+                        and re.match(r"^ *%s{%d,}[ \t]*$" % (re.escape(char), length), line)):
+                    fence = None
+                lines.append((raw, True))
+                continue
+            fence, item = None, 0                 # faithful: the list item ends, and its fence with it
         if html:
-            lines.append((raw, True))
+            lines.append((raw, not faithful or html[0] is not None))
             if html[0].search(line) if html[0] else blank:
                 html = None
+            para = False
             continue
         if not blank and indent < item:
             item = 0
-        pos, in_code = item, False
+        pos, in_code, text, marker = item, False, False, False
         while not blank:
             rest = line[pos:]
             if _spaces(rest) >= 4:
-                in_code = True
+                in_code = not (faithful and para and not marker)
+                text = not in_code
                 break
             m = _FENCE_OPEN.match(rest)
             if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
@@ -208,19 +233,21 @@ def _code_lines(review):
                 break
             start, end = next(((s.match(rest), e) for s, e in _HTML_BLOCKS if s.match(rest)), (None, None))
             if start:
-                in_code = True
+                in_code = not faithful or end is not None
                 if not (end and end.search(rest, start.end())):
                     html = (end,)
                 break
-            if _THEMATIC_BREAK.match(rest):
+            if _THEMATIC_BREAK.match(rest) or _HEADING.match(rest):
                 break
             m = _LIST_ITEM.match(rest)
             if not m:
+                text = True
                 break
             gap = len(m.group(3))
             pos += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
-            item = pos
+            item, marker = pos, True
         lines.append((raw, in_code))
+        para = text
     return lines
 
 
@@ -240,12 +267,33 @@ def _is_echo(folded):
             and all(_ECHO_GAP.match(folded[a.end():b.start()]) for a, b in zip(hits, hits[1:])))
 
 
+# After a CONDITIONAL, what takes it back: a question or an arrow right after the word (round 6).
+_CONDITIONAL_TAKE_BACK = re.compile(r"^\W*?(?:\?|->|=>|<-|[\u2190-\u21ff\u27f0-\u27ff\u2900-\u297f])")
+# CommonMark inline code: a run of backticks, closed by a run of the same length.
+_CODE_SPAN = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
+_TAG = re.compile(r"</?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?/?>")
+_QUOTE = re.compile(r"^(?:\s*>)+")
+
+
 def _takes_back(verdict, tail):
-    """Whether the text after a pass verdict's word negates it, or makes APPROVED conditional. A
-    REJECTED is not checked: however it is qualified, it cannot pass."""
+    """Whether the text after a pass verdict's word takes it back. A REJECTED is not checked: however
+    it is qualified, it cannot pass. An APPROVED is taken back by a negation, a contrast, a question,
+    an arrow or a condition after it. A CONDITIONAL is qualified by nature ("CONDITIONAL -- not
+    runnable until fix 1 lands"), so only a question or an arrow right after its word takes it back
+    (round 6: round 4 read its conditions as a take-back, and a well-formed CONDITIONAL was UNPARSED)."""
     if verdict == "REJECTED":
         return False
-    return bool(_TAKE_BACK.search(tail) or (verdict == "APPROVED" and _CONDITION.search(tail)))
+    if verdict == "CONDITIONAL":
+        return bool(_CONDITIONAL_TAKE_BACK.match(tail))
+    return bool(_TAKE_BACK.search(tail) or _CONDITION.search(tail))
+
+
+def _clear(word, tail, named):
+    """The word a contract-form line gives, or UNCLEAR. Any other verdict word on the line makes it
+    unclear, except an APPROVED on a CONDITIONAL line, which names where its conditions lead:
+    "VERDICT: CONDITIONAL (can be APPROVED once fix 1 is in)" (round 6)."""
+    others = named - {word} - ({"APPROVED"} if word == "CONDITIONAL" else set())
+    return "UNCLEAR" if others or _takes_back(word, tail) else word
 
 
 def _plain(line):
@@ -253,33 +301,61 @@ def _plain(line):
     return _MARKUP.sub("", line).strip()
 
 
+def _quotes_a_verdict(span):
+    folded = _fold(span)
+    return "verdict" in folded and bool(_VERDICT_STEM.search(folded))
+
+
+def _seen(line):
+    """A line as a reader sees it, for a veto, and whether it is blockquoted (round 6). An inline code
+    span that holds a verdict line, "`VERDICT: APPROVED`", quotes a fixture and is dropped; a span
+    round only the word, "VERDICT: `REJECTED`", is the reviewer's own formatting and stays. Then
+    blockquote markers, HTML tags and markup go: "> **VERDICT: REJECTED**" and "<b>VERDICT:
+    REJECTED</b>" are verdict lines a reader sees."""
+    line = _CODE_SPAN.sub(lambda m: " " if _quotes_a_verdict(m.group(2)) else m.group(0), line)
+    return _plain(_TAG.sub("", _QUOTE.sub("", line))), bool(_QUOTE.match(line))
+
+
 def _contract_verdicts(review, protocol, contract_line):
     """The verdict the review gives by protocol, or None, and what each other verdict line in a form
-    of the contract, outside code, gives.
+    of the contract gives.
 
     The protocol line is the last non-blank line: outside code, and matched by protocol() once
-    markup is stripped. Any other line outside code is in a form of the contract when
-    contract_line() matches it, as written or folded (a Cyrillic E or a zero-width space does not
-    hide one). It gives its verdict, or UNCLEAR when it names a second verdict word or the text
-    after its word takes it back (round 4: a verdict line is read whole). The contract read back is
-    skipped. Prose and lines in code give nothing (round 5)."""
-    lines = [(line, in_code) for line, in_code in _code_lines(review) if line.strip()]
+    markup is stripped. Any other line not in code is in a form of the contract when
+    contract_line() matches it as _seen gives it, as written or folded (a Cyrillic E or a zero-width
+    space does not hide one). It gives its verdict, or UNCLEAR when the line does not clearly give
+    it (see _clear; round 4: a verdict line is read whole). The contract read back is skipped. Prose
+    and lines in code give nothing (round 5).
+
+    Round 6 (2026-11-07). Code is read twice (see _code_lines): the protocol line counts only when
+    neither reading puts it in code, and a line is skipped as code only when both do, so a line the
+    reading is unsure of cannot decide and can veto. A label alone, "## Verdict", reads the next
+    line as its verdict when that line starts with a verdict word. A blockquoted line can stop a pass
+    but cannot turn a rejection into UNPARSED, since a quote may be someone else's verdict."""
+    wide, faithful = _code_lines(review), _code_lines(review, faithful=True)
+    lines = [(line, a, b) for (line, a), (_, b) in zip(wide, faithful) if line.strip()]
     if not lines:
         return None, []
-    last, last_in_code = lines[-1]
-    said = None if last_in_code else protocol.match(_plain(last))
-    others = []
-    for line, in_code in lines[:-1]:
+    last, last_wide, last_faithful = lines[-1]
+    said = None if last_wide or last_faithful else protocol.match(_plain(last))
+    said = said.group(1).upper() if said else None
+    others, label = [], False
+    for line, in_wide_code, in_faithful_code in lines[:-1]:
         folded = _fold(line)
-        if in_code or _is_echo(folded):
+        after_label, label = label, False
+        if (in_wide_code and in_faithful_code) or _is_echo(folded):
             continue
-        for text in (_plain(line), _plain(folded)):
+        named = {w.upper() for w in _VERDICT_STEM.findall(folded)}
+        for text, quoted in (_seen(line), _seen(folded)):
+            if _LABEL_ONLY.match(text):
+                label = True
+                continue
+            if after_label and not contract_line(text):
+                text = "VERDICT: " + text
             m = contract_line(text)
-            if m:
-                word = m.group(1).upper()
-                named = {w.upper() for w in _VERDICT_STEM.findall(folded)}
-                others.append("UNCLEAR" if named != {word} or _takes_back(word, text[m.end():]) else word)
-    return (said.group(1).upper() if said else None), others
+            if m and not (quoted and said == "REJECTED"):
+                others.append(_clear(m.group(1).upper(), text[m.end():], named))
+    return said, others
 
 
 def parse_verdict(review):
@@ -302,7 +378,10 @@ def parse_verdict(review):
     decides: the last non-blank line must be outside code and, markup stripped, exactly that, or the
     review is UNPARSED. Every other VERDICT, OVERALL VERDICT or FINAL VERDICT line outside code must
     give the same word, read whole and not taken back. Prose and lines in code never decide or veto.
-    A pass read only from the model's thinking is still recorded UNPARSED (see run_review)."""
+    A pass read only from the model's thinking is still recorded UNPARSED (see run_review).
+    Round 6 (2026-11-07): the label is agni_phases.py's, so "1. VERDICT: REJECTED", "- VERDICT:
+    REJECTED" and "AGNI-VERDICT: REJECTED" above an approval veto here too, and lines are read as a
+    reader sees them, as there (see _contract_verdicts)."""
     said, others = _contract_verdicts(review, _PROTOCOL, _VERDICT_LINE.match)
     if said is None or any(v != said for v in others):
         return "UNPARSED"

@@ -91,6 +91,21 @@ recorded the cut.
   `AGNI-VERDICT` line) must give the same word, read whole. Prose and code never decide or veto. The
   cost: a different verdict stated only in prose, a table cell or after an emoji no longer vetoes.
   Stored `agni_phases.py` reviews predate the line and would parse `UNPARSED`; nothing re-parses them.
+- **Round 6: read as a reader reads it** (both harnesses). Round 5's verifier found a `REJECTED` a
+  reader sees that did not veto an `APPROVED`, exit 0: in a blockquote (`> **VERDICT: REJECTED**`),
+  under a `## Verdict` heading, after `Agni verdict` or `VERDICT (design phase)`, in an HTML block
+  other than a comment or `<pre>` (`<b>VERDICT: REJECTED</b>`), in four spaces of indent right after
+  a paragraph line, and in the design harness on a numbered, list-marked or `AGNI-VERDICT` line. Code
+  is now read twice, as before and as close to CommonMark as this gets: the protocol line counts only
+  when neither reading puts it in code, and a line is skipped as code only when both do. A
+  blockquoted line can stop a pass but not a rejection. In the other direction, a fixture verdict in
+  an inline code span (`` `VERDICT: APPROVED` ``) no longer vetoes, and a `CONDITIONAL` line may state
+  its conditions ("CONDITIONAL -- not runnable until fix 1 lands", "CONDITIONAL (can be APPROVED once
+  fix 1 is in)"); a question, an arrow or a `REJECTED` after it still makes it unclear. Over Ollama,
+  `llm.py` joined a reasoning model's thinking to its answer, or returned the thinking alone, so a
+  draft verdict there vetoed a good answer or passed a reply with no answer. `agni_phases.py` now
+  parses only the answer, keeps the thinking in the record, and gives no pass read only from the
+  thinking. Each take-back and condition word has its own test.
 - **Round 3: the design harness leaves no stale record.** A prereg that is missing, unreadable, not
   UTF-8, not JSON, not an object or has a duplicate key, a script that is not UTF-8, and a curl or
   backend failure each write `INVALID` with its cause over any older record and exit non-zero. Files
@@ -114,7 +129,8 @@ read; weigh them accordingly.
 
 - `sys.path` puts agni-open's `llm.py` first on machines that have it. That copy is not edited here
   and may not set `num_ctx`. An Ollama-bound call prints a warning when `llm.py` is not the copy beside
-  `agni_phases.py`, but it does not stop the call.
+  `agni_phases.py`, but it does not stop the call. A pass through such a copy over Ollama is `UNPARSED`,
+  since it may join the model's thinking to its answer.
 - The char budgets are proxies. Tokens are not measured, so a very dense 60000 chars could still pass
   `num_ctx` in principle.
 - A local server reached through `AGNI_LLM_BACKEND=openai` is not recognised as local, so the local
@@ -122,12 +138,11 @@ read; weigh them accordingly.
 - File classification is unchanged: a text file saved as UTF-16 or cp1252 is still read as binary
   and not shown. It now makes the run not a pass, but the reviewer still does not see it. Save such
   files as UTF-8.
-- The CommonMark reading of code is partial: block quotes are not tracked, a list is known only by
-  its marker and indent, any line that starts with a tag starts an HTML block, and an inline code
-  span on a verdict line counts as markup, not code. Where it knowingly differs from CommonMark it
-  keeps more lines in code. A misreading cannot let a quoted verdict outvote a different real one,
-  since any line that names a different verdict gives `UNPARSED`; it could let a verdict that is
-  only quoted, with no other verdict line, count as the reviewer's.
+- The CommonMark reading of code is partial: block quotes are not tracked as containers, a list is
+  known only by its marker and indent, and an HTML block by its first tag. Where the two readings
+  differ, a line cannot decide and can veto, so a misreading errs toward `UNPARSED`. A verdict line
+  wholly inside an inline code span is read as a quoted fixture: a reviewer that writes its own
+  contrary verdict that way is not vetoed by it, though the protocol line still decides.
 - A contrary verdict more than two words after "verdict", or on a line without that word that is
   more than the bare word ("| Overall | REJECTED |", "Decision: REJECTED"), still cannot veto,
   and lookalike letters are folded for Cyrillic and Greek only.

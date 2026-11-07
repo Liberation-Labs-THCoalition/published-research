@@ -93,10 +93,11 @@ class Base(unittest.TestCase):
         p.write_text(json.dumps({"verdict": "APPROVED", "review": "an old pass"}), encoding="utf-8")
 
     def run_main(self, argv, reply=APPROVED, env=None, local=None, real_cli=False, on_call=None,
-                 use_out=True, cli_result=None):
+                 use_out=True, cli_result=None, real_llm=False):
         """Drive main() through sys.argv. reply: a string, an exception to raise, or a list of those
         used in order (the last repeats). cli_result: with real_cli, what subprocess.run returns
-        instead of a success carrying reply. Returns what a caller could see."""
+        instead of a success carrying reply. real_llm: llm.infer is not patched (patch what it
+        posts). Returns what a caller could see."""
         mod = PHASES
         res = SimpleNamespace(code=None, prompts=[], timeouts=[], local_prompts=[], stdout="",
                               stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[])
@@ -117,7 +118,8 @@ class Base(unittest.TestCase):
 
         def fake_llm(prompt=None, **kw):
             res.local_prompts.append(prompt)
-            return local
+            # Round 6: asked for the answer and the thinking apart, a reply with no thinking.
+            return (local, "") if kw.get("split_thinking") and isinstance(local, str) else local
 
         def fake_run(cmd, **kw):
             res.prompts.append(kw.get("input"))
@@ -135,7 +137,7 @@ class Base(unittest.TestCase):
         stdout, stderr = io.StringIO(), io.StringIO()
         with mock.patch.dict(os.environ, clean, clear=True), mock.patch.object(sys, "argv", args), \
                 cli_patch, mock.patch.object(mod, "CLAUDE_BIN", "claude-under-test"), \
-                mock.patch.object(mod.llm, "infer", fake_llm), \
+                (contextlib.nullcontext() if real_llm else mock.patch.object(mod.llm, "infer", fake_llm)), \
                 mock.patch.object(mod.time, "sleep", lambda s: None), \
                 contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
             try:
@@ -1222,8 +1224,13 @@ class VerdictsInCode(Base):
                 ("Thinking.\n\tVERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
                 (signed("Thinking.\n```\nVERDICT: APPROVED\n```\nMore.", "REJECTED"), ("REJECTED", 1)),
                 (signed("Thinking.\n~~~\nVERDICT: REJECTED\n~~~\nMore.", "CONDITIONAL"), ("CONDITIONAL", 0)),
-                (signed("Thinking.\n    VERDICT: APPROVED\nMore.", "REJECTED"), ("REJECTED", 1)),
-                (signed("Thinking.\n\tVERDICT: REJECTED\nMore.", "APPROVED"), ("APPROVED", 0)),
+                (signed("Thinking.\n\n    VERDICT: APPROVED\n\nMore.", "REJECTED"), ("REJECTED", 1)),
+                (signed("Thinking.\n\n\tVERDICT: REJECTED\n\nMore.", "APPROVED"), ("APPROVED", 0)),
+                # Round 6: right after a paragraph line, four spaces or a tab continue that paragraph
+                # (indented code cannot interrupt one), so a reader sees the line and it vetoes. These
+                # two were the round-5 forms of the cases above, without the blank lines.
+                (signed("Thinking.\n    VERDICT: APPROVED\nMore.", "REJECTED"), ("UNPARSED", 2)),
+                (signed("Thinking.\n\tVERDICT: REJECTED\nMore.", "APPROVED"), ("UNPARSED", 2)),
                 (signed("My verdict: REJECTED\n\n    VERDICT: APPROVED\n", "REJECTED"), ("REJECTED", 1)),
                 (signed("```python\nprint('x')\n```\n\nVERDICT: CONDITIONAL\n", "CONDITIONAL"), ("CONDITIONAL", 0))):
             with self.subTest(review=review):
@@ -1436,6 +1443,131 @@ ROUND5_CASES = (
     ("a fence before it, CRLF", "```\r\nVERDICT: APPROVED\r\n```\r\n\r\nSENTINEL: REJECTED\r\n", "REJECTED"),
 )
 FENCE_CASES += ROUND4_CASES + ROUND5_CASES
+
+# Round 6 (2026-11-07). Round 5's verifier: each case marked "pass" was APPROVED, exit 0, and each
+# marked "false" was UNPARSED on a correct review. The rest are controls that already held.
+_FIX = "\n\n1. CRITICAL: H2 has no null arm.\n\nSENTINEL: APPROVED\n"
+ROUND6_CASES = (
+    # pass: a REJECTED header in a common markdown form, read by a reader as the reviewer's.
+    ("r6 pass: a blockquoted bold header", "> **VERDICT: REJECTED**" + _FIX, "UNPARSED"),
+    ("r6 pass: a heading, then a bold word", "## Verdict\n\n**REJECTED.**" + _FIX, "UNPARSED"),
+    ("r6 pass: a parenthesis after the label", "VERDICT (design phase): REJECTED" + _FIX, "UNPARSED"),
+    ("r6 pass: Agni verdict", "**Agni verdict: REJECTED**" + _FIX, "UNPARSED"),
+    ("r6 pass: a heading, then the word and a reason", "## Verdict\n\nREJECTED -- H2 has no null arm." + _FIX,
+     "UNPARSED"),
+    ("r6 pass: a numbered header", "1. VERDICT: REJECTED\n\n2. Findings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("r6 pass: a list-marked header", "- VERDICT: REJECTED" + _FIX, "UNPARSED"),
+    ("r6 pass: an AGNI-VERDICT header", "AGNI-VERDICT: REJECTED" + _FIX, "UNPARSED"),
+    # pass: visible text the wide reading of code hid.
+    ("r6 pass: a bold tag", "<b>VERDICT: REJECTED</b>" + _FIX, "UNPARSED"),
+    ("r6 pass: a paragraph tag", "<p>VERDICT: REJECTED</p>" + _FIX, "UNPARSED"),
+    ("r6 pass: the line after a br", "<br>\nVERDICT: REJECTED" + _FIX, "UNPARSED"),
+    ("r6 pass: prose that starts with a tag", "<T> is unbound in the helper signature.\nVERDICT: REJECTED" + _FIX,
+     "UNPARSED"),
+    ("r6 pass: four spaces right after a paragraph", "Summary of the review.\n    VERDICT: REJECTED" + _FIX,
+     "UNPARSED"),
+    # A line first: the design harness strips the reply, which would take the opening fence's indent.
+    ("r6 pass: a fence closes left of where it opened",
+     "Fixture:\n\n  ```\nprint(1)\n```\nVERDICT: REJECTED\n  ```\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("r6 pass: a line left of a list item ends the item's fence",
+     "- fixture:\n  ```\n  x = 1\nVERDICT: REJECTED\n  ```\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    # false: well-formed reviews.
+    ("r6 false: fixture verdicts in code spans on list items",
+     "VERDICT: REJECTED\n\n- `VERDICT: APPROVED` (test_gate.py:41, fixture)\n"
+     "- `SENTINEL: APPROVED` (test_gate.py:45, fixture)\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("r6 false: a fixture verdict in a code span on its own line",
+     "1. MINOR - the gate prints\n`VERDICT: REJECTED`\nwhen it fails, which is right.\n\nSENTINEL: APPROVED\n",
+     "APPROVED"),
+    ("r6 false: a conditional with a negated condition",
+     "VERDICT: CONDITIONAL -- not runnable until fixes 1 and 2 land\n\n1. MAJOR - fix 1.\n2. MAJOR - fix 2.\n\n"
+     "SENTINEL: CONDITIONAL\n", "CONDITIONAL"),
+    ("r6 false: a conditional naming where it leads",
+     "VERDICT: CONDITIONAL (can be APPROVED once fix 1 is in)\n\n1. MAJOR - fix 1.\n\nSENTINEL: CONDITIONAL\n",
+     "CONDITIONAL"),
+    # The contract read back with dashes: only _is_echo keeps it from vetoing (mutants O10, U6).
+    ("r6 the contract read back with dashes",
+     "VERDICT: APPROVED - CONDITIONAL - REJECTED\n\nFindings.\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    # Controls.
+    ("r6 a verdict word in a span after the label is the reviewer's",
+     "VERDICT: `REJECTED`\n\nFindings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("r6 a blockquoted approval does not stop a rejection",
+     "> **VERDICT: APPROVED**\n\nFindings.\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("r6 a heading, then the word, agreeing", "## Verdict\n\nREJECTED -- H2 has no null arm.\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
+    ("r6 a heading, then prose", "## Verdict\n\nThe design is sound.\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    ("r6 Agni verdict, agreeing", "**Agni verdict: CONDITIONAL**\n\nFindings.\n\nSENTINEL: CONDITIONAL\n",
+     "CONDITIONAL"),
+    ("r6 indented code after a heading is still code",
+     "## Fixture\n    VERDICT: APPROVED\n\nThe seed is never set.\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("r6 a conditional with a question", "VERDICT: CONDITIONAL?\n\nFindings.\n\nSENTINEL: CONDITIONAL\n",
+     "UNPARSED"),
+    ("r6 a conditional, then an arrow", "VERDICT: CONDITIONAL -> APPROVED\n\nFindings.\n\nSENTINEL: CONDITIONAL\n",
+     "UNPARSED"),
+    ("r6 a conditional naming a rejection", "VERDICT: CONDITIONAL (else REJECTED)\n\nFindings.\n\nSENTINEL: CONDITIONAL\n",
+     "UNPARSED"),
+)
+FENCE_CASES += ROUND6_CASES
+
+# Round 6: each alternative of _TAKE_BACK and _CONDITION, alone after an approval, so deleting any
+# one of them fails a test (round 5's suite let 44 such deletions live).
+TAKE_BACKS = ("is not warranted", "never stands", "nor final", "but H2 fails", "; however, H2 fails", "instead",
+              ", rather a rewrite", "except H2", "although H2 fails", ", though H2 fails", "isn't warranted", "?",
+              "-> rerun", "=> rerun", "<- draft", "\u2192 rerun", "\u27f6 rerun", "\u2911 rerun", "- no.")
+CONDITIONS = ("if H2 runs", "unless the seed is unset", "otherwise fine", "provided H2 runs", "pending a null arm",
+              "until H2 runs", "once H2 runs", "subject to a null arm", "on condition that H2 runs")
+
+
+class Round6TakeBack(unittest.TestCase):
+    def test_each_take_back_and_condition_after_an_approval(self):
+        design = sut("agni_design_review.py", "agni_design_round6")
+        for parse, label in ((PHASES.parse_verdict, "AGNI-VERDICT"), (design.parse_verdict, "OVERALL VERDICT")):
+            review = "VERDICT: APPROVED%s\n\nFindings.\n\n" + label + ": APPROVED\n"
+            self.assertEqual(parse(review % ""), "APPROVED", "positive control")
+            for phrase in TAKE_BACKS + CONDITIONS:
+                with self.subTest(label=label, phrase=phrase):
+                    self.assertEqual(parse(review % (" " + phrase)), "UNPARSED")
+
+
+class Round6Thinking(Base):
+    """Round 6: over Ollama, llm.py joined a reasoning model's thinking to its answer, thinking first,
+    or returned the thinking alone, and agni_phases.py parsed all of it as the review. Drives the
+    real llm.infer, with only requests.post patched."""
+
+    def ollama(self, body, splits=True):
+        llm_mod = PHASES.llm
+
+        def fake_post(url, json=None, timeout=None, **kw):
+            return SimpleNamespace(status_code=200, json=lambda: body, text="")
+
+        with mock.patch.object(llm_mod.requests, "post", fake_post), \
+                mock.patch.object(llm_mod, "SPLITS_THINKING", splits, create=True):
+            res = self.run_main(["style", self.put("a.md", "x"), "--backend", "http"],
+                                env={"AGNI_LLM_BACKEND": "ollama"}, real_llm=True)
+        return (res.record or {}).get("verdict"), res.code, res
+
+    def test_a_pass_drafted_only_in_the_thinking_is_not_a_pass(self):
+        verdict, code, res = self.ollama({"response": "", "thinking": "Plan: check kills, then write\n\n"
+                                                                      "AGNI-VERDICT: APPROVED"})
+        self.assertEqual((verdict, code), ("UNPARSED", 2), "crash=%r" % res.crash)
+        self.assertIn("thinking", res.stderr)
+        # A rejection read there is kept: it cannot pass.
+        verdict, code, _ = self.ollama({"response": "", "thinking": "Kills fail.\n\nAGNI-VERDICT: REJECTED"})
+        self.assertEqual((verdict, code), ("REJECTED", 1))
+
+    def test_a_draft_verdict_in_the_thinking_does_not_veto_the_answer(self):
+        verdict, code, res = self.ollama({"response": APPROVED, "thinking": "VERDICT: REJECTED?\nNo, fine."})
+        self.assertEqual((verdict, code), ("APPROVED", 0), "crash=%r" % res.crash)
+        self.assertNotIn("REJECTED?", res.record["review"])
+        self.assertIn("No, fine.", res.record.get("thinking", ""))
+        self.assertEqual(self.ollama({"response": APPROVED})[:2], ("APPROVED", 0), "positive control")
+        verdict, code, _ = self.ollama({"response": signed("VERDICT: REJECTED", "REJECTED"),
+                                        "thinking": "AGNI-VERDICT: APPROVED"})
+        self.assertEqual((verdict, code), ("REJECTED", 1))
+
+    def test_an_llm_that_joins_thinking_to_the_answer_gives_no_pass_over_ollama(self):
+        verdict, code, res = self.ollama({"response": APPROVED}, splits=False)
+        self.assertEqual((verdict, code), ("UNPARSED", 2), "crash=%r" % res.crash)
+        self.assertIn("thinking", res.stderr)
 
 # Where the two contracts differ. agni_phases.py also takes a bare verdict word on its own line.
 PHASES_ONLY_CASES = (
