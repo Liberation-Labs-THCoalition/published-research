@@ -37,8 +37,15 @@ recorded the cut.
   record lists the extra keys as `prereg_other_keys_sent`; `prereg_keys_not_sent` is always empty for
   a valid JSON object. Until round 3 those keys were named and not sent, which made nearly every real
   prereg `input_complete: false` and its design or preflight review exit 2.
-- **The verdict comes from a verdict line, not from a word.** The contract is at the top of
-  `agni_phases.py`. Reasoning prose never counts, and verdict lines that disagree give `UNPARSED`.
+- **The verdict is decided by protocol.** The reply's last non-blank line, outside code, must be
+  exactly `AGNI-VERDICT: <word>` (`agni_phases.py`, which asks for it at the end of every prompt) or
+  `OVERALL VERDICT: <word>` (`agni_design_review.py`). Without it the review is `UNPARSED`, exit 2.
+  Every other verdict line a reader would see as one must give the same word, or the review is
+  `UNPARSED`. Prose and verdicts quoted in code neither decide nor veto. Rounds 5 and 6 below say why
+  and where the edges are.
+- **A pass on incomplete input is not a pass.** `APPROVED` or `CONDITIONAL` with
+  `input_complete: false` exits 2 unless `--accept-incomplete-input` is given, which stamps the record.
+  `REJECTED` still exits 1.
 - **Local path.** `llm.py` sets `num_ctx` (`LLM_NUM_CTX`, default 32768). Unset, Ollama trims a prompt
   to its context length with no signal. Anything bound for Ollama over `AGNI_LOCAL_CHAR_BUDGET`
   (default 60000 chars) is refused and never sent cut. The `DEGRADED` stamp is whole again.
@@ -46,6 +53,10 @@ recorded the cut.
   retry behaviour is unchanged.
 - `run_style_survey.py` counts `INVALID` as a failure, and also any exit other than 0 or 1, whatever
   the file on disk says. `summarize_style.py` shows `INVALID - NOT REVIEWED`.
+**How it got here.** The change went through six rounds on 2026-11-07, each attacked by independent
+verifiers. The rounds are kept as the record of what was wrong and why; where they differ, the list
+above is current.
+
 - **Round 2 (findings from independent verifiers, same day).** A pass on incomplete input is not a
   pass: `APPROVED` or `CONDITIONAL` with `input_complete: false` exits 2 unless
   `--accept-incomplete-input` is given, which stamps `incomplete_input_accepted` in the record.
