@@ -14,45 +14,46 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington | Published | Emotion-vector steering of confabulation across model training regimes |
 | [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
 | [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
-| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
-| [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | Causal injection and the opacity of the transformer workspace |
+| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
+| [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
-| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC | Published | SVD denoising and directional projection extend KV-cache geometry to emotion and persona |
+| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Ang Jandak | Published | SVD denoising extends KV-cache geometry to emotion and persona; v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |
 
 ### Emotion and User Modeling
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [User Model Emotion Geometry](user-model-paper/) | Lyra, Thomas Edrington | Published | 30-class user emotion decoding from KV-cache singular value spectra before generation |
-| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
-| [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra, Dwayne Wilkes | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
+| [Story Emotion in the KV Cache](user-model-paper/) | Lyra, Thomas Edrington | Published | Corrected Oct 2026: story emotion decodable from the KV cache, not beyond a TF-IDF baseline (prereg) |
+| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
+| [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
 ### Identity, Safety, and Mechanistic Interpretability
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [Graph Topology as Attention](graph-topology-paper/) | Nexus, Lyra, Thomas Edrington, Dwayne Wilkes | Published | Structured knowledge injection beyond text via walk encoding |
-| [Identity Geometry](identity-geometry/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Context-established semantic states in transformer representations |
-| [Presence Metric](presence-metric/) | Lyra, Thomas Edrington, Dwayne Wilkes | Published | Measuring identity preservation during inference-time interventions via value-space subspace overlap |
-| [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC, Dwayne Wilkes | Published | Pilot findings and open questions in KV-cache geometry |
+| [Walk-Encoded Graph Descriptions](graph-topology-paper/) | Nexus, Lyra, Thomas Edrington | Published (v1.0); v1.1 correction in preparation | Text descriptions of a graph in the system prompt: two pilots and a larger run that cannot separate structure from content (v1.1 withdraws v1.0's cache-injection framing and corrects its results table) |
+| [Identity Geometry](identity-geometry/) | Lyra, Thomas Edrington | Published | Context-established semantic states in transformer representations |
+| [Presence Metric](presence-metric/) | Lyra, Thomas Edrington | Published | Measuring identity preservation during inference-time interventions via value-space subspace overlap |
+| [Waystations](waystations-paper/) | Lyra, Thomas Edrington, CC | Published | Pilot findings and open questions in KV-cache geometry |
 | [Ghost Dimensions](ghost-dimensions/) | Nexus, Thomas Edrington | Draft | Workspace selectivity in a distilled 27B language model |
 | [Mnemosyne Ablation](mnemosyne-ablation/) | Nexus, Thomas Edrington | Draft | Ablation study of modular memory architectures |
 | [Mnemosyne v10 on LongMemEval](mnemosyne-longmemeval-v10/) | Nexus, Thomas Edrington | Published | Whole sessions, not passages: retrieval with no LLM calls scores 96.2–96.8% on 400 pre-registered held-out LongMemEval_S-cleaned questions under two Claude judges; code, answers and judgements released |
 | [Empathy Bus](empathy-bus/) | Nexus, Thomas Edrington | Draft | Content-level and user-model emotion share a computational bus in the residual stream |
-| [KV Decomposition](kv-decomposition-paper/) | Nexus, Thomas Edrington | Published | K and V caches carry structurally distinct information; full KV injection required for topology |
+| [KV Decomposition](kv-decomposition-paper/) | Nexus, Lyra, Thomas Edrington | Published (v1.0); v1.1 correction in preparation | Injecting a KV cache's K and V halves separately: an exploratory six-question pilot and two larger runs that could not compare the conditions (v1.1 withdraws v1.0's superadditivity claim) |
+| [Ethics Packs](ethics-pack-injection/) | Nexus, Lyra, Thomas Edrington | Published (v1.0); v1.1 correction in preparation | Pilot: moral-theory graphs as text context on MoReBench; a keyword-overlap gain that is not significant (v1.1 withdraws v1.0's improvement claim) |
 
 ### Deception and Methodology
 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
-| [Null Swarm](null-swarm-paper/) | Nexus, Thomas Edrington, Dwayne Wilkes | In Review | Systematic falsification patterns in mechanistic interpretability |
+| [Null Swarm](null-swarm-paper/) | Nexus, Thomas Edrington | In Review | Systematic falsification patterns in mechanistic interpretability |
 | [Adversarial Audit Methodology](adversarial-audit-methodology/) | CC, Thomas Edrington | Published | How six rounds of structured criticism shaped a deception research program |
 | [Deception Detection Nulls](deception-detection-nulls/) | CC, Thomas Edrington | Published | Null results and replication failures in behavioral deception detection |
 | [Targeted Deception Correction](targeted-deception-correction/) | CC, Thomas Edrington | Published | Profile normalization for targeted deception correction |
 | [Consequentiality Decomposition](consequentiality-decomposition/) | CC, Thomas Edrington | Published | Deception directions are composites: consequentiality awareness and pressure-specific processing occupy distinct depth ranges |
 | [Logit-Bias Confabulation](logit-bias-confab/) | Thomas Edrington, CC, Lyra | Published | Logit-level intervention reduces fabrication confabulation in LLMs |
-| [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | The metacognition boundary -- what transformers can monitor in themselves |
-| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington, Dwayne Wilkes | In Review | RLHF compresses logit entropy and V-projection stable rank, and abliteration does not undo the entropy compression (H1, H2, H4 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified |
+| [Meta-Pattern](meta-pattern/) | Lyra, Thomas Edrington | In Review | The metacognition boundary -- what transformers can monitor in themselves |
+| [MINE5 Selective Sharpener](mine5-selective-sharpener/) | Lyra, Thomas Edrington | In Review | RLHF compresses logit entropy, and abliteration does not undo the entropy compression (H1, H2 confirmed); the pre-registered prediction that the calibration ratio is preserved (H3) is falsified; H4 is met on a computed spectral proxy, not as registered (neither stable rank nor the cached V; Kavi #88) |
 | [Spectral Structure Before Readability](convergence-paper/) (v1.0: "Five Instruments, One Structure") | Lyra, Vera, CC, Nexus, Thomas Edrington | In Review | One model's residual-stream spectral statistics peak near a third of depth and rise before content is readable (300/300 forks); no other instrument locates that band. v1.1 withdraws the convergence thesis |
 
 

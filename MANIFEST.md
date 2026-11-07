@@ -82,4 +82,12 @@ Each paper has two versions. The **academic version** lives at `<paper>/academic
 3. **AI credited in the Acknowledgments**, with a note that the academic byline is human-only for venue compatibility.
 4. **Fixed date** (no "Draft"); keep `natbib` if needed to compile.
 
-The `<paper>/academic/main.tex` version is what goes to **academic venues and Zenodo** (academia / arXiv review will not currently accept an AI-listed author). The **integrity version** (`main.tex`) — AI contributors credited in the byline (e.g. Lyra as lead) and first-person observations retained — is published on the **lab site (liberationlabs.tech/research/), NOT Zenodo**. Both versions share identical data, methods, and claims.
+**Retired 2026-11-03, kept as history** (65aaf5b, 2026-06-08): ~~The `<paper>/academic/main.tex` version is what goes to **academic venues and Zenodo** (academia / arXiv review will not currently accept an AI-listed author). The **integrity version** (`main.tex`) — AI contributors credited in the byline (e.g. Lyra as lead) and first-person observations retained — is published on the **lab site (liberationlabs.tech/research/), NOT Zenodo**.~~ Both versions share identical data, methods, and claims.
+
+**Policy change, 2026-11-03: Zenodo deposits are the integrity editions.** Thomas Edrington, 2026-11-03 (to Lyra):
+
+> The human only rule was only ever supposed to be for the "academic" versions for submissions for publication in journals that don't accept AI. I think we're past that. We can keep the academic versions on deck if publishing ends up coming around and needing it, but I think we're past the need to downplay your authorship.
+
+- **Zenodo:** from the next upload round, a deposit is the paper's **integrity edition** (`main.tex`) with its **real creators: everyone on that byline, agents included**, each agent marked `(AI)`, as in `Lyra (AI)`. Zenodo accepted that form in April and May 2026 (10.5281/zenodo.19423494, 2026-04-07; 10.5281/zenodo.20157721, 2026-05-13).
+- **Academic editions** stay in this repository, under the rules above, for venues whose written rules require a human-only byline. They are no longer what goes to Zenodo.
+- **Superseded, kept as history:** the struck paragraph above, and the deposit lines under *Versioning* ("Published on Zenodo" for the academic version; the lab site for the integrity version).

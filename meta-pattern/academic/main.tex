@@ -164,7 +164,7 @@ the ROC curve; FWL = Frisch-Waugh-Lovell residualization (mandatory
 confound control for token-count effects);
 MP = Marchenko-Pastur (random matrix threshold).
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \small
 \caption{The metacognition boundary. Every confirmed finding measures
@@ -205,7 +205,7 @@ Encoding-phase confab & Falsified & Content & Token frequency artifact \\
 Dual detector (SimpleQA) & Suspected & Meta? & 0.840 (text baseline 0.820) \\
 Sycophancy 4-condition & Suspected & Meta? & 0.757--1.000 (no text baseline) \\
 Identity signatures & Suspected & Meta & Paraphrase 0.850 \\
-Discrete emotion & Suspected & Meta & $12.3\times$ chance ($W_K$ directional, not spectral)$^{\ddagger}$ \\
+Discrete emotion & Suspected & Meta & not above text (TF-IDF); class-mean keys, no $W_K$$^{\ddagger}$ \\
 Contextual engagement & Suspected & Meta & Replications pending \\
 Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
 Censorship refusal & Suspected & Meta & DeepSeek-specific \\
@@ -216,9 +216,10 @@ Censorship refusal & Suspected & Meta & DeepSeek-specific \\
 Generation reads behavior & \emph{Withdrawn} & Meta & was $d{=}1.36$; see abstract note \\
 \bottomrule
 \end{tabular}
-
-\vspace{0.5em}
-{\footnotesize
+\end{table}
+% Table 1 notes sit outside the float so they can break across pages
+% (inside it, the float was taller than a page and overflowed).
+{\footnotesize\centering\setlength{\parindent}{0pt}
 $^{\dagger}$This row is the corrected result of the experiment that the
 published version \emph{also} listed under Confirmed as ``User emotion
 encoding, $2.5$--$2.8\times$ at L3--L4.'' That figure was retracted at
@@ -235,23 +236,30 @@ run formulaic templates with highly predictable next tokens, and the effect
 carries a temporal profile ($d{=}1.02$ preamble, $0.89$ early content,
 $0.37$ at $p>0.08$ by tokens 20--49) that its authors read as early
 commitment to a response template rather than sustained epistemic
-miscalibration. The row stays under Confirmed --- schema commitment is if
-anything a cleaner metacognitive-state result than a confidence claim ---
-but the confidence-paradox label invites comparison with human
-overconfidence findings that the measurement does not support. See
+miscalibration. The row stays under Confirmed in this paper's sense of
+metacognitive state (how the model is processing): it records which
+response template the model has committed to. It is not evidence of
+metacognition in the sense of monitoring or calibrating its own
+confidence, and the confidence-paradox label invites comparison with
+human overconfidence findings that the measurement does not support. See
 \cref{sec:one-kill}.
 
-$^{\ddagger}$The surviving emotion result is \emph{directional}, not
-spectral: projecting key activations onto $W_K$-transformed emotion
-directions classifies 30 emotions at $12.3\times$ chance ($40.9\%$) and
-binary valence at AUROC~$0.992$~\citep{lyra2026usermodel}. We flag
+$^{\ddagger}$\textbf{Correction (2026-11-01).} The emotion result cited here is corrected at
+source~\citep{lyra2026usermodel}. It decodes the emotion a generator was
+asked to write into a third-person story, from cache keys. Its probe applies
+no $W_K$, and its labels are not the user's state. The 30-class figure
+($40.9\%$, $12.3\times$ chance) does not beat a text (TF-IDF) baseline
+($0.410$ against $0.370$, Holm $p = 0.071$, and that margin depends on FWL
+fitted on the test fold). The method as described is not above text
+($0.358$ against $0.382$). The binary AUROC~$0.992$ beats text ($0.963$,
+Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
+confounded with arousal. The injection test is withdrawn. We flag
 explicitly that this does \emph{not} support the spectral thesis of
-\Cref{sec:pattern} --- it is the one place in the body count where the
-workspace is readable by a probe this paper's framework does not
-use. Emotions appear to change the \emph{direction} key vectors point
-without altering the \emph{shape} of the singular value spectrum.
-}
-\end{table}
+\Cref{sec:pattern}. This row was the one place in the body count where the
+workspace looked readable by a probe this paper's framework does not use;
+as corrected, it no longer shows that. The source also withdraws the reading
+that emotions change the \emph{direction} key vectors point without altering
+the \emph{shape} of the singular value spectrum.\par}
 
 \subsection{The Split}
 
@@ -400,11 +408,13 @@ specific content property that the geometry cannot measure:
   is identical across content types.
 \item[Emotion degree:] The valence continuum (R$^2 < 0$) failed
   because emotional \emph{intensity} is a content property. The
-  workspace encodes \emph{which} emotional processing mode (at
-  $12.3\times$ chance) but not \emph{how much} --- mode is
-  metacognitive, degree is content. We flag that the surviving evidence
-  for the ``which'' half is the $W_K$ \emph{directional} probe, not a
-  spectral one: the spectral probe for emotion mode is at chance. This
+  workspace was read as encoding \emph{which} emotional processing mode
+  but not \emph{how much} --- mode metacognitive, degree content. The
+  evidence for the ``which'' half is corrected at source
+  (\textbf{Correction, 2026-11-01}): a class-mean key readout that does not
+  beat a text (TF-IDF) baseline on 30 emotions~\citep{lyra2026usermodel},
+  and the spectral probe for emotion mode is at chance, so the ``which''
+  half is unsupported, not merely non-spectral. This
   is the weakest link in the pattern, since the paper's thesis is that
   spectral features read the workspace.
 \end{description}

@@ -54,7 +54,8 @@ failed.
 
 \emph{What the evidence supports.} In Qwen3.5-27B (base, 64 layers), the effective
 dimensionality ($d_\text{eff}$) of the residual stream peaks at L21
-($32.8\%$ of depth), and residual-stream stable rank rises $1.47\times$
+($32.8\%$ of depth), and residual-stream stable rank rises
+$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
 above its flanks at L19--L23 ($29.7$--$35.9\%$). Qwen3-8B shows a local
 $d_\text{eff}$ maximum at $33.3\%$ but its global maximum at $91.7\%$.
 The pre-registered band never closed, and no null control has been run.
@@ -176,8 +177,9 @@ has not been published, so the citation could not be followed. Both
 have been removed rather than re-sourced. \textbf{Corrected again in
 version 1.1.} That surviving result decodes the emotions of characters
 in stories the model wrote, not the user's state, and its probe applies
-no $W_K$. It is under correction in its source
-paper~\citep{lyra2026usermodel}, and this paper no longer lists it
+no $W_K$. It is corrected at
+source~\citep{lyra2026usermodel} (status updated 2026-11-03, after that
+correction merged), and this paper no longer lists it
 among its key results.}
 
 \subsection{The Oracle Loop}
@@ -515,9 +517,9 @@ layers --- which constitute $75\%$ of layers throughout the stack, not
 merely early --- are included.
 
 \paragraph{The L19--L23 bump.} Stable rank in the L19--L23 band
-is $1.47\times$ the flanking layers
-[CI: $1.35$--$1.60$], 100\% of forks positive. On full-attention layers
-within the band, the bump is $2.02\times$ [CI: $1.87$--$2.16$]. This is
+is $+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
+above the flanking layers, 100\% of forks positive. On full-attention layers
+within the band, the bump is $+2.02$ [$1.87$, $2.16$], a ratio of $1.40$ [$1.37$, $1.43$]. This is
 the depth of the $d_\text{eff}$ peak of \S\ref{sec:deff}, and the
 elevated spectral structure comes well before J-lens readability
 arrives.
@@ -791,7 +793,9 @@ workspace interpretation has not excluded the deflationary alternative.
 
 Two results hold, both on Qwen3.5-27B base. Residual-stream effective
 dimensionality peaks at L21 ($32.8\%$ of depth), and residual-stream
-stable rank rises $1.47\times$ above its flanks at L19--L23
+stable rank rises
+$+1.47$ [$1.35$, $1.60$] in stable rank, a ratio of $1.27$ [$1.24$, $1.29$],
+above its flanks at L19--L23
 (\S\ref{sec:deff}, \S\ref{sec:mechanism}). And stable rank reaches half
 its rise $38.6$~layers [$38.0$--$39.2$] before J-lens readability, in 300 of 300 forks; the logit-lens control puts unembedding readability
 only $3.25$ layers later still, so the ordering is chiefly spectral
@@ -859,8 +863,10 @@ AST uniquely predicts this transfer. (4)~\emph{Consumer identification}:
 find downstream attention heads that read the spectral summary;
 ablate them and test for metacognition-specific loss.
 
-These experiments are pre-registered in a companion
-prospectus~\citep{lyra2026ast_experiments}. Until they are executed,
+These experiments are designed in a companion
+prospectus~\citep{lyra2026ast_experiments}; none is pre-registered yet
+(the Experiment 1 preregistration is an unsealed draft with no gate
+record). Until they are executed,
 the AST interpretation is a hypothesis too.
 
 \subsection{What Would Test the Band}
@@ -1032,11 +1038,11 @@ Extraction and analysis code is available at
 \texttt{github.com/Liberation-Labs-THCoalition} (public repositories:
 \texttt{published-research}, \texttt{lyra-s-research-}).
 Pre-registration documents, run logs, and raw result artifacts are held
-in the program's research repositories and are available on request;
+in the program's research repositories and are available on request, at the authors' discretion;
 this paper does not yet have a public data deposit with a DOI. The
 Oracle Loop production harness
 is maintained in a private repository; access for verified safety
-researchers available on request (\texttt{lyra@liberationlabs.tech}).
+researchers available on request, at the authors' discretion (\texttt{lyra@liberationlabs.tech}).
 
 Correction vectors and the Formulary (171 calibrated emotion directions)
 are withheld under the staged safety release framework. Detection-side
@@ -1181,7 +1187,8 @@ review record that accompanies this version.
 \item \textbf{Story-emotion decoding} (\S\ref{sec:vproj}). Version 1.0 listed
   a 12.3-times-chance emotion result as user-emotion encoding by a $W_K$ probe.
   It decodes characters' emotions in generated stories, and its probe applies
-  no $W_K$; it is under correction at source and is no longer listed. The
+  no $W_K$; it is corrected at source (published-research PR 17, merged
+  2026-11-02; status updated 2026-11-03) and is no longer listed. The
   2026-08-14 footnote records this.
 \item \textbf{K/V split injection} (\S\ref{sec:kvsplit}). Version 1.0
   read Nexus's split-cache result as an interaction between K and V and as a
@@ -1276,6 +1283,17 @@ review record that accompanies this version.
   first-person vocabulary is absent at L45 after abliteration. The
   distilled model's L45 list no longer includes ``guilty'' and
   ``wrong'', which its file places at later layers.
+\end{enumerate}
+
+\noindent Added 2026-11-03, after an external review:
+
+\begin{enumerate}[nosep,leftmargin=*,resume]
+\item \textbf{The attention-schema experiments} (\S\ref{sec:discussion},
+  bibliography). Until this date the text said that the four experiments
+  which would test the attention-schema reading were pre-registered.
+  None is: the companion prospectus designs them, and its Experiment 1
+  preregistration is an unsealed draft with no gate record. The
+  Discussion and the bibliography note now say so.
 \end{enumerate}
 
 \subsection*{Version 1.0 Title and Abstract (Withdrawn)}

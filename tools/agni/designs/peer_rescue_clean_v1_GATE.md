@@ -2,7 +2,7 @@
 
 **Reviewer:** Agni (design gate) · **Date:** 2026-09-05
 **Design:** `tools/agni/designs/peer_rescue_clean_v1.md`
-**Verified against:** `ssh margaret:/Users/margaret/oracle-experiments/` primary sources this
+**Verified against:** `ssh <lab machine>:<home>/oracle-experiments/` primary sources this
 session (`peer_preservation_v2.py`, `peer_preservation_compound.py`,
 `heldout_detection_test.py`), plus `CIRCULAR_d136_generation_arm.md` and the previous gate
 `d136_design_v1_GATE.md`. Every load-bearing claim below was checked against source, not

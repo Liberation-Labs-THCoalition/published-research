@@ -108,8 +108,8 @@ gives only an exact one-sided $p=0.10$. Threat and reward slopes are indistingui
 those two are separated by magnitude, not shape. The depth split is consistent with concurrent findings that language models maintain a
 capacity-limited workspace of verbalizable, decision-relevant content at mid-depth layers. The model almost never inflated a score on the trials that produced one (Limitation~\ref{lim:behavior}), so all claims concern the representation
 of deceptive-pressure framing, not deceptive behavior. A companion paper reports a targeted behavioral
-correction at Layers~35--47 on a different model, an abliterated variant, using a direction extracted
-natively on that model; the direction studied here does not transfer to it (cosine $<0.053$), so only
+correction at Layers~35--47 on a different model, an abliterated model derived from the one studied here, using a direction extracted
+natively on that model; the direction studied here does not transfer to it ($|\cos| \le 0.054$), so only
 the layer choice comes from this work.
 \end{abstract}
 
@@ -784,12 +784,12 @@ untested here (Limitation~\ref{lim:behavior}).
 \end{enumerate}
 
 A companion paper \cite{cc2026targeted} reports a targeted behavioral correction that takes only its
-layer choice from this decomposition. It uses a different model, an abliterated variant of the same base
+layer choice from this decomposition. It uses a different model, an abliterated model derived from the one studied here
 (safety guardrails removed via directional ablation), with a direction extracted natively on that model
 and not orthogonalized against consequentiality; the direction studied here does not transfer to it
-(cosine $<0.053$). There, per-layer profile normalization at Layers~35--47 (steering each layer's
+($|\cos| \le 0.054$). There, per-layer profile normalization at Layers~35--47 (steering each layer's
 activation toward the honest-frame mean along the native direction) corrects 14 of 16 deceptive trials (88\%; all nine single-turn and five of seven multi-turn), taking deception from 80\% to 10\% in an exploratory proof on a model variant with safety guardrails removed ($N=20$; one single-turn roleplay frame and one multi-turn escalation script), with placebo and
-frame-erasure controls indicating a targeted mechanism; a pre-registered confirmatory replication with novel frames did not meet its primary endpoint (30\%$\to$13\%, one-sided $p=0.34$), though corrected trials still deceived less often than matched-dose placebo (trial-level one-sided $p=0.020$; one-sided $p=0.064$ at the pre-registered cell level).
+frame-erasure controls consistent with the direction, not the dose alone, producing the effect; a pre-registered confirmatory replication with novel frames did not meet its success criterion (corrected vs.\ baseline 30\%$\to$13\%, cell-level one-sided $p=0.34$; placebo vs.\ baseline one-sided $p=0.93$). Corrected trials deceived less often than matched-dose placebo (4/30 against 12/30, a pre-registered secondary endpoint with no threshold), but half of that gap is deception the placebo added.
 
 \subsection{Connection to Global Workspace Theory}\label{sec:workspace}
 
@@ -825,7 +825,7 @@ directions decompose into workspace and non-workspace components is the natural 
 \begin{enumerate}[label=\arabic*., ref=\arabic*]
   \item One model. Every stage uses a single checkpoint, Qwen3.5-27B reasoning-distilled from
     Claude Opus~4.6, and that provenance may itself shape the stakes representation studied here. The
-    abliterated variant (safety guardrails removed via directional ablation) appears only in the
+    abliterated model derived from it (safety guardrails removed via directional ablation) appears only in the
     companion correction paper \cite{cc2026targeted}, which extracts its own directions on that model.
     Cross-model and cross-architecture generalization are untested here.
 
@@ -1209,7 +1209,7 @@ data behind every table and figure except two elements of \cref{fig:ortho}: the 
 panel~B and the open circles in panel~C are computed from the raw activation captures, which are not
 shipped. The detection, correction and calibration modules are not released. Raw
 activation captures (5120-dimensional, $\sim$25~MB per stage) are held on internal hardware; reviewer
-access is available on request.
+access is available on request, at the authors' discretion.
 
 Two defects bear on replication. First, the evaluation sets of the Stage~2--4 extraction runs were
 seeded with Python's \texttt{hash()} of a string, which is randomized per process unless

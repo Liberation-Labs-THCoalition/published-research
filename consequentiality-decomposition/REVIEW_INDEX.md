@@ -30,3 +30,13 @@ A "deception direction" extracted via contrastive activation extraction from dec
 - [ ] Check Table 1 numbers against source JSONs
 - [ ] Dwayne cert/verify pass
 - [ ] Decide target venue
+
+## Correction, 2026-10-31
+
+Brought in line with the companion paper's correction round (targeted-deception-correction, f1ee90f), in both
+editions: the abliterated model in that paper is derived from the reasoning-distilled model studied here (its model
+card gives this model as its base), not "an abliterated variant of the same base"; the cross-model bound is
+$|\cos| \le 0.054$ (the maximum, at L47, is 0.0532), not "< 0.053"; and the summary of its confirmatory replication
+now gives both pre-registered comparisons (corrected vs baseline p = 0.34, placebo vs baseline p = 0.93, neither met)
+and states the placebo comparison as a secondary endpoint with no threshold, half of whose gap is deception the
+placebo added. Numbers as verified by Vera against the trial records for that paper.

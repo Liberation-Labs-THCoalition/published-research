@@ -11,6 +11,7 @@ Configuration via environment variables:
   AGNI_LLM_URL       — endpoint URL (ollama/openai only)
   AGNI_LLM_API_KEY   — API key (anthropic/openai only)
   AGNI_LLM_MAX_TOKENS — max response tokens (default 512)
+  LLM_NUM_CTX        — Ollama context length in tokens (default 32768)
 
 Per-module model override: set BOUNTY_MODEL, WOO_MODEL, AP_MODEL etc.
 to override the default for specific subsystems. The module-level env var
@@ -32,6 +33,10 @@ DEFAULT_MODEL = os.environ.get("AGNI_LLM_MODEL", "mistral:7b")
 DEFAULT_URL = os.environ.get("AGNI_LLM_URL", "http://127.0.0.1:11434")
 API_KEY = os.environ.get("AGNI_LLM_API_KEY", "")
 MAX_TOKENS = int(os.environ.get("AGNI_LLM_MAX_TOKENS", "512"))
+
+# infer(split_thinking=True) gives the answer and the thinking apart (2026-11-07). Joined, a draft
+# verdict in a reasoning model's thinking read as the reviewer's own in agni_phases.py.
+SPLITS_THINKING = True
 
 CLAUDE_CREDS_PATH = os.path.expanduser("~/.claude/.credentials.json")
 
@@ -56,8 +61,13 @@ def infer(
     backend: Optional[str] = None,
     url: Optional[str] = None,
     api_key: Optional[str] = None,
-) -> Optional[str]:
-    """Run inference on any supported backend. Returns response text or None."""
+    split_thinking: bool = False,
+):
+    """Run inference on any supported backend. Returns response text or None.
+
+    With split_thinking, returns (answer, thinking) or None: Ollama's thinking for a reasoning model,
+    "" for the other backends. Without it, Ollama's thinking comes joined to the answer, thinking
+    first, or alone when the answer is empty, as before."""
     backend = backend or BACKEND
     model = model or DEFAULT_MODEL
     max_tokens = max_tokens or MAX_TOKENS
@@ -66,11 +76,13 @@ def infer(
 
     try:
         if backend == "ollama":
-            return _ollama(prompt, system, model, max_tokens, temperature, timeout, url)
+            return _ollama(prompt, system, model, max_tokens, temperature, timeout, url, split_thinking)
         elif backend == "anthropic":
-            return _anthropic(prompt, system, model, max_tokens, temperature, timeout, api_key)
+            out = _anthropic(prompt, system, model, max_tokens, temperature, timeout, api_key)
+            return (out, "") if split_thinking and out is not None else out
         elif backend == "openai":
-            return _openai(prompt, system, model, max_tokens, temperature, timeout, url, api_key)
+            out = _openai(prompt, system, model, max_tokens, temperature, timeout, url, api_key)
+            return (out, "") if split_thinking and out is not None else out
         else:
             logger.error(f"Unknown backend: {backend}")
             return None
@@ -79,12 +91,15 @@ def infer(
         return None
 
 
-def _ollama(prompt, system, model, max_tokens, temperature, timeout, url):
+def _ollama(prompt, system, model, max_tokens, temperature, timeout, url, split=False):
     body = {
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": temperature, "num_predict": max_tokens},
+        # num_ctx (2026-11-07): unset, Ollama trims any prompt to its default context length and says
+        # nothing. A reviewer given the end of a paper still returns a confident verdict.
+        "options": {"temperature": temperature, "num_predict": max_tokens,
+                    "num_ctx": int(os.environ.get("LLM_NUM_CTX", "32768"))},
     }
     if system:
         body["system"] = system
@@ -93,6 +108,8 @@ def _ollama(prompt, system, model, max_tokens, temperature, timeout, url):
         j = resp.json()
         out = j.get("response", "") or ""
         think = j.get("thinking", "") or ""
+        if split:
+            return out, think
         if think and not out.strip():
             return think
         if think:
