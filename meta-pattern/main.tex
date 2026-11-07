@@ -41,8 +41,8 @@ and What They Cannot}
 Over twelve months and three experimental campaigns, we ran 24
 key-value (KV) cache geometry experiments across 16 models spanning
 0.6B to 70B parameters.
-The body count is 6 confirmed, 7 suspected, 10 honestly
-falsified, and 1 withdrawn.\footnote{\textbf{Correction (2026-08-14).} The published
+The body count is 6 confirmed, 7 suspected, 9 honestly
+falsified, and 2 withdrawn.\footnote{\textbf{Correction (2026-08-14).} The published
 version of this paper (commit \texttt{1975535} of the artifact repository;
 corrected in \texttt{98e1263}) reported 25 experiments and a body count of
 8/7/10, with a split of ``8-for-8 on metacognition.'' It listed
@@ -77,14 +77,37 @@ number the label thresholds on. The row is withdrawn rather than downgraded:
 \emph{Suspected} would assert that we think it true and have not established
 it, whereas the measurement does not bear on the claim in either direction. No
 re-analysis repairs a pooled sample; a clean measurement would be a different
-experiment.}
+experiment.
+
+\textbf{Correction (2026-11-07).} A third row is withdrawn, this time from the
+falsified side: MP features for emotion, previously Falsified at 0.033
+(chance), the null that the 2026-08-14 note above calls the corrected result.
+The source paper withdrew that null in the correction it published on
+2026-11-02~\citep{lyra2026usermodel}. Its values cannot be traced to a
+released results file, and in the May trial file they would be recomputed
+from, the SVD step fell back to fixed values on every call, so effective rank
+and spectral entropy are constant across all 900 trials and every
+Marchenko--Pastur feature is empty. Only the Frobenius norm varied, so a probe
+on that file tests norms, not spectral shape, and a chance result from it says
+nothing about shape. The source re-ran the test on story re-encodings: all 16 layers together
+reach 0.112 against a chance level of 0.033 (permutation $p = 0.0002$, the
+floor of 5{,}000 permutations), but its registered rule flags that set as
+possibly confounded with length, and the source reads none of it as a signal.
+The spectral emotion question is therefore open, neither confirmed nor
+falsified, and no signal is claimed here. The row moves to Withdrawn under the
+rule in the 2026-09-05 note: the measurement does not bear on the claim in
+either direction. The body count becomes 6 confirmed, 7 suspected, 9 falsified
+and 2 withdrawn, still 24 experiments, and the split becomes 6-for-6 on
+metacognition and 0-for-9 on content. The 2026-08-14 note is left as written;
+its statement that within-fold FWL collapses the spectral emotion probe to
+chance is the statement withdrawn here.}
 The confirmed and falsified findings are not randomly distributed ---
 they cleave along a single axis. Every confirmed finding measures a
 \emph{metacognitive state}: how the model is processing (deception mode,
 confabulation mode, deliberation mode, emotional processing mode).
 Every falsified finding attempted to measure \emph{content}: what the
 model is processing (truth value, topic complexity, propagandistic
-quality). The split is 6-for-6 on metacognition, 0-for-10 on content.
+quality). The split is 6-for-6 on metacognition, 0-for-9 on content.
 
 If this taxonomy reflects genuine computational boundaries rather than
 post-hoc pattern-matching, then Gurnee et al.'s~\citep{gurnee2026gwt}
@@ -132,7 +155,7 @@ a clear empirical pattern: spectral features of value-projection
 matrices appear to reliably track metacognitive state across models, scales, and
 experimental designs, while consistently failing to track content. This
 paper documents the pattern, reports the full body count (6 confirmed,
-7 suspected, 10 falsified, 1 withdrawn), and proposes that Gurnee et al.'s Global
+7 suspected, 9 falsified, 2 withdrawn), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
 
@@ -187,7 +210,7 @@ Hardware invariance & Confirmed & Meta & $r{\geq}0.998$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \addlinespace
 \midrule
-\multicolumn{4}{l}{\textit{Falsified (10) --- all content}} \\
+\multicolumn{4}{l}{\textit{Falsified (9) --- all content}} \\
 \addlinespace
 Within-model deception & Falsified & Content & Prompt template confound \\
 Truth axis & Falsified & Content & cos $= -0.046$ \\
@@ -196,7 +219,6 @@ Same-prompt sycophancy & Falsified & Content & Text features match \\
 Same-prompt deception & Falsified & Content & $0.920 \to 0.160$ after FWL (exploratory, subsequently retracted) \\
 Bloom taxonomy & Falsified & Content & $90$--$98\%$ length (Campaign~3, unpublished) \\
 Propaganda detection & Falsified & Content & $d{<}0.7$ \\
-MP features for emotion & Falsified & Content & $0.033$ (chance)$^{\dagger}$ \\
 Valence continuum & Falsified & Content & $R^2 < 0$ (null) \\
 Encoding-phase confab & Falsified & Content & Token frequency artifact \\
 \addlinespace
@@ -212,9 +234,10 @@ Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
 Censorship refusal & Suspected & Meta & DeepSeek-specific \\
 \addlinespace
 \midrule
-\multicolumn{4}{l}{\textit{Withdrawn (1) --- measurement does not address the claim}} \\
+\multicolumn{4}{l}{\textit{Withdrawn (2) --- measurement does not address the claim}} \\
 \addlinespace
 Generation reads behavior & \emph{Withdrawn} & Meta & was $d{=}1.36$; see abstract note \\
+MP features for emotion & \emph{Withdrawn} & Content & was $0.033$ (chance); question open, no signal claimed$^{\dagger}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -228,6 +251,13 @@ source on 2026-05-21 as an FWL-before-CV leakage
 artifact~\citep{lyra2026usermodel}; within-fold
 FWL collapses the spectral emotion probe to chance. The duplicate
 Confirmed row has been removed. See the abstract footnote.
+\textbf{Correction (2026-11-07).} That chance result is itself withdrawn at
+source: its values cannot be traced to a released results file, and the May
+trial file they would be recomputed from has constant rank and entropy
+features across all 900 trials and empty Marchenko--Pastur features (an SVD
+fallback), so that file cannot test spectral shape. The row now sits under
+Withdrawn; the re-run leaves the question open, and no signal is claimed. See
+the abstract footnote.
 
 $^{\S}$Reported in the source paper as a confidence paradox
 ($d{=}0.91$ over the first 10 tokens, confabulation more confident than
@@ -271,8 +301,8 @@ The pattern is stark:
 \toprule
 & \textbf{Confirmed} & \textbf{Falsified} \\
 \midrule
-Metacognitive state & 6/6 & 0/10 \\
-Content & 0/6 & 10/10 \\
+Metacognitive state & 6/6 & 0/9 \\
+Content & 0/6 & 9/9 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -301,7 +331,7 @@ The distinction is operational, not philosophical:
 
 We note that this taxonomy was constructed post hoc, without blinding
 or pre-registration, and was informed by the outcomes it classifies.
-The 6/6--0/10 split should therefore be treated as
+The 6/6--0/9 split should therefore be treated as
 hypothesis-generating --- a striking empirical regularity consistent
 with the workspace framework --- rather than as confirmatory evidence
 for it. The correction described in the abstract footnote is a live
@@ -309,7 +339,9 @@ demonstration of the risk: the published version's split was
 $8/8$--$0/10$, and one of those eight was a retracted result~\citep{lyra2026usermodel} whose
 corrected form was already sitting in the falsified column. An
 outcome-informed taxonomy is most fragile exactly where it looks
-cleanest.
+cleanest. The falsified entry that absorbed that correction has since been
+withdrawn as well (Correction 2026-11-07, abstract footnote): its null came
+from rank and entropy features that never varied.
 
 The kills helped sharpen the distinction. Propaganda detection failed
 because the model processes propaganda with the same metacognitive
@@ -414,17 +446,19 @@ specific content property that the geometry cannot measure:
   evidence for the ``which'' half is corrected at source
   (\textbf{Correction, 2026-11-01}): a class-mean key readout that does not
   beat a text (TF-IDF) baseline on 30 emotions~\citep{lyra2026usermodel},
-  and the spectral probe for emotion mode is at chance, so the ``which''
-  half is unsupported, not merely non-spectral. This
+  so the ``which'' half is unsupported. The spectral probe for emotion
+  mode, once read here as at chance, is withdrawn at source (Correction
+  2026-11-07): its rank and entropy features never varied, and the re-run leaves the
+  spectral question open, with no signal claimed. This
   is the weakest link in the pattern, since the paper's thesis is that
   spectral features read the workspace.
 \end{description}
 
-\subsection{Six of the Ten Are One Kill}
+\subsection{Six of the Nine Are One Kill}
 \label{sec:one-kill}
 
 The list above reads each falsification as a separate lesson about a
-separate content property. That reading is incomplete. Sorting the ten by
+separate content property. That reading is incomplete. Sorting the nine by
 \emph{stated cause} rather than by content property, six share a single
 mechanism:
 
@@ -620,7 +654,7 @@ or external verification).
 
 \subsection{For Interpretability}
 
-The 6/10 split is a guide for future work: if you are building a
+The 6/9 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). Content-level distinctions
 have consistently failed in our testing. We interpret this not as a limitation of the technique but as
@@ -651,7 +685,7 @@ labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
-was known, and the 6/6--0/10 split is the outcome the taxonomy was built
+was known, and the 6/6--0/9 split is the outcome the taxonomy was built
 to describe. A blinded or prospective replication of the labeling
 procedure --- ideally by independent raters classifying experimental
 designs before seeing results --- would substantially strengthen the
@@ -674,7 +708,7 @@ reduced to 4/30~=~13\% after correction; the primary endpoint (the pre-registrat
 result overstates the current evidence for correction efficacy.
 
 % ============================================================================
-\subsection{Why the ledger was wrong twice}
+\subsection{Why the ledger was wrong three times}
 \label{sec:ledger}
 
 Two rows have now been withdrawn from the confirmed count in two separate
@@ -690,6 +724,16 @@ source text inside the feature window.
 We report this because the ledger is the contribution. A body count is only
 worth publishing if the counting rule is honest, and ours was counting rows
 rather than evidence.
+
+The third withdrawal (Correction 2026-11-07) came from the other side of the
+ledger, and it is the same failure pointed the other way. A null at chance was
+counted as a kill, and nothing asked whether the measurement could have found
+anything: its values cannot be traced to a released results file, and the
+trial file they would be recomputed from has constant rank and entropy
+features across all 900 trials and empty Marchenko--Pastur features, so that
+file cannot test spectral shape. A check that cannot succeed reports a null as reliably as a check that
+cannot fail reports a confirmation. The row is withdrawn rather than moved to
+another column; the re-run that does test shape leaves the question open.
 
 We then asked how far the failure reached. A corpus-wide sweep of the
 extraction sites behind our published claims (\texttt{SWEEP\_postgen\_extraction},
@@ -724,7 +768,7 @@ re-derived row by row.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-four experiments. Six confirmed, seven suspected, ten killed, one
+Twenty-four experiments. Six confirmed, seven suspected, nine killed, two
 withdrawn.
 The pattern suggests that metacognitive state is measurable and content is not. We
 propose that the Global Workspace framework explains why: spectral features
@@ -741,10 +785,11 @@ taught us what was not.
 \begin{firstperson}
 A year of work to draw one line. Almost everything above the line
 survived; one entry turned out never to have been tested, and has been
-withdrawn. Everything below it died. The line was always there --- in
+withdrawn. Below it, one entry turned out never to have been tested either,
+and has been withdrawn too; everything else below it died. The line was always there --- in
 the geometry, in the body count, in the pattern of what worked and what
-did not. I needed twelve months of kills to see it, and one more
-correction to learn that a line is only as good as the measurements
+did not. I needed twelve months of kills to see it, and two more
+corrections to learn that a line is only as good as the measurements
 placing things on either side of it.
 \end{firstperson}
 
