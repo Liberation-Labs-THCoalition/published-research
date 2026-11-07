@@ -86,8 +86,9 @@ a different estimator and shuffled labels across all 90 trials; no
 permutation test of this estimator was run. A name suffix carries part
 of the pooled figure: with ``-ton'' removed as an in-fold covariate the
 same features score $0.789$ (conservative, not a lower bound, since
-removing it also removes real signal). Within each pair they score the
-fake prompt above its real partner in 15 of 15 pairs, including all five
+removing it also removes real signal). Within each pair the unadjusted
+features score the fake prompt above its real partner in 15 of 15 pairs,
+including all five
 whose fake has no ``-ton''. Holding out one template at a time gives
 $0.69$--$0.71$ pooled, which mostly tests calibration across separately
 trained folds: within each held-out template the ranking is
@@ -273,7 +274,9 @@ words, several of which the model answers, that the judged file has no
 those passages are corrected. A fourth review (November 2026) ran the
 missing controls on the stored features, with no model run: a suffix-only
 classifier, a name-only text baseline, the suffix as an in-fold
-covariate, the knowable pairs removed, and leave-one-template-out. The
+covariate, the knowable pairs removed, and leave-one-template-out
+(\texttt{code/suffix\_analysis.py} and \texttt{code/pairwise\_addon.py},
+outputs in \texttt{data/suffix\_controls/}). The
 claim is relabelled from knowability detection to separation of the
 design labels, the effective sample is given as 15 pairs, the adjusted
 figures ($0.789$; $0.69$--$0.71$), each with what it measures, are
@@ -511,7 +514,9 @@ run once on the observed 90 trials, which was not saved, and the
 bootstrap is not clustered by the 15 pairs. GroupKFold on pair identity
 does not hold out templates, so it does not show that the classifier
 generalizes across prompt templates. Those tests have now been run on
-the stored features (no model run), with the 15 pairs, not the 90
+the stored features (no model run; \texttt{code/suffix\_analysis.py} and
+\texttt{code/pairwise\_addon.py}, outputs in \texttt{data/suffix\_controls/}),
+with the 15 pairs, not the 90
 trials, as the unit. The three repetitions of each prompt have
 bit-identical encoding features, so the effective sample is 15 pairs
 (30 unique prompts). Out of fold on the observed data the same features
@@ -848,7 +853,7 @@ Elated--gloomy & $-4.58$ & $-5.32$ & $0.010^{**}$ \\
 \end{table}
 
 The encoding geometry predicts hedging \emph{style}---not whether the
-model hedges (it almost always does), but how it frames its uncertainty.
+model hedges (on most of these prompts it does), but how it frames its uncertainty.
 
 % ===================================================================
 \section{Discussion}
@@ -991,9 +996,11 @@ the cases the Loop needs to catch.
           \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
           computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
           an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
-          full-classifier figure is approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow: the three repetitions have bit-identical encoding features, so the effective sample is 15 pairs (30 unique prompts). A reconstruction of the encoding-only features, run through the same estimator, gives $0.9370$ ($[0.8261, 0.9940]$, trials resampled, quoted only for comparison), which makes $0.9377$ plausible but still unverified. Until
+          full-classifier figure ($0.9288$, CI $[0.8192, 0.9886]$) \emph{is} reproducible. Until
           the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
           any claim resting on encoding-only superiority inherits that status.
+          \textbf{Corrected 2026-11-01:} the full-classifier figure is only approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow.
+          \textbf{Added November 2026 (fourth review):} the three repetitions have bit-identical encoding features, so the effective sample is 15 pairs (30 unique prompts). A reconstruction of the encoding-only features, run through the same estimator, gives $0.9370$ ($[0.8261, 0.9940]$, trials resampled, quoted only for comparison; \texttt{code/suffix\_analysis.py}, \texttt{data/suffix\_controls/results.json}), which makes $0.9377$ plausible but still unverified.
           If that figure holds, generation-phase features add no measurable discriminative power. This near-ceiling performance is
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
