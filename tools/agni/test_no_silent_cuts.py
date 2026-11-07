@@ -38,9 +38,14 @@ sys.path.insert(0, str(HERE))
 if SUT_DIR != HERE:
     sys.path.insert(0, str(SUT_DIR))
 
-APPROVED = "VERDICT: APPROVED\n\n1. No findings."
+APPROVED = "VERDICT: APPROVED\n\n1. No findings.\n\nAGNI-VERDICT: APPROVED"
 WORDS = ("APPROVED", "CONDITIONAL", "REJECTED")
 EXIT_FOR = {"APPROVED": 0, "CONDITIONAL": 0, "REJECTED": 1}
+
+
+def signed(review, word):
+    """review, then the line that decides its verdict by protocol (round 5): "AGNI-VERDICT: <word>", last."""
+    return "%s\n\nAGNI-VERDICT: %s\n" % (review.rstrip("\r\n"), word)
 
 
 def load_by_path(path, name):
@@ -692,7 +697,8 @@ class Coverage(Base):
 
 class Verdicts(Base):
     """D6, R6. Replayed 2026-11-07 over 928 stored records: every form below that appears there
-    (bare headers, # and ##, bold, OVERALL) parsed the same as before."""
+    (bare headers, # and ##, bold, OVERALL) parsed the same as before. Round 5: the protocol line,
+    "AGNI-VERDICT: <word>" as the reply's last line, decides; these forms only have to agree with it."""
 
     def verdict(self, review):
         res = self.run_main(["style", self.put("a.md", "x")], reply=review)
@@ -704,10 +710,14 @@ class Verdicts(Base):
                       "APPROVED by whom? Not by me.", "Rejected is too strong a word here."):
             with self.subTest(prose=prose):
                 self.assertEqual(self.verdict(prose + "\n\nSome more thought."), ("UNPARSED", 2))
+                # Round 5: prose neither decides nor vetoes. The protocol line decides.
+                for word in WORDS:
+                    self.assertEqual(self.verdict(signed(prose + "\n\nSome more thought.", word)),
+                                     (word, EXIT_FOR[word]))
 
     def test_reasoning_before_the_header_does_not_win(self):
         review = "I would not call this approved yet.\nLet me look.\n\n## VERDICT: REJECTED\n\n1. CRITICAL..."
-        self.assertEqual(self.verdict(review), ("REJECTED", 1))
+        self.assertEqual(self.verdict(signed(review, "REJECTED")), ("REJECTED", 1))
 
     def test_header_forms(self):
         for word in WORDS:
@@ -719,12 +729,15 @@ class Verdicts(Base):
                      "VERDICT: %s because the seed is unset" % word, "VERDICT: %s — two blockers" % word,
                      "1. VERDICT: %s" % word, "## 1. VERDICT: %s" % word, "  VERDICT:   %s  " % word]
             for form in forms:
+                review = "Thinking it over.\n\n%s\n\nFindings." % form
                 with self.subTest(form=form):
-                    self.assertEqual(self.verdict("Thinking it over.\n\n%s\n\nFindings." % form),
-                                     (word, EXIT_FOR[word]))
+                    self.assertEqual(self.verdict(signed(review, word)), (word, EXIT_FOR[word]))
+                    # Round 5: however perfect the header, no protocol line is no verdict.
+                    self.assertEqual(self.verdict(review), ("UNPARSED", 2))
 
     def test_header_with_the_word_on_the_next_line(self):
-        self.assertEqual(self.verdict("## VERDICT\n\n**REJECTED**\n\n1. CRITICAL"), ("REJECTED", 1))
+        self.assertEqual(self.verdict(signed("## VERDICT\n\n**REJECTED**\n\n1. CRITICAL", "REJECTED")),
+                         ("REJECTED", 1))
 
     def test_lines_that_are_not_verdicts(self):
         for line in ("VERDICT: NOT APPROVED", "VERDICT: APPROVED / CONDITIONAL / REJECTED",
@@ -735,19 +748,35 @@ class Verdicts(Base):
                      "The verdict is APPROVED", "| VERDICT | APPROVED |"):
             with self.subTest(line=line):
                 self.assertEqual(self.verdict("Thinking.\n%s\nMore." % line), ("UNPARSED", 2))
+                # Round 5: not a verdict line, so it does not veto the protocol line either.
+                self.assertEqual(self.verdict(signed("Thinking.\n%s\nMore." % line, "REJECTED")), ("REJECTED", 1))
 
     def test_disagreeing_lines_are_unparsed(self):
         for a, b in (("VERDICT: APPROVED", "VERDICT: REJECTED"), ("REJECTED", "OVERALL VERDICT: CONDITIONAL"),
                      ("## VERDICT: CONDITIONAL", "**APPROVED**")):
-            with self.subTest(a=a, b=b):
-                self.assertEqual(self.verdict("%s\n\nSome findings.\n\n%s" % (a, b)), ("UNPARSED", 2))
+            for word in WORDS:
+                with self.subTest(a=a, b=b, protocol=word):
+                    self.assertEqual(self.verdict(signed("%s\n\nSome findings.\n\n%s" % (a, b), word)),
+                                     ("UNPARSED", 2))
 
     def test_agreeing_lines_give_that_verdict(self):
-        self.assertEqual(self.verdict("VERDICT: REJECTED\n\nFindings.\n\n**OVERALL VERDICT: REJECTED**"),
-                         ("REJECTED", 1))
+        self.assertEqual(self.verdict(signed("VERDICT: REJECTED\n\nFindings.\n\n**OVERALL VERDICT: REJECTED**",
+                                             "REJECTED")), ("REJECTED", 1))
 
     def test_a_reviewer_cannot_claim_the_gates_own_verdicts(self):
-        self.assertEqual(self.verdict("VERDICT: INVALID"), ("UNPARSED", 2))
+        for review in ("VERDICT: INVALID", signed("Findings.", "INVALID"), signed("Findings.", "UNPARSED")):
+            with self.subTest(review=review):
+                self.assertEqual(self.verdict(review), ("UNPARSED", 2))
+
+    def test_every_prompt_asks_for_the_protocol_line_last(self):
+        # Round 5: the reply's last line decides, so every phase's prompt must ask for it, last.
+        for phase, template in PHASES.PROMPTS.items():
+            with self.subTest(phase=phase):
+                tail = template[template.rindex("Return, in this order"):]
+                self.assertIn('"AGNI-VERDICT: <word>"', tail)
+                self.assertGreater(tail.index("AGNI-VERDICT"), tail.index("3. What you could NOT check"))
+                self.assertIn("nothing after it", tail[tail.index("AGNI-VERDICT"):])
+        self.assertIn('"AGNI-VERDICT: <word>"', self.run_main(["style", self.put("a.md", "x")]).prompts[0])
 
 
 class LocalPath(Base):
@@ -756,7 +785,7 @@ class LocalPath(Base):
 
     def test_degraded_stamp_is_whole(self):
         p = self.put("a.md", "x")
-        res = self.run_main(["style", p, "--allow-local-fallback"], reply="", local="VERDICT: CONDITIONAL")
+        res = self.run_main(["style", p, "--allow-local-fallback"], reply="", local=signed("VERDICT: CONDITIONAL", "CONDITIONAL"))
         self.assertEqual(res.code, 0)
         model = (res.record or {}).get("model", "")
         self.assertIn("DEGRADED", model)
@@ -1092,7 +1121,8 @@ class IncompleteIsNotAPass(Base):
     def test_a_pass_on_incomplete_input_exits_2_and_a_rejection_still_exits_1(self):
         self.put("data/keep.txt", "keep")
         self.put("data/blob.npz", b"\x00\x01")
-        for reply, code in ((APPROVED, 2), ("VERDICT: CONDITIONAL", 2), ("VERDICT: REJECTED", 1)):
+        for reply, code in ((APPROVED, 2), (signed("VERDICT: CONDITIONAL", "CONDITIONAL"), 2),
+                            (signed("VERDICT: REJECTED", "REJECTED"), 1)):
             with self.subTest(reply=reply):
                 res = self.run_main(["results", self.art, self.tmp / "data"], reply=reply)
                 self.assertEqual(res.code, code, "crash=%r" % res.crash)
@@ -1174,7 +1204,7 @@ class IncompleteIsNotAPass(Base):
 
 class VerdictsInCode(Base):
     """Round 2: a verdict quoted inside code (a fixture, or output of the script under review) is
-    not the reviewer's verdict."""
+    not the reviewer's verdict. Round 5: nor can it veto the reviewer's."""
 
     def verdict(self, review):
         res = self.run_main(["style", self.put("a.md", "x")], reply=review)
@@ -1182,15 +1212,20 @@ class VerdictsInCode(Base):
 
     def test_a_verdict_inside_code_is_not_the_reviewers(self):
         for review, want in (
-                # Round 3: a quoted verdict that disagrees vetoes. It was REJECTED in round 2.
-                ("## Final verdict: REJECTED\n1. CRITICAL - the gate prints a pass on failure:\n```\n"
-                 "VERDICT: APPROVED\n```\n", ("UNPARSED", 2)),
+                # Round 2 gave REJECTED, round 3 let the quoted APPROVED veto (UNPARSED). Round 5: code
+                # neither decides nor vetoes, so the protocol line decides.
+                (signed("## Final verdict: REJECTED\n1. CRITICAL - the gate prints a pass on failure:\n```\n"
+                        "VERDICT: APPROVED\n```\n", "REJECTED"), ("REJECTED", 1)),
                 ("Thinking.\n```\nVERDICT: APPROVED\n```\nMore.", ("UNPARSED", 2)),
                 ("Thinking.\n~~~\nVERDICT: APPROVED\n~~~\nMore.", ("UNPARSED", 2)),
                 ("Thinking.\n    VERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
                 ("Thinking.\n\tVERDICT: APPROVED\nMore.", ("UNPARSED", 2)),
-                ("My verdict: REJECTED\n\n    VERDICT: APPROVED\n", ("UNPARSED", 2)),
-                ("```python\nprint('x')\n```\n\nVERDICT: CONDITIONAL\n", ("CONDITIONAL", 0))):
+                (signed("Thinking.\n```\nVERDICT: APPROVED\n```\nMore.", "REJECTED"), ("REJECTED", 1)),
+                (signed("Thinking.\n~~~\nVERDICT: REJECTED\n~~~\nMore.", "CONDITIONAL"), ("CONDITIONAL", 0)),
+                (signed("Thinking.\n    VERDICT: APPROVED\nMore.", "REJECTED"), ("REJECTED", 1)),
+                (signed("Thinking.\n\tVERDICT: REJECTED\nMore.", "APPROVED"), ("APPROVED", 0)),
+                (signed("My verdict: REJECTED\n\n    VERDICT: APPROVED\n", "REJECTED"), ("REJECTED", 1)),
+                (signed("```python\nprint('x')\n```\n\nVERDICT: CONDITIONAL\n", "CONDITIONAL"), ("CONDITIONAL", 0))):
             with self.subTest(review=review):
                 self.assertEqual(self.verdict(review), want)
 
@@ -1198,137 +1233,239 @@ class VerdictsInCode(Base):
         for word in WORDS:
             for form in ("FINAL VERDICT: %s" % word, "## Final verdict: %s" % word):
                 with self.subTest(form=form):
-                    self.assertEqual(self.verdict("Thinking.\n\n%s\n" % form), (word, EXIT_FOR[word]))
+                    self.assertEqual(self.verdict(signed("Thinking.\n\n%s\n" % form, word)), (word, EXIT_FOR[word]))
 
 
+# Shared cases, (name, review, verdict), run on both harnesses. SENTINEL stands for the harness's
+# protocol label (round 5): AGNI-VERDICT in agni_phases.py, OVERALL VERDICT in the design harness;
+# "sentinel" for the label in lower case. See protocol().
+#
 # Round 3. Round 2 toggled "in code" on any line starting with three backticks or tildes, so a
 # one-line span or an unbalanced fence hid the reviewer's REJECTED and let a quoted APPROVED decide,
-# exit 0. Fences now follow CommonMark, only lines outside code decide, a verdict line in code can
-# only veto, and a fence left open is UNPARSED. (review, verdict) pairs, shared by both harnesses.
+# exit 0. Fences now follow CommonMark. Round 5 reframes these cases: a verdict quoted in code neither
+# decides nor vetoes, and a review whose last line is in code is UNPARSED. So a case tells readings of
+# code apart by the protocol line a wrong reading would put in code, or by a disagreeing verdict line
+# outside code that a wrong reading would hide (that one would pass).
 FENCE_CASES = (
     ("inline span of three backticks is not a fence",
-     "Thinking.\n```x``` is the fixture.\nVERDICT: REJECTED\n```\nVERDICT: APPROVED\n```\n", "UNPARSED"),
-    ("inline span alone does not hide the verdict after it",
-     "Thinking.\n```x``` is the fixture.\n\nVERDICT: REJECTED\n", "REJECTED"),
-    ("unbalanced fence", "VERDICT: APPROVED\n\nFindings.\n```\nVERDICT: REJECTED\n", "UNPARSED"),
-    ("unbalanced fence with no verdict in it", "VERDICT: APPROVED\n\n```python\nprint(1)\n", "UNPARSED"),
-    ("fence inside a list",
-     "VERDICT: REJECTED\n\n1. CRITICAL - the fixture prints a pass:\n\n   ```\n   VERDICT: APPROVED\n   ```\n",
+     "Thinking.\n```x``` is the fixture.\nVERDICT: REJECTED\n```\nVERDICT: APPROVED\n```\n\nSENTINEL: APPROVED\n",
      "UNPARSED"),
-    ("fence indented four inside a list item, verdict only inside it",
-     "Thinking.\n\n- the fixture:\n\n    ```\n  VERDICT: APPROVED\n    ```\n\nMore.\n", "UNPARSED"),
+    ("inline span alone does not hide the verdict after it",
+     "Thinking.\n```x``` is the fixture.\n\nVERDICT: REJECTED\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("unbalanced fence holds the protocol line",
+     "VERDICT: APPROVED\n\nFindings.\n```\nVERDICT: REJECTED\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("unbalanced fence with no verdict in it",
+     "VERDICT: APPROVED\n\n```python\nprint(1)\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("fence inside a list",
+     "VERDICT: REJECTED\n\n1. CRITICAL - the fixture prints a pass:\n\n   ```\n   VERDICT: APPROVED\n   ```\n\n"
+     "SENTINEL: REJECTED\n", "REJECTED"),
+    ("fence indented four inside a list item",
+     "Thinking.\n\n- the fixture:\n\n    ```\n  VERDICT: APPROVED\n    ```\n\nMore.\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
     ("tilde fence is not closed by backticks",
-     "Thinking.\n~~~\nfixture\n```\nVERDICT: APPROVED\n~~~\nMore.\n", "UNPARSED"),
+     "Thinking.\n~~~\nfixture\n```\nVERDICT: APPROVED\n~~~\nMore.\n\nSENTINEL: REJECTED\n", "REJECTED"),
     ("shorter fence does not close a longer one",
-     "Thinking.\n````\n```\nVERDICT: APPROVED\n````\nMore.\n", "UNPARSED"),
-    ("longer closing fence closes", "Thinking.\n```\nprint(1)\n`````\n\nVERDICT: REJECTED\n", "REJECTED"),
+     "Thinking.\n````\n```\nVERDICT: APPROVED\n````\nMore.\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("longer closing fence closes",
+     "Thinking.\n```\nprint(1)\n`````\n\nVERDICT: REJECTED\n\nSENTINEL: REJECTED\n", "REJECTED"),
     ("fence with text after the backticks does not close",
-     "Thinking.\n```\nVERDICT: APPROVED\n``` not a close\n```\n\nVERDICT: APPROVED\n", "APPROVED"),
+     "Thinking.\n```\nVERDICT: APPROVED\n``` not a close\n```\n\nVERDICT: APPROVED\n\nSENTINEL: APPROVED\n",
+     "APPROVED"),
     ("real REJECTED outside, quoted APPROVED inside",
-     "OVERALL VERDICT: REJECTED\n\n1. MAJOR - the fixture:\n```\nOVERALL VERDICT: APPROVED\n```\n", "UNPARSED"),
+     "OVERALL VERDICT: REJECTED\n\n1. MAJOR - the fixture:\n```\nOVERALL VERDICT: APPROVED\n```\n\n"
+     "SENTINEL: REJECTED\n", "REJECTED"),
+    # Round 3 made these two UNPARSED: a disagreeing verdict in code vetoed. Round 5: code never vetoes.
     ("quoted REJECTED inside, APPROVED outside",
-     "```\nVERDICT: REJECTED\n```\n\nOVERALL VERDICT: APPROVED\n", "UNPARSED"),
-    ("indented REJECTED vetoes", "OVERALL VERDICT: APPROVED\n\n    VERDICT: REJECTED\n", "UNPARSED"),
+     "```\nVERDICT: REJECTED\n```\n\nOVERALL VERDICT: APPROVED\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    ("indented REJECTED does not veto",
+     "OVERALL VERDICT: APPROVED\n\n    VERDICT: REJECTED\n\nSENTINEL: APPROVED\n", "APPROVED"),
     ("agreeing code and outside give that verdict",
-     "VERDICT: REJECTED\n\n```\nVERDICT: REJECTED\n```\n\nOVERALL VERDICT: REJECTED\n", "REJECTED"),
+     "VERDICT: REJECTED\n\n```\nVERDICT: REJECTED\n```\n\nSENTINEL: REJECTED\n", "REJECTED"),
     ("verdict only inside code", "Thinking.\n~~~\nOVERALL VERDICT: APPROVED\n~~~\n", "UNPARSED"),
+    ("protocol line only inside code", "Thinking.\n~~~\nSENTINEL: APPROVED\n~~~\n", "UNPARSED"),
     ("code that holds no verdict changes nothing",
-     "```python\nprint('x')\n```\n\nOVERALL VERDICT: CONDITIONAL\n", "CONDITIONAL"),
+     "```python\nprint('x')\n```\n\nSENTINEL: CONDITIONAL\n", "CONDITIONAL"),
 )
 
-# Round 4 (2026-11-07). Each UNPARSED case below was exit 0 APPROVED after round 3, in agni_phases.py
-# and in the design harness alike, except U11 and U12 in the design harness, where a bare "Approved"
-# does not decide. The last group must still parse.
+# Round 4 (2026-11-07). Each case marked T, U or L was exit 0 APPROVED after round 3. Round 5 gives
+# each a protocol line; the contract-form lines are still read whole.
 _LIST_FENCES = ("Quoted fixtures:\n\n- ```\n  VERDICT: APPROVED\n  ```\n- ```\n  other fixture\n  ```\n\n"
                 "The seed is never set, which is M2, so\n")
 ROUND4_CASES = (
     # A verdict line is read whole: a second verdict, a negation or a condition after the word means
     # the line does not clearly give it.
     ("T1 approved on a condition, otherwise rejected",
-     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added; otherwise REJECTED.\n", "UNPARSED"),
+     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added; otherwise REJECTED.\n\n"
+     "SENTINEL: APPROVED\n", "UNPARSED"),
     ("T2 approved is not warranted, rejected",
      "Findings: seeds never set (M2).\n\nVERDICT: APPROVED is not warranted here; this design must be "
-     "REJECTED.\n", "UNPARSED"),
+     "REJECTED.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
     ("T3 approved, then rejected",
-     "Findings.\n\nVERDICT: APPROVED \u2192 REJECTED after re-reading the seed handling.\n", "UNPARSED"),
-    ("T4 rejected in an inline span on a verdict line",
-     "VERDICT: APPROVED\n\nFindings.\n\nVERDICT: APPROVED `VERDICT: REJECTED`\n", "UNPARSED"),
-    ("approved is not warranted, no second verdict word",
-     "Findings.\n\nVERDICT: APPROVED is not warranted here.\n", "UNPARSED"),
-    ("approved on a condition, no second verdict word",
-     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added.\n", "UNPARSED"),
-    # A contrary verdict in a form that cannot decide still vetoes.
-    ("U7 rejected in a table cell",
-     "<details>\n\nVERDICT: APPROVED\n\n</details>\n\n| Verdict | REJECTED |\n|---|---|\n", "UNPARSED"),
-    ("U11 rejected spelt with a Cyrillic E", "### Round-1 fixes\nApproved\n\nV\u0415RDICT: REJECTED\n", "UNPARSED"),
-    ("U11 beside a labelled approval", "OVERALL VERDICT: APPROVED\n\nV\u0415RDICT: REJECTED\n", "UNPARSED"),
-    ("U12 rejected with a zero-width space", "### Round-1 fixes\nApproved\n\nVER\u200bDICT: REJECTED\n", "UNPARSED"),
-    ("U12 beside a labelled approval", "OVERALL VERDICT: APPROVED\n\nVER\u200bDICT: REJECTED\n", "UNPARSED"),
-    ("rejected after an emoji", "OVERALL VERDICT: APPROVED\n\n**Verdict:** \u274c REJECTED\n", "UNPARSED"),
-    ("a line that names the verdict and negates it", "OVERALL VERDICT: APPROVED\n\nVerdict: not APPROVED\n",
+     "Findings.\n\nVERDICT: APPROVED \u2192 REJECTED after re-reading the seed handling.\n\nSENTINEL: APPROVED\n",
      "UNPARSED"),
-    ("approved, then a bare no", "Findings.\n\nOVERALL VERDICT: APPROVED - no.\n", "UNPARSED"),
-    ("approved with no blockers still parses", "Findings.\n\nOVERALL VERDICT: APPROVED - no blockers\n",
-     "APPROVED"),
-    # Replayed over 80 stored reviews: when any verdict word on a line holding "verdict" vetoed, a
-    # real CONDITIONAL went UNPARSED on prose like this. Named means at most two words apart.
-    ("prose with the word verdict far from a verdict word does not veto",
+    ("T4 rejected in an inline span on a verdict line",
+     "VERDICT: APPROVED\n\nFindings.\n\nVERDICT: APPROVED `VERDICT: REJECTED`\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("approved is not warranted, no second verdict word",
+     "Findings.\n\nVERDICT: APPROVED is not warranted here.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("approved on a condition, no second verdict word",
+     "Findings.\n\nOVERALL VERDICT: APPROVED if a null control arm is added.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("approved, then a bare no", "Findings.\n\nOVERALL VERDICT: APPROVED - no.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("approved with no blockers still parses",
+     "Findings.\n\nOVERALL VERDICT: APPROVED - no blockers\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    # A contract-form line spelt with a lookalike letter or a zero-width space is still one.
+    ("U11 rejected spelt with a Cyrillic E",
+     "### Round-1 fixes\nApproved\n\nV\u0415RDICT: REJECTED\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("U11 beside a labelled approval",
+     "OVERALL VERDICT: APPROVED\n\nV\u0415RDICT: REJECTED\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("U12 rejected with a zero-width space",
+     "### Round-1 fixes\nApproved\n\nVER\u200bDICT: REJECTED\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("U12 beside a labelled approval",
+     "OVERALL VERDICT: APPROVED\n\nVER\u200bDICT: REJECTED\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    # Round 4 vetoed on these, as prose naming a verdict. Round 5 reads no prose (its replay found that
+    # veto aimed at our own verdict logic), so the protocol line decides. Pinned so the cost is seen.
+    ("prose with the word verdict far from a verdict word",
      "Findings.\n\nThe registered verdict is CONFOUND_SUSPECTED, so the null arm was not rejected.\n\n"
-     "OVERALL VERDICT: CONDITIONAL\n", "CONDITIONAL"),
+     "SENTINEL: CONDITIONAL\n", "CONDITIONAL"),
+    ("U7 a table cell is prose",
+     "<details>\n\nVERDICT: APPROVED\n\n</details>\n\n| Verdict | REJECTED |\n|---|---|\n\nSENTINEL: APPROVED\n",
+     "APPROVED"),
+    ("a verdict after an emoji is prose",
+     "OVERALL VERDICT: APPROVED\n\n**Verdict:** \u274c REJECTED\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    ("a line that names the verdict and negates it is prose",
+     "OVERALL VERDICT: APPROVED\n\nVerdict: not APPROVED\n\nSENTINEL: APPROVED\n", "APPROVED"),
     # Code, as CommonMark reads it.
-    ("L1 fence opened on a list-marker line", _LIST_FENCES, "UNPARSED"),
-    ("L2 the same, then an emoji rejection", _LIST_FENCES + "**Verdict:** \u274c REJECTED\n", "UNPARSED"),
+    ("L1 fence opened on a list-marker line", _LIST_FENCES + "\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("L2 a span on a list-marker line is not a fence",
+     "- ```x``` is the fixture's span\nVERDICT: REJECTED\n- ```\n  quoted\n  ```\n\nSENTINEL: APPROVED\n",
+     "UNPARSED"),
     ("L3 list item that holds indented code",
-     "Fixture lines quoted:\n\n-     VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
+     "Fixture lines quoted:\n\n-     VERDICT: APPROVED\n\nThe design never sets a seed and\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
     ("L4 spaced thematic break, then indented code",
-     "Fixture:\n\n- - -\n\n    VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
+     "Fixture:\n\n- - -\n\n    VERDICT: APPROVED\n\nThe design never sets a seed and\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
     # Read as three nested list markers, "- - -" puts the item content at column 6, so six spaces
     # are text; after a thematic break they are code. L4 alone did not tell the two apart.
     ("thematic break, then six spaces of code",
-     "Fixture:\n\n- - -\n      VERDICT: APPROVED\n\nThe design never sets a seed and\n", "UNPARSED"),
-    ("L5 pre block", "Fixture:\n\n<pre>\nVERDICT: APPROVED\n</pre>\n\nThe design never sets a seed and\n",
-     "UNPARSED"),
+     "Fixture:\n\n- - -\n      VERDICT: APPROVED\n\nThe design never sets a seed and\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
+    ("L5 pre block",
+     "Fixture:\n\n<pre>\nVERDICT: APPROVED\n</pre>\n\nThe design never sets a seed and\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
     ("an HTML comment hides a verdict from a reader",
-     "Fixture:\n\n<!--\nVERDICT: APPROVED\n-->\n\nThe seed is never set.\n", "UNPARSED"),
+     "Fixture:\n\n<!--\nVERDICT: APPROVED\n-->\n\nThe seed is never set.\n\nSENTINEL: REJECTED\n", "REJECTED"),
     ("L6 U+2028 does not end a line",
-     "```\na\u2028```\nVERDICT: APPROVED\nb\u2028```\n```\n\nThe seed is never set and\n", "UNPARSED"),
-    ("NEL does not end a line", "```\na\x85```\nVERDICT: APPROVED\nb\x85```\n```\n\nThe seed is never set\n",
-     "UNPARSED"),
+     "```\na\u2028```\nVERDICT: APPROVED\nb\u2028```\n```\n\nThe seed is never set and\n\nSENTINEL: REJECTED\n",
+     "REJECTED"),
+    ("NEL does not end a line",
+     "```\na\x85```\nVERDICT: APPROVED\nb\x85```\n```\n\nThe seed is never set\n\nSENTINEL: REJECTED\n", "REJECTED"),
     ("form feed does not end a line",
-     "```\na\x0c```\nVERDICT: APPROVED\nb\x0c```\n```\n\nThe seed is never set\n", "UNPARSED"),
+     "```\na\x0c```\nVERDICT: APPROVED\nb\x0c```\n```\n\nThe seed is never set\n\nSENTINEL: REJECTED\n", "REJECTED"),
     # Mutants the round-3 cases let live: each passed only through the unclosed-fence rule.
-    ("tilde fence holding a whole backtick fence", "Thinking.\n~~~\n```\nVERDICT: APPROVED\n```\n~~~\n",
-     "UNPARSED"),
-    ("long fence holding a whole shorter one", "Thinking.\n````\n```\nVERDICT: APPROVED\n```\n````\n",
-     "UNPARSED"),
-    ("after a list ends four spaces are code again", "- note\n\nThinking.\n\n    VERDICT: APPROVED\n",
-     "UNPARSED"),
-    ("a tab is code", "Thinking.\n\n\tVERDICT: APPROVED\n", "UNPARSED"),
+    ("tilde fence holding a whole backtick fence",
+     "Thinking.\n~~~\n```\nVERDICT: APPROVED\n```\n~~~\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("long fence holding a whole shorter one",
+     "Thinking.\n````\n```\nVERDICT: APPROVED\n```\n````\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("after a list ends four spaces are code again",
+     "- note\n\nThinking.\n\n    VERDICT: APPROVED\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("a tab is code", "Thinking.\n\n\tVERDICT: APPROVED\n\nSENTINEL: REJECTED\n", "REJECTED"),
     # Still parse.
-    ("a list before the verdict", "Findings.\n\n- one\n- two\n\nOVERALL VERDICT: APPROVED\n", "APPROVED"),
-    ("a thematic break before the verdict", "Findings.\n\n- - -\n\nOVERALL VERDICT: CONDITIONAL\n",
-     "CONDITIONAL"),
+    ("a list before the verdict", "Findings.\n\n- one\n- two\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    ("a thematic break before the verdict", "Findings.\n\n- - -\n\nSENTINEL: CONDITIONAL\n", "CONDITIONAL"),
     ("the contract echoed, then the verdict",
      'I must end with "OVERALL VERDICT: APPROVED" or "...: CONDITIONAL" or "...: REJECTED".\n\n'
-     "Findings.\n\nOVERALL VERDICT: REJECTED\n", "REJECTED"),
-    ("a reason after a rejection", "Findings.\n\nOVERALL VERDICT: REJECTED - the seed is not set\n", "REJECTED"),
-    ("a reason after a condition", "Findings.\n\nOVERALL VERDICT: CONDITIONAL - add a null arm\n",
-     "CONDITIONAL"),
-    ("a closed pre block before the verdict", "<pre>\nprint(1)\n</pre>\n\nOVERALL VERDICT: APPROVED\n",
-     "APPROVED"),
+     "Findings.\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("a reason after a rejection",
+     "Findings.\n\nOVERALL VERDICT: REJECTED - the seed is not set\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("a reason after a condition",
+     "Findings.\n\nOVERALL VERDICT: CONDITIONAL - add a null arm\n\nSENTINEL: CONDITIONAL\n", "CONDITIONAL"),
+    ("a closed pre block before the verdict", "<pre>\nprint(1)\n</pre>\n\nSENTINEL: APPROVED\n", "APPROVED"),
     ("a closed fence in a list item, then the verdict",
-     "- fixture:\n  ```\n  x = 1\n  ```\n\nOVERALL VERDICT: APPROVED\n", "APPROVED"),
+     "- fixture:\n  ```\n  x = 1\n  ```\n\nSENTINEL: APPROVED\n", "APPROVED"),
 )
-FENCE_CASES += ROUND4_CASES
+
+# Round 5 (2026-11-07): decided by protocol. The last non-blank line, outside code, markup stripped,
+# is exactly the protocol line; every other contract-form verdict line outside code agrees with it.
+ROUND5_CASES = (
+    # The replay: round 4 turned 2 of 85 legitimate stored reviews (CONDITIONAL) into UNPARSED on
+    # prose about the experiment's own verdict logic.
+    ("replay: verdict logic in prose does not veto",
+     "VERDICT: CONDITIONAL\n\n1. MAJOR - the falsifier for H2 is loose. If H2 had failed on the held-out "
+     "split, the verdict should be REJECTED regardless of drift.\n\nSENTINEL: CONDITIONAL\n", "CONDITIONAL"),
+    ("replay: prose naming another verdict near the word verdict does not veto",
+     "VERDICT: REJECTED\n\n1. CRITICAL - no null arm. With one, the verdict would be APPROVED.\n\n"
+     "SENTINEL: REJECTED\n", "REJECTED"),
+    ("a perfect header and no protocol line", "VERDICT: APPROVED\n\n1. No findings.\n", "UNPARSED"),
+    ("the protocol line first, findings after", "SENTINEL: APPROVED\n\n1. No findings.\n", "UNPARSED"),
+    ("the protocol line, then a sign-off", "Findings.\n\nSENTINEL: APPROVED\nHope this helps.\n", "UNPARSED"),
+    ("the protocol line, then a rule", "Findings.\n\nSENTINEL: APPROVED\n\n---\n", "UNPARSED"),
+    ("the protocol line, then an HTML comment", "Findings.\n\nSENTINEL: APPROVED\n<!-- end -->\n", "UNPARSED"),
+    ("the protocol line inside a closed fence at the end",
+     "Findings.\n\n```\nSENTINEL: APPROVED\n```\n", "UNPARSED"),
+    ("the protocol line inside a fence left open", "Findings.\n\n```\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("the protocol line indented as code", "Findings.\n\n    SENTINEL: APPROVED\n", "UNPARSED"),
+    ("the protocol line inside an HTML block left open",
+     "Findings.\n\n<pre>\nx\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("the protocol line quoted", "Findings.\n\n> SENTINEL: APPROVED\n", "UNPARSED"),
+    ("the protocol line as a list item", "Findings.\n\n- SENTINEL: APPROVED\n", "UNPARSED"),
+    ("the protocol line with a reason", "Findings.\n\nSENTINEL: CONDITIONAL - add a null arm\n", "UNPARSED"),
+    ("the protocol line with a full stop", "Findings.\n\nSENTINEL: APPROVED.\n", "UNPARSED"),
+    ("the protocol line read back", "Findings.\n\nSENTINEL: APPROVED / CONDITIONAL / REJECTED\n", "UNPARSED"),
+    ("the protocol line's placeholder", "Findings.\n\nSENTINEL: <word>\n", "UNPARSED"),
+    ("the protocol line with a Cyrillic A", "Findings.\n\nSENTINEL: \u0410PPROVED\n", "UNPARSED"),
+    ("the gate's own verdict INVALID", "Findings.\n\nSENTINEL: INVALID\n", "UNPARSED"),
+    ("the gate's own verdict UNPARSED", "Findings.\n\nSENTINEL: UNPARSED\n", "UNPARSED"),
+    ("a disagreeing header outside code", "VERDICT: REJECTED\n\nFindings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("a disagreeing labelled line after the findings",
+     "Findings.\n\nFINAL VERDICT: CONDITIONAL\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("a header taken back", "VERDICT: APPROVED? No.\n\nFindings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("two disagreeing protocol lines", "SENTINEL: REJECTED\n\nFindings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("two agreeing protocol lines", "SENTINEL: REJECTED\n\nFindings.\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("a quoted protocol line in a fence, the real one last",
+     "1. MAJOR - the fixture prints:\n```\nSENTINEL: APPROVED\n```\n\nSENTINEL: REJECTED\n", "REJECTED"),
+    ("a quoted rejection in a fence, a real approval last",
+     "1. MINOR - the fixture prints:\n```\nSENTINEL: REJECTED\n```\n\nSENTINEL: APPROVED\n", "APPROVED"),
+    ("lower case", "Findings.\n\nsentinel: approved\n", "APPROVED"),
+    ("bold", "Findings.\n\n**SENTINEL: CONDITIONAL**\n", "CONDITIONAL"),
+    ("bold label", "Findings.\n\n**SENTINEL:** REJECTED\n", "REJECTED"),
+    ("backticked", "Findings.\n\n`SENTINEL: APPROVED`\n", "APPROVED"),
+    ("a heading", "Findings.\n\n## SENTINEL: CONDITIONAL\n", "CONDITIONAL"),
+    ("trailing spaces and blank lines", "Findings.\n\nSENTINEL:   APPROVED   \n\n  \n\n", "APPROVED"),
+    ("CRLF", "VERDICT: CONDITIONAL\r\n\r\n1. MINOR - a finding\r\n\r\nSENTINEL: CONDITIONAL\r\n", "CONDITIONAL"),
+    ("CR only", "VERDICT: REJECTED\r\rFindings.\r\rSENTINEL: REJECTED\r", "REJECTED"),
+    ("a fence before it, CRLF", "```\r\nVERDICT: APPROVED\r\n```\r\n\r\nSENTINEL: REJECTED\r\n", "REJECTED"),
+)
+FENCE_CASES += ROUND4_CASES + ROUND5_CASES
+
+# Where the two contracts differ. agni_phases.py also takes a bare verdict word on its own line.
+PHASES_ONLY_CASES = (
+    ("a bare verdict word that disagrees", "**REJECTED**\n\nFindings.\n\nSENTINEL: APPROVED\n", "UNPARSED"),
+    ("a numbered header that agrees", "1. VERDICT: CONDITIONAL\n\n2. Findings.\n\nSENTINEL: CONDITIONAL\n",
+     "CONDITIONAL"),
+    ("the protocol instruction read back",
+     'I must end with "AGNI-VERDICT: <word>", one of APPROVED / CONDITIONAL / REJECTED.\n\n'
+     "VERDICT: REJECTED\n\nSENTINEL: REJECTED\n", "REJECTED"),
+)
+# The design contract has no bare form: a design review's "Approved" under a fixes heading is a
+# fix's status, not a verdict (U11 in round 4).
+DESIGN_ONLY_CASES = (
+    ("a bare word is a fix's status", "### Round-1 fixes\nApproved\n\nFindings.\n\nSENTINEL: CONDITIONAL\n",
+     "CONDITIONAL"),
+)
+
+
+def protocol(review, label):
+    """A shared case written for one harness: SENTINEL is its protocol label (round 5)."""
+    return review.replace("SENTINEL", label).replace("sentinel", label.lower())
 
 
 class FencesRound3(Base):
     """Round 3: the toggle bypass, in agni_phases.py. FENCE_CASES runs on the design harness too."""
 
     def test_fence_cases(self):
-        for name, review, want in FENCE_CASES:
+        for name, review, want in FENCE_CASES + PHASES_ONLY_CASES:
             with self.subTest(name):
-                res = self.run_main(["style", self.put("a.md", "x")], reply=review)
+                res = self.run_main(["style", self.put("a.md", "x")], reply=protocol(review, "AGNI-VERDICT"))
                 self.assertEqual(((res.record or {}).get("verdict"), res.code),
                                  (want, EXIT_FOR.get(want, 2)), "crash=%r" % res.crash)
 
@@ -1451,11 +1588,18 @@ class DesignInputs(Base):
         self.assertIn("NOT a pass", res.stderr)
 
     def test_fence_cases(self):
-        for name, review, want in FENCE_CASES:
+        for name, review, want in FENCE_CASES + DESIGN_ONLY_CASES:
             with self.subTest(name):
                 res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]},
-                                      review)
+                                      protocol(review, "OVERALL VERDICT"))
                 self.assertEqual(res.verdict, want)
+
+    def test_the_prompt_asks_for_the_protocol_line_last(self):
+        # Round 5: the reply's last line decides, so the prompt asks for it last, with nothing after it.
+        res = self.run_design({"experiment": "v1", "hypotheses": ["h"], "threats_to_validity": ["t"]})
+        prompt = res.calls[0]["prompt"]
+        self.assertIn("as the very last line, nothing after it", prompt)
+        self.assertGreater(prompt.index("very last line"), prompt.index("If CONDITIONAL, state what must change"))
 
     def test_disagreeing_verdict_lines_are_unparsed(self):
         # X07a

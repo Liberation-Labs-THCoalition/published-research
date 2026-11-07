@@ -27,20 +27,21 @@ PHASES
   style      paper(s)             -> style guide, twin sync, bib,   [pre-submit]
                                      unresolved review flags
 
-VERDICT CONTRACT: the reviewer answers APPROVED / CONDITIONAL / REJECTED on a verdict line.
-A verdict line, once markdown markup and whitespace are stripped, is exactly one of those words,
-or starts VERDICT, OVERALL VERDICT or FINAL VERDICT followed by one of them (trailing text
-allowed, unless after a pass it negates, contrasts, asks or points elsewhere, or after APPROVED
-sets a condition: then UNPARSED). Reasoning prose never decides, but any line that names a
-verdict ("verdict", at most two words, the word) vetoes. A verdict line inside a code fence or an indented code
-block is quoted code, not the reviewer speaking: it never decides, but if it disagrees the result is
-UNPARSED, and so is a fence that never closes. Every verdict line must agree.
+VERDICT CONTRACT (round 5): the reply's LAST line, alone, is "AGNI-VERDICT: <word>", where <word> is
+APPROVED, CONDITIONAL or REJECTED, and that line decides. It must be outside code and, once markdown
+markup (* _ ` #) and whitespace are stripped, exactly that, with nothing after it. Every other
+verdict line outside code must agree with it: a line that is exactly one of the words, one that
+starts VERDICT, OVERALL VERDICT or FINAL VERDICT followed by one of them (trailing text allowed,
+unless after a pass it negates, contrasts, asks or points elsewhere, or after APPROVED sets a
+condition: then UNPARSED), or another AGNI-VERDICT line. Prose never decides or vetoes. A line in a
+code fence, an indented code block or an HTML block is quoted code, not the reviewer speaking: it
+never decides or vetoes either.
 APPROVED and CONDITIONAL exit 0, REJECTED exit 1. But APPROVED or CONDITIONAL on input the reviewer
 did not get whole (input_complete false) exits 2 and is NOT a pass, unless --accept-incomplete-input
 says to take a review of what it got; the record then carries incomplete_input_accepted.
 
 The gate adds two verdicts of its own. Both exit 2 and neither is a pass:
-  UNPARSED  no verdict line, or verdict lines that disagree.
+  UNPARSED  no AGNI-VERDICT line last, or a verdict line that disagrees with it.
   INVALID   the reviewer did not get all of its input, or gave nothing back: a named input missing,
             unreadable or empty, a binary primary, a prompt over budget, or an empty reply. Also
             the record's value while a review is running, so an old APPROVED at the same path
@@ -224,6 +225,9 @@ Return, in this order:
 
 Be specific. "Consider adding controls" is useless; name the control and the arm.
 If you cannot verify something, say so plainly rather than assuming it is fine.
+
+Make the LAST line of your reply, alone, exactly "AGNI-VERDICT: <word>", with the same word
+as in item 1, and nothing after it.
 """
 
 PROMPTS = {
@@ -817,10 +821,12 @@ def _warn_if_foreign_llm():
 _VERDICT_WORD = r"(APPROVED|CONDITIONAL|REJECTED)"
 # Not ~ (a struck-out verdict is not a verdict) and not > (a quoted one is someone else's).
 _MARKUP = re.compile(r"[*_`#]+")
+# Round 5: the reply's last line, which decides. Exactly this once markup is stripped, nothing after.
+_PROTOCOL = re.compile(r"^AGNI-VERDICT:\s*" + _VERDICT_WORD + r"$", re.I)
 _BARE_VERDICT = re.compile(r"^" + _VERDICT_WORD + r"$", re.I)
 _LABELLED_VERDICT = re.compile(
     r"^(?:(?:[-+]|\d+[.)])\s+)?"          # the prompt's own "1. VERDICT ..." numbering
-    r"(?:(?:OVERALL|FINAL)\s+)?VERDICT\b[\s:=\u2013\u2014-]*" + _VERDICT_WORD +
+    r"(?:(?:OVERALL|FINAL)\s+|AGNI-)?VERDICT\b[\s:=\u2013\u2014-]*" + _VERDICT_WORD +
     r"(?![\w-])"                          # not CONDITIONALLY, not APPROVED-ish
     r"(?!\s*(?:/|\||,|\bOR\b)\s*(?:APPROVED|CONDITIONAL|REJECTED)\b)",    # an echo of the contract
     re.I)
@@ -849,10 +855,6 @@ _LOOKALIKES = str.maketrans(
     "abekmhopctyxijsd" "abezhikmnoptyx")
 # Between the words of the contract read back: punctuation and "or", nothing else.
 _ECHO_GAP = re.compile(r"^(?:[\s\"'/|,.:;()\[\]*_`~-]|\bor\b)*$")
-# A word that says no, between "verdict" and the verdict it names. "no" only when nothing follows it.
-_NEGATION = re.compile(r"\b(?:not|never|nor)\b|n't\b|\bno\b(?!\s+\w)", re.I)
-# "verdict", at most two words, then a verdict word, on folded (lower-case) text.
-_NAMED_VERDICT = re.compile(r"verdict\W*((?:\w+\W+){0,2}?)(approved|conditional|rejected)")
 # After a pass verdict, what takes it back: a negation, a contrast, a question or an arrow.
 _TAKE_BACK = re.compile(r"\b(?:not|never|nor|but|however|instead|rather|except|although|though)\b"
                         r"|n't\b|\bno\b(?!\s+\w)|\?|->|=>|<-|[\u2190-\u21ff\u27f0-\u27ff\u2900-\u297f]",
@@ -867,8 +869,8 @@ def _spaces(line):
 
 
 def _code_lines(review):
-    """Each line of the review as (line, in code), and whether a fence or an HTML block that runs to
-    an end marker was left open.
+    """Each line of the review as (line, in code). A fence's closing line is code too, and a fence or
+    an HTML block left open keeps every line after it in code.
 
     CommonMark, as far as a verdict needs it. Lines end at LF, CR or CRLF only. A fence opens on up
     to three spaces of indent, then three or more backticks or tildes; after backticks the rest of
@@ -890,8 +892,7 @@ def _code_lines(review):
             if (opened_at <= indent <= container + 3
                     and re.match(r"^ *%s{%d,}[ \t]*$" % (re.escape(char), length), line)):
                 fence = None
-            else:
-                lines.append((raw, True))
+            lines.append((raw, True))
             continue
         if html:
             lines.append((raw, True))
@@ -926,7 +927,7 @@ def _code_lines(review):
             pos += len(m.group(1)) + len(m.group(2)) + (gap if gap <= 4 and rest[m.end():].strip() else 1)
             item = pos
         lines.append((raw, in_code))
-    return lines, fence is not None or bool(html and html[0])
+    return lines
 
 
 def _fold(line):
@@ -945,20 +946,6 @@ def _is_echo(folded):
             and all(_ECHO_GAP.match(folded[a.end():b.start()]) for a, b in zip(hits, hits[1:])))
 
 
-def _named_verdicts(folded):
-    """The verdict words a line names as a verdict, and whether one is negated ("Verdict: not
-    APPROVED"). Named: "verdict", then at most two words, then the word ("| Verdict | REJECTED |",
-    "**Verdict:** <emoji> REJECTED", "the verdict would be REJECTED"), or a line whose letters are one
-    verdict word and nothing else ("| REJECTED |"). Farther apart is prose, not a verdict: replayed
-    over 80 stored reviews, "the registered verdict is CONFOUND_SUSPECTED, ... rejected" turned a
-    real CONDITIONAL into UNPARSED when any word on the line counted."""
-    letters = re.sub(r"[^a-z]+", "", folded)
-    if letters in ("approved", "conditional", "rejected"):
-        return {letters.upper()}, False
-    hits = [(m.group(2).upper(), bool(_NEGATION.search(m.group(1)))) for m in _NAMED_VERDICT.finditer(folded)]
-    return {w for w, _ in hits}, any(negated for _, negated in hits)
-
-
 def _takes_back(verdict, tail):
     """Whether the text after a pass verdict's word negates it, or makes APPROVED conditional. A
     REJECTED is not checked: however it is qualified, it cannot pass."""
@@ -967,43 +954,51 @@ def _takes_back(verdict, tail):
     return bool(_TAKE_BACK.search(tail) or (verdict == "APPROVED" and _CONDITION.search(tail)))
 
 
-def _verdicts(review, decide):
-    """(verdict, decides) for each verdict the review's lines name, and whether a fence or an HTML
-    block was left open. decide(text) matches a verdict line once markup is stripped.
+def _plain(line):
+    """A line as a reader sees its words: markup characters and surrounding white space gone."""
+    return _MARKUP.sub("", line).strip()
 
-    Round 4: a line is read whole. Only a verdict line outside code decides, and only if nothing
-    after its word takes it back; one that is taken back lists UNCLEAR. A verdict line lists every
-    verdict word on it as not deciding, and any other line, in code or not, in a form decide() knows
-    or not, lists the verdict words it names (see _named_verdicts), so a word that differs from the
-    decided verdict vetoes. A line outside code that names a verdict and negates it lists UNCLEAR.
-    UNCLEAR is never decided, so it vetoes anything. The contract read back is skipped."""
-    lines, unclosed = _code_lines(review)
-    found = []
-    for line, in_code in lines:
+
+def _contract_verdicts(review, protocol, contract_line):
+    """The verdict the review gives by protocol, or None, and what each other verdict line in a form
+    of the contract, outside code, gives.
+
+    The protocol line is the last non-blank line: outside code, and matched by protocol() once
+    markup is stripped. Any other line outside code is in a form of the contract when
+    contract_line() matches it, as written or folded (a Cyrillic E or a zero-width space does not
+    hide one). It gives its verdict, or UNCLEAR when it names a second verdict word or the text
+    after its word takes it back (round 4: a verdict line is read whole). The contract read back is
+    skipped. Prose and lines in code give nothing (round 5)."""
+    lines = [(line, in_code) for line, in_code in _code_lines(review) if line.strip()]
+    if not lines:
+        return None, []
+    last, last_in_code = lines[-1]
+    said = None if last_in_code else protocol.match(_plain(last))
+    others = []
+    for line, in_code in lines[:-1]:
         folded = _fold(line)
-        if _is_echo(folded):
+        if in_code or _is_echo(folded):
             continue
-        words, negated = _named_verdicts(folded)
-        text = re.sub(r"[*_`#]+", "", line).strip()
-        m = None if in_code else decide(text)
-        if m:
-            verdict = m.group(1).upper()
-            found.append(("UNCLEAR", False) if _takes_back(verdict, text[m.end():]) else (verdict, True))
-            words = {w.upper() for w in _VERDICT_STEM.findall(folded)}
-        elif negated and not in_code:
-            found.append(("UNCLEAR", False))
-        found += [(w, False) for w in sorted(words)]
-    return found, unclosed
+        for text in (_plain(line), _plain(folded)):
+            m = contract_line(text)
+            if m:
+                word = m.group(1).upper()
+                named = {w.upper() for w in _VERDICT_STEM.findall(folded)}
+                others.append("UNCLEAR" if named != {word} or _takes_back(word, text[m.end():]) else word)
+    return (said.group(1).upper() if said else None), others
 
 
 def verdict_lines(review):
-    """(verdict, decides) for each verdict the review's lines name, and whether a fence or an HTML
-    block was left open: see _verdicts."""
-    return _verdicts(review, lambda text: _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text))
+    """The verdict the review's AGNI-VERDICT line gives, or None, and what each other verdict line
+    outside code gives (a bare word, or a VERDICT, OVERALL VERDICT, FINAL VERDICT or AGNI-VERDICT
+    line): see _contract_verdicts."""
+    return _contract_verdicts(review, _PROTOCOL,
+                              lambda text: _BARE_VERDICT.match(text) or _LABELLED_VERDICT.match(text))
 
 
 def parse_verdict(review):
-    """The verdict all the review's verdict lines agree on, else UNPARSED.
+    """The verdict the review's last line gives by protocol, if every other verdict line agrees,
+    else UNPARSED.
 
     Scan the WHOLE review, not the first 15 lines: thinking models emit reasoning before the review
     header, which pushed "## VERDICT REJECTED" out of range and recorded a rejection as UNPARSED
@@ -1031,14 +1026,29 @@ def parse_verdict(review):
     "APPROVED `VERDICT: REJECTED`" decided APPROVED, exit 0, and a REJECTED it did not know (a table
     cell, after an emoji, with a Cyrillic E or a zero-width space) could not veto. Now every line
     that names a verdict vetoes with each verdict word on it, and a pass verdict that is negated, or
-    an APPROVED made conditional, is UNPARSED (see _verdicts). The cost, taken on purpose: a pass
+    an APPROVED made conditional, is UNPARSED (in _verdicts, replaced in round 5). The cost, taken on purpose: a pass
     qualified that way ("CONDITIONAL - not before a null arm") is UNPARSED, exit 2, and so is a review
-    whose prose names a different verdict within two words of the word "verdict"."""
-    found, unclosed = verdict_lines(review)
-    decided = {v for v, decides in found if decides}
-    if unclosed or len(decided) != 1 or any(v not in decided for v, _ in found):
+    whose prose names a different verdict within two words of the word "verdict".
+
+    Decided by protocol (round 5, 2026-11-07). Round 4 vetoed with every verdict word a line
+    named within two words of "verdict", prose included. Replayed over the stored reviews, that
+    turned 2 of 85 legitimate three-word reviews (stored CONDITIONAL) into UNPARSED, on prose about
+    an experiment's own verdict logic: "If H2 had failed ..., the verdict should be REJECTED
+    regardless of drift". Our experiments are full of verdict logic, so a prose veto is a false
+    alarm aimed at our own corpus. Now COMMON_TAIL asks for a last line "AGNI-VERDICT: <word>", and
+    that line decides: the last non-blank line must be outside code and, markup stripped, exactly
+    that, or the review is UNPARSED. Every other verdict line outside code in a form of the contract
+    (a bare word; a VERDICT, OVERALL VERDICT or FINAL VERDICT line; another AGNI-VERDICT line) must
+    give the same word, read whole and not taken back. A verdict decided by protocol needs no prose
+    reading, so prose never decides or vetoes, and neither does a line in code; a fence or an HTML
+    block left open puts the last line in code, which is UNPARSED. The cost, taken on purpose: a
+    different verdict stated only in prose, in a table cell or after an emoji no longer vetoes.
+    Reviews stored before this round have no AGNI-VERDICT line and parse UNPARSED; nothing re-parses
+    them."""
+    said, others = verdict_lines(review)
+    if said is None or any(v != said for v in others):
         return "UNPARSED"
-    return decided.pop()
+    return said
 
 
 def main():
@@ -1245,8 +1255,8 @@ def main():
     # The guard above only covers EMPTY output; without this, an
     # unclassifiable REJECTED exits 0 and reads downstream as no finding.
     if verdict == "UNPARSED":
-        print("ERROR: review has no single parseable verdict (no verdict line, or verdict lines "
-              "that disagree) -- FAILING LOUD (exit 2)", file=sys.stderr)
+        print("ERROR: review has no single parseable verdict (no AGNI-VERDICT line last, outside "
+              "code, or a verdict line that disagrees with it) -- FAILING LOUD (exit 2)", file=sys.stderr)
         print("       This is NOT a pass. Inspect the review text by hand.",
               file=sys.stderr)
         err = _write_record(out, _record(args, backend_used, "UNPARSED", review, inputs))

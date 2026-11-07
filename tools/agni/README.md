@@ -80,6 +80,17 @@ recorded the cut.
   a non-integer `AGNI_LOCAL_CHAR_BUDGET` or `LLM_NUM_CTX` as `INVALID` before any call, and both
   harnesses refuse a prereg nested too deep for `json` as `INVALID` (each was a traceback, exit 1,
   beside the older record). A folder link into a junk folder now makes the input not complete.
+- **Round 5: the verdict is decided by protocol** (both harnesses). Replayed over the stored reviews,
+  round 4's prose veto turned 2 of 85 legitimate reviews (stored `CONDITIONAL`) into `UNPARSED` on
+  prose about an experiment's own verdict logic ("If H2 had failed ..., the verdict should be
+  REJECTED regardless of drift"), and our experiments are full of such logic. Now the reply's last
+  non-blank line, outside code and with markup stripped, must be exactly `AGNI-VERDICT: <word>`
+  (`agni_phases.py`, which asks for it at the end of every prompt) or `OVERALL VERDICT: <word>` (the
+  design harness), or the review is `UNPARSED`, exit 2. Every other verdict line outside code (a
+  `VERDICT`, `OVERALL VERDICT` or `FINAL VERDICT` line, and in `agni_phases.py` a bare word or another
+  `AGNI-VERDICT` line) must give the same word, read whole. Prose and code never decide or veto. The
+  cost: a different verdict stated only in prose, a table cell or after an emoji no longer vetoes.
+  Stored `agni_phases.py` reviews predate the line and would parse `UNPARSED`; nothing re-parses them.
 - **Round 3: the design harness leaves no stale record.** A prereg that is missing, unreadable, not
   UTF-8, not JSON, not an object or has a duplicate key, a script that is not UTF-8, and a curl or
   backend failure each write `INVALID` with its cause over any older record and exit non-zero. Files
