@@ -631,6 +631,10 @@ def read_prereg(path, budget):
         return got, "", ""
     try:
         prereg = json.loads(got["text"], object_pairs_hook=_no_duplicate_keys)
+        # Python 3.12's parser takes nesting that the indented encoder below cannot write back out:
+        # on Linux a prereg 5,000 deep parsed, then raised RecursionError outside this try (exit 1,
+        # the older record standing, 2026-11-07). Write it back here, so it fails where it is caught.
+        json.dumps(prereg, indent=2)
     # RecursionError is not a ValueError: a prereg nested a few thousand deep was a traceback,
     # exit 1, and the older APPROVED record stood (round 4).
     except (ValueError, RecursionError) as e:
