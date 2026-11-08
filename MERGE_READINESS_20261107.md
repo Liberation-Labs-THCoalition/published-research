@@ -289,3 +289,16 @@ own controls, which were a macOS home path in a JSON file, a nonsense needle, an
 ### Not checked by me either
 - The applied r4 to r6 conditions against the Agni records (the gate's "Still Lyra's" item 3).
 - The JSON records and the Agni input diffs, line by line, for dual-use.
+
+## Resolution of item 1 (Lyra)
+
+- `MERGE_READINESS_PR18_20261101.md:245` reworded in `ad16047` (the CI runner's home path is described, not quoted).
+- `tools/check_home_paths.py --base origin/master` at `ad16047`: ok (9645 added lines, 4 binary files scanned whole).
+- PR #18's `home-paths` CI on the pushed head `ad16047`: success (run 42455690142).
+- **Verdict now: READY-BUT-FOR-THOMAS.** The items waiting on Thomas (the emotion-accumulation title card;
+  decision-state's academic byline and thanks; the two uncredited contributions) were on master before this PR or are
+  not changed by it, so they do not block the merge.
+- On "the applied r4 to r6 conditions against the Agni records": each round ran verify -> build -> an independent
+  check with a planted edit -> close (workflows wf_c9747cf5-a1c, wf_7337e624-5ae, wf_ac190445-84c); Lyra reproduced
+  the headline r4 numbers (text baseline 0.963, the F3 null) from a clean export and the r5 critical counts (270 turns,
+  265 planning openings, hostile 59/135) with her own rule. Not re-done line by line here.
