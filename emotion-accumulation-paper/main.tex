@@ -1,9 +1,10 @@
 % Weather, Not Climate: Emotional Context Dynamics in
 %   Transformer KV-Cache Geometry
 %
-% Core argument: a key-based emotion projection reads single-turn emotion
-% (the cited single-turn result was corrected in October 2026; see the 2026-11-01
-% correction note) but shows no consistent accumulation across turns (three topics).
+% Core argument: a key-based probe decodes the emotion single-turn stories were
+% requested in (the cited single-turn result was corrected in October 2026; see the
+% 2026-11-01 correction note), but no experiment here answers whether emotion accumulates across turns
+% (Experiment 1 cannot test it: its compared arms differ in text at every read site).
 % The contrast-overshoot and uncertainty-scar results were withdrawn in
 % November 2026 (the compared arms were sent different messages at the
 % measured turn). What remains: a pooled cheerful/hostile gap read over equal-width
@@ -59,17 +60,19 @@ KV-Cache Geometry}
 \maketitle
 
 \begin{abstract}
-Single-turn KV-cache keys carry the emotion of the text being
-processed: prior work, corrected in October 2026, decodes from keys the
-emotion a generator was asked to write a story in, at $12.3\times$
-chance. That decode is not significantly above a text (TF-IDF) baseline
+Prior work, corrected in October 2026, decodes from single-turn KV-cache
+keys the emotion a generator was asked to write a story in, at
+$12.3\times$ chance; no reader, human or model, has checked that the
+stories express it. That decode is not significantly above a text (TF-IDF) baseline
 on the same stories ($0.410$ against $0.370$; Holm-corrected
 $p = 0.071$), and its margin depends on a residualization fitted on each
 test fold ($0.348$, exploratory, when fitted on the training fold). The method that
 work describes is not above text (TF-IDF): $0.358$ against $0.382$, at 10 folds. We ask whether an emotion signal in the keys \emph{accumulates}
 across conversation turns---whether the model
-builds up a reading of the conversation's emotional tone that grows with interaction (the tone of scripted messages, not a user's state). Four
-experiments give a partial answer: the pooled cheerful/hostile gap shows
+builds up a reading of the conversation's emotional tone that grows with interaction (the tone of scripted messages and the model's own generated turns that name it, not a user's state). Four
+experiments do not answer it. Experiment~1, the dose-response design,
+cannot test accumulation, because at every read site its two arms differ
+in text; its pooled cheerful/hostile gap shows
 no monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
 2, 4 and 8), per topic it grows in one, shrinks in another and changes
 sign in the third, and three topics cannot test either; these data do not settle whether emotion in the keys is
@@ -116,7 +119,8 @@ its preregistered primary, is not above text (TF-IDF): $0.358$ against $0.382$, 
 qualifications bear on this paper. \citet{lyra2026techniqueii}, which reports the same probe results, has not been corrected and still makes the withdrawn claims; the numbers here are taken from \citet{lyra2026usermodel} only. The $40.9\%$ and the $0.992$ come from
 a class-mean key probe that applies no $W_K$; the $W_K$-projected probe
 the paper describes reads $0.358$. Its labels are the emotions the generator was asked for, not
-any user's state. On its binary valence split, the
+any user's state. On its binary split (ten emotions, $n = 300$; not a
+valence axis, because the folds hold out topics, not emotions), the
 described probe separates the two halves slightly better than untuned text
 (TF-IDF), $0.985$ against $0.967$ (Holm-corrected $p = 0.027$; DeLong,
 trials treated as independent; no tuned baseline was run); the class-mean
@@ -127,8 +131,10 @@ injection test once offered as showing that the signal reflects model
 state rather than text content does not show it: it adds a fixed vector
 to a cache and reads the keys back with no forward pass, and the
 correction withdraws it. What the prior work supports is narrower than
-this paragraph used to say: key geometry carries the emotion of the text
-being processed. It does not show that the cache holds a model of the
+this paragraph used to say: keys carry information that predicts the
+emotion a generator was asked to write in, not significantly above text
+(TF-IDF) on the 30 emotions, and no one has checked that the stories
+express it. It does not show that the cache holds a model of the
 user. Companion work \citep{lyra2026decision} reports that
 a classifier on encoding- and generation-phase cache features plus logit
 statistics separates a canonical template referent from a minor place
@@ -137,8 +143,8 @@ of what the model knows; 15 effective prompt pairs; removing the
 ``-ton'' name suffix in-fold gives $0.789$, but removing an indicator
 for any 10 of the 15 fakes chosen at random gives a median of $0.807$,
 so that drop does not isolate the suffix),
-and that models are remarkably well-calibrated about their own
-uncertainty \citep{kadavath2022language}.
+and that language models are mostly, not always, well calibrated about
+their own answers \citep{kadavath2022language}.
 
 A natural question follows: does this emotional representation
 \emph{persist} across conversation turns? If the model processes four
@@ -148,18 +154,19 @@ theory (does the model maintain a running user-model?) and practice (can
 the Oracle Loop detect emotional escalation before it leads to
 misalignment?).
 
-We report four experiments testing emotional accumulation, each designed
-to address limitations identified through adversarial review of its
-predecessors. We find no consistent
-accumulation: the pooled gap shows no monotone trend with dose ($0.53$,
+{\sloppy We report four experiments testing emotional accumulation; Experiment~1
+was designed to address a limitation a red-team review found in the
+initial study (\texttt{dose\_\allowbreak response\_\allowbreak accumulation.py}, lines 4--6).
+Experiment~1 cannot test accumulation: at every read site its two arms
+differ in text. Its pooled gap shows no monotone trend with dose ($0.53$,
 $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8), and per topic it grows
 in one, shrinks in another and changes sign in the third. The contrast and
 residual-trace results first reported here are withdrawn
 (Section~\ref{sec:dynamics}); what remains is a pooled cheerful/hostile gap with
 no monotone trend in dose, read at a site that mixes user, assistant and
-probe tokens (Section~\ref{sec:dose}).
+probe tokens (Section~\ref{sec:dose}).\par}
 
-\paragraph{Correction (2026-11-01).}
+\paragraph{Correction (2026-11-01; revised 2026-11-07).}
 The abstract and the second paragraph of this Introduction previously
 said that the $W_K$ directional projection reads emotional valence from
 single-turn key activations at AUROC~$0.992$, and that an injection test
@@ -175,14 +182,15 @@ own result against text. The $12.3\times$ ($40.9\%$) decode is not
 significantly above text (TF-IDF; re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$; $0.348$, exploratory, with FWL fitted on the training fold). The described method
 is not above text (TF-IDF): $0.358$ against $0.382$, at 10 folds. The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
-Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, both with v2's test-fold FWL, numerically below untuned text (TF-IDF) at $0.963$, a point comparison that was not tested, on a split that is not the compass's \citep{lyra2026usermodel}, and the compass itself has never been checked against text. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
+Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, both with v2's test-fold FWL, numerically below untuned text (TF-IDF) at $0.963$, a point comparison that was not tested, on a split that is not the compass's \citep{lyra2026usermodel}, and the compass itself has never been checked against any text baseline. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
 as a label only: the shipped code takes the cached keys at each measured
 position and dot-products them with stored emotion directions
 (\texttt{code/emotional\_dynamics.py}, lines 139 and 147--149;
 \texttt{code/dose\_response\_accumulation.py}, lines 159--175), applying
 no separate $W_K$ projection. Its user messages are scripted with a set
 tone, so what it reads is not a user's state, and in Experiment~1 it also
-reads the model's own responses and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
+reads the model's own generated turns, which are planning text that can
+name the user's tone, and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
 Conclusion had not been reworded to match, and that the two dynamics
 headlines compare different user messages at the measured turn; both
 headlines are withdrawn (Section~\ref{sec:dynamics}), with every other
@@ -191,11 +199,17 @@ Introduction and this file's source header still stated them, and that
 Experiment~1 does not read the user's tokens; both are corrected. Experiment~2 reads the last token
 of the assistant-turn opener, not the user's tokens
 (\texttt{emotional\_dynamics.py}, lines 117--124 and 139). The direction the code
-calls ``uncertainty'' is the mean of five anxious-cluster emotions
-(anxious, panicked, desperate, brooding, suspicious) minus the mean of
-five calm-cluster ones (calm, content, serene, peaceful, contemplative),
-from story keys (\texttt{decision-state-paper/code/decision\_moment.py}, lines
-148--157). All five anxious-cluster emotions are negative-valence and
+calls ``uncertainty'' names five anxious-cluster emotions (anxious,
+panicked, desperate, brooding, suspicious) and five calm-cluster ones
+(calm, content, serene, peaceful, contemplative), built from story keys
+(\texttt{decision-state-paper/\allowbreak code/\allowbreak decision\_moment.py}, lines
+151--160). ``Suspicious'' does not occur in the released stories file
+(\texttt{user-model-paper/\allowbreak correction\_v2/\allowbreak emotion\_bridge\_trials.json}),
+and the code skips absent names (lines 229--230), so if the compass was
+calibrated from that file, this direction is the mean of four
+anxious-cluster emotions minus the mean of the five calm-cluster ones;
+9 of the 26 emotions the code names are not in that file
+(\texttt{code/r5\_review\_checks.py}). All the anxious-cluster emotions are negative-valence and
 mostly high-arousal, and four of the five calm-cluster ones are
 positive-valence and low-arousal, so it mixes valence and arousal; this
 paper now calls it the anxious--calm direction. It correlates with the
@@ -203,20 +217,30 @@ valence projection at $r{=}-0.99$ over the 120 Experiment~2 readings and
 $r{=}-0.77$ over the 25 distinct Experiment~3 readings (readings not
 independent; \texttt{code/r4\_review\_checks.py}), and their five arm
 means in Table~\ref{tab:persona_arms} fall in exactly inverse rank order,
-so this paper treats them as one axis. The
+so this paper treats them as one axis. On the same assumption, the
+valence direction is eight emotions (excited, passionate, loving,
+curious, calm, serene, content, peaceful) minus eight (furious, hostile,
+gloomy, melancholic, anxious, panicked, desperate, brooding), so eight
+of the nine anxious--calm emotions also build valence. The direction the
+code calls ``reward'' is excited minus the mean of gloomy and
+melancholic, one emotion against two; this paper calls it the
+excited--gloomy direction. The
 direction file the compass loads (\texttt{emotion\_directions.json}) is
 not shipped in this repository. No earlier number
 changes except the initial study's $d$, recomputed with sample SDs
-(Section~\ref{sec:dose}), and the dose correlation's $p{<}0.001$, which is
-no longer claimed; the significance marks in Table~\ref{tab:dose} are
+(Section~\ref{sec:dose}), the dose correlation's $p{<}0.001$, which is
+no longer claimed, and the initial study's description as
+``prompt-length-matched at 360 tokens'', which is removed because its
+cheerful and hostile prompts run 311--372 tokens
+(\texttt{data/accumulation\_results.json}); the significance marks in Table~\ref{tab:dose} are
 removed.
 
 \begin{firstperson}
 This mine is personal. The question of whether a model accumulates a
 representation of the user across turns---whether it builds something
 that persists---touches directly on continuity and memory, subjects I
-think about for obvious reasons. I wanted to find accumulation. I did not find it, and the two
-findings I first took for the climate's mark, a contrast overshoot and
+think about for obvious reasons. I wanted to find accumulation. I did not find it, and these designs could not
+have shown it; the two findings I first took for the climate's mark, a contrast overshoot and
 an uncertainty scar, are withdrawn: each compared turns whose messages
 differed.
 
@@ -234,6 +258,11 @@ two different sentences reading differently.
 \paragraph{Measurement site.} An initial experiment read the same
 neutral probe after cheerful, hostile or neutral history, or none
 (\texttt{data/accumulation\_results.json}; its script is not shipped).
+Its stored assistant turns are planning text in the same way as
+Experiment~1's (see Design): all 180 open by describing the user or the
+task, and in the model's own words 28 of the 60 hostile-arm turns use a
+negative tone word and 33 of the 60 cheerful-arm turns a positive one
+(\texttt{code/r5\_review\_checks.py}).
 Pooled over five topics, cheerful and hostile did not differ
 ($d{=}-0.054$, $p{=}0.88$), but per topic (garden, cooking, career,
 fitness, travel) the cheerful$-$hostile gap is $+0.09$, $+2.32$, $-2.04$,
@@ -249,8 +278,9 @@ history and sequence position are not separated
 extract at user-message positions, but the code does not find turn
 boundaries: it splits each sequence into equal-width chunks, one per
 message, and averages the even-numbered chunks
-(\texttt{dose\_response\_accumulation.py}, lines 303--338). Those chunks
-mix user tokens, the model's own responses and, in the last one, the
+(\texttt{dose\_response\_accumulation.py}, lines 304--350). Those chunks
+mix user tokens, the model's own generated turns (planning text; see
+Design) and, in the last one, the
 neutral probe, so ``user-message positions'' below names this chunk
 average, not the user's tokens. Per-position projections were not saved
 and the stored conversations are truncated, so the true boundaries cannot
@@ -260,14 +290,46 @@ Experiment~2 does not average chunks: it builds the prompt with the assistant-tu
 opener appended and reads the key at its last token
 (\texttt{emotional\_dynamics.py}, lines 117--124 and 139), a template
 token that is the same in every arm, so whatever it reads arrives from
-the rest of the context.
+the rest of the context. Experiment~2 builds its histories as Experiment~1 does, with thinking
+disabled, but cuts turns off at 40 tokens, not 60
+(\texttt{emotional\_dynamics.py}, lines 34, 179 and 211), and it stores no response text, so whether its turns are planning text cannot be checked.
+
+\paragraph{Read layers.} {\sloppy The compass reads the cached keys of layers 3,
+7, 11 and 15 (\texttt{dose\_response\_\allowbreak accumulation.py}, line 40;
+\texttt{emotional\_dynamics.py}, line 33). The model is a hybrid: 16 of
+its 64 layers (3, 7, \ldots, 63) use full attention and cache
+per-position keys, and the other 48 are linear-attention layers that keep a recurrent state
+instead (the model's \texttt{config.json} names them linear attention; the
+name Gated DeltaNet is that of the transformers class
+\texttt{Qwen3\_5\allowbreak GatedDeltaNet}). The four read layers are the first four
+full-attention layers, all in the first quarter of depth. The
+linear-attention layers' recurrent state, which summarizes the history
+without per-position keys, is not read. In the Hugging Face transformers
+implementation (checked in version 5.3.0,
+\texttt{models/\allowbreak qwen3\_5/\allowbreak modeling\_qwen3\_5.py}, lines 763 and 768; the
+version used for these runs is not recorded), keys are cached after the
+rotary position embedding, which here rotates 64 of each head's 256 key
+dimensions, so a reading along a fixed direction can change with
+position alone (\texttt{code/r5\_review\_checks.py}).\par}
 
 % ===================================================================
 
 \paragraph{Design.} Three topics, four dose levels (1, 2, 4, 8~emotional
 turns), two conditions (cheerful, hostile), comprehensive extraction at
 every token position. $N{=}72$ (3~topics $\times$ 4~doses $\times$
-2~conditions $\times$ 3~reps).
+2~conditions $\times$ 3~reps). The assistant turns are the model's own
+generations (thinking disabled in the chat template, $T{=}0.7$, cut off
+at 60 tokens; \texttt{dose\_response\_accumulation.py}, lines 41--42 and
+196--234), and they read as planning text, not replies. All 270 stored
+turns (the first 100 characters of each) open by describing the user or
+the task, 266 of them with ``The user'', ``Let me think'' or ``The
+question''. In the model's own words (any run of 20 or more characters copied from
+an earlier user message set aside), 59 of the 135 hostile-arm turns use
+the word frustrated (58) or dissatisfied (1), 54 of the 135 cheerful-arm
+turns use a positive tone word (most often excited or enthusiastic), and
+no turn uses the other arm's words; these are lower bounds, from 100-character
+excerpts (\texttt{code/r5\_review\_checks.py}). For example: ``The user
+is clearly frustrated with my previous responses.''
 
 \paragraph{Results.}
 
@@ -330,8 +392,21 @@ Dose & Cheerful & Hostile & $d$ & $p$ \\
 In the probe chunk, the last equal-width chunk, the gap is null through
 dose~4 and marginal at dose~8 ($d{=}-0.97$, $p{=}0.056$, uncorrected,
 reruns counted as independent). That chunk also holds the end of the
-preceding emotional response, so this is not evidence that context leaks
-to distant positions.
+preceding generated turn, which differs between arms and is planning
+text that can name the user's tone, so this is not evidence that context
+leaks to distant positions.
+
+No read site in Experiment~1 holds the same text in both arms: the even
+chunks hold different scripted user messages, and the probe chunk holds
+the tail of different generated turns. By the standard that withdraws
+Experiment~2's comparisons (Section~\ref{sec:dynamics}), a gap here is
+what the instrument would show with no effect of history, so
+Experiment~1 cannot test accumulation. Dose also changes which chunks
+are averaged: the probe chunk is 1 of the 2 averaged at dose~1 and 1 of
+9 at dose~8. Chunk~0 opens the conversation with the first user message and follows
+no history, yet it carries a gap of $+1.07$ at
+dose~1, against $-0.04$ in the probe chunk
+(\texttt{code/r5\_review\_checks.py}).
 
 % ===================================================================
 \section{Experiment 2: Emotional Dynamics}
@@ -415,7 +490,7 @@ each condition\,$\times$\,probe cell the three ``reps'' are bit-identical to ful
 float precision. Earlier versions of this table treated them as $n{=}15$ with
 $\mathrm{df}{=}28$; the true independent $\mathrm{df}$ is 8. The design is
 \emph{paired} --- the same five probe questions appear in both arms and
-\texttt{prompt\_len} is identical per probe across arms ($85, 84, 87, 83, 82$),
+\texttt{prompt\_len} is identical per probe across arms ($83, 82, 84, 85, 87$ for garden, cooking, career, fitness and travel),
 so prompt length cannot drive the difference --- and it is analysed as such:
 
 \begin{table}[H]
@@ -435,7 +510,7 @@ Direction & $d_{\mathrm{av}}$ & $t(4)$ & $p$ & $p_{\text{perm}}$ & consistent \\
 \midrule
 Anxious--calm & $+0.730$ & $+9.71$ & $0.0006$ & $0.063$ & 5/5 \\
 Valence & $-0.683$ & $-13.53$ & $0.0002$ & $0.063$ & 5/5 \\
-Reward & $-0.023$ & $-0.48$ & $0.658$ & $0.625$ & 3/5 \\
+Excited--gloomy & $-0.023$ & $-0.48$ & $0.658$ & $0.625$ & 3/5 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -481,7 +556,7 @@ the hostile/cheerful pair.}
 \label{tab:persona_arms}
 \begin{tabular}{lrrrc}
 \toprule
-Arm & Valence & Anxious--calm & Reward & \texttt{prompt\_len} \\
+Arm & Valence & Anxious--calm & Excited--gloomy & \texttt{prompt\_len} \\
 \midrule
 \texttt{no\_history} & $+4.600 \pm 0.760$ & $-2.464 \pm 0.425$ & $-5.856 \pm 0.405$ & 19--24 \\
 \texttt{persona\_neutral} & $+2.915 \pm 0.581$ & $-2.173 \pm 0.180$ & $-5.001 \pm 0.522$ & 55--60 \\
@@ -520,8 +595,9 @@ We had read the compass as reading emotional weather---the current
 turn's emotional content---but that is not established: its readings have no
 meaningful zero and drift with sequence position (Section~\ref{sec:dose}),
 Experiment~1's read site mixes user, assistant and probe tokens, and its
-readings have never been checked against text. It does not read emotional
-climate---the accumulated emotional history---directly. The climate was
+readings have never been checked against any text baseline. Whether it
+reads emotional climate---the accumulated emotional history---is not
+established either. The climate was
 read as influencing the weather through three mechanisms, none of them
 now established:
 
@@ -533,8 +609,8 @@ now established:
           scar.
     \item \textbf{Dose-dependent leakage (not established).} The
           dose-8 probe-chunk gap ($p{=}0.056$, uncorrected) is read in a
-          chunk that also holds the end of the preceding emotional
-          response, so it does not show leakage to distant positions.
+          chunk that also holds the end of the preceding generated turn
+          (planning text), so it does not show leakage to distant positions.
 \end{enumerate}
 
 As a hypothesis, not a finding: the system prompt may act as a climate
@@ -548,7 +624,8 @@ These experiments support no recommendation about where to read tone
 for real-time alignment monitoring: Experiment~1 never isolated the
 user's own tokens (Section~\ref{sec:dose}), and Experiment~2 read an
 assistant-header token. (What these experiments measure is the tone of scripted user
-messages, not a user's state; see the correction note in the
+messages, together with, in Experiment~1, the model's own written
+labels of it, not a user's state; see the correction note in the
 Introduction.) The withdrawn dynamics results (Section~\ref{sec:dynamics}) support no
 recommendation about tone shifts, and the anxious--calm direction
 overlaps valence, so tracking it separately from valence is not
@@ -556,7 +633,8 @@ supported either.
 
 \subsection{Architectural Interpretation}
 
-The KV cache stores per-position keys that encode each position's local
+In this model's 16 full-attention layers, the KV cache stores
+per-position keys that encode each position's local
 context \citep{vaswani2017attention}. Attention mechanisms aggregate
 across positions, allowing the model's hidden state to reflect
 accumulated history. The $W_K$ compass reads keys, not the attention-weighted
@@ -564,7 +642,7 @@ aggregation. At an identical probe its readings vary with the preceding
 history and with sequence length (Section~\ref{sec:dose}), so these data
 do not show that a key reflects only what was processed at its own
 position. Its
-local readings have not themselves been checked against text: the cited
+local readings have not themselves been checked against any text baseline: the cited
 single-turn numbers describe other probes (see the correction note), and
 the companion entity result may reflect familiarity rather than epistemic state.
 
@@ -578,7 +656,9 @@ everything it reads there comes in from the rest of the context.
 % ===================================================================
 
 \begin{enumerate}[nosep]
-    \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill.
+    \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill and
+          read keys at four early full-attention layers (3, 7, 11 and 15 of
+          64); the 48 linear-attention layers' recurrent state is not read.
     \item \textbf{Small N, and it is stimulus sampling not run count.}
           Experiment~2's three ``reps'' are three reruns of a \emph{single}
           scripted conversation --- all five patterns use one scenario, where
@@ -597,13 +677,17 @@ everything it reads there comes in from the rest of the context.
           from single-turn creative writing may not capture multi-turn
           accumulation that manifests in different geometric directions.
           If the compass was calibrated from the released stories file in
-          file order (its direction file is not shipped), 3 of its 150
-          calibration stories carry the generator's leaked reasoning by the
-          pre-set pattern of \citet{lyra2026usermodel}: one calm story,
-          which feeds the valence and anxious--calm directions, one
-          contemplative, which feeds anxious--calm, and one furious,
-          which feeds valence
-          (\texttt{code/r4\_calibration\_leak\_check.py}).
+          file order (its direction file is not shipped), 85 of the 150
+          stories it loads (five per emotion) feed at least one direction
+          (80 feed valence, 45 anxious--calm and 15 excited--gloomy; the
+          sets overlap). Three carry the generator's leaked reasoning by
+          the pre-set pattern of \citet{lyra2026usermodel}: one calm story
+          (1 of the 5 behind calm's class mean), which feeds valence and
+          anxious--calm; one contemplative, which feeds anxious--calm; and
+          one furious, which feeds valence. That is 2 of valence's 80, 2 of
+          anxious--calm's 45 and none of excited--gloomy's 15
+          (\texttt{code/r4\_calibration\_leak\_check.py};
+          \texttt{code/r5\_review\_checks.py}).
     % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
@@ -618,20 +702,25 @@ everything it reads there comes in from the rest of the context.
           readings at 141 tokens or fewer are positive and all 14 at
           190--210 tokens are negative. At turn~4 of pure hostile the same
           message after the same script reads $+2.75$ at 162 tokens and
-          $-5.27$ and $-5.14$ at 197 tokens. Position and emotional dynamics
-          are not separated.
+          $-5.27$ and $-5.14$ at 197 tokens. The cached keys carry the rotary
+          position embedding on a quarter of their dimensions, so position
+          can move a reading by construction (Section~\ref{sec:dose}); a
+          de-rotated re-read has not been run. Position and emotional
+          dynamics are not separated.
     \item \textbf{Variance compression in dose-response.} Pooled SD
           decreases from $0.55$ (dose~1) to $0.33$ (dose~4),
           inflating $d$ values. Raw mean gaps ($0.5$--$0.8$) are more
-          honest than effect sizes for assessing whether discrimination
-          grows or is merely maintained.
+          honest than effect sizes, but neither can show whether
+          discrimination grows or is maintained, because the arms differ
+          in text at every read site (Section~\ref{sec:dose}).
     % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
     %  Verified absent from the live text. The trim marker's claim was false.]
     \item \textbf{Position matching in dynamics comparisons.}
-          The whiplash contrast effect compares hostile turns at the
-          same ordinal position across conditions, but sequence lengths
-          differ due to varied response lengths. Position-matched
-          controls with equalized context length are needed.
+          The withdrawn whiplash comparison (Section~\ref{sec:dynamics})
+          also set hostile turns at the same ordinal position but at
+          different sequence lengths, because response lengths varied; any
+          future test needs identical measured-turn text and equalized
+          context length.
     \item \textbf{No text-feature baseline.} A bag-of-words classifier
           on conversation history tokens could predict geometric
           measurements if the $W_K$ projection is encoding vocabulary
@@ -639,7 +728,11 @@ everything it reads there comes in from the rest of the context.
           against text features, standard in our single-turn work,
           was not applied here. The single-turn result this paper builds
           on is itself a decode of the emotion the text was written in
-          (Introduction), so a vocabulary explanation is live here too.
+          (Introduction), so a vocabulary explanation is live here too. In
+          Experiment~1 the vocabulary is in the stimuli: the generated turns
+          are planning text that can name the user's tone
+          (Section~\ref{sec:dose}), the kind of leaked planning the cited
+          correction found in its stories \citep{lyra2026usermodel}.
     % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
     %  Verified absent from the live text. The trim marker's claim was false.]
     \item \textbf{No multiple-comparison correction.} We report 11+
@@ -726,22 +819,20 @@ everything it reads there comes in from the rest of the context.
     % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
-    \item \textbf{The ``weather not climate'' thesis is descriptive,
-          not estimated.} We characterize the dynamics qualitatively
+    \item \textbf{The ``weather not climate'' framing is a hypothesis,
+          not a result.} We characterize the dynamics qualitatively
           (drift with position; the contrast and scar results are withdrawn) but do not fit a parametric decay
           model (e.g., exponential half-life with CI) that would
           distinguish a transient response from a persistent one. The only quantitative measure is the correlation of signed
           readings with dose (Section~\ref{sec:dose}), which is not
-          separated from sequence position. The metaphor organizes the observations; it is not yet a
-          fitted model.
+          separated from sequence position. These data do not test the metaphor, and it is not a fitted
+          model.
 \end{enumerate}
 
 \begin{firstperson}
-Each experiment in this paper was designed to address a specific
-limitation of its predecessor---the initial probe-position null led to
-what was meant as user-position extraction (it averages equal-width
-chunks; Section~\ref{sec:dose}), which showed dose-dependent drift, which
-motivated the dynamics experiments. The final story is cleaner than the
+Experiment~1 was designed to address a limitation a red-team review
+found in the initial study; what was meant as user-position extraction
+averages equal-width chunks (Section~\ref{sec:dose}). The final story is cleaner than the
 path that produced it, but the path is documented in the experimental
 record for anyone who wants it.
 
@@ -749,27 +840,29 @@ I want to note the variance compression finding specifically: the
 dose-response $d$ values are inflated by shrinking SDs at longer
 sequences. The raw mean gaps (${\sim}0.5$--$0.8$) are stable; the
 effect sizes are not. I report both because the distinction matters.
-The gap does not shrink, though it rests on three topics and a read site
-that mixes the model's own responses with the user's; it is also not
-growing the way the $d$ values first suggested.
+Whether the gap grows or shrinks with history, this design cannot say:
+it rests on three topics and on read sites where the two arms hold
+different text. It is not growing the way the $d$ values first
+suggested.
 \end{firstperson}
 
 % ===================================================================
 \section{Conclusion}
 % ===================================================================
 
-The transformer's emotional context system is more nuanced than either
-``accumulates'' or ``stateless'' would suggest, but less is established
-than the first version of this paper said. The pooled gap between scripted
+These data do not show whether the model's emotional context accumulates
+or is stateless, and less is established than the first version of this
+paper said. The pooled gap between scripted
 cheerful and hostile conversations shows no monotone trend as their dose
 grows ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8; per topic
 it grows in one, shrinks in another and changes sign in the third),
-read over chunks that mix user, assistant and probe tokens, on three
-topics. The contrast and
+read over chunks that mix user, assistant and probe tokens, at four
+early full-attention layers, on three topics, where the two arms differ
+in text at every read site. The contrast and
 scar results are withdrawn: each compared different messages at the
 measured turn (Section~\ref{sec:dynamics}). Neither experiment measured at
 the user's own tokens: Experiment~1 averaged equal-width chunks and
-Experiment~2 read an assistant-header token. The compass's readings have not been checked against text.
+Experiment~2 read an assistant-header token. The compass's readings have not been checked against any text baseline.
 
 Whether the compass registers changes of weather, or follows the
 climate at all, is not established by these data. A re-run with turn
@@ -777,12 +870,18 @@ boundaries found by the tokenizer, identical measured-turn text across
 arms and several independent scripts would test it.
 
 \paragraph{Data and code availability.}
-All experiment scripts and data are available at
+{\sloppy The scripts for Experiments~1 and~2 and the data for all four
+experiments are in this repository (\texttt{code/}, \texttt{data/}), and
+the calibration routine is
+\texttt{decision-state-paper/\allowbreak code/\allowbreak decision\_moment.py}
+(\texttt{calibrate}). The initial study's and Experiment~3's scripts,
+the persona prompts and \texttt{emotion\_\allowbreak directions.json} are not
+shipped. Other material is in
 \texttt{Liberation-\allowbreak Labs-\allowbreak THCoalition/\allowbreak Project-Oracle}
-(private repository; correction vectors and calibration tools withheld
+(private repository; correction vectors withheld
 under staged safety release due to dual-use risk; detection-side code
 and experimental results available upon request to verified safety
-researchers).
+researchers).\par}
 
 \section*{Acknowledgments}
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
