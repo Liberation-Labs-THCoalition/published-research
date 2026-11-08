@@ -223,3 +223,69 @@ Not part of this branch: `notes_verify_20261101/` sits untracked in this worktre
 
 ## Merge order
 #17 (`bb9dfd7`) and #19 (`d6416f8`), which earlier records ordered first, are both ancestors of `origin/master`.
+
+## Independent verifier, 2026-11-07 22:39 PST
+
+Checked the gate above (commit `201be85`, gated head `d560c15`). I did not re-run the gate's scripts unchanged: every
+result below comes from my own scripts, run from a scratch folder outside the repository. No `__pycache__` was written
+into the repository (the time on the ignored `tools/__pycache__` is unchanged). The only change in this commit is this
+section. Nothing was pushed or merged.
+
+**Verdict: the gate's verdict stands. NOT READY, and only because of item 1's instrument.** Once line 245 is reworded,
+the branch pushed and the `home-paths` job green, the verdict is READY-BUT-FOR-THOMAS, with the gate's list for Thomas
+unchanged. Two of the gate's instruments have blind spots, shown below with planted failures. My own checks of the
+real range found nothing in either blind spot, so no item's result changes.
+
+### The eight items, re-run my own way
+| # | Gate | My check | Result |
+|---|---|---|---|
+| 1 | FAIL (instrument) | `check_home_paths.py --self-test` passes, and `--base origin/master` exits 1 on `MERGE_READINESS_PR18_20261101.md:245` alone. GitHub shows PR #18 OPEN and a DRAFT, head `b3835d5`, with `home-paths` FAILURE (run 42447357716). My own scan used wider patterns: home paths in any mount, escape or URL-encoded form, tilde-user paths, profile folders, keys and tokens, private hosts, and private names. It covered 24,621 added lines in 74 text files (the range runs to `201be85`, so the gate's own report is included), the text, raw bytes and every inflated stream of the four PDFs, and the commit identities and messages. Every hit is on master in the same form: the runner path, the credentials-folder path and the tailnet product name in `MERGE_READINESS_PR18_20261101.md`; the GPU machine's name in the r1 and r3 Agni records and in the messages of `a0ec8c5` and `b2121f2`; and the two `\thanks` addresses. The PDF streams carry no path. Every commit has one author identity, and it is already in master's history. | Confirmed: the instrument fails; nothing is exposed |
+| 2 | PASS | I read all 1,039 unique added `.tex` lines end to end (the gate read keyword hits only). I scanned the 24 added or changed scripts for network, exec and delete calls. The hits are `requests` in the three judge scripts (calls to the LLM judges), `model.eval()`, and one `exec` of two constant assignments parsed from the repository's `leak_split.py`. I did not read the JSON records or Agni diffs line by line. | Confirmed |
+| 3 | PASS | I used my own normaliser (letters and digits only) on every 6-word window without an fi, fl or ff pair, from every added and removed flight line of the seven round commits. A window counts when it is new in both HEAD `.tex` editions (added) or gone from both (removed). 4,265 of 4,308 added windows are in both HEAD PDFs. All 43 misses are also missing from my fresh rebuild, so they are extraction artefacts (emphasis, page breaks), not staleness. 515 of 516 removed windows are absent from both HEAD PDFs. The one left is a reflection sentence that is still in both editions; my tokeniser splits it differently. | Confirmed, across many more passages than the gate's 21 needles |
+| 4 | PASS | I extracted the `\author`, `\thanks` and Acknowledgments blocks of every edition at every non-merge commit. Only `54c803f` changes one, and it removes no 6-word window from the academic text: the reflections moved and nothing was cut. `paper.json` authors and bib author lines are unchanged in both papers. The 10 admin-account decision-state commits on master (3 in June, 7 in August) are confirmed. | Confirmed |
+| 5 | PASS | I rebuilt all four editions from my own clean copy (exit 0, and no undefined references in the final logs). Each matches its committed PDF page by page in `-layout` text, with equal page counts (24, 25, 15 and 15). Master's PDFs differ on every page. `main.txt` equals the extraction of my fresh build byte for byte. | Confirmed |
+| 6 | PASS | `git merge-tree --write-tree` exits 0 for both `d560c15` and `201be85`, and each result tree equals the commit's own tree. The branch is 34 commits ahead and 0 behind, with 3 merges. GitHub reports MERGEABLE. | Confirmed |
+| 7 | PASS | I checked every 64-hex value in all 73 changed text files, not only the JSON results: 60 values. 53 equal the SHA-256 of an LF blob somewhere in the 36 trees of the range. The extra match is a constant in `r4_calibration_leak_check.py`, which equals master's `emotion_bridge_trials.json`. None matches only a CRLF form. The other 7 are the gate's 7 outside-repo files. | Confirmed |
+| 8 | PASS | In the HEAD blobs of the 73 text files there are 0 CR, 0 BOM and 0 NUL bytes. Among the 24,396 added lines, none has a tab or a CR. Also: 15 JSON results and `main.txt` end without a final newline, which no rule covers. | Confirmed |
+
+The gate's "27,624 added lines" is a bigger count than mine because it includes about 3,250 lines that `git diff`
+prints from the four PDFs' raw bytes. The text files hold 24,396 added lines at `d560c15`. The gate's counter also
+drops 22 of them: the header lines of the Agni input diffs, which begin with `+++` once they are added. Its privacy
+scan therefore skipped those 22 lines. My scan read them and found nothing.
+
+### Planted failures
+I made the scratch copy with `git -c core.autocrlf=false archive HEAD` and committed it as a base, with one branch per
+plant. I copied the gate's `gate.py` and `compare.py` and pointed them at the copy. Each plant differs from the gate's
+own controls, which were a macOS home path in a JSON file, a nonsense needle, and master's PDFs.
+
+| Plant | Repo `check_home_paths.py` | Gate item 1 scan | Gate item 3 needles | Gate item 5 rebuild compare | Mine |
+|---|---|---|---|---|---|
+| **P1**: a result JSON gains a JSON-escaped Windows home path, a WSL mount path to a Windows home, and a tilde-user path. A Markdown record gets the WSL form too. | exit 0: all 5 lines skipped as allow-listed records | caught the Windows form only; missed the WSL and tilde-user forms | n/a | n/a | caught all four lines |
+| **P2**: a stale PDF. Decision-state flight is built from a `.tex` with one r4 fix reverted (a code line citation set back to its old value), then committed beside the HEAD `.tex`. | n/a | n/a | exit 0, every needle passes: missed | caught: the text differs at one token. The PDF's last commit is newer than its source, so a last-commit test alone would miss it. | caught: page 7 differs |
+| **P3**: a sentence withdrawn from both editions goes back into the emotion-accumulation academic edition only, with its PDF and `main.txt` rebuilt to match. | n/a | nothing | exit 0: missed | equal: missed (the PDF matches its `.tex`) | caught: 17 windows withdrawn from flight but live in academic |
+
+**What the plants show:**
+1. **Home paths in records.** A WSL-form home path inside a result JSON passes both privacy instruments the gate
+   used. The repository tool skips records (and lists `MERGE_READINESS_20261101.md` as one). The gate's own scan
+   matches neither the WSL nor the tilde-user form. On a synthetic `.tex` diff, the tool does catch the WSL form in
+   prose, but it misses tilde-user paths. My wider scan of the real range found no such path, so item 1's result
+   does not change.
+   - Suggestion for the tool's next revision: match these two forms, and scan records with a narrower pattern instead
+     of skipping them.
+2. **The 21 needles are a sample.** They caught neither P2 nor P3.
+   - Staleness is guarded by item 5's full-text compare, which caught P2.
+   - Nothing in this gate guards against a one-edition regression whose PDF is consistent with its source. The
+     2026-11-01 gate had an "every edition changed together" item; this one has none.
+   - On the real range, my twin check finds 0 windows withdrawn from one edition but live in the other, in both
+     papers. Every non-merge commit that touches one edition's `.tex` also touches the other, except `54c803f`
+     (academic only, as its subject says). So item 3's result does not change.
+   - Not covered by that check: the decision-state editions are worded differently in places, giving 20 flight-only
+     and 38 academic-only added passages. Hunk counts match commit by commit (r4 68 and 68, r5 65 and 64, r6 35 and
+     38), but I did not read each pair.
+   - Pre-existing, not from this PR: the emotion-accumulation flight edition has the conversation-level reanalysis
+     limitation item commented out, as on master, while the academic edition has it live. The PR edits both copies
+     in step.
+
+### Not checked by me either
+- The applied r4 to r6 conditions against the Agni records (the gate's "Still Lyra's" item 3).
+- The JSON records and the Agni input diffs, line by line, for dual-use.
