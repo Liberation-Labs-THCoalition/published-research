@@ -11,6 +11,8 @@ verdict contract are documented at the top of `agni_phases.py`.
 Until 2026-11-07 a reviewer that saw part of its input still returned a confident verdict, and nothing
 recorded the cut.
 
+**1.1.1 (2026-11-07):** `claude_isolation.py` adds `"disableAllHooks": true` to the reviewer's settings, so no hook of the account (anyone's, not only Lyra's) runs in a review. A SessionStart hook planted in `--settings` fired without it and did not fire with it (CLI 2.1.301).
+
 **What changed** (`agni_phases.py` 1.1.0, `agni_design_review.py` 1.2.0):
 
 - **No input is sliced.** The caps are gone: 30000 per file, the first 25 entries and 4000 chars per

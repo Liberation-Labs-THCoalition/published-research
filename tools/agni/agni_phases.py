@@ -96,7 +96,7 @@ import llm  # noqa: E402
 # Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
 from claude_isolation import isolated_claude_cmd  # noqa: E402
 
-AGNI_PHASES_VERSION = "1.1.0"
+AGNI_PHASES_VERSION = "1.1.1"
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
 # Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. It counts
