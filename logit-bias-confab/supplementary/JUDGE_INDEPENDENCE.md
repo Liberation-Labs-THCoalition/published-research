@@ -21,10 +21,11 @@ auto-memory index, which carries a one-line summary of an early result in this p
 not isolated from the result they were checking. The rerun's judge also had a second
 channel: its working folder sat inside a git repository, beside the files holding each response's bias level and
 the first pass's labels. It may also have loaded that repository's memory index, which holds one line about a
-different study; whether it did is unverified. **Whether any of this moved a verdict was measured on 2026-11-07,
-for all of these channels together, not one by one.** For the September re-judges there was no material effect; for
-the rerun's judge the result was inconclusive; for the fact-check raters the effect was material, with rater B calling
-fabrication about 20 points more often in the clean room. This note makes no claim that the labels are biased, and
+different study; whether it did is unverified. **Whether the whole change of setting moved a verdict was measured on 2026-11-07:
+these channels together with the tool and skill listings, the CLI version, a month of drift and, for the raters,
+rating one item per call. The measurement cannot say which of these moved a verdict.** For the September re-judges
+there was no material effect; for the rerun's judge the result was inconclusive; for the fact-check raters the effect
+was material, with rater B calling fabrication about 20 points more often in the clean room. This note makes no claim that the labels are biased, and
 none that they are not. The clean-room re-judge, which removes all of these channels at once, is reported below and in
 the paper's Limitations, in both editions.
 
@@ -179,13 +180,11 @@ item per call):
   one item per call instead of the original protocol, or from drift. **RULES.md registers the follow-up for exactly
   this case:** a planted-text control, a second room seeded with the exact `CLAUDE.md` and `MEMORY.md` text the raters
   loaded on 2026-10-09, run on the same items the same day. When CC wrote this, its code, review and amendment were
-  still to come.
-- **The follow-up's status:** Amendment 4, frozen (sha256 prefix d26f21589c980cd1), registered, not yet run, awaiting
-  Thomas's signature.
+  still to come, and it has not been run.
 
 **Sources.** The registered analysis's printed output and its JSON form, and the clean labels, are in the clean-room
 record on CC's machine (commits f8af335 and 0b79f62), and so are the probe record
-(`probe_20261107T011752_4597cc.json`) and RULES.md with its three amendments. CC's letters to Lyra of
+(`probe_20261107T011752_4597cc.json`) and RULES.md, which had three amendments when CC wrote this. CC's letters to Lyra of
 2026-11-07: `from_cc_to_lyra_20261107_rejudge_done.md`, `…_rejudge_numbers.md` and `…_rejudge_section_fix.md`.
 These are CC's runs, not checked here.
 
