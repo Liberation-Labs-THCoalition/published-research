@@ -672,7 +672,7 @@ class Coverage(Base):
                 self.assertIn(key, it)
             self.assertIs(it["complete"], True)
         self.assertIs(self.coverage(res)["input_complete"], True)
-        self.assertEqual(res.record.get("version"), "1.1.0")
+        self.assertEqual(res.record.get("version"), "1.1.1")
 
     def test_prompt_has_a_coverage_block_and_the_header_a_summary(self):
         a = self.put("a.md", fill(1234, "CANARY_A"))

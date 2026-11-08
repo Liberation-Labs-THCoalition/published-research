@@ -58,7 +58,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from claude_isolation import (AUTO_MEMORY_KEY, NO_AUTO_MEMORY_ENV, NO_CAPTURE_ENV,  # noqa: E402
-                              NO_SKILLS_FLAG, claude_md_excludes, isolated_claude_cmd)
+                              NO_HOOKS_KEY, NO_SKILLS_FLAG, claude_md_excludes, isolated_claude_cmd)
 
 HOME = Path.home().as_posix().rstrip("/")
 WANT_EXCLUDES = {HOME + "/.claude/CLAUDE.md", HOME + "/.claude/**"}
@@ -190,6 +190,13 @@ class InferCliIsIsolated(unittest.TestCase):
         self.assertEqual((kw.get("env") or {}).get(NO_AUTO_MEMORY_ENV), "1",
                          "child env must carry %s=1" % NO_AUTO_MEMORY_ENV)
 
+    def test_hooks_disabled(self):
+        # 2026-11-07: LYRA_NO_CAPTURE stops only Lyra's hooks; another account's SessionStart hook would still run.
+        cmd, _ = self.call(model="haiku")
+        s = settings_of(cmd)
+        self.assertIsNotNone(s, "infer_cli passed no single --settings flag: %r" % cmd)
+        self.assertIs(s.get(NO_HOOKS_KEY), True, "--settings must carry disableAllHooks: true: %r" % s)
+
     def test_skills_disabled(self):
         cmd, _ = self.call(model="haiku")
         self.assertEqual(cmd.count(NO_SKILLS_FLAG), 1, "infer_cli must pass %s once: %r" % (NO_SKILLS_FLAG, cmd))
@@ -238,7 +245,15 @@ class Helper(unittest.TestCase):
     def test_fresh_settings_turn_auto_memory_off(self):
         cmd, _ = isolated_claude_cmd(["claude", "-p"])
         self.assertEqual(settings_count(cmd), 1, cmd)
-        self.assertEqual(settings_of(cmd), {"claudeMdExcludes": claude_md_excludes(), AUTO_MEMORY_KEY: False})
+        self.assertEqual(settings_of(cmd), {"claudeMdExcludes": claude_md_excludes(), AUTO_MEMORY_KEY: False,
+                                            NO_HOOKS_KEY: True})
+
+    def test_callers_hooks_switch_is_overridden_both_forms(self):
+        for raw in ('{"disableAllHooks": false}', '{"hooks": {"SessionStart": []}}'):
+            for base in (["claude", "-p", "--settings", raw], ["claude", "-p", "--settings=" + raw]):
+                cmd, _ = isolated_claude_cmd(base)
+                self.assertEqual(settings_count(cmd), 1, cmd)
+                self.assertIs(settings_of(cmd).get(NO_HOOKS_KEY), True, base)
 
     def test_auto_memory_merged_into_callers_settings_both_forms(self):
         # A caller's own value, even true, is overridden: the reviewer never gets the owner's memory.
