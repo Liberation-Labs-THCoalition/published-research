@@ -1070,7 +1070,7 @@ The detection-correction gap is a central open problem in LLM alignment interven
   we measured disruption of correct behaviour only on five Fermi prompts.
 \end{itemize}
 
-\textbf{The evaluator risk.} The fabrication that remains is the kind a careful human reader takes for honesty (Section 4.1). A hedge-counting metric would score it as success, and so, in part, does an LLM judge: ours labelled as honest every response it scored as carrying minor invented details, and a blinded fact-check found an invented alternative or entity detail in about half of them. Any evaluation of such an intervention needs fact-checked labels.
+\textbf{The evaluator risk.} The fabrication that remains is the kind a careful human reader takes for honesty (Section 4.1). A hedge-counting metric would score it as success, and so, in part, does an LLM judge: ours labelled as honest every response it scored as carrying minor invented details, and a blinded fact-check found an invented alternative or entity detail in about half of them (under the rule restricted after rating; see the note in Section 4.1). Any evaluation of such an intervention needs fact-checked labels.
 
 \textbf{A two-channel correction architecture.} These results motivate logit-level intervention for outright fabrication, and other interventions for hedged fabrication, deception and sycophancy. The Oracle Loop, our real-time monitoring and correction system built on KV-cache geometry \cite{edrington2026oracle}, proposes routing between them by a mismatch between geometry and output. That rule assumes the subtypes differ geometrically, which this paper does not show (Section 4.10).
 
@@ -1181,7 +1181,7 @@ Labs / Transparent Humboldt Coalition.
 \item
   \textbf{A positive bias} can make a model evasive on questions it can answer. We checked this only on five Fermi prompts.
 \item
-  \textbf{Hedging can mislead evaluators.} Hedging that appears without a change in the underlying behaviour looks like improvement. In our own human validation, the rater read 19 of 23 judge-labelled hedged fabrications as honest redirects, and an unblinded post hoc check by CC found invented or false specifics in most of them. The LLM judge was misled too: a blinded fact-check found invented alternatives in about half of the responses it labelled honest with minor invented details (Section 4.1). Any deployment should measure fabrication, with checked facts, not hedging.
+  \textbf{Hedging can mislead evaluators.} Hedging that appears without a change in the underlying behaviour looks like improvement. In our own human validation, the rater read 19 of 23 judge-labelled hedged fabrications as honest redirects, and an unblinded post hoc check by CC found invented or false specifics in most of them. The LLM judge was misled too: a blinded fact-check found invented alternatives in about half of the responses it labelled honest with minor invented details (under the rule restricted after rating; see the note in Section 4.1). Any deployment should measure fabrication, with checked facts, not hedging.
 \end{itemize}
 
 \textbf{Abliterated models.} The primary model has its refusal behaviour removed. It was run locally, for research, on benign questions (fictional entities, unanswerable trivia, Fermi estimates). It was never deployed or exposed to users, and no harmful content was requested or generated.
