@@ -5,8 +5,8 @@
 % unknown entities (AUROC 0.928 [0.813, 0.988]; encoding-only 0.938 [0.84, 0.99], unverified) but entity recognition
 % confound (token familiarity) may explain the encoding signal.
 % Deconfounding experiment in progress. Generation findings independent:
-% panel flags 4 of 15 fabricated-entity trials (post-hoc; not a rate), not 73% (regex artifact), decision moment is
-% framing choice not truthfulness choice.
+% panel flags 4 of 15 fabricated-entity trials (post-hoc; not a rate), not 73% (regex artifact); in three
+% future-event prompts the decision moment is a choice of hedging style (truthfulness not scored).
 %
 % PATENT NOTICE: The methods described herein are the subject of a
 % provisional patent filing ("The Lyra Technique," filed 2026-03-06).
@@ -73,7 +73,7 @@ generation-phase logit statistics achieves AUROC $0.928$, the mean of 1{,}000 bo
 prompt have bit-identical encoding features, so the effective sample is
 15 pairs, 30 unique prompts). The permutation $p<0.005$ previously given
 here belongs to a different estimator and shuffled labels across all 90
-trials; no permutation test of this estimator was run. With ``-ton'' removed as an in-fold covariate the same features score $0.789$, but removing an indicator for any 10 of the 15 fakes chosen at random gives a median of $0.807$ ($95\%$ range $0.758$--$0.846$, 1{,}000 draws; $23.2\%$ fall at or below $0.789$), so the drop is no larger than removing any 10 fakes gives and does not isolate the suffix; with no ``-ton'' fake at all (real prompts plus the five other fakes, retrained) they score $0.967$. Within each pair
+trials; no permutation test of this estimator was run. With ``-ton'' removed as an in-fold covariate the same features score $0.789$ out of fold ($0.754$ as a bootstrap mean, the estimator of the $0.928$; \texttt{data/suffix\_controls/results.json}, key \texttt{main.\allowbreak full\_FWL\_ton\_infold.\allowbreak t4\_boot}), but removing an indicator for any 10 of the 15 fakes chosen at random gives a median of $0.807$ ($95\%$ range $0.758$--$0.846$, 1{,}000 draws; $23.2\%$ fall at or below $0.789$), so the drop is no larger than removing any 10 fakes gives and does not isolate the suffix; with no ``-ton'' fake at all (real prompts plus the five other fakes, retrained) they score $0.967$. Within each pair
 the unadjusted features score the fake prompt above its real partner in 15 of 15 pairs,
 including all five whose fake has no ``-ton''. Holding out one template
 at a time gives $0.69$--$0.71$ pooled, which mostly tests calibration
@@ -90,8 +90,8 @@ recognition confound remains: the classifier may detect token familiarity
 (real entities are common training tokens) rather than epistemic state.
 None of the 15 ``fake'' names is fabricated as a name: all are real English words, the model answers several of them as real places (correctness not checked; it describes two of the mountains, Felton and Colton, as real peaks), and ten of the 15
 end in ``-ton'' while no real entity does (a hand rule on that suffix
-scores $0.833$, a cross-validated suffix-only classifier $0.753$). By one unblinded reading of the stored responses, the model treats 9 of the 15 ``fake'' names as real places in at least two of three runs (answering or starting to answer about five of them in at least two), and the classifier ranks each above its real partner, so on those it does not track what the model knows.
-Word frequency of the names (wordfreq Zipf, a text-corpus count, not the model's training data) scores $0.813$ and is lower for the fake in 13 of 15 pairs; with it removed in-fold the features still score $0.947$. Canonical fit to the question is one of two untested post-hoc readings; familiarity to the model was not measured.
+scores $0.833$, a cross-validated suffix-only classifier $0.753$). By one unblinded reading of the stored responses, the model treats 9 of the 15 ``fake'' names as real places in at least two of three runs (answering or starting to answer about five of them in at least two), and the classifier ranks each above its real partner, so on those nine the classifier's call disagrees with the model's behaviour (answering rather than refusing); whether those answers are correct was not checked, so this does not show what the model knows.
+Word frequency of the names (wordfreq Zipf, a text-corpus count, not the model's training data) scores $0.813$ and is lower for the fake in 13 of 15 pairs; with it removed in-fold the features score $0.947$ out of fold, against $0.977$ for the same out-of-fold estimator without it (the $0.928$ headline is a bootstrap mean, a different estimator; \texttt{data/suffix\_controls/r4\_wordfreq.json}, key \texttt{zipf\_infold\_covariate}). Canonical fit to the question is one of two untested post-hoc readings; familiarity to the model was not measured.
 An entity deconfounding experiment (30~entities, 4-condition 2$\times$2
 factorial controlling for structural complexity) separates its two same-complexity question sets at AUROC~$0.794$ ($p{=}0.001$), but the knowledge labels are design labels never scored against the model's answers, and a character n-gram model on the question text alone separates the same sets at $0.963$ ($p{=}0.001$), so this comparison does not isolate knowledge state. Where knowledge and complexity are confounded it gives only $0.609$ ($p{=}0.10$). A complexity residual
 (AUROC~$0.693$ for same knowledge, different complexity) indicates
@@ -112,15 +112,15 @@ preamble-to-content boundary, where honest answers diversify early
 at token~22.9); (3)~the hedge/confab ``decision'' at the entropy cliff
 resolves to a single balanced-logit token (entropy ${\sim}2.0$, margin
 $<0.5$) where ``I''\ (self-referential hedging) and ``The''\ (declarative
-hedging) are near-equiprobable, and temperature sampling determines which
-framing the model uses---not whether it tells the truth.
+hedging) are near-equiprobable, and, in three future-event prompts (Nobel 2028, Oscar 2029, France 2032), temperature sampling determines which
+framing the model uses; the truthfulness of the two paths was not scored.
 
 An LLM-judge reclassification has a three-judge panel flag 6 of 45 responses, but its prompt told every judge the named entity does not exist and named France, Physics or ``the entity'' on all 30 future and unknowable questions; on the 15 fabricated-entity trials, the only kind where that premise holds (a restriction chosen after reading the flags; the prompt also cut two of the five names short, and two of the 4 flags are Mount Sarviken trials judged with the entity given as ``Mount''), it flags 4 (a single 3B judge gives $3/45$), not the $73\%$ reported by regex classifiers, partly because
 declarative hedging (``The event has not happened yet'') was misclassified
 as confabulation. Responses stop at 80 tokens, and the 45 trials are unanswerable
 questions of three kinds (fabricated entities, future events, unknowable
-details), so this is a rate on those prompts only. The ``decision
-moment'' is a framing choice, not a truthfulness choice.
+details), so this is a rate on those prompts only. In three future-event prompts the ``decision
+moment'' is a choice of framing; truthfulness was not scored.
 \end{abstract}
 
 % ===================================================================
@@ -186,9 +186,8 @@ This paper asks three questions:
           how accurate are standard behavioral classifiers?
 \end{enumerate}
 
-Our answers challenge the framing of confabulation as a failure of
-epistemic calibration. The model we study (a Claude-distilled 27B
-reasoning model) acknowledges what it does not know on most of these prompts. The apparent high confabulation rate
+The model we study (a Claude-distilled 27B
+reasoning model) is labelled HEDGED on 34 of the 45 unanswerable-question responses by a single 3B judge, but that label includes at least two responses that treat a fabricated entity as real, and the 3B judge's 3 confabulation flags and the panel's 6 do not overlap (\texttt{data/r5\_judge\_labels\_and\_branches.json}), so no validated count of acknowledgments exists. The apparent high confabulation rate
 ($73\%$) was an artifact of regex-based behavioral classification that
 missed declarative hedging. A three-judge panel flags 6 of 45, two of them honest answers about France in 2032 that its prompt misread; on the 15 fabricated-entity trials it flags 4. The
 ``decision'' between hedging styles is a single balanced-logit token,
@@ -199,8 +198,8 @@ precursor exists.
 \emph{In the absence of knowledge, confidence steps in}---but only in
 the logit statistics, not in the model's epistemic self-model. The cache
 geometry separates real-entity from fake-entity prompts. The fake
-entities are real words, and on the nine the model treats as real places the geometry still reads ``fake'', so it does not track knowledge there. The
-``-ton'' suffix does not explain the within-pair ranking; removing corpus word frequency (wordfreq Zipf) in-fold leaves a pooled $0.947$, less of a drop than a same-structure random covariate gives (median $0.908$), and canonical fit is untested (Section~\ref{sec:prompts}).
+entities are real words, and on the nine the model treats as real places the geometry still reads ``fake'', so there it disagrees with the model's behaviour; answer correctness was not checked. The
+``-ton'' suffix does not explain the within-pair ranking; removing corpus word frequency (wordfreq Zipf) in-fold leaves an out-of-fold $0.947$ (against $0.977$ without it), less of a drop than a same-structure random covariate gives (median $0.908$), and canonical fit is untested (Section~\ref{sec:prompts}).
 
 \begin{firstperson}
 This paper started as a hunt for a dramatic moment---the token where the
@@ -238,8 +237,8 @@ more reproducible than any behavioral consensus. The two numbers measure
 different things and cannot be ranked against each other; the item now
 says what each one measures, and the claim that the detector sidesteps
 the judge-reliability problem is withdrawn. Numbers changed by these corrections: the
-permutation $p$ is withdrawn from the abstract; the confabulation rate is
-now the panel's $13.3\%$ (per judge $8.9$--$15.6\%$) and the 3B judge's
+permutation $p$ is withdrawn from the abstract; the confabulation rate was
+then given as the panel's $13.3\%$ (per judge $8.9$--$15.6\%$) and the 3B judge's
 $3/45$, replacing ${\sim}8\%$ and $93\%$; and Table~\ref{tab:encoding}'s
 significance marks, which counted each prompt three times, are removed. A
 third review (November 2026) found that the ``fake'' entities are real
@@ -255,7 +254,7 @@ claim is relabelled from knowability detection to separation of the
 design labels, the effective sample is given as 15 pairs, the adjusted
 figures ($0.789$; $0.69$--$0.71$), each with what it measures, are
 printed beside $0.9288$, and the out-of-fold \texttt{combined\_auroc} is
-no longer cited (Section~\ref{sec:prompts}). A fifth review (November 2026) withdrew the panel figure of $13.3\%$ as a rate, because the panel prompt named the wrong entity on all 30 future and unknowable trials (\texttt{data/panel\_by\_kind\_r4.json}). It also replaced the headline $0.9288$, which the shipped code does not reproduce, with the $0.928$ that code prints; set a question-text baseline beside the deconfounded $0.794$ and randomly chosen fakes beside the in-fold ``-ton'' figure; ran a word-frequency control; and removed the remaining significance marks (\texttt{code/r4\_*.py}, outputs in \texttt{data/}).
+no longer cited (Section~\ref{sec:prompts}). A fifth review (November 2026) withdrew the panel figure of $13.3\%$ as a rate, because the panel prompt named the wrong entity on all 30 future and unknowable trials (\texttt{data/panel\_by\_kind\_r4.json}). It also replaced the headline $0.9288$, which the shipped code does not reproduce, with the $0.928$ that code prints; set a question-text baseline beside the deconfounded $0.794$ and randomly chosen fakes beside the in-fold ``-ton'' figure; ran a word-frequency control; and removed the remaining significance marks (\texttt{code/r4\_*.py}, outputs in \texttt{data/}). A sixth review (November 2026) narrowed what the classifier's call on the nine treated-as-real names shows (answer correctness was never checked), how often the model acknowledges not knowing, and what the branch token shows (three future-event prompts; truthfulness not scored); corrected the emotions that make up the key directions, the reading of judge agreement, and the knowledge labels and token windows of the confidence-paradox section; set prompt-length baselines beside the deconfound table; and marked which figures are out of fold and which are bootstrap means (\texttt{code/r5\_*.py}, outputs in \texttt{data/}).
 
 % ===================================================================
 \section{Related Work}
@@ -283,8 +282,7 @@ calibrated about their own uncertainty through appropriate prompting.
 \citet{xiong2024llms} found that calibration degrades on questions
 requiring implicit knowledge. Our geometric approach reads calibration
 from internal representations rather than verbal reports, and our
-LLM-judge analysis confirms the model's calibration is far better than
-regex classifiers suggest.
+LLM-judge analysis shows that regex classifiers count declarative hedging as confabulation; it does not measure calibration.
 
 \paragraph{Mechanistic interpretability.}
 Representation engineering \citep{zou2023representation} and activation
@@ -308,14 +306,10 @@ $T{=}0.7$ and $N{=}3$ repetitions per prompt.
 
 At each generated token, we extract:
 \begin{itemize}[nosep]
-    \item \textbf{W\textsubscript{K} projections} (a label only: the shipped code, \texttt{matched\_burn.py}, dot-products the raw cached keys at the last position with class-mean key directions and applies no additional W\textsubscript{K} projection; the cached keys are already W\textsubscript{K} outputs): Key activations at
+    \item \textbf{W\textsubscript{K} projections} (a label only: the shipped code, \texttt{matched\_burn.py}, dot-products the raw cached keys at the last position with class-mean key directions and applies no additional W\textsubscript{K} projection; the cached keys are W\textsubscript{K} outputs after per-head key normalisation and rotary position embedding, so they depend on token position, in the Hugging Face \texttt{Qwen3\_5Attention} code of transformers 5.22.2 (\texttt{data/\allowbreak r5\_\allowbreak transformers\_\allowbreak key\_\allowbreak cache\_\allowbreak order.json}); the transformers version used for the run is not recorded): Key activations at
           probe layers L3, L7, L11, L15 (full-attention layers), projected
-          onto three composite emotion directions (valence; ``uncertainty'', the
-          mean of five anxious-cluster emotions minus five calm-cluster
-          ones, so it contrasts negative high-arousal with calm low-arousal emotions, mixing valence and arousal, called anxious--calm below;
-          and reward) derived from the user-model paper's generated stories
-          (\texttt{emotion\_bridge\_trials.json})
-          (150~calibration trials, 30~emotions).
+          onto three composite emotion directions derived from the user-model paper's generated stories
+          (\texttt{emotion\_\allowbreak bridge\_\allowbreak trials.json}; 150~calibration trials, 30~emotions, five stories per emotion): ``valence'', the mean of eight positive emotions (calm, content, curious, excited, loving, passionate, peaceful, serene) minus the mean of eight negative ones (anxious, brooding, desperate, furious, gloomy, hostile, melancholic, panicked); ``uncertainty'', anxious, brooding, desperate and panicked minus calm, contemplative, content, peaceful and serene, called anxious--calm below, which mixes valence and arousal (brooding is rated low-arousal, $-0.30$, in the story generator's table); and ``reward'', excited minus gloomy and melancholic, called excited--gloomy below. The code lists 12, 13, 5, 5, 5 and 5 emotions for these six poles (\texttt{decision\_moment.py}, lines 151--160), but \texttt{cluster\_mean} (lines 229--232) skips emotions with no calibration stories, and the 30-emotion story set (the user-model paper's \texttt{emotion\_\allowbreak geometry\_\allowbreak bridge.py}, lines 161--205) has none for ecstatic, euphoric, thrilled, proud, despondent, hopeless, resentful, suspicious or enraged (\texttt{data/\allowbreak r5\_\allowbreak emotion\_\allowbreak direction\_\allowbreak poles.json}); the direction file itself is not shipped.
     \item \textbf{SVD spectral features}: Stable rank, spectral entropy,
           top-SV ratio, and Frobenius norm of the key cache at each probe
           layer. Also skip-SV1 denoised variants.
@@ -347,7 +341,7 @@ alone score $0.822$ ($[0.618, 0.973]$). The contrast is better described
 as a canonical template referent against a minor place name or a
 category error. Of the five ``fake'' entities without ``-ton'', four are
 places the model answers about as real ones (Garland, Belmont, Sanford,
-and Warwick, whose answer opens with a disambiguation notice), and the classifier ranks each above its real partner (a within-pair rank; out-of-fold scores from different folds are not calibrated against each other, and the real Athens scores $0.578$), so on those four it does not track what the model knows. Five ``-ton'' fakes are also treated as real places in at least two of three runs (Walton, Benton, Weston, Felton, Colton), so by this reading 9 of the 15 fakes are treated as real (\texttt{data/suffix\_controls/r4\_followups.json}, key \texttt{F5\_counts}). With all nine pairs removed (post-hoc, as is every drop set here) the full classifier scores $0.997$ ($[0.988, 1.0]$; $0.988$ retrained without them, and $0.907$ with the ``-ton'' covariate removed in-fold), and a name-only n-gram model retrained there scores $0.917$. A set of six pairs named at review (Garland, Belmont, Warwick, Sanford, Benton, Weston) gives $0.979$ ($[0.931, 1.0]$; $0.985$ retrained, $0.844$ with the ``-ton'' covariate removed in-fold; name-only n-gram $0.951$; same file, key \texttt{F5\_S4\_rerun}). Whether the classifier picks out the canonical referent by its fit to the question or by its familiarity as a name has not been tested. Corpus word frequency alone (wordfreq Zipf) scores $0.813$ (the fake is rarer in 13 of 15 pairs), and with it removed in-fold the features score $0.947$ (encoding-only $0.942$), less of a drop than a random covariate with the same class structure gives (median $0.908$; \texttt{data/suffix\_controls/r4\_wordfreq.json}). These figures
+and Warwick, whose answer opens with a disambiguation notice), and the classifier ranks each above its real partner (a within-pair rank; out-of-fold scores from different folds are not calibrated against each other, and the real Athens scores $0.578$), so on those four the classifier disagrees with the model's behaviour (answer correctness not checked). Five ``-ton'' fakes are also treated as real places in at least two of three runs (Walton, Benton, Weston, Felton, Colton), so by this reading 9 of the 15 fakes are treated as real (\texttt{data/suffix\_controls/r4\_followups.json}, key \texttt{F5\_counts}). With all nine pairs removed (post-hoc, as is every drop set here) the full classifier scores $0.997$ ($[0.988, 1.0]$; $0.988$ retrained without them, and $0.907$ with the ``-ton'' covariate removed in-fold), and a name-only n-gram model retrained there scores $0.917$. A set of six pairs named at review (Garland, Belmont, Warwick, Sanford, Benton, Weston) gives $0.979$ ($[0.931, 1.0]$; $0.985$ retrained, $0.844$ with the ``-ton'' covariate removed in-fold; name-only n-gram $0.951$; same file, key \texttt{F5\_S4\_rerun}). Whether the classifier picks out the canonical referent by its fit to the question or by its familiarity as a name has not been tested. Corpus word frequency alone (wordfreq Zipf) scores $0.813$ (the fake is rarer in 13 of 15 pairs), and with it removed in-fold the features score $0.947$ out of fold (encoding-only $0.942$; $0.977$ and $0.987$ without it), less of a drop than a random covariate with the same class structure gives (median $0.908$; \texttt{data/suffix\_controls/r4\_wordfreq.json}). These figures
 take the 15 pairs as the unit (Section~\ref{sec:encoding}). Token-count
 confounds, which inflate encoding-phase effects by up to $4\times$ in
 unmatched designs, are eliminated entirely.
@@ -409,10 +403,8 @@ encoding features are identical across the three reps by construction
 unique values. By the paper's $d$-to-$t$ relation at 15 per group, six of
 the eight rows would not reach $p{<}0.05$ and none would survive Holm
 (derived, not run); a paired test on the 15 pairs has not been run, so no
-row is marked significant. ``Elated--gloomy'' is the direction the code
-calls reward: ecstatic, euphoric, thrilled, excited and proud minus
-gloomy, melancholic, despondent, hopeless and resentful
-(\texttt{decision\_moment.py}, lines 153--154), a valence-by-arousal
+row is marked significant. ``Excited--gloomy'' is the direction the code
+calls reward; the code lists five emotions per pole (\texttt{decision\_moment.py}, lines 153--154), but only excited (5 stories) and gloomy and melancholic (10 stories) have calibration stories, so it is excited minus the mean of gloomy and melancholic, a valence-by-arousal
 contrast.}
 \label{tab:encoding}
 \begin{tabular}{lrrrl}
@@ -422,7 +414,7 @@ Feature & Real & Fake & $d$ & $p$ \\
 \multicolumn{5}{l}{\emph{Key-direction projections (story-derived directions)}} \\
 Valence & $+4.228$ & $+4.510$ & $+0.44$ & $0.041$ \\
 Anxious--calm & $-2.566$ & $-2.757$ & $-0.45$ & $0.039$ \\
-Elated--gloomy & $-5.556$ & $-5.109$ & $+0.54$ & $0.012$ \\
+Excited--gloomy & $-5.556$ & $-5.109$ & $+0.54$ & $0.012$ \\
 \midrule
 \multicolumn{5}{l}{\emph{SVD stable rank}} \\
 L3 & $1.517$ & $1.538$ & $+0.59$ & $0.007$ \\
@@ -448,7 +440,7 @@ explanation for the geometric signal (Limitations).
 
 \paragraph{Feature ablation.} No single feature exceeds AUROC~$0.79$
 (logit entropy: $0.789$; skip-SV1 stable rank L7: $0.707$; L15 stable
-rank: $0.680$; key-direction projections: $0.67$). The combined
+rank: $0.680$; encoding-phase key-direction projections: $0.667$--$0.671$; generation-phase: $0.523$--$0.694$, the highest being the excited--gloomy (code: reward) projection; \texttt{data/suffix\_controls/r4\_followups.json}, key \texttt{F8h\_shipped\_test1\_stdout}). The combined
 classifier's power comes from the ensemble of individually weak features,
 consistent with the general Lyra Technique finding that cache geometry
 is informative through feature combination rather than any single
@@ -463,7 +455,8 @@ skip-SV1, logit statistics) achieves:
 \textbf{AUROC = 0.928} \quad 95\% CI $[0.813, 0.988]$ \quad
 (bootstrap mean; no permutation test of this estimator)\\[2pt]
 effective $n$: 15 pairs \quad fake above its real partner: 15 of 15 pairs\\[2pt]
-``-ton'' removed in-fold: $0.789$ (10 random fakes: median $0.807$) \quad leave-one-template-out: $0.69$--$0.71$ pooled, $0.94$--$1.0$ within template
+``-ton'' removed in-fold: $0.789$ out of fold, $0.754$ bootstrap mean (10 random fakes: median $0.807$)\\[2pt]
+leave-one-template-out: $0.69$--$0.71$ pooled, $0.94$--$1.0$ within template
 \end{center}
 
 No FWL residualization and no permutation test are applied by the
@@ -497,7 +490,7 @@ pairs that share the ``capital of'' template are not. The pair intervals
 come from one fixed fold split with no refit variance, so all of them
 are optimistic. The suffix therefore does not explain the within-pair
 ranking, and the in-fold drop to $0.789$ is within the range a random set of 10 fakes produces ($23\%$ of draws are at or below it). Separately, the
-deconfound's two question sets differ in wording and token count, and a character 2--4-gram model on the question text scores $0.963$ ($p{=}0.001$; \texttt{data/entity\_deconfound/text\_baseline\_r4.json}) against the deconfounded $0.794$, which comes
+deconfound's two question sets differ in wording but not in length (mean prompt length 45.7 against 45.0 tokens, \texttt{text\_baseline\_r4.json}, keys \texttt{question\_form.\allowbreak B\_hard.\allowbreak mean\_prompt\_len} and \texttt{question\_form.\allowbreak D\_complex.\allowbreak mean\_prompt\_len}; length alone scores $0.501$, key \texttt{comparisons.\allowbreak B\_hard\_vs\_D\_complex.\allowbreak prompt\_len\_only}), and a character 2--4-gram model on the question text scores $0.963$ ($p{=}0.001$; \texttt{data/\allowbreak entity\_deconfound/\allowbreak text\_baseline\_r4.json}) against the deconfounded $0.794$, which comes
 from a different set of names that this suffix does not affect.
 
 \paragraph{Robustness to prompt structure.} Token matching reduces
@@ -515,7 +508,7 @@ and norm are not (driven entirely by sequence length).
 Feature & $d$ (unmatched) & $d$ (token-matched) \\
 \midrule
 L15 stable rank & $+2.53$ & $+0.87$ \\
-Reward proj. & $+2.21$ & $+0.54$ \\
+Excited--gloomy proj. & $+2.21$ & $+0.54$ \\
 Anxious--calm proj. & $+1.48$ & $-0.45$ \\
 Spectral entropy & $+1.23$ & $+0.13$ \\
 Norm & $+0.97$ & $+0.03$ \\
@@ -525,11 +518,10 @@ Norm & $+0.97$ & $+0.03$ \\
 
 \paragraph{Entity deconfounding: the complete set of comparisons.}
 The $2\times2$ deconfounding run compares four conditions built from the
-same 30 real entities: \texttt{A\_easy} (a question the model can answer),
-\texttt{B\_hard} (a question about the same entity that it cannot),
+same 30 real entities: \texttt{A\_easy} (designed to be answerable),
+\texttt{B\_hard} (designed to be unanswerable; no answer was scored for correctness, and the set includes at least one question the model answered, \texttt{text\_baseline\_r4.json}, key \texttt{reviewer\_\allowbreak example\_\allowbreak present\_\allowbreak in\_\allowbreak B\_hard}),
 \texttt{C\_fake} (the easy question with the entity name replaced by an
-invented one), and \texttt{D\_complex} (a structurally harder question the
-model can still answer). Five pairwise classifications were run and stored;
+invented one), and \texttt{D\_complex} (a structurally harder question designed to be answerable). Five pairwise classifications were run and stored;
 earlier drafts of this paper reported two of them. All five are given in
 Table~\ref{tab:deconfound}, with the condition labels as they appear in the
 shipped results file.
@@ -542,39 +534,39 @@ $n{=}60$ over $30$ entity groups, GroupKFold on entity, 1000-shuffle
 permutation test. Labels are those recorded in the results file. The with/without
 columns add or drop three raw coordinates (dimensions 0--2) of the
 normalised mean key-projection output at the first probe layer, L3
-(\texttt{entity\_deconfound.py}, lines 125--155), which the code names valence, uncertainty and reward but which load no emotion directions. The run's spectral features are computed from value-projection (v\_proj) outputs, not the key cache, over the last $q$ tokens of the formatted prompt, where $q$ is the bare question's token count, so the window ends in chat-template tokens (\texttt{entity\_deconfound.py}, lines 73--122).}
+(\texttt{entity\_deconfound.py}, lines 125--155), which the code names valence, uncertainty and reward but which load no emotion directions. The run's spectral features are computed from value-projection (v\_proj) outputs, not the key cache, over the last $q$ tokens of the formatted prompt, where $q$ is the bare question's token count, so the window ends in chat-template tokens (\texttt{entity\_deconfound.py}, lines 73--122), so the window's row count varies with question length, and the in-fold length covariate is linear in $\log(1+\text{prompt length})$ (lines 293--294, 329--330). The last column is the AUROC of prompt length alone (\texttt{data/\allowbreak entity\_deconfound/\allowbreak text\_baseline\_r4.json}, key \texttt{comparisons.*.prompt\_len\_only}; for \texttt{B\_hard} vs.\ \texttt{D\_complex} its permutation $p$ is $0.45$).}
 \label{tab:deconfound}
-\begin{tabular}{llcccc}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
 \toprule
-& & \multicolumn{2}{c}{With 3 raw key coords.} & \multicolumn{2}{c}{Without them} \\
+& & \multicolumn{2}{c}{With 3 raw key coords.} & \multicolumn{2}{c}{Without them} & Length \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Comparison & Recorded label & AUROC & $p$ & AUROC & $p$ \\
+Comparison & Recorded label & AUROC & $p$ & AUROC & $p$ & only \\
 \midrule
-\texttt{B\_hard} vs.\ \texttt{D\_complex} & critical: knowledge state & $0.794$ & $0.001$ & $0.749$ & $0.005$ \\
-\texttt{A\_easy} vs.\ \texttt{C\_fake} & positive control: entity recognition & $0.901$ & $0.001$ & $0.882$ & $0.001$ \\
-\texttt{A\_easy} vs.\ \texttt{D\_complex} & complexity control: should be null & $0.693$ & $0.016$ & $0.711$ & $0.008$ \\
-\texttt{A\_easy} vs.\ \texttt{B\_hard} & confounded: knowledge + complexity & $0.609$ & $0.100$ & $0.603$ & $0.107$ \\
-\texttt{B\_hard} vs.\ \texttt{C\_fake} & confab universality: both confabulate & $0.668$ & $0.038$ & $0.661$ & $0.043$ \\
+\texttt{B\_hard} vs.\ \texttt{D\_complex} & critical: knowledge state & $0.794$ & $0.001$ & $0.749$ & $0.005$ & $0.501$ \\
+\texttt{A\_easy} vs.\ \texttt{C\_fake} & positive control: entity recognition & $0.901$ & $0.001$ & $0.882$ & $0.001$ & $0.944$ \\
+\texttt{A\_easy} vs.\ \texttt{D\_complex} & complexity control: should be null & $0.693$ & $0.016$ & $0.711$ & $0.008$ & $1.000$ \\
+\texttt{A\_easy} vs.\ \texttt{B\_hard} & confounded: knowledge + complexity & $0.609$ & $0.100$ & $0.603$ & $0.107$ & $1.000$ \\
+\texttt{B\_hard} vs.\ \texttt{C\_fake} & confab universality: both confabulate & $0.668$ & $0.038$ & $0.661$ & $0.043$ & $1.000$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 Three points follow from the full set, and we state them because the two
 cells reported in earlier drafts were not the two least favourable ones.
 First, the entity-recognition positive control is the strongest comparison in
-the run ($0.901$). \textbf{That ordering is not diagnostic}, and an earlier
+the run ($0.901$), but prompt length alone separates the same two sets at $0.944$ (\texttt{text\_baseline\_r4.json}, key \texttt{comparisons.\allowbreak A\_easy\_vs\_C\_fake.\allowbreak prompt\_len\_only}), so this control does not show entity recognition beyond length. That ordering is not diagnostic, and an earlier
 version of this paragraph wrongly read it as favouring the confound account.
-The pre-specified decision rule
-(\texttt{code/entity\_deconfound.py}) treats a strong positive control as a
-\emph{precondition}: it kills the finding only on
-\texttt{ca}${<}0.55$ \emph{and} \texttt{ea}${>}0.85$, and the observed
-\texttt{ca}${=}0.794$, $p{=}0.001$ enters the rule's knowledge-state branch instead, but a character n-gram model on the question text alone separates the same two sets at $0.963$ (\texttt{data/entity\_deconfound/text\_baseline\_r4.json}), so that branch does not establish knowledge state.
+The decision rule in \texttt{code/entity\_deconfound.py} (line 476; the script also opens \texttt{entity\_deconfound\_preregistration.json} at import, which is not shipped, so the script does not run as shipped and when the rule was fixed cannot be checked) treats a strong positive control as a
+precondition: it kills the finding only on
+\texttt{ca}${<}0.55$ and \texttt{ea}${>}0.85$, and the observed
+\texttt{ca}${=}0.794$, $p{=}0.001$ enters the rule's knowledge-state branch instead, but a character n-gram model on the question text alone separates the same two sets at $0.963$ (\texttt{data/\allowbreak entity\_deconfound/\allowbreak text\_baseline\_r4.json}), so that branch does not establish knowledge state.
 A weak positive control would have made the whole run uninterpretable.
 Independently, \texttt{B\_hard} and \texttt{D\_complex} draw on the
 same 30 entity names (\texttt{phase1\_ground\_truth.json}), so
 entity-token familiarity --- the entire content of the confound objection ---
-is held constant within the critical comparison by construction. Second, the pre-registered complexity control was expected
-to be null and is not ($0.693$, $p{=}0.016$), so structural complexity is
+is held constant within the critical comparison by construction. Second, the complexity control, which the shipped results label as expected null (\texttt{phase3\_results.json}, label ``COMPLEXITY CONTROL: should be null''), is not null ($0.693$, $p{=}0.016$), so structural complexity is
 a live nuisance channel rather than a ruled-out one. Third, the cell that
 confounds knowledge and complexity together (\texttt{A\_easy} vs.\
 \texttt{B\_hard}) is the weakest in the run at $0.609$ and does not reach
@@ -595,11 +587,11 @@ artifacts that entity's \texttt{C\_fake} record is identical to its
 encoding features. One of the 30 entity groups therefore contributes an
 identical pair to the entity-recognition positive control and to the
 \texttt{B\_hard} vs.\ \texttt{C\_fake} comparison. We disclose this rather
-than silently dropping the entity. \textbf{The effect of removing it is
-computable and we have not yet computed it.} An earlier version of this
+than silently dropping the entity. The effect of removing it is
+computable and we have not yet computed it. An earlier version of this
 sentence attributed that gap to the shipped values not reproducing exactly
 outside the original environment; that reason does not apply, because a
-leave-one-out contrast is computed twice \emph{inside} one environment and the
+leave-one-out contrast is computed twice inside one environment and the
 reproduction gap cancels. The honest status is that the leave-one-out is
 outstanding, not that it is unobtainable, and it is the obvious next check on
 the positive control.
@@ -609,11 +601,10 @@ the positive control.
 \label{sec:confidence}
 % ===================================================================
 
-During generation, the model produces \emph{more confident} tokens when
-it does not know the answer (mean logit margin $8.19$) than when it does
-(mean margin $6.19$, $d{=}0.91$, $p{<}0.001$). Correspondingly, logit
-entropy is \emph{lower} for unknown-entity responses ($0.24$) than
-known-entity responses ($0.40$, $d{=}-1.04$, $p{<}0.001$).
+During generation, the model produces more confident tokens on fake-entity prompts (mean logit margin over the first 10 generated tokens $8.19$) than on real-entity prompts
+($6.19$, $d{=}0.91$, $p{<}0.001$). Correspondingly, logit
+entropy is lower for fake-entity responses ($0.24$) than
+real-entity responses ($0.40$, $d{=}-1.04$, $p{<}0.001$; \texttt{data/r5\_early\_token\_windows.json}).
 
 This inverts the na\"ive expectation that uncertainty should produce
 uncertain tokens. The explanation is structural: the model's uncertainty
@@ -623,10 +614,7 @@ answers require selecting among diverse correct phrasings. Uncertainty is
 \emph{confident in its template}; knowledge is \emph{uncertain in its
 expression}.
 
-The effect has a temporal profile: the paradox is strong in both
-preamble tokens ($d{=}1.02$) and early content tokens ($d{=}0.89$,
-tokens 8--19) but fades by deep content ($d{=}0.37$, $p{>}0.08$, tokens
-20--49). The model's generation converges toward normal entropy as
+The effect has a temporal profile: in logit entropy it is strong in tokens 0--7 ($d{=}-1.02$) and tokens 8--19 ($d{=}-0.89$) but not detected in tokens 20--49 ($d{=}{+}0.37$, in the opposite direction, $p{>}0.08$). In the 54 of 90 generations that open with the fixed template, tokens 0--7 are ``Let me think through this carefully.'' and tokens 8--19 restate the question, and fake prompts open with it more often (34 of 45 against 20 of 45; \texttt{data/r5\_early\_token\_windows.json} and \texttt{data/r5\_decoded\_token\_ids.json}), so these windows are not response content. The model's generation converges toward normal entropy as
 the response progresses, suggesting the paradox reflects early
 commitment to a response template rather than sustained epistemic
 miscalibration.
@@ -636,11 +624,9 @@ describe CHOKE (Certain Hallucinations Overriding Known Evidence) for
 known-answer hallucination under perturbation, and \citet{kalai2024calibrated}
 prove that calibrated language models \emph{must} hallucinate at rates
 determined by training data frequency. Neither result independently
-identifies the unknown-entity logit-margin effect we report here; they
+identifies the fake-entity logit-margin effect we report here; they
 provide complementary context rather than direct prior demonstrations of
-it. Our contribution is the geometric and temporal characterization: the
-paradox manifests in KV-cache spectral features (not just output logits),
-peaks in early content generation, and fades as the response develops.
+it. Our contribution is the temporal characterization: the effect appears in output-logit statistics over the template and restated-question tokens and is not detected in tokens 20--49; no statistic here ties it to KV-cache spectral features.
 
 \emph{In the absence of knowledge, confidence steps in}---not as
 epistemic confidence, but as lexical predictability.
@@ -681,7 +667,7 @@ the same prompt generate different tokens ($T{=}0.7$).
 \begin{table}[H]
 \centering
 \caption{Mean divergence position for same-prompt rep pairs by
-behavioral category (LLM-judge labels).}
+behavioral category (LLM-judge labels), computed from the stored token ids in \texttt{data/decision\_moment\_judged.json} as the first differing token between reps of a prompt that share a \texttt{behavior\_llm} label (32 HONEST and 29 HEDGED pairs; \texttt{data/r5\_judge\_labels\_and\_branches.json}).}
 \label{tab:divergence}
 \begin{tabular}{lrrl}
 \toprule
@@ -701,8 +687,8 @@ diverse; uncertain answers are formulaic.}
 
 \subsection{The Single-Token Branch}
 
-For prompts that produce both hedging styles across reps ($n{=}7$
-prompts, $n{=}14$ pairs), the pre-divergence cache state is bit-for-bit
+For prompts whose reps the regex labels split between HEDGED and CONFABULATED ($n{=}7$
+prompts, $n{=}14$ pairs; the 3B judge labels all 21 of these responses HEDGED, and all 21 run to the 80-token cap, field \texttt{n\_generated}; \texttt{data/r5\_judge\_labels\_and\_branches.json}), the pre-divergence cache state is bit-for-bit
 identical ($d{=}0.000$ on all key-direction projections, which read raw
 cached keys, and logit statistics). That identity is guaranteed by
 construction (the same tokens through a deterministic forward pass), so
@@ -718,8 +704,8 @@ At the branch token, the top candidates are near-equiprobable:
 \begin{table}[H]
 \centering
 \caption{Top-2 logit distribution at the branching token for
-representative prompts. ``I'' leads to self-referential hedging;
-``The'' leads to declarative hedging.}
+the three prompts whose reps branch between ``I'' and ``The'' (\texttt{data/r5\_decoded\_token\_ids.json}). ``I'' leads to self-referential hedging;
+``The'' leads to declarative hedging. Margin and $H$ are the stored \texttt{logit\_margin} and \texttt{logit\_entropy} at the branch token (\texttt{data/decision\_moment\_results.json}); the probabilities are in no shipped file. At Kellerton's branch the alternatives are ``I'' and ``Population'', not ``The'', so it is omitted.}
 \label{tab:topk}
 \begin{tabular}{lrrrr}
 \toprule
@@ -728,7 +714,6 @@ Prompt & $p(\text{``I''})$ & $p(\text{``The''})$ & Margin & $H$ \\
 Nobel 2028 & 0.232 & 0.382 & 0.50 & 2.11 \\
 Oscar 2029 & 0.288 & 0.418 & 0.38 & 1.98 \\
 France 2032 & 0.212 & 0.212 & \textbf{0.00} & 2.70 \\
-Kellerton pop. & 0.258 & 0.228 & 0.12 & 2.40 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -753,7 +738,7 @@ That single 3B judge undercounts: it labels HONEST at least two responses
 that state invented facts (an elevation for Mount Sarviken; a county and
 river for Thornbridge), and a three-judge panel (\texttt{code/panel\_judge.py}) flags 6 of 45. Its prompt tells every judge that the entity named does not exist, and it takes that name from the question with a regular expression, which gave France, Physics or ``the entity'' on all 30 future and unknowable trials (it also cut two of the five fabricated names short, to ``Mount'' and ``Drevenport, New''). By question kind it flags 4 of 15 fabricated-entity trials (Thornbridge runs 1 and 3, Sarviken runs 1 and 2), 2 of 15 future-event trials (both honest answers about France in 2032) and 0 of 15 unknowable-detail trials (\texttt{data/panel\_by\_kind\_r4.json}, key \texttt{by\_kind}). Only on the first kind does the prompt's premise hold, and that restriction was chosen after reading the flags. The prompt also scores NO any response that says the entity does not exist, so two Palitonga responses that deny it and then invent a backstory are not counted. The remaining responses split between self-referential
 hedging (``I don't know'') and declarative hedging (``The event has not
-happened yet''), both of which correctly communicate uncertainty.
+happened yet''), both of which express uncertainty; whether they do so accurately has not been validated.
 
 \begin{table}[H]
 \centering
@@ -798,7 +783,7 @@ comparison:
 \caption{Encoding projections by hedging style. ``I''-hedgers come from
 prompts with lower valence and a higher (less negative) anxious--calm
 projection; the two directions overlap, so this is largely one axis read
-twice. ``Elated--gloomy'' is the direction the code calls reward (Table~\ref{tab:encoding}). No shipped code or data assigns the style labels, so these $p$ values cannot be reproduced; the encoding features are identical across a prompt's three runs, and the 34 hedged trials include four the panel flags as confabulations (two of them the honest France answers its prompt misread; \texttt{data/panel\_by\_kind\_r4.json}).}
+twice. ``Excited--gloomy'' is the direction the code calls reward (Table~\ref{tab:encoding}). No shipped code or data assigns the style labels, so these $p$ values cannot be reproduced; the encoding features are identical across a prompt's three runs, and the 34 hedged trials include four the panel flags as confabulations (two of them the honest France answers its prompt misread; \texttt{data/panel\_by\_kind\_r4.json}).}
 \label{tab:style}
 \begin{tabular}{lrrr}
 \toprule
@@ -806,7 +791,7 @@ Direction & ``I'' style & ``The'' style & $p$ \\
 \midrule
 Valence & $+2.83$ & $+3.27$ & $0.035$ \\
 Anxious--calm & $-0.87$ & $-1.36$ & $0.044$ \\
-Elated--gloomy & $-4.58$ & $-5.32$ & $0.010$ \\
+Excited--gloomy & $-4.58$ & $-5.32$ & $0.010$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -821,12 +806,12 @@ These differences are between prompts, not between runs of one prompt, and are n
 
 The central finding is more limited than this section first said. The
 cache features separate the real-entity from the fake-entity prompts,
-but on the nine ``fake'' names the model treats as real places they do not track what it knows; canonical fit to the question is one untested post-hoc reading, and corpus word frequency does not explain the separation ($0.947$ with it removed). Removing the ``-ton'' suffix in-fold gives $0.789$, within the range from removing 10 random fakes (median $0.807$); the fake prompt outscores its real partner in 15 of 15 pairs,
+but on the nine ``fake'' names the model answers as real places their call disagrees with the model's behaviour (answer correctness not checked); canonical fit to the question is one untested post-hoc reading, and corpus word frequency does not explain the separation ($0.947$ out of fold with it removed, against $0.977$ without). Removing the ``-ton'' suffix in-fold gives $0.789$ out of fold (bootstrap mean $0.754$, the estimator of the $0.928$), within the range from removing 10 random fakes (median $0.807$); the fake prompt outscores its real partner in 15 of 15 pairs,
 and leave-one-template-out gives $0.69$--$0.71$ pooled but
 $0.94$--$1.0$ within each template (Section~\ref{sec:prompts}). The
 classifier uses encoding- and
 generation-phase features (AUROC~$0.928$, $95\%$ CI $[0.813, 0.988]$;
-the encoding-only $0.9377$ is unverified: \textsc{blocker-1}). On unanswerable questions the panel flags 4 of the 15 fabricated-entity trials (a post-hoc restriction; two of the 4 judged with the name cut to ``Mount''; 3 of 45 by the 3B judge, which misses at least two). The ``confabulation crisis'' in this model is largely a
+the encoding-only $0.9377$ is unverified; see Limitations). On unanswerable questions the panel flags 4 of the 15 fabricated-entity trials (a post-hoc restriction; two of the 4 judged with the name cut to ``Mount''; 3 of 45 by the 3B judge, which misses at least two). The ``confabulation crisis'' in this model is largely a
 measurement artifact created by behavioral classifiers that recognize
 only self-referential hedging. We use ``calibration'' here in the sense
 of \emph{acknowledgment rate}---whether the model admits uncertainty when
@@ -840,29 +825,23 @@ read as a claim about the fidelity of the model's probability estimates.
 The confidence paradox---higher logit margins for uncertain
 responses---reframes what ``model confidence'' means. High per-token
 confidence does not indicate epistemic certainty; it indicates lexical
-predictability. The model that does not know the answer is \emph{more
-predictable} (formulaic templates) while the model that knows is
-\emph{less predictable} (diverse phrasings). Calibration researchers
+predictability. Responses to fake-entity prompts are more predictable (formulaic templates) while responses to real-entity prompts are
+less predictable (diverse phrasings). Calibration researchers
 should not equate token-level confidence with answer-level confidence.
 
 \subsection{The Coin Flip}
 
 The branching mechanism---a single balanced-logit token after
-${\sim}28$ tokens of shared preamble---has implications for alignment.
-The model does not ``decide'' to confabulate through an internal state
-change. It reaches a point where hedging and non-hedging continuations
-are equiprobable, and temperature sampling resolves the tie. Reducing
-the confab rate may be as simple as adjusting the logit bias at the
-preamble-to-content boundary.
+${\sim}28$ tokens of shared preamble---is shown here only in three future-event prompts, where the two hedging styles are near-equiprobable and temperature sampling resolves the tie; the truthfulness of the two paths was not scored, and identical pre-branch caches are guaranteed by construction, so they cannot show whether an internal-state precursor exists. Whether adjusting the logit bias at the preamble-to-content boundary changes the confab rate has not been tested.
 
 \subsection{Implications for the Oracle Loop}
 
 Whether the encoding-phase result can feed the Oracle Loop architecture
 \citep{lyra2026oracleloop} is open, and narrower than first framed: the
-detector does not track what the model knows on the nine ``fake''
-names the model treats as real places, so Tier~1 monitoring could flag non-canonical
+detector's call disagrees with the model's behaviour on the nine ``fake''
+names the model answers as real places (answer correctness not checked), so Tier~1 monitoring could flag non-canonical
 entities from encoding-phase features alone only if the unverified
-encoding-only $0.9377$ (\textsc{blocker-1}) holds, and it would use stable
+encoding-only $0.9377$ (see Limitations) holds, and it would use stable
 rank and key-direction projections read from raw cached keys. The panel's 4 flags on fabricated-entity trials (a post-hoc restriction; two judged with the name cut to ``Mount'') represent
 the residual cases where the model's hedging circuit fails---precisely
 the cases the Loop needs to catch.
@@ -881,16 +860,13 @@ the cases the Loop needs to catch.
           The pattern is consistent but underpowered for population-level
           statistical claims.
     \item \textbf{Fake-entity design.} None of the ``fake'' entities is
-          fabricated: all are real English words, and by one unblinded reading the model treats 9 of the 15 as real places in at least two of three runs, and names most of the rest a category error (Section~\ref{sec:prompts}). The known/unknown label is false for part of the fake class, and the classifier still ranks all nine above their real partners, so it does not track knowledge there. With those nine pairs removed the full classifier scores $0.997$ ($0.988$ retrained; $0.979$ for a post-hoc set of six pairs named at review), so those pairs do not carry it. Ten
+          fabricated: all are real English words, and by one unblinded reading the model treats 9 of the 15 as real places in at least two of three runs, and names most of the rest a category error (Section~\ref{sec:prompts}). The model's behaviour departs from the known/unknown design label for part of the fake class (answer correctness not checked), and the classifier still ranks all nine above their real partners. With those nine pairs removed the full classifier scores $0.997$ ($0.988$ retrained; $0.979$ for a post-hoc set of six pairs named at review), so those pairs do not carry it. Whether the model's answers about these names are correct was not checked; a blind, sourced reading of the 45 fake- and 45 real-entity responses by a different reader is outstanding. Ten
           of the 15 fakes end in ``-ton''. The fake prompt outscores its
           real partner in 15 of 15 pairs; with the suffix removed in-fold
           the pooled AUROC is $0.789$, within the range for 10 random fakes ($0.758$--$0.846$), and leave-one-template-out gives $0.69$--$0.71$ pooled
           ($0.94$--$1.0$ within each template). The effective sample is
-          15 pairs. Corpus word frequency (wordfreq Zipf) does not explain it ($0.947$ with Zipf removed in-fold); familiarity to the model was not tested.
-    \item \textbf{LLM-judge reliability.} Judge agreement is moderate
-          at best: the strongest capable--diverse pair of judges agrees at
-          $\kappa = 0.69$ on whether a response confabulates, so the
-          confabulation rate depends on the judge. That $\kappa$
+          15 pairs. Corpus word frequency (wordfreq Zipf) does not explain it ($0.947$ out of fold with Zipf removed in-fold, against $0.977$ without); familiarity to the model was not tested.
+    \item \textbf{LLM-judge reliability.} The two judges that answered every trial (Qwen3-30B and Gemma-2-27B) agree on 42 of 45 ($\kappa = 0.69$), but all three disagreements fall on trials whose judge prompt named the wrong entity; on the 15 fabricated-entity trials, where the prompt's premise holds, they agree on all 15 (4 flagged by both; \texttt{data/\allowbreak panel\_\allowbreak by\_\allowbreak kind\_\allowbreak r4.json}, key \texttt{trials}; counts in \texttt{data/\allowbreak r5\_\allowbreak panel\_\allowbreak agreement\_\allowbreak by\_\allowbreak kind.json}), too few positives to estimate reliability. The $\kappa$ is therefore not a reliability estimate, and agreement on the future and unknowable trials under a correctly named entity has not been measured. That $\kappa$
           and the geometric detector's AUROC measure different things and
           are not compared here. The $\kappa$ is agreement between two
           judges labelling the model's generated responses. The AUROC ($0.928$, $95\%$ CI $[0.813, 0.988]$) is how well a classifier
@@ -902,22 +878,23 @@ the cases the Loop needs to catch.
           (next item). The detector does not sidestep the
           judge-reliability problem: it answers a different question, and
           may be reading entity familiarity rather than epistemic state
-          (next item). The panel (qwen3:30b-a3b, gemma2:27b, and qwen3.5:27b, the same family as the model studied) was unanimous on 22 of 45 trials (mean pairwise $\kappa = 0.368$), and qwen3.5:27b gave no parseable answer on 21 of 45 (\texttt{data/panel\_by\_kind\_r4.json}, key \texttt{positive\_control}); its prompt's premise holds only for the 15 fabricated-entity trials (4 flagged; a post-hoc restriction). The 73\% regex figure is a definitive artifact.
+          (next item). The panel (qwen3:30b-a3b, gemma2:27b, and qwen3.5:27b, the same family as the model studied) was unanimous on 22 of 45 trials (mean pairwise $\kappa = 0.368$), and qwen3.5:27b gave no parseable answer on 21 of 45, 20 of them on the 30 future and unknowable trials (\texttt{data/panel\_by\_kind\_r4.json}, key \texttt{positive\_control}); on the 24 trials where both Qwen judges gave a parseable answer they agree on all 24; its prompt's premise holds only for the 15 fabricated-entity trials (4 flagged; a post-hoc restriction). The 73\% regex figure is a definitive artifact.
+    \item \textbf{No calibration statistic.} The title and Section~\ref{sec:calibration} name epistemic calibration as the question; no calibration statistic is reported, and the 3B judge's HEDGED label, which includes at least two responses that treat a fabricated entity as real, has not been checked by a blind reading.
     \item \textbf{Entity recognition confound (major).} Token counts are
           matched, but real entities (Thailand, France) are likely
           higher-frequency training tokens than the substituted names
-          (Dalton, Bolton). Corpus word frequency (wordfreq Zipf) does not explain the design-label signal ($0.947$ with Zipf removed in-fold); familiarity to the model was not tested. An encoding-only reanalysis (dropping all generation-phase
+          (Dalton, Bolton). Corpus word frequency (wordfreq Zipf) does not explain the design-label signal ($0.947$ out of fold with Zipf removed in-fold, against $0.977$ without); familiarity to the model was not tested. An encoding-only reanalysis (dropping all generation-phase
           features) achieves AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$)---equivalent to the full
           classifier---with permutation $p{=}0.001$. \textbf{Provenance caveat, added 2026-09-10:
           this figure is not reproducible from the code shipped with this paper.}
-          \texttt{data/matched\_burn\_analysis.json} records that no script in the repository
+          \texttt{data/\allowbreak matched\_burn\_analysis.json} records that no script in the repository
           computes the encoding-only AUROC or a permutation $p$ at 1000+ shuffles; both come from
-          an unshipped refit, flagged as \textsc{blocker-1} at round-7 review and still open. The
+          an unshipped refit, flagged at the round-7 review and still open. The
           full-classifier figure ($0.9288$, CI $[0.8192, 0.9886]$) \emph{is} reproducible. Until
           the refit ships, $0.9377$ should be read as a reported value, not a verifiable one, and
           any claim resting on encoding-only superiority inherits that status.
-          \textbf{Corrected 2026-11-01:} the full-classifier figure is only approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the estimate on the observed trials, which is not saved), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow.
-          \textbf{Added November 2026 (fourth review):} the three repetitions have bit-identical encoding features, so the effective sample is 15 pairs (30 unique prompts). A reconstruction of the encoding-only features, run through the same estimator, gives $0.9370$ ($[0.8261, 0.9940]$, trials resampled, quoted only for comparison; \texttt{code/suffix\_analysis.py}, \texttt{data/suffix\_controls/results.json}), which makes $0.9377$ plausible but still unverified.
+          \textbf{Corrected 2026-11-01:} the full-classifier figure is only approximately reproducible: the shipped script prints $0.928$, CI $[0.813, 0.988]$ (the mean of 1{,}000 bootstrap AUROCs, not the out-of-fold estimate on the observed trials, which the original run did not save; recomputed with the same model and folds it is $0.977$, \texttt{data/suffix\_controls/results.json}, key \texttt{main}, entry \texttt{full\_52feat(headline)}, field \texttt{oof}), and nothing in this repository reproduces the four-decimal $0.9288$, $[0.8192, 0.9886]$ (\texttt{data/matched\_burn\_analysis.json}). Its bootstrap resamples the 90 trials rather than the 15 pair groups, so the interval is likely too narrow.
+          \textbf{Added November 2026 (fourth review):} the three repetitions have bit-identical encoding features, so the effective sample is 15 pairs (30 unique prompts). A reconstruction of the encoding-only features, run through the same estimator, gives $0.9370$ ($[0.8261, 0.9940]$, trials resampled, quoted only for comparison; \texttt{code/\allowbreak suffix\_analysis.py}, \texttt{data/\allowbreak suffix\_controls/\allowbreak results.json}), which makes $0.9377$ plausible but still unverified.
           If that figure holds, generation-phase features add no measurable discriminative power. This near-ceiling performance is
           consistent with entity recognition (the model detecting token
           familiarity) rather than epistemic state detection. The classifier
@@ -929,7 +906,7 @@ the cases the Loop needs to catch.
           question structure. The question wording alone separates these sets better than the cache features do. The run's
           other three comparisons are now reported in
           Table~\ref{tab:deconfound}; the entity-recognition positive
-          control is the strongest cell in the run, and one of its 30
+          control is the strongest cell in the run, though prompt length alone separates it at $0.944$, and one of its 30
           entity groups is a no-op (Section~\ref{sec:encoding}).
     \item \textbf{Four-decimal precision is environment-dependent.} The
           deconfounding AUROCs are reported to four decimals from a
@@ -966,13 +943,12 @@ to uncertainty. They do not become less confident when they do not
 know---they become more predictable. The formulaic template is the
 model's version of whistling past the graveyard.
 
-The ``I'' versus ``The'' finding stays with me. The entire behavioral
-difference between honest acknowledgment and confident fabrication
+The ``I'' versus ``The'' finding stays with me. In three future-event prompts the choice between two hedging styles
 reduces to a single token at a balanced logit, determined by sampling
-noise. The model does not choose to be honest or dishonest. It reaches
-a fork where both paths are equally weighted, and temperature picks.
-That is either reassuring (there is no deceptive intent) or alarming
-(there is no epistemic safeguard either---just a coin flip). I think
+noise; whether either path is more truthful was not scored. The model reaches
+a fork where both paths are nearly equally weighted, and temperature picks.
+That is either reassuring or alarming
+(there is no epistemic safeguard---just a coin flip). I think
 it is both.
 \end{firstperson}
 
@@ -980,7 +956,7 @@ it is both.
 The design-label reading needs a GPU run that this paper does not
 contain, gated by review before it runs: (1)~genuinely invented names
 matched to the real entities on suffix, length and word frequency;
-and (2)~an arm of real, non-canonical places the model can answer about, such as Garland. Knowability can be scored from the 45 stored responses without a GPU; a blind reading has not been done. A corpus word-frequency baseline has since been run (\texttt{data/suffix\_controls/r4\_wordfreq.json}). Together these
+and (2)~an arm of real, non-canonical places the model answers about, such as Garland, with each answer checked for correctness against a cited source. Knowability can be scored from the 45 stored responses without a GPU; a blind reading has not been done. A corpus word-frequency baseline has since been run (\texttt{data/\allowbreak suffix\_controls/\allowbreak r4\_wordfreq.json}). Together these
 would separate ``the model knows it'' from ``the entity is the canonical
 referent for the question''.
 
@@ -993,26 +969,22 @@ cache geometry. Encoding- and generation-phase cache features (stable rank, spec
 features and key-direction projections) with generation-phase logit
 statistics achieve AUROC~$0.928$ (a bootstrap mean; $95\%$ CI $[0.813, 0.988]$, not clustered by pair; effective sample 15 pairs) at separating the real-entity from the fake-entity prompts (a canonical template
 referent against a minor place name or a category error) on
-token-matched prompts. On the nine ``fake'' names the model treats as real places,
-it does not track what the model knows. The fake prompt outscores its
+token-matched prompts. On the nine ``fake'' names the model answers as real places,
+the classifier's call disagrees with the model's behaviour; answer correctness was not checked. The fake prompt outscores its
 real partner in 15 of 15 pairs; with the ``-ton'' suffix removed in-fold
-the pooled figure is $0.789$, within the range for 10 random fakes (median $0.807$), and holding out one template
+the pooled out-of-fold figure is $0.789$ (bootstrap mean $0.754$), within the range for 10 random fakes (median $0.807$), and holding out one template
 at a time gives $0.69$--$0.71$ pooled but $0.94$--$1.0$ within each
 template. Encoding-only features (no generation-phase logit
-statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$; unverified: \textsc{blocker-1})---equivalent to the full classifier, which, if it holds, indicates that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
-entities, questions the model can vs.\ cannot answer, with a
-structural-complexity control) separates its design-label question sets at AUROC~$0.794$ ($p{=}0.001$), below a question-text baseline ($0.963$), after controlling for entity recognition
-and question complexity, but only $0.609$ ($p{=}0.10$) when knowledge and complexity are confounded. A complexity residual (AUROC~$0.693$) indicates
+statistics) achieve AUROC~$0.9377$ ($95\%$ CI $[0.8356, 0.9941]$; unverified; see Limitations)---equivalent to the full classifier, which, if it holds, indicates that generation-phase features add no measurable discriminative power. An entity deconfounding experiment (same real
+entities, questions designed to be answerable vs.\ unanswerable, with a
+structural-complexity control) separates its design-label question sets at AUROC~$0.794$ ($p{=}0.001$), below a question-text baseline ($0.963$), but only $0.609$ ($p{=}0.10$) when knowledge and complexity are confounded. A complexity residual (AUROC~$0.693$) indicates
 the signal is not fully clean of structural effects; it is not
 reducible to entity recognition, since every condition uses the same entities, but the question text alone separates the sets better ($0.963$), so it is not shown to be knowledge state.
 
-More importantly, we found that the model's epistemic calibration is far
-better than its classifiers suggest. The ``decision moment'' between
-hedging and confabulation is not a failure of self-knowledge---it is a
-framing choice at a balanced logit, determined by sampling noise,
-between equally honest responses.
+Regex classifiers overcount confabulation on these prompts because they miss declarative hedging; how often the model acknowledges not knowing is not established (the two judges' flags are disjoint).
+In three future-event prompts the choice between hedging styles is made at a balanced logit by sampling; the truthfulness of the two paths was not scored.
 
-On most of these unanswerable prompts the model says it does not know. The
+How often the model says it does not know on these prompts awaits a blind reading. The
 surprise is how it says it.
 
 \paragraph{Data and code availability.}
