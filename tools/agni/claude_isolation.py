@@ -38,6 +38,13 @@ Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Six things close i
      context into every review. Checked live (CLI 2.1.301): a SessionStart hook planted in
      --settings fired without the key and did not fire with it. A caller's "disableAllHooks":
      false is overridden.
+  7. No transcript left in the account (added 2026-11-08): --no-session-persistence, added to a
+     print-mode (-p / --print) call unless the caller already passes it. Every review run on the
+     lab server had left its whole session, prompt included, under that account's
+     ~/.claude/projects (Lyra, 2026-11-08), where the account owner's own tools could later read
+     it or file it into their memory: the same leak as items 1 to 6, in the other direction. The
+     flag works only in print mode, so other calls are left alone. A caller that needs the
+     transcript (to audit the session afterwards) passes keep_transcript=True.
 
 Every call site that runs the CLI builds its command with isolated_claude_cmd(). Nothing else
 about the call changes. test_isolation.py checks the built command offline and, with --live,
@@ -53,6 +60,8 @@ AUTO_MEMORY_KEY = "autoMemoryEnabled"
 NO_HOOKS_KEY = "disableAllHooks"
 STRICT_MCP_FLAG = "--strict-mcp-config"
 NO_SKILLS_FLAG = "--disable-slash-commands"
+NO_PERSIST_FLAG = "--no-session-persistence"
+PRINT_FLAGS = ("-p", "--print")
 EMPTY_MCP_CONFIG = json.dumps({"mcpServers": {}})
 
 
@@ -85,7 +94,7 @@ def _mcp_flags(cmd):
     return flags
 
 
-def isolated_claude_cmd(base_cmd, environ=None, home=None):
+def isolated_claude_cmd(base_cmd, environ=None, home=None, keep_transcript=False):
     """Return (cmd, env) for running base_cmd = [claude_binary, *args] isolated.
 
     cmd: a new list. `--settings <json>` with claudeMdExcludes, "autoMemoryEnabled": false and
@@ -94,7 +103,9 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None):
          relying on how the CLI resolves a repeated flag. `--disable-slash-commands`,
          `--strict-mcp-config` and `--mcp-config={"mcpServers":{}}` follow; a caller's own
          --mcp-config is kept and no empty one is added, and a flag the caller already passes
-         (--strict-mcp-config, --disable-slash-commands) is not repeated.
+         (--strict-mcp-config, --disable-slash-commands) is not repeated. In print mode (-p or
+         --print in base_cmd), `--no-session-persistence` follows too, unless the caller passes it
+         or keep_transcript=True.
     env: a copy of `environ` (default os.environ) plus LYRA_NO_CAPTURE=1 and
          CLAUDE_CODE_DISABLE_AUTO_MEMORY=1. Pass it as env=.
 
@@ -115,6 +126,8 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None):
                                              NO_HOOKS_KEY: True})]
     if NO_SKILLS_FLAG not in cmd:
         insert.append(NO_SKILLS_FLAG)
+    if not keep_transcript and NO_PERSIST_FLAG not in cmd and any(a in PRINT_FLAGS for a in cmd):
+        insert.append(NO_PERSIST_FLAG)
     cmd[1:1] = insert + _mcp_flags(cmd)
     env = dict(os.environ if environ is None else environ)
     env[NO_CAPTURE_ENV] = "1"

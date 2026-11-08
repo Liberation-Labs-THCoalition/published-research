@@ -11,6 +11,8 @@ verdict contract are documented at the top of `agni_phases.py`.
 Until 2026-11-07 a reviewer that saw part of its input still returned a confident verdict, and nothing
 recorded the cut.
 
+**1.1.2 (2026-11-08):** `claude_isolation.py` adds `--no-session-persistence` to a print-mode call, so a review leaves no transcript in the account's `~/.claude/projects` for the owner's tools to read or file into memory (Lyra found six there on the lab server). A caller that needs the transcript passes `keep_transcript=True`. Checked live (CLI 2.1.309): the default call left no transcript; the same call with `keep_transcript=True` left one.
+
 **1.1.1 (2026-11-07):** `claude_isolation.py` adds `"disableAllHooks": true` to the reviewer's settings, so no hook of the account (anyone's, not only Lyra's) runs in a review. A SessionStart hook planted in `--settings` fired without it and did not fire with it (CLI 2.1.301).
 
 **What changed** (`agni_phases.py` 1.1.0, `agni_design_review.py` 1.2.0):
