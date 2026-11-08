@@ -11,6 +11,17 @@ result JSON, review records, preregs, hash-pinned files) do not trip it, and edi
 unrelated line of a file never does. Records are also allow-listed by path pattern below, because
 a record must be committed byte-for-byte as it was produced.
 
+BINARY FILES, PDFs above all. A unified diff shows a binary file as one "Binary files ...
+differ" line, so the line scan never sees inside it: on 2026-11-07 a checker staged a PDF with
+a home path appended and this check printed "ok". In --staged and --base mode every added or
+changed binary file (and every .pdf, whatever git calls it) is therefore read whole from git
+and scanned: its raw bytes, and for a PDF each Flate stream decompressed (pdfTeX compresses
+metadata, links and PTEX.FileName entries into streams). A path the file's previous version
+already held is not reported, so the check still stops only NEW ones. Not covered: text
+typeset from the .tex (the line scan sees that in the source), strings stored as hex or
+UTF-16, and a path glued to a preceding letter or digit (the URL guard below). A saved diff (--diff) carries no file contents, so that mode cannot scan binaries and
+says so.
+
 USAGE
     python tools/check_home_paths.py --staged            # pre-commit: the staged diff
     python tools/check_home_paths.py --base origin/master  # CI: everything this branch adds
@@ -27,6 +38,7 @@ import fnmatch
 import re
 import subprocess
 import sys
+import zlib
 
 # Any user's home, not only the three found on 2026-11-03.
 #
@@ -142,6 +154,80 @@ def git_diff(args):
     return out.stdout.decode("utf-8", "replace")
 
 
+_STREAM = re.compile(rb"(?<!end)stream\r?\n")
+
+
+def binary_layers(data, is_pdf):
+    """Yield (where, text): the raw bytes, then for a PDF each Flate stream decompressed."""
+    yield "raw bytes", data.decode("latin-1")
+    if not is_pdf:
+        return
+    for m in _STREAM.finditer(data):
+        end = data.find(b"endstream", m.end())
+        if end < 0:
+            continue
+        try:
+            body = zlib.decompressobj().decompress(data[m.end():end])
+        except zlib.error:
+            continue                         # not Flate: an image, say
+        if body:
+            yield "stream at byte %d" % m.end(), body.decode("latin-1")
+
+
+def blob_hits(data, is_pdf):
+    """Return {(kind, matched text): where} for every home path in a binary file."""
+    hits = {}
+    for where, text in binary_layers(data, is_pdf):
+        for kind, rx in HOME_PATTERNS:
+            for m in rx.finditer(text):
+                hits.setdefault((kind, m.group(0)), where)
+    return hits
+
+
+def check_binary(path, new, old=None):
+    """Return (violations, is_record) for one binary file: home paths in NEW that OLD lacked."""
+    if is_record(path):
+        return [], True
+    is_pdf = path.lower().endswith(".pdf")
+    before = {hit for _, hit in blob_hits(old, is_pdf)} if old else set()
+    bad = [(path, 0, kind, hit, "in the %s of a binary file" % where)
+           for (kind, hit), where in sorted(blob_hits(new, is_pdf).items()) if hit not in before]
+    return bad, False
+
+
+def git_bytes(args):
+    out = subprocess.run(["git"] + args, capture_output=True)
+    return out.returncode, out.stdout, out.stderr.decode("utf-8", "replace")
+
+
+def git_binaries(diff_args, new_rev, old_rev):
+    """List (path, new_bytes, old_bytes_or_None) for each added or changed binary file or PDF.
+    new_rev "" means the index (":path"); old_rev None means there is no previous version."""
+    rc, out, err = git_bytes(["-c", "core.quotepath=off", "diff", "--numstat", "-z", "--no-renames",
+                              "--diff-filter=AM"] + diff_args)
+    if rc != 0:
+        sys.stderr.write(err)
+        sys.exit(2)
+    found = []
+    for rec in out.split(b"\0"):
+        parts = rec.split(b"\t", 2)
+        if len(parts) != 3:
+            continue
+        path = parts[2].decode("utf-8", "replace")
+        if not (parts[0] == b"-" and parts[1] == b"-") and not path.lower().endswith(".pdf"):
+            continue                         # a text file: the line scan covers it
+        rc, new, err = git_bytes(["cat-file", "blob", "%s:%s" % (new_rev, path)])
+        if rc != 0:
+            sys.stderr.write(err)
+            sys.exit(2)
+        old = None
+        if old_rev:
+            rc, prev, _ = git_bytes(["cat-file", "blob", "%s:%s" % (old_rev, path)])
+            old = prev if rc == 0 else None
+        found.append((path, new, old))
+    return found
+
+
 def self_test():
     """Planted cases. Paths are assembled at run time so this file never trips itself."""
     mac = "/" + "Users/alice/models/hf_cache"
@@ -198,6 +284,40 @@ def self_test():
         ok &= failed == should_fail
         print("  %s %-42s expect %-6s got %s" % (status, name, "FAIL" if should_fail else "pass",
                                                 "FAIL" if bad else "pass"))
+
+    # Binary files (added 2026-11-07, after a planted PDF passed). Built in memory.
+    def pdf(*streams):
+        out = b"%PDF-1.5\n%\xd0\xd4\xc5\xd8\n"
+        for i, s in enumerate(streams, 1):
+            z = zlib.compress(s)
+            out += (b"%d 0 obj\n<< /Length %d /Filter /FlateDecode >>\nstream\n" % (i, len(z))
+                    + z + b"\nendstream\nendobj\n")
+        return out + b"%%EOF\n"
+    mac_b, win_b = mac.encode(), win.encode()
+    fig = b"<< /PTEX.FileName (" + mac_b + b"/fig.pdf) >>"
+    clean = pdf(b"BT (hello) Tj ET", b"<< /Producer (pdfTeX-1.40) >>")
+    in_stream = pdf(b"BT (hello) Tj ET", fig)
+    bin_cases = [
+        # The plant is only meaningful if the path is NOT readable in the raw bytes.
+        ("PDF: home path only inside a Flate stream", "p/paper.pdf", in_stream, None, True),
+        ("PDF: home path appended as raw bytes", "p/paper.pdf", clean + b"% " + lin.encode() + b"\n", None, True),
+        ("PDF: clean", "p/paper.pdf", clean, None, False),
+        ("PDF: path the old version already held", "p/paper.pdf", pdf(b"x", fig), in_stream, False),
+        ("PDF: a new path beside an old one", "p/paper.pdf", pdf(fig, b"(" + win_b + b")"), in_stream, True),
+        # A tEXt chunk is keyword, NUL, text. (A path glued to a letter is not matched, as in text.)
+        ("PNG: home path in a tEXt chunk", "fig/a.png", b"\x89PNG\r\n\x1a\n\0\0\0\x20tEXtComment\0" + mac_b, None, True),
+        ("PDF in a review record", "p/review/r.pdf", in_stream, None, False),
+    ]
+    plant_ok = mac_b not in in_stream
+    print("  %s %-42s %s" % ("ok " if plant_ok else "BAD", "stream plant hidden from the raw bytes",
+                             "yes" if plant_ok else "NO: the stream case tests nothing"))
+    ok &= plant_ok
+    for name, path, new, old, should_fail in bin_cases:
+        bad, _ = check_binary(path, new, old)
+        failed = bool(bad)
+        ok &= failed == should_fail
+        print("  %s %-42s expect %-6s got %s" % ("ok " if failed == should_fail else "BAD", name,
+                                                "FAIL" if should_fail else "pass", "FAIL" if bad else "pass"))
     print("self-test:", "PASS" if ok else "BROKEN")
     return 0 if ok else 1
 
@@ -212,22 +332,41 @@ def main():
     a = ap.parse_args()
     if a.self_test:
         return self_test()
+    binaries = None
     if a.staged:
         text = git_diff(["--cached"])
+        rc, _, _ = git_bytes(["rev-parse", "--verify", "-q", "HEAD"])
+        binaries = git_binaries(["--cached"], "", "HEAD" if rc == 0 else None)
     elif a.base:
         text = git_diff([a.base + "...HEAD"])
+        rc, mb, err = git_bytes(["merge-base", a.base, "HEAD"])
+        if rc != 0:
+            sys.stderr.write(err)
+            return 2
+        binaries = git_binaries([a.base + "...HEAD"], "HEAD", mb.decode().strip())
     else:
         fh = sys.stdin if a.diff == "-" else open(a.diff, encoding="utf-8", errors="replace")
         text = fh.read()
     bad, checked, skipped = check(text)
+    nbin = nbin_rec = 0
+    for path, new, old in binaries or []:
+        b, rec = check_binary(path, new, old)
+        bad += b
+        nbin_rec += rec
+        nbin += not rec
+    if binaries is None:
+        bin_note = "binary files NOT scanned: a saved diff carries no file contents"
+    else:
+        bin_note = "%d binary file(s) scanned whole, %d allow-listed" % (nbin, nbin_rec)
     if bad:
-        print("home-path check: %d added line(s) carry a home directory path:" % len(bad))
+        print("home-path check: %d home directory path(s) added:" % len(bad))
         for path, lineno, kind, hit, line in bad:
-            print("  %s:%d: %s %r\n      %s" % (path, lineno, kind, hit, line))
+            print("  %s%s: %s %r\n      %s" % (path, ":%d" % lineno if lineno else "", kind, hit, line))
         print('Use "<home>" or "<lab machine>" in prose; an env var with a default, or a repo-relative')
         print("path, in scripts. Records are allow-listed in RECORD_PATTERNS at the top of this file.")
         return 1
-    print("home-path check: ok (%d added lines checked, %d in allow-listed records skipped)" % (checked, skipped))
+    print("home-path check: ok (%d added lines checked, %d in allow-listed records skipped; %s)"
+          % (checked, skipped, bin_note))
     return 0
 
 
