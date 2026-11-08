@@ -225,14 +225,23 @@ class InferCliIsIsolated(unittest.TestCase):
     def test_everything_else_unchanged(self):
         cmd, kw = self.call(model="haiku", add_dirs=["dir_a", "dir_b"])
         self.assertEqual(strip_isolation(cmd),
-                         [FAKE_BIN, "-p", "--model", "haiku", "--add-dir", "dir_a", "--add-dir", "dir_b"])
+                         [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob", "--model", "haiku", "--add-dir", "dir_a",
+                          "--add-dir", "dir_b"])
         self.assertIn("THE SYSTEM", kw["input"])
         self.assertTrue(kw["input"].endswith("THE PROMPT"))
         for k, v in (("capture_output", True), ("text", True), ("encoding", "utf-8"),
                      ("errors", "replace"), ("timeout", 7)):
             self.assertEqual(kw.get(k), v, k)
         cmd2, _ = self.call(model="qwen3.8:27b-mxfp8")   # ollama tags are never forwarded
-        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p"])
+        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob"])
+
+    def test_the_reviewer_gets_read_only_tools(self):
+        # 1.1.3: Read, Grep and Glob only, as one token (no Bash, no Edit, no Write, no web)
+        cmd, _ = self.call(model="haiku")
+        self.assertEqual(cmd.count("--tools"), 1, cmd)
+        tools = cmd[cmd.index("--tools") + 1].split(",")
+        self.assertEqual(sorted(tools), ["Glob", "Grep", "Read"])
+        self.assertFalse([a for a in cmd if a.startswith("--allowedTools") or a.startswith("--tools=")], cmd)
 
 
 class Helper(unittest.TestCase):
