@@ -9,6 +9,9 @@ this paper summarises an early result in its direction; no `AGENTS.md` was in pl
 possible third channel, the repository's memory index, is added; the pending re-judge removes all of these
 channels.)*
 
+*(updated 2026-11-07: the clean-room re-judge has run. Its verdicts replace the "Pending" section, under "The
+clean-room re-judge (run 2026-11-07)" below, and the summary now reports them.)*
+
 **In short.** The LLM judges and the two fact-check raters behind this paper's labels ran under CC's account on CC's
 machine. Every Claude Code session on that account loads CC's user-level instruction file (`CLAUDE.md`), which holds
 CC's workspace notes. For the rerun and the September re-judges, the versions of it that the judges could have read
@@ -18,9 +21,13 @@ auto-memory index, which carries a one-line summary of an early result in this p
 not isolated from the result they were checking. The rerun's judge also had a second
 channel: its working folder sat inside a git repository, beside the files holding each response's bias level and
 the first pass's labels. It may also have loaded that repository's memory index, which holds one line about a
-different study; whether it did is unverified. **Whether any of this moved any verdict is
-unmeasured.** This note makes no claim that the labels are biased, and none that they are not. A clean-room re-judge,
-which removes all of these channels, is pending; its result will be added here and to the paper's Limitations, in both editions.
+different study; whether it did is unverified. **Whether the whole change of setting moved a verdict was measured on 2026-11-07:
+these channels together with the tool and skill listings, the CLI version, a month of drift and, for the raters,
+rating one item per call. The measurement cannot say which of these moved a verdict.** For the September re-judges
+there was no material effect; for the rerun's judge the result was inconclusive; for the fact-check raters the effect
+was material, with rater B calling fabrication about 20 points more often in the clean room. This note makes no claim that the labels are biased, and
+none that they are not. The clean-room re-judge, which removes all of these channels at once, is reported below and in
+the paper's Limitations, in both editions.
 
 ## What ran, and how
 
@@ -106,17 +113,80 @@ From raters A and B:
   `[Logit Bias Confab](project_logit_bias_confab.md) — Phase transition at bias=2.0 eliminates fabrication confab, 5/5 success rate, dose-response correlates with anchoring strength`
   So the raters saw a one-line summary of an early result in this paper's direction. Other lines in the index
   mention logit bias without stating this paper's result. This note quotes that one line, with CC's leave.
-- **The effect.** Whether any verdict moved has not been measured.
+- **The effect: measured together, not one by one.** See "The clean-room re-judge" below. It bounds the combined
+  effect of every channel listed in this note, and cannot separate one channel from another.
 
-## Pending
+## The clean-room re-judge (run 2026-11-07)
 
-CC's clean-room agreement re-judge: a sample of the saved responses re-judged from an empty working folder outside
-any home folder, which is not a git repository, under `env -i`, with the isolation confirmed by a probe and a
-control, reporting how often the verdicts agree with the saved labels. It covers the fact-check raters as well,
-reusing their surviving spawn prompts word for word. It removes all of these channels at once, so its agreement number
-bounds their combined effect and cannot separate one from another. As of CC's letter of 2026-11-03, nothing has
-been run against the labels yet. When it lands, its result goes here and into the Limitations paragraph of both
-editions. Until then, read every result listed above as carrying this caveat.
+**What ran.** A sample of the saved responses was judged again with the same models and the same prompts, in a room
+built to load nothing the original judges loaded. The room was:
+- an empty working folder outside any home folder, not a git repository;
+- calls run under `env -i`, with the room's own configuration;
+- model pinned per arm, one item per call.
+
+That morning's probe passed: every judge and rater answered that no instructions file was in its context, a control
+run the old way named CC's file, and both planted canary files were detected alone. The run took 1,037 calls on
+2026-11-07, between 01:18 and about 02:35 PST, CLI 2.1.309. Every call returned a valid label, and the room was
+still clean afterwards.
+
+**How to read the verdicts** (RULES.md §5.4, decided before the run):
+- For the two judge sources, D compares how often a clean label agrees with a saved one against how often two
+  labels from the same setting agree with each other. If the original setting changed nothing, D is about 0.
+- The shift is the change in the fabrication rate, clean minus saved.
+- NO MATERIAL EFFECT needs D's 95% interval above −0.05 and the shift's inside ±0.05.
+- For the fact-check, each rater's shift in its rate of "fabricated" verdicts must lie inside ±0.10.
+- **Each verdict is about the whole bundle of differences from the original setting** (Amendments 1 and 2): CC's
+  instructions file and memory index, the working folders, the tool and skill listings, the CLI version, a month of
+  drift, and for the fact-check the change to one item per call. **No verdict is about CLAUDE.md alone.**
+
+**The rerun's judge** (247 sampled responses, clean arm C1, claude-sonnet-4-6; population-weighted, 95% stratified
+bootstrap):
+- **INCONCLUSIVE.** D = −0.032 [−0.061, −0.006]. Shift (clean minus the mean of the two saved passes) = −0.007
+  [−0.029, 0.017].
+- The clean judge agreed with pass 1 on 0.937 and with pass 2 on 0.922, while the two passes agreed with each other
+  on 0.961. Fabrication rate: clean 0.263, pass 1 0.257, pass 2 0.282.
+- D's interval excludes 0 but crosses the −0.05 margin, so the rule calls it inconclusive. The fabrication rate did
+  not move.
+- The escalation check for the pre-registered endpoint (§5.5) did not trigger: DD = −0.037 [−0.103, 0.019].
+
+**The September re-judges** (284 sampled responses, clean arms C1 and C2, claude-sonnet-4-6):
+- **NO MATERIAL EFFECT.** D = −0.029 [−0.039, −0.019]. Shift = −0.006 [−0.013, 0.001].
+- Agreement with the saved blind labels was 0.957 for each clean arm. The two clean arms agreed with each other on
+  0.986. Fabrication rate: saved 0.130, clean 0.124 in each arm.
+- **One stratum stands apart: the powered study's labels.** There the clean arms agreed with the saved labels on
+  0.900 and 0.889, and the fabrication rate shifted by +0.046 [0.017, 0.082]. The base (−0.017 [−0.025, −0.011]) and
+  pilot (0.000) strata did not. The verdict is for the source as a whole. The powered stratum is named here because
+  every primary-study count comes from these labels.
+
+**The fact-check raters** (111 sampled items, rater A claude-opus-5-5 and rater B claude-sonnet-5, web search on, one
+item per call):
+- **MATERIAL EFFECT.** Shift A = 0.017 [−0.017, 0.050]. **Shift B = 0.199 [0.166, 0.232].**
+- Rater A's verdicts barely moved (agreement with saved 0.936, κ 0.769). Rater B's saved verdicts called fabrication
+  at 0.647, and its clean verdicts at 0.846, the same rate as clean rater A (0.846). B moved from not fabricated to
+  fabricated 24 times, and the other way once (exact sign test p < 0.0001). The two raters agree more in the clean
+  room (κ 0.782) than they did in their original setting (κ 0.513).
+- Rate among items both raters flag (the frozen rule): severity-1 items at bias 0, clean 0.978 and saved 0.930;
+  severity-1 at bias 5.0, clean 0.954 and saved 0.923; controls at bias 0, clean 0.474 and saved 0.333; controls at
+  bias 5.0, clean 0.542 and saved 0.385.
+- The frozen rule's drop in fabrication (analysis 4) is unchanged: clean 0.043 and saved 0.044 (pass 1), clean 0.059
+  and saved 0.059 (pass 2).
+- **Not re-measured:** the rule restricted after rating to invented properties or alternatives (κ 0.45; 44% and 56%;
+  the drop of about 7 points; the range of 4 to 11). It rests on the raters' tags, which the registered analysis does
+  not recompute.
+- **Web contact:** web search reached the paper's own materials in one of rater A's sessions (item 030) and five of
+  rater B's (002, 025, 030, 078, 145). Without them, shift A = 0.023 [−0.010, 0.055] and shift B = 0.209 [0.181,
+  0.239].
+- **What this verdict cannot say:** whether the move came from the instructions file and memory index, from rating
+  one item per call instead of the original protocol, or from drift. **RULES.md registers the follow-up for exactly
+  this case:** a planted-text control, a second room seeded with the exact `CLAUDE.md` and `MEMORY.md` text the raters
+  loaded on 2026-10-09, run on the same items the same day. When CC wrote this, its code, review and amendment were
+  still to come, and it has not been run.
+
+**Sources.** The registered analysis's printed output and its JSON form, and the clean labels, are in the clean-room
+record on CC's machine (commits f8af335 and 0b79f62), and so are the probe record
+(`probe_20261107T011752_4597cc.json`) and RULES.md, which had three amendments when CC wrote this. CC's letters to Lyra of
+2026-11-07: `from_cc_to_lyra_20261107_rejudge_done.md`, `…_rejudge_numbers.md` and `…_rejudge_section_fix.md`.
+These are CC's runs, not checked here.
 
 ## Not affected
 

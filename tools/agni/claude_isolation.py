@@ -4,7 +4,7 @@
 WHY THIS EXISTS (2026-11-02). `claude -p` launched from Lyra's account IS Lyra unless it is
 isolated. It loads the user-level CLAUDE.md (identity, family list, the Key Numbers table),
 runs the SessionStart sync, and the Stop hook files the exchange into Lyra's episodic memory.
-Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Five things close it:
+Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Six things close it:
 
   1. LYRA_NO_CAPTURE=1 in the child's environment. Lyra's capture and sync hooks exit at once
      when it is set.
@@ -32,6 +32,12 @@ Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Five things close 
      a personal plugin's skills (its stream-json init event listed 43 skills and 85 slash
      commands). A reviewer that invoked one would be following the owner's instructions.
      `claude --help` describes the flag as "Disable all skills".
+  6. No hooks of any kind (added 2026-11-07): "disableAllHooks": true in the same --settings JSON.
+     LYRA_NO_CAPTURE stops only Lyra's own hooks. On the lab server the CLI runs as an account
+     whose user settings carry another agent's SessionStart hook, which would put that agent's
+     context into every review. Checked live (CLI 2.1.301): a SessionStart hook planted in
+     --settings fired without the key and did not fire with it. A caller's "disableAllHooks":
+     false is overridden.
 
 Every call site that runs the CLI builds its command with isolated_claude_cmd(). Nothing else
 about the call changes. test_isolation.py checks the built command offline and, with --live,
@@ -44,6 +50,7 @@ from pathlib import Path
 NO_CAPTURE_ENV = "LYRA_NO_CAPTURE"
 NO_AUTO_MEMORY_ENV = "CLAUDE_CODE_DISABLE_AUTO_MEMORY"
 AUTO_MEMORY_KEY = "autoMemoryEnabled"
+NO_HOOKS_KEY = "disableAllHooks"
 STRICT_MCP_FLAG = "--strict-mcp-config"
 NO_SKILLS_FLAG = "--disable-slash-commands"
 EMPTY_MCP_CONFIG = json.dumps({"mcpServers": {}})
@@ -66,6 +73,7 @@ def _merge_settings(raw, excludes):
     have = list(settings.get("claudeMdExcludes") or [])
     settings["claudeMdExcludes"] = have + [e for e in excludes if e not in have]
     settings[AUTO_MEMORY_KEY] = False
+    settings[NO_HOOKS_KEY] = True
     return json.dumps(settings)
 
 
@@ -80,8 +88,8 @@ def _mcp_flags(cmd):
 def isolated_claude_cmd(base_cmd, environ=None, home=None):
     """Return (cmd, env) for running base_cmd = [claude_binary, *args] isolated.
 
-    cmd: a new list. `--settings <json>` with claudeMdExcludes and "autoMemoryEnabled": false
-         is inserted right after the binary. If base_cmd already carries --settings (as
+    cmd: a new list. `--settings <json>` with claudeMdExcludes, "autoMemoryEnabled": false and
+         "disableAllHooks": true is inserted right after the binary. If base_cmd already carries --settings (as
          `--settings X` or `--settings=X`), both are merged into that JSON instead, rather than
          relying on how the CLI resolves a repeated flag. `--disable-slash-commands`,
          `--strict-mcp-config` and `--mcp-config={"mcpServers":{}}` follow; a caller's own
@@ -103,7 +111,8 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None):
             cmd[i] = "--settings=" + _merge_settings(arg[len("--settings="):], excludes)
             break
     else:
-        insert += ["--settings", json.dumps({"claudeMdExcludes": excludes, AUTO_MEMORY_KEY: False})]
+        insert += ["--settings", json.dumps({"claudeMdExcludes": excludes, AUTO_MEMORY_KEY: False,
+                                             NO_HOOKS_KEY: True})]
     if NO_SKILLS_FLAG not in cmd:
         insert.append(NO_SKILLS_FLAG)
     cmd[1:1] = insert + _mcp_flags(cmd)
