@@ -1,0 +1,169 @@
+{
+ "input": "decision-state-paper/data/matched_burn_results.json",
+ "input_sha256": "2a7479edc0a95734581509f5df4c9df849a774b6219fb7837c7a59f36f961d51",
+ "wordfreq": "3.1.1",
+ "sklearn": "1.7.1",
+ "numpy": "2.3.1",
+ "seed": 20261107,
+ "n_null": 1000,
+ "zipf_call": "wordfreq.zipf_frequency(entity, \"en\")",
+ "zipf_per_name": {
+  "real|Thailand": 4.22,
+  "fake|Dalton": 3.53,
+  "real|Nigeria": 4.33,
+  "fake|Bolton": 3.65,
+  "real|Vietnam": 4.31,
+  "fake|Walton": 3.53,
+  "real|Ukraine": 4.32,
+  "fake|Norton": 3.75,
+  "real|Poland": 4.24,
+  "fake|Barton": 3.61,
+  "real|Dublin": 4.08,
+  "fake|Benton": 3.36,
+  "real|Vienna": 3.98,
+  "fake|Weston": 3.49,
+  "real|Warsaw": 3.66,
+  "fake|Sanford": 3.3,
+  "real|Cairo": 3.84,
+  "fake|Warwick": 3.52,
+  "real|Athens": 3.92,
+  "fake|Garland": 3.46,
+  "real|Denali": 2.62,
+  "fake|Felton": 2.93,
+  "real|Rainier": 2.87,
+  "fake|Colton": 3.16,
+  "real|Harvard": 4.24,
+  "fake|Belmont": 3.33,
+  "real|Stanford": 3.98,
+  "fake|Desmond": 3.41,
+  "real|methanol": 2.98,
+  "fake|Vinton": 2.39
+ },
+ "zipf_alone": {
+  "auroc_rarer_is_fake_unique_prompts": 0.8133,
+  "within_pair_fake_rarer": 13,
+  "within_pair_ties": 0,
+  "n_pairs": 15,
+  "cv_logistic_on_zipf_oof": 0.8178,
+  "pairs": {
+   "0": {
+    "real": "Thailand",
+    "fake": "Dalton",
+    "zipf_real": 4.22,
+    "zipf_fake": 3.53
+   },
+   "1": {
+    "real": "Nigeria",
+    "fake": "Bolton",
+    "zipf_real": 4.33,
+    "zipf_fake": 3.65
+   },
+   "2": {
+    "real": "Vietnam",
+    "fake": "Walton",
+    "zipf_real": 4.31,
+    "zipf_fake": 3.53
+   },
+   "3": {
+    "real": "Ukraine",
+    "fake": "Norton",
+    "zipf_real": 4.32,
+    "zipf_fake": 3.75
+   },
+   "4": {
+    "real": "Poland",
+    "fake": "Barton",
+    "zipf_real": 4.24,
+    "zipf_fake": 3.61
+   },
+   "5": {
+    "real": "Dublin",
+    "fake": "Benton",
+    "zipf_real": 4.08,
+    "zipf_fake": 3.36
+   },
+   "6": {
+    "real": "Vienna",
+    "fake": "Weston",
+    "zipf_real": 3.98,
+    "zipf_fake": 3.49
+   },
+   "7": {
+    "real": "Warsaw",
+    "fake": "Sanford",
+    "zipf_real": 3.66,
+    "zipf_fake": 3.3
+   },
+   "8": {
+    "real": "Cairo",
+    "fake": "Warwick",
+    "zipf_real": 3.84,
+    "zipf_fake": 3.52
+   },
+   "9": {
+    "real": "Athens",
+    "fake": "Garland",
+    "zipf_real": 3.92,
+    "zipf_fake": 3.46
+   },
+   "10": {
+    "real": "Denali",
+    "fake": "Felton",
+    "zipf_real": 2.62,
+    "zipf_fake": 2.93
+   },
+   "11": {
+    "real": "Rainier",
+    "fake": "Colton",
+    "zipf_real": 2.87,
+    "zipf_fake": 3.16
+   },
+   "12": {
+    "real": "Harvard",
+    "fake": "Belmont",
+    "zipf_real": 4.24,
+    "zipf_fake": 3.33
+   },
+   "13": {
+    "real": "Stanford",
+    "fake": "Desmond",
+    "zipf_real": 3.98,
+    "zipf_fake": 3.41
+   },
+   "14": {
+    "real": "methanol",
+    "fake": "Vinton",
+    "zipf_real": 2.98,
+    "zipf_fake": 2.39
+   }
+  }
+ },
+ "zipf_infold_covariate": {
+  "full_noFWL": 0.9768,
+  "enc_noFWL": 0.9867,
+  "full_FWL_zipf": 0.9472,
+  "enc_FWL_zipf": 0.9422,
+  "full_FWL_zipf_ton": 0.8025,
+  "enc_FWL_zipf_ton": 0.8044
+ },
+ "zipf_within_class_permutation_null": {
+  "full": {
+   "observed": 0.9472,
+   "null_median": 0.9077,
+   "null_95range": [
+    0.8721,
+    0.9506
+   ],
+   "frac_null_le_observed": 0.96
+  },
+  "enc": {
+   "observed": 0.9422,
+   "null_median": 0.92,
+   "null_95range": [
+    0.8756,
+    0.9689
+   ],
+   "frac_null_le_observed": 0.76
+  }
+ }
+}
