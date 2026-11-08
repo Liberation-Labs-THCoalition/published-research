@@ -59,7 +59,11 @@ sys.path.insert(0, str(HERE))
 
 from claude_isolation import (AUTO_MEMORY_KEY, NO_AUTO_MEMORY_ENV, NO_CAPTURE_ENV,  # noqa: E402
                               NO_HOOKS_KEY, NO_SKILLS_FLAG, claude_md_excludes, isolated_claude_cmd)
-from claude_isolation import NO_PERSIST_FLAG  # noqa: E402
+from claude_isolation import NO_PERSIST_FLAG, SESSION_VAR_PREFIXES, SESSION_VARS  # noqa: E402
+
+
+def is_session_var(k):
+    return k in SESSION_VARS or k.startswith(SESSION_VAR_PREFIXES)
 
 HOME = Path.home().as_posix().rstrip("/")
 WANT_EXCLUDES = {HOME + "/.claude/CLAUDE.md", HOME + "/.claude/**"}
@@ -184,8 +188,9 @@ class InferCliIsIsolated(unittest.TestCase):
         self.assertIsNotNone(env, "infer_cli passed no env= (child inherits capture hooks)")
         self.assertEqual(env.get(NO_CAPTURE_ENV), "1")
         rest = {k: v for k, v in env.items() if k not in ADDED_ENV}
-        base = {k: v for k, v in os.environ.items() if k not in ADDED_ENV}
-        self.assertEqual(rest, base, "env must be os.environ plus %s only" % " and ".join(ADDED_ENV))
+        base = {k: v for k, v in os.environ.items() if k not in ADDED_ENV and not is_session_var(k)}
+        self.assertEqual(rest, base, "env must be os.environ, less the calling session's own variables, plus %s only"
+                         % " and ".join(ADDED_ENV))
 
     def test_auto_memory_off(self):
         cmd, kw = self.call(model="haiku")
@@ -284,6 +289,23 @@ class Helper(unittest.TestCase):
         _, env = isolated_claude_cmd(["claude", "-p"], environ=environ)
         self.assertEqual(env.get(NO_AUTO_MEMORY_ENV), "1")
         self.assertEqual(environ, {"A": "1"})
+
+    def test_the_calling_sessions_variables_are_dropped(self):
+        # 2026-11-08: run from inside a Claude Code session, the child got its messaging socket and token
+        session = {"CLAUDECODE": "1", "CLAUDE_PID": "4242", "CLAUDE_EFFORT": "high", "CLAUDE_CODE_SESSION_ID": "s",
+                   "CLAUDE_CODE_CHILD_SESSION": "1", "CLAUDE_CODE_SESSION_ATTENDED": "1",
+                   "CLAUDE_CODE_ENTRYPOINT": "cli", "CLAUDE_CODE_EXECPATH": "/x/claude",
+                   "CLAUDE_CODE_MESSAGING_SOCKET": "/tmp/sock", "CLAUDE_CODE_MESSAGING_TOKEN": "TOKEN-CANARY",
+                   "CLAUDE_CODE_BRIDGE_SESSION_ID": "b"}
+        kept = {"PATH": "/usr/bin", "HOME": "/h", "ANTHROPIC_MODEL": "m", "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION": "9",
+                "CLAUDE_CODE_USE_BEDROCK": "0", "CLAUDECODE_NOT_A_SESSION_VAR": "keep"}
+        environ = {**session, **kept}
+        _, env = isolated_claude_cmd(["claude", "-p"], environ=environ)
+        self.assertFalse(set(session) & set(env), sorted(set(session) & set(env)))
+        self.assertNotIn("TOKEN-CANARY", json.dumps(env))
+        for k, v in kept.items():
+            self.assertEqual(env.get(k), v, k)
+        self.assertEqual(environ, {**session, **kept})          # the caller's mapping is not modified
 
     def test_skills_flag_present_once(self):
         cmd, _ = isolated_claude_cmd(["claude", "-p", "--model", "haiku"])

@@ -45,6 +45,13 @@ Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Six things close i
      it or file it into their memory: the same leak as items 1 to 6, in the other direction. The
      flag works only in print mode, so other calls are left alone. A caller that needs the
      transcript (to audit the session afterwards) passes keep_transcript=True.
+  8. None of the calling session's own variables (added 2026-11-08). Run from inside a Claude Code
+     session, the child inherited that session's environment: CLAUDECODE, its session and bridge ids,
+     CLAUDE_CODE_SESSION_ATTENDED, and CLAUDE_CODE_MESSAGING_SOCKET with CLAUDE_CODE_MESSAGING_TOKEN, a
+     way back into the calling session. The CLI approves read-only Bash on its own in print mode (seen on
+     CLI 2.1.309: find, sha256sum and grep ran unasked), so a reviewer could print the token into its
+     transcript with `env`. SESSION_VARS and the SESSION_VAR_PREFIXES are dropped from the child's
+     environment; configuration (PATH, HOME, ANTHROPIC_*, other CLAUDE_CODE_* settings) is kept.
 
 Every call site that runs the CLI builds its command with isolated_claude_cmd(). Nothing else
 about the call changes. test_isolation.py checks the built command offline and, with --live,
@@ -62,6 +69,9 @@ STRICT_MCP_FLAG = "--strict-mcp-config"
 NO_SKILLS_FLAG = "--disable-slash-commands"
 NO_PERSIST_FLAG = "--no-session-persistence"
 PRINT_FLAGS = ("-p", "--print")
+SESSION_VARS = ("CLAUDECODE", "CLAUDE_PID", "CLAUDE_EFFORT", "CLAUDE_CODE_SESSION_ID", "CLAUDE_CODE_CHILD_SESSION",
+                "CLAUDE_CODE_SESSION_ATTENDED", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_EXECPATH")
+SESSION_VAR_PREFIXES = ("CLAUDE_CODE_MESSAGING_", "CLAUDE_CODE_BRIDGE_")
 EMPTY_MCP_CONFIG = json.dumps({"mcpServers": {}})
 
 
@@ -106,7 +116,8 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None, keep_transcript=False
          (--strict-mcp-config, --disable-slash-commands) is not repeated. In print mode (-p or
          --print in base_cmd), `--no-session-persistence` follows too, unless the caller passes it
          or keep_transcript=True.
-    env: a copy of `environ` (default os.environ) plus LYRA_NO_CAPTURE=1 and
+    env: a copy of `environ` (default os.environ) without the calling session's own variables
+         (SESSION_VARS, SESSION_VAR_PREFIXES), plus LYRA_NO_CAPTURE=1 and
          CLAUDE_CODE_DISABLE_AUTO_MEMORY=1. Pass it as env=.
 
     base_cmd and environ are not modified.
@@ -129,7 +140,8 @@ def isolated_claude_cmd(base_cmd, environ=None, home=None, keep_transcript=False
     if not keep_transcript and NO_PERSIST_FLAG not in cmd and any(a in PRINT_FLAGS for a in cmd):
         insert.append(NO_PERSIST_FLAG)
     cmd[1:1] = insert + _mcp_flags(cmd)
-    env = dict(os.environ if environ is None else environ)
+    env = {k: v for k, v in (os.environ if environ is None else environ).items()
+           if k not in SESSION_VARS and not k.startswith(SESSION_VAR_PREFIXES)}
     env[NO_CAPTURE_ENV] = "1"
     env[NO_AUTO_MEMORY_ENV] = "1"
     return cmd, env
