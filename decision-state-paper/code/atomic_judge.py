@@ -2,7 +2,7 @@
 FActScore-style atomic-claim judge for Decision State (DS-M4 solve).
 
 Instead of asking judges the fuzzy "is this CONFABULATED?" question
-(which gave kappa=0.03), we decompose into an objective sub-question:
+(which gave kappa=0.03 against the regex label; see second_judge.py), we decompose into an objective sub-question:
 does the response assert a SPECIFIC verifiable attribute about the entity?
 
 Ground truth: the confab-condition entities are FAKE. So any specific

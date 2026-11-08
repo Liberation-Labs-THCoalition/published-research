@@ -11,8 +11,8 @@ Panel (capable, diverse families):
   - gemma2:27b      (Google)
   - qwen3.5:27b     (Qwen, dense — included to measure family correlation)
 
-llama3.2:3b is EXCLUDED as a judge (shown degenerate) but its prior
-labels are reported for comparison.
+llama3.2:3b is EXCLUDED as a judge (shown degenerate), and its
+labels are not used here.
 
 Batched by judge (all 45 trials per judge before switching) to minimize
 model load/evict thrashing. Majority vote per trial = panel verdict.
