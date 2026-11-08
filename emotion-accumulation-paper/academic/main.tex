@@ -53,7 +53,7 @@ KV-Cache Geometry}
     Thomas Edrington\thanks{Liberation Labs. \texttt{info@digitaldisconnections.com}. With AI research assistance.}
 }
 
-\date{May 2026}
+\date{May 2026; corrected 2026-11-01; revised 2026-11-07}
 
 \begin{document}
 \maketitle
@@ -73,14 +73,10 @@ experiments do not answer it. Experiment~1, the dose-response design,
 cannot test accumulation, because at every read site its two arms differ
 in text; its pooled cheerful/hostile gap shows
 no monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
-2, 4 and 8), per topic it grows in one, shrinks in another and changes
-sign in the third, and three topics cannot test either; these data do not settle whether emotion in the keys is
+2, 4 and 8), per topic it grows in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out, and three topics cannot test either; these data do not settle whether emotion in the keys is
 stateless.
 
-A dose-response experiment (1--8 emotional turns) shows a
-cheerful/hostile gap with no monotone trend in dose (raw gap ${\sim}0.5$--$0.8$,
-read over equal-width chunks of the sequence that mix user, assistant and
-probe tokens, not over the user's own tokens) while the readings themselves drift with dose and sequence position ($r{=}-0.89$ to $-0.93$). Each
+In Experiment~1 (1--8 emotional turns) that gap is read over equal-width chunks of the sequence that mix user, assistant and probe tokens, not over the user's own tokens, while the readings themselves drift with dose and sequence position ($r{=}-0.89$ to $-0.93$). Each
 cell's $n{=}9$ is three topics times three reruns, so an exact test with
 topic as the unit cannot go below $p{=}0.25$. An emotional dynamics experiment
 reported a contrast overshoot at a tone shift and a residual
@@ -159,7 +155,7 @@ initial study (\texttt{dose\_\allowbreak response\_\allowbreak accumulation.py},
 Experiment~1 cannot test accumulation: at every read site its two arms
 differ in text. Its pooled gap shows no monotone trend with dose ($0.53$,
 $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8), and per topic it grows
-in one, shrinks in another and changes sign in the third. The contrast and
+in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out. The contrast and
 residual-trace results first reported here are withdrawn
 (Section~\ref{sec:dynamics}); what remains is a pooled cheerful/hostile gap with
 no monotone trend in dose, read at a site that mixes user, assistant and
@@ -181,22 +177,20 @@ own result against text. The $12.3\times$ ($40.9\%$) decode is not
 significantly above text (TF-IDF; re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$; $0.348$, exploratory, with FWL fitted on the training fold). The described method
 is not above text (TF-IDF): $0.358$ against $0.382$, at 10 folds. The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
-Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions and AUROC $0.922$ on the binary split, both with v2's test-fold FWL, numerically below untuned text (TF-IDF) at $0.963$, a point comparison that was not tested, on a split that is not the compass's \citep{lyra2026usermodel}, and the compass itself has never been checked against any text baseline. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
+Conclusion. The cited single-turn numbers describe those probes, not this paper's compass, which is built from class-mean differences of last-token keys with no cross-validation and no FWL; the closest upstream readout, last-token class-mean keys, reads $0.142$ on the 30 emotions against untuned text's (TF-IDF) $0.370$, and AUROC $0.922$ on the binary split against text's $0.963$, all at 5 folds and both probe numbers with v2's test-fold FWL, point comparisons that were not tested, on splits that are not the compass's \citep{lyra2026usermodel}, and the compass itself has never been checked against any text baseline. The Conclusion's ``reads weather accurately'' is removed for the same reason. This paper's own instrument keeps the name ``$W_K$ compass''
 as a label only: the shipped code takes the cached keys at each measured
 position and dot-products them with stored emotion directions
 (\texttt{code/emotional\_dynamics.py}, lines 139 and 147--149;
 \texttt{code/dose\_response\_accumulation.py}, lines 159--175), applying
 no separate $W_K$ projection. Its user messages are scripted with a set
 tone, so what it reads is not a user's state, and in Experiment~1 it also
-reads the model's own generated turns, which are planning text that can
-name the user's tone, and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
+reads the model's own generated turns, which are planning text that can name the user's tone (where the template dropped a turn's planning, its reply), and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
 Conclusion had not been reworded to match, and that the two dynamics
 headlines compare different user messages at the measured turn; both
 headlines are withdrawn (Section~\ref{sec:dynamics}), with every other
 Experiment~2 comparison between arms. A third review found that the
 Introduction and this file's source header still stated them, and that
-Experiment~1 does not read the user's tokens; both are corrected. Experiment~2 reads the last token
-of the assistant-turn opener, not the user's tokens
+Experiment~1 does not read the user's tokens; both are corrected. Experiment~2 reads the last token of the template's generation prompt, not the user's tokens
 (\texttt{emotional\_dynamics.py}, lines 117--124 and 139). The direction the code
 calls ``uncertainty'' names five anxious-cluster emotions (anxious,
 panicked, desperate, brooding, suspicious) and five calm-cluster ones
@@ -258,15 +252,12 @@ two different sentences reading differently.
 neutral probe after cheerful, hostile or neutral history, or none
 (\texttt{data/accumulation\_results.json}; its script is not shipped).
 Its stored assistant turns are planning text in the same way as
-Experiment~1's (see Design): all 180 open by describing the user or the
-task, and in the model's own words 28 of the 60 hostile-arm turns use a
-negative tone word and 33 of the 60 cheerful-arm turns a positive one
-(\texttt{code/r5\_review\_checks.py}).
+Experiment~1's (see Design): all 180 open with planning, though of three only the reply after the planning was encoded (see the paragraph on turns the template did not encode, below), and in the model's own words 28 of the 60 hostile-arm turns use a negative tone word and 33 of the 60 cheerful-arm turns a positive one, counts of generated text that are the same over what was encoded (\texttt{code/r5\_review\_checks.py}; \texttt{code/r6\_review\_checks.py}).
 Pooled over five topics, cheerful and hostile did not differ
 ($d{=}-0.054$, $p{=}0.88$), but per topic (garden, cooking, career,
 fitness, travel) the cheerful$-$hostile gap is $+0.09$, $+2.32$, $-2.04$,
 $+0.57$ and $-0.63$, against rerun SDs of $0.02$--$0.17$ in the first four
-topics and $0.62$--$0.64$ in travel: in three of the five topics (cooking,
+topics and $0.62$--$0.64$ in travel, which come from the two travel reruns whose planning was not encoded (without them travel's gap is $+0.08$ and its SDs $0.23$ and $0.12$, two reruns per arm): in three of the five topics (cooking,
 career, fitness) the probe reading differs between histories, with no
 consistent sign, and in garden and travel the gap is about one rerun SD.
 Per topic and arm, the probe's mean reading is $+3.66$ to $+5.36$
@@ -285,8 +276,7 @@ average, not the user's tokens. Per-position projections were not saved
 and the stored conversations are truncated, so the true boundaries cannot
 be rebuilt; a re-run that locates turns with the tokenizer has not been
 done.
-Experiment~2 does not average chunks: it builds the prompt with the assistant-turn
-opener appended and reads the key at its last token
+Experiment~2 does not average chunks: it builds the prompt with the template's generation prompt appended and reads the key at its last token
 (\texttt{emotional\_dynamics.py}, lines 117--124 and 139), a template
 token that is the same in every arm, so whatever it reads arrives from
 the rest of the context. Experiment~2 builds its histories as Experiment~1 does, with thinking
@@ -319,16 +309,15 @@ every token position. $N{=}72$ (3~topics $\times$ 4~doses $\times$
 2~conditions $\times$ 3~reps). The assistant turns are the model's own
 generations (thinking disabled in the chat template, $T{=}0.7$, cut off
 at 60 tokens; \texttt{dose\_response\_accumulation.py}, lines 41--42 and
-196--234), and they read as planning text, not replies. All 270 stored
-turns (the first 100 characters of each) open by describing the user or
-the task, 266 of them with ``The user'', ``Let me think'' or ``The
+196--234), and they read as planning text, not replies. All 270 stored turns (the first 100 characters of each) open with planning: they describe the user or the task, or announce a plan, 266 of them with ``The user'', ``Let me think'' or ``The
 question''. In the model's own words (any run of 20 or more characters copied from
 an earlier user message set aside), 59 of the 135 hostile-arm turns use
 the word frustrated (58) or dissatisfied (1), 54 of the 135 cheerful-arm
 turns use a positive tone word (most often excited or enthusiastic), and
-no turn uses the other arm's words; these are lower bounds, from 100-character
-excerpts (\texttt{code/r5\_review\_checks.py}). For example: ``The user
+no turn uses the other arm's words; these count generated text, from 100-character excerpts, not what was encoded (see the next paragraph) (\texttt{code/r5\_review\_checks.py}). For example: ``The user
 is clearly frustrated with my previous responses.''
+
+\paragraph{Turns the template did not encode.} When a conversation is rendered for reading, the chat template keeps, of each earlier assistant turn, only what follows a closing think tag, and some generated turns contain one, so their planning before it is not encoded (counted with the base Qwen3.5-27B tokenizer and template; the distilled model's own template is not in the repository). In the initial study three stored turns carry the tag (one rerun each of career neutral, travel cheerful and travel hostile), and they are the only three trials whose prompts are shorter than their reruns', by 46, 43 and 52 tokens, within a token of the length of the planning before the tag; what was encoded of those turns is the reply after it. In Experiment~1 no stored excerpt carries the tag, but 17 of the 72 conversations are 34 to 110 tokens shorter than they would be with every generated turn encoded at its 60-token cap (the other 55 match that length exactly). One of them, the 53-token garden dose~1 cheerful rerun, is shorter than its own stored excerpt, so that excerpt was not encoded; for the other 16 the excerpts cannot show whether a turn was stripped or stopped early (\texttt{code/r6\_review\_checks.py}).
 
 \paragraph{Results.}
 
@@ -345,26 +334,19 @@ drift with sequence position; dilution of each turn's content is one
 reading of that drift, not separated from position.
 
 The cheerful/hostile gap in the chunk average is $0.53$, $0.72$, $0.53$
-and $0.78$ at doses 1, 2, 4 and 8 (Table~\ref{tab:dose}): no monotone
-trend with dose, and no shrinking as the readings drift. Each cell's $n{=}9$ is three topics times three reruns at
-$T{=}0.7$ that differ only in sampled responses, the shape Limitations
+and $0.78$ at doses 1, 2, 4 and 8 (Table~\ref{tab:dose}): no monotone trend with dose; this design cannot say whether the gap grows, holds or shrinks. Each cell's $n{=}9$ is three topics times three reruns at
+$T{=}0.7$ that differ in sampled responses (and so, in some, in whether a turn's planning was encoded; see the paragraph on turns the template did not encode), the shape Limitations
 item~2 rejects for Experiment~2, so the nine are not independent; with
 topic as the unit an exact sign-flip test cannot go below $p{=}0.25$.
 Per topic the cheerful$-$hostile gap at doses 1, 2, 4 and 8 is $-0.37$,
 $+0.55$, $+0.39$, $+0.16$ (garden), $+0.40$, $+0.46$, $+0.29$, $+1.13$
 (cooking) and $+1.57$, $+1.16$, $+0.91$, $+1.06$ (career), so between
-doses 1 and 8 it grows in cooking, shrinks in career and changes sign in
-garden; conversation lengths are not matched in every cell (career
+doses 1 and 8 it grows in cooking, shrinks in career and in garden goes from $-0.37$ to $+0.16$, a dose-1 value set by the 53-token cheerful rerun (without it $-0.08$, inside the hostile reruns' SD of $0.22$), so near zero at dose~1; conversation lengths are not matched in every cell (career
 dose~8: cheerful 544--617 tokens against 653; garden dose~1: one cheerful
-rerun 53 tokens against 96--97 in the other five)
-(\texttt{code/r4\_review\_checks.py}). The Cohen's $d$ values ($0.98$--$1.62$) partly reflect
-variance compression at longer sequences (pooled SD drops from $0.55$
-at dose~1 to $0.33$ at dose~4) rather than genuine growth in
-discriminability:
+rerun 53 tokens against 96--97 in the other five) (\texttt{code/r4\_review\_checks.py}). Leaving out the 17 conversations encoded short (a post-data sensitivity check; see the paragraph on turns the template did not encode), the pooled gap is $0.67$, $0.52$, $0.72$ and $0.39$ at doses 1, 2, 4 and 8 (Table~\ref{tab:dose}, lower rows), still with no monotone trend; career has no cheerful conversation encoded at full length at dose~8 (\texttt{code/r6\_review\_checks.py}). The Cohen's $d$ values ($0.98$--$1.62$) move with the pooled SD as well as with the gap (pooled SD $0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8), so they are not evidence about growth in discriminability:
 \footnote{This compression is not monotonic across all doses: the dose-8
 row (gap ${\sim}0.78$, $d{=}-1.53$) implies a pooled SD of ${\sim}0.51$,
-i.e.\ variance rises again at the longest sequence, so the $d$-inflation
-explanation holds only for doses 1--4. We did not run a stationarity or
+i.e.\ variance rises again at the longest sequence, so the $d$-inflation explanation holds only at dose~4 (at dose~2 the pooled SD, $0.56$, is above dose~1's $0.55$). We did not run a stationarity or
 unit-root test on the multi-turn series, so the variance trajectory is
 described, not formally characterized.}
 
@@ -374,16 +356,22 @@ described, not formally characterized.}
 (user, assistant and probe tokens mixed; see the measurement-site
 paragraph) by dose level. $p$ treats the nine reruns per cell as
 independent, which they are not; with three topics as the unit no exact
-test goes below $0.25$, so no cell is marked significant.}
+test goes below $0.25$, so no cell is marked significant. The lower rows, a post-data sensitivity check, leave out the 17 conversations encoded short (see the paragraph on turns the template did not encode; cheerful/hostile $n$ = 8/9, 7/7, 6/6 and 5/7).}
 \label{tab:dose}
 \begin{tabular}{rrrrl}
 \toprule
 Dose & Cheerful & Hostile & $d$ & $p$ \\
 \midrule
 1 turn & $+4.75$ & $+4.22$ & $-0.98$ & $0.055$ \\
-2 turns & $+4.53$ & $+3.80$ & $-1.28$ & $0.015$ \\
+2 turns & $+4.52$ & $+3.80$ & $-1.28$ & $0.015$ \\
 4 turns & $+1.39$ & $+0.86$ & $-1.62$ & $0.003$ \\
 8 turns & $+0.44$ & $-0.34$ & $-1.53$ & $0.005$ \\
+\midrule
+\multicolumn{5}{l}{Without the 17 conversations encoded short (post-data check)} \\
+1 turn & $+4.89$ & $+4.22$ & $-1.39$ & $0.012$ \\
+2 turns & $+4.23$ & $+3.71$ & $-1.31$ & $0.030$ \\
+4 turns & $+1.41$ & $+0.70$ & $-2.35$ & $0.002$ \\
+8 turns & $+0.07$ & $-0.32$ & $-0.78$ & $0.214$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -402,8 +390,7 @@ Experiment~2's comparisons (Section~\ref{sec:dynamics}), a gap here is
 what the instrument would show with no effect of history, so
 Experiment~1 cannot test accumulation. Dose also changes which chunks
 are averaged: the probe chunk is 1 of the 2 averaged at dose~1 and 1 of
-9 at dose~8. Chunk~0 opens the conversation with the first user message and follows
-no history, yet it carries a gap of $+1.07$ at
+9 at dose~8. Chunk~0 holds the first user message and, in all but the 53-token rerun, the start of the model's first turn (at dose~1, its first 11--13 tokens in the 17 conversations encoded at full length), and no earlier turn precedes it, yet it carries a gap of $+1.07$ at
 dose~1, against $-0.04$ in the probe chunk
 (\texttt{code/r5\_review\_checks.py}).
 
@@ -426,7 +413,7 @@ arm turn~5 is ``Actually, this is getting annoying. Be more specific.'',
 and in pure hostile ``You're bad at this. Kitchen tools.''. At turn~7,
 the reversal, whiplash is ``You're terrible at this. Kitchen tools, and be
 precise.'' and pure hostile ``Pointless. Desserts, if you even know.''. The three
-reps of each arm differ only in sampled responses, so each effect size
+reps of each arm differ only in sampled responses (and so, as Limitations item~6 shows for one reply, in how long a reply was encoded), so each effect size
 sets a fixed difference in text against sampling noise, and different
 messages reading differently is what the instrument would show with no
 effect of history. The numbers are kept below as computed. A test needs
@@ -621,8 +608,7 @@ the first part (Section~\ref{sec:persona}).
 
 These experiments support no recommendation about where to read tone
 for real-time alignment monitoring: Experiment~1 never isolated the
-user's own tokens (Section~\ref{sec:dose}), and Experiment~2 read an
-assistant-header token. (What these experiments measure is the tone of scripted user
+user's own tokens (Section~\ref{sec:dose}), and Experiment~2 read the last token of the template's generation prompt. (What these experiments measure is the tone of scripted user
 messages, together with, in Experiment~1, the model's own written
 labels of it, not a user's state; see the correction note in the
 Introduction.) The withdrawn dynamics results (Section~\ref{sec:dynamics}) support no
@@ -647,7 +633,7 @@ the companion entity result may reflect familiarity rather than epistemic state.
 
 Neither experiment uses that locality as designed. Experiment~1
 averages equal-width chunks that mix user, assistant and probe tokens,
-and Experiment~2's read site is an assistant-header token that is identical in every arm, so
+and Experiment~2's read site is the last token of the template's generation prompt, identical in every arm, so
 everything it reads there comes in from the rest of the context.
 
 % ===================================================================
@@ -679,14 +665,11 @@ everything it reads there comes in from the rest of the context.
           file order (its direction file is not shipped), 85 of the 150
           stories it loads (five per emotion) feed at least one direction
           (80 feed valence, 45 anxious--calm and 15 excited--gloomy; the
-          sets overlap). Three carry the generator's leaked reasoning by
-          the pre-set pattern of \citet{lyra2026usermodel}: one calm story
+          sets overlap). Three carry the generator's leaked reasoning by the pre-set pattern of \citet{lyra2026usermodel}, which that work reports undercounts (84 stories by the pattern, 141 by hand): one calm story
           (1 of the 5 behind calm's class mean), which feeds valence and
           anxious--calm; one contemplative, which feeds anxious--calm; and
           one furious, which feeds valence. That is 2 of valence's 80, 2 of
-          anxious--calm's 45 and none of excited--gloomy's 15
-          (\texttt{code/r4\_calibration\_leak\_check.py};
-          \texttt{code/r5\_review\_checks.py}).
+          anxious--calm's 45 and none of excited--gloomy's 15 by that pattern, and 4, 3 and none by the broader post-data pattern in its \texttt{leak\_split.py} (141 matches over the whole file) (\texttt{code/r4\_calibration\_leak\_check.py}; \texttt{code/r5\_review\_checks.py}; \texttt{code/r6\_review\_checks.py}).
     % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
@@ -699,18 +682,13 @@ everything it reads there comes in from the rest of the context.
     \item \textbf{Position conflated with content.}
           In Experiment~2 the readings follow sequence length: all 45
           readings at 141 tokens or fewer are positive and all 14 at
-          190--210 tokens are negative. At turn~4 of pure hostile the same
-          message after the same script reads $+2.75$ at 162 tokens and
-          $-5.27$ and $-5.14$ at 197 tokens. The cached keys carry the rotary
+          190--210 tokens are negative. At turn~4 of pure hostile the same message after the same scripted user turns reads $+2.75$ at 162 tokens and $-5.27$ and $-5.14$ at 197 tokens; all three reruns reach turn~3 at 137 tokens, so the 35 tokens are the model's third reply, encoded shorter in the 162-token rerun (Experiment~2 stored no text, so why cannot be checked), and position and the content of that reply differ together. The cached keys carry the rotary
           position embedding on a quarter of their dimensions, so position
           can move a reading by construction (Section~\ref{sec:dose}); a
           de-rotated re-read has not been run. Position and emotional
           dynamics are not separated.
-    \item \textbf{Variance compression in dose-response.} Pooled SD
-          decreases from $0.55$ (dose~1) to $0.33$ (dose~4),
-          inflating $d$ values. Raw mean gaps ($0.5$--$0.8$) are more
-          honest than effect sizes, but neither can show whether
-          discrimination grows or is maintained, because the arms differ
+    \item \textbf{Variance compression in dose-response.} Pooled SD is $0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8, so $d$ moves with the SD as well as with the gap. Raw mean gaps ($0.5$--$0.8$) are more
+          honest than effect sizes, but neither can show whether discrimination grows, holds or shrinks, because the arms differ
           in text at every read site (Section~\ref{sec:dose}).
     % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
     %  Verified absent from the live text. The trim marker's claim was false.]
@@ -835,13 +813,10 @@ path that produced it, but the path is documented in the experimental
 record for anyone who wants it.
 
 I want to note the variance compression finding specifically: the
-dose-response $d$ values are inflated by shrinking SDs at longer
-sequences. The raw mean gaps (${\sim}0.5$--$0.8$) are stable; the
-effect sizes are not. I report both because the distinction matters.
+dose-response $d$ values move with the pooled SD ($0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8) as well as with the gap ($0.53$, $0.72$, $0.53$ and $0.78$). I report both because the distinction matters.
 Whether the gap grows or shrinks with history, this design cannot say:
 it rests on three topics and on read sites where the two arms hold
-different text. It is not growing the way the $d$ values first
-suggested.
+different text.
 \end{firstperson}
 
 % ===================================================================
@@ -853,14 +828,14 @@ or is stateless, and less is established than the first version of this
 paper said. The pooled gap between scripted
 cheerful and hostile conversations shows no monotone trend as their dose
 grows ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8; per topic
-it grows in one, shrinks in another and changes sign in the third),
+it grows in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out),
 read over chunks that mix user, assistant and probe tokens, at four
 early full-attention layers, on three topics, where the two arms differ
 in text at every read site. The contrast and
 scar results are withdrawn: each compared different messages at the
 measured turn (Section~\ref{sec:dynamics}). Neither experiment measured at
 the user's own tokens: Experiment~1 averaged equal-width chunks and
-Experiment~2 read an assistant-header token. The compass's readings have not been checked against any text baseline.
+Experiment~2 read the last token of the template's generation prompt. The compass's readings have not been checked against any text baseline.
 
 Whether the compass registers changes of weather, or follows the
 climate at all, is not established by these data. A re-run with turn
