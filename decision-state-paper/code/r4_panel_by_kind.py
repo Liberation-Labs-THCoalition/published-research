@@ -39,8 +39,9 @@ J = p["panel"]
 L = p["per_judge_labels"]
 assert len(confab) == p["n_trials"] == 45
 
-R = {"inputs": {f_j.relative_to(REPO.parent).as_posix(): hashlib.sha256(raw_j).hexdigest(),
-                f_p.relative_to(REPO.parent).as_posix(): hashlib.sha256(raw_p).hexdigest()},
+# Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+R = {"inputs": {f_j.relative_to(REPO.parent).as_posix(): hashlib.sha256(raw_j.replace(b"\r\n", b"\n")).hexdigest(),
+                f_p.relative_to(REPO.parent).as_posix(): hashlib.sha256(raw_p.replace(b"\r\n", b"\n")).hexdigest()},
      "index_note": "i is the 0-based position among the 45 confab trials; trial_idx is the file's own field"}
 
 

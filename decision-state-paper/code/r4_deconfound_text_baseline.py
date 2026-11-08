@@ -40,7 +40,8 @@ GT = json.loads(raw.decode("utf-8"))
 P3 = json.loads((DD / "phase3_results.json").read_text(encoding="utf-8"))
 SEED, N_PERM = 42, 1000
 R = {"input": (DD / "phase1_ground_truth.json").relative_to(REPO.parent).as_posix(),
-     "input_sha256": hashlib.sha256(raw).hexdigest(), "sklearn": sklearn.__version__,
+     # Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+     "input_sha256": hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest(), "sklearn": sklearn.__version__,
      "numpy": np.__version__, "seed": SEED, "n_perm": N_PERM, "n_items": len(GT)}
 
 # ---- what the ground-truth file holds ----

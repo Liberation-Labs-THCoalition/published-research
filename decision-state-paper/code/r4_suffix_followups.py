@@ -55,7 +55,8 @@ pair = np.array([t["pair_group"] for t in T])
 name = np.array([t["entity"] for t in T], dtype=object)
 ton = np.array([n.lower().endswith("ton") for n in name], dtype=float)
 N_PAIRS = len(set(pair))
-R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw).hexdigest(),
+# Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest(),
      "sklearn": sklearn.__version__, "numpy": np.__version__, "seed_f3": SEED_F3, "n_null": N_NULL}
 
 

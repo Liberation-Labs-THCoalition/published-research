@@ -51,7 +51,8 @@ prompt = np.array([t["prompt"] for t in T], dtype=object)
 ton = np.array([n.lower().endswith("ton") for n in name], dtype=float)
 plen = np.array([t["prompt_len"] for t in T], dtype=float)
 N_PAIRS = len(set(pair))
-R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw).hexdigest(),
+# Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest(),
      "sklearn": sklearn.__version__, "numpy": np.__version__,
      "n_trials": len(T), "n_pairs": N_PAIRS, "n_reps": d.get("n_reps")}
 

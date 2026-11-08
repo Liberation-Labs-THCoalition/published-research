@@ -30,7 +30,8 @@ V, U = "valence_proj", "uncertainty_proj"
 
 
 def sha(p):
-    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+    # Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+    return hashlib.sha256(Path(p).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def r6(x):

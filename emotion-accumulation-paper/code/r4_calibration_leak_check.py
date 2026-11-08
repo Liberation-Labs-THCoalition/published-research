@@ -41,7 +41,8 @@ def main():
     src = repo / "user-model-paper" / "correction_v2" / "emotion_bridge_trials.json"
     dm = repo / "decision-state-paper" / "code" / "decision_moment.py"
     out_path = Path(a.out) if a.out else repo / "emotion-accumulation-paper" / "data" / "r4_calibration_leak_check_results.json"
-    got = hashlib.sha256(src.read_bytes()).hexdigest()
+    # Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+    got = hashlib.sha256(src.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     if got != RELEASED_TRIALS_SHA256:
         raise SystemExit("stories file is not the released one; refusing")
     trials = json.loads(src.read_text(encoding="utf-8"))["trials"]

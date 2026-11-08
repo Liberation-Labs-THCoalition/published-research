@@ -47,7 +47,8 @@ y = np.array([0 if t["is_real"] else 1 for t in T])
 pair = np.array([t["pair_group"] for t in T])
 name = np.array([t["entity"] for t in T], dtype=object)
 ton = np.array([n.lower().endswith("ton") for n in name], dtype=float)
-R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw).hexdigest(),
+# Hash the LF form: it is the git blob, so the hash is the same on every checkout (2026-11-07: hashes of a Windows CRLF checkout had been recorded).
+R = {"input": DATA.relative_to(REPO.parent).as_posix(), "input_sha256": hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest(),
      "wordfreq": importlib.metadata.version("wordfreq"), "sklearn": sklearn.__version__, "numpy": np.__version__,
      "seed": SEED, "n_null": N_NULL, "zipf_call": 'wordfreq.zipf_frequency(entity, "en")'}
 
