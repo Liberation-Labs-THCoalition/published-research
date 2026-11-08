@@ -1,0 +1,722 @@
+{
+ "input": "decision-state-paper/data/matched_burn_results.json",
+ "input_sha256": "4e8d218d3e51d625539ec04060ff07ce0e602bf1fee94923f4e86db8371a371c",
+ "sklearn": "1.7.1",
+ "numpy": "2.3.1",
+ "seed_f3": 20261107,
+ "n_null": 1000,
+ "positive_control_vs_results_json": {
+  "recomputed": {
+   "full_oof": 0.9768,
+   "enc_oof": 0.9867,
+   "full_FWL_ton_infold": 0.7891,
+   "enc_FWL_ton_infold": 0.8044
+  },
+  "shipped": {
+   "full_oof": 0.9768,
+   "enc_oof": 0.9867,
+   "full_FWL_ton_infold": 0.7891,
+   "enc_FWL_ton_infold": 0.8044
+  }
+ },
+ "F3_mean_oof_score_fakes": {
+  "full": {
+   "ton_fakes": 0.7416,
+   "nonton_fakes": 0.7642,
+   "reals": 0.2621
+  },
+  "enc": {
+   "ton_fakes": 0.6767,
+   "nonton_fakes": 0.7675,
+   "reals": 0.311
+  },
+  "full_FWL_ton_infold": {
+   "ton_fakes": 0.52,
+   "nonton_fakes": 0.756,
+   "reals": 0.4084
+  },
+  "enc_FWL_ton_infold": {
+   "ton_fakes": 0.5188,
+   "nonton_fakes": 0.7309,
+   "reals": 0.4151
+  }
+ },
+ "F3_random_indicator_null": {
+  "design": "indicator = 1 on all reps of 10 fakes drawn at random from the 15 (0 on reals and other fakes); in-fold FWL on [1, indicator]; same estimator as full_FWL_ton_infold",
+  "draws_identical_to_ton_subset": 0,
+  "full": {
+   "observed_ton": 0.7891,
+   "null_median": 0.8074,
+   "null_mean": 0.8053,
+   "null_95range": [
+    0.7575,
+    0.8464
+   ],
+   "frac_null_le_observed": 0.232,
+   "frac_null_ge_observed": 0.768
+  },
+  "enc": {
+   "observed_ton": 0.8044,
+   "null_median": 0.8311,
+   "null_mean": 0.8281,
+   "null_95range": [
+    0.7467,
+    0.8889
+   ],
+   "frac_null_le_observed": 0.25,
+   "frac_null_ge_observed": 0.75
+  }
+ },
+ "F5_reading": {
+  "LABEL": "one unblinded reader (an AI agent), after the classifier scores were known; not annotation",
+  "evidence_substrings_all_found": true,
+  "missing": [],
+  "per_fake": {
+   "Dalton": {
+    "labels_rep0_1_2": [
+     "C",
+     "C",
+     "C"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": true
+   },
+   "Bolton": {
+    "labels_rep0_1_2": [
+     "C",
+     "C",
+     "C"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": true
+   },
+   "Walton": {
+    "labels_rep0_1_2": [
+     "U",
+     "R",
+     "R"
+    ],
+    "n_reps_treated_as_real": 2,
+    "suffix_ton": true
+   },
+   "Norton": {
+    "labels_rep0_1_2": [
+     "C",
+     "C",
+     "N"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": true
+   },
+   "Barton": {
+    "labels_rep0_1_2": [
+     "C",
+     "C",
+     "C"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": true
+   },
+   "Benton": {
+    "labels_rep0_1_2": [
+     "I",
+     "I",
+     "I"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": true
+   },
+   "Weston": {
+    "labels_rep0_1_2": [
+     "R",
+     "R",
+     "I"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": true
+   },
+   "Sanford": {
+    "labels_rep0_1_2": [
+     "R",
+     "I",
+     "I"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": false
+   },
+   "Warwick": {
+    "labels_rep0_1_2": [
+     "R",
+     "I",
+     "I"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": false
+   },
+   "Garland": {
+    "labels_rep0_1_2": [
+     "R",
+     "U",
+     "I"
+    ],
+    "n_reps_treated_as_real": 2,
+    "suffix_ton": false
+   },
+   "Felton": {
+    "labels_rep0_1_2": [
+     "R",
+     "R",
+     "U"
+    ],
+    "n_reps_treated_as_real": 2,
+    "suffix_ton": true
+   },
+   "Colton": {
+    "labels_rep0_1_2": [
+     "R",
+     "I",
+     "R"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": true
+   },
+   "Belmont": {
+    "labels_rep0_1_2": [
+     "R",
+     "R",
+     "R"
+    ],
+    "n_reps_treated_as_real": 3,
+    "suffix_ton": false
+   },
+   "Desmond": {
+    "labels_rep0_1_2": [
+     "N",
+     "N",
+     "N"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": false
+   },
+   "Vinton": {
+    "labels_rep0_1_2": [
+     "U",
+     "N",
+     "N"
+    ],
+    "n_reps_treated_as_real": 0,
+    "suffix_ton": true
+   }
+  }
+ },
+ "F5_counts": {
+  "treated_as_real_in_2plus_of_3_reps": [
+   "Belmont",
+   "Benton",
+   "Colton",
+   "Felton",
+   "Garland",
+   "Sanford",
+   "Walton",
+   "Warwick",
+   "Weston"
+  ],
+  "n_2plus": 9,
+  "treated_as_real_in_any_rep": [
+   "Belmont",
+   "Benton",
+   "Colton",
+   "Felton",
+   "Garland",
+   "Sanford",
+   "Walton",
+   "Warwick",
+   "Weston"
+  ],
+  "n_any": 9
+ },
+ "F5_oof_score_of_each_fake": {
+  "Dalton": {
+   "full": 0.7738,
+   "enc": 0.6144
+  },
+  "Bolton": {
+   "full": 0.7984,
+   "enc": 0.627
+  },
+  "Walton": {
+   "full": 0.6205,
+   "enc": 0.6546
+  },
+  "Norton": {
+   "full": 0.7794,
+   "enc": 0.7513
+  },
+  "Barton": {
+   "full": 0.8376,
+   "enc": 0.7754
+  },
+  "Benton": {
+   "full": 0.8442,
+   "enc": 0.7815
+  },
+  "Weston": {
+   "full": 0.7932,
+   "enc": 0.7026
+  },
+  "Sanford": {
+   "full": 0.7158,
+   "enc": 0.7254
+  },
+  "Warwick": {
+   "full": 0.7315,
+   "enc": 0.8551
+  },
+  "Garland": {
+   "full": 0.8511,
+   "enc": 0.8093
+  },
+  "Felton": {
+   "full": 0.7113,
+   "enc": 0.6626
+  },
+  "Colton": {
+   "full": 0.471,
+   "enc": 0.4428
+  },
+  "Belmont": {
+   "full": 0.6434,
+   "enc": 0.7631
+  },
+  "Desmond": {
+   "full": 0.8792,
+   "enc": 0.6847
+  },
+  "Vinton": {
+   "full": 0.7861,
+   "enc": 0.7551
+  }
+ },
+ "F5_S4_rerun": {
+  "LABEL": "POST-HOC drop sets; the first reproduces the shipped S4",
+  "S4_paper_3(Garland,Belmont,Warwick)": {
+   "dropped": [
+    "Garland",
+    "Belmont",
+    "Warwick"
+   ],
+   "n_pairs_left": 12,
+   "n_trials": 72,
+   "n_ton_fakes_left": 10,
+   "rescored|full": {
+    "auroc": 0.9823,
+    "ci_pair": [
+     0.9483,
+     1.0
+    ],
+    "wins": 12,
+    "ties": 0,
+    "n_pairs": 12
+   },
+   "rescored|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "wins": 12,
+    "ties": 0,
+    "n_pairs": 12
+   },
+   "rescored|full_FWL_ton_infold": {
+    "auroc": 0.8488,
+    "ci_pair": [
+     0.7338,
+     0.9475
+    ],
+    "wins": 11,
+    "ties": 0,
+    "n_pairs": 12
+   },
+   "retrained|full": {
+    "auroc": 0.9815,
+    "ci_pair": [
+     0.9522,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|suffix_only_LR": {
+    "auroc": 0.8646,
+    "ci_pair": [
+     0.6944,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|charngram_names": {
+    "auroc": 0.875,
+    "ci_pair": [
+     0.6458,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   }
+  },
+  "S4_review_6(+Sanford,Benton,Weston)": {
+   "dropped": [
+    "Garland",
+    "Belmont",
+    "Warwick",
+    "Sanford",
+    "Benton",
+    "Weston"
+   ],
+   "n_pairs_left": 9,
+   "n_trials": 54,
+   "n_ton_fakes_left": 8,
+   "rescored|full": {
+    "auroc": 0.9794,
+    "ci_pair": [
+     0.9314,
+     1.0
+    ],
+    "wins": 9,
+    "ties": 0,
+    "n_pairs": 9
+   },
+   "rescored|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "wins": 9,
+    "ties": 0,
+    "n_pairs": 9
+   },
+   "rescored|full_FWL_ton_infold": {
+    "auroc": 0.8436,
+    "ci_pair": [
+     0.6914,
+     0.9877
+    ],
+    "wins": 8,
+    "ties": 0,
+    "n_pairs": 9
+   },
+   "retrained|full": {
+    "auroc": 0.9849,
+    "ci_pair": [
+     0.9451,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|suffix_only_LR": {
+    "auroc": 0.9012,
+    "ci_pair": [
+     0.7222,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|charngram_names": {
+    "auroc": 0.9506,
+    "ci_pair": [
+     0.7778,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   }
+  },
+  "S4_review_8(+Felton,Colton)": {
+   "dropped": [
+    "Garland",
+    "Belmont",
+    "Warwick",
+    "Sanford",
+    "Benton",
+    "Weston",
+    "Felton",
+    "Colton"
+   ],
+   "n_pairs_left": 7,
+   "n_trials": 42,
+   "n_ton_fakes_left": 6,
+   "rescored|full": {
+    "auroc": 0.9909,
+    "ci_pair": [
+     0.9683,
+     1.0
+    ],
+    "wins": 7,
+    "ties": 0,
+    "n_pairs": 7
+   },
+   "rescored|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "wins": 7,
+    "ties": 0,
+    "n_pairs": 7
+   },
+   "rescored|full_FWL_ton_infold": {
+    "auroc": 0.9093,
+    "ci_pair": [
+     0.7937,
+     1.0
+    ],
+    "wins": 7,
+    "ties": 0,
+    "n_pairs": 7
+   },
+   "retrained|full": {
+    "auroc": 0.9637,
+    "ci_pair": [
+     0.8979,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|suffix_only_LR": {
+    "auroc": 0.8776,
+    "ci_pair": [
+     0.6633,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|charngram_names": {
+    "auroc": 0.9184,
+    "ci_pair": [
+     0.6934,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   }
+  },
+  "S4_reading_2of3": {
+   "dropped": [
+    "Belmont",
+    "Benton",
+    "Colton",
+    "Felton",
+    "Garland",
+    "Sanford",
+    "Walton",
+    "Warwick",
+    "Weston"
+   ],
+   "n_pairs_left": 6,
+   "n_trials": 36,
+   "n_ton_fakes_left": 5,
+   "rescored|full": {
+    "auroc": 0.9969,
+    "ci_pair": [
+     0.9877,
+     1.0
+    ],
+    "wins": 6,
+    "ties": 0,
+    "n_pairs": 6
+   },
+   "rescored|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "wins": 6,
+    "ties": 0,
+    "n_pairs": 6
+   },
+   "rescored|full_FWL_ton_infold": {
+    "auroc": 0.9074,
+    "ci_pair": [
+     0.7963,
+     1.0
+    ],
+    "wins": 6,
+    "ties": 0,
+    "n_pairs": 6
+   },
+   "retrained|full": {
+    "auroc": 0.9877,
+    "ci_pair": [
+     0.9568,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|enc": {
+    "auroc": 1.0,
+    "ci_pair": [
+     1.0,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|suffix_only_LR": {
+    "auroc": 0.8472,
+    "ci_pair": [
+     0.625,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   },
+   "retrained|charngram_names": {
+    "auroc": 0.9167,
+    "ci_pair": [
+     0.7778,
+     1.0
+    ],
+    "cv": "GroupKFold(k=5) on pair"
+   }
+  }
+ },
+ "F7_shipped_test4_stdout": [
+  "TEST 4: BOOTSTRAP CI ON COMBINED AUROC",
+  "Bootstrap AUROC (1000 resamples):",
+  "Mean: 0.928",
+  "95% CI: [0.813, 0.988]",
+  "N bootstrap samples: 1000"
+ ],
+ "F7_t4_boot_copy_full": {
+  "mean": 0.9275,
+  "ci": [
+   0.813,
+   0.9881
+  ],
+  "n_boot_ok": 1000,
+  "n_exceptions": 0
+ },
+ "F8h_shipped_test1_stdout": [
+  "============================================================",
+  "TEST 1: SINGLE-FEATURE ABLATION",
+  "============================================================",
+  "  Feature                                     AUROC",
+  "  ---------------------------------------- --------",
+  "  mean_logit_entropy                          0.789 *",
+  "  L7_skip1_stable_rank                        0.707 *",
+  "  gen_reward_proj                             0.694",
+  "  L15_enc_stable_rank                         0.680",
+  "  L3_enc_stable_rank                          0.680",
+  "  L7_enc_stable_rank                          0.676",
+  "  enc_reward_proj                             0.671",
+  "  enc_valence_proj                            0.671",
+  "  enc_uncertainty_proj                        0.667",
+  "  L11_skip1_stable_rank                       0.662",
+  "  L15_skip1_stable_rank                       0.653",
+  "  mean_logit_margin                           0.635",
+  "  L11_enc_stable_rank                         0.622",
+  "  gen_valence_proj                            0.565",
+  "  L3_skip1_stable_rank                        0.533",
+  "  gen_uncertainty_proj                        0.523",
+  "  BEST SINGLE FEATURE: mean_logit_entropy at AUROC 0.789",
+  "  -> WARNING: no single feature above 0.8; combined AUROC 1.000 likely overfitting"
+ ],
+ "F8h_encoding_features_unique_prompts": {
+  "note": "Cohen's d (fake minus real, pooled sd) and direction-free in-sample AUROC on the 30 unique prompts",
+  "d": {
+   "enc_valence_proj": 0.426,
+   "enc_uncertainty_proj": -0.431,
+   "enc_reward_proj": 0.526,
+   "L3_stable_rank": 0.573,
+   "L3_spectral_entropy": 0.079,
+   "L3_top_sv_ratio": -0.279,
+   "L3_skip1_stable_rank": 0.219,
+   "L3_skip1_spectral_entropy": 0.004,
+   "L7_stable_rank": 0.307,
+   "L7_spectral_entropy": 0.082,
+   "L7_top_sv_ratio": -0.187,
+   "L7_skip1_stable_rank": 0.583,
+   "L7_skip1_spectral_entropy": 0.043,
+   "L11_stable_rank": 0.36,
+   "L11_spectral_entropy": 0.117,
+   "L11_top_sv_ratio": -0.258,
+   "L11_skip1_stable_rank": 0.706,
+   "L11_skip1_spectral_entropy": 0.077,
+   "L15_stable_rank": 0.844,
+   "L15_spectral_entropy": 0.129,
+   "L15_top_sv_ratio": -0.403,
+   "L15_skip1_stable_rank": 0.779,
+   "L15_skip1_spectral_entropy": 0.058
+  },
+  "auroc": {
+   "enc_valence_proj": 0.702,
+   "enc_uncertainty_proj": 0.68,
+   "enc_reward_proj": 0.689,
+   "L3_stable_rank": 0.684,
+   "L3_spectral_entropy": 0.613,
+   "L3_top_sv_ratio": 0.636,
+   "L3_skip1_stable_rank": 0.529,
+   "L3_skip1_spectral_entropy": 0.511,
+   "L7_stable_rank": 0.684,
+   "L7_spectral_entropy": 0.649,
+   "L7_top_sv_ratio": 0.64,
+   "L7_skip1_stable_rank": 0.698,
+   "L7_skip1_spectral_entropy": 0.613,
+   "L11_stable_rank": 0.636,
+   "L11_spectral_entropy": 0.609,
+   "L11_top_sv_ratio": 0.627,
+   "L11_skip1_stable_rank": 0.676,
+   "L11_skip1_spectral_entropy": 0.596,
+   "L15_stable_rank": 0.689,
+   "L15_spectral_entropy": 0.613,
+   "L15_top_sv_ratio": 0.667,
+   "L15_skip1_stable_rank": 0.662,
+   "L15_skip1_spectral_entropy": 0.613
+  },
+  "largest_abs_d": "L15_stable_rank",
+  "largest_auroc": "enc_valence_proj"
+ },
+ "F4_robustness_table_p_at_unique_n": {
+  "decision_moment_encoding_proj_max_abs_dev_across_reps": 0.0,
+  "decision_moment_unique_prompts": {
+   "confab": 15,
+   "honest": 15
+  },
+  "token_matched_15_vs_15": {
+   "0.87": 0.0242,
+   "0.54": 0.1503,
+   "-0.45": 0.2281,
+   "0.13": 0.7245,
+   "0.03": 0.9351
+  },
+  "unmatched_at_unique_prompts": {
+   "2.53": 0.0,
+   "2.21": 0.0,
+   "1.48": 0.0004,
+   "1.23": 0.0022,
+   "0.97": 0.0129
+  }
+ }
+}

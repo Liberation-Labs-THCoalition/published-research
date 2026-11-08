@@ -894,3 +894,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Correction, fifth review of the paper (November 2026): combined_auroc is computed
+# out-of-fold (lines 738-748) after a label-free FWL fitted on all 90 trials; it is not
+# in-sample. shore_up_tests.py test 4 as shipped prints 0.928 [0.813, 0.988]
+# (sklearn 1.7.1), not 0.9288 [0.8192, 0.9886]; see
+# data/suffix_controls/r4_followups.json, key F7_shipped_test4_stdout. The banner and
+# STATUS strings above are left as shipped.

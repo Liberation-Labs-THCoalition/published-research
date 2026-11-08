@@ -14,7 +14,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Oracle Formulary](formulary-paper/) | Lyra, Thomas Edrington | Published | Emotion-vector steering of confabulation across model training regimes |
 | [Spectral Shape Features](spectral-shape-paper/) | Lyra, Thomas Edrington | Published | Threshold-free confabulation detection via KV-cache spectral analysis |
 | [KV-Cloak Defense](kv-cloak-defense-paper/) | Lyra, Thomas Edrington | Published | Cache geometry under obfuscation; KV-Cloak as defense against adversarial steering |
-| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington | Published | Cache geometry reads epistemic state before generation; confabulation anatomy |
+| [Decision State](decision-state-paper/) | Lyra, Thomas Edrington | Published | Cache geometry separates real- from fake-entity prompts (a design label, not shown to be knowledge); confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
 | [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Ang Jandak | Published | SVD denoising extends KV-cache geometry to emotion and persona; v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |
@@ -24,7 +24,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
 | [Story Emotion in the KV Cache](user-model-paper/) | Lyra, Thomas Edrington | Published | Corrected Oct 2026: story emotion decodable from the KV cache, not beyond a TF-IDF baseline (prereg) |
-| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington | Published | Emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
+| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington | Published | Corrected Nov 2026: contrast-overshoot and uncertainty-scar results withdrawn; emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
 | [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
 ### Identity, Safety, and Mechanistic Interpretability

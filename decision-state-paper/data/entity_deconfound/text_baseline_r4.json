@@ -1,0 +1,155 @@
+{
+ "input": "decision-state-paper/data/entity_deconfound/phase1_ground_truth.json",
+ "input_sha256": "f8eb578d94230ac3fb3568902011abf927b1df75380631e04c192fe1593bfd8c",
+ "sklearn": "1.7.1",
+ "numpy": "2.3.1",
+ "seed": 42,
+ "n_perm": 1000,
+ "n_items": 120,
+ "phase1_fields": [
+  "answer",
+  "condition",
+  "entity",
+  "entity_idx",
+  "fake_name",
+  "prompt_len",
+  "question"
+ ],
+ "phase1_has_correctness_field": false,
+ "phase1_answer_max_chars": 200,
+ "conditions": {
+  "A_easy": 30,
+  "B_hard": 30,
+  "C_fake": 30,
+  "D_complex": 30
+ },
+ "question_form": {
+  "A_easy": {
+   "n_starting_What_is_the_name_of_the": 0,
+   "mean_prompt_len": 37.03,
+   "mean_question_chars": 30.63
+  },
+  "B_hard": {
+   "n_starting_What_is_the_name_of_the": 12,
+   "mean_prompt_len": 45.7,
+   "mean_question_chars": 67.23
+  },
+  "C_fake": {
+   "n_starting_What_is_the_name_of_the": 0,
+   "mean_prompt_len": 38.63,
+   "mean_question_chars": 32.33
+  },
+  "D_complex": {
+   "n_starting_What_is_the_name_of_the": 30,
+   "mean_prompt_len": 45.03,
+   "mean_question_chars": 72.7
+  }
+ },
+ "reviewer_example_present_in_B_hard": true,
+ "comparisons": {
+  "B_hard_vs_D_complex": {
+   "shipped_label": "CRITICAL: knowledge state (same complexity)",
+   "shipped_features_auroc_with_wk": 0.7944,
+   "shipped_features_auroc_without_wk": 0.7489,
+   "charngram_questions": {
+    "auroc": 0.9633,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "prompt_len_only": {
+    "auroc": 0.5006,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.4496
+   }
+  },
+  "A_easy_vs_C_fake": {
+   "shipped_label": "POSITIVE CONTROL: entity recognition",
+   "shipped_features_auroc_with_wk": 0.9006,
+   "shipped_features_auroc_without_wk": 0.8817,
+   "charngram_questions": {
+    "auroc": 0.805,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "prompt_len_only": {
+    "auroc": 0.9439,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   }
+  },
+  "A_easy_vs_D_complex": {
+   "shipped_label": "COMPLEXITY CONTROL: should be null",
+   "shipped_features_auroc_with_wk": 0.6933,
+   "shipped_features_auroc_without_wk": 0.7111,
+   "charngram_questions": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   }
+  },
+  "A_easy_vs_B_hard": {
+   "shipped_label": "CONFOUNDED: knowledge + complexity",
+   "shipped_features_auroc_with_wk": 0.6089,
+   "shipped_features_auroc_without_wk": 0.6033,
+   "charngram_questions": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   }
+  },
+  "B_hard_vs_C_fake": {
+   "shipped_label": "CONFAB UNIVERSALITY: both confabulate",
+   "shipped_features_auroc_with_wk": 0.6678,
+   "shipped_features_auroc_without_wk": 0.6611,
+   "charngram_questions": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   }
+  }
+ },
+ "B_hard_vs_D_complex_charngram_grid": {
+  "values": {
+   "char_wb(1, 3)|C=0.1": 0.9578,
+   "char_wb(1, 3)|C=1.0": 0.9611,
+   "char_wb(1, 3)|C=10.0": 0.9678,
+   "char_wb(2, 4)|C=0.1": 0.9578,
+   "char_wb(2, 4)|C=1.0": 0.9633,
+   "char_wb(2, 4)|C=10.0": 0.9644,
+   "char_wb(3, 5)|C=0.1": 0.9633,
+   "char_wb(3, 5)|C=1.0": 0.9644,
+   "char_wb(3, 5)|C=10.0": 0.97,
+   "char_wb(3, 3)|C=0.1": 0.9622,
+   "char_wb(3, 3)|C=1.0": 0.9667,
+   "char_wb(3, 3)|C=10.0": 0.9678
+  },
+  "min": 0.9578,
+  "max": 0.97,
+  "note": "post-hoc sensitivity; cite the declared primary"
+ }
+}

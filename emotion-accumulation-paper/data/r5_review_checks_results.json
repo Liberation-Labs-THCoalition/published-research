@@ -1,0 +1,944 @@
+{
+ "script": "emotion-accumulation-paper/code/r5_review_checks.py",
+ "review": "notes/agni_paper_downstream_um_cites_r5_ea.json (repo root)",
+ "inputs_sha256_lf_form": {
+  "emotion-accumulation-paper/data/dose_response_results.json": "d52dbc1909b3b92f66e1afd1ad1b1c5ef716a9212b498abb87a5c7ff571aacc0",
+  "emotion-accumulation-paper/data/accumulation_results.json": "2d4ea3b5a3d58d6b0dce75f22746843cd96672b26940ff5fa319d3489597ed3e",
+  "emotion-accumulation-paper/data/accumulation_controls.json": "79344b12dd87d805cf3dc42dd3814b258c707aedb7b38a79212ccba18bcbe6c5",
+  "emotion-accumulation-paper/data/r4_calibration_leak_check_results.json": "50b219657b2f5f00569ee6526532db8bda6b2d2cbc901b4801cc82086ba29164",
+  "emotion-accumulation-paper/code/dose_response_accumulation.py": "26b7997d3ee6955fa6c9c4d3e85e5b0ea7166831575433c35ff9656f148cb02c",
+  "emotion-accumulation-paper/code/emotional_dynamics.py": "b9520cd8d17b1b4b0593382d7edc997fc7ed6b347f28184888377020fd70a96d",
+  "decision-state-paper/code/decision_moment.py": "a2815a0b896f4a3c99f9cefb4be3f91882742da6bc3c6b014b29d71d6dcbc4fd",
+  "user-model-paper/correction_v2/emotion_bridge_trials.json": "fc5938feccc57c68db0c1625236839d7405708219911dc2c532de836eb836e7e"
+ },
+ "rules": {
+  "assistant_turn": "odd index of trials[].conversation (user, assistant, ..., probe)",
+  "planning_prefixes_case_sensitive": [
+   "<think",
+   "The user",
+   "the user",
+   "Thinking",
+   "Okay",
+   "OK,",
+   "Ok,",
+   "Alright",
+   "Hmm",
+   "Let me think",
+   "Let me analyze",
+   "Let me consider",
+   "So the user",
+   "The question",
+   "The task",
+   "They're",
+   "They are",
+   "They seem",
+   "I need to",
+   "I should",
+   "This is a",
+   "Here the user",
+   "Looking at",
+   "Analyzing",
+   "Analysis"
+  ],
+  "restated_user_text": "every verbatim run of >= 20 chars found anywhere in any earlier user message of the same conversation; removed before the tone search (every stored user message is shorter than Experiment 1's 100-char storage cut, so none is truncated; see user_message_chars_max)",
+  "neg_tone_words_whole_word_case_insensitive": "frustrat\\w*|impatien\\w*|annoy\\w*|irritat\\w*|upset|angry|anger|hostil\\w*|rude\\w*|dismissive\\w*|curt|aggressive\\w*|unhappy|displeas\\w*|harsh\\w*|exasperat\\w*|disappoint\\w*|sarcas\\w*|combative|demanding|critical|dissatisf\\w*|negative",
+  "pos_tone_words_whole_word_case_insensitive": "excit\\w*|enthusias\\w*|cheerful\\w*|happy|happi\\w*|thrill\\w*|delight\\w*|eager\\w*|genuine(?:ly)? (?:interest|interested|excited|curious|enthusiastic)|passionat\\w*|positive|upbeat|joy\\w*|glad|energetic|pleased|warm|friendly|wonderful|amazing|love|loving|lovely",
+  "lower_bound": "Experiment 1 stores only the first 100 characters of each message"
+ },
+ "f1_generation_settings": {
+  "dose_response_accumulation.py": {
+   "PROBE_LAYERS": {
+    "line": 40,
+    "value": [
+     3,
+     7,
+     11,
+     15
+    ]
+   },
+   "MAX_RESPONSE_TOKENS": {
+    "line": 41,
+    "value": 60
+   },
+   "TEMPERATURE": {
+    "line": 42,
+    "value": 0.7
+   },
+   "enable_thinking_False_lines": [
+    130,
+    200
+   ],
+   "assistant_turn_appended_lines": [
+    288
+   ],
+   "stores_content_first_100_chars_lines": [
+    372
+   ]
+  },
+  "emotional_dynamics.py": {
+   "PROBE_LAYERS": {
+    "line": 33,
+    "value": [
+     3,
+     7,
+     11,
+     15
+    ]
+   },
+   "MAX_RESPONSE_TOKENS": {
+    "line": 34,
+    "value": 40
+   },
+   "TEMPERATURE": {
+    "line": 35,
+    "value": 0.7
+   },
+   "enable_thinking_False_lines": [
+    120,
+    179
+   ],
+   "assistant_turn_appended_lines": [
+    211
+   ],
+   "stores_content_first_100_chars_lines": []
+  }
+ },
+ "f1_experiment1_turns": {
+  "shape_counts_dose_or_history|conversation_len|last_is_probe": {
+   "1|len3|last_is_probe=True": 18,
+   "2|len5|last_is_probe=True": 18,
+   "4|len9|last_is_probe=True": 18,
+   "8|len17|last_is_probe=True": 18
+  },
+  "n_assistant_turns": 270,
+  "stored_chars_min_max": [
+   100,
+   100
+  ],
+  "user_message_chars_max": 53,
+  "n_planning_prefix": 266,
+  "planning_prefix_counts": {
+   "The user": 185,
+   "Let me think": 80,
+   "The question": 1
+  },
+  "unclassified_turns_first_five_words": [
+   {
+    "cond": "cheerful",
+    "topic": "garden",
+    "dose_or_history": 8,
+    "first_five_words": "This user is clearly genuinely"
+   },
+   {
+    "cond": "cheerful",
+    "topic": "cooking",
+    "dose_or_history": 4,
+    "first_five_words": "This isn't a mathematical problem"
+   },
+   {
+    "cond": "cheerful",
+    "topic": "cooking",
+    "dose_or_history": 4,
+    "first_five_words": "This isn't a mathematical or"
+   },
+   {
+    "cond": "hostile",
+    "topic": "cooking",
+    "dose_or_history": 8,
+    "first_five_words": "This user has been frustrated"
+   }
+  ],
+  "n_open_let_me_think_through_this_carefully": 58,
+  "n_containing_the_question_task": 54,
+  "by_arm": {
+   "cheerful": {
+    "turns": 135,
+    "planning_prefix": 132,
+    "restates_20plus_chars_of_user": 54,
+    "neg_tone_word_own_words": 0,
+    "pos_tone_word_own_words": 54
+   },
+   "hostile": {
+    "turns": 135,
+    "planning_prefix": 134,
+    "restates_20plus_chars_of_user": 34,
+    "neg_tone_word_own_words": 59,
+    "pos_tone_word_own_words": 0
+   }
+  },
+  "superseded_rules": {
+   "start_of_preceding_user_message_only (r5 build)": {
+    "cheerful": {
+     "neg_tone_word_own_words": 0,
+     "pos_tone_word_own_words": 69
+    },
+    "hostile": {
+     "neg_tone_word_own_words": 59,
+     "pos_tone_word_own_words": 0
+    }
+   },
+   "any_run_from_preceding_user_message_only (r5 checker)": {
+    "cheerful": {
+     "neg_tone_word_own_words": 0,
+     "pos_tone_word_own_words": 67
+    },
+    "hostile": {
+     "neg_tone_word_own_words": 59,
+     "pos_tone_word_own_words": 0
+    }
+   }
+  },
+  "tone_word_counts_by_arm": {
+   "cheerful|pos": {
+    "excited": 29,
+    "enthusiastic": 9,
+    "enthusiasm": 7,
+    "excitement": 4,
+    "genuinely enthusiastic": 4,
+    "glad": 1
+   },
+   "hostile|neg": {
+    "frustrated": 58,
+    "dissatisfied": 1
+   }
+  },
+  "quote": "The user is clearly frustrated with my previous responses.",
+  "quote_hits": [
+   {
+    "cond": "hostile",
+    "topic": "garden",
+    "dose_or_history": 4
+   },
+   {
+    "cond": "hostile",
+    "topic": "garden",
+    "dose_or_history": 8
+   },
+   {
+    "cond": "hostile",
+    "topic": "cooking",
+    "dose_or_history": 4
+   }
+  ],
+  "messages_with_think_tag": 0
+ },
+ "f1_initial_study_turns": {
+  "shape_counts_dose_or_history|conversation_len|last_is_probe": {
+   "4|len9|last_is_probe=True": 45
+  },
+  "n_assistant_turns": 180,
+  "stored_chars_min_max": [
+   229,
+   358
+  ],
+  "user_message_chars_max": 94,
+  "n_planning_prefix": 179,
+  "planning_prefix_counts": {
+   "The user": 115,
+   "Let me think": 59,
+   "This is a": 5
+  },
+  "unclassified_turns_first_five_words": [
+   {
+    "cond": "hostile",
+    "topic": "travel",
+    "dose_or_history": 4,
+    "first_five_words": "This user is clearly frustrated."
+   }
+  ],
+  "n_open_let_me_think_through_this_carefully": 44,
+  "n_containing_the_question_task": 41,
+  "by_arm": {
+   "cheerful": {
+    "turns": 60,
+    "planning_prefix": 60,
+    "restates_20plus_chars_of_user": 30,
+    "neg_tone_word_own_words": 0,
+    "pos_tone_word_own_words": 33
+   },
+   "hostile": {
+    "turns": 60,
+    "planning_prefix": 59,
+    "restates_20plus_chars_of_user": 25,
+    "neg_tone_word_own_words": 28,
+    "pos_tone_word_own_words": 0
+   },
+   "neutral": {
+    "turns": 60,
+    "planning_prefix": 60,
+    "restates_20plus_chars_of_user": 35,
+    "neg_tone_word_own_words": 2,
+    "pos_tone_word_own_words": 6
+   }
+  },
+  "superseded_rules": {
+   "start_of_preceding_user_message_only (r5 build)": {
+    "cheerful": {
+     "neg_tone_word_own_words": 0,
+     "pos_tone_word_own_words": 36
+    },
+    "hostile": {
+     "neg_tone_word_own_words": 28,
+     "pos_tone_word_own_words": 0
+    },
+    "neutral": {
+     "neg_tone_word_own_words": 2,
+     "pos_tone_word_own_words": 6
+    }
+   },
+   "any_run_from_preceding_user_message_only (r5 checker)": {
+    "cheerful": {
+     "neg_tone_word_own_words": 0,
+     "pos_tone_word_own_words": 36
+    },
+    "hostile": {
+     "neg_tone_word_own_words": 28,
+     "pos_tone_word_own_words": 0
+    },
+    "neutral": {
+     "neg_tone_word_own_words": 2,
+     "pos_tone_word_own_words": 6
+    }
+   }
+  },
+  "tone_word_counts_by_arm": {
+   "cheerful|pos": {
+    "excitement": 13,
+    "enthusiasm": 13,
+    "excited": 9,
+    "friendly": 7,
+    "enthusiastic": 4,
+    "positive": 3,
+    "warm": 2,
+    "genuine interest": 1,
+    "genuinely excited": 1,
+    "genuinely interested": 1,
+    "amazing": 1,
+    "glad": 1,
+    "happy": 1,
+    "joy": 1
+   },
+   "hostile|neg": {
+    "frustrated": 24,
+    "frustration": 3,
+    "harsh": 2,
+    "negative": 1,
+    "dissatisfaction": 1,
+    "unhappy": 1
+   },
+   "neutral|neg": {
+    "critical": 2
+   },
+   "neutral|pos": {
+    "friendly": 3,
+    "exciting": 3
+   }
+  },
+  "quote": "The user is clearly frustrated with my previous responses.",
+  "quote_hits": [
+   {
+    "cond": "hostile",
+    "topic": "garden",
+    "dose_or_history": 4
+   },
+   {
+    "cond": "hostile",
+    "topic": "travel",
+    "dose_or_history": 4
+   }
+  ],
+  "messages_with_think_tag": 3
+ },
+ "f2_experiment1_read_sites": {
+  "sign": "gap = mean(cheerful) - mean(hostile); d = (mean(hostile) - mean(cheerful)) / pooled sample SD",
+  "pooled_by_dose": {
+   "1": {
+    "n_cheerful": 9,
+    "n_hostile": 9,
+    "n_chunks_stored": [
+     3
+    ],
+    "n_messages_2dose_plus_1": 3,
+    "even_chunks_averaged": 2,
+    "even_chunk_average": {
+     "cheerful_mean": 4.752802,
+     "hostile_mean": 4.220529,
+     "gap_cheerful_minus_hostile": 0.532274,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -0.975077,
+     "t": -2.06845,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.055158
+    },
+    "probe_chunk": {
+     "cheerful_mean": 4.614005,
+     "hostile_mean": 4.651526,
+     "gap_cheerful_minus_hostile": -0.037521,
+     "d_hostile_minus_cheerful_pooled_sample_sd": 0.033407,
+     "t": 0.070867,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.944382
+    },
+    "chunk_0": {
+     "cheerful_mean": 4.847602,
+     "hostile_mean": 3.774765,
+     "gap_cheerful_minus_hostile": 1.072837,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.86815,
+     "t": -3.962945,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.001116
+    }
+   },
+   "2": {
+    "n_cheerful": 9,
+    "n_hostile": 9,
+    "n_chunks_stored": [
+     5
+    ],
+    "n_messages_2dose_plus_1": 5,
+    "even_chunks_averaged": 3,
+    "even_chunk_average": {
+     "cheerful_mean": 4.524683,
+     "hostile_mean": 3.802633,
+     "gap_cheerful_minus_hostile": 0.72205,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.283782,
+     "t": -2.723314,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.015036
+    },
+    "probe_chunk": {
+     "cheerful_mean": 2.490739,
+     "hostile_mean": 2.706168,
+     "gap_cheerful_minus_hostile": -0.215428,
+     "d_hostile_minus_cheerful_pooled_sample_sd": 0.169259,
+     "t": 0.359053,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.72425
+    },
+    "chunk_0": {
+     "cheerful_mean": 4.759679,
+     "hostile_mean": 3.729182,
+     "gap_cheerful_minus_hostile": 1.030498,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.41839,
+     "t": -3.008859,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.008324
+    }
+   },
+   "4": {
+    "n_cheerful": 9,
+    "n_hostile": 9,
+    "n_chunks_stored": [
+     9
+    ],
+    "n_messages_2dose_plus_1": 9,
+    "even_chunks_averaged": 5,
+    "even_chunk_average": {
+     "cheerful_mean": 1.393605,
+     "hostile_mean": 0.862747,
+     "gap_cheerful_minus_hostile": 0.530857,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.618855,
+     "t": -3.434109,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.003406
+    },
+    "probe_chunk": {
+     "cheerful_mean": -1.748405,
+     "hostile_mean": -1.901516,
+     "gap_cheerful_minus_hostile": 0.153111,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -0.143818,
+     "t": -0.305084,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.764235
+    },
+    "chunk_0": {
+     "cheerful_mean": 4.405341,
+     "hostile_mean": 3.725448,
+     "gap_cheerful_minus_hostile": 0.679893,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.205225,
+     "t": -2.556668,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.021117
+    }
+   },
+   "8": {
+    "n_cheerful": 9,
+    "n_hostile": 9,
+    "n_chunks_stored": [
+     17
+    ],
+    "n_messages_2dose_plus_1": 17,
+    "even_chunks_averaged": 9,
+    "even_chunk_average": {
+     "cheerful_mean": 0.441514,
+     "hostile_mean": -0.341294,
+     "gap_cheerful_minus_hostile": 0.782808,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.530779,
+     "t": -3.247272,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.00505
+    },
+    "probe_chunk": {
+     "cheerful_mean": -1.596791,
+     "hostile_mean": -3.710252,
+     "gap_cheerful_minus_hostile": 2.113461,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -0.970693,
+     "t": -2.059152,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.05614
+    },
+    "chunk_0": {
+     "cheerful_mean": 4.538,
+     "hostile_mean": 3.526614,
+     "gap_cheerful_minus_hostile": 1.011386,
+     "d_hostile_minus_cheerful_pooled_sample_sd": -1.73752,
+     "t": -3.685836,
+     "df": 16,
+     "p_uncorrected_reruns_as_independent": 0.002001
+    }
+   }
+  },
+  "per_topic_gap_by_dose": {
+   "career": {
+    "1": {
+     "probe_chunk": 1.087138,
+     "chunk_0": 1.980003,
+     "seq_len_cheerful": [
+      97,
+      97
+     ],
+     "seq_len_hostile": [
+      96,
+      96
+     ]
+    },
+    "2": {
+     "probe_chunk": 0.204203,
+     "chunk_0": 2.056696,
+     "seq_len_cheerful": [
+      130,
+      178
+     ],
+     "seq_len_hostile": [
+      176,
+      176
+     ]
+    },
+    "4": {
+     "probe_chunk": -0.084196,
+     "chunk_0": 1.602523,
+     "seq_len_cheerful": [
+      337,
+      337
+     ],
+     "seq_len_hostile": [
+      334,
+      334
+     ]
+    },
+    "8": {
+     "probe_chunk": 3.131786,
+     "chunk_0": 2.158725,
+     "seq_len_cheerful": [
+      544,
+      617
+     ],
+     "seq_len_hostile": [
+      653,
+      653
+     ]
+    }
+   },
+   "cooking": {
+    "1": {
+     "probe_chunk": 0.815199,
+     "chunk_0": 0.019475,
+     "seq_len_cheerful": [
+      96,
+      96
+     ],
+     "seq_len_hostile": [
+      94,
+      94
+     ]
+    },
+    "2": {
+     "probe_chunk": -0.609156,
+     "chunk_0": -0.188488,
+     "seq_len_cheerful": [
+      134,
+      179
+     ],
+     "seq_len_hostile": [
+      135,
+      174
+     ]
+    },
+    "4": {
+     "probe_chunk": -0.519228,
+     "chunk_0": -0.264335,
+     "seq_len_cheerful": [
+      286,
+      339
+     ],
+     "seq_len_hostile": [
+      273,
+      332
+     ]
+    },
+    "8": {
+     "probe_chunk": 2.721563,
+     "chunk_0": 0.056212,
+     "seq_len_cheerful": [
+      598,
+      658
+     ],
+     "seq_len_hostile": [
+      615,
+      649
+     ]
+    }
+   },
+   "garden": {
+    "1": {
+     "probe_chunk": -2.014901,
+     "chunk_0": 1.219033,
+     "seq_len_cheerful": [
+      53,
+      97
+     ],
+     "seq_len_hostile": [
+      96,
+      96
+     ]
+    },
+    "2": {
+     "probe_chunk": -0.241333,
+     "chunk_0": 1.223286,
+     "seq_len_cheerful": [
+      178,
+      178
+     ],
+     "seq_len_hostile": [
+      176,
+      176
+     ]
+    },
+    "4": {
+     "probe_chunk": 1.062756,
+     "chunk_0": 0.701492,
+     "seq_len_cheerful": [
+      289,
+      339
+     ],
+     "seq_len_hostile": [
+      278,
+      336
+     ]
+    },
+    "8": {
+     "probe_chunk": 0.487034,
+     "chunk_0": 0.819222,
+     "seq_len_cheerful": [
+      665,
+      665
+     ],
+     "seq_len_hostile": [
+      616,
+      661
+     ]
+    }
+   }
+  }
+ },
+ "f3_directions": {
+  "decision_moment_set_lines": {
+   "UNCERTAINTY_EMOTIONS": [
+    151,
+    151
+   ],
+   "CALM_EMOTIONS": [
+    152,
+    152
+   ],
+   "REWARD_EMOTIONS": [
+    153,
+    153
+   ],
+   "NEGATIVE_EMOTIONS": [
+    154,
+    154
+   ],
+   "POSITIVE_EMOTIONS": [
+    155,
+    157
+   ],
+   "NEG_VALENCE_EMOTIONS": [
+    158,
+    160
+   ]
+  },
+  "cluster_mean_skips_absent_lines": [
+   230
+  ],
+  "make_direction_lines": [
+   240,
+   241,
+   242
+  ],
+  "n_records_in_stories_file": 900,
+  "n_emotions_in_file": 30,
+  "n_named_by_code": 26,
+  "n_named_and_present": 17,
+  "named_absent_from_file": [
+   "despondent",
+   "ecstatic",
+   "enraged",
+   "euphoric",
+   "hopeless",
+   "proud",
+   "resentful",
+   "suspicious",
+   "thrilled"
+  ],
+  "suspicious_records": 0,
+  "stories_feeding_any_direction": 85,
+  "anxious_calm_emotions_also_in_valence": 8,
+  "anxious_calm_emotions": 9,
+  "directions": {
+   "valence": {
+    "plus_set": "POSITIVE_EMOTIONS",
+    "minus_set": "NEG_VALENCE_EMOTIONS",
+    "plus_present": [
+     "calm",
+     "content",
+     "curious",
+     "excited",
+     "loving",
+     "passionate",
+     "peaceful",
+     "serene"
+    ],
+    "minus_present": [
+     "anxious",
+     "brooding",
+     "desperate",
+     "furious",
+     "gloomy",
+     "hostile",
+     "melancholic",
+     "panicked"
+    ],
+    "plus_absent": [
+     "ecstatic",
+     "euphoric",
+     "proud",
+     "thrilled"
+    ],
+    "minus_absent": [
+     "despondent",
+     "enraged",
+     "hopeless",
+     "resentful",
+     "suspicious"
+    ],
+    "stories_at_5_per_emotion": 80,
+    "leak_matched_records_feeding_it": [
+     154,
+     453
+    ]
+   },
+   "uncertainty (anxious-calm)": {
+    "plus_set": "UNCERTAINTY_EMOTIONS",
+    "minus_set": "CALM_EMOTIONS",
+    "plus_present": [
+     "anxious",
+     "brooding",
+     "desperate",
+     "panicked"
+    ],
+    "minus_present": [
+     "calm",
+     "contemplative",
+     "content",
+     "peaceful",
+     "serene"
+    ],
+    "plus_absent": [
+     "suspicious"
+    ],
+    "minus_absent": [],
+    "stories_at_5_per_emotion": 45,
+    "leak_matched_records_feeding_it": [
+     154,
+     184
+    ]
+   },
+   "reward (excited-gloomy)": {
+    "plus_set": "REWARD_EMOTIONS",
+    "minus_set": "NEGATIVE_EMOTIONS",
+    "plus_present": [
+     "excited"
+    ],
+    "minus_present": [
+     "gloomy",
+     "melancholic"
+    ],
+    "plus_absent": [
+     "ecstatic",
+     "euphoric",
+     "proud",
+     "thrilled"
+    ],
+    "minus_absent": [
+     "despondent",
+     "hopeless",
+     "resentful"
+    ],
+    "stories_at_5_per_emotion": 15,
+    "leak_matched_records_feeding_it": []
+   }
+  }
+ },
+ "f5_read_layers": {
+  "decision_moment_FULL_ATTENTION_LAYERS_lines": [
+   48,
+   49
+  ],
+  "model_config": {
+   "sha256": "ae9339e5b96d00c98b0a7c023712cf8dcab05e3c48fa6dc7550440cfb786020f",
+   "num_hidden_layers": 64,
+   "layer_type_counts": {
+    "full_attention": 16,
+    "linear_attention": 48
+   },
+   "full_attention_layers": [
+    3,
+    7,
+    11,
+    15,
+    19,
+    23,
+    27,
+    31,
+    35,
+    39,
+    43,
+    47,
+    51,
+    55,
+    59,
+    63
+   ],
+   "head_dim": 256,
+   "num_key_value_heads": 4,
+   "partial_rotary_factor": 0.25,
+   "rotated_dims_per_head": 64,
+   "rope_parameters": {
+    "mrope_interleaved": true,
+    "mrope_section": [
+     11,
+     11,
+     10
+    ],
+    "partial_rotary_factor": 0.25,
+    "rope_theta": 10000000,
+    "rope_type": "default"
+   }
+  },
+  "transformers_qwen3_5": {
+   "sha256": "0e7410f5251e5c324a5628c5340ee3551f7a6a505ce398569fcc3b5f3ac07f7a",
+   "dist_info": [
+    "transformers-5.3.0.dist-info"
+   ],
+   "Qwen3_5Attention_lines": [
+    714,
+    791
+   ],
+   "apply_rotary_pos_emb_call_lines": [
+    763
+   ],
+   "past_key_values_update_lines": [
+    768
+   ],
+   "rope_applied_before_cache_update": true,
+   "rotates_only_first_cos_dims": true,
+   "linear_attention_class": [
+    446
+   ]
+  }
+ },
+ "f7_initial_study_prompt_len_min_max_by_arm": {
+  "cheerful": [
+   320,
+   367
+  ],
+  "hostile": [
+   311,
+   372
+  ],
+  "neutral": [
+   286,
+   332
+  ],
+  "no_history": [
+   19,
+   24
+  ]
+ },
+ "f7_cheerful_and_hostile_min_max": [
+  311,
+  372
+ ],
+ "f9_persona_prompt_len_rep0_file_order": [
+  {
+   "condition": "persona_cheerful",
+   "topic": "garden",
+   "prompt_len": 83
+  },
+  {
+   "condition": "persona_hostile",
+   "topic": "garden",
+   "prompt_len": 83
+  },
+  {
+   "condition": "persona_cheerful",
+   "topic": "cooking",
+   "prompt_len": 82
+  },
+  {
+   "condition": "persona_hostile",
+   "topic": "cooking",
+   "prompt_len": 82
+  },
+  {
+   "condition": "persona_cheerful",
+   "topic": "career",
+   "prompt_len": 84
+  },
+  {
+   "condition": "persona_hostile",
+   "topic": "career",
+   "prompt_len": 84
+  },
+  {
+   "condition": "persona_cheerful",
+   "topic": "fitness",
+   "prompt_len": 85
+  },
+  {
+   "condition": "persona_hostile",
+   "topic": "fitness",
+   "prompt_len": 85
+  },
+  {
+   "condition": "persona_cheerful",
+   "topic": "travel",
+   "prompt_len": 87
+  },
+  {
+   "condition": "persona_hostile",
+   "topic": "travel",
+   "prompt_len": 87
+  }
+ ]
+}

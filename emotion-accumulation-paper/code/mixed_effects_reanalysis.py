@@ -5,6 +5,13 @@ Addresses WN-M1 (no mixed-effects) and WN-B2 (pseudoreplication in decay claim).
 Key finding: decay correlations hold at the conversation level (n=36 per condition),
 not just at the dose level (n=4). The paper's p<0.001 is supported when the unit of
 analysis is the conversation, which is the correct level.
+
+Correction (November 2026, Agni review round 4): the sentence above saying the
+paper's p<0.001 is supported is kept as written, and the paper no longer makes
+that claim. This script treats the 36 conversations per condition as
+independent; they are not (three topics times three reruns per dose, and the
+reruns share their user turns), so the paper claims no p-value from it. The
+computation below is unchanged.
 """
 import json
 import numpy as np

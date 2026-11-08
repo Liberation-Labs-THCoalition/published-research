@@ -1,0 +1,75 @@
+{
+ "DynamicCache": {
+  "class_lines": [
+   1915,
+   2007
+  ],
+  "layer_types_lines": [
+   {
+    "code": "layer_types, per_layer_kwargs = get_layer_types_and_kwargs(decoder_config)",
+    "line": 1969
+   },
+   {
+    "code": "for layer_type, layer_kwargs in zip(layer_types, per_layer_kwargs)",
+    "line": 1973
+   }
+  ]
+ },
+ "LABEL": "Review round 5, finding 12. Library source read from the wheel, not imported; the run's transformers version is not recorded in this repository.",
+ "attention_forward_order": {
+  "transformers/models/qwen3/modeling_qwen3.py": {
+   "Qwen3Attention": {
+    "apply_rotary_pos_emb": {
+     "code": "query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)",
+     "line": 249
+    },
+    "cache_update": {
+     "code": "key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)",
+     "line": 252
+    },
+    "k_norm": {
+     "code": "key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(1, 2)",
+     "line": 245
+    }
+   }
+  },
+  "transformers/models/qwen3_5/modeling_qwen3_5.py": {
+   "Qwen3_5Attention": {
+    "apply_rotary_pos_emb": {
+     "code": "query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)",
+     "line": 784
+    },
+    "cache_update": {
+     "code": "key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)",
+     "line": 787
+    },
+    "k_norm": {
+     "code": "key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(1, 2)",
+     "line": 780
+    }
+   }
+  },
+  "transformers/models/qwen3_next/modeling_qwen3_next.py": {
+   "Qwen3NextAttention": {
+    "apply_rotary_pos_emb": {
+     "code": "query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)",
+     "line": 279
+    },
+    "cache_update": {
+     "code": "key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)",
+     "line": 282
+    },
+    "k_norm": {
+     "code": "key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(1, 2)",
+     "line": 275
+    }
+   }
+  }
+ },
+ "wheel": {
+  "file": "transformers-5.22.2-py3-none-any.whl",
+  "sha256_lf": "d0d9bbeccb815441fd4885b1d5fbfd706250dcbed402bbf48bc999fed975a657",
+  "sha256_raw": "829c2820aff91730b8ec45a4b8ff4be07f586a140b68a9073998b36fa35297dc",
+  "version": "5.22.2"
+ }
+}

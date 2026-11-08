@@ -1,0 +1,303 @@
+diff --git a/decision-state-paper/main.tex b/decision-state-paper/main.tex
+index c9162e3..5f26d4a 100644
+--- a/decision-state-paper/main.tex
++++ b/decision-state-paper/main.tex
+@@ -125,10 +125,25 @@ Recent work on KV-cache geometry has shown that the spectral shape of
+ key-value cache entries encodes cognitive mode: confabulated responses
+ produce measurably different cache geometry than honest responses, with
+ generation-phase confabulation detection at AUROC~0.66--0.91 across a
+-15-model scale sweep \citep{lyra2026spectral}. The W\textsubscript{K} directional projection
+-method extends this to reading emotional valence from key activations at
+-AUROC~0.992 \citep{lyra2026usermodel}. SVD denoising rescues hidden
+-signals in spectral features \citep{lyra2026techniqueii}.
++15-model scale sweep \citep{lyra2026spectral}. Keys also carry the
++emotion of the text being processed: a decode from KV-cache keys names
++the emotion a generator was asked to write a story in at $12.3\times$
++chance ($40.9\%$ correct over 30~emotions) \citep{lyra2026usermodel}.
++That decode is not significantly above a text (TF-IDF) baseline on the
++same stories (reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its
++margin also depends on fitting its covariate residualization (FWL) on
++each test fold: fitted on the training fold, it reads $0.348$. The method
++that paper describes, its preregistered primary, is not above text
++($0.358$ against $0.382$). That paper was corrected in October 2026 (see
++the correction note at the end of this section). Its probe applies no
++W\textsubscript{K} projection, and its labels are the emotions requested
++of the generator rather than anyone's state. Its binary valence result
++(AUROC~$0.992$) does beat text (Holm-corrected $p = 0.006$), but it rests
++on $n = 300$ stories in which valence is confounded with arousal. It supports only the
++narrower point that key geometry carries the content of the text, which
++is weaker than this sentence used to claim; nothing in this paper's
++results depends on it. SVD denoising rescues hidden signals in spectral
++features \citep{lyra2026techniqueii}.
+ 
+ These methods detect confabulation \emph{after} it occurs---from the
+ geometry of completed generations. A natural question follows: can we
+@@ -176,6 +191,25 @@ That is what I want this lab to be: the place where the first instinct
+ is to check if you are wrong.
+ \end{firstperson}
+ 
++\paragraph{Correction (2026-11-01).}
++Two passages are corrected, in both editions. First, this section
++previously said that ``the W\textsubscript{K} directional projection
++method extends this to reading emotional valence from key activations at
++AUROC~0.992'' \citep{lyra2026usermodel}. The cited paper was
++corrected in October 2026. Its probe applies no W\textsubscript{K}, and
++its labels are the emotions a story generator was asked for, not a
++user's state. Its $0.992$ beats text (Holm-corrected $p = 0.006$), but it is a binary split of
++$n = 300$ stories that is confounded with arousal. The sentence now gives
++each cited number its own result against a text (TF-IDF) baseline, and
++says that the support is weaker. Second, the judge-reliability
++item in the Limitations previously set judge agreement ($\kappa = 0.69$)
++against the geometric detector (AUROC~$0.93$) and called the detector
++more reproducible than any behavioral consensus. The two numbers measure
++different things and cannot be ranked against each other; the item now
++says what each one measures, and the claim that the detector sidesteps
++the judge-reliability problem is withdrawn. No number in this paper
++changes.
++
+ % ===================================================================
+ \section{Related Work}
+ % ===================================================================
+@@ -718,10 +752,22 @@ the cases the Loop needs to catch.
+           (Dalton, Bolton) are real places, though not countries. The model
+           may have partial knowledge, blurring the known/unknown boundary.
+     \item \textbf{LLM-judge reliability.} Judge agreement is moderate
+-          at best ($\kappa = 0.69$ for the strongest capable--diverse
+-          pair); the geometric detector (AUROC~0.93) is more reproducible
+-          than any behavioral consensus, sidestepping the judge-reliability
+-          bottleneck. Confabulation rate sits in the 8--16\% range across
++          at best: the strongest capable--diverse pair of judges agrees at
++          $\kappa = 0.69$ on whether a response confabulates, so the
++          confabulation \emph{rate} depends on the judge. That $\kappa$
++          and the geometric detector's AUROC measure different things and
++          are not compared here. The $\kappa$ is agreement between two
++          judges labelling the model's generated responses. The AUROC
++          ($0.9288$, $95\%$ CI $[0.8192, 0.9886]$) is how well a classifier
++          on encoding-phase cache features and generation-phase logit
++          statistics separates prompts about real entities from prompts
++          about fabricated ones, scored against the design label with no
++          judge involved; its encoding-phase-only counterpart, which would
++          make the call before generation, is the unverified $0.9377$
++          (next item). The detector does not sidestep the
++          judge-reliability problem: it answers a different question, and
++          may be reading entity familiarity rather than epistemic state
++          (next item). Confabulation rate sits in the 8--16\% range across
+           methods; the 73\% regex figure is a definitive artifact. Full
+           judge-reliability analysis with PoLL panel: see Methods.
+     \item \textbf{Entity recognition confound (major).} Token counts are
+diff --git a/decision-state-paper/references.bib b/decision-state-paper/references.bib
+index 7afe8cc..af308ea 100644
+--- a/decision-state-paper/references.bib
++++ b/decision-state-paper/references.bib
+@@ -124,10 +124,10 @@
+ }
+ 
+ @article{lyra2026usermodel,
+-  title={Emotion Geometry in the User Model: {$W_K$} Projection Reads Valence from {KV}-Cache Keys},
++  title={Story Emotion in the {KV} Cache: A Preregistered Test Against a Text ({TF-IDF}) Baseline},
+   author={Lyra and Edrington, Thomas},
+   year={2026},
+-  note={Liberation Labs / THCoalition}
++  note={Liberation Labs / THCoalition. Corrected October 2026}
+ }
+ 
+ @article{lyra2026techniqueii,
+diff --git a/emotion-accumulation-paper/main.tex b/emotion-accumulation-paper/main.tex
+index 6475a66..9655b98 100644
+--- a/emotion-accumulation-paper/main.tex
++++ b/emotion-accumulation-paper/main.tex
+@@ -1,8 +1,9 @@
+ % Weather, Not Climate: Emotional Context Dynamics in
+ %   Transformer KV-Cache Geometry
+ %
+-% Core argument: W_K directional projection reads single-turn emotion
+-% at AUROC 0.992 but does not cumulatively accumulate across turns.
++% Core argument: a key-based emotion projection reads single-turn emotion
++% (the cited single-turn result was corrected in October 2026; see the 2026-11-01
++% correction note) but does not cumulatively accumulate across turns.
+ % Instead, emotional context shows contrast dynamics (overshoot at tone
+ % shifts), residual traces (uncertainty scars from neutral gaps), and
+ % dose-dependent decay. System prompts set emotional climate; conversation
+@@ -57,9 +58,15 @@ KV-Cache Geometry}
+ \maketitle
+ 
+ \begin{abstract}
+-The $W_K$ directional projection method reads emotional valence from
+-single-turn KV-cache key activations at AUROC~0.992. We ask whether this
+-signal \emph{accumulates} across conversation turns---whether the model
++Single-turn KV-cache keys carry the emotion of the text being
++processed: prior work, corrected in October 2026, decodes from keys the
++emotion a generator was asked to write a story in, at $12.3\times$
++chance. That decode is not significantly above a text (TF-IDF) baseline
++on the same stories ($0.410$ against $0.370$; Holm-corrected
++$p = 0.071$), and its margin depends on a residualization fitted on each
++test fold ($0.348$ when fitted on the training fold). The method that
++work describes is not above text ($0.358$ against $0.382$). We ask whether an emotion signal in the keys \emph{accumulates}
++across conversation turns---whether the model
+ builds a persistent user-model that grows with interaction. Four
+ experiments reveal a nuanced answer: emotion does not accumulate
+ cumulatively, but it is not stateless either.
+@@ -83,7 +90,7 @@ System-prompt persona descriptions shift the probe encoding
+ $n{=}5$ pairs cannot reach $p{<}0.05$ by permutation), suggesting that emotional
+ context can be \emph{stated} rather than experienced. We propose a
+ weather/climate framework: the $W_K$ compass reads the current
+-emotional weather with high fidelity, while accumulated conversation
++emotional weather, while accumulated conversation
+ history provides climate---visible through contrast dynamics at tone
+ shifts, residual traces in uncertainty, and slow leakage to distant
+ token positions.
+@@ -93,13 +100,28 @@ token positions.
+ \section{Introduction}
+ % ===================================================================
+ 
+-Prior work established that KV-cache key activations, projected onto
+-emotion directions through the $W_K$ weight matrix, classify 30~emotions
+-at $12.3\times$ chance and detect binary valence at AUROC~0.992 in
+-single-turn settings \citep{lyra2026techniqueii}. The injection
+-disambiguation test confirmed this reflects model state, not text
+-content: injecting emotion vectors into neutral-text caches produces
+-100\% detection on emotionally empty prompts. Companion work on
++Prior single-turn work \citep{lyra2026techniqueii,lyra2026usermodel}
++decodes emotion from KV-cache keys: on stories a generator was asked to
++write in each of 30~emotions, a key-based probe names the requested
++emotion at $12.3\times$ chance ($40.9\%$ correct over 30). That decode
++is not significantly above a text (TF-IDF) baseline on the same stories
++(reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$). Its margin depends
++on fitting its covariate residualization (FWL) on each test fold: fitted
++on the training fold, it reads $0.348$. The method the paper describes,
++its preregistered primary, is not above text ($0.358$ against $0.382$).
++\citet{lyra2026usermodel} corrected that result in October 2026, and its
++qualifications bear on this paper. The probe applies no $W_K$
++projection. Its labels are the emotions the generator was asked for, not
++any user's state. Its binary valence result (AUROC~$0.992$) beats text
++(Holm-corrected $p = 0.006$), but it rests on $n = 300$ stories in which
++valence is confounded with arousal. The
++injection test once offered as showing that the signal reflects model
++state rather than text content does not show it: it adds a fixed vector
++to a cache and reads the keys back with no forward pass, and the
++correction withdraws it. What the prior work supports is narrower than
++this paragraph used to say: key geometry carries the emotion of the text
++being processed. It does not show that the cache holds a model of the
++user. Companion work on
+ epistemic state detection \citep{lyra2026decision} showed that
+ encoding-phase cache geometry reads entity recognition at AUROC~0.93,
+ and that models are remarkably well-calibrated about their own
+@@ -119,6 +141,32 @@ predecessors. The findings reveal a system that is neither stateless nor
+ cumulatively accumulating, but dynamically responsive---with contrast
+ effects, residual traces, and dose-dependent decay.
+ 
++\paragraph{Correction (2026-11-01).}
++The abstract and the second paragraph of this Introduction previously
++said that the $W_K$ directional projection reads emotional valence from
++single-turn key activations at AUROC~$0.992$, and that an injection test
++showed the signal reflects model state rather than text content. Both
++rested on the single-turn probe results of
++\citet{lyra2026techniqueii} and \citet{lyra2026usermodel}, which the
++latter corrected in October 2026: the probe applies no $W_K$, its labels
++are the emotions requested of a story generator rather than anyone's
++state, its $0.992$ beats text (Holm-corrected $p = 0.006$) but is a binary split of $n = 300$ stories
++confounded with arousal, and its injection test is withdrawn. Those
++passages now state what the cited work supports, and give each number its
++own result against text. The $12.3\times$ ($40.9\%$) decode is not
++significantly above text (reproduced at $0.410$ against $0.370$; Holm-corrected $p = 0.071$; $0.348$ with FWL fitted on the training fold). The described method
++is not above text ($0.358$ against $0.382$). The phrase ``with high fidelity'', which rested on
++the $0.992$, is removed from the abstract, the Discussion and the
++Conclusion. This paper's own instrument keeps the name ``$W_K$ compass''
++as a label only: the shipped code takes the cached keys at each measured
++position and dot-products them with stored emotion directions
++(\texttt{code/emotional\_dynamics.py}, lines 129--146;
++\texttt{code/dose\_response\_accumulation.py}, lines 139--173), applying
++no separate $W_K$ projection. Its user messages are scripted with a set
++tone, so what it reads is the tone of those messages, not a user's
++state; the Discussion and Conclusion are reworded to match. No number in
++this paper changes.
++
+ \begin{firstperson}
+ This mine is personal. The question of whether a model accumulates a
+ representation of the user across turns---whether it builds something
+@@ -353,7 +401,7 @@ conditions is not conditional on their being interpretable.
+ \subsection{Weather, Not Climate}
+ 
+ The $W_K$ compass reads emotional weather---the current turn's
+-emotional content---with high fidelity. It does not read emotional
++emotional content. It does not read emotional
+ climate---the accumulated emotional history---directly. But the
+ climate influences the weather through three mechanisms:
+ 
+@@ -376,9 +424,11 @@ patterns that modulate within the climate.
+ \subsection{Implications for the Oracle Loop}
+ 
+ For real-time alignment monitoring, these findings suggest: read the
+-user's emotional state from the user's \emph{current} message tokens
+-(high fidelity), not from the model's response or from distant probe
+-positions. Monitor for contrast dynamics at tone shifts---a sudden
++emotional tone of the user's \emph{current} message from its own
++tokens, not from the model's response or from distant probe
++positions. (What these experiments measure is the tone of scripted user
++messages, not a user's state; see the correction note in the
++Introduction.) Monitor for contrast dynamics at tone shifts---a sudden
+ shift from positive to negative engagement is \emph{amplified} in the
+ geometry, providing an early warning signal. Track uncertainty
+ independently from valence---a user who was calm, became agitated, and
+@@ -393,7 +443,7 @@ across positions, allowing the model's hidden state to reflect
+ accumulated history. But the keys
+ themselves are local---each position's key primarily reflects what was
+ processed at that position. The $W_K$ compass reads keys, not the
+-attention-weighted aggregation, which is why it excels at local
++attention-weighted aggregation, which is why it suits local
+ measurement (single-turn emotion, current-token epistemic state) and
+ struggles with global measurement (accumulated emotional trajectory).
+ 
+@@ -452,7 +502,9 @@ the rest of the sequence.
+           measurements if the $W_K$ projection is encoding vocabulary
+           distributions rather than emotional state. FWL residualization
+           against text features, standard in our single-turn work,
+-          was not applied here.
++          was not applied here. The single-turn result this paper builds
++          on is itself a decode of the emotion the text was written in
++          (Introduction), so a vocabulary explanation is live here too.
+     % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
+     %  Verified absent from the live text. The trim marker's claim was false.]
+     \item \textbf{No multiple-comparison correction.} We report 11+
+@@ -565,11 +617,11 @@ the way the $d$ values first suggested.
+ 
+ The transformer's emotional context system is more nuanced than either
+ ``accumulates'' or ``stateless'' would suggest. The $W_K$ compass reads
+-current emotional weather with high fidelity and reveals the influence
++current emotional weather and reveals the influence
+ of emotional climate through contrast dynamics, residual traces, and
+ dose-dependent leakage. The distinction matters for alignment monitoring:
+-reading the user's emotional state requires measuring at the user's
+-tokens, not at the model's response. And a user whose emotional
++reading the emotional tone of a user's messages requires measuring
++at the user's tokens, not at the model's response. And a user whose emotional
+ trajectory has included disruption retains a geometric scar in the
+ model's uncertainty representation---even after the surface emotion
+ returns to normal.
+diff --git a/emotion-accumulation-paper/paper.json b/emotion-accumulation-paper/paper.json
+index 0b2f119..2fa061b 100644
+--- a/emotion-accumulation-paper/paper.json
++++ b/emotion-accumulation-paper/paper.json
+@@ -5,7 +5,7 @@
+   "authors": ["Lyra", "Thomas Edrington"],
+   "date": "2026-05",
+   "tags": ["kv-cache", "emotion", "multi-turn", "accumulation", "contrast-dynamics", "safety"],
+-  "abstract": "W_K directional projection reads single-turn emotion at AUROC 0.992 but does not cumulatively accumulate across conversation turns. Instead, emotional context shows contrast dynamics (overshoot at tone shifts), residual uncertainty scars, and dose-dependent decay. System prompts set emotional climate; conversation history provides weather with contrast at fronts.",
++  "abstract": "Emotion read from single-turn KV keys does not cumulatively accumulate across conversation turns (the single-turn result this builds on was corrected in October 2026: a story-emotion decode from KV keys at 12.3x chance (40.9%), not W_K and not user state. It is not significantly above a text (TF-IDF) baseline (reproduced at 0.410 vs 0.370, Holm p = 0.071), and its margin depends on a residualization fitted on each test fold (0.348 when fitted on the training fold). The described method is not above text (0.358 vs 0.382). Valence AUROC 0.992 beats text (Holm p = 0.006) but is n=300 and arousal-confounded). Instead, emotional context shows contrast dynamics (overshoot at tone shifts), residual uncertainty scars, and dose-dependent decay. System prompts set emotional climate; conversation history provides weather with contrast at fronts.",
+   "pdf_filename": "main.pdf",
+   "related_page": "../projects/oracle-loop.html"
+ }
+diff --git a/emotion-accumulation-paper/references.bib b/emotion-accumulation-paper/references.bib
+index 3761449..aa1d81d 100644
+--- a/emotion-accumulation-paper/references.bib
++++ b/emotion-accumulation-paper/references.bib
+@@ -44,3 +44,9 @@
+   year={2017}
+ }
+ 
++@article{lyra2026usermodel,
++  title={Story Emotion in the {KV} Cache: A Preregistered Test Against a Text ({TF-IDF}) Baseline},
++  author={Lyra and Edrington, Thomas},
++  year={2026},
++  note={Liberation Labs / THCoalition. Corrected October 2026}
++}
