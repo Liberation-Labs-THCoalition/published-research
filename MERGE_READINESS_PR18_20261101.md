@@ -242,7 +242,8 @@ In any case #18 cannot merge before #17.
   unregistered file was classed FAIL, and the same path in a `SHA256SUMS`-listed file was classed as a Thomas decision.
 - **Classed FAIL by the script (4), all false positives on reading:** the `C:/Users/<user>` placeholder in the
   previous copy of this file; `~/.credentials` in this file and in `notes/verify_2026-11-01_2_fidelity.md`,
-  where it describes an earlier planted control; and `/Users/runner` in the same note, quoting a log line from #17.
+  where it describes an earlier planted control; and the CI runner's home path in the same note, quoting a log line
+  from #17 (reworded 2026-11-07 so this file does not trip the home-path check itself).
 - **Master already carries the same form (Thomas decision, not FAIL):**
   - `info@digitaldisconnections.com`, the correspondence address in the `\thanks` lines.
   - The GPU machine's name and "Tailscale": 14 mentions in this file, the notes and
