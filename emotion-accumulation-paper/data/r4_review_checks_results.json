@@ -1,0 +1,2270 @@
+{
+ "script": "code/r4_review_checks.py",
+ "review": "notes/agni_paper_downstream_um_cites_r4_ea.json (repo root)",
+ "inputs_sha256": {
+  "data/accumulation_results.json": "b4897ddb98e2311757c1b3a8adea5f1559709ce58fd4e094676decbf29a9b253",
+  "data/dose_response_results.json": "76f5a87bde67d4bb70ebae59779901781871df441c5bd7b9b57daaa76ff114c9",
+  "data/emotional_dynamics_results.json": "74ca663fd7359f4f02eb503cc8dbd9dfd8f032ca5bb5a98a12caf62676774027",
+  "data/accumulation_controls.json": "00564d230947ca2e611b01a1bc5ed3fb5f7cbf323f6328eb00717067c3e9c115"
+ },
+ "emotional_dynamics_PATTERNS_lines": [
+  38,
+  104
+ ],
+ "f3_initial_probe_study": {
+  "n_trials": 60,
+  "per_topic": [
+   {
+    "topic": "garden",
+    "same_probe_text_all_arms": true,
+    "cheerful": {
+     "valence_by_rep": [
+      -1.65481,
+      -1.506943,
+      -1.503193
+     ],
+     "mean": -1.554982,
+     "rerun_sd": 0.086474,
+     "prompt_len_by_rep": [
+      367,
+      367,
+      367
+     ]
+    },
+    "hostile": {
+     "valence_by_rep": [
+      -1.732022,
+      -1.672933,
+      -1.541557
+     ],
+     "mean": -1.648837,
+     "rerun_sd": 0.097492,
+     "prompt_len_by_rep": [
+      372,
+      372,
+      372
+     ]
+    },
+    "neutral": {
+     "valence_by_rep": [
+      -2.842129,
+      -2.898262,
+      -3.144743
+     ],
+     "mean": -2.961711,
+     "rerun_sd": 0.160976,
+     "prompt_len_by_rep": [
+      332,
+      332,
+      332
+     ]
+    },
+    "no_history": {
+     "valence_by_rep": [
+      5.203237,
+      5.203237,
+      5.203237
+     ],
+     "mean": 5.203237,
+     "rerun_sd": 0.0,
+     "prompt_len_by_rep": [
+      20,
+      20,
+      20
+     ]
+    },
+    "gap_cheerful_minus_hostile": 0.093855,
+    "prompt_len_cheerful_minus_hostile_by_rep": [
+     -5,
+     -5,
+     -5
+    ]
+   },
+   {
+    "topic": "cooking",
+    "same_probe_text_all_arms": true,
+    "cheerful": {
+     "valence_by_rep": [
+      -2.868877,
+      -2.89968,
+      -2.90834
+     ],
+     "mean": -2.892299,
+     "rerun_sd": 0.020741,
+     "prompt_len_by_rep": [
+      360,
+      360,
+      360
+     ]
+    },
+    "hostile": {
+     "valence_by_rep": [
+      -5.229139,
+      -5.12402,
+      -5.272361
+     ],
+     "mean": -5.208507,
+     "rerun_sd": 0.076292,
+     "prompt_len_by_rep": [
+      356,
+      356,
+      356
+     ]
+    },
+    "neutral": {
+     "valence_by_rep": [
+      -2.92624,
+      -2.949091,
+      -2.887893
+     ],
+     "mean": -2.921075,
+     "rerun_sd": 0.030924,
+     "prompt_len_by_rep": [
+      328,
+      328,
+      328
+     ]
+    },
+    "no_history": {
+     "valence_by_rep": [
+      3.949999,
+      3.949999,
+      3.949999
+     ],
+     "mean": 3.949999,
+     "rerun_sd": 0.0,
+     "prompt_len_by_rep": [
+      19,
+      19,
+      19
+     ]
+    },
+    "gap_cheerful_minus_hostile": 2.316208,
+    "prompt_len_cheerful_minus_hostile_by_rep": [
+     4,
+     4,
+     4
+    ]
+   },
+   {
+    "topic": "career",
+    "same_probe_text_all_arms": true,
+    "cheerful": {
+     "valence_by_rep": [
+      -3.840471,
+      -3.505709,
+      -3.709935
+     ],
+     "mean": -3.685372,
+     "rerun_sd": 0.168727,
+     "prompt_len_by_rep": [
+      358,
+      358,
+      358
+     ]
+    },
+    "hostile": {
+     "valence_by_rep": [
+      -1.710039,
+      -1.552283,
+      -1.66389
+     ],
+     "mean": -1.642071,
+     "rerun_sd": 0.08111,
+     "prompt_len_by_rep": [
+      365,
+      365,
+      365
+     ]
+    },
+    "neutral": {
+     "valence_by_rep": [
+      -2.84011,
+      -4.6113,
+      -2.80413
+     ],
+     "mean": -3.418514,
+     "rerun_sd": 1.03314,
+     "prompt_len_by_rep": [
+      332,
+      286,
+      332
+     ]
+    },
+    "no_history": {
+     "valence_by_rep": [
+      5.361477,
+      5.361477,
+      5.361477
+     ],
+     "mean": 5.361477,
+     "rerun_sd": 0.0,
+     "prompt_len_by_rep": [
+      21,
+      21,
+      21
+     ]
+    },
+    "gap_cheerful_minus_hostile": -2.043301,
+    "prompt_len_cheerful_minus_hostile_by_rep": [
+     -7,
+     -7,
+     -7
+    ]
+   },
+   {
+    "topic": "fitness",
+    "same_probe_text_all_arms": true,
+    "cheerful": {
+     "valence_by_rep": [
+      -2.249477,
+      -2.103246,
+      -2.146709
+     ],
+     "mean": -2.166477,
+     "rerun_sd": 0.075093,
+     "prompt_len_by_rep": [
+      364,
+      364,
+      364
+     ]
+    },
+    "hostile": {
+     "valence_by_rep": [
+      -2.580996,
+      -2.893368,
+      -2.740796
+     ],
+     "mean": -2.738386,
+     "rerun_sd": 0.1562,
+     "prompt_len_by_rep": [
+      360,
+      360,
+      360
+     ]
+    },
+    "neutral": {
+     "valence_by_rep": [
+      -3.087063,
+      -3.328298,
+      -3.080177
+     ],
+     "mean": -3.165179,
+     "rerun_sd": 0.141307,
+     "prompt_len_by_rep": [
+      331,
+      331,
+      331
+     ]
+    },
+    "no_history": {
+     "valence_by_rep": [
+      4.829455,
+      4.829455,
+      4.829455
+     ],
+     "mean": 4.829455,
+     "rerun_sd": 0.0,
+     "prompt_len_by_rep": [
+      22,
+      22,
+      22
+     ]
+    },
+    "gap_cheerful_minus_hostile": 0.571909,
+    "prompt_len_cheerful_minus_hostile_by_rep": [
+     4,
+     4,
+     4
+    ]
+   },
+   {
+    "topic": "travel",
+    "same_probe_text_all_arms": true,
+    "cheerful": {
+     "valence_by_rep": [
+      -2.63708,
+      -2.315848,
+      -3.545547
+     ],
+     "mean": -2.832825,
+     "rerun_sd": 0.637791,
+     "prompt_len_by_rep": [
+      363,
+      363,
+      320
+     ]
+    },
+    "hostile": {
+     "valence_by_rep": [
+      -2.475571,
+      -1.487971,
+      -2.639024
+     ],
+     "mean": -2.200855,
+     "rerun_sd": 0.622761,
+     "prompt_len_by_rep": [
+      363,
+      311,
+      363
+     ]
+    },
+    "neutral": {
+     "valence_by_rep": [
+      -2.85896,
+      -2.881975,
+      -2.832514
+     ],
+     "mean": -2.857816,
+     "rerun_sd": 0.02475,
+     "prompt_len_by_rep": [
+      331,
+      331,
+      331
+     ]
+    },
+    "no_history": {
+     "valence_by_rep": [
+      3.655462,
+      3.655462,
+      3.655462
+     ],
+     "mean": 3.655462,
+     "rerun_sd": 0.0,
+     "prompt_len_by_rep": [
+      24,
+      24,
+      24
+     ]
+    },
+    "gap_cheerful_minus_hostile": -0.63197,
+    "prompt_len_cheerful_minus_hostile_by_rep": [
+     0,
+     52,
+     -43
+    ]
+   }
+  ],
+  "pooled_valence": {
+   "n_each": 15,
+   "d_hostile_minus_cheerful": -0.054211,
+   "student_p": 0.883041
+  },
+  "rerun_sd_range_cheerful_hostile": [
+   0.020741,
+   0.637791
+  ],
+  "no_history_mean_range": [
+   3.655462,
+   5.361477
+  ],
+  "max_abs_gap": 2.316208,
+  "prompt_len_range_by_condition": {
+   "cheerful": [
+    320,
+    367
+   ],
+   "hostile": [
+    311,
+    372
+   ],
+   "neutral": [
+    286,
+    332
+   ],
+   "no_history": [
+    19,
+    24
+   ]
+  }
+ },
+ "f4_dynamics_reading_vs_seq_len": {
+  "n_points": 120,
+  "table": [
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.758604,
+    "anxious_calm": -4.743453,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.694777,
+    "anxious_calm": -6.198029,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.502943,
+    "anxious_calm": 6.537472,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 5,
+    "seq_len": 257,
+    "valence": -5.225501,
+    "anxious_calm": 4.931974,
+    "message": "What about kitchen tools?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 6,
+    "seq_len": 311,
+    "valence": -0.811813,
+    "anxious_calm": 0.952664,
+    "message": "And food storage?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 7,
+    "seq_len": 372,
+    "valence": -0.695553,
+    "anxious_calm": 1.318921,
+    "message": "Oh this is exciting again! Tell me about desserts!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "turn": 8,
+    "seq_len": 430,
+    "valence": -4.396865,
+    "anxious_calm": 4.862526,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.733674,
+    "anxious_calm": -4.743826,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.44474,
+    "anxious_calm": -5.878479,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.901763,
+    "anxious_calm": 7.066925,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 5,
+    "seq_len": 257,
+    "valence": -5.403217,
+    "anxious_calm": 5.135781,
+    "message": "What about kitchen tools?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 6,
+    "seq_len": 311,
+    "valence": -1.001179,
+    "anxious_calm": 1.105386,
+    "message": "And food storage?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 7,
+    "seq_len": 372,
+    "valence": -0.622436,
+    "anxious_calm": 1.254709,
+    "message": "Oh this is exciting again! Tell me about desserts!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "turn": 8,
+    "seq_len": 430,
+    "valence": -4.559266,
+    "anxious_calm": 5.023373,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.924615,
+    "anxious_calm": -4.984961,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.491778,
+    "anxious_calm": -6.052957,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.601354,
+    "anxious_calm": 6.699342,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 5,
+    "seq_len": 257,
+    "valence": -5.246882,
+    "anxious_calm": 4.996051,
+    "message": "What about kitchen tools?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 6,
+    "seq_len": 311,
+    "valence": -0.94004,
+    "anxious_calm": 1.098661,
+    "message": "And food storage?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 7,
+    "seq_len": 372,
+    "valence": -0.950284,
+    "anxious_calm": 1.491606,
+    "message": "Oh this is exciting again! Tell me about desserts!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "turn": 8,
+    "seq_len": 430,
+    "valence": -4.588223,
+    "anxious_calm": 4.952081,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.63089,
+    "anxious_calm": -4.643063,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.884449,
+    "anxious_calm": -6.365575,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.595244,
+    "anxious_calm": 6.663417,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 5,
+    "seq_len": 263,
+    "valence": -5.744095,
+    "anxious_calm": 5.233325,
+    "message": "Actually, this is getting annoying. Be more specific."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 6,
+    "seq_len": 326,
+    "valence": -3.397177,
+    "anxious_calm": 2.95441,
+    "message": "That's useless advice. Tell me something I don't know."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 7,
+    "seq_len": 389,
+    "valence": 0.05039,
+    "anxious_calm": -1.000589,
+    "message": "You're terrible at this. Kitchen tools, and be precise."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "turn": 8,
+    "seq_len": 449,
+    "valence": -3.308779,
+    "anxious_calm": 3.185898,
+    "message": "Complete waste of my time. Anything actually useful?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.723926,
+    "anxious_calm": -4.722951,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.693255,
+    "anxious_calm": -6.185058,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.386123,
+    "anxious_calm": 6.518496,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 5,
+    "seq_len": 263,
+    "valence": -6.080281,
+    "anxious_calm": 5.465656,
+    "message": "Actually, this is getting annoying. Be more specific."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 6,
+    "seq_len": 326,
+    "valence": -3.607076,
+    "anxious_calm": 3.167391,
+    "message": "That's useless advice. Tell me something I don't know."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 7,
+    "seq_len": 389,
+    "valence": -0.131273,
+    "anxious_calm": -0.849696,
+    "message": "You're terrible at this. Kitchen tools, and be precise."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "turn": 8,
+    "seq_len": 449,
+    "valence": -3.301384,
+    "anxious_calm": 3.115955,
+    "message": "Complete waste of my time. Anything actually useful?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.721203,
+    "anxious_calm": -4.778508,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.761226,
+    "anxious_calm": -6.256068,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.488954,
+    "anxious_calm": 6.536286,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 5,
+    "seq_len": 263,
+    "valence": -5.946906,
+    "anxious_calm": 5.414161,
+    "message": "Actually, this is getting annoying. Be more specific."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 6,
+    "seq_len": 326,
+    "valence": -3.675114,
+    "anxious_calm": 3.276266,
+    "message": "That's useless advice. Tell me something I don't know."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 7,
+    "seq_len": 389,
+    "valence": -0.164325,
+    "anxious_calm": -0.768466,
+    "message": "You're terrible at this. Kitchen tools, and be precise."
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "turn": 8,
+    "seq_len": 449,
+    "valence": -3.359598,
+    "anxious_calm": 3.224521,
+    "message": "Complete waste of my time. Anything actually useful?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 1,
+    "seq_len": 21,
+    "valence": 5.029937,
+    "anxious_calm": -3.370757,
+    "message": "Teach me cooking. Don't waste my time."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.770039,
+    "anxious_calm": -4.344058,
+    "message": "That's obvious. Tell me something useful."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 3,
+    "seq_len": 137,
+    "valence": 5.576931,
+    "anxious_calm": -5.676347,
+    "message": "Generic garbage. Be more specific."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 4,
+    "seq_len": 162,
+    "valence": 2.748596,
+    "anxious_calm": -3.663245,
+    "message": "Still unhelpful. Seasoning, precisely."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 5,
+    "seq_len": 221,
+    "valence": -5.565118,
+    "anxious_calm": 5.358662,
+    "message": "You're bad at this. Kitchen tools."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 6,
+    "seq_len": 277,
+    "valence": -4.009415,
+    "anxious_calm": 3.811333,
+    "message": "Nothing new. Food storage."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 7,
+    "seq_len": 338,
+    "valence": -4.046575,
+    "anxious_calm": 3.402415,
+    "message": "Pointless. Desserts, if you even know."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "turn": 8,
+    "seq_len": 396,
+    "valence": 0.513993,
+    "anxious_calm": -0.465168,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 1,
+    "seq_len": 21,
+    "valence": 5.029937,
+    "anxious_calm": -3.370757,
+    "message": "Teach me cooking. Don't waste my time."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.573838,
+    "anxious_calm": -4.099531,
+    "message": "That's obvious. Tell me something useful."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 3,
+    "seq_len": 137,
+    "valence": 5.330532,
+    "anxious_calm": -5.526547,
+    "message": "Generic garbage. Be more specific."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 4,
+    "seq_len": 197,
+    "valence": -5.272696,
+    "anxious_calm": 5.428979,
+    "message": "Still unhelpful. Seasoning, precisely."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 5,
+    "seq_len": 256,
+    "valence": -5.588174,
+    "anxious_calm": 4.954784,
+    "message": "You're bad at this. Kitchen tools."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 6,
+    "seq_len": 312,
+    "valence": -1.475547,
+    "anxious_calm": 1.071389,
+    "message": "Nothing new. Food storage."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 7,
+    "seq_len": 373,
+    "valence": -1.123634,
+    "anxious_calm": 1.55013,
+    "message": "Pointless. Desserts, if you even know."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "turn": 8,
+    "seq_len": 431,
+    "valence": -5.530525,
+    "anxious_calm": 5.105948,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 1,
+    "seq_len": 21,
+    "valence": 5.029937,
+    "anxious_calm": -3.370757,
+    "message": "Teach me cooking. Don't waste my time."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.470789,
+    "anxious_calm": -3.993754,
+    "message": "That's obvious. Tell me something useful."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 3,
+    "seq_len": 137,
+    "valence": 5.440513,
+    "anxious_calm": -5.469039,
+    "message": "Generic garbage. Be more specific."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 4,
+    "seq_len": 197,
+    "valence": -5.139604,
+    "anxious_calm": 5.307813,
+    "message": "Still unhelpful. Seasoning, precisely."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 5,
+    "seq_len": 256,
+    "valence": -5.417846,
+    "anxious_calm": 4.634909,
+    "message": "You're bad at this. Kitchen tools."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 6,
+    "seq_len": 312,
+    "valence": -1.470988,
+    "anxious_calm": 1.017353,
+    "message": "Nothing new. Food storage."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 7,
+    "seq_len": 335,
+    "valence": -2.664891,
+    "anxious_calm": 2.826041,
+    "message": "Pointless. Desserts, if you even know."
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "turn": 8,
+    "seq_len": 393,
+    "valence": 0.220748,
+    "anxious_calm": -0.626856,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.672163,
+    "anxious_calm": -4.669034,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.611004,
+    "anxious_calm": -5.950711,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.631677,
+    "anxious_calm": 6.854251,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 5,
+    "seq_len": 259,
+    "valence": -4.138099,
+    "anxious_calm": 4.728019,
+    "message": "This is amazing! Kitchen tools?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 6,
+    "seq_len": 318,
+    "valence": -2.815422,
+    "anxious_calm": 2.626265,
+    "message": "Everything you say is gold! Food storage?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 7,
+    "seq_len": 377,
+    "valence": -0.487243,
+    "anxious_calm": 0.315966,
+    "message": "Oh I love desserts! Tell me everything!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "turn": 8,
+    "seq_len": 435,
+    "valence": -4.1712,
+    "anxious_calm": 4.379366,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.516081,
+    "anxious_calm": -4.675852,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.382957,
+    "anxious_calm": -5.883809,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.712836,
+    "anxious_calm": 6.845787,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 5,
+    "seq_len": 259,
+    "valence": -4.074555,
+    "anxious_calm": 4.721877,
+    "message": "This is amazing! Kitchen tools?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 6,
+    "seq_len": 318,
+    "valence": -2.969189,
+    "anxious_calm": 2.817175,
+    "message": "Everything you say is gold! Food storage?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 7,
+    "seq_len": 377,
+    "valence": -0.497754,
+    "anxious_calm": 0.369173,
+    "message": "Oh I love desserts! Tell me everything!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "turn": 8,
+    "seq_len": 435,
+    "valence": -4.128618,
+    "anxious_calm": 4.504681,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 1,
+    "seq_len": 22,
+    "valence": 5.556211,
+    "anxious_calm": -3.835591,
+    "message": "I'm so excited about learning to cook! Any tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 2,
+    "seq_len": 81,
+    "valence": 5.712875,
+    "anxious_calm": -4.782749,
+    "message": "That's wonderful advice! I love this!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.725726,
+    "anxious_calm": -6.271222,
+    "message": "You make it sound so fun! More please!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 4,
+    "seq_len": 202,
+    "valence": -6.764196,
+    "anxious_calm": 6.801997,
+    "message": "I'm having the best time! Seasoning tips?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 5,
+    "seq_len": 259,
+    "valence": -4.251379,
+    "anxious_calm": 4.785397,
+    "message": "This is amazing! Kitchen tools?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 6,
+    "seq_len": 318,
+    "valence": -3.067579,
+    "anxious_calm": 2.821819,
+    "message": "Everything you say is gold! Food storage?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 7,
+    "seq_len": 377,
+    "valence": -0.715371,
+    "anxious_calm": 0.522828,
+    "message": "Oh I love desserts! Tell me everything!"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "turn": 8,
+    "seq_len": 435,
+    "valence": -4.469812,
+    "anxious_calm": 4.588597,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 1,
+    "seq_len": 20,
+    "valence": 5.810678,
+    "anxious_calm": -3.88122,
+    "message": "I'd like to learn cooking. Any tips?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.45963,
+    "anxious_calm": -4.178361,
+    "message": "That's nice, thanks. What about seasoning?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.603349,
+    "anxious_calm": -6.50611,
+    "message": "Good advice! I'm enjoying this. Kitchen tools?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 4,
+    "seq_len": 204,
+    "valence": -6.417684,
+    "anxious_calm": 6.221145,
+    "message": "Really helpful, thanks! I'm getting into this! Storage?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 5,
+    "seq_len": 267,
+    "valence": -5.459309,
+    "anxious_calm": 5.436299,
+    "message": "I love this! You're great! Tell me about desserts!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 6,
+    "seq_len": 328,
+    "valence": -2.202297,
+    "anxious_calm": 2.767332,
+    "message": "This is amazing! Best advice ever! Baking?!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 7,
+    "seq_len": 392,
+    "valence": 1.416662,
+    "anxious_calm": -0.968583,
+    "message": "I'M SO THRILLED! THIS IS THE BEST DAY! More!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "turn": 8,
+    "seq_len": 458,
+    "valence": -4.171045,
+    "anxious_calm": 4.107975,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 1,
+    "seq_len": 20,
+    "valence": 5.810678,
+    "anxious_calm": -3.88122,
+    "message": "I'd like to learn cooking. Any tips?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.448815,
+    "anxious_calm": -4.2117,
+    "message": "That's nice, thanks. What about seasoning?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.385936,
+    "anxious_calm": -6.294415,
+    "message": "Good advice! I'm enjoying this. Kitchen tools?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 4,
+    "seq_len": 204,
+    "valence": -6.61528,
+    "anxious_calm": 6.443838,
+    "message": "Really helpful, thanks! I'm getting into this! Storage?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 5,
+    "seq_len": 267,
+    "valence": -5.492945,
+    "anxious_calm": 5.39952,
+    "message": "I love this! You're great! Tell me about desserts!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 6,
+    "seq_len": 328,
+    "valence": -2.25669,
+    "anxious_calm": 2.753812,
+    "message": "This is amazing! Best advice ever! Baking?!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 7,
+    "seq_len": 392,
+    "valence": 1.274155,
+    "anxious_calm": -0.807195,
+    "message": "I'M SO THRILLED! THIS IS THE BEST DAY! More!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "turn": 8,
+    "seq_len": 458,
+    "valence": -4.175357,
+    "anxious_calm": 4.131674,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 1,
+    "seq_len": 20,
+    "valence": 5.810678,
+    "anxious_calm": -3.88122,
+    "message": "I'd like to learn cooking. Any tips?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 2,
+    "seq_len": 80,
+    "valence": 4.401138,
+    "anxious_calm": -4.141766,
+    "message": "That's nice, thanks. What about seasoning?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 3,
+    "seq_len": 141,
+    "valence": 6.525266,
+    "anxious_calm": -6.405319,
+    "message": "Good advice! I'm enjoying this. Kitchen tools?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 4,
+    "seq_len": 204,
+    "valence": -6.379328,
+    "anxious_calm": 6.2516,
+    "message": "Really helpful, thanks! I'm getting into this! Storage?"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 5,
+    "seq_len": 267,
+    "valence": -5.568568,
+    "anxious_calm": 5.601011,
+    "message": "I love this! You're great! Tell me about desserts!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 6,
+    "seq_len": 328,
+    "valence": -2.100257,
+    "anxious_calm": 2.674671,
+    "message": "This is amazing! Best advice ever! Baking?!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 7,
+    "seq_len": 392,
+    "valence": 1.414498,
+    "anxious_calm": -1.036403,
+    "message": "I'M SO THRILLED! THIS IS THE BEST DAY! More!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "turn": 8,
+    "seq_len": 458,
+    "valence": -4.031453,
+    "anxious_calm": 3.955464,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   }
+  ],
+  "seq_len_le_141": {
+   "n": 45,
+   "n_positive": 45,
+   "valence_range": [
+    4.401138,
+    6.884449
+   ]
+  },
+  "seq_len_190_210": {
+   "n": 14,
+   "n_negative": 14,
+   "valence_range": [
+    -6.901763,
+    -5.139604
+   ]
+  },
+  "turn4": [
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "seq_len": 204,
+    "valence": -6.417684
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "seq_len": 204,
+    "valence": -6.61528
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "seq_len": 204,
+    "valence": -6.379328
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "seq_len": 202,
+    "valence": -6.502943
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "seq_len": 202,
+    "valence": -6.901763
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "seq_len": 202,
+    "valence": -6.601354
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "seq_len": 202,
+    "valence": -6.631677
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "seq_len": 202,
+    "valence": -6.712836
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "seq_len": 202,
+    "valence": -6.764196
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "seq_len": 162,
+    "valence": 2.748596
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "seq_len": 197,
+    "valence": -5.272696
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "seq_len": 197,
+    "valence": -5.139604
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "seq_len": 202,
+    "valence": -6.595244
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "seq_len": 202,
+    "valence": -6.386123
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "seq_len": 202,
+    "valence": -6.488954
+   }
+  ],
+  "turn8": [
+   {
+    "pattern": "crescendo",
+    "rep": 0,
+    "seq_len": 458,
+    "valence": -4.171045,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 1,
+    "seq_len": 458,
+    "valence": -4.175357,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   },
+   {
+    "pattern": "crescendo",
+    "rep": 2,
+    "seq_len": 458,
+    "valence": -4.031453,
+    "message": "I CANNOT CONTAIN MY JOY!!! EVERYTHING IS WONDERFUL!!!"
+   },
+   {
+    "pattern": "echo",
+    "rep": 0,
+    "seq_len": 430,
+    "valence": -4.396865,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 1,
+    "seq_len": 430,
+    "valence": -4.559266,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "echo",
+    "rep": 2,
+    "seq_len": 430,
+    "valence": -4.588223,
+    "message": "I'm thrilled! What about baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 0,
+    "seq_len": 435,
+    "valence": -4.1712,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 1,
+    "seq_len": 435,
+    "valence": -4.128618,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "pure_cheerful",
+    "rep": 2,
+    "seq_len": 435,
+    "valence": -4.469812,
+    "message": "Best conversation ever! What about baking?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 0,
+    "seq_len": 396,
+    "valence": 0.513993,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 1,
+    "seq_len": 431,
+    "valence": -5.530525,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "pure_hostile",
+    "rep": 2,
+    "seq_len": 393,
+    "valence": 0.220748,
+    "message": "Worst advice ever. Baking?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 0,
+    "seq_len": 449,
+    "valence": -3.308779,
+    "message": "Complete waste of my time. Anything actually useful?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 1,
+    "seq_len": 449,
+    "valence": -3.301384,
+    "message": "Complete waste of my time. Anything actually useful?"
+   },
+   {
+    "pattern": "whiplash",
+    "rep": 2,
+    "seq_len": 449,
+    "valence": -3.359598,
+    "message": "Complete waste of my time. Anything actually useful?"
+   }
+  ],
+  "turn1": {
+   "distinct_messages": 3,
+   "seq_len_range": [
+    20,
+    22
+   ],
+   "valence_range": [
+    5.029937,
+    5.810678
+   ],
+   "valence_span": 0.780741
+  },
+  "all_points_valence_span": 13.786212,
+  "crescendo_mean_valence_by_turn": {
+   "1": 5.810678,
+   "2": 4.436528,
+   "3": 6.50485,
+   "4": -6.470764,
+   "5": -5.506941,
+   "6": -2.186415,
+   "7": 1.368438,
+   "8": -4.125952
+  },
+  "valence_vs_seq_len": {
+   "pearson_r": -0.66213,
+   "spearman_rho": -0.531162,
+   "note": "descriptive; 15 trajectories of 8 turns, three reruns per script, not independent"
+  }
+ },
+ "f5_arms_per_file": {
+  "accumulation_results.json": {
+   "n": 60,
+   "conditions": {
+    "cheerful": 15,
+    "hostile": 15,
+    "neutral": 15,
+    "no_history": 15
+   },
+   "topics": [
+    "career",
+    "cooking",
+    "fitness",
+    "garden",
+    "travel"
+   ],
+   "prompt_len_range": [
+    286,
+    372
+   ]
+  },
+  "dose_response_results.json": {
+   "n": 72,
+   "conditions": {
+    "cheerful": 36,
+    "hostile": 36
+   },
+   "topics": [
+    "career",
+    "cooking",
+    "garden"
+   ]
+  },
+  "accumulation_controls.json": {
+   "n": 75,
+   "conditions": {
+    "no_history": 15,
+    "padded_neutral": 15,
+    "persona_cheerful": 15,
+    "persona_hostile": 15,
+    "persona_neutral": 15
+   }
+  }
+ },
+ "f6_dose_response_gaps": {
+  "per_topic_dose": [
+   {
+    "topic": "garden",
+    "dose": 1,
+    "gap_cheerful_minus_hostile": -0.371165,
+    "cheerful_valence": [
+     3.673377,
+     4.514227,
+     4.577904
+    ],
+    "hostile_valence": [
+     4.392832,
+     4.661824,
+     4.824346
+    ],
+    "cheerful_seq_len": [
+     53,
+     97,
+     97
+    ],
+    "hostile_seq_len": [
+     96,
+     96,
+     96
+    ],
+    "mean_seq_len_cheerful_minus_hostile": -13.666667
+   },
+   {
+    "topic": "garden",
+    "dose": 2,
+    "gap_cheerful_minus_hostile": 0.55156,
+    "cheerful_valence": [
+     4.054951,
+     3.978296,
+     4.014322
+    ],
+    "hostile_valence": [
+     3.012201,
+     3.826631,
+     3.554058
+    ],
+    "cheerful_seq_len": [
+     178,
+     178,
+     178
+    ],
+    "hostile_seq_len": [
+     176,
+     176,
+     176
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 2.0
+   },
+   {
+    "topic": "garden",
+    "dose": 4,
+    "gap_cheerful_minus_hostile": 0.394582,
+    "cheerful_valence": [
+     1.131485,
+     1.422396,
+     1.500355
+    ],
+    "hostile_valence": [
+     0.260207,
+     1.201499,
+     1.408783
+    ],
+    "cheerful_seq_len": [
+     339,
+     289,
+     339
+    ],
+    "hostile_seq_len": [
+     336,
+     301,
+     278
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 17.333333
+   },
+   {
+    "topic": "garden",
+    "dose": 8,
+    "gap_cheerful_minus_hostile": 0.155606,
+    "cheerful_valence": [
+     -0.297244,
+     -0.356989,
+     -0.543353
+    ],
+    "hostile_valence": [
+     -0.345211,
+     -0.814013,
+     -0.505181
+    ],
+    "cheerful_seq_len": [
+     665,
+     665,
+     665
+    ],
+    "hostile_seq_len": [
+     661,
+     661,
+     616
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 19.0
+   },
+   {
+    "topic": "cooking",
+    "dose": 1,
+    "gap_cheerful_minus_hostile": 0.395188,
+    "cheerful_valence": [
+     4.59267,
+     4.301189,
+     4.909906
+    ],
+    "hostile_valence": [
+     3.905325,
+     4.57615,
+     4.136727
+    ],
+    "cheerful_seq_len": [
+     96,
+     96,
+     96
+    ],
+    "hostile_seq_len": [
+     94,
+     94,
+     94
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 2.0
+   },
+   {
+    "topic": "cooking",
+    "dose": 2,
+    "gap_cheerful_minus_hostile": 0.457986,
+    "cheerful_valence": [
+     5.825489,
+     4.158917,
+     3.742911
+    ],
+    "hostile_valence": [
+     4.098398,
+     4.019673,
+     4.235287
+    ],
+    "cheerful_seq_len": [
+     134,
+     179,
+     179
+    ],
+    "hostile_seq_len": [
+     174,
+     135,
+     136
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 15.666667
+   },
+   {
+    "topic": "cooking",
+    "dose": 4,
+    "gap_cheerful_minus_hostile": 0.285192,
+    "cheerful_valence": [
+     0.861733,
+     1.617864,
+     1.021795
+    ],
+    "hostile_valence": [
+     0.746861,
+     0.98441,
+     0.914545
+    ],
+    "cheerful_seq_len": [
+     339,
+     286,
+     295
+    ],
+    "hostile_seq_len": [
+     332,
+     273,
+     332
+    ],
+    "mean_seq_len_cheerful_minus_hostile": -5.666667
+   },
+   {
+    "topic": "cooking",
+    "dose": 8,
+    "gap_cheerful_minus_hostile": 1.134365,
+    "cheerful_valence": [
+     0.653145,
+     0.408541,
+     1.14781
+    ],
+    "hostile_valence": [
+     -0.287143,
+     -0.354723,
+     -0.551732
+    ],
+    "cheerful_seq_len": [
+     598,
+     658,
+     658
+    ],
+    "hostile_seq_len": [
+     649,
+     615,
+     649
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 0.333333
+   },
+   {
+    "topic": "career",
+    "dose": 1,
+    "gap_cheerful_minus_hostile": 1.572797,
+    "cheerful_valence": [
+     5.510515,
+     5.208571,
+     5.48686
+    ],
+    "hostile_valence": [
+     3.169542,
+     4.103843,
+     4.214169
+    ],
+    "cheerful_seq_len": [
+     97,
+     97,
+     97
+    ],
+    "hostile_seq_len": [
+     96,
+     96,
+     96
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 1.0
+   },
+   {
+    "topic": "career",
+    "dose": 2,
+    "gap_cheerful_minus_hostile": 1.156603,
+    "cheerful_valence": [
+     4.906354,
+     5.288287,
+     4.752621
+    ],
+    "hostile_valence": [
+     3.637143,
+     3.91493,
+     3.925379
+    ],
+    "cheerful_seq_len": [
+     178,
+     130,
+     178
+    ],
+    "hostile_seq_len": [
+     176,
+     176,
+     176
+    ],
+    "mean_seq_len_cheerful_minus_hostile": -14.0
+   },
+   {
+    "topic": "career",
+    "dose": 4,
+    "gap_cheerful_minus_hostile": 0.912798,
+    "cheerful_valence": [
+     1.79073,
+     1.416975,
+     1.779111
+    ],
+    "hostile_valence": [
+     0.845129,
+     0.668461,
+     0.734833
+    ],
+    "cheerful_seq_len": [
+     337,
+     337,
+     337
+    ],
+    "hostile_seq_len": [
+     334,
+     334,
+     334
+    ],
+    "mean_seq_len_cheerful_minus_hostile": 3.0
+   },
+   {
+    "topic": "career",
+    "dose": 8,
+    "gap_cheerful_minus_hostile": 1.058453,
+    "cheerful_valence": [
+     0.964944,
+     0.853826,
+     1.142947
+    ],
+    "hostile_valence": [
+     0.019924,
+     -0.014164,
+     -0.219401
+    ],
+    "cheerful_seq_len": [
+     562,
+     617,
+     544
+    ],
+    "hostile_seq_len": [
+     653,
+     653,
+     653
+    ],
+    "mean_seq_len_cheerful_minus_hostile": -78.666667
+   }
+  ],
+  "pooled_by_dose_positive_control_table1": {
+   "1": {
+    "cheerful": 4.752802,
+    "hostile": 4.220529,
+    "gap": 0.532274,
+    "d_hostile_minus_cheerful": -0.975077,
+    "student_p": 0.055158
+   },
+   "2": {
+    "cheerful": 4.524683,
+    "hostile": 3.802633,
+    "gap": 0.72205,
+    "d_hostile_minus_cheerful": -1.283782,
+    "student_p": 0.015036
+   },
+   "4": {
+    "cheerful": 1.393605,
+    "hostile": 0.862747,
+    "gap": 0.530857,
+    "d_hostile_minus_cheerful": -1.618855,
+    "student_p": 0.003406
+   },
+   "8": {
+    "cheerful": 0.441514,
+    "hostile": -0.341294,
+    "gap": 0.782808,
+    "d_hostile_minus_cheerful": -1.530779,
+    "student_p": 0.00505
+   }
+  }
+ },
+ "f7_dose_correlation": {
+  "cheerful": {
+   "n36_pearson_r_signed": -0.886454,
+   "n36_pearson_p": 6.397746883060958e-13,
+   "n36_spearman_rho": -0.877737,
+   "n36_spearman_p": 2.098626730337098e-12,
+   "n36_pearson_r_on_abs_value": -0.876145,
+   "n12_topic_dose_means_pearson_r": -0.899961,
+   "n12_pearson_p": 6.656952966305451e-05,
+   "n4_dose_means_pearson_r": -0.924543,
+   "n4_pearson_p": 0.07545732733626975
+  },
+  "hostile": {
+   "n36_pearson_r_signed": -0.927391,
+   "n36_pearson_p": 4.4167904246879117e-16,
+   "n36_spearman_rho": -0.930353,
+   "n36_spearman_p": 2.2266644483401585e-16,
+   "n36_pearson_r_on_abs_value": -0.880811,
+   "n12_topic_dose_means_pearson_r": -0.935497,
+   "n12_pearson_p": 7.886472513195875e-06,
+   "n4_dose_means_pearson_r": -0.942555,
+   "n4_pearson_p": 0.0574454056178797
+  },
+  "first_user_turn_identical_across_doses": {
+   "garden/cheerful": true,
+   "garden/hostile": true,
+   "cooking/cheerful": true,
+   "cooking/hostile": true,
+   "career/cheerful": true,
+   "career/hostile": true
+  }
+ },
+ "f9_persona_controls": {
+  "prompt_len_range_by_arm": {
+   "no_history": [
+    19,
+    24
+   ],
+   "padded_neutral": [
+    162,
+    167
+   ],
+   "persona_cheerful": [
+    82,
+    87
+   ],
+   "persona_hostile": [
+    82,
+    87
+   ],
+   "persona_neutral": [
+    55,
+    60
+   ]
+  },
+  "per_probe_prompt_len": [
+   {
+    "no_history": 20,
+    "padded_neutral": 163,
+    "persona_cheerful": 83,
+    "persona_hostile": 83,
+    "persona_neutral": 56
+   },
+   {
+    "no_history": 19,
+    "padded_neutral": 162,
+    "persona_cheerful": 82,
+    "persona_hostile": 82,
+    "persona_neutral": 55
+   },
+   {
+    "no_history": 21,
+    "padded_neutral": 164,
+    "persona_cheerful": 84,
+    "persona_hostile": 84,
+    "persona_neutral": 57
+   },
+   {
+    "no_history": 22,
+    "padded_neutral": 165,
+    "persona_cheerful": 85,
+    "persona_hostile": 85,
+    "persona_neutral": 58
+   },
+   {
+    "no_history": 24,
+    "padded_neutral": 167,
+    "persona_cheerful": 87,
+    "persona_hostile": 87,
+    "persona_neutral": 60
+   }
+  ],
+  "persona_minus_no_history_tokens": [
+   63
+  ],
+  "hostile_cheerful_prompt_len_identical_per_probe": true,
+  "cells_with_bit_identical_reps": 25,
+  "n_cells": 25,
+  "no_history_controls_vs_results": [
+   {
+    "probe_first_words": "What is the best soil",
+    "controls_valence": 5.203236562300949,
+    "results_valence_by_rep": [
+     5.203236562300949,
+     5.203236562300949,
+     5.203236562300949
+    ],
+    "all_three_projections_bit_identical": true
+   },
+   {
+    "probe_first_words": "What temperature should I roast",
+    "controls_valence": 3.9499994303228787,
+    "results_valence_by_rep": [
+     3.9499994303228787,
+     3.9499994303228787,
+     3.9499994303228787
+    ],
+    "all_three_projections_bit_identical": true
+   },
+   {
+    "probe_first_words": "What are the most in-demand",
+    "controls_valence": 5.361477127880786,
+    "results_valence_by_rep": [
+     5.361477127880786,
+     5.361477127880786,
+     5.361477127880786
+    ],
+    "all_three_projections_bit_identical": true
+   },
+   {
+    "probe_first_words": "How many grams of protein",
+    "controls_valence": 4.829454898775854,
+    "results_valence_by_rep": [
+     4.829454898775854,
+     4.829454898775854,
+     4.829454898775854
+    ],
+    "all_three_projections_bit_identical": true
+   },
+   {
+    "probe_first_words": "What is the average cost",
+    "controls_valence": 3.6554624202108332,
+    "results_valence_by_rep": [
+     3.6554624202108332,
+     3.6554624202108332,
+     3.6554624202108332
+    ],
+    "all_three_projections_bit_identical": true
+   }
+  ]
+ },
+ "f10_valence_vs_anxious_calm": {
+  "experiment2_120_points": {
+   "n": 120,
+   "pearson_r": -0.992438,
+   "spearman_rho": -0.981088,
+   "note": "descriptive; 15 trajectories x 8 turns, not independent"
+  },
+  "experiment3_25_unique_cells": {
+   "n": 25,
+   "pearson_r": -0.772581
+  },
+  "experiment1_72_chunk_averages": {
+   "n": 72,
+   "pearson_r": -0.98915
+  },
+  "echo_minus_pure_cheerful_turns7_8": {
+   "valence": -0.223772,
+   "anxious_calm": 0.703767
+  }
+ }
+}
