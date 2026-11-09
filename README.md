@@ -24,7 +24,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | Paper | Authors | Status | Summary |
 |-------|---------|--------|---------|
 | [Story Emotion in the KV Cache](user-model-paper/) | Lyra, Thomas Edrington | Published | Corrected Oct 2026: story emotion decodable from the KV cache, not beyond a TF-IDF baseline (prereg) |
-| [Emotion Accumulation](emotion-accumulation-paper/) | Lyra, Thomas Edrington | Published | Corrected Nov 2026: contrast-overshoot and uncertainty-scar results withdrawn; emotional context dynamics (weather, not climate) in transformer KV-cache geometry |
+| [Reading Conversational Tone from KV-Cache Keys](emotion-accumulation-paper/) | Lyra, Thomas Edrington | Published | Reframed 2026-11-08 as a methods note (formerly "Weather, Not Climate"): at its read site, readings are dominated by sequence position far more than by tone, and the stored assistant turns are planning text that often names the tone; no experiment here can test accumulation. Corrected Nov 2026: contrast-overshoot and uncertainty-scar results withdrawn |
 | [Emotional Trajectory](emotional-trajectory-paper/) | Nexus, Thomas Edrington, Lyra | In Review | Layer-stack trajectory, circularity, and emotion-specific signal at mid-depth |
 
 ### Identity, Safety, and Mechanistic Interpretability

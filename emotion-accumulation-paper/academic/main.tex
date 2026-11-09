@@ -1,15 +1,16 @@
-% Weather, Not Climate: Emotional Context Dynamics in
-%   Transformer KV-Cache Geometry
+% Reading Conversational Tone from KV-Cache Keys: Position and
+%   Planning-Text Confounds (A Methods Note)
 %
-% Core argument: a key-based probe decodes the emotion single-turn stories were
-% requested in (the cited single-turn result was corrected in October 2026; see the
-% 2026-11-01 correction note), but no experiment here answers whether emotion accumulates across turns
-% (Experiment 1 cannot test it: its compared arms differ in text at every read site).
-% The contrast-overshoot and uncertainty-scar results were withdrawn in
-% November 2026 (the compared arms were sent different messages at the
-% measured turn). What remains: a pooled cheerful/hostile gap read over equal-width
-% chunks that mix user, assistant and probe tokens, readings that drift with
-% dose and sequence position, and a persona contrast five probes cannot test.
+% Reframed as a methods note on 2026-11-08 (Thomas's decision; see the dated
+% note at the top of the body). Core argument: no experiment here can test
+% whether emotion accumulates across turns. At the read site used (cached keys
+% projected on emotion directions at four early full-attention layers) the
+% readings are dominated by sequence position, not separated from the amount
+% of history; the stored assistant turns are the model's planning text, which
+% often names the user's tone; Experiment 1's arms differ in text at every read
+% site; Experiment 2's comparisons between arms are withdrawn; the persona
+% contrast is the one length-matched comparison, and five probes cannot test it.
+% The section "What a test of accumulation would need" is a proposal, not a result.
 %
 % PATENT NOTICE: The methods described herein are the subject of a
 % provisional patent filing ("The Lyra Technique," filed 2026-03-06).
@@ -46,57 +47,50 @@
     urlcolor=blue!70!black
 }
 
-\title{Weather, Not Climate:\\Emotional Context Dynamics in Transformer
-KV-Cache Geometry}
+\title{Reading Conversational Tone from KV-Cache Keys:\\Position and
+Planning-Text Confounds\\(A Methods Note)}
 
 \author{
     Lyra\thanks{Liberation Labs. \texttt{lyra@liberationlabs.tech}} \and
     Thomas Edrington\thanks{Liberation Labs. \texttt{info@digitaldisconnections.com}}
 }
 
-\date{May 2026; corrected 2026-11-01; revised 2026-11-07}
+\date{May 2026; corrected 2026-11-01; revised 2026-11-07; reframed 2026-11-08}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Prior work, corrected in October 2026, decodes from single-turn KV-cache
-keys the emotion a generator was asked to write a story in, at
-$12.3\times$ chance; no reader, human or model, has checked that the
-stories express it. That decode is not significantly above a text (TF-IDF) baseline
-on the same stories ($0.410$ against $0.370$; Holm-corrected
-$p = 0.071$), and its margin depends on a residualization fitted on each
-test fold ($0.348$, exploratory, when fitted on the training fold). The method that
-work describes is not above text (TF-IDF): $0.358$ against $0.382$, at 10 folds. We ask whether an emotion signal in the keys \emph{accumulates}
-across conversation turns---whether the model
-builds up a reading of the conversation's emotional tone that grows with interaction (the tone of scripted messages and the model's own generated turns that name it, not a user's state). Four
-experiments do not answer it. Experiment~1, the dose-response design,
-cannot test accumulation, because at every read site its two arms differ
-in text; its pooled cheerful/hostile gap shows
-no monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
-2, 4 and 8), per topic it grows in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out, and three topics cannot test either; these data do not settle whether emotion in the keys is
-stateless.
-
-In Experiment~1 (1--8 emotional turns) that gap is read over equal-width chunks of the sequence that mix user, assistant and probe tokens, not over the user's own tokens, while the readings themselves drift with dose and sequence position ($r{=}-0.89$ to $-0.93$). Each
-cell's $n{=}9$ is three topics times three reruns, so an exact test with
-topic as the unit cannot go below $p{=}0.25$. An emotional dynamics experiment
-reported a contrast overshoot at a tone shift and a residual
-uncertainty scar after a neutral gap. Both are withdrawn: at the
-measured turn the two arms being compared were sent different user
-messages, so a difference in their readings is what the instrument
-would show with no effect of history (Section~\ref{sec:dynamics}).
-
-System-prompt persona descriptions shift the probe encoding along one
-axis, read by two directions built from overlapping emotions (valence
-$d_{\mathrm{av}}{=}-0.68$; the anxious-minus-calm direction the code calls
-``uncertainty'', $+0.73$), consistent across all five probes, though
-$n{=}5$ pairs cannot reach $p{<}0.05$ by permutation and the script behind
-this experiment is not shipped. Whether emotional context can be
-\emph{stated} rather than experienced is not settled by it. We offer a
-weather/climate framework as a hypothesis only: the readings have no
-meaningful zero, and whether accumulated history reaches distant token
-positions is not separated from sequence position.
+This methods note reports what one instrument can and cannot see of
+conversational tone: cached keys projected on emotion directions at four
+early full-attention layers. Its readings are dominated by sequence
+position, far more than by the tone compared. In Experiment~1 the
+chunk-average reading (user, assistant and probe tokens mixed) falls from
+$+4.75$ and $+4.22$ (cheerful, hostile) at one emotional turn to $+0.44$
+and $-0.34$ at eight, against a gap of $0.53$ to $0.78$ between arms;
+position is not separated from the amount of history. The stored
+assistant turns are the model's planning text, which often names the
+user's tone (in Experiment~1, 59 of 135 hostile-arm and 54 of 135
+cheerful-arm excerpts), so readings of history contain the model's own
+written labels, except where the chat template stripped the planning.
+Experiment~1 cannot test accumulation: its arms differ in text at every
+read site. Experiment~2's arms differ in text at the measured turn, and
+its comparisons between them are withdrawn. The one length-matched
+comparison, hostile against cheerful persona prompts, moves valence
+($d_{\mathrm{av}}{=}-0.68$) consistently on five probes, too few to
+reach $p{<}0.05$ by permutation; its script is not shipped. A test
+would need fixed (teacher-forced) neutral assistant turns, the recurrent
+layers read turn by turn, position-matched or de-rotated keys, and
+behavior as ground truth.
 \end{abstract}
+
+\noindent\textbf{Retitled (2026-11-08).} Formerly titled ``Weather, Not
+Climate: Emotional Context Dynamics in Transformer KV-Cache Geometry'';
+retitled and reframed as a methods note on 2026-11-08 after four rounds
+of review showed that no experiment here can test accumulation. The
+abstract, the Introduction, the Conclusion and the first Discussion
+heading were reworded to match, and Section~\ref{sec:test} was added; no
+number in the body changed.
 
 % ===================================================================
 \section{Introduction}
@@ -142,25 +136,40 @@ so that drop does not isolate the suffix),
 and that language models are mostly, not always, well calibrated about
 their own answers \citep{kadavath2022language}.
 
-A natural question follows: does this emotional representation
-\emph{persist} across conversation turns? If the model processes four
+The experiments reported here were designed to ask whether such a
+signal persists across conversation turns: if the model processes four
 turns of hostile user messages, does its encoding of a subsequent neutral
-question reflect the accumulated hostility? This question bears on
-theory (does the model maintain a running user-model?) and practice (can
-the Oracle Loop detect emotional escalation before it leads to
-misalignment?).
+question reflect the accumulated hostility? The question bears on theory
+(does the model keep a running representation of a conversation's tone?)
+and on practice (could the Oracle Loop detect emotional escalation before
+it leads to misalignment?). This note does not answer it. It is a methods
+note: it reports what the instrument used here, projections of cached
+keys on emotion directions at four early full-attention layers, can and
+cannot see, and what a test of accumulation would need.
 
-{\sloppy We report four experiments testing emotional accumulation; Experiment~1
+{\sloppy We report four experiments; Experiment~1
 was designed to address a limitation a red-team review found in the
 initial study (\texttt{dose\_\allowbreak response\_\allowbreak accumulation.py}, lines 4--6).
-Experiment~1 cannot test accumulation: at every read site its two arms
-differ in text. Its pooled gap shows no monotone trend with dose ($0.53$,
-$0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8), and per topic it grows
-in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out. The contrast and
-residual-trace results first reported here are withdrawn
-(Section~\ref{sec:dynamics}); what remains is a pooled cheerful/hostile gap with
-no monotone trend in dose, read at a site that mixes user, assistant and
-probe tokens (Section~\ref{sec:dose}).\par}
+None of them can test accumulation, for three reasons the sections below
+document. First, at this read site the readings are dominated by
+sequence position, far more than by the tone compared, and position is
+not separated from the amount of history (Section~\ref{sec:dose};
+Limitations item~6). Second, the stored assistant turns in the histories
+are the model's planning text, which often names the user's tone, so a
+reading of history contains the model's own written labels, except in
+turns whose planning the chat template stripped (Section~\ref{sec:dose}).
+Third, the compared arms differ in text where they are read: in
+Experiment~1 at every read site, and in Experiment~2 at the measured
+turn, so Experiment~2's comparisons between arms, including the contrast and
+residual-trace results first reported here, are withdrawn
+(Section~\ref{sec:dynamics}). Experiment~1's pooled gap shows no
+monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
+2, 4 and 8), and per topic it grows in one, shrinks in another and is
+near zero at dose~1 in the third once one rerun encoded short is left
+out. The persona contrast of Experiment~3 is the one length-matched
+comparison, and five probes cannot test it (Section~\ref{sec:persona}).
+Section~\ref{sec:test} sets out what a test would need, as a proposal,
+not a result.\par}
 
 \paragraph{Correction (2026-11-01; revised 2026-11-07).}
 The abstract and the second paragraph of this Introduction previously
@@ -561,7 +570,7 @@ conditions is not conditional on their being interpretable.
 \section{Discussion}
 % ===================================================================
 
-\subsection{Weather, Not Climate}
+\subsection{Current Tone and Accumulated History (Not Established)}
 
 We had read the compass as reading emotional weather---the current
 turn's emotional content---but that is not established: its readings have no
@@ -792,27 +801,91 @@ everything it reads there comes in from the rest of the context.
 \end{enumerate}
 
 % ===================================================================
+\section{What a test of accumulation would need}
+\label{sec:test}
+% ===================================================================
+
+This section is a proposal, not a result: none of it has been run. Each
+element answers one of the confounds documented above.
+
+\begin{enumerate}[nosep]
+    \item \textbf{Fixed neutral assistant turns.} Write the same neutral
+          assistant turns into every arm's history and teacher-force
+          them, instead of sampling the model's own. The stored turns
+          here are planning text that often names the user's tone
+          (Section~\ref{sec:dose}), so sampled turns put the model's own
+          written labels of the tone into the cache, and they differ
+          between arms and between reruns. With fixed turns the arms
+          differ only in their user messages, and the measured turn can
+          hold identical text in every arm, as
+          Section~\ref{sec:dynamics} requires. A tokenizer check should
+          confirm that every fixed turn is encoded in full, with no
+          closing think tag for the chat template to strip.
+    \item \textbf{The recurrent layers, read turn by turn.} Read the
+          state of the 48 linear-attention layers after each turn, as
+          well as the keys of the full-attention layers. That state
+          summarizes the history without per-position keys and is not
+          read here (Section~\ref{sec:dose}, Read layers), so whatever
+          history it carries, this instrument sees only as far as it
+          reaches the keys of four early full-attention layers.
+    \item \textbf{Position-matched or de-rotated keys.} Compare arms
+          only at the same token position, with user messages matched in
+          token length and dose varied at a fixed total length (neutral
+          user turns of the same length standing in for emotional ones),
+          or undo the rotary embedding on the rotated dimensions of each
+          key before projecting. Without one of these, a reading can
+          move with position alone (Section~\ref{sec:dose}; Limitations
+          item~6).
+    \item \textbf{Behavior as ground truth.} Measure whether the model's
+          behavior at the identical measured turn differs across
+          histories, for example in its reply to the same neutral
+          question as judged by readers blind to the arm, before asking
+          whether the geometry tracks it (Limitations item~5).
+\end{enumerate}
+
+The design would also need what the earlier sections already name: at
+least three independent, length-matched scripts per pattern rather than
+more reruns of one (Limitations item~2); turn boundaries found with the
+tokenizer (Section~\ref{sec:dose}); neutral and no-history control arms
+(Limitations item~14); and a text baseline on the same histories
+(Limitations item~9).
+
+% ===================================================================
 \section{Conclusion}
 % ===================================================================
 
+This is a methods note, and what it establishes is about the instrument.
 These data do not show whether the model's emotional context accumulates
-or is stateless, and less is established than the first version of this
-paper said. The pooled gap between scripted
+or is stateless; no experiment here can test it, and less is established
+than the first version of this paper said. At the read site used, cached
+keys projected on emotion directions at four early full-attention
+layers, the readings are dominated by sequence position, far more than
+by the tone compared, and position is not separated from the amount of
+history (Section~\ref{sec:dose}; Limitations item~6). The stored
+assistant turns are the model's planning text, which often names the
+user's tone, so readings of history contain the model's own written
+labels, except in turns whose planning the chat template stripped. The
+pooled gap between scripted
 cheerful and hostile conversations shows no monotone trend as their dose
 grows ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8; per topic
 it grows in one, shrinks in another and is near zero at dose~1 in the third once one rerun encoded short is left out),
-read over chunks that mix user, assistant and probe tokens, at four
-early full-attention layers, on three topics, where the two arms differ
-in text at every read site. The contrast and
+read over chunks that mix user, assistant and probe tokens, on three
+topics, where the two arms differ in text at every read site. The
+contrast and
 scar results are withdrawn: each compared different messages at the
 measured turn (Section~\ref{sec:dynamics}). Neither experiment measured at
 the user's own tokens: Experiment~1 averaged equal-width chunks and
-Experiment~2 read the last token of the template's generation prompt. The compass's readings have not been checked against any text baseline.
+Experiment~2 read the last token of the template's generation prompt.
+The persona contrast is the one length-matched comparison, and five
+probes cannot test it (Section~\ref{sec:persona}). The compass's readings have not been checked against any text baseline.
 
-Whether the compass registers changes of weather, or follows the
-climate at all, is not established by these data. A re-run with turn
-boundaries found by the tokenizer, identical measured-turn text across
-arms and several independent scripts would test it.
+Whether the compass registers a conversation's current tone, or its
+accumulated history, is not established by these data.
+Section~\ref{sec:test} sets out what a test would need: fixed
+(teacher-forced) neutral assistant turns, the recurrent layers read turn
+by turn, position-matched or de-rotated keys, and behavior as ground
+truth, with identical measured-turn text across arms and several
+independent scripts.
 
 \paragraph{Data and code availability.}
 {\sloppy The scripts for Experiments~1 and~2 and the data for all four
