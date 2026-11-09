@@ -5,8 +5,8 @@
 % note at the top of the body). Core argument: no experiment here can test
 % whether emotion accumulates across turns. At the read site used (cached keys
 % projected on emotion directions at four early full-attention layers) the
-% readings are dominated by sequence position, not separated from the amount
-% of history; the stored assistant turns are the model's planning text, which
+% readings move with sequence position and the amount of history (not
+% separated here) far more than with the tone compared; the stored assistant turns are the model's planning text, which
 % often names the user's tone; Experiment 1's arms differ in text at every read
 % site; Experiment 2's comparisons between arms are withdrawn; the persona
 % contrast is the one length-matched comparison, and five probes cannot test it.
@@ -63,13 +63,13 @@ Planning-Text Confounds\\(A Methods Note)}
 \begin{abstract}
 This methods note reports what one instrument can and cannot see of
 conversational tone: cached keys projected on emotion directions at four
-early full-attention layers. Its readings are dominated by sequence
-position, far more than by the tone compared. In Experiment~1 the
+early full-attention layers. Its readings move with sequence position
+and the amount of history (not separated here) far more than with the
+tone compared. In Experiment~1 the
 chunk-average reading (user, assistant and probe tokens mixed) falls from
 $+4.75$ and $+4.22$ (cheerful, hostile) at one emotional turn to $+0.44$
-and $-0.34$ at eight, against a gap of $0.53$ to $0.78$ between arms;
-position is not separated from the amount of history. The stored
-assistant turns are the model's planning text, which often names the
+and $-0.34$ at eight, against a gap of $0.53$ to $0.78$ between arms.
+The stored assistant turns are the model's planning text, which often names the
 user's tone (in Experiment~1, 59 of 135 hostile-arm and 54 of 135
 cheerful-arm excerpts), so readings of history contain the model's own
 written labels, except where the chat template stripped the planning.
@@ -86,8 +86,8 @@ behavior as ground truth.
 
 \noindent\textbf{Retitled (2026-11-08).} Formerly titled ``Weather, Not
 Climate: Emotional Context Dynamics in Transformer KV-Cache Geometry'';
-retitled and reframed as a methods note on 2026-11-08 after four rounds
-of review showed that no experiment here can test accumulation. The
+retitled and reframed as a methods note on 2026-11-08 after six rounds
+of review (2026-11-01 to 2026-11-07) showed that no experiment here can test accumulation. The
 abstract, the Introduction, the Conclusion and the first Discussion
 heading were reworded to match, and Section~\ref{sec:test} was added; no
 number in the body changed.
@@ -150,17 +150,18 @@ cannot see, and what a test of accumulation would need.
 {\sloppy We report four experiments; Experiment~1
 was designed to address a limitation a red-team review found in the
 initial study (\texttt{dose\_\allowbreak response\_\allowbreak accumulation.py}, lines 4--6).
-None of them can test accumulation, for three reasons the sections below
-document. First, at this read site the readings are dominated by
-sequence position, far more than by the tone compared, and position is
-not separated from the amount of history (Section~\ref{sec:dose};
-Limitations item~6). Second, the stored assistant turns in the histories
+Experiment~3 has no conversation history, so it cannot test
+accumulation by design; the others cannot, for three reasons the
+sections below document. First, at this read site the readings move
+with sequence position and the amount of history, which are not
+separated here, far more than with the tone compared
+(Section~\ref{sec:dose}; Limitations items~6 and~14). Second, the stored assistant turns in the histories
 are the model's planning text, which often names the user's tone, so a
 reading of history contains the model's own written labels, except in
 turns whose planning the chat template stripped (Section~\ref{sec:dose}).
-Third, the compared arms differ in text where they are read: in
-Experiment~1 at every read site, and in Experiment~2 at the measured
-turn, so Experiment~2's comparisons between arms, including the contrast and
+Third, in Experiments~1 and~2 the compared arms differ in text where
+they are read: in Experiment~1 at every read site, and in Experiment~2
+at the measured turn, so Experiment~2's comparisons between arms, including the contrast and
 residual-trace results first reported here, are withdrawn
 (Section~\ref{sec:dynamics}). Experiment~1's pooled gap shows no
 monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
@@ -890,9 +891,9 @@ These data do not show whether the model's emotional context accumulates
 or is stateless; no experiment here can test it, and less is established
 than the first version of this paper said. At the read site used, cached
 keys projected on emotion directions at four early full-attention
-layers, the readings are dominated by sequence position, far more than
-by the tone compared, and position is not separated from the amount of
-history (Section~\ref{sec:dose}; Limitations item~6). The stored
+layers, the readings move with sequence position and the amount of
+history, which are not separated here, far more than with the tone
+compared (Section~\ref{sec:dose}; Limitations items~6 and~14). The stored
 assistant turns are the model's planning text, which often names the
 user's tone, so readings of history contain the model's own written
 labels, except in turns whose planning the chat template stripped. The
