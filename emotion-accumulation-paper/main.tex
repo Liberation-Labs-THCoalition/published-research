@@ -6,10 +6,10 @@
 % whether emotion accumulates across turns. At the read site used (cached keys
 % projected on emotion directions at four early full-attention layers) the
 % readings move with sequence position and the amount of history (not
-% separated here) far more than with the tone compared; the stored assistant turns are the model's planning text, which
-% often names the user's tone; Experiment 1's arms differ in text at every read
-% site; Experiment 2's comparisons between arms are withdrawn; the persona
-% contrast is the one length-matched comparison, and five probes cannot test it.
+% separated here) far more than with the tone compared; in Experiment 1 and the initial study the stored assistant
+% turns open with the model's planning text, which often uses a tone word; Experiment 1's arms differ in text at every
+% read site; Experiment 2's comparisons between arms are withdrawn; the persona contrast is the one comparison
+% length-matched on every probe, and five probes cannot test it.
 % The section "What a test of accumulation would need" is a proposal, not a result.
 %
 % PATENT NOTICE: The methods described herein are the subject of a
@@ -65,22 +65,29 @@ This methods note reports what one instrument can and cannot see of
 conversational tone: cached keys projected on emotion directions at four
 early full-attention layers. Its readings move with sequence position
 and the amount of history (not separated here) far more than with the
-tone compared. In Experiment~1 the
-chunk-average reading (user, assistant and probe tokens mixed) falls from
-$+4.75$ and $+4.22$ (cheerful, hostile) at one emotional turn to $+0.44$
-and $-0.34$ at eight, against a gap of $0.53$ to $0.78$ between arms.
-The stored assistant turns are the model's planning text, which often names the
-user's tone (in Experiment~1, 59 of 135 hostile-arm and 54 of 135
-cheerful-arm excerpts), so readings of history contain the model's own
-written labels, except where the chat template stripped the planning.
-Experiment~1 cannot test accumulation: its arms differ in text at every
-read site. Experiment~2's arms differ in text at the measured turn, and
-its comparisons between them are withdrawn. The one length-matched
-comparison, hostile against cheerful persona prompts, moves valence
+tone compared. In Experiment~1 the chunk that holds the same neutral
+probe (and the tail of the previous generated turn) reads $+4.61$ and
+$+4.65$ (cheerful, hostile) after one emotional turn and $-1.60$ and
+$-3.71$ after eight; the gap between arms there is within $0.22$ of
+zero through four turns and $+2.11$ at eight ($p{=}0.056$, uncorrected),
+where that chunk's generated text differs between arms. In Experiment~1 and the initial study the stored
+assistant turns open with the model's planning text, which often uses a
+tone word (in Experiment~1, 59 of
+135 hostile-arm and 54 of 135 cheerful-arm excerpts), so readings of
+history contain the model's own written labels, except where the chat
+template stripped the planning. Experiment~1 cannot test accumulation:
+its arms differ in text at every read site. Experiment~2's arms differ
+in text at the measured turn, and its comparisons between them are
+withdrawn. In the initial study one topic's two reruns per arm are
+length-matched; their gap at the probe, $+0.08$ against rerun SDs of
+$0.23$ and $0.12$, comes from one script with an undocumented read site,
+too few to test anything. The one comparison length-matched on every
+probe, hostile against cheerful persona prompts, moves valence
 ($d_{\mathrm{av}}{=}-0.68$) consistently on five probes, too few to
-reach $p{<}0.05$ by permutation; its script is not shipped. A test
-would need fixed (teacher-forced) neutral assistant turns, the recurrent
-layers read turn by turn, position-matched or de-rotated keys, and
+reach $p{<}0.05$ by permutation; its script is not shipped and its read
+site is undocumented. A test of whether these keys accumulate tone
+would need fixed (teacher-forced) neutral
+assistant turns, comparisons matched in position and length, and
 behavior as ground truth.
 \end{abstract}
 
@@ -89,8 +96,15 @@ Climate: Emotional Context Dynamics in Transformer KV-Cache Geometry'';
 retitled and reframed as a methods note on 2026-11-08 after six rounds
 of review (2026-11-01 to 2026-11-07) showed that no experiment here can test accumulation. The
 abstract, the Introduction, the Conclusion and the first Discussion
-heading were reworded to match, and Section~\ref{sec:test} was added; no
-number in the body changed.
+heading were reworded to match, Section~\ref{sec:test} was added, and
+the former framing's remaining mentions (Discussion, Limitations, the
+first-person note) are in the past tense or marked as such. Limitations
+item~6 now points to Section~\ref{sec:test}, and the conversation-level
+clustering item, which a style trim had left commented out of the flight
+edition, is live in both editions. No number in the body changed; two
+sentences add numbers from the shipped data: the probe chunk's readings
+at every dose, and the initial study's travel topic, which is
+length-matched once two reruns are left out (Section~\ref{sec:dose}).
 
 % ===================================================================
 \section{Introduction}
@@ -155,10 +169,12 @@ accumulation by design; the others cannot, for three reasons the
 sections below document. First, at this read site the readings move
 with sequence position and the amount of history, which are not
 separated here, far more than with the tone compared
-(Section~\ref{sec:dose}; Limitations items~6 and~14). Second, the stored assistant turns in the histories
-are the model's planning text, which often names the user's tone, so a
-reading of history contains the model's own written labels, except in
-turns whose planning the chat template stripped (Section~\ref{sec:dose}).
+(Section~\ref{sec:dose}; Limitations items~6 and~14). Second, in Experiment~1 and the initial study the
+stored assistant turns open with the model's planning text, which often
+uses a tone word, so a reading of
+history contains the model's own written labels, except in turns whose
+planning the chat template stripped (Section~\ref{sec:dose});
+Experiment~2 stored no response text, so its turns cannot be checked.
 Third, in Experiments~1 and~2 the compared arms differ in text where
 they are read: in Experiment~1 at every read site, and in Experiment~2
 at the measured turn, so Experiment~2's comparisons between arms, including the contrast and
@@ -167,12 +183,17 @@ residual-trace results first reported here, are withdrawn
 monotone trend with dose ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1,
 2, 4 and 8), and per topic it grows in one, shrinks in another and is
 near zero at dose~1 in the third once one rerun encoded short is left
-out. The persona contrast of Experiment~3 is the one length-matched
-comparison, and five probes cannot test it (Section~\ref{sec:persona}).
+out. In the initial study one topic's two reruns per arm are
+length-matched, so position is matched there, but their gap at the
+probe, $+0.08$ against rerun SDs of $0.23$ and $0.12$, comes from one
+topic and one script, with an undocumented read site and planning text
+in the history, too few to test anything (Section~\ref{sec:dose}). The
+persona contrast of Experiment~3 is the one comparison length-matched on
+every probe, and five probes cannot test it (Section~\ref{sec:persona}).
 Section~\ref{sec:test} sets out what a test would need, as a proposal,
 not a result.\par}
 
-\paragraph{Correction (2026-11-01; revised 2026-11-07).}
+\paragraph{Correction (2026-11-01; revised 2026-11-07 and 2026-11-08).}
 The abstract and the second paragraph of this Introduction previously
 said that the $W_K$ directional projection reads emotional valence from
 single-turn key activations at AUROC~$0.992$, and that an injection test
@@ -182,9 +203,10 @@ rested on the single-turn probe results of
 corrected them in October 2026 (the former has not been corrected): the $40.9\%$ and the $0.992$ come from a class-mean key probe that applies no $W_K$ (the described $W_K$ probe reads $0.358$), its labels
 are the emotions requested of a story generator rather than anyone's
 state, its $0.992$ beats untuned text (TF-IDF; Holm-corrected $p = 0.006$; DeLong, trials treated as independent; test-fold FWL; no tuned baseline was run) but is a binary split of $n = 300$ stories
-confounded with arousal, and its injection test is withdrawn. Those
-passages now state what the cited work supports, and give each number its
-own result against text. The $12.3\times$ ($40.9\%$) decode is not
+confounded with arousal, and its injection test is withdrawn. Since
+2026-11-08 the abstract no longer cites the single-turn results; the
+Introduction's first paragraph states what the cited work supports, and
+gives each number its own result against text. The $12.3\times$ ($40.9\%$) decode is not
 significantly above text (TF-IDF; re-run at $0.410$, 369/900, one trial from May's 368 on a changed software stack, against $0.370$, both at 5 folds; Holm-corrected $p = 0.071$; $0.348$, exploratory, with FWL fitted on the training fold). The described method
 is not above text (TF-IDF): $0.358$ against $0.382$, at 10 folds. The phrase ``with high fidelity'', which rested on
 the $0.992$, is removed from the abstract, the Discussion and the
@@ -195,7 +217,7 @@ position and dot-products them with stored emotion directions
 \texttt{code/dose\_response\_accumulation.py}, lines 159--175), applying
 no separate $W_K$ projection. Its user messages are scripted with a set
 tone, so what it reads is not a user's state, and in Experiment~1 it also
-reads the model's own generated turns, which are planning text that can name the user's tone (where the template dropped a turn's planning, its reply), and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
+reads the model's own generated turns, which open with planning text that can name the user's tone (where the template dropped a turn's planning, they hold only its reply), and the probe (Section~\ref{sec:dose}). A later review (November 2026) found that the Discussion and
 Conclusion had not been reworded to match, and that the two dynamics
 headlines compare different user messages at the measured turn; both
 headlines are withdrawn (Section~\ref{sec:dynamics}), with every other
@@ -275,7 +297,11 @@ Per topic and arm, the probe's mean reading is $+3.66$ to $+5.36$
 with no history and $-1.55$ to $-5.21$ after any history, and cheerful and
 hostile prompts differ by 4--7 tokens in four of the five topics, so
 history and sequence position are not separated
-(\texttt{code/r4\_review\_checks.py}). Experiment~1 was meant to
+(\texttt{code/r4\_review\_checks.py}). In travel, once the two reruns
+whose planning was not encoded are left out, both arms' prompts are 363
+tokens (\texttt{data/accumulation\_results.json}, \texttt{prompt\_len}),
+so there the cheerful--hostile comparison is position-matched; history
+against no history (363 against 24 tokens) still is not. Experiment~1 was meant to
 extract at user-message positions, but the code does not find turn
 boundaries: it splits each sequence into equal-width chunks, one per
 message, and averages the even-numbered chunks
@@ -387,12 +413,17 @@ Dose & Cheerful & Hostile & $d$ & $p$ \\
 \end{tabular}
 \end{table}
 
-In the probe chunk, the last equal-width chunk, the gap is null through
-dose~4 and marginal at dose~8 ($d{=}-0.97$, $p{=}0.056$, uncorrected,
-reruns counted as independent). That chunk also holds the end of the
-preceding generated turn, which differs between arms and is planning
-text that can name the user's tone, so this is not evidence that context
-leaks to distant positions.
+In the probe chunk, the last equal-width chunk, which holds the same
+neutral probe at every dose, the readings fall from $+4.61$ and $+4.65$
+(cheerful, hostile) at dose~1 to $+2.49$ and $+2.71$, $-1.75$ and
+$-1.90$, and $-1.60$ and $-3.71$ at doses 2, 4 and~8. The gap ($-0.04$,
+$-0.22$, $+0.15$ and $+2.11$) is null through dose~4 and marginal at
+dose~8 ($d{=}-0.97$, $p{=}0.056$, uncorrected, reruns counted as
+independent; \texttt{code/r5\_review\_checks.py}). That chunk also holds
+the end of the preceding generated turn, which differs between arms
+(the turns open with planning text that can name the user's tone; only
+their first 100 characters are stored), so this is not evidence that
+context leaks to distant positions.
 
 No read site in Experiment~1 holds the same text in both arms: the even
 chunks hold different scripted user messages, and the probe chunk holds
@@ -610,10 +641,13 @@ now established:
           (planning text), so it does not show leakage to distant positions.
 \end{enumerate}
 
-As a hypothesis, not a finding: the system prompt may act as a climate
-setting that shifts the compass reading on neutral probes, with
-conversation history as weather within it. Experiment~3 cannot establish
-the first part (Section~\ref{sec:persona}).
+The former framing also proposed, as a hypothesis and not a finding,
+that the system prompt may act as a climate setting that shifts the
+compass reading on neutral probes, with conversation history as weather
+within it. Its first part rests only on Experiment~3, which cannot
+establish it (Section~\ref{sec:persona}); its second rests on drift with
+history that is not separated from position (Section~\ref{sec:dose};
+Limitations item~6). Nothing here tests either part.
 
 \subsection{Implications for the Oracle Loop}
 
@@ -695,9 +729,11 @@ everything it reads there comes in from the rest of the context.
           readings at 141 tokens or fewer are positive and all 14 at
           190--210 tokens are negative. At turn~4 of pure hostile the same message after the same scripted user turns reads $+2.75$ at 162 tokens and $-5.27$ and $-5.14$ at 197 tokens; all three reruns reach turn~3 at 137 tokens, so the 35 tokens are the model's third reply, encoded shorter in the 162-token rerun (Experiment~2 stored no text, so why cannot be checked), and position and the content of that reply differ together. The cached keys carry the rotary
           position embedding on a quarter of their dimensions, so position
-          can move a reading by construction (Section~\ref{sec:dose}); a
-          de-rotated re-read has not been run. Position and emotional
-          dynamics are not separated.
+          can move a reading by construction (Section~\ref{sec:dose}). A
+          design matched in position and length has not been run
+          (de-rotating the keys alone would not separate them;
+          Section~\ref{sec:test}). Position and emotional dynamics are
+          not separated.
     \item \textbf{Variance compression in dose-response.} Pooled SD is $0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8, so $d$ moves with the SD as well as with the gap. Raw mean gaps ($0.5$--$0.8$) are more
           honest than effect sizes, but neither can show whether discrimination grows, holds or shrinks, because the arms differ
           in text at every read site (Section~\ref{sec:dose}).
@@ -718,7 +754,7 @@ everything it reads there comes in from the rest of the context.
           on is itself a decode of the emotion the text was written in
           (Introduction), so a vocabulary explanation is live here too. In
           Experiment~1 the vocabulary is in the stimuli: the generated turns
-          are planning text that can name the user's tone
+          open with planning text that can name the user's tone
           (Section~\ref{sec:dose}), the kind of leaked planning the cited
           correction found in its stories \citep{lyra2026usermodel}.
     % [RESTORED 2026-08-21: this was NOT folded into Methods/Results.
@@ -794,20 +830,19 @@ everything it reads there comes in from the rest of the context.
           are now printed in Table~\ref{tab:persona_arms}, where the reason
           they cannot close the question is that context length is confounded
           with arm.
-    % [STYLE-GUIDE TRIM: folded into Methods/Results]
-    % \item \textbf{Conversation-level clustering.} Turns within a
-    %       conversation share system prompt, topic, and seed. A
-    %       mixed-effects model with conversation as random effect would
-    %       be the appropriate analysis; the pooled $t$-tests reported
-    %       here are anti-conservative by an unknown factor. (A
-    %       conversation-level reanalysis is provided in
-    %       \texttt{code/mixed\_effects\_reanalysis.py}; it treats the 36
-    %       conversations per condition as independent, which they are not
-    %       (Section~\ref{sec:dose}), so no $p$-value from it is claimed.)
-    % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
+    \item \textbf{Conversation-level clustering.} Turns within a
+          conversation share system prompt, topic, and seed. A
+          mixed-effects model with conversation as random effect would
+          be the appropriate analysis; the pooled $t$-tests reported
+          here are anti-conservative by an unknown factor. (A
+          conversation-level reanalysis is provided in
+          \texttt{code/\allowbreak mixed\_\allowbreak effects\_\allowbreak reanalysis.py}; it treats the 36
+          conversations per condition as independent, which they are not
+          (Section~\ref{sec:dose}), so no $p$-value from it is claimed.)
+    % [RESTORED 2026-08-23 in the academic edition; in this edition on 2026-11-08 (Agni, methods-note r1, finding 9): tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
-    \item \textbf{The ``weather not climate'' framing is a hypothesis,
+    \item \textbf{The former ``weather not climate'' framing is a hypothesis,
           not a result.} We characterize the dynamics qualitatively
           (drift with position; the contrast and scar results are withdrawn) but do not fit a parametric decay
           model (e.g., exponential half-life with CI) that would
@@ -837,14 +872,15 @@ different text.
 \label{sec:test}
 % ===================================================================
 
-This section is a proposal, not a result: none of it has been run. Each
-element answers one of the confounds documented above.
+This section is a proposal, not a result: none of it has been run.
+Items 1, 3 and~4 each answer one of the confounds documented above;
+item~2 extends the test from these keys to the model.
 
 \begin{enumerate}[nosep]
     \item \textbf{Fixed neutral assistant turns.} Write the same neutral
           assistant turns into every arm's history and teacher-force
           them, instead of sampling the model's own. The stored turns
-          here are planning text that often names the user's tone
+          here open with planning text that often uses a tone word
           (Section~\ref{sec:dose}), so sampled turns put the model's own
           written labels of the tone into the cache, and they differ
           between arms and between reruns. With fixed turns the arms
@@ -853,21 +889,35 @@ element answers one of the confounds documented above.
           Section~\ref{sec:dynamics} requires. A tokenizer check should
           confirm that every fixed turn is encoded in full, with no
           closing think tag for the chat template to strip.
-    \item \textbf{The recurrent layers, read turn by turn.} Read the
-          state of the 48 linear-attention layers after each turn, as
-          well as the keys of the full-attention layers. That state
-          summarizes the history without per-position keys and is not
-          read here (Section~\ref{sec:dose}, Read layers), so whatever
-          history it carries, this instrument sees only as far as it
-          reaches the keys of four early full-attention layers.
-    \item \textbf{Position-matched or de-rotated keys.} Compare arms
-          only at the same token position, with user messages matched in
-          token length and dose varied at a fixed total length (neutral
-          user turns of the same length standing in for emotional ones),
-          or undo the rotary embedding on the rotated dimensions of each
-          key before projecting. Without one of these, a reading can
-          move with position alone (Section~\ref{sec:dose}; Limitations
-          item~6).
+    \item \textbf{The recurrent layers, read turn by turn (to test the
+          model, not only these keys).} A test of whether these keys
+          accumulate does not need them; a test of whether the model's
+          context does would read the state of the 48 linear-attention
+          layers after each turn, as well as the keys of the
+          full-attention layers. That state summarizes the history
+          without per-position keys and is not read here
+          (Section~\ref{sec:dose}, Read layers), so whatever history it
+          carries, this instrument sees only as far as it reaches the
+          keys of four early full-attention layers. It is a matrix per
+          head, not a vector in key space, so reading it needs emotion
+          directions of its own: the calibration routine
+          (\texttt{calibrate} in \texttt{decision\_moment.py}) builds
+          directions only from full-attention keys, and a matching step
+          for the recurrent state would have to be written and validated
+          first.
+    \item \textbf{Comparisons matched in position and length.} Compare
+          arms only at the same token position, with user messages
+          matched in token length and dose varied at a fixed total length
+          (neutral user turns of the same length standing in for
+          emotional ones). Without this, a reading can move with position
+          alone (Section~\ref{sec:dose}; Limitations item~6). Undoing the
+          rotary embedding is not a substitute. The directions were built
+          from cached keys, which are already rotated, so de-rotated read
+          keys would be projected on directions in a different frame; and
+          the key at layer~3 still depends on how many tokens precede it,
+          and on what they say, through linear-attention layers 0--2.
+          De-rotation can serve only as an extra diagnostic, with the
+          directions rebuilt from de-rotated calibration keys.
     \item \textbf{Behavior as ground truth.} Measure whether the model's
           behavior at the identical measured turn differs across
           histories, for example in its reply to the same neutral
@@ -893,10 +943,12 @@ than the first version of this paper said. At the read site used, cached
 keys projected on emotion directions at four early full-attention
 layers, the readings move with sequence position and the amount of
 history, which are not separated here, far more than with the tone
-compared (Section~\ref{sec:dose}; Limitations items~6 and~14). The stored
-assistant turns are the model's planning text, which often names the
-user's tone, so readings of history contain the model's own written
-labels, except in turns whose planning the chat template stripped. The
+compared (Section~\ref{sec:dose}; Limitations items~6 and~14). In
+Experiment~1 and the initial study the stored assistant turns open with
+the model's planning text, which often uses a tone word, so readings
+of history contain the model's own
+written labels, except in turns whose planning the chat template
+stripped. The
 pooled gap between scripted
 cheerful and hostile conversations shows no monotone trend as their dose
 grows ($0.53$, $0.72$, $0.53$ and $0.78$ at doses 1, 2, 4 and 8; per topic
@@ -908,16 +960,22 @@ scar results are withdrawn: each compared different messages at the
 measured turn (Section~\ref{sec:dynamics}). Neither experiment measured at
 the user's own tokens: Experiment~1 averaged equal-width chunks and
 Experiment~2 read the last token of the template's generation prompt.
-The persona contrast is the one length-matched comparison, and five
-probes cannot test it (Section~\ref{sec:persona}). The compass's readings have not been checked against any text baseline.
+In the initial study one topic's two reruns per arm are length-matched,
+and their gap at the probe ($+0.08$, against rerun SDs of $0.23$ and
+$0.12$) comes from one script with an undocumented read site, too few
+to test anything. The persona contrast is the one comparison
+length-matched on every probe; five probes cannot test it, its script is
+not shipped and its read site is undocumented
+(Section~\ref{sec:persona}). The compass's readings have not been checked against any text baseline.
 
 Whether the compass registers a conversation's current tone, or its
 accumulated history, is not established by these data.
-Section~\ref{sec:test} sets out what a test would need: fixed
-(teacher-forced) neutral assistant turns, the recurrent layers read turn
-by turn, position-matched or de-rotated keys, and behavior as ground
-truth, with identical measured-turn text across arms and several
-independent scripts.
+Section~\ref{sec:test} sets out what a test of these keys would need: fixed
+(teacher-forced) neutral assistant turns, comparisons matched in
+position and length, and behavior as ground truth, with identical
+measured-turn text across arms and several independent scripts.
+Reading the recurrent layers' state, with emotion directions built for
+it, would extend such a test from these keys to the model.
 
 \paragraph{Data and code availability.}
 {\sloppy The scripts for Experiments~1 and~2 and the data for all four
