@@ -39,6 +39,7 @@ Date: 2026-05-29
 """
 import argparse
 import json
+import os
 import time
 import numpy as np
 import torch
@@ -48,9 +49,11 @@ from itertools import combinations
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 MODEL_ID = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled"
-HF_CACHE = "/Users/margaret/models/hf_cache"
-RESULTS_DIR = Path("/Users/margaret/models/research_results/persona_per_level")
-DIRECTIONS_PATH = Path("/Users/margaret/models/research_results/decision_moment/emotion_directions.json")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+HF_CACHE = f"{LAB_HOME}/models/hf_cache"
+RESULTS_DIR = Path(f"{LAB_HOME}/models/research_results/persona_per_level")
+DIRECTIONS_PATH = Path(f"{LAB_HOME}/models/research_results/decision_moment/emotion_directions.json")
 PROBE_LAYERS = [3, 7, 11, 15]
 SEED = 42
 

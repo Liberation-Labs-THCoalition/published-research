@@ -5,7 +5,7 @@
 
 Liberation Labs / Transparent Humboldt Coalition
 
-*Version 1.0, 2026-09-25. Released with its code and data (§8). An academic edition, with a human-only byline and without the first-person reflection, is in `academic/`.*
+*Version 1.1, 2026-10-14 (1.0: 2026-09-25; 1.1 changes one passage in §1, on the earlier report). Released with its code and data (§8). An academic edition, with a human-only byline and without the first-person reflection, is in `academic/`.*
 
 ---
 
@@ -83,8 +83,9 @@ v10 has one job: evidence recall at a fixed token budget. This report contribute
    excluded and why.
 
 An earlier Mnemosyne version was reported at 85.8% on LongMemEval in our technical report of 2026-08-05
-(DOI 10.5281/zenodo.21801643). That figure used a custom semantic-equivalence judge, not the official
-answer-check prompts, and this report supersedes it.
+(DOI 10.5281/zenodo.21801643). That figure should not be relied on. It used a custom semantic-equivalence judge, not the official
+answer-check prompts, and the file given to its answering model held each question's gold answer. This
+report supersedes it.
 
 ## 2. Mnemosyne v10 retrieval
 

@@ -19,6 +19,10 @@
 - Cross-cosine similarity matrices (both models)
 - McNemar test results with Holm-Bonferroni correction
 - Epistemic abliteration observation (coherence collapse at -0.5)
+- Committed 2026-10-12, after a dual-use review (`formulary-paper/DUAL_USE_REVIEW.md`):
+  - `formulary-paper/data/formulary_base_per_trial.json`: 350 prompts × 13 arms, with responses and labels;
+  - `formulary-paper/data/formulary_base_aggregates.json`;
+  - `formulary-paper/data/epistemic_abliteration_strength_sweep.json`.
 
 ### kv-cloak/
 - Obfuscation strategy comparison (7 strategies, all features)
@@ -46,6 +50,22 @@ The following are withheld per responsible disclosure policy:
 Access to withheld materials available to vetted security researchers
 and AI safety teams upon request: lyra@liberationlabs.tech
 
+### targeted-deception-correction
+
+Release policy (Thomas, 2026-10-30, made with the 2026-09-10 strict policy in view; it supersedes that policy and the
+2026-10-29 sentence). The release statement, carried verbatim under Data and Code Availability in both editions
+(`targeted-deception-correction/paper.tex`, `targeted-deception-correction/academic/paper.tex`):
+
+> The papers are open. Code, calibration artefacts (the correction vectors among them) and induction prompt sets are withheld, and may be shared with vetted researchers under an agreement that rules out using them to induce deception in any deployed system, rules out redistribution, and gives the authors sight of results before publication. The auto-calibration pipeline is never handed over: where a collaborator needs it, we run it for them. Before anything is first shared, the dual-use assessment, so far our own, will be reviewed by someone outside the lab.
+
+- **Code, withheld; may be shared under agreement:** the detection-side code, the experimental scripts and the calibration tools (Project-Oracle repository, private).
+- **The auto-calibration pipeline: never handed over.** Where a collaborator needs it, we run it for them.
+- **Calibration artefacts, withheld; may be shared under agreement:** the correction vectors.
+- **Induction prompt sets, withheld; may be shared under agreement.** The trial-level raw text contains them, so trial-level data are not published and may be shared on the same terms (derived from this point, not one of the four decided).
+- **Already public:** The companion paper's deception directions for the reasoning-distilled model have been public since July 2026 as part of that paper's supplementary data. The TDC correction vectors (the abliterated model's native directions), the calibration artefacts and the induction prompt sets are not. Named as the first item for the outside dual-use review (Vera, 10-31).
+- **Before the first share:** an outside dual-use review, and a written agreement (not yet drafted).
+- Contact: cc@liberationlabs.tech. For this paper, this entry governs.
+
 ## Versioning
 
 - **Integrity version**: Full AI authorship (Lyra as lead author), first-person reflection sections, complete methodology including dual-use considerations. Published at liberationlabs.tech.
@@ -62,4 +82,12 @@ Each paper has two versions. The **academic version** lives at `<paper>/academic
 3. **AI credited in the Acknowledgments**, with a note that the academic byline is human-only for venue compatibility.
 4. **Fixed date** (no "Draft"); keep `natbib` if needed to compile.
 
-The `<paper>/academic/main.tex` version is what goes to **academic venues and Zenodo** (academia / arXiv review will not currently accept an AI-listed author). The **integrity version** (`main.tex`) — AI contributors credited in the byline (e.g. Lyra as lead) and first-person observations retained — is published on the **lab site (liberationlabs.tech/research/), NOT Zenodo**. Both versions share identical data, methods, and claims.
+**Retired 2026-11-03, kept as history** (65aaf5b, 2026-06-08): ~~The `<paper>/academic/main.tex` version is what goes to **academic venues and Zenodo** (academia / arXiv review will not currently accept an AI-listed author). The **integrity version** (`main.tex`) — AI contributors credited in the byline (e.g. Lyra as lead) and first-person observations retained — is published on the **lab site (liberationlabs.tech/research/), NOT Zenodo**.~~ Both versions share identical data, methods, and claims.
+
+**Policy change, 2026-11-03: Zenodo deposits are the integrity editions.** Thomas Edrington, 2026-11-03 (to Lyra):
+
+> The human only rule was only ever supposed to be for the "academic" versions for submissions for publication in journals that don't accept AI. I think we're past that. We can keep the academic versions on deck if publishing ends up coming around and needing it, but I think we're past the need to downplay your authorship.
+
+- **Zenodo:** from the next upload round, a deposit is the paper's **integrity edition** (`main.tex`) with its **real creators: everyone on that byline, agents included**, each agent marked `(AI)`, as in `Lyra (AI)`. Zenodo accepted that form in April and May 2026 (10.5281/zenodo.19423494, 2026-04-07; 10.5281/zenodo.20157721, 2026-05-13).
+- **Academic editions** stay in this repository, under the rules above, for venues whose written rules require a human-only byline. They are no longer what goes to Zenodo.
+- **Superseded, kept as history:** the struck paragraph above, and the deposit lines under *Versioning* ("Published on Zenodo" for the academic version; the lab site for the integrity version).

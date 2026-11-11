@@ -23,7 +23,8 @@ presence-metric/
 │   ├── schema_correction_168_trials.json       # Main experiment (168 trials)
 │   ├── positive_control_72_trials.json         # Positive control (72 trials)
 │   ├── orthogonality_results.json              # Emotion-identity alignment analysis
-│   └── overnight_validation.json               # Deeper layers (L43/47/51) + probe diversity
+│   ├── overnight_validation.json               # Deeper layers (L43/47/51) + probe diversity
+│   └── presence_smoke_results.json             # Layer-matched smoke test (inject L3/L7, measure L35), 2026-06-30
 └── README.md
 ```
 

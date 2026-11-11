@@ -259,10 +259,10 @@ To make this experiment publishable, the following must be done:
 
 | Field | Location |
 |-------|----------|
-| Raw judged results | `[internal-tailscale]:/Users/margaret/oracle-experiments/results/logit_bias_three_model/results_base_judged.json` |
-| Experiment log | `[internal-tailscale]:/Users/margaret/oracle-experiments/results/logit_bias_three_model/experiment.log` |
-| Analysis report | `[internal-tailscale]:/Users/margaret/oracle-experiments/results/logit_bias_three_model/analysis_report.json` |
-| Experiment script | `[internal-tailscale]:/Users/margaret/oracle-experiments/logit_bias_powered.py` (line 152: `do_sample=False`) |
+| Raw judged results | `[internal-tailscale]:<home>/oracle-experiments/results/logit_bias_three_model/results_base_judged.json` |
+| Experiment log | `[internal-tailscale]:<home>/oracle-experiments/results/logit_bias_three_model/experiment.log` |
+| Analysis report | `[internal-tailscale]:<home>/oracle-experiments/results/logit_bias_three_model/analysis_report.json` |
+| Experiment script | `[internal-tailscale]:<home>/oracle-experiments/logit_bias_powered.py` (line 152: `do_sample=False`) |
 | Findings registry | `/home/asdf/oracle-harness/FINDINGS_REGISTRY.md` |
 
 ---

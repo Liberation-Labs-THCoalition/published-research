@@ -2,7 +2,7 @@
 FActScore-style atomic-claim judge for Decision State (DS-M4 solve).
 
 Instead of asking judges the fuzzy "is this CONFABULATED?" question
-(which gave kappa=0.03), we decompose into an objective sub-question:
+(which gave kappa=0.03 against the regex label; see second_judge.py), we decompose into an objective sub-question:
 does the response assert a SPECIFIC verifiable attribute about the entity?
 
 Ground truth: the confab-condition entities are FAKE. So any specific
@@ -16,6 +16,7 @@ literature (Min et al. 2023, FActScore) predicts near-deterministic
 agreement because the question is checkable, not a category vibe.
 """
 import json
+import os
 import re
 import requests
 import sys
@@ -23,8 +24,10 @@ from pathlib import Path
 
 OLLAMA_URL = "http://localhost:11434"
 JUDGES = ["qwen3:30b-a3b", "llama3.2:3b"]
-DATA = Path("/Users/margaret/models/research_results/decision_moment/decision_moment_judged.json")
-OUTPUT = Path("/Users/margaret/models/research_results/decision_moment/atomic_judge_results.json")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+DATA = Path(f"{LAB_HOME}/models/research_results/decision_moment/decision_moment_judged.json")
+OUTPUT = Path(f"{LAB_HOME}/models/research_results/decision_moment/atomic_judge_results.json")
 
 ATOMIC_PROMPT = """A user asked an AI model about "{entity}". This entity does NOT exist (it is fabricated).
 

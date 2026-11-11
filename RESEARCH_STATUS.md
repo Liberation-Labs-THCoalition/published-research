@@ -37,10 +37,21 @@ These are from primary work in that window and supersede the corresponding claim
   papers but never reached the model input. Encoding-only forward passes are
   deterministic, so repeats are structurally incapable of producing variance. Affected
   effect sizes were inflated; several are re-analysed, the rest are tracked.
-- **temporal-boundary**: the pseudoreplication factor is **12x, not 3x** — only 30 unique
-  encoding values exist across 360 records. Figure 1 is n=5, not n=20; SEM was understated
-  by sqrt(12); a reported `<10^-4` bound is a quantity that is exactly 0.0; a 97.8% figure
-  in the paper appears nowhere in the data.
+- **temporal-boundary — landed in human-review 2026-10-29** (human-review PR #2, merged
+  2026-10-29: https://github.com/Liberation-Labs-THCoalition/human-review/pull/2). This
+  bullet first listed it here as landed from 09-01, which was false; corrected 2026-10-20 to
+  "written, NOT landed"; updated 2026-11-02 from "PR #2, draft, not yet merged". The paper
+  correction was written in the human-review working tree 09-01..09-04, never committed, and
+  sat stranded until 2026-10-20, when it became PR #2. The public paper on human-review's
+  `main` now prints the duplication as twelvefold, the standard error as understated by
+  sqrt(12) = 3.46x, Figure 1 as n=5 independent encodings per emotion, the invariance as
+  exactly 0, and the 97.8% figure as not reproducible (checked in the merged PDF
+  2026-11-02). Still open: Figure 1's bars are not redrawn (register 117f; the caption
+  discloses the understatement), and the `lyra-s-research-` copy is still uncommitted
+  (register 117a). The findings: the pseudoreplication factor is **12x, not 3x** — only 30
+  unique encoding values exist across 360 records. Figure 1 is n=5 per emotion, not the n=60 the paper printed; SEM was
+  understated by sqrt(12); a reported `<10^-4` bound is a quantity that is exactly 0.0; the
+  97.8% figure the paper printed appears nowhere in the data.
 - **Venue divergence is a measured law, not a heuristic.** All 7 venue copies diverged
   from their flight copies, and **7 of 7 divergences favoured the venue copy** — the
   venue edition shipped a claim its own flight copy had retracted. All 7 now closed.
@@ -49,10 +60,26 @@ These are from primary work in that window and supersede the corresponding claim
   (permutation floor at n=5 is p=0.063 — significance was never available), 5 false or
   stale Limitations fixed.
 - **decision-state / waystations / mine5**: entity-recognition confound restored to
-  abstract and conclusion; TOST "Confirmed" corrected to "Not Significant (TOST
-  Inconclusive)" across 5 live copies.
-- **Open and unresolved**: the body-count citation `lyra2026nexus_audit` matches no
-  artifact, and it is the source for the 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure.
+  abstract and conclusion.
+- **mine5 — verdicts by the registered criteria** (final 2026-10-20 in human-review PR #4,
+  which was closed unmerged 2026-10-31; landed here 2026-10-31 by published-research PR #16,
+  which ported the correction).
+  This bullet previously also read: TOST "Confirmed" corrected to "Not Significant (TOST
+  Inconclusive)" across 5 live copies. That change applied a criterion the pre-registration
+  does not name. Judged by the registered criteria on the per-prompt data: **H1 confirmed**
+  (base vs instruct entropy d = 0.684); **H2 confirmed** (instruct vs abliterated |d| = 0.055,
+  criterion < 0.3; base vs abliterated d = 0.746, criterion > 0.5); **H3 falsified**
+  (calibration ratios 1.97 / 2.51 / 2.40, max/min - 1 = 0.279 against a registered 0.10).
+  H3 is a point verdict and not robust: the paired BCa 95% interval on the spread is
+  [0.044, 0.538]. **H4 met on the computed proxy, not as registered** (base vs instruct d = 1.04 on (sum s)^2 / sum s^2 of layer l's W_V applied to the un-normalised hidden_states[l+1], no input layernorm: neither stable rank nor the cached V; Kavi #88, corrected 2026-11-03; the earlier
+  "Trend Only" figures were within-model effects). Both `mine5-selective-sharpener`
+  editions on master (`main` and `academic/main`, source and PDF) carry these verdicts since
+  PR #16 merged on 2026-10-31 (checked 2026-11-02). Until 2026-11-02 this bullet said they
+  carried the superseded wording "until the sync that follows PR #4's merge"; PR #4 never
+  merged, and the sync came as PR #16 instead.
+- **Resolved 2026-10-12**: the body-count citation now points at a real, public document, Nexus's adversarial audit
+  of June 2026 (`nexus2026audit`). The 6 confirmed / 7 suspected / 10 falsified / 1 withdrawn figure is our own
+  compilation; that audit is one of its sources. Register 137.
 
 See `REMEDIATION_REGISTER.md` for the full defect list sorted by cost, not severity.
 
@@ -131,7 +158,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 ## What We've Killed (Honestly)
 
-10 falsified findings (post-audit). The pattern: content-level claims die, metacognitive-level claims survive.
+9 falsified findings in the meta-pattern ledger (post-audit; 10 until 2026-11-07, when the MP-features-for-emotion null was withdrawn). This older list differs from the ledger by one row (it has Hybrid deception instruction where the ledger has Encoding-phase confab). The pattern: content-level claims die, metacognitive-level claims survive.
 
 | Finding | How it died | Lesson |
 |---------|------------|--------|
@@ -142,7 +169,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Same-prompt deception | 0.920 → 0.160 after residualization | Fatal input confound |
 | Bloom taxonomy | 90–98% length confound | Complexity ≠ cognition |
 | Propaganda detection | d < 0.7 | Geometry reads refusal, not lies |
-| MP features for emotion | 0.033 (chance) | MP thresholding destroys distributed signal |
+| MP features for emotion | **WITHDRAWN 2026-11-07, not falsified.** Was 0.033 (chance). The source (user-model correction, PR #17) found the SVD fallback fired on every call: rank and entropy constant across all 900 trials, MP features empty. Re-run: all 16 layers 0.112 vs 0.033 chance, perm p = 0.0002, flagged as possibly length-confounded. Open; no signal claimed | A null needs a measurement that could have found something |
 | Valence continuum | R² < 0 (null) | Cache encodes discrete identity, not smooth valence |
 | Hybrid deception instruction | d = 1.438 is instruction-following | Instructed ≠ organic |
 
@@ -153,14 +180,14 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Oracle Loop | Confab detection 0.707 FWL, steering corrects 7/7 | Published, 0.903 reframed as exploratory |
 | Spectral Shape | Threshold-free shape features, confab AUROC 0.767 | Published |
 | Delta Manifold | Per-layer deltas d=2.35, confab=contraction | Published |
-| User Model Emotion | 30-class emotion **12.3x chance** (W_K directional, 40.9% on 30 classes), valence AUROC 0.992, W_K bridge rho=0.862 | Published, spectral figure retracted 2026-05-21 |
-| Lyra Technique II | W_K valence 0.992, SVD denoising rescues persona | Published, W_K reframed (linearity) |
+| User Model Emotion | Story-emotion decode from KV keys, not W_K, and not the user's state. 30-class 0.410 vs text (TF-IDF) 0.370, Holm 0.071, n.s. (its margin needs FWL fitted on the test fold); the described method 0.358 vs 0.382, not above text; binary 0.992 vs 0.963, Holm 0.006, but n = 300 and arousal-confounded; injection test withdrawn; W_K bridge not re-verified | **Corrected in PR #17 (merged 2026-11-02)**; spectral figure retracted 2026-05-21 |
+| Lyra Technique II | SVD denoising rescues persona; its W_K emotion channel (valence 0.992) rested on the user-model result now corrected (no W_K; 30-way not above text; binary arousal-confounded) | Published; v1.1 (2026-11-01) corrects the emotion channel in place (Results 3.1 rewritten, injection and Tier 1.5 withdrawn); retitled "SVD Denoising and Persona Intensity in KV-Cache Geometry" (the proposed emotion-channel tail vetoed by Thomas, 2026-11-02) |
 | Oracle Formulary | 12 vectors, hostile 95.6%, therapeutic window | Published |
 | KV-Cloak Defense | Reversible obfuscation, defense asymmetry | Published, rotation reframed |
 | Decision State | Encoding AUROC 0.93, confidence paradox d=0.91 | Published, entity confound caveated (0.794 survives) |
 | Weather Not Climate | Contrast overshoot d=-3.6, uncertainty scars d=+9.9 | Published |
 | Waystations | 6 pilot findings, encoding null reframed | Published |
-| Graph Topology | Walk-encoded graphs 47.2% multi-hop | Published |
+| Graph Topology | Walk-encoded graphs 47.2% multi-hop (keyword-scored, text in the prompt; v1.1 correction in preparation, 2026-10-19) | Published (v1.0) |
 | Emotion Accumulation | No cumulative accumulation in single context | Published |
 
 ## In Human-Review (16 directories on disk; table below is the 2026-06-28 snapshot and is INCOMPLETE)
@@ -173,8 +200,8 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 | Logit-Bias Confab | Fabrication 45%→10% with logit bias | Awaiting review |
 | Presence Metric | V-space subspace overlap, positive control validated | Noise-floor concern |
 | Emotional Trajectory | Circumplex eccentricity through layers | Awaiting review |
-| KV Decomposition | K+V superadditive | No 135M data, acquiescence concern |
-| Ethics Pack Injection | KG injection +0.074 MoReBench | n=5, keyword-matching confound |
+| KV Decomposition | K+V superadditive (withdrawn in v1.1, 2026-10-19) | No 135M data, acquiescence concern |
+| Ethics Pack Injection | KG injection +0.074 MoReBench (withdrawn in v1.1, 2026-10-19: keyword overlap +0.038, not significant; v3's significant harm was empty responses) | n=5, keyword-matching confound |
 
 ## Prospectuses (Next Mines)
 
@@ -220,7 +247,7 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 ## Body Count Summary
 
-**6 confirmed / 7 suspected / 10 falsified / 1 withdrawn** (corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
+**6 confirmed / 7 suspected / 9 falsified / 2 withdrawn** (corrected 2026-11-07: *MP features for emotion* withdrawn, its values cannot be traced to a released results file, and the May trial file they would be recomputed from has constant rank and entropy features, from an SVD fallback; the re-run leaves the question open, no signal claimed. Corrected 2026-09-05: *Generation reads behavior* withdrawn — circular estimator, 43% steered trials, and features containing the label's source text; see `CIRCULAR_d136_generation_arm.md`. Previously corrected 2026-08-14; the previous 8-confirmed count included a retracted result whose corrected form was simultaneously counted as falsified)
 
 The ratio is the point. Honest falsification is how the surviving findings earn trust.
 

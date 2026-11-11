@@ -6,7 +6,7 @@ this review ran the gate script, see "side effect" note below), `academic/main.t
 `academic/main.pdf` (twins), `main.pdf.bak-prewithdraw` (pre-fix artifact, used as positive
 control), `expectations.json`, `tools/agni/build_integrity_gate.py`,
 `SWEEP_postgen_extraction_2026-09-05.md`, and source spot-checks on `margaret`
-(`/Users/margaret/oracle-experiments`, `oracle-harness`) plus local
+(`<home>/oracle-experiments`, `oracle-harness`) plus local
 `decision-state-paper/code/entity_deconfound.py`.
 
 ## VERDICT

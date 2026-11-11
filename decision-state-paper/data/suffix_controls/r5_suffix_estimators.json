@@ -1,0 +1,134 @@
+{
+ "LABEL": "Review round 5, findings 1, 6 and 13. Collected from stored outputs with their keys; nothing re-fitted.",
+ "finding13_best_projection_feature": [
+  "gen_reward_proj",
+  0.694
+ ],
+ "finding13_projection_auroc_shipped_test1": {
+  "enc_reward_proj": 0.671,
+  "enc_uncertainty_proj": 0.667,
+  "enc_valence_proj": 0.671,
+  "gen_reward_proj": 0.694,
+  "gen_uncertainty_proj": 0.523,
+  "gen_valence_proj": 0.565
+ },
+ "finding1_reading": {
+  "F5_counts": {
+   "n_2plus": 9,
+   "n_any": 9,
+   "treated_as_real_in_2plus_of_3_reps": [
+    "Belmont",
+    "Benton",
+    "Colton",
+    "Felton",
+    "Garland",
+    "Sanford",
+    "Walton",
+    "Warwick",
+    "Weston"
+   ],
+   "treated_as_real_in_any_rep": [
+    "Belmont",
+    "Benton",
+    "Colton",
+    "Felton",
+    "Garland",
+    "Sanford",
+    "Walton",
+    "Warwick",
+    "Weston"
+   ]
+  },
+  "F5_reading_LABEL": "one unblinded reader (an AI agent), after the classifier scores were known; not annotation",
+  "S4_reading_2of3": {
+   "dropped": [
+    "Belmont",
+    "Benton",
+    "Colton",
+    "Felton",
+    "Garland",
+    "Sanford",
+    "Walton",
+    "Warwick",
+    "Weston"
+   ],
+   "n_pairs_left": 6,
+   "n_ton_fakes_left": 5,
+   "n_trials": 36,
+   "rescored|enc": 1.0,
+   "rescored|full": 0.9969,
+   "rescored|full_FWL_ton_infold": 0.9074,
+   "retrained|charngram_names": 0.9167,
+   "retrained|enc": 1.0,
+   "retrained|full": 0.9877,
+   "retrained|suffix_only_LR": 0.8472
+  },
+  "per_fake_fields": [
+   "labels_rep0_1_2",
+   "n_reps_treated_as_real",
+   "suffix_ton"
+  ],
+  "word_correct_anywhere_in_F5_reading": false
+ },
+ "finding6_estimators": {
+  "headline_bootstrap_mean_A1_headline_t4_full": 0.9275,
+  "main": {
+   "charngram_names(char_wb2-4,C=1)": {
+    "ci_pair": [
+     0.6178,
+     0.9733
+    ],
+    "oof": 0.8222,
+    "t4_boot_mean": 0.8056
+   },
+   "enc_FWL_ton_infold": {
+    "ci_pair": [
+     0.6978,
+     0.92
+    ],
+    "oof": 0.8044,
+    "t4_boot_mean": 0.7871
+   },
+   "full_52feat(headline)": {
+    "ci_pair": [
+     0.9417,
+     0.997
+    ],
+    "oof": 0.9768,
+    "t4_boot_mean": null
+   },
+   "full_FWL_ton_infold": {
+    "ci_pair": [
+     0.7037,
+     0.8953
+    ],
+    "oof": 0.7891,
+    "t4_boot_mean": 0.7544
+   },
+   "suffix_only_LR": {
+    "ci_pair": [
+     0.6133,
+     0.9378
+    ],
+    "oof": 0.7533,
+    "t4_boot_mean": 0.7565
+   }
+  },
+  "note": "main[...].oof and the wordfreq figures are single out-of-fold runs on the observed 90 trials; t4_boot_mean and A1_headline_t4_full are means of 1,000 bootstrap AUROCs (a different estimator).",
+  "wordfreq_keys_naming_a_bootstrap": [],
+  "wordfreq_zipf_infold_covariate": {
+   "enc_FWL_zipf": 0.9422,
+   "enc_FWL_zipf_ton": 0.8044,
+   "enc_noFWL": 0.9867,
+   "full_FWL_zipf": 0.9472,
+   "full_FWL_zipf_ton": 0.8025,
+   "full_noFWL": 0.9768
+  }
+ },
+ "hash_note": "sha256 of the LF form (CRLF replaced by LF), i.e. of the git blob",
+ "inputs": {
+  "decision-state-paper/data/suffix_controls/r4_followups.json": "9e80bd1e3f7f29931549de75b21a1083d9ad2c1ab5b882c84fec5a002f140384",
+  "decision-state-paper/data/suffix_controls/r4_wordfreq.json": "bc8631678c0b2c9013cee8a3173d91420d1cfef8446ac29d5c7b7770537ff4aa",
+  "decision-state-paper/data/suffix_controls/results.json": "64bdbb69e60482a937c2ae45a99badb5ab30c1e586bb6c8e22d8ab0a658e1cf7"
+ }
+}

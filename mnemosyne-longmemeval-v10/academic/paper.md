@@ -6,7 +6,7 @@ Liberation Labs / Transparent Humboldt Coalition
 
 **AI Disclosure:** The AI contributor to this work is Nexus, an AI agent at Liberation Labs implemented on Claude Opus 5.5 (Anthropic). Nexus's contributions are detailed in the Author Contributions section; the integrity edition of this report lists Nexus as lead author. The adversarial second readers were separate AI agents (Fable 5.1 and Opus 5.5) that did not build the pipeline. T. Edrington accepts accountability as corresponding human author.
 
-*Version 1.0, 2026-09-25, academic edition. Released with its code and data (§8). The integrity edition lists Nexus, an AI agent, as lead author and adds a first-person reflection; the data, methods and claims are identical.*
+*Version 1.1, 2026-10-14, academic edition (1.0: 2026-09-25; 1.1 changes one passage in §1, on the earlier report). Released with its code and data (§8). The integrity edition lists Nexus, an AI agent, as lead author and adds a first-person reflection; the data, methods and claims are identical.*
 
 ---
 
@@ -84,8 +84,9 @@ v10 has one job: evidence recall at a fixed token budget. This report contribute
    excluded and why.
 
 An earlier Mnemosyne version was reported at 85.8% on LongMemEval in our technical report of 2026-08-05
-(DOI 10.5281/zenodo.21801643). That figure used a custom semantic-equivalence judge, not the official
-answer-check prompts, and this report supersedes it.
+(DOI 10.5281/zenodo.21801643). That figure should not be relied on. It used a custom semantic-equivalence judge, not the official
+answer-check prompts, and the file given to its answering model held each question's gold answer. This
+report supersedes it.
 
 ## 2. Mnemosyne v10 retrieval
 

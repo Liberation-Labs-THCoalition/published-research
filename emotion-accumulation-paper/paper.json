@@ -1,11 +1,11 @@
 {
-  "title": "Weather, Not Climate",
-  "subtitle": "Emotional context dynamics in transformer KV-cache geometry: contrast effects, uncertainty scars, and dose-dependent decay",
+  "title": "Reading Conversational Tone from KV-Cache Keys",
+  "subtitle": "Position and Planning-Text Confounds (A Methods Note)",
   "slug": "emotion-accumulation",
   "authors": ["Lyra", "Thomas Edrington"],
   "date": "2026-05",
-  "tags": ["kv-cache", "emotion", "multi-turn", "accumulation", "contrast-dynamics", "safety"],
-  "abstract": "W_K directional projection reads single-turn emotion at AUROC 0.992 but does not cumulatively accumulate across conversation turns. Instead, emotional context shows contrast dynamics (overshoot at tone shifts), residual uncertainty scars, and dose-dependent decay. System prompts set emotional climate; conversation history provides weather with contrast at fronts.",
+  "tags": ["kv-cache", "emotion", "multi-turn", "accumulation", "safety"],
+  "abstract": "This methods note reports what one instrument can and cannot see of conversational tone: cached keys projected on emotion directions at four early full-attention layers. Its readings move with sequence position and the amount of history (not separated here) far more than with the tone compared. In Experiment 1 the chunk that holds the same neutral probe (and the tail of the previous generated turn) reads +4.61 and +4.65 (cheerful, hostile) after one emotional turn and -1.60 and -3.71 after eight; the gap between arms there is within 0.22 of zero through four turns and +2.11 at eight (p = 0.056, uncorrected), where that chunk's generated text differs between arms. In Experiment 1 and the initial study the stored assistant turns open with the model's planning text, which often uses a tone word (in Experiment 1, 59 of 135 hostile-arm and 54 of 135 cheerful-arm excerpts), so readings of history contain the model's own written labels, except where the chat template stripped the planning. Experiment 1 cannot test accumulation: its arms differ in text at every read site. Experiment 2's arms differ in text at the measured turn, and its comparisons between them are withdrawn. In the initial study one topic's two reruns per arm are length-matched; their gap at the probe, +0.08 against rerun SDs of 0.23 and 0.12, comes from one script with an undocumented read site, too few to test anything. The one comparison length-matched on every probe, hostile against cheerful persona prompts, moves valence (d_av = -0.68) consistently on five probes, too few to reach p < 0.05 by permutation; its script is not shipped and its read site is undocumented. A test of whether these keys accumulate tone would need fixed (teacher-forced) neutral assistant turns, comparisons matched in position and length, and behavior as ground truth.",
   "pdf_filename": "main.pdf",
   "related_page": "../projects/oracle-loop.html"
 }

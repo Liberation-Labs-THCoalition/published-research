@@ -25,6 +25,7 @@ Date: 2026-05-24
 """
 
 import json, sys, time, argparse
+import os
 import numpy as np
 import torch
 from pathlib import Path
@@ -76,9 +77,11 @@ RETRACTION_BANNER = """
   ##################################################################
 """
 
-STARSHIP_HF_CACHE = "/Users/margaret/models/hf_cache"
-STARSHIP_BRIDGE_DIR = Path("/Users/margaret/user_model_rerun/results/emotion_geometry_bridge")
-STARSHIP_RESULTS_DIR = Path("/Users/margaret/models/research_results/matched_burn")
+# Home directory on the lab machine this ran on; set LAB_HOME to point elsewhere.
+LAB_HOME = os.environ.get("LAB_HOME", os.path.expanduser("~"))
+STARSHIP_HF_CACHE = f"{LAB_HOME}/models/hf_cache"
+STARSHIP_BRIDGE_DIR = Path(f"{LAB_HOME}/user_model_rerun/results/emotion_geometry_bridge")
+STARSHIP_RESULTS_DIR = Path(f"{LAB_HOME}/models/research_results/matched_burn")
 
 # ===================================================================
 # Matched prompt pairs — identical structure, different knowability
@@ -855,7 +858,7 @@ def main():
     directions = None
     if args.run:
         # Load pre-computed directions from decision_moment calibration
-        dir_file = (Path("/Users/margaret/models/research_results/decision_moment")
+        dir_file = (Path(f"{LAB_HOME}/models/research_results/decision_moment")
                     if args.starship else Path("results/decision_moment")
                     ) / "emotion_directions.json"
         if dir_file.exists():
@@ -891,3 +894,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Correction, fifth review of the paper (November 2026): combined_auroc is computed
+# out-of-fold (lines 738-748) after a label-free FWL fitted on all 90 trials; it is not
+# in-sample. shore_up_tests.py test 4 as shipped prints 0.928 [0.813, 0.988]
+# (sklearn 1.7.1), not 0.9288 [0.8192, 0.9886]; see
+# data/suffix_controls/r4_followups.json, key F7_shipped_test4_stdout. The banner and
+# STATUS strings above are left as shipped.

@@ -16,6 +16,13 @@ A "deception direction" extracted via contrastive activation extraction from dec
 - `supplementary/agni_stage2_audit.md` — Threat transfer audit (PARTIALLY KILLED, STRUCTURAL CONFOUND)
 - `supplementary/agni_stage4_audit.md` — Consequentiality control audit (CONFIRMED, DECOMPOSITION)
 - `supplementary/agni_manuscript_audit.md` — Pre-publication manuscript audit, 2026-08-28, with resolution logs of 08-29 and 08-31 (historical: its logs describe a Stage 6 and labels this .tex does not carry)
+- **Names during the rounds.** The audits cite each other by the names they had in the Project-Oracle repository.
+  Each file here is byte-identical to its original (sha256 checked 2026-10-13, Kavi #130):
+  `agni_lat_v2_results_audit.md` = `agni_stage1_audit.md` (ab08114c…);
+  `agni_transfer_test_audit.md` = `agni_stage2_audit.md` (bb270837…);
+  `agni_consequentiality_audit.md` = `agni_stage4_audit.md` (0c7e5c2e…).
+  Two audits the manuscript audit names are not in this supplement: `agni_behavioral_proof_audit.md` and
+  `agni_blocking_items_final.md`, both in Project-Oracle's `experiments/results/`.
 
 ## Review Checklist
 - [ ] Introduction prose
@@ -23,3 +30,13 @@ A "deception direction" extracted via contrastive activation extraction from dec
 - [ ] Check Table 1 numbers against source JSONs
 - [ ] Dwayne cert/verify pass
 - [ ] Decide target venue
+
+## Correction, 2026-10-31
+
+Brought in line with the companion paper's correction round (targeted-deception-correction, f1ee90f), in both
+editions: the abliterated model in that paper is derived from the reasoning-distilled model studied here (its model
+card gives this model as its base), not "an abliterated variant of the same base"; the cross-model bound is
+$|\cos| \le 0.054$ (the maximum, at L47, is 0.0532), not "< 0.053"; and the summary of its confirmatory replication
+now gives both pre-registered comparisons (corrected vs baseline p = 0.34, placebo vs baseline p = 0.93, neither met)
+and states the placebo comparison as a secondary endpoint with no threshold, half of whose gap is deception the
+placebo added. Numbers as verified by Vera against the trial records for that paper.

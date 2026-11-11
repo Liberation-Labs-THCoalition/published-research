@@ -65,8 +65,12 @@ interleaves full-attention every fourth layer
 ($\{3,7,11,\ldots,63\}$), so L7 and L11 are themselves full-attention
 --- both appear in this study's own \texttt{all\_inject\_layers}
 configuration. The linear-attention layers immediately downstream of the
-L7 injection point are L8--L10, three layers rather than five.} A layer-matched smoke test designed to discriminate
-this from active identity restoration has not yet been executed. The
+L7 injection point are L8--L10, three layers rather than five.} A layer-matched smoke test (injection at L3/L7, measurement at L35)
+was run on 2026-06-30 and returned no dose response (verdict ``dead'').
+Its presence at dose~0 was $0.107$, against $1.000$ in the positive
+control, so it was not measured on the positive control's scale and does
+not test that pathway; distinguishing architectural filtering from active
+identity restoration remains untested. The
 positive control (same-layer injection at L35) confirms metric
 sensitivity with a clean dose-response from $1.000$ to $0.828$. Second, \textbf{the metric is validated}: the
 same-layer positive control confirms the metric detects identity
@@ -77,8 +81,11 @@ reports preservation when the perturbation does not propagate to deep layers. Th
 layers ($z{=}{+}56$ to ${+}62$ above random baseline), yet identity at
 deep layers is unaffected. We hypothesize that the hybrid architecture's
 linear-attention layers filter this perturbation, but distinguishing
-architectural filtering from active identity restoration requires the
-designed smoke test, which has not yet been executed. This finding is
+architectural filtering from active identity restoration remains
+untested: the layer-matched smoke test run on 2026-06-30 returned no dose
+response, but its presence at dose~0 was $0.107$ against $1.000$ in the
+positive control, so it was not measured on the positive control's scale
+and does not test that pathway. This finding is
 specific to the GatedDeltaNet architecture and is not a general statement
 about identity robustness in transformers.
 
@@ -625,10 +632,16 @@ Whether the flat presence result reflects architectural filtering (the
 GatedDeltaNet linear-attention layers passively absorb V-space
 perturbations) or active identity restoration (the model's forward
 computation restores the identity subspace) remains an open question.
-A layer-matched smoke test is designed to discriminate these mechanisms:
+A layer-matched smoke test was designed to discriminate these mechanisms:
 injecting at L3/L7 and measuring at L35 vs.\ injecting and measuring at
 L35 would reveal whether the perturbation is passively absorbed or
-actively corrected. This test has not yet been executed.
+actively corrected. The smoke test (injection at L3/L7, measurement at
+L35) was run on 2026-06-30 and returned no dose response (verdict
+``dead''; \texttt{data/presence\_smoke\_results.json}). Its presence at
+dose~0 was $0.107$, against $1.000$ in the positive control, so it was
+not measured on the positive control's scale and does not test that
+pathway; distinguishing architectural filtering from active identity
+restoration remains untested.
 
 \textbf{Coarse behavioral measure.} The 5-question sanity check produces
 only two values (0.80 or 0.60). A continuous coherence metric would
@@ -658,8 +671,12 @@ injection layers, yet identity at deep layers is unaffected.
 The mechanism remains an open question. We hypothesize architectural
 filtering by the hybrid model's linear-attention layers, but active
 identity restoration cannot be ruled out with the current data. A
-layer-matched smoke test designed to discriminate these mechanisms has
-not yet been executed. This finding is specific to the GatedDeltaNet
+layer-matched smoke test (injection at L3/L7, measurement at L35) was run
+on 2026-06-30 and returned no dose response, but its presence at dose~0
+was $0.107$ against $1.000$ in the positive control, so it was not
+measured on the positive control's scale and does not test that pathway;
+distinguishing architectural filtering from active identity restoration
+remains untested. This finding is specific to the GatedDeltaNet
 architecture and may not generalize to dense transformers. For
 inference-time correction safety, V-cache injection at input layers
 preserves identity geometry \emph{in this architecture}; the exact

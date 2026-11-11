@@ -1,8 +1,8 @@
 # Corpus sweep — circular statistics whose caveat did not travel
 
 **Run:** 2026-09-05, Lyra. **Task #114.** **Scope:** local repo
-`C:/Users/Thomas/Desktop/LiberationLabs/Research` (428 project `.py`, 230 `.tex`, 1511 `.md`)
-plus remote `margaret:/Users/margaret/{oracle-experiments,lab/kv-experiments}` (273 `.py`).
+`<home>/Desktop/LiberationLabs/Research` (428 project `.py`, 230 `.tex`, 1511 `.md`)
+plus remote `<lab machine>:<home>/{oracle-experiments,lab/kv-experiments}` (273 `.py`).
 **Nothing was edited, on either host.** Report only.
 
 **Framing, held throughout:** circular means **uninterpretable, not false**. Nothing below says
@@ -39,7 +39,7 @@ GroupKFold point estimate…"` **into the JSON alongside the number**. That is t
 
 ### The statistic
 
-`behavioral_proof_abliterated.py:243–252` (margaret, `/Users/margaret/oracle-experiments/`):
+`behavioral_proof_abliterated.py:243–252` (margaret, `<home>/oracle-experiments/`):
 
 ```python
 243  d = dec.mean(0) - hon.mean(0)          # direction fit on ALL 30 contrast prefills
@@ -212,7 +212,7 @@ itself information nobody has looked at.
 
 Verified against the corpus: **none** of these values appear in any `.tex` or paper `.md`.
 They are listed so that a future writeup does not pick them up. All are on `margaret`
-under `/Users/margaret/oracle-experiments/` unless noted.
+under `<home>/oracle-experiments/` unless noted.
 
 | # | file:lines | statistic | persisted to | null present? | published? |
 |---|---|---|---|---|---|

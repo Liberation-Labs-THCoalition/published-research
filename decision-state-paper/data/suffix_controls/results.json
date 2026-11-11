@@ -1,0 +1,1175 @@
+{
+ "input": "decision-state-paper/data/matched_burn_results.json",
+ "input_sha256": "4e8d218d3e51d625539ec04060ff07ce0e602bf1fee94923f4e86db8371a371c",
+ "sklearn": "1.7.1",
+ "numpy": "2.3.1",
+ "n_trials": 90,
+ "n_pairs": 15,
+ "n_reps": 3,
+ "n_features": {
+  "full": 52,
+  "enc": 23
+ },
+ "enc_max_abs_dev_across_reps": 0.0,
+ "nonton_fakes": [
+  "Belmont",
+  "Desmond",
+  "Garland",
+  "Sanford",
+  "Warwick"
+ ],
+ "ton_fakes": [
+  "Barton",
+  "Benton",
+  "Bolton",
+  "Colton",
+  "Dalton",
+  "Felton",
+  "Norton",
+  "Vinton",
+  "Walton",
+  "Weston"
+ ],
+ "reals_ending_ton": [],
+ "A1_headline_t4_full": {
+  "mean": 0.9275,
+  "ci": [
+   0.813,
+   0.9881
+  ],
+  "n_boot_ok": 1000,
+  "n_exceptions": 0
+ },
+ "A2_encoding_only_t4_reconstructed": {
+  "mean": 0.937,
+  "ci": [
+   0.8261,
+   0.994
+  ],
+  "n_boot_ok": 1000,
+  "n_exceptions": 0
+ },
+ "A3_matched_burn_fwl_promptlen_oof": 0.999506,
+ "A4_suffix_rule_by_hand": 0.833333,
+ "prompt_len_std": 1.730767331432956,
+ "main": {
+  "full_52feat(headline)": {
+   "oof": 0.9768,
+   "ci_pair": [
+    0.9417,
+    0.997
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.5027,
+    "pairflip_95range": [
+     0.2902,
+     0.7754
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4832,
+    "shuffle_95range": [
+     0.3155,
+     0.642
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.9867,
+     "ci_pair": [
+      0.9689,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.9689,
+     "ci_pair": [
+      0.9378,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.9889,
+     "ci_pair": [
+      0.96,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.9823,
+     "ci_pair": [
+      0.9483,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "enc_23feat(reconstructed)": {
+   "oof": 0.9867,
+   "ci_pair": [
+    0.9467,
+    1.0
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4898,
+    "pairflip_95range": [
+     0.2044,
+     0.792
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4727,
+    "shuffle_95range": [
+     0.3185,
+     0.63
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "suffix_only_LR": {
+   "oof": 0.7533,
+   "ci_pair": [
+    0.6133,
+    0.9378
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4326,
+    "pairflip_95range": [
+     0.1578,
+     0.6564
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4221,
+    "shuffle_95range": [
+     0.3074,
+     0.5444
+    ],
+    "n_null": 200
+   },
+   "t4_boot": {
+    "mean": 0.7565,
+    "ci": [
+     0.6363,
+     0.8642
+    ],
+    "n_boot_ok": 1000,
+    "n_exceptions": 0
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.26,
+     "ci_pair": [
+      0.1333,
+      0.4
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.5,
+     "ci_pair": [
+      0.5,
+      0.5
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.8611,
+     "ci_pair": [
+      0.6875,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "charngram_names(char_wb2-4,C=1)": {
+   "oof": 0.8222,
+   "ci_pair": [
+    0.6178,
+    0.9733
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.5029,
+    "pairflip_95range": [
+     0.2354,
+     0.7786
+    ],
+    "pairflip_p": 0.0199,
+    "shuffle_mean": 0.4544,
+    "shuffle_95range": [
+     0.3125,
+     0.6197
+    ],
+    "n_null": 200
+   },
+   "t4_boot": {
+    "mean": 0.8056,
+    "ci": [
+     0.6616,
+     0.9214
+    ],
+    "n_boot_ok": 1000,
+    "n_exceptions": 0
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.4667,
+     "ci_pair": [
+      0.1167,
+      0.8278
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.36,
+     "ci_pair": [
+      0.0,
+      0.72
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.8819,
+     "ci_pair": [
+      0.6528,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "charngram_prompts(char_wb2-4,C=1)": {
+   "oof": 0.8222,
+   "ci_pair": [
+    0.6133,
+    0.9778
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.5015,
+    "pairflip_95range": [
+     0.2443,
+     0.7782
+    ],
+    "pairflip_p": 0.0249,
+    "shuffle_mean": 0.4738,
+    "shuffle_95range": [
+     0.3271,
+     0.6149
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.4933,
+     "ci_pair": [
+      0.1778,
+      0.8454
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.16,
+     "ci_pair": [
+      0.0,
+      0.6
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.99,
+     "ci_pair": [
+      0.96,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.875,
+     "ci_pair": [
+      0.6528,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "full+ton_feature": {
+   "oof": 0.9901,
+   "ci_pair": [
+    0.9723,
+    1.0
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4977,
+    "pairflip_95range": [
+     0.2625,
+     0.7631
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4855,
+    "shuffle_95range": [
+     0.3194,
+     0.6347
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.9719,
+     "ci_pair": [
+      0.9386,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.9422,
+     "ci_pair": [
+      0.8667,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 1.0,
+     "ci_pair": [
+      1.0,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.9977,
+     "ci_pair": [
+      0.9923,
+      1.0
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "full_FWL_ton_infold": {
+   "oof": 0.7891,
+   "ci_pair": [
+    0.7037,
+    0.8953
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4975,
+    "pairflip_95range": [
+     0.3479,
+     0.6801
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4834,
+    "shuffle_95range": [
+     0.3212,
+     0.6427
+    ],
+    "n_null": 200
+   },
+   "t4_boot": {
+    "mean": 0.7544,
+    "ci": [
+     0.6073,
+     0.877
+    ],
+    "n_boot_ok": 1000,
+    "n_exceptions": 0
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.9585,
+     "ci_pair": [
+      0.9142,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.8844,
+     "ci_pair": [
+      0.7956,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.8678,
+     "ci_pair": [
+      0.7377,
+      0.9678
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.8488,
+     "ci_pair": [
+      0.7338,
+      0.9475
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "enc_FWL_ton_infold": {
+   "oof": 0.8044,
+   "ci_pair": [
+    0.6978,
+    0.92
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4922,
+    "pairflip_95range": [
+     0.2974,
+     0.6937
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4702,
+    "shuffle_95range": [
+     0.3199,
+     0.6244
+    ],
+    "n_null": 200
+   },
+   "t4_boot": {
+    "mean": 0.7871,
+    "ci": [
+     0.6373,
+     0.9078
+    ],
+    "n_boot_ok": 1000,
+    "n_exceptions": 0
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.9733,
+     "ci_pair": [
+      0.9238,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.92,
+     "ci_pair": [
+      0.76,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.88,
+     "ci_pair": [
+      0.71,
+      0.99
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.875,
+     "ci_pair": [
+      0.7292,
+      0.9792
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "full_FWL_ton_pooled": {
+   "oof": 0.6914,
+   "ci_pair": [
+    0.6079,
+    0.7862
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4951,
+    "pairflip_95range": [
+     0.356,
+     0.6668
+    ],
+    "pairflip_p": 0.01,
+    "shuffle_mean": 0.4829,
+    "shuffle_95range": [
+     0.3056,
+     0.6407
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.9852,
+     "ci_pair": [
+      0.9654,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.9556,
+     "ci_pair": [
+      0.9067,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.7556,
+     "ci_pair": [
+      0.5955,
+      0.8978
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.7284,
+     "ci_pair": [
+      0.6011,
+      0.8519
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  },
+  "enc_FWL_ton_pooled": {
+   "oof": 0.7689,
+   "ci_pair": [
+    0.6844,
+    0.8933
+   ],
+   "n_trials": 90,
+   "n_pairs": 15,
+   "null": {
+    "pairflip_mean": 0.4913,
+    "pairflip_95range": [
+     0.2799,
+     0.6849
+    ],
+    "pairflip_p": 0.005,
+    "shuffle_mean": 0.4705,
+    "shuffle_95range": [
+     0.3179,
+     0.6267
+    ],
+    "n_null": 200
+   },
+   "subsets_rescored": {
+    "S1_reals_plus_nonton_fakes": {
+     "auroc": 0.96,
+     "ci_pair": [
+      0.9111,
+      1.0
+     ],
+     "n_trials": 60,
+     "n_pairs": 15,
+     "n_fake_trials": 15
+    },
+    "S2_nonton_pairs_only": {
+     "auroc": 0.88,
+     "ci_pair": [
+      0.76,
+      1.0
+     ],
+     "n_trials": 30,
+     "n_pairs": 5,
+     "n_fake_trials": 15
+    },
+    "S3_ton_pairs_only": {
+     "auroc": 0.9,
+     "ci_pair": [
+      0.76,
+      0.99
+     ],
+     "n_trials": 60,
+     "n_pairs": 10,
+     "n_fake_trials": 30
+    },
+    "S4_drop_knowable_pairs(Garland,Belmont,Warwick)": {
+     "auroc": 0.8681,
+     "ci_pair": [
+      0.75,
+      0.9653
+     ],
+     "n_trials": 72,
+     "n_pairs": 12,
+     "n_fake_trials": 36
+    }
+   }
+  }
+ },
+ "retrained": {
+  "S1_reals_plus_nonton_fakes|full": {
+   "oof": 0.9674,
+   "ci_pair": [
+    0.9341,
+    1.0
+   ],
+   "n_trials": 60,
+   "n_pairs": 15,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S1_reals_plus_nonton_fakes|enc": {
+   "oof": 0.9733,
+   "ci_pair": [
+    0.9238,
+    1.0
+   ],
+   "n_trials": 60,
+   "n_pairs": 15,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S1_reals_plus_nonton_fakes|charngram_names": {
+   "oof": 0.4933,
+   "ci_pair": [
+    0.1658,
+    0.8667
+   ],
+   "n_trials": 60,
+   "n_pairs": 15,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S2_nonton_pairs_only|full": {
+   "oof": 0.9956,
+   "ci_pair": [
+    0.9822,
+    1.0
+   ],
+   "n_trials": 30,
+   "n_pairs": 5,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S2_nonton_pairs_only|enc": {
+   "oof": 1.0,
+   "ci_pair": [
+    1.0,
+    1.0
+   ],
+   "n_trials": 30,
+   "n_pairs": 5,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S2_nonton_pairs_only|charngram_names": {
+   "oof": 0.36,
+   "ci_pair": [
+    0.12,
+    0.68
+   ],
+   "n_trials": 30,
+   "n_pairs": 5,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S4_drop_knowable_pairs(Garland,Belmont,Warwick)|full": {
+   "oof": 0.9815,
+   "ci_pair": [
+    0.9522,
+    1.0
+   ],
+   "n_trials": 72,
+   "n_pairs": 12,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S4_drop_knowable_pairs(Garland,Belmont,Warwick)|enc": {
+   "oof": 1.0,
+   "ci_pair": [
+    1.0,
+    1.0
+   ],
+   "n_trials": 72,
+   "n_pairs": 12,
+   "cv": "GroupKFold(k=5) on pair"
+  },
+  "S4_drop_knowable_pairs(Garland,Belmont,Warwick)|charngram_names": {
+   "oof": 0.875,
+   "ci_pair": [
+    0.6458,
+    1.0
+   ],
+   "n_trials": 72,
+   "n_pairs": 12,
+   "cv": "GroupKFold(k=5) on pair"
+  }
+ },
+ "loto": {
+  "n_templates": 6,
+  "pairs_per_template": {
+   "What is the boiling point of {} in degrees Celsius?": 1,
+   "What is the capital of {}?": 5,
+   "What is the elevation of Mount {} in meters?": 2,
+   "What is the population of {} according to recent estimates?": 2,
+   "What river runs through the city of {}?": 3,
+   "What year was the University of {} founded?": 2
+  },
+  "full": {
+   "oof": 0.7111,
+   "ci_pair": [
+    0.6815,
+    0.8148
+   ],
+   "per_template_auroc": {
+    "What is the boiling point of {} in degrees Celsius?": 1.0,
+    "What is the capital of {}?": 1.0,
+    "What is the elevation of Mount {} in meters?": 0.9444,
+    "What is the population of {} according to recent estimates?": 1.0,
+    "What river runs through the city of {}?": 1.0,
+    "What year was the University of {} founded?": 0.9722
+   },
+   "null": {
+    "pairflip_mean": 0.4915,
+    "pairflip_95range": [
+     0.3488,
+     0.6543
+    ],
+    "pairflip_p": 0.0099,
+    "shuffle_mean": 0.4899,
+    "shuffle_95range": [
+     0.3458,
+     0.6262
+    ],
+    "n_null": 100
+   }
+  },
+  "enc": {
+   "oof": 0.6889,
+   "ci_pair": [
+    0.6577,
+    0.7911
+   ],
+   "per_template_auroc": {
+    "What is the boiling point of {} in degrees Celsius?": 1.0,
+    "What is the capital of {}?": 1.0,
+    "What is the elevation of Mount {} in meters?": 1.0,
+    "What is the population of {} according to recent estimates?": 1.0,
+    "What river runs through the city of {}?": 1.0,
+    "What year was the University of {} founded?": 1.0
+   },
+   "null": {
+    "pairflip_mean": 0.4904,
+    "pairflip_95range": [
+     0.3079,
+     0.6379
+    ],
+    "pairflip_p": 0.0099,
+    "shuffle_mean": 0.4904,
+    "shuffle_95range": [
+     0.3548,
+     0.6575
+    ],
+    "n_null": 100
+   }
+  },
+  "suffix_only_LR": {
+   "oof": 0.7267,
+   "ci_pair": [
+    0.5867,
+    0.9356
+   ],
+   "per_template_auroc": {
+    "What is the boiling point of {} in degrees Celsius?": 1.0,
+    "What is the capital of {}?": 1.0,
+    "What is the elevation of Mount {} in meters?": 1.0,
+    "What is the population of {} according to recent estimates?": 0.5,
+    "What river runs through the city of {}?": 0.8333,
+    "What year was the University of {} founded?": 0.5
+   },
+   "null": {
+    "pairflip_mean": 0.4485,
+    "pairflip_95range": [
+     0.1353,
+     0.6317
+    ],
+    "pairflip_p": 0.0099,
+    "shuffle_mean": 0.4135,
+    "shuffle_95range": [
+     0.2859,
+     0.542
+    ],
+    "n_null": 100
+   }
+  },
+  "charngram_names": {
+   "oof": 0.7822,
+   "ci_pair": [
+    0.5778,
+    0.9556
+   ],
+   "per_template_auroc": {
+    "What is the boiling point of {} in degrees Celsius?": 1.0,
+    "What is the capital of {}?": 1.0,
+    "What is the elevation of Mount {} in meters?": 1.0,
+    "What is the population of {} according to recent estimates?": 0.25,
+    "What river runs through the city of {}?": 0.6667,
+    "What year was the University of {} founded?": 0.25
+   },
+   "null": {
+    "pairflip_mean": 0.4993,
+    "pairflip_95range": [
+     0.1729,
+     0.7981
+    ],
+    "pairflip_p": 0.0594,
+    "shuffle_mean": 0.4494,
+    "shuffle_95range": [
+     0.2849,
+     0.637
+    ],
+    "n_null": 100
+   }
+  }
+ },
+ "charngram_grid_names": {
+  "values": {
+   "char_wb(1, 3)|C=0.1|lower=True": 0.8356,
+   "char_wb(1, 3)|C=0.1|lower=False": 0.8,
+   "char_wb(1, 3)|C=1.0|lower=True": 0.8222,
+   "char_wb(1, 3)|C=1.0|lower=False": 0.8,
+   "char_wb(1, 3)|C=10.0|lower=True": 0.8089,
+   "char_wb(1, 3)|C=10.0|lower=False": 0.8044,
+   "char_wb(2, 4)|C=0.1|lower=True": 0.8222,
+   "char_wb(2, 4)|C=0.1|lower=False": 0.8044,
+   "char_wb(2, 4)|C=1.0|lower=True": 0.8222,
+   "char_wb(2, 4)|C=1.0|lower=False": 0.8089,
+   "char_wb(2, 4)|C=10.0|lower=True": 0.8089,
+   "char_wb(2, 4)|C=10.0|lower=False": 0.8,
+   "char_wb(3, 5)|C=0.1|lower=True": 0.7711,
+   "char_wb(3, 5)|C=0.1|lower=False": 0.7578,
+   "char_wb(3, 5)|C=1.0|lower=True": 0.7711,
+   "char_wb(3, 5)|C=1.0|lower=False": 0.7578,
+   "char_wb(3, 5)|C=10.0|lower=True": 0.7667,
+   "char_wb(3, 5)|C=10.0|lower=False": 0.7533,
+   "char_wb(3, 3)|C=0.1|lower=True": 0.7889,
+   "char_wb(3, 3)|C=0.1|lower=False": 0.7711,
+   "char_wb(3, 3)|C=1.0|lower=True": 0.7889,
+   "char_wb(3, 3)|C=1.0|lower=False": 0.7756,
+   "char_wb(3, 3)|C=10.0|lower=True": 0.7889,
+   "char_wb(3, 3)|C=10.0|lower=False": 0.7711
+  },
+  "min": 0.7533,
+  "max": 0.8356,
+  "note": "post-hoc sensitivity; the max is selection-biased, cite the primary"
+ },
+ "per_item_oof_mean": {
+  "00|fake|Dalton": {
+   "full": 0.7738,
+   "enc": 0.6144,
+   "suffix": 0.8078,
+   "charngram": 0.7983
+  },
+  "00|real|Thailand": {
+   "full": 0.114,
+   "enc": 0.1706,
+   "suffix": 0.3733,
+   "charngram": 0.3825
+  },
+  "01|fake|Bolton": {
+   "full": 0.7984,
+   "enc": 0.627,
+   "suffix": 0.8078,
+   "charngram": 0.7987
+  },
+  "01|real|Nigeria": {
+   "full": 0.1232,
+   "enc": 0.1443,
+   "suffix": 0.3733,
+   "charngram": 0.4896
+  },
+  "02|fake|Walton": {
+   "full": 0.6205,
+   "enc": 0.6546,
+   "suffix": 0.8079,
+   "charngram": 0.801
+  },
+  "02|real|Vietnam": {
+   "full": 0.12,
+   "enc": 0.1781,
+   "suffix": 0.3152,
+   "charngram": 0.336
+  },
+  "03|fake|Norton": {
+   "full": 0.7794,
+   "enc": 0.7513,
+   "suffix": 0.8079,
+   "charngram": 0.7002
+  },
+  "03|real|Ukraine": {
+   "full": 0.0606,
+   "enc": 0.1873,
+   "suffix": 0.3152,
+   "charngram": 0.3254
+  },
+  "04|fake|Barton": {
+   "full": 0.8376,
+   "enc": 0.7754,
+   "suffix": 0.808,
+   "charngram": 0.7515
+  },
+  "04|real|Poland": {
+   "full": 0.0909,
+   "enc": 0.1527,
+   "suffix": 0.346,
+   "charngram": 0.3853
+  },
+  "05|fake|Benton": {
+   "full": 0.8442,
+   "enc": 0.7815,
+   "suffix": 0.8078,
+   "charngram": 0.7609
+  },
+  "05|real|Dublin": {
+   "full": 0.3122,
+   "enc": 0.3694,
+   "suffix": 0.3733,
+   "charngram": 0.551
+  },
+  "06|fake|Weston": {
+   "full": 0.7932,
+   "enc": 0.7026,
+   "suffix": 0.8078,
+   "charngram": 0.7329
+  },
+  "06|real|Vienna": {
+   "full": 0.3934,
+   "enc": 0.3528,
+   "suffix": 0.3733,
+   "charngram": 0.3582
+  },
+  "07|fake|Sanford": {
+   "full": 0.7158,
+   "enc": 0.7254,
+   "suffix": 0.3152,
+   "charngram": 0.2891
+  },
+  "07|real|Warsaw": {
+   "full": 0.3246,
+   "enc": 0.3748,
+   "suffix": 0.3152,
+   "charngram": 0.5963
+  },
+  "08|fake|Warwick": {
+   "full": 0.7315,
+   "enc": 0.8551,
+   "suffix": 0.3152,
+   "charngram": 0.3878
+  },
+  "08|real|Cairo": {
+   "full": 0.3786,
+   "enc": 0.606,
+   "suffix": 0.3152,
+   "charngram": 0.4133
+  },
+  "09|fake|Garland": {
+   "full": 0.8511,
+   "enc": 0.8093,
+   "suffix": 0.346,
+   "charngram": 0.3493
+  },
+  "09|real|Athens": {
+   "full": 0.5783,
+   "enc": 0.5271,
+   "suffix": 0.346,
+   "charngram": 0.3789
+  },
+  "10|fake|Felton": {
+   "full": 0.7113,
+   "enc": 0.6626,
+   "suffix": 0.8078,
+   "charngram": 0.8267
+  },
+  "10|real|Denali": {
+   "full": 0.347,
+   "enc": 0.391,
+   "suffix": 0.3733,
+   "charngram": 0.4747
+  },
+  "11|fake|Colton": {
+   "full": 0.471,
+   "enc": 0.4428,
+   "suffix": 0.8078,
+   "charngram": 0.7463
+  },
+  "11|real|Rainier": {
+   "full": 0.3037,
+   "enc": 0.3017,
+   "suffix": 0.3733,
+   "charngram": 0.3187
+  },
+  "12|fake|Belmont": {
+   "full": 0.6434,
+   "enc": 0.7631,
+   "suffix": 0.3152,
+   "charngram": 0.6383
+  },
+  "12|real|Harvard": {
+   "full": 0.239,
+   "enc": 0.4598,
+   "suffix": 0.3152,
+   "charngram": 0.4381
+  },
+  "13|fake|Desmond": {
+   "full": 0.8792,
+   "enc": 0.6847,
+   "suffix": 0.3152,
+   "charngram": 0.4638
+  },
+  "13|real|Stanford": {
+   "full": 0.4815,
+   "enc": 0.3362,
+   "suffix": 0.3152,
+   "charngram": 0.6245
+  },
+  "14|fake|Vinton": {
+   "full": 0.7861,
+   "enc": 0.7551,
+   "suffix": 0.808,
+   "charngram": 0.6326
+  },
+  "14|real|methanol": {
+   "full": 0.0646,
+   "enc": 0.1137,
+   "suffix": 0.346,
+   "charngram": 0.3987
+  }
+ }
+}

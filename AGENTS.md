@@ -94,11 +94,16 @@ like a clean bill of health.**
 
 ### Why `pdftotext | grep` lies, four ways
 
-1. **LIGATURES — the one that got us five times.** pdftotext **drops** `fi`/`fl`/`ff` in these
-   MiKTeX builds. *"filter"* extracts as **"lter"**, *"benefit"* as **"benet"**, *"float"* as
-   **"oat"**, *"quantified"* as **"quantied"**. So any needle containing `fi`, `fl` or `ff`
+1. **LIGATURES — the one that got us five times.** In these MiKTeX builds (pdftotext 4.00) the
+   `ff`/`fi`/`fl`/`ffi`/`ffl` ligatures are **not dropped: each comes out as one control byte,
+   0x1B to 0x1F** (their slots in the T1 font encoding), which a terminal does not display. So
+   *"filter"* only **looks like** **"lter"** on screen, and *"We offer"* like **"We oer"**; and
+   Python's `\s` counts 0x1C to 0x1F as whitespace. Any needle containing `fi`, `fl` or `ff`
    silently fails — which covers **effect, difference, significant, coefficient, confirm, file,
-   verify, fifteen.** `verify_pdf.py` makes those optional in the pattern.
+   verify, fifteen.** `verify_pdf.py` maps the bytes back to letters before matching. *(Until
+   2026-11-08 it treated them as dropped and never matched the byte, so a ligature needle
+   could not be found: `--present` always failed and `--absent` always passed.)* Check it with
+   `python tools/verify_pdf.py --self-test`.
 2. **HYPHENATION.** LaTeX splits words across line breaks: *"25 independent"* extracts as
    *"25 inde- pendent"*.
 3. **WRAPPING.** A phrase spanning a line break never matches a flat string.

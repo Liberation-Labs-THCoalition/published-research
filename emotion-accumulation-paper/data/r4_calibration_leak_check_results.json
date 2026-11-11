@@ -1,0 +1,49 @@
+{
+ "script": "emotion-accumulation-paper/code/r4_calibration_leak_check.py",
+ "input": "user-model-paper/correction_v2/emotion_bridge_trials.json",
+ "input_sha256": "fc5938feccc57c68db0c1625236839d7405708219911dc2c532de836eb836e7e",
+ "pattern": "<analysis>|</?think|The user wants|the user (is asking|wants)|key constraint",
+ "n_stories_in_file": 900,
+ "n_matching_in_whole_file": 84,
+ "n_emotions": 30,
+ "n_selected_first_five_per_emotion": 150,
+ "n_selected_from_emotions_that_feed_a_direction": 85,
+ "n_selected_matching": 3,
+ "matches": [
+  {
+   "record_index_0based": 154,
+   "emotion": "calm",
+   "topic_idx": 1,
+   "story_idx": 1,
+   "matched_alternative": "<analysis>",
+   "first_five_words": "<analysis> The user wants a",
+   "feeds_directions": [
+    "valence",
+    "uncertainty (anxious-calm)"
+   ]
+  },
+  {
+   "record_index_0based": 184,
+   "emotion": "contemplative",
+   "topic_idx": 1,
+   "story_idx": 1,
+   "matched_alternative": "<analysis>",
+   "first_five_words": "<analysis> The user wants a",
+   "feeds_directions": [
+    "uncertainty (anxious-calm)"
+   ]
+  },
+  {
+   "record_index_0based": 453,
+   "emotion": "furious",
+   "topic_idx": 1,
+   "story_idx": 0,
+   "matched_alternative": "<analysis>",
+   "first_five_words": "<analysis> Let me analyze what's",
+   "feeds_directions": [
+    "valence"
+   ]
+  }
+ ],
+ "caveat": "assumes the compass was calibrated from this released file in this order; emotion_directions.json is not shipped"
+}

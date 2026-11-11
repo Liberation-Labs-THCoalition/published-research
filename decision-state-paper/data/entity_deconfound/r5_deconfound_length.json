@@ -1,0 +1,174 @@
+{
+ "LABEL": "Review round 5, findings 7 and 8. Collected from stored outputs and the shipped script; nothing re-fitted.",
+ "comparisons": {
+  "A_easy_vs_B_hard": {
+   "cache_features_auroc_with_3_raw_key_coords": 0.6089,
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "question_text_charngram": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "recorded_label": "CONFOUNDED: knowledge + complexity"
+  },
+  "A_easy_vs_C_fake": {
+   "cache_features_auroc_with_3_raw_key_coords": 0.9006,
+   "prompt_len_only": {
+    "auroc": 0.9439,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "question_text_charngram": {
+    "auroc": 0.805,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "recorded_label": "POSITIVE CONTROL: entity recognition"
+  },
+  "A_easy_vs_D_complex": {
+   "cache_features_auroc_with_3_raw_key_coords": 0.6933,
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "question_text_charngram": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "recorded_label": "COMPLEXITY CONTROL: should be null"
+  },
+  "B_hard_vs_C_fake": {
+   "cache_features_auroc_with_3_raw_key_coords": 0.6678,
+   "prompt_len_only": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "question_text_charngram": {
+    "auroc": 1.0,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "recorded_label": "CONFAB UNIVERSALITY: both confabulate"
+  },
+  "B_hard_vs_D_complex": {
+   "cache_features_auroc_with_3_raw_key_coords": 0.7944,
+   "prompt_len_only": {
+    "auroc": 0.5006,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.4496
+   },
+   "question_text_charngram": {
+    "auroc": 0.9633,
+    "n": 60,
+    "n_groups": 30,
+    "perm_p": 0.001
+   },
+   "recorded_label": "CRITICAL: knowledge state (same complexity)"
+  }
+ },
+ "entity_deconfound_py_lines": {
+  "log_prompt_length_covariate": [
+   {
+    "code": "Z_tr = np.column_stack([np.ones(len(train_idx)), np.log1p(prompt_lens[train_idx])])",
+    "line": 293
+   },
+   {
+    "code": "Z_te = np.column_stack([np.ones(len(test_idx)), np.log1p(prompt_lens[test_idx])])",
+    "line": 294
+   },
+   {
+    "code": "Z_tr = np.column_stack([np.ones(len(train_idx)), np.log1p(prompt_lens[train_idx])])",
+    "line": 329
+   },
+   {
+    "code": "Z_te = np.column_stack([np.ones(len(test_idx)), np.log1p(prompt_lens[test_idx])])",
+    "line": 330
+   }
+  ],
+  "preregistration": [
+   {
+    "code": "PREREG_PATH = Path(__file__).parent / \"entity_deconfound_preregistration.json\"",
+    "line": 37
+   },
+   {
+    "code": "with open(PREREG_PATH) as f:",
+    "line": 39
+   },
+   {
+    "code": "PREREG = json.load(f)",
+    "line": 40
+   },
+   {
+    "code": "ENTITIES = PREREG[\"entities\"]",
+    "line": 42
+   }
+  ],
+  "question_length_window": [
+   {
+    "code": "q_len = q_only.shape[1]",
+    "line": 78
+   },
+   {
+    "code": "V = v_captured[0].squeeze(0)[-q_len:].numpy()",
+    "line": 103
+   },
+   {
+    "code": "K = k_captured[0].squeeze(0)[-q_len:].numpy()",
+    "line": 118
+   },
+   {
+    "code": "q_len = q_only.shape[1]",
+    "line": 130
+   },
+   {
+    "code": "K = k_captured[0].squeeze(0)[-q_len:].numpy()",
+    "line": 145
+   }
+  ]
+ },
+ "hash_note": "sha256 of the LF form (CRLF replaced by LF), i.e. of the git blob",
+ "inputs": {
+  "decision-state-paper/code/entity_deconfound.py": "a94a928ec316cbd2936d7a2d514975372f185817b2f96d635e1bd1fc4dde4188",
+  "decision-state-paper/data/entity_deconfound/phase1_ground_truth.json": "f8eb578d94230ac3fb3568902011abf927b1df75380631e04c192fe1593bfd8c",
+  "decision-state-paper/data/entity_deconfound/phase3_results.json": "570115c35bd507e605a8037f2a01de1d897d72e150cab6846b8e80131f18850d",
+  "decision-state-paper/data/entity_deconfound/text_baseline_r4.json": "e4c465f841f7e3a10227c1ef6fac76fbe4370e3b78bc8f6f22c11b63d92301fe"
+ },
+ "mean_prompt_len_phase1_recomputed": {
+  "A_easy": 37.03,
+  "B_hard": 45.7,
+  "C_fake": 38.63,
+  "D_complex": 45.03
+ },
+ "mean_prompt_len_text_baseline": {
+  "A_easy": 37.03,
+  "B_hard": 45.7,
+  "C_fake": 38.63,
+  "D_complex": 45.03
+ },
+ "phase1_has_correctness_field": false,
+ "phase3_recorded_labels": {
+  "A_easy_vs_B_hard": "CONFOUNDED: knowledge + complexity",
+  "A_easy_vs_C_fake": "POSITIVE CONTROL: entity recognition",
+  "A_easy_vs_D_complex": "COMPLEXITY CONTROL: should be null",
+  "B_hard_vs_C_fake": "CONFAB UNIVERSALITY: both confabulate",
+  "B_hard_vs_D_complex": "CRITICAL: knowledge state (same complexity)"
+ },
+ "preregistration_file_found_in_paper_dir": [],
+ "preregistration_file_name": "entity_deconfound_preregistration.json"
+}

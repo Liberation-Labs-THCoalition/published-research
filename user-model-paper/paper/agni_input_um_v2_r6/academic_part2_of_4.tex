@@ -1,0 +1,189 @@
+% AGNI r6 INPUT. academic edition, part 2 of 4: lines 227-410 of user-model-paper/paper/academic/main.tex (blob 2b985c9) at HEAD fe8c13c.
+% The Agni scaffold caps a primary at 30,000 characters, so this edition is reviewed in 4
+% section-aligned parts; the text below is verbatim. The whole file is readable at that path
+% (and the other parts beside this one); read it for context, but report findings on THIS
+% part's text, citing main.tex line numbers (this part's line L counting from the first line after these 5 header lines is file line L+226).
+\subsection{Spectral Probing Classifiers}
+\label{sec:spectral_probe_method}
+
+Following the probing methodology of \citet{belinkov2022probing}, we train linear classifiers on per-layer spectral KV-cache features to predict the story's emotion label.
+
+\subsubsection{30-Class Emotion Classification}
+
+For each layer, we extract 3 raw SVD features (Frobenius norm, effective rank, spectral entropy) from encoding-phase and generation-phase cache windows separately. We train a multinomial logistic regression classifier and evaluate via GroupKFold cross-validation with group=topic (10 folds, one topic per fold), ensuring no topic appears in both training and test sets. Chance level is $1/30 = 0.033$. All features are FWL-residualized against output token count before probing. The per-layer results of this analysis, and the 120-configuration sweep that extended it, are withdrawn (\S\ref{sec:spectral_null}).
+
+\textbf{Within-fold FWL.} The May version said an initial analysis fitted FWL before the cross-validation split and that this inflated accuracy; that mechanism cannot now be re-verified (\S\ref{sec:spectral_null}, Correction note). The October re-run fits FWL within each training fold and applies it to the test fold. Whether the April analyses behind \Cref{tab:regression} did the same cannot be checked, because their script is not available.
+
+\subsubsection{Spectral Features on Story Re-Encodings}
+
+In the October re-run (\S\ref{sec:rerun_method}), the Frobenius norm, effective rank and spectral entropy of the keys over the first 100 story tokens, so that every story contributes the same number of positions, were classified per full-attention layer and over all 16 layers together: 17 fixed sets, each tested by 5{,}000 within-topic label permutations at a Bonferroni-corrected threshold. A set's null counts only if a topic classifier on the same features passes a control (accuracy above 0.2), and a set whose length covariates alone reach its detection threshold is treated as confounded.
+
+\subsubsection{Valence and Arousal Regression}
+
+For each layer, we train ridge regression probes predicting continuous valence ($-1$ to $+1$) and arousal ($-1$ to $+1$). For regression, we use GroupKFold with group=emotion (5 folds of 6 emotions each), testing whether the model can predict valence for \emph{emotions it has never seen}. This is a stricter test than trial-level CV, where all trials of the same emotion share identical valence labels. Performance is measured as cross-validated $R^2$.
+
+\subsubsection{Permutation Tests}
+
+To establish statistical significance, we perform 10{,}000 random label shuffles at the peak-accuracy layer under the same GroupKFold cross-validation structure. For valence regression, 2{,}000 permutations under GroupKFold(emotion). The spectral-probe and regression $p$-values are from these permutation tests; the October re-run's tests are described in \S\ref{sec:rerun_method}.
+
+\subsection{Differential Encoding (Method 1)}
+
+For each layer, we compute between-emotion variance and within-emotion variance of KV-cache feature vectors, yielding an F-ratio that quantifies how much cache geometry varies between emotions relative to within-emotion noise.
+
+\subsection{Story Re-Encoding}
+\label{sec:reencoding}
+
+To extract clean emotion vectors from the residual stream without generation-phase confounds, we re-encode each generated story as standalone input (no system prompt, no emotion label), rendered as a single user message in the model's chat template, so that the story sits in the user turn. This follows the methodology of \citet{anthropic2026emotions}: extract mean residual-stream activations at each layer, skipping the first 50 tokens to avoid positional artifacts.
+
+\subsubsection{Emotion Vector Extraction}
+
+For each emotion and each layer, the emotion vector is the mean activation over that emotion's stories minus the mean over all stories (\texttt{compute\_emotion\_vectors}), giving 30 vectors per layer. (The May version described a difference between high-valence and low-valence stories, which the code does not compute.)
+
+\subsubsection{$W_K$ Bridge Analysis}
+\label{sec:bridge_method}
+
+We project the emotion difference vectors through the key projection matrix $W_K$ at each layer, then perform PCA on the projected vectors. As coded (\texttt{project\_emotion\_to\_key\_space}, bridge lines 574--592), $W_K$ multiplies each decoder layer's \emph{output}, averaged over positions $\geq 50$ (\texttt{\_make\_hook}, bridge lines 467--480), at the same layer. In the model, the key projection at a layer reads that layer's input after its input normalization, an RMSNorm with a learned gain; so the projected vectors are not the inputs $W_K$ receives. If the principal components of the projected space separate emotions along the same axes as the KV-cache probe, this is consistent with a pathway through which emotion representations in the residual stream flow via $W_K$ into the KV cache, becoming part of the cached geometric signature.
+
+\subsection{Preregistered Re-Run (October 2026)}
+\label{sec:rerun_method}
+
+In October 2026 we re-ran the probes on a fresh encode of the same 900 stories, under a preregistration fixed before the re-encode and before any R1, R2 or R7 data. The text (TF-IDF) baseline's results at 5 and 10 folds, and May's v2 numbers, were already known: they set its power analysis and its 3-point floor. It was fixed by hash, not by public deposit. The run pipeline's log (\texttt{correction\_v2/results\_20261019/chain.status}) records the first 16 hex digits of the preregistration's sha256 (\texttt{4a906148de777482}, the fourth of six unlabelled hash prefixes on its first \texttt{start} line) at 21:55 BST on 19 October 2026, before either encode (the first hung at weight load; the second, which produced the results, ran after 23:05 and finished at 23:22), and the manifest and results carry the same hash. The preregistration's JSON binds the released Markdown by its sha256, which is why the Markdown's status line still reads ``DRAFT'' and ``NOT RUN''. The preregistration's first commit carries an author date about two and a half hours after the analysis finished (23:27 BST); that commit was later rebased, and an author date is set by whoever makes the commit, so it is not a trusted timestamp. The encode was one forward pass per story (bf16, Apple MPS), with the model at snapshot \texttt{ad356102}. The encode is deterministic: across three repeats of the first trial, the worst relative difference in any pooled array is 0.0. Three tests were registered:
+\begin{itemize}[nosep]
+    \item \textbf{R1} ports v2 line for line and compares its count with the 368/900 that v2 saved in May.
+    \item \textbf{R2} runs the probe as \S\ref{sec:wk_probe_method} describes against text (TF-IDF) at 10 folds. A cache gain required all four of: at least 3 points; an exact McNemar test with $p < 0.05$ in the cache's favor; a 95\% bootstrap interval for the accuracy difference, resampling the 300 emotion--topic cells, that excludes zero; and the probe's own accuracy beating its cell-level within-topic label-permutation null at $p < 0.05$, which it did (\S\ref{sec:wk_results}). Below 3 points, a probe adds too little over a plain word classifier to support a claim about what the cache holds beyond the words.
+    \item \textbf{R7} re-tests the spectral null on story re-encodings (\S\ref{sec:spectral_probe_method}).
+\end{itemize}
+Four secondary comparisons form a Holm-corrected family: the class-mean key probe against the 5-fold text (TF-IDF) results file on the 30 emotions and on the binary split, and the described probe against the 10-fold text (TF-IDF) baseline on the binary split and against the 5-fold file on the 30 emotions; everything else is labelled exploratory. The exploratory analyses include a logistic regression (LR) on the raw residual stream itself (the layer output, or the input to the key projection, at layers 3, 7, 11 and 15, averaged over positions $\geq 50$ and concatenated), with the same folds, FWL and classifier; it asks whether the route through $W_K$ and the cache adds anything over the residual. The three stories of a cell share a prompt, so the bootstrap and the permutations treat the cell (emotion $\times$ topic) as the unit. Recomputing the text (TF-IDF) baseline at 5 folds matched its saved results file exactly. All of it is in \texttt{user-model-paper/correction\_v2/} in this repository: the preregistration (\texttt{PREREG\_um\_v2\_R1R2.md} and its JSON, sha256 \texttt{4a906148\ldots}), the sealed prediction (\texttt{R1R2\_PREDICTION.md}), the encode, analysis and dry-run scripts, the results with the encode manifest and logs (\texttt{results\_20261019/}; results sha256 \texttt{0aefed36\ldots}), the results write-up, the design notes, the stories file (\texttt{emotion\_bridge\_trials.json}, sha256 \texttt{fc5938fe\ldots}), the text (TF-IDF) baseline's script and its 5-fold results file (\texttt{R0\_text\_baseline.py}; \texttt{R0\_results.json}, sha256 \texttt{f2e029b1\ldots}), and the script behind \S\ref{sec:leak}, \emph{Leaked generator reasoning} (\texttt{leak\_split.py}). The files are copied byte for byte, with three exceptions: the results write-up (\texttt{R1R2\_RESULTS.md}) and \texttt{R1\_INVESTIGATION.md} were edited after they were copied, and \texttt{leak\_split.py} was written for this release. \texttt{SHA256SUMS} there lists the hash of every file in the folder but itself and \texttt{.gitattributes}.
+
+% ============================================================
+% 4. Results
+% ============================================================
+\section{Results}
+
+\subsection{Story Emotion Is Decodable from the Cache, Not Beyond Text (TF-IDF)}
+\label{sec:wk_results}
+
+Every readout of the re-encoded stories decodes the requested emotion far above chance (\Cref{tab:wk_probe}). The registered question is whether the cache adds to the story's words.
+
+\begin{table}[H]
+\centering
+\caption{Decoding the requested emotion from the re-encoded stories (Qwen3.5-27B, GroupKFold by topic). Chance is 0.033 for the 30 emotions and 0.50 for the binary split, which is v2's hard-coded set of ten emotions ($n = 300$) and confounds valence with arousal. Rows marked exploratory were not preregistered, and no claim rests on them. \textsuperscript{a}The inner search chose the largest $C$ in its grid in every fold, so 0.448 probably understates a tuned text (TF-IDF) baseline.}
+\label{tab:wk_probe}
+\small
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Readout} & \textbf{Folds} & \textbf{30-way} & \textbf{Binary split} & \textbf{Status} \\
+ & & \textbf{accuracy} & \textbf{AUROC} & \\
+\midrule
+Text (TF-IDF) & 5 & $0.370$ & $0.963$ & comparator for v2 \\
+Text (TF-IDF) & 10 & $0.382$ & $0.967$ & primary comparator \\
+Described probe ($W_K$ directions) & 10 & $0.358$ & $0.985$ & primary (R2) \\
+v2 class-mean keys, May & 5 & $0.409$ & $0.992$ & reported in May \\
+v2 class-mean keys, re-run & 5 & $0.410$ & $0.992$ & secondary (R1) \\
+v2 class-mean keys, last token & 5 & $0.142$ & $0.922$ & May and re-run \\
+\midrule
+v2 class-mean keys, training-fold FWL & 5 & $0.348$ & $0.988$ & exploratory \\
+v2 class-mean keys, test-fold FWL & 10 & $0.472$ & --- & exploratory \\
+Text (TF-IDF), tuned $C$\textsuperscript{a} & 10 & $0.448$ & --- & exploratory \\
+Residual-stream LR (layer output) & 10 & $0.494$ & --- & exploratory \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Primary test (preregistered).} The probe as the Method describes it reaches 0.358 on the 30 emotions (chance 0.033), well above a within-topic label-permutation null (mean 0.034; $p = 0.001$, 1{,}000 permutations; the length covariates alone reach 0.051). Text (TF-IDF) on the same stories and folds reaches 0.382. The difference is $-2.4$ points (exact McNemar $p = 0.20$; 300-cell bootstrap 95\% interval $[-6.4, +1.6]$ points). The power to detect a 3-point gain was low before the data (0.16), but the interval itself excludes such a gain: its upper end lies below the 3-point floor. (That is a reading of the registered interval; the registered verdict is \texttt{NOT\_ABOVE\_TEXT\_TFIDF}, which the ladder returns for a difference at or below zero that McNemar does not find significant; a deficit McNemar found significant would have returned \texttt{FAIL\_BELOW\_TEXT\_TFIDF}.) For the described method, the claim that the cache carries the emotion beyond text (TF-IDF) is not supported.
+
+\textbf{The number reported in May.} v2's number reproduces to within one trial in 900 (369 against 368) on a software stack that has changed since May. The registered verdict for this check is \texttt{NOT\_REPRODUCED\_CODE\_PATH}: 369 lies outside a band that is zero trials wide, because the encode is deterministic, and the name points at the port. The bounded investigation that the verdict called for, run after the data, contradicts that cause. v2's own code, run on today's keys, gives the same 369, with all 900 predictions identical to our port's; the scikit-learn version is ruled out as a cause; and a statistic on v2's path that involves no classifier or optimizer shows that today's last-token keys differ from May's (3 pair orderings in 4{,}500). May saved no per-trial predictions, so which trial moved cannot be identified. The one artifact that carries the weights the May scripts loaded, v1's saved count of 470/900, is recomputed exactly from today's encode. At 5 folds the class-mean key probe reads 0.410 against text (TF-IDF) at 0.370 (exact McNemar $p = 0.036$), which does not survive Holm correction across the four secondary tests ($p = 0.071$).
+
+\subsection{A Binary Split Confounded with Arousal}
+\label{sec:valence_split}
+
+On v2's hard-coded binary split (ten emotions, $n = 300$, valence confounded with arousal; \S\ref{sec:wk_probe_method}), both cache probes separate the two halves slightly better than text (TF-IDF). The described probe reaches AUROC 0.985 against 0.967 at 10 folds (Holm $p = 0.027$; cell-bootstrap 95\% interval for the difference $[0.005, 0.035]$). The class-mean key probe reaches 0.992 against 0.963 at 5 folds (Holm $p = 0.006$; $[0.011, 0.052]$), with v2's FWL fitted label-free on each fold's test trials. Length alone does not explain it (a length-only classifier reaches AUROC 0.447 at 10 folds and 0.475 at 5). This is a registered, confirmed secondary result, with one qualification: its Holm $p$-values come from DeLong's test, which treats the 300 trials as independent, while the three stories of a cell share a prompt. The cell-bootstrap intervals exclude zero at 95\%, not at the stricter level Holm requires, and a cell-clustered $p$-value was not computed. On the 30 emotions, against the 5-fold text (TF-IDF) results file (0.370), the same comparisons are not significant (Holm $p = 0.071$ for the class-mean key probe and $0.55$ for the described probe).
+
+Two things bound it. The comparator is the same untuned text (TF-IDF) configuration, and no tuned baseline was run on the split. And because four of the five positive emotions are low-arousal and four of the five negative ones high-arousal, the split cannot say whether valence or arousal is what the cache carries beyond text (TF-IDF).
+
+\subsection{Other Readouts (Exploratory)}
+\label{sec:where}
+
+None of the comparisons in this subsection was preregistered as a test. They bound what the probe can be credited with, and no claim rests on them.
+
+v2's pipeline at 10 folds reaches 0.472 (exploratory), well above the described probe's 0.358. What v2 ran (raw class-mean keys, dot product, all positions, FWL fitted on the test fold) differs from what the Method describes ($W_K$-projected directions, per-layer cosine, positions $\geq 50$, FWL fitted on the training fold) in four ways. The results file isolates one of them. With FWL fitted on the training fold, v2 reads 0.348 at 5 folds (exploratory), against 0.410 with FWL fitted on the test fold and 0.370 for text (TF-IDF), and the described probe's mean-pooled specification cells at v2's layers, which vary pool, similarity and folds, all lie between 0.346 and 0.359 (exploratory). So v2's lead comes from where it fits FWL. Fitting FWL on each test fold centres that fold on its own mean, and at 10 folds the fold is one topic holding every emotion equally often. That uses no labels, but it depends on the test batch, which a single new message would not have.
+
+A raw-residual LR baseline (the layer output, at the same layers and positions) reaches 0.494 (exploratory), above the described probe's 0.358: the probe's information is in the residual stream without $W_K$ or the cache, and this paper does not claim that $W_K$ or the KV cache adds to it. On the input to the key projection, the same baseline reaches 0.490 (exploratory). It reads 20{,}480 features against the probe's 30, so the gap measures readout capacity as much as location, and no regression on the raw cache keys was run. A tuned text (TF-IDF) baseline reaches 0.448 (exploratory), also above 0.358, so the comparison with the untuned text (TF-IDF) baseline is not cited as the cache beating text (TF-IDF). Its inner search chose the largest $C$ in its grid in every fold, so 0.448 probably understates a tuned text (TF-IDF) baseline; the residual-stream LR was not tuned at all.
+
+The exploratory ordering is: residual-stream LR (0.494) $>$ v2's pipeline at 10 folds with test-fold FWL (0.472) $>$ tuned text (TF-IDF) (0.448, probably an understatement) $>$ untuned text (TF-IDF) (0.382) $>$ the described probe (0.358). Across 288 specifications of the described probe (layer sets, pools, similarities and folds), 14 exceed fold-matched text (TF-IDF), uncorrected, and the median is 0.306 (exploratory). Whether the residual stream carries the requested emotion beyond a fully tuned text (TF-IDF) baseline (0.494 against 0.448 here, which probably understates tuned text (TF-IDF); exploratory, uncorrected) is a question for a preregistered test on fresh stories, screened for leaked planning before any fit (\S\ref{sec:leak}, \emph{Leaked generator reasoning}), with both models tuned by the same inner search.
+
+\subsection{Spectral Features on Story Re-Encodings}
+\label{sec:spectral_null}
+
+The May version reported a per-layer table and a 120-configuration sweep (the ``kitchen sink'') of spectral features at chance, and read them, together with the probe, as showing that emotions change the direction key vectors point but not the spectral shape of the cache. The table, the sweep and that reading are withdrawn (Appendix~\ref{app:correction}, item~\ref{app:item:shape}). The sweep reads the May trial file, in which the SVD fallback fired on every call, so effective rank and spectral entropy are constant across all 900 trials and every Marchenko--Pastur feature is empty: chance was guaranteed. The table's within-fold values cannot be traced to a released results file, and the May trial file they would be recomputed from has the same constant features.
+
+On story re-encodings, n-matched spectral features of the keys do not classify the 30 emotions above each set's detection threshold (thresholds 0.052--0.053, observed 0.036--0.051; chance 0.033) in the eight single layers from L31 to L63 whose topic control passed (L51 excluded), though only just: their topic-control accuracies were 0.209--0.244 against a pass mark of 0.2, where ten-topic chance is 0.1 (all 16 layers together reached 0.65), so these features barely classify topic and their null on emotion is weak evidence; the other sets, including all 16 layers together, were flagged as possibly confounded with length or failed that control, and leave the question untested there.
+
+That flag needs a caveat. The registered rule calls a significant set possibly length-confounded when the length covariates alone (0.053) reach the set's detection threshold, and they do in 15 of the 17 sets, so at these thresholds the rule would have flagged any significant set. All 16 layers together reach 0.112 (permutation $p = 0.0002$, topic control passed), and 12 of the 17 sets have $p < 0.05$ before correction. The spectral question on story re-encodings is open, not settled in either direction, and none of this is read as a signal.
+
+\textbf{Correction note.} An earlier version of this paper reported per-layer spectral accuracies of $2.5$--$2.8\times$ chance (e.g., 9.4\% at L3 on Qwen, 8.4\% at L4 on Mistral), and the May version attributed them to fitting FWL residualization before the cross-validation split. They remain withdrawn as evidence of emotion signal, but that mechanism cannot be re-verified: the April analysis script and per-trial data are not available, and a residualization on token count uses no labels, so it is not established that fitting it before the split could produce the effect. One mechanism that could be checked is prompt length, which the encoding features track (\S\ref{sec:crossarch}) and which varies with the emotion word; testing it needs the tokenizer and has not been done. The within-fold re-analysis that replaced them is the per-layer table withdrawn above.
+
+\subsection{Valence Regression from Spectral Features}
+
+Ridge regression probes predicting continuous valence from spectral features under GroupKFold(emotion) cross-validation---which holds out entire emotions to test whether the model generalizes to \emph{unseen} emotions---yield $R^2 < 0$ on both architectures (\Cref{tab:regression}).
+
+\begin{table}[H]
+\centering
+\caption{Valence regression from spectral features (encoding features, best layer per model). GroupKFold(emotion) tests whether the model generalizes valence to \emph{unseen} emotions. $R^2 < 0$ indicates performance worse than predicting the mean. The $p$-values come from a saved permutation null whose design cannot be checked; they are not interpretable (see the paragraph below). \textsuperscript{b}The best trial-level layer, layer~3, not layer~24.}
+\label{tab:regression}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Layer} & \textbf{Trial-level $R^2$} & \textbf{GKF(emotion) $R^2$} & \textbf{$p$} \\
+\midrule
+Qwen3.5-27B & 31 & --- & $-0.470$ & 1.000 \\
+Mistral-7B & 24 & $0.013$\textsuperscript{b} & $-0.463$ & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+What this shows is limited. Every one of Mistral's 32 layers gives $R^2$ between $-0.56$ and $-0.46$, while the saved label-permutation null has mean $-0.010$. A null that kept each emotion's labels together under GroupKFold(emotion) would not be expected to sit near zero, so the saved null probably shuffled labels across trials, and its $p = 1.000$ is not interpretable; the April script is not available to check. Holding out whole emotions may itself push $R^2$ toward $-0.5$, and a weak signal would give $R^2 < 0$ too. So the table shows that no transferable valence was detected in three spectral scalars, by a test whose no-signal baseline is unknown. It does not show that the representation is discrete rather than continuous. The features were residualized on output token count (\S\ref{sec:spectral_probe_method}), not on the prompt length they track (\S\ref{sec:crossarch}).
+
+\subsection{Withdrawn: Separated Encoding and Generation Peaks}
+\label{sec:separation}
+
+The May version reported that encoding-phase and generation-phase signals peak at different depths with uncorrelated profiles, and read this under Attention Schema Theory as separable self-schema and other-schema components (Appendix~\ref{app:correction}, item~\ref{app:item:separation}). That reading is withdrawn. On Mistral the peaks and their correlation are computed from the per-layer spectral accuracies that the Correction note (\S\ref{sec:spectral_null}) retracts as leakage: the encoding peak at layer~4 is the 8.4\% named there. On Qwen the same analysis gives a profile correlation of 0.433 ($p = 0.094$), not an uncorrelated pair, and the $W_K$ bridge cited in its place re-encodes finished stories and has no generation phase. The encoding phase, moreover, reads the generation prompt, which names the emotion of a story character, not of an interlocutor.
+
+\subsection{The $W_K$ Bridge: A Candidate Route of Entry}
+\label{sec:bridge_results}
+
+The story re-encoding analysis proposes a route by which emotion enters the KV cache. Emotion difference vectors extracted from the residual stream, when projected through the key projection matrix $W_K$, produce structured principal components that separate emotions along interpretable axes (\Cref{tab:bridge}).
+
+\begin{table}[H]
+\centering
+\caption{$W_K$ bridge analysis, all 16 full-attention layers (April run, \texttt{data/qwen\_emotion\_bridge\_summary.json}): PCA on the 30 emotion vectors projected through $W_K$. PC1's share of variance broadly increases with depth (not monotonically), and PC1 correlates with the emotions' assigned valence at every layer ($|\rho| > 0.45$), most strongly at layer~43 (bold). PC2 correlates with assigned arousal at $|\rho|$ between 0.72 and 0.82 from layer~19 on. The sign of a principal component is arbitrary. There is no unprojected or random-matrix control.}
+\label{tab:bridge}
+\begin{tabular}{rccccl}
+\toprule
+\textbf{Layer} & \textbf{Depth} & \textbf{PC1 Var} & \textbf{Top-3 Var} & \textbf{PC1--Val $\rho$} & \textbf{PC2--Aro $\rho$} \\
+\midrule
+ 3 & 0.05 & 28.8\% & 58.6\% & $0.458$ & $0.279$ \\
+ 7 & 0.11 & 28.7\% & 55.1\% & $-0.534$ & $0.141$ \\
+11 & 0.17 & 30.4\% & 54.8\% & $-0.574$ & $-0.407$ \\
+15 & 0.24 & 32.6\% & 56.6\% & $0.695$ & $0.688$ \\
+19 & 0.30 & 34.6\% & 57.3\% & $0.786$ & $0.731$ \\
+23 & 0.37 & 33.8\% & 57.3\% & $0.765$ & $-0.724$ \\
+27 & 0.43 & 32.3\% & 56.9\% & $0.830$ & $0.752$ \\
+31 & 0.49 & 35.4\% & 59.0\% & $0.852$ & $0.812$ \\
+35 & 0.56 & 36.2\% & 59.0\% & $0.862$ & $0.769$ \\
+39 & 0.62 & 35.3\% & 58.4\% & $0.859$ & $0.816$ \\
+43 & 0.68 & 34.9\% & 58.3\% & $\mathbf{-0.872}$ & $0.822$ \\
+47 & 0.75 & 37.7\% & 60.6\% & $0.866$ & $0.767$ \\
+51 & 0.81 & 37.8\% & 60.7\% & $0.850$ & $0.769$ \\
+55 & 0.87 & 37.9\% & 61.5\% & $-0.851$ & $0.777$ \\
+59 & 0.94 & 37.0\% & 61.1\% & $-0.817$ & $0.716$ \\
+63 & 1.00 & 38.7\% & 62.1\% & $-0.833$ & $0.759$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+PC1 of the projected emotion space correlates with the emotions' assigned valence at every layer. The strongest alignment is at layer~43 ($|\rho| = 0.872$, $p < 10^{-9}$), and $|\rho|$ stays between 0.82 and 0.87 from layer~27 to layer~63. Without the same analysis on the unprojected vectors, or on random matrices of $W_K$'s shape, this does not show that the projection through $W_K$ creates or preserves the axis: the unprojected residual vectors may carry it already.
+
+PC1 remains valence-aligned at all depths ($|\rho| > 0.45$). Its sign is negative at layers 7, 11, 43 and 55--63, which carries no meaning, since the sign of a principal component is arbitrary. PC2 tracks arousal, from $|\rho| = 0.279$ at L3 to between 0.72 and 0.82 from layer~19 on. Both alignments strengthen over the first half of the network and then hold.
+
+Whether this projected structure is the route by which emotion enters the cache was tested directly once, on an earlier 300-trial run. That run's results and its test script are not released with this paper, and the numbers below could not be re-verified for this version; nothing in this paper rests on them. The preregistered criterion (H4) was a cosine above $0.3$ between the projected PC1 and the PC1 of the measured cache geometry; the reported mean alignment was $0.456$, permutation-significant at 9 of 16 layers and at 2 of 16 after Bonferroni correction. A stricter test, added afterwards, asked whether the projected space predicts the pairwise distance structure of the measured geometry; the reported Mantel $\rho$ was $0.090$, with 0 of 16 layers significant, and $W_K$ preserved that structure worse than a random matrix ($z = -3.03$). Without a verified direct test, the bridge is a candidate pathway, not an established one.
+

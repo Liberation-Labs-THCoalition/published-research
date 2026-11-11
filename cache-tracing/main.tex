@@ -141,7 +141,10 @@ this very sentence excludes --- the spectral probe for emotion is at
 chance, so the example never belonged in a list of spectral
 measurements. The $0.154/0.080$ pair appears nowhere
 in~\citet{lyra2026identity}; it comes from an unpublished internal
-analysis, so the citation could not be followed.}
+analysis, so the citation could not be followed. \textbf{Corrected
+again 2026-11-01:} that directional probe is itself corrected at
+source~\citep{lyra2026usermodel}; it applies no $W_K$, and 30-way it does
+not beat a text baseline (see the footnote in \S\ref{sec:implications}).}
 
 \subsection{The Bridging Hypothesis}
 
@@ -415,8 +418,22 @@ spectral features never claimed to decode workspace content; they
 measure geometric properties (stable rank, spectral entropy, norm
 ratios) that index \emph{how} the model processes, not \emph{what} it
 processes. The confabulation detector reads spectral contraction
-(reduced workspace engagement). The emotion encoder reads $W_K$ valence
-projections (input-evaluation structure). The identity geometry reads
+(reduced workspace engagement). Our emotion readout is corrected
+at source, on the grounds the footnote gives, and is not counted
+here.\footnote{\textbf{Corrected 2026-11-01.} This sentence previously
+read ``The emotion encoder reads $W_K$ valence projections
+(input-evaluation structure).'' The result it referred
+to~\citep{lyra2026usermodel} decodes the emotion a generator was asked to
+write into a third-person story, from cache keys. Its probe applies no
+$W_K$, and its labels are not the user's state. The 30-class figure
+($40.9\%$, $12.3\times$ chance) does not beat a text (TF-IDF) baseline
+($0.410$ against $0.370$, Holm $p = 0.071$, and that margin depends on FWL
+fitted on the test fold). The method as described is not above text
+($0.358$ against $0.382$). The binary AUROC~$0.992$ beats text ($0.963$,
+Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
+confounded with arousal. The injection test is withdrawn, and the $W_K$
+bridge to valence ($|\rho|$ peaking at $0.872$ at L43) is unverified.} The
+identity geometry reads
 subspace overlap (what the workspace contains in aggregate, not per
 concept).
 
@@ -511,13 +528,13 @@ Commitment boundary (factual) & L24 & 5 prompts & Survives \\
 Commitment boundary (instruction) & L27 & 5 prompts & Survives \\
 \addlinespace
 J-lens geometric gate & 5/5 concepts & L15--L27 & AUROC $0.78$--$1.00$ \\
-J-lens best-layer accuracy & 43.3\% & 60 items & vs.\ 18.3\% fixed-layer \\
+J-lens per-item best-layer (oracle) accuracy & 43.3\% & 60 items & No null computed \\
 Logit-lens best-layer accuracy & 61.7\% & 60 items & Complementary \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy selects the single layer (of 13 candidate layers) with the highest accuracy across all 60~items. Under a conventional selection-artifact null (each layer at the 18.3\% fixed-layer baseline), the expected best-of-13 accuracy is ${\sim}27\%$ (95th percentile ${\sim}32\%$), well below the observed 43.3\%.
+\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy is a per-item best-layer (oracle) score: each of the 60~items is scored at whichever of the 18 band layers (L8--L25) ranks its target highest. It is not comparable to the 18.3\% fixed-layer accuracy. An earlier version of this note compared it with a best-of-13 selection null (${\sim}27\%$); that null assumed one layer for all items, and 13 rather than 18 candidate layers, so it does not apply. The per-item oracle null has not been computed, and no claim is made that 43.3\% exceeds chance.
 
 \section{Reproduction}
 \label{app:reproduction}

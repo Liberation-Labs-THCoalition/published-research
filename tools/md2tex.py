@@ -16,8 +16,12 @@ Usage:
                          --ai "Nexus, Lyra" [--drop-section "First-Person Reflection"]
   python tools/md2tex.py <in.md> <out.tex> --edition integrity
 
+NOTICES (2026-10-14). A blockquote ABOVE the H1 title is a notice (a withdrawal or an erratum): it is
+set in a frame right under the title, in both editions, before anything else. Paragraphs are separated by a
+bare ">" line. Nothing else in the paper changes.
+
 Scope: headings, bold/italic, pipe tables, bullet and numbered lists, horizontal
-rules, inline code. No math, no code blocks, no images - it verifies these are
+rules, inline code, a leading notice. No math, no code blocks, no images - it verifies these are
 absent and refuses rather than silently mangling them.
 """
 import argparse
@@ -39,7 +43,7 @@ def esc(s):
     s = s.replace("—", "---").replace("–", "--")
     # These are math-mode commands: emitting them bare gives "Missing $ inserted".
     for uni, cmd in (("×", "times"), ("≥", "geq"), ("≤", "leq"),
-                     ("→", "rightarrow"), ("≈", "approx"), ("±", "pm"),
+                     ("→", "rightarrow"), ("↔", "leftrightarrow"), ("≈", "approx"), ("±", "pm"),
                      ("−", "-"), ("μ", "mu"), ("σ", "sigma"), ("α", "alpha")):
         rep = ("$" + BS + cmd + "$") if cmd.isalpha() else cmd
         s = s.replace(uni, rep)
@@ -174,6 +178,14 @@ def main():
         sys.exit("REFUSING: source contains images; this converter does not handle them")
 
     lines = raw.split("\n")
+    notice, para = [], []
+    while lines and (lines[0].startswith(">") or (notice or para) and not lines[0].strip()):
+        q = lines.pop(0)
+        if not q.strip() or q.strip() == ">":
+            if para: notice.append(" ".join(para)); para = []
+        else:
+            para.append(q.lstrip(">").strip())
+    if para: notice.append(" ".join(para))
     m = re.match(r"^#\s+(.*)$", lines[0].strip())
     if not m:
         sys.exit("REFUSING: first line is not an H1 title")
@@ -189,6 +201,12 @@ def main():
     front.append(BS + "author{" + inline(a.author) + BS + "thanks{" + inline(a.affiliation) + "}}")
     front.append(BS + "date{}")
     doc = [PREAMBLE, BS + "begin{document}", "\n".join(front), BS + "maketitle", ""]
+    if notice:
+        doc.append(BS + "noindent" + BS + "fbox{" + BS + "parbox{" + BS + "dimexpr" + BS + "linewidth-2" + BS
+                   + "fboxsep-2" + BS + "fboxrule" + BS + "relax}{"
+                   + (BS + "par" + BS + "smallskip\n").join(inline(p) for p in notice) + "}}")
+        doc.append(BS + "bigskip")
+        doc.append("")
     if a.edition == "academic" and a.ai:
         doc.append(BS + "noindent" + BS + "textbf{AI Disclosure:} AI contributors to this work "
                    "include " + inline(a.ai) + ", implemented on the Claude architecture "

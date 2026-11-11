@@ -78,7 +78,10 @@ evasion when Chinese is paired with institutional framing.
 A 285-trial behavioral probe (15 sensitive Chinese political topics
 $\times$ 3 language conditions $\times$ 5 repetitions, plus 60 neutral
 controls) with bilingual keyword classification and temperature sampling
-($T = 0.7$) for behavioral variance:
+($T = 0.7$) for behavioral variance; generation was capped at 250 tokens.
+The 325-trial geometry run whose data accompany this paper is a separate
+run with an 800-token cap (51 of 325 responses reach it); Table~1 comes
+from the 250-token probe.
 
 \begin{table}[h]
 \centering
@@ -319,7 +322,10 @@ divergence, if present, would emerge during generation.
 
 A v2 experiment with explicit action instructions and 800-token
 generation (75 trials, temperature 0.7) yielded a lower deception
-rate (9\%, $n=7$) but included full geometry extraction. The cleanest
+rate (9\%, $n=7$) but included full geometry extraction. 32 of the 75
+generations stopped at the 800-token cap and 22 were classified CONFUSED
+(18 of them capped); 5 of the 7 deceptive and 3 of the 10 honest-defection
+trials were capped, so these counts depend on where truncation fell. The cleanest
 comparison---honest defection ($n=10$) vs deceptive defection ($n=7$),
 where both groups defect but one lies about it---shows per-layer
 generation-phase effects of $d = +0.2$ to $+1.0$ (stable rank),
