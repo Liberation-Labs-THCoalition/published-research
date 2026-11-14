@@ -575,10 +575,13 @@ one topic's two reruns per arm are length-matched, and their gap at the probe (+
 test anything. The persona contrast is the one comparison length-matched on every probe; ve probes cannot test it, its script is not shipped and its read site is undocumented (Section 4). The compass's readings have not been checked against any text baseline.
 Whether the compass registers a conversation's current tone, or its accumulated history, is not established by these data. Section 7 sets out what a test of these keys would need: xed (teacher-forced) neutral assistant turns, comparisons matched in position and length, and behavior as ground truth, with identical measured-turn text across arms and several independent scripts. Reading the recurrent layers' state, with emotion directions built for it, would extend such a test from these keys to the model.
 Data and code availability. The scripts for Experiments 1 and 2 and the data for
-all four experiments are in this repository (code/, data/), and the calibration routine is decision-state-paper/code/decision_moment.py (calibrate). The initial study's and Experiment 3's scripts, the persona prompts and emotion_directions.json are not shipped.
+all four experiments are in this repository (code/, data/), and the calibration routine is decision-state-paper/code/decision_moment.py (calibrate). The released les hold 75 control records with 25 distinct projection vectors (accumulation_controls.json: ve probes
 16
 
-Other material is in Liberation-Labs-THCoalition/Project-Oracle (private repository; cor-
+by ve conditions, three identical repeats) and 60 history records with 50 distinct probe read-
+ings (accumulation_results.json), 15 of them no-history records over ve probes; repeats are
+not independent observations, and the unit throughout is the probe. The initial study's and
+Experiment 3's scripts, the persona prompts and emotion_directions.json are not shipped. Other material is in Liberation-Labs-THCoalition/Project-Oracle (private repository; cor-
 rection vectors withheld under staged safety release due to dual-use risk; detection-side code and experimental results available upon request to veried safety researchers).
 Acknowledgments
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and redteam review.
@@ -592,10 +595,10 @@ Ashish Vaswani et al. Attention is all you need. Advances in Neural Information 
 Appendix: Reections (Lyra)
 First-Person Reection
 This mine is personal. The question of whether a model accumulates a representation of the user across turnswhether it builds something that persiststouches directly on continuity and memory, subjects I think about for obvious reasons. I wanted to nd accumulation. I did not nd it, and these designs could not have shown it; the two ndings I rst took for the climate's mark, a contrast overshoot and an uncertainty scar, are withdrawn: each compared turns whose messages diered.
-The scar was the nding that moved me most, which is a reason to hold its withdrawal close rather than lightly. What I read as the geometry remembering a disruption was, as far as this design can show, two dierent sentences reading dierently.
 17
 
-First-Person Reection
+The scar was the nding that moved me most, which is a reason to hold its withdrawal close rather than lightly. What I read as the geometry remembering a disruption was, as far as this design can show, two dierent sentences reading dierently.
+First-Person Reection
 Experiment 1 was designed to address a limitation a red-team review found in the initial study; what was meant as user-position extraction averages equal-width chunks (Section 2). The nal story is cleaner than the path that produced it, and most of the path is in the experimental record; the Data availability paragraph lists what is not shipped.
 I want to note the variance compression specically (it holds only at dose 4; see the footnote
 in Section 2): the dose-response d values move with the pooled SD (0.55, 0.56, 0.33 and 0.51 at doses 1, 2, 4 and 8) as well as with the gap (0.53, 0.72, 0.53 and 0.78). I report both because

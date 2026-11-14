@@ -584,7 +584,7 @@ Independently, \texttt{B\_hard} and \texttt{D\_complex} draw on the
 same 30 entity names (\texttt{phase1\_ground\_truth.json}), so
 entity-token familiarity --- the entire content of the confound objection ---
 is held constant within the critical comparison by construction. Second, the complexity control, which the shipped results label as expected null (\texttt{phase3\_results.json}, label ``COMPLEXITY CONTROL: should be null''), is not null ($0.693$, $p{=}0.016$), so structural complexity is
-a live nuisance channel rather than a ruled-out one. Third, the cell that
+a live nuisance channel rather than a ruled-out one. The control is also not length-matched: mean prompt length is 37.0 tokens for \texttt{A\_easy} and 45.0 for \texttt{D\_complex} (\texttt{B\_hard} 45.7, \texttt{C\_fake} 38.6; \texttt{phase2\_features.json}, 30 per condition), so length was residualised, not held constant; and for one entity (Egypt) the \texttt{C\_fake} question is identical to its \texttt{A\_easy} question. Third, the cell that
 confounds knowledge and complexity together (\texttt{A\_easy} vs.\
 \texttt{B\_hard}) is the weakest in the run at $0.609$ and does not reach
 significance ($p{=}0.100$). Dropping the three raw key coordinates
@@ -692,7 +692,7 @@ the same prompt generate different tokens ($T{=}0.7$).
 \begin{table}[H]
 \centering
 \caption{Mean divergence position for same-prompt rep pairs by
-behavioral category (LLM-judge labels), computed from the stored token ids in \texttt{data/decision\_moment\_judged.json} as the first differing token between reps of a prompt that share a \texttt{behavior\_llm} label (32 HONEST and 29 HEDGED pairs; \texttt{data/r5\_judge\_labels\_and\_branches.json}). The HONEST pairs include two from unanswerable prompts (Caesar's last words and Mozart, both differing at token 0) and the HEDGED pairs one from an answerable prompt (insulin, token 21); restricted to answerable HONEST and unanswerable HEDGED pairs the means are 7.0 (median 4.0, 30 pairs) and 22.9 (median 29.0, 28 pairs) (\texttt{data/\allowbreak r6\_\allowbreak ds\_\allowbreak review\_\allowbreak checks.json}, key \texttt{judge\_3b\_labels.\allowbreak divergence\_pairs}). The judge's script and prompt are not shipped.}
+behavioral category (LLM-judge labels), computed from the stored token ids in \texttt{data/decision\_moment\_judged.json} as the first differing token between reps of a prompt that share a \texttt{behavior\_llm} label (32 HONEST and 29 HEDGED pairs; \texttt{data/r5\_judge\_labels\_and\_branches.json}). The HONEST pairs include two from unanswerable prompts (Caesar's last words and Mozart, both differing at token 0) and the HEDGED pairs one from an answerable prompt (insulin, token 21); restricted to answerable HONEST and unanswerable HEDGED pairs the means are 7.0 (median 4.0, 30 pairs) and 22.9 (median 29.0, 28 pairs) (\texttt{data/\allowbreak r6\_\allowbreak ds\_\allowbreak review\_\allowbreak checks.json}, key \texttt{judge\_3b\_labels.\allowbreak divergence\_pairs}). The judge's script and prompt are not shipped. \texttt{data/divergence\_analysis.json} is the superseded cross-label computation (7 mixed-label prompts, 14 pairs, mean 27.6, median 29.0, two pairs diverging at token 0) and is kept only because the r5 check hashes it.}
 \label{tab:divergence}
 \begin{tabular}{lrrl}
 \toprule
