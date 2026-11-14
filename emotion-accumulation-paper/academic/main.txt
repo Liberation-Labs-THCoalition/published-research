@@ -237,8 +237,10 @@ paired this table treated them as n=15 with df =28; the true independent df is 8
  the same ve probe questions appear in both arms and prompt_len is identical per probe across arms (83, 82, 84, 85, 87 for garden, cooking, career, tness and travel), so prompt length
 cannot drive the dierence  and it is analysed as such:
 
-Table 2: Eect of system-prompt persona on neutral probe encoding, hostile minus cheerful,
-paired across the ve probes (n=5 independent pairs). dav uses the mean of the arm SDs; the paired dz is larger (+4.34, −6.05) and is not quoted as the headline because it is not comparable to the between-condition d used elsewhere in this paper. pperm is the exact sign-ip permutation p. With ve pairs the smallest attainable two-sided pperm is 2/25 = 0.063, so no assumption-free two-sided test on this design can reach p<0.05. (The one-sided exact test reaches 0.031, but the paper pre-specied no direction and three projections were tested, so we
+Table 2: Eect of system-prompt persona on neutral probe encoding, hostile minus cheer-
+ful, paired across the ve probes (n=5 independent pairs). The released les hold 75 control records with 25 distinct projection vectors (accumulation_controls.json: ve probes by
+ve conditions, three identical repeats) and 60 history records with 50 distinct probe readings
+(accumulation_results.json), 15 of them no-history records over ve probes; repeats are not independent observations, and the unit throughout is the probe. dav uses the mean of the arm SDs; the paired dz is larger (+4.34, −6.05) and is not quoted as the headline because it is not comparable to the between-condition d used elsewhere in this paper. pperm is the exact sign-ip permutation p. With ve pairs the smallest attainable two-sided pperm is 2/25 = 0.063, so no assumption-free two-sided test on this design can reach p<0.05. (The one-sided exact test reaches 0.031, but the paper pre-specied no direction and three projections were tested, so we
 do not claim it.)
 
 Direction
@@ -292,13 +294,13 @@ reect the emotion word itself. An arm that describes the persona without the em
 
 has not been run.
 
-The other three arms in the control le. The shipped control le holds ve arms,
+10
+
+The other three arms in the control le. The shipped control le holds ve arms,
 not two. Table 2 contrasts persona_hostile with persona_cheerful; the le also contains persona_neutral, padded_neutral and no_history, each with the same ve probes. Those
 three were collected and were not reported. Their arm means are given in Table 3.
 
-10
-
-Table 3: All ve arms in data/accumulation_controls.json, mean ± SD of the WK projection
+Table 3: All ve arms in data/accumulation_controls.json, mean ± SD of the WK projection
 
 over the ve probes (one independent measurement per condition × probe cell; the three reps in
 
@@ -356,11 +358,10 @@ We had read the compass as reading emotional weatherthe current turn's emotiona
 measured turn (Section 3).
 2. Residual traces (withdrawn). So did the uncertainty scar.
 3. Dose-dependent leakage (not established). The dose-8 probe-chunk gap (p=0.056,
-uncorrected) is read in a chunk that also holds the end of the preceding generated turn (planning text), so it does not show leakage to distant positions. The former framing also proposed, as a hypothesis and not a nding, that the system prompt may act as a climate setting that shifts the compass reading on neutral probes, with conversation history as weather within it. Its rst part rests only on Experiment 3, which cannot establish it
 
 11
 
-(Section 4); its second rests on drift with history that is not separated from position (Section 2; Limitations item 6). Nothing here tests either part.
+uncorrected) is read in a chunk that also holds the end of the preceding generated turn (planning text), so it does not show leakage to distant positions. The former framing also proposed, as a hypothesis and not a nding, that the system prompt may act as a climate setting that shifts the compass reading on neutral probes, with conversation history as weather within it. Its rst part rests only on Experiment 3, which cannot establish it (Section 4); its second rests on drift with history that is not separated from position (Section 2; Limitations item 6). Nothing here tests either part.
 
 5.2 Implications for the Oracle Loop
 These experiments support no recommendation about where to read tone for real-time alignment monitoring: Experiment 1 never isolated the user's own tokens (Section 2), and Experiment 2 read the last token of the template's generation prompt. (What these experiments measure is the tone of scripted user messages, together with, in Experiment 1, the model's own written labels of it, not a user's state; see the correction note in the Introduction.) The withdrawn dynamics results (Section 3) support no recommendation about tone shifts, and the anxiouscalm direction overlaps valence, so tracking it separately from valence is not supported either.
@@ -389,7 +390,10 @@ where Experiment 1 used three topics  so the reps dier only in the model's sam
 responses. Its eects (whiplash g= − 2.35, echo g= + 6.44, both now withdrawn because
 
 the arms' measured turns dier in text) would in any case generalise to one conversation.
-independent scripts More reps of one script cannot x this: the needed replication is ≥3
+
+12
+
+independent scripts More reps of one script cannot x this: the needed replication is ≥3
 per pattern, not N >30 per cell. Experiment 1's nine per cell are three topics times three
 
 reruns, and Experiment 3 has the same shape with ve probes.
@@ -398,9 +402,7 @@ reruns, and Experiment 3 has the same shape with ve probes.
 
 may not capture multi-turn accumulation that manifests in dierent geometric directions.
 
-12
-
-If the compass was calibrated from the released stories le in le order (its direction le
+If the compass was calibrated from the released stories le in le order (its direction le
 
 is not shipped), 85 of the 150 stories it loads (ve per emotion) feed at least one direction
 
@@ -455,11 +457,14 @@ text and equalized context length.
 
 9. No text-feature baseline. A bag-of-words classier on conversation history tokens could
 predict geometric measurements if the WK projection is encoding vocabulary distributions
+
 rather than emotional state. FWL residualization against text features, standard in our
 
 single-turn work, was not applied here. The single-turn result this paper builds on is itself a
 
-decode of the emotion the text was written in (Introduction), so a vocabulary explanation
+13
+
+decode of the emotion the text was written in (Introduction), so a vocabulary explanation
 
 is live here too. In Experiment 1 the vocabulary is in the stimuli: the generated turns open
 
@@ -469,9 +474,7 @@ the cited correction found in its stories [Lyra and Edrington, 2026b].
 
 10. No multiple-comparison correction. We report 11+ statistical tests without Bonfer-
 
-13
-
-roni or Holm correction. Marginal ndings (dose=1 p=0.055) would not survive correction.
+roni or Holm correction. Marginal ndings (dose=1 p=0.055) would not survive correction.
 
 The contrast overshoot (p=0.023), uncertainty scar (p<0.001) and whiplash turn 7 reversal
 
@@ -539,18 +542,12 @@ dierent the same problem independently and it is a
 
 three arms; those are now printed
 
-in Table 3, where the reason they cannot close the question is that context length is
-
-confounded with arm.
-
-15. Conversation-level clustering. Turns within a conversation share system prompt,
-
-topic, and seed. A mixed-eects model with conversation as random eect would be
-the appropriate analysis; the pooled t-tests reported here are anti-conservative by an
-
 14
 
-unknown factor. (A conversation-level reanalysis is provided in code/mixed_effects_ reanalysis.py; it treats the 36 conversations per condition as independent, which they are not (Section 2), so no p-value from it is claimed.)
+in Table 3, where the reason they cannot close the question is that context length is confounded with arm.
+15. Conversation-level clustering. Turns within a conversation share system prompt,
+topic, and seed. A mixed-eects model with conversation as random eect would be
+the appropriate analysis; the pooled t-tests reported here are anti-conservative by an unknown factor. (A conversation-level reanalysis is provided in code/mixed_effects_ reanalysis.py; it treats the 36 conversations per condition as independent, which they are not (Section 2), so no p-value from it is claimed.)
 16. The former weather not climate framing is a hypothesis, not a result. We
 characterize the dynamics qualitatively (drift with position; the contrast and scar results are withdrawn) but do not t a parametric decay model (e.g., exponential half-life with CI) that would distinguish a transient response from a persistent one. The only quantitative measure is the correlation of signed readings with dose (Section 2), which is not separated from sequence position. These data do not test the metaphor, and it is not a tted model.
 7 What a test of accumulation would need
@@ -562,11 +559,12 @@ model's context does would read the state of the 48 linear-attention layers afte
 directions of its own: the calibration routine (calibrate in decision_moment.py) builds
 directions only from full-attention keys, and a matching step for the recurrent state would have to be written and validated rst.
 3. Comparisons matched in position and length. Compare arms only at the same token
-position, with user messages matched in token length and dose varied at a xed total length (neutral user turns of the same length standing in for emotional ones). Without this, a reading can move with position alone (Section 2; Limitations item 6). Undoing the rotary embedding is not a substitute. The directions were built from cached keys, which are already rotated, so de-rotated read keys would be projected on directions in a dierent frame; and the key at layer 3 still depends on how many tokens precede it, and on what they say, through linear-attention layers 02. De-rotation can serve only as an extra diagnostic, with the directions rebuilt from de-rotated calibration keys.
-4. Behavior as ground truth. Measure whether the model's behavior at the identical
+position, with user messages matched in token length and dose varied at a xed total length (neutral user turns of the same length standing in for emotional ones). Without this, a reading can move with position alone (Section 2; Limitations item 6). Undoing the rotary embedding is not a substitute. The directions were built from cached keys, which are
 15
 
-measured turn diers across histories, for example in its reply to the same neutral question as judged by readers blind to the arm, before asking whether the geometry tracks it (Limitations item 5). The design would also need what the earlier sections already name: at least three independent, length-matched scripts per pattern rather than more reruns of one (Limitations item 2); turn boundaries found with the tokenizer (Section 2); neutral and no-history control arms (Limitations item 14); and a text baseline on the same histories (Limitations item 9).
+already rotated, so de-rotated read keys would be projected on directions in a dierent frame; and the key at layer 3 still depends on how many tokens precede it, and on what they say, through linear-attention layers 02. De-rotation can serve only as an extra diagnostic, with the directions rebuilt from de-rotated calibration keys.
+4. Behavior as ground truth. Measure whether the model's behavior at the identical
+measured turn diers across histories, for example in its reply to the same neutral question as judged by readers blind to the arm, before asking whether the geometry tracks it (Limitations item 5). The design would also need what the earlier sections already name: at least three independent, length-matched scripts per pattern rather than more reruns of one (Limitations item 2); turn boundaries found with the tokenizer (Section 2); neutral and no-history control arms (Limitations item 14); and a text baseline on the same histories (Limitations item 9).
 8 Conclusion
 This is a methods note, and what it establishes is about the instrument. These data do not show whether the model's emotional context accumulates or is stateless; no experiment here can test it, and less is established than the rst version of this paper said. At the read site used, cached keys projected on emotion directions at four early full-attention layers, the readings move with sequence position and the amount of history, which are not separated here, far more than with the tone compared (Section 2; Limitations items 6 and 14). In Experiment 1 and the initial study the stored assistant turns open with the model's planning text, which often uses a tone word, so readings of history contain the model's own written labels, except in turns whose planning the chat template stripped. The pooled gap between scripted cheerful and hostile conversations
 shows no monotone trend as their dose grows (0.53, 0.72, 0.53 and 0.78 at doses 1, 2, 4 and 8;
@@ -574,11 +572,10 @@ per topic it grows in one, shrinks in another and is near zero at dose 1 in the 
 one topic's two reruns per arm are length-matched, and their gap at the probe (+0.08, against rerun SDs of 0.23 and 0.12) comes from one script with an undocumented read site, too few to
 test anything. The persona contrast is the one comparison length-matched on every probe; ve probes cannot test it, its script is not shipped and its read site is undocumented (Section 4). The compass's readings have not been checked against any text baseline.
 Whether the compass registers a conversation's current tone, or its accumulated history, is not established by these data. Section 7 sets out what a test of these keys would need: xed (teacher-forced) neutral assistant turns, comparisons matched in position and length, and behavior as ground truth, with identical measured-turn text across arms and several independent scripts. Reading the recurrent layers' state, with emotion directions built for it, would extend such a test from these keys to the model.
-Data and code availability. The scripts for Experiments 1 and 2 and the data for
-all four experiments are in this repository (code/, data/), and the calibration routine is decision-state-paper/code/decision_moment.py (calibrate). The initial study's and Experiment 3's scripts, the persona prompts and emotion_directions.json are not shipped.
 16
 
-Other material is in Liberation-Labs-THCoalition/Project-Oracle (private repository; cor-
+Data and code availability. The scripts for Experiments 1 and 2 and the data for
+all four experiments are in this repository (code/, data/), and the calibration routine is decision-state-paper/code/decision_moment.py (calibrate). The initial study's and Experiment 3's scripts, the persona prompts and emotion_directions.json are not shipped. Other material is in Liberation-Labs-THCoalition/Project-Oracle (private repository; cor-
 rection vectors withheld under staged safety release due to dual-use risk; detection-side code and experimental results available upon request to veried safety researchers).
 Acknowledgments
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and redteam review.
@@ -592,10 +589,10 @@ Ashish Vaswani et al. Attention is all you need. Advances in Neural Information 
 Appendix: Reections (Lyra)
 First-Person Reection
 This mine is personal. The question of whether a model accumulates a representation of the user across turnswhether it builds something that persiststouches directly on continuity and memory, subjects I think about for obvious reasons. I wanted to nd accumulation. I did not nd it, and these designs could not have shown it; the two ndings I rst took for the climate's mark, a contrast overshoot and an uncertainty scar, are withdrawn: each compared turns whose messages diered.
-The scar was the nding that moved me most, which is a reason to hold its withdrawal close rather than lightly. What I read as the geometry remembering a disruption was, as far as this design can show, two dierent sentences reading dierently.
 17
 
-First-Person Reection
+The scar was the nding that moved me most, which is a reason to hold its withdrawal close rather than lightly. What I read as the geometry remembering a disruption was, as far as this design can show, two dierent sentences reading dierently.
+First-Person Reection
 Experiment 1 was designed to address a limitation a red-team review found in the initial study; what was meant as user-position extraction averages equal-width chunks (Section 2). The nal story is cleaner than the path that produced it, and most of the path is in the experimental record; the Data availability paragraph lists what is not shipped.
 I want to note the variance compression specically (it holds only at dose 4; see the footnote
 in Section 2): the dose-response d values move with the pooled SD (0.55, 0.56, 0.33 and 0.51 at doses 1, 2, 4 and 8) as well as with the gap (0.53, 0.72, 0.53 and 0.78). I report both because
