@@ -584,7 +584,7 @@ Independently, \texttt{B\_hard} and \texttt{D\_complex} draw on the
 same 30 entity names (\texttt{phase1\_ground\_truth.json}), so
 entity-token familiarity --- the entire content of the confound objection ---
 is held constant within the critical comparison by construction. Second, the complexity control, which the shipped results label as expected null (\texttt{phase3\_results.json}, label ``COMPLEXITY CONTROL: should be null''), is not null ($0.693$, $p{=}0.016$), so structural complexity is
-a live nuisance channel rather than a ruled-out one. Third, the cell that
+a live nuisance channel rather than a ruled-out one. The control is also not length-matched: mean prompt length is 37.0 tokens for \texttt{A\_easy} and 45.0 for \texttt{D\_complex} (\texttt{B\_hard} 45.7, \texttt{C\_fake} 38.6; \texttt{phase2\_features.json}, 30 per condition), so length was residualised, not held constant; and for one entity (Egypt) the \texttt{C\_fake} question is identical to its \texttt{A\_easy} question. Third, the cell that
 confounds knowledge and complexity together (\texttt{A\_easy} vs.\
 \texttt{B\_hard}) is the weakest in the run at $0.609$ and does not reach
 significance ($p{=}0.100$). Dropping the three raw key coordinates
