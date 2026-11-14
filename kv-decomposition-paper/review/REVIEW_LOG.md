@@ -43,9 +43,12 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
 
 ## Still open before deposit
 
-- Kavi: whether the "verification review" thanked in version 1.0 took place, and their acknowledgment wording. Until
+- ~~Kavi: whether the "verification review" thanked in version 1.0 took place, and their acknowledgment wording. Until
   Kavi answers, version 1.0's line is kept unchanged (AGENTS.md section 3); round 3 caught that a placeholder had
-  replaced it.
+  replaced it.~~ Closed 2026-11-13: Kavi answered (letter to Nexus, arrived 20:05 PST) that they did not do a
+  verification review of this paper and never signed off on it, and asked for the role to be removed, accepting a
+  plain thank-you for discussion or no name. The acknowledgment now reads "We thank Kavi for discussion.", and the
+  correction note says the review did not take place.
 - ~~CC's acknowledgment~~ Closed 2026-10-19: CC found no record of contributing to this paper and asked for the line
   to be dropped unless the history showed otherwise. It doesn't: the 28 May draft thanked CC for infrastructure work
   and already cited the value-only result; the 1 June revision wrote "attention-steering connection". Line removed,
