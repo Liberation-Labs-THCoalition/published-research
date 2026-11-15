@@ -799,7 +799,7 @@ The denoised AUROCs appear to help models with moderate raw signal
 (Qwen2.5-7B $+0.068$, TinyLlama $+0.047$) and not those already strong
 (Gemma-2-9B $+0.006$, Mistral $+0.000$). \textbf{This apparent benefit
 is a selection artifact.} The reported denoised AUROC is
-$\max(\text{raw}, \text{denoised}[k])$ scored on the same CV fold that
+$\max(\text{raw},\allowbreak \text{denoised}[k])$ scored on the same CV fold that
 selects the rank, with no nested loop. We quantified the selection
 bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
 task we simulated max-over-grid selection under the null sampling noise
