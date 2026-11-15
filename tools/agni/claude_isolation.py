@@ -58,7 +58,7 @@ Every Agni review from 2026-08-14 to 2026-11-02 ran that way. Six things close i
      switches. Everything else goes, keys and tokens included, whatever they are named. Names are
      compared without case (Windows). A machine whose CLI logs in through the environment
      (ANTHROPIC_API_KEY, CLAUDE_CODE_OAUTH_TOKEN, or Bedrock's CLAUDE_CODE_USE_BEDROCK and AWS_*) passes
-     those names as keep_env; on Asdf the CLI logs in from its stored credentials and needs none
+     those names as keep_env; on the lab server the CLI logs in from its stored credentials and needs none
      (checked live, 2026-11-08).
 
 Every call site that runs the CLI builds its command with isolated_claude_cmd(). Nothing else
