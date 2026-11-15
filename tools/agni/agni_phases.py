@@ -96,7 +96,8 @@ import llm  # noqa: E402
 # Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
 from claude_isolation import isolated_claude_cmd  # noqa: E402
 
-AGNI_PHASES_VERSION = "1.1.2"
+AGNI_PHASES_VERSION = "1.1.3"
+REVIEWER_TOOLS = "Read,Grep,Glob"   # the CLI reviewer's only tools (1.1.3)
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
 # Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. It counts
@@ -384,7 +385,13 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     if not CLAUDE_BIN:
         raise RuntimeError("no claude binary found")
     full = cli_stdin(prompt, system)
-    cmd = [CLAUDE_BIN, "-p"]
+    # Read-only tools (1.1.3, 2026-11-08): the reviewer reads the repository by design, and nothing else. In print
+    # mode the CLI approves read-only Bash on its own (CLI 2.1.309: find, sha256sum and grep ran unasked), and the
+    # account's own permission grants still apply under the isolation helper, which keeps out the owner's memory and
+    # instructions but not their permissions. A planted instruction in a reviewed paper could use whatever the account
+    # allows. Read, Grep and Glob are all a review needs. One token, comma-separated: the prompt is on stdin, so no
+    # positional argument follows this variadic flag.
+    cmd = [CLAUDE_BIN, "-p", "--tools", REVIEWER_TOOLS]
     # Forward the model. Ollama tags ("qwen3.8:27b-mxfp8") carry a colon and
     # are meaningless to the CLI, so they are never passed through.
     if model and ":" not in model:

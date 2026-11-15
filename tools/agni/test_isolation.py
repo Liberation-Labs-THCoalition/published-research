@@ -59,11 +59,7 @@ sys.path.insert(0, str(HERE))
 
 from claude_isolation import (AUTO_MEMORY_KEY, NO_AUTO_MEMORY_ENV, NO_CAPTURE_ENV,  # noqa: E402
                               NO_HOOKS_KEY, NO_SKILLS_FLAG, claude_md_excludes, isolated_claude_cmd)
-from claude_isolation import NO_PERSIST_FLAG, SESSION_VAR_PREFIXES, SESSION_VARS  # noqa: E402
-
-
-def is_session_var(k):
-    return k in SESSION_VARS or k.startswith(SESSION_VAR_PREFIXES)
+from claude_isolation import NO_PERSIST_FLAG, env_allowed  # noqa: E402
 
 HOME = Path.home().as_posix().rstrip("/")
 WANT_EXCLUDES = {HOME + "/.claude/CLAUDE.md", HOME + "/.claude/**"}
@@ -188,8 +184,8 @@ class InferCliIsIsolated(unittest.TestCase):
         self.assertIsNotNone(env, "infer_cli passed no env= (child inherits capture hooks)")
         self.assertEqual(env.get(NO_CAPTURE_ENV), "1")
         rest = {k: v for k, v in env.items() if k not in ADDED_ENV}
-        base = {k: v for k, v in os.environ.items() if k not in ADDED_ENV and not is_session_var(k)}
-        self.assertEqual(rest, base, "env must be os.environ, less the calling session's own variables, plus %s only"
+        base = {k: v for k, v in os.environ.items() if k not in ADDED_ENV and env_allowed(k)}
+        self.assertEqual(rest, base, "env must be os.environ's allowlisted variables plus %s only"
                          % " and ".join(ADDED_ENV))
 
     def test_auto_memory_off(self):
@@ -225,14 +221,23 @@ class InferCliIsIsolated(unittest.TestCase):
     def test_everything_else_unchanged(self):
         cmd, kw = self.call(model="haiku", add_dirs=["dir_a", "dir_b"])
         self.assertEqual(strip_isolation(cmd),
-                         [FAKE_BIN, "-p", "--model", "haiku", "--add-dir", "dir_a", "--add-dir", "dir_b"])
+                         [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob", "--model", "haiku", "--add-dir", "dir_a",
+                          "--add-dir", "dir_b"])
         self.assertIn("THE SYSTEM", kw["input"])
         self.assertTrue(kw["input"].endswith("THE PROMPT"))
         for k, v in (("capture_output", True), ("text", True), ("encoding", "utf-8"),
                      ("errors", "replace"), ("timeout", 7)):
             self.assertEqual(kw.get(k), v, k)
         cmd2, _ = self.call(model="qwen3.8:27b-mxfp8")   # ollama tags are never forwarded
-        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p"])
+        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob"])
+
+    def test_the_reviewer_gets_read_only_tools(self):
+        # 1.1.3: Read, Grep and Glob only, as one token (no Bash, no Edit, no Write, no web)
+        cmd, _ = self.call(model="haiku")
+        self.assertEqual(cmd.count("--tools"), 1, cmd)
+        tools = cmd[cmd.index("--tools") + 1].split(",")
+        self.assertEqual(sorted(tools), ["Glob", "Grep", "Read"])
+        self.assertFalse([a for a in cmd if a.startswith("--allowedTools") or a.startswith("--tools=")], cmd)
 
 
 class Helper(unittest.TestCase):
@@ -244,13 +249,13 @@ class Helper(unittest.TestCase):
     def test_merges_existing_settings_and_does_not_mutate(self):
         base = ["claude", "-p", "--settings", '{"disableAllHooks": true}', "--model", "haiku"]
         snapshot = list(base)
-        cmd, env = isolated_claude_cmd(base, environ={"A": "1"})
+        cmd, env = isolated_claude_cmd(base, environ={"PATH": "1", "A": "1"})     # "A" is not on the allowlist
         self.assertEqual(base, snapshot)
         self.assertEqual(cmd.count("--settings"), 1)
         s = settings_of(cmd)
         self.assertTrue(s["disableAllHooks"])
         self.assertEqual(set(s["claudeMdExcludes"]), WANT_EXCLUDES)
-        self.assertEqual(env, {"A": "1", NO_CAPTURE_ENV: "1", NO_AUTO_MEMORY_ENV: "1"})
+        self.assertEqual(env, {"PATH": "1", NO_CAPTURE_ENV: "1", NO_AUTO_MEMORY_ENV: "1"})
 
     def test_equals_form_and_file_form(self):
         cmd, _ = isolated_claude_cmd(["claude", "--settings={}"])
@@ -297,15 +302,34 @@ class Helper(unittest.TestCase):
                    "CLAUDE_CODE_ENTRYPOINT": "cli", "CLAUDE_CODE_EXECPATH": "/x/claude",
                    "CLAUDE_CODE_MESSAGING_SOCKET": "/tmp/sock", "CLAUDE_CODE_MESSAGING_TOKEN": "TOKEN-CANARY",
                    "CLAUDE_CODE_BRIDGE_SESSION_ID": "b"}
-        kept = {"PATH": "/usr/bin", "HOME": "/h", "ANTHROPIC_MODEL": "m", "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION": "9",
-                "CLAUDE_CODE_USE_BEDROCK": "0", "CLAUDECODE_NOT_A_SESSION_VAR": "keep"}
-        environ = {**session, **kept}
-        _, env = isolated_claude_cmd(["claude", "-p"], environ=environ)
+        _, env = isolated_claude_cmd(["claude", "-p"], environ={**session, "PATH": "/usr/bin"})
         self.assertFalse(set(session) & set(env), sorted(set(session) & set(env)))
         self.assertNotIn("TOKEN-CANARY", json.dumps(env))
+
+    def test_only_allowlisted_variables_reach_the_child(self):
+        # 1.1.3 (Lyra): an allowlist; keys and tokens go whatever they are named
+        kept = {"PATH": "/usr/bin", "HOME": "/h", "LANG": "C.UTF-8", "LC_ALL": "C", "TERM": "xterm",
+                "HTTPS_PROXY": "http://p:3128", "SSL_CERT_FILE": "/c.pem", "CLAUDE_CONFIG_DIR": "/cfg",
+                "SystemRoot": "C:\\Windows", "Path": "C:\\bin"}          # Windows names come in any case
+        dropped = {"GEMINI_API_KEY": "G-CANARY", "OPENAI_MCP_SERVERS": "{}", "AWS_SECRET_ACCESS_KEY": "A-CANARY",
+                   "ANTHROPIC_API_KEY": "K-CANARY", "GITHUB_TOKEN": "T-CANARY", "SOME_NEW_SECRET_NAME": "S-CANARY",
+                   "ANTHROPIC_MODEL": "m", "CLAUDE_CODE_USE_BEDROCK": "1", "PATH_EXTRA": "x", "LCX": "x",
+                   "CALC_TOKEN": "C-CANARY"}                         # holds "LC_", but not at the start
+        environ = {**kept, **dropped}
+        _, env = isolated_claude_cmd(["claude", "-p"], environ=environ)
         for k, v in kept.items():
             self.assertEqual(env.get(k), v, k)
-        self.assertEqual(environ, {**session, **kept})          # the caller's mapping is not modified
+        self.assertFalse(set(dropped) & set(env), sorted(set(dropped) & set(env)))
+        self.assertNotIn("CANARY", json.dumps(env))
+        self.assertEqual(environ, {**kept, **dropped})            # the caller's mapping is not modified
+
+    def test_keep_env_lets_a_caller_name_what_its_login_needs(self):
+        environ = {"PATH": "/usr/bin", "ANTHROPIC_API_KEY": "K", "CLAUDE_CODE_USE_BEDROCK": "1", "GEMINI_API_KEY": "G"}
+        _, env = isolated_claude_cmd(["claude", "-p"], environ=environ,
+                                     keep_env=("anthropic_api_key", "CLAUDE_CODE_USE_BEDROCK"))
+        self.assertEqual(env.get("ANTHROPIC_API_KEY"), "K")         # names compared without case
+        self.assertEqual(env.get("CLAUDE_CODE_USE_BEDROCK"), "1")
+        self.assertNotIn("GEMINI_API_KEY", env)
 
     def test_skills_flag_present_once(self):
         cmd, _ = isolated_claude_cmd(["claude", "-p", "--model", "haiku"])
