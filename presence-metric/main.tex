@@ -72,7 +72,7 @@ layer L3 ($z{=}{+}56$ to ${+}62$ above random baseline), yet presence at
 deep layers is unchanged. We hypothesize \textbf{architectural
 filtering} by the GatedDeltaNet linear-attention layers, which may absorb
 the perturbation before it reaches deep computation; a layer-matched test
-ran off the positive control's scale, so the mechanism remains untested.
+was not measured on the positive control's scale, so the mechanism remains untested.
 All results are from one hybrid GatedDeltaNet model.
 
 We situate these findings within a convergent literature showing that
@@ -332,25 +332,34 @@ the model generates extended responses without factual grounding.
 2~prompts, one sampled response per prompt in each condition (its released
 configuration records temperature~0.6), and had a noise floor of
 $0.978 \pm 0.003$. With two prompts, its 168 records are not independent
-observations; this run uses 20~prompts, and all 720 responses are unique.
+observations: at $\alpha = 0$, presence takes one value per prompt across
+that prompt's 12~records, although the 12~responses differ
+(\nolinkurl{data/schema_correction_168_trials.json}). Distinct responses
+therefore add no observations; this run's 20~prompts do.
 The prompts and the dose grid both changed, so this is a methodological,
 not an exact, replication (history in Appendix~\ref{sec:corrections}).
 
 \subsection{Noise Floor}
 \label{sec:noise_floor}
 
-The presence noise floor is the spread of presence across this
-experiment's own trials. It is computed over all 720~trials, including the
-240 at $\alpha = 0$, where nothing is injected ($0.846 \pm 0.012$,
-Table~\ref{tab:presence_dose}).
+The noise floor below is printed with $n = 720$. The 720-trial run's
+configuration and records are not among the released files, so how this
+floor was computed cannot be checked here; its value is consistent with
+the spread of presence across the trials, including the 240 at
+$\alpha = 0$, where nothing is injected ($0.846 \pm 0.012$,
+Table~\ref{tab:presence_dose}). In the released 168-trial file the
+recorded floor is not the trials' own spread: its configuration records
+$0.9778 \pm 0.0028$, while its 168~trials give $0.9781 \pm 0.0022$
+(\nolinkurl{data/schema_correction_168_trials.json},
+\texttt{noise\_floor\_mean} and \texttt{noise\_floor\_sd}).
 
 \begin{equation*}
 \text{Noise floor} = 0.845 \pm 0.012 \quad (n = 720, \text{SD})
 \end{equation*}
 
 The noise floor is below 1.000 because different prompts activate
-different subsets of the V-space geometry. With 20~diverse prompts and
-temperature sampling, the natural prompt-to-prompt variance
+different subsets of the V-space geometry. With 20~diverse prompts,
+the natural prompt-to-prompt variance
 ($\text{SD}{=}0.012$) is substantially larger than observed with
 2~prompts ($\text{SD}{=}0.003$). Self-test (presence
 of the baseline against itself) returns exactly 1.000, confirming the
@@ -365,7 +374,8 @@ metric is correctly implemented.
 \begin{table}[H]
 \centering
 \caption{Presence by dose ($n = 720$ trials, 240 per dose). The three dose
-means differ by at most 0.001. Spearman $\rho{=}{-}0.046$,
+means differ by less than 0.002 (bounded from the rounded values below;
+the 720-trial records are not released). Spearman $\rho{=}{-}0.046$,
 $p{=}0.217$ (not significant).}
 \label{tab:presence_dose}
 \begin{tabular}{ccc}
@@ -544,8 +554,8 @@ decidable by this run: presence is below 0.95 in every condition,
 including $\alpha = 0$, where nothing is injected. The pre-registered
 0.95 threshold was calibrated to the initial 2-prompt noise floor
 ($0.978$). Under the 720-trial replication with 20~prompts,
-the noise floor itself is $0.845 \pm 0.012$, and all 720~trials fall within
-it. Recalibrating the threshold to the wider-prompt regime would be a
+the noise floor itself is $0.845 \pm 0.012$, and no trial reaches 0.95:
+the highest of the 720 is $0.868$ (Finding~1). Recalibrating the threshold to the wider-prompt regime would be a
 post-data revision; this paper does not make one. (This result changed
 in this revision; Appendix~\ref{sec:corrections}.)
 
@@ -700,7 +710,7 @@ at injection layer L3, yet presence at deep layers is unchanged.
 The mechanism remains an open question. We hypothesize architectural
 filtering by the hybrid model's linear-attention layers, but active
 identity restoration cannot be ruled out with the current data; the
-layer-matched test ran off the positive control's scale
+layer-matched test was not measured on the positive control's scale
 (Section~\ref{sec:limitations}). This finding is specific to the GatedDeltaNet
 architecture and may not generalize to dense transformers. For
 inference-time correction safety, the practical finding is bounded: at
@@ -793,10 +803,14 @@ repeats''. Its released file (\nolinkurl{data/schema_correction_168_trials.json}
 records temperature~0.6, and its $\alpha = 0$ records, where nothing is
 injected, hold distinct responses for the same prompt; the description
 now follows the file, and temperature is no longer listed as a changed
-parameter. (2)~The noise floor was described as ``presence measured on
+parameter. Presence in those records takes one value per prompt, so the
+earlier description was right that the measurement repeats exactly and
+wrong about the decoding. (2)~The noise floor was described as ``presence measured on
 5~neutral prompts with no intervention active'' but printed with
-$n = 720$; it is now described as the spread across the experiment's own
-trials (Section~\ref{sec:noise_floor}). (3)~The 22--25\% alignment was
+$n = 720$. The section now says that the configuration showing how the
+720-trial floor was computed is not released, and that in the released
+168-trial file the recorded floor is not the trials' own spread
+(Section~\ref{sec:noise_floor}). (3)~The 22--25\% alignment was
 attributed to ``the injection layers''; it is at L3, and 10--15\% at L7.
 (4)~``The metric is not sensitive to the specific probes chosen'' and
 ``The metric is not overfitting to specific probes'' were withdrawn: the

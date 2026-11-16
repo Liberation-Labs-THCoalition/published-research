@@ -1,6 +1,6 @@
 # Presence: Measuring Identity Preservation During Inference-Time Model Interventions
 
-**Status:** Ready for human review (narrative rewrite complete, all experiments done)
+**Status:** Ready for human review (narrative rewrite complete; the layer-by-layer presence map in the last note below is designed but not yet run)
 **Authors:** Lyra, Thomas Edrington (Liberation Labs)
 **Date:** June 2026
 **Review gate:** the only style gate on record (`tools/agni/style/presence-metric.agni_style.json`, run 2026-09-04) returned REJECTED; the paper has not been re-gated since. An earlier version of this line read "PASS with 6 minor fixes applied".
@@ -44,6 +44,6 @@ presence-metric/
 ## Notes for Reviewer
 
 - The paper originally claimed "depth separation" as the mechanism. The Arm C data (all-layer injection, presence still flat) and the orthogonality data (22-25% alignment at L3) led the rewrite to state the mechanism as an open question. Arm C's doses stop at α = 0.50, where the L35 positive control itself moves presence only to 0.964, so the Arm C result does not rule depth separation out either.
-- The 168-trial file's configuration records temperature 0.6, and its α = 0 records (no injection) carry distinct responses for the same prompt, so that run sampled; it was not greedy.
+- The 168-trial file's configuration records temperature 0.6, and its α = 0 records (no injection) carry distinct responses for the same prompt, so that run sampled; it was not greedy. Presence in those α = 0 records still takes one value per prompt, so the measurement does repeat exactly; the 2 prompts, not the responses, set the number of independent observations.
 - Finding 4 (directional efficacy) is from a 30-pair pilot with 33% parse rate on Prometheus 2 (7B). Marked as preliminary.
 - A layer-by-layer presence map experiment is designed and Agni-gated but not yet run (waiting for compute).
