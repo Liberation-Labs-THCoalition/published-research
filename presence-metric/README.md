@@ -3,15 +3,15 @@
 **Status:** Ready for human review (narrative rewrite complete, all experiments done)
 **Authors:** Lyra, Thomas Edrington (Liberation Labs)
 **Date:** June 2026
-**Review gate:** Agni + style guide combined review — PASS with 6 minor fixes applied
+**Review gate:** the only style gate on record (`tools/agni/style/presence-metric.agni_style.json`, run 2026-09-04) returned REJECTED; the paper has not been re-gated since. An earlier version of this line read "PASS with 6 minor fixes applied".
 
 ## Paper Summary
 
 We introduce presence, a geometric metric that measures whether inference-time interventions preserve a model's identity. Three findings:
 
-1. **Identity preserved** (168 trials): presence = 0.978 +/- 0.002 across all arms, doses, emotions
-2. **Metric validated** (72 trials): positive control drops presence 1.000 → 0.828 under direct identity injection; orthogonal control stays at 0.965
-3. **Mechanism not simple**: emotion vectors share 22-25% energy with identity subspace (z=+56 above random) yet identity is unaffected at deep layers
+1. **Metric responds at the measurement layer** (24 independent measurements, 72 records): positive control drops presence 1.000 → 0.828 under direct identity injection at L35; orthogonal control stays at 0.965 or above
+2. **Identity preserved** (720 trials, doses α ≤ 0.50): presence = 0.845 +/- 0.012 across all arms, doses, emotions. The 720-trial records are not in `data/`. An earlier 168-trial, 2-prompt run (in `data/`) gave 0.978 +/- 0.002
+3. **Mechanism open**: raw emotion vectors share 22-25% energy with identity subspace at L3 (z=+56 to +62 above random; 10-15% at L7) yet presence at deep layers is unaffected
 
 ## Data Package
 
@@ -32,16 +32,18 @@ presence-metric/
 
 | Claim | Source file | Paper location |
 |-------|------------|----------------|
-| Presence 0.978 +/- 0.002 (168 trials) | schema_correction_168_trials.json | Table 1, Table 2 |
+| Presence 0.845 +/- 0.012 (720 trials) | not in `data/` | Table 1, Table 2 |
+| Noise floor 0.978 +/- 0.003, arm effect H=10.29, p=0.016 (168 trials) | schema_correction_168_trials.json | Replication note, Table 2 caption, H2 |
 | Positive control 1.000 → 0.828 | positive_control_72_trials.json | Table 3 |
 | Orthogonal control stays > 0.96 | positive_control_72_trials.json | Table 3 |
 | Emotion vectors 22-25% aligned (z=+56) | orthogonality_results.json | Finding 3 |
 | Deep layers L43/47/51 flat at 0.999+ | overnight_validation.json | Section 5.1 |
 | Probe diversity mean 0.901 (sd=0.033) | overnight_validation.json | Section 5.1 |
-| Spearman dose vs presence: rho=-0.119, p=0.123 | schema_correction_168_trials.json | Table 1 caption |
+| Spearman dose vs presence: rho=-0.119, p=0.123 (168 trials; the paper prints the 720-trial rho) | schema_correction_168_trials.json | not printed |
 
 ## Notes for Reviewer
 
-- The paper originally claimed "depth separation" as the mechanism. This was killed by the Arm C data (all-layer injection, presence still flat) and the orthogonality data (22% alignment, not orthogonal). The rewrite frames the finding honestly as "identity is preserved but the mechanism is an open question."
+- The paper originally claimed "depth separation" as the mechanism. The Arm C data (all-layer injection, presence still flat) and the orthogonality data (22-25% alignment at L3) led the rewrite to state the mechanism as an open question.
+- The 168-trial file's configuration records temperature 0.6, and its α = 0 records (no injection) carry distinct responses for the same prompt, so that run sampled; it was not greedy.
 - Finding 4 (directional efficacy) is from a 30-pair pilot with 33% parse rate on Prometheus 2 (7B). Marked as preliminary.
 - A layer-by-layer presence map experiment is designed and Agni-gated but not yet run (waiting for compute).

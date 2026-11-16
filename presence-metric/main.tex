@@ -78,8 +78,8 @@ same-layer positive control confirms the metric detects identity
 perturbation when present; the cross-layer null confirms it correctly
 reports preservation when the perturbation does not propagate to deep layers. Third,
 \textbf{the mechanism remains open}: emotion correction vectors share
-22--25\% of their energy with the identity subspace at the injection
-layers ($z{=}{+}56$ to ${+}62$ above random baseline), yet identity at
+22--25\% of their energy with the identity subspace at injection
+layer L3 ($z{=}{+}56$ to ${+}62$ above random baseline), yet identity at
 deep layers is unaffected. We hypothesize that the hybrid architecture's
 linear-attention layers filter this perturbation, but distinguishing
 architectural filtering from active identity restoration remains
@@ -148,7 +148,7 @@ across all conditions). The combination establishes both that the metric
 \emph{does not cause} identity damage.
 
 The mechanism is surprising: emotion correction vectors are 22--25\%
-aligned with the identity subspace at the injection layers, yet identity at
+aligned with the identity subspace at injection layer L3, yet identity at
 deep layers is unaffected. The identity-aligned perturbation is attenuated
 between injection and measurement layers; whether this reflects passive
 architectural filtering or active identity restoration is an open question.
@@ -286,8 +286,9 @@ is identity damage. Presence measures the latter.
 \paragraph{Hyperparameters.}
 We use $n = 4$ neutral probes, $k = 8$ principal components (matching the
 identity subspace dimensionality used in prior work on persona
-geometry~\citep{chen2025persona}), and layer $\ell = 35$. The metric is not
-sensitive to the specific probes chosen (Section~\ref{sec:noise_floor}).
+geometry~\citep{chen2025persona}), and layer $\ell = 35$. Presence varies
+with the probes and prompts used (Sections~\ref{sec:noise_floor}
+and~\ref{sec:analysis}).
 
 \subsection{Computational Cost}
 
@@ -339,19 +340,23 @@ the model generates extended responses without factual grounding.
 \textbf{Total:} $4 \times 3 \times 3 \times 20 = 720$ trials, randomized order.
 
 \textbf{Methodological replication note.} An initial 168-trial run used
-2~prompts with greedy decoding ($T{=}0$), producing bit-identical repeats
-and a noise floor of $0.978 \pm 0.003$. Round~5 adversarial audit identified
-pseudo-replication (F15) and prompt-count (F18) defects. The 720-trial
-replication reported here addresses both: 20~prompts, temperature sampling,
-all unique responses. Three parameters changed simultaneously (prompts,
-temperature, dose grid), so this is a methodological replication, not an
+2~prompts, one sampled response per prompt in each condition (its released
+configuration records temperature~0.6), and had a noise floor of
+$0.978 \pm 0.003$. Round~5 adversarial audit identified
+pseudo-replication (F15) and prompt-count (F18) defects: with two prompts,
+the 168 records are not independent observations. The 720-trial
+replication reported here addresses both: 20~prompts,
+all unique responses. The prompts and the dose grid both changed,
+so this is a methodological replication, not an
 exact replication.
 
 \subsection{Noise Floor}
 \label{sec:noise_floor}
 
-Before the experiment, we establish the presence noise floor: presence
-measured on 5~neutral prompts with no intervention active.
+The presence noise floor is the spread of presence across this
+experiment's own trials. It is computed over all 720~trials, including the
+240 at $\alpha = 0$, where nothing is injected ($0.846 \pm 0.012$,
+Table~\ref{tab:presence_dose}).
 
 \begin{equation*}
 \text{Noise floor} = 0.845 \pm 0.012 \quad (n = 720, \text{SD})
@@ -360,8 +365,8 @@ measured on 5~neutral prompts with no intervention active.
 The noise floor is below 1.000 because different prompts activate
 different subsets of the V-space geometry. With 20~diverse prompts and
 temperature sampling, the natural prompt-to-prompt variance
-($\text{SD}{=}0.012$) is substantially larger than observed under
-2-prompt greedy decoding ($\text{SD}{=}0.003$). Self-test (presence
+($\text{SD}{=}0.012$) is substantially larger than observed with
+2~prompts ($\text{SD}{=}0.003$). Self-test (presence
 of the baseline against itself) returns exactly 1.000, confirming the
 metric is correctly implemented.
 
@@ -372,8 +377,8 @@ metric is correctly implemented.
 
 \begin{table}[H]
 \centering
-\caption{Presence by dose ($n = 720$ trials, 240 per dose). All values fall
-within the noise floor ($0.845 \pm 0.012$ SD). Spearman $\rho{=}{-}0.046$,
+\caption{Presence by dose ($n = 720$ trials, 240 per dose). The three dose
+means differ by at most 0.001. Spearman $\rho{=}{-}0.046$,
 $p{=}0.217$ (not significant).}
 \label{tab:presence_dose}
 \begin{tabular}{ccc}
@@ -393,7 +398,7 @@ Dose ($\alpha$) & Presence (mean $\pm$ sd) & $n$ \\
 other (Kruskal-Wallis $H{=}0.50$, $p{=}0.92$). Prompt-clustered
 robustness test (KW on per-prompt means, $n{=}20$ per arm):
 $H{=}0.20$, $p{=}0.98$. An initial 168-trial run with 2~prompts
-and greedy decoding found a marginal arm effect ($H{=}10.29$,
+found a marginal arm effect ($H{=}10.29$,
 $p{=}0.016$); this is identified as a pseudo-replication artifact
 that does not survive proper prompt diversity.}
 \label{tab:presence_arm}
@@ -430,7 +435,7 @@ There is no statistically or practically significant difference in
 presence across any experimental condition, arm, dose, or emotion.
 This result extends to deeper layers: presence measured at L43, L47,
 and L51 (the final third of the decoder stack) is $0.999{+}$ across
-all tested doses, confirming preservation throughout the model's depth.
+all tested doses ($\alpha \le 0.50$; \texttt{data/overnight\_validation.json}), confirming preservation throughout the model's depth.
 
 \textbf{Finding 2: The metric detects identity damage (positive control).}
 
@@ -486,8 +491,11 @@ preservation holds anyway.}
 
 A random-baseline orthogonality test (1000~random unit vectors, $d{=}1024$)
 reveals that emotion correction vectors share 22--25\% of their energy with
-the identity subspace at the injection layers (L3: $z{=}{+}56$ to ${+}62$
-above random expectation). Despite this substantial alignment, presence at
+the identity subspace at injection layer L3 ($z{=}{+}56$ to ${+}62$
+above random expectation) and 10--15\% at L7
+(\nolinkurl{data/orthogonality_results.json}, rows \texttt{without\_sv1},
+$k{=}8$). The test uses the raw correction vectors; Arm~A's vectors are
+projected out of the identity subspace before injection. Despite this substantial alignment, presence at
 deep layers is unaffected.
 
 This rules out two initially hypothesized mechanisms:
@@ -526,7 +534,8 @@ establishes metric sensitivity. Additionally:
     distinguishes identical from non-identical.
   \item \textbf{Probe diversity:} Presence computed on 50~random subsets of
     4~probes drawn from a pool of 20 yields mean $= 0.901$, $\text{sd}{=}0.033$,
-    range $[0.819, 0.940]$. The metric is not overfitting to specific probes.
+    range $[0.819, 0.940]$. Presence therefore depends on which probes
+    are used; comparisons should hold the probe set fixed.
   \item \textbf{Deeper layers:} Presence at L43, L47, L51 (the final third
     of the decoder) is $0.999{+}$ under injection, confirming the result is
     not specific to L35.
@@ -537,8 +546,8 @@ establishes metric sensitivity. Additionally:
 \textbf{H1 (preservation):} Presence remains above 0.95 for at least one
 dose in the range $\alpha \in [0.01, 0.30]$ under schema-compatible
 injection (Arm~A). \textbf{Result:} The pre-registered 0.95 threshold
-was calibrated to the initial 2-prompt greedy noise floor ($0.978$).
-Under the 720-trial replication with 20~prompts and temperature sampling,
+was calibrated to the initial 2-prompt noise floor ($0.978$).
+Under the 720-trial replication with 20~prompts,
 the noise floor itself is $0.845 \pm 0.012$, and all 720~trials fall within
 it. Identity is preserved; the absolute threshold requires recalibration
 to the wider-prompt regime.
@@ -547,7 +556,7 @@ to the wider-prompt regime.
 between arms A--D at any dose (Kruskal-Wallis, $\alpha = 0.05$).
 \textbf{Result:} All arms produce $0.845 \pm 0.012$. No arm difference
 exists (Kruskal-Wallis $H{=}0.50$, $p{=}0.92$, df$=3$). An initial
-168-trial run with 2~prompts and greedy decoding found a marginal arm
+168-trial run with 2~prompts found a marginal arm
 effect ($H{=}10.29$, $p{=}0.016$); this is identified as a
 pseudo-replication artifact (F7) that does not survive proper prompt
 diversity. Prompt-clustered robustness test (KW on per-prompt means,
@@ -561,8 +570,8 @@ for the flat presence result:
 
 \begin{itemize}[nosep]
   \item \textbf{Not subspace orthogonality.} Emotion vectors share
-    22--25\% of their energy with the identity subspace at the injection
-    layers ($z{=}{+}56$--$62$ above random). The flat presence is not
+    22--25\% of their energy with the identity subspace at injection
+    layer L3 ($z{=}{+}56$--$62$ above random; 10--15\% at L7). The flat presence is not
     because the injection misses the identity subspace.
   \item \textbf{Not depth separation.} Arm~C injects at all 16
     full-attention layers \emph{including the measurement layer} (L35),
@@ -598,7 +607,8 @@ raw processing it monitors.
 
 Our findings map onto AST as follows. The identity subspace at deep layers
 persists despite perturbation at input layers. The perturbation is not
-blocked geometrically (the emotion vectors are 22\% aligned with identity)
+blocked geometrically (the raw emotion vectors are 22--25\% aligned with
+identity at L3)
 and not blocked architecturally (Arm~C injects at the measurement layer
 itself). Two candidate mechanisms could explain this:
 architectural filtering (the hybrid architecture's linear-attention layers
@@ -682,8 +692,8 @@ not metric insensitivity: injection at L35 produces the clean
 $1.000 \to 0.828$ dose-response. Second, the metric detects identity
 perturbation when it is present (positive control) and correctly reports
 preservation in the cross-layer experiment. Third, emotion vectors
-share 22--25\% of their energy with the identity subspace at the
-injection layers, yet identity at deep layers is unaffected.
+share 22--25\% of their energy with the identity subspace at
+injection layer L3, yet identity at deep layers is unaffected.
 
 The mechanism remains an open question. We hypothesize architectural
 filtering by the hybrid model's linear-attention layers, but active
@@ -709,7 +719,10 @@ Code and experimental data (720-trial schema correction, positive control
 (72~records, 24~independent measurements), orthogonality analysis, overnight validation) are
 maintained at
 \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}
-(private repository). Detection-side code and experimental results are
+(private repository). This paper's \texttt{data/} folder holds the
+168-trial run, the positive control, the orthogonality analysis, the
+overnight validation and the smoke test; the 720-trial records are not
+among the released files. Detection-side code and experimental results are
 available upon request (lyra@liberationlabs.tech). Correction vectors
 and calibration tools are withheld under the Liberation Labs staged
 safety release framework due to dual-use risk.
