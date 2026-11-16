@@ -128,6 +128,8 @@ The experiment scripts, result files and Agni audit reports behind these nulls a
 
 ## Corrections and Version History
 
+This paper was first published in July 2026. The body states each current result in its place; the notes below record the substantive changes, in date order. The 2026-09-09 note is the sentence that stood in Section 2.2, reproduced as it was written; the others describe the changes made on those dates.
+
 - **2026-09-09** (Section 2.2): An earlier version of this paper reported d = +6.3 to +12.8 here; that figure was obtained by projecting the extraction prefills onto a direction fitted to those same prefills, and is a train-on-test shrinkage diagnostic rather than a performance estimate.
 - **2026-09-30** (Section 2.1): the caveat that the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, was added (remediation register, item 135).
 - **2026-10-09** (Section 2.1): a note here said that the companion audit-methodology paper's registry reported the turn-level behavior AUROC as 0.497. That paper reports 0.238, and the note now records the agreement.
