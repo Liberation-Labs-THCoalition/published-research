@@ -103,7 +103,7 @@ prompts ($d{=}0.91$)~\citep{lyra2026decision}, an effect the cited paper calls t
 ``confidence paradox''. Its temporal profile places it at generation onset: the companion
 logit-entropy difference is $d{=}{-}1.02$ in tokens 0--7 and $-0.89$ in
 tokens 8--19, and is no longer significant in tokens 20--49
-($d{=}+0.37$, opposite in sign, $p{>}0.08$). On fake-entity prompts the
+($d{=}{+}0.37$, opposite in sign, $p{>}0.08$). On fake-entity prompts the
 model opens more often with a fixed reasoning template, so the effect reflects, in
 part, \emph{schema commitment} --- early commitment to a response
 template --- rather than sustained miscalibration; template choice does
@@ -341,7 +341,7 @@ named its measure stable rank (see Appendix~\ref{sec:corrections}).
 output distributions ($d{=}0.684$; H1). This is measured in the output
 logits.
 
-\textbf{Compression survives abliteration.} Abliteration targets the
+\textbf{Compression survives this abliteration.} This abliteration targets the
 refusal directions but leaves the entropy compression in place (H2).
 If those directions were fully removed, the compression is not
 carried by them; that removal is unverified (see Limitations).
@@ -444,9 +444,10 @@ compression is beneficial (as the exploratory selective-sharpening pattern
 would suggest), the Loop should
 preserve the compression while correcting the behavioral failures
 it produces. The formulary's correction vectors operate at the
-materialization boundary (L35--L47), not at the workspace band where
-the H4 proxy is measured; the entropy compression itself (H1, H2) is
-measured in the output logits, downstream of those vectors. This
+materialization boundary (L35--L47) of another model: Qwen3-8B has
+36~layers, so they cannot be placed relative to the workspace band
+where the H4 proxy is measured or to the output logits where the
+entropy compression itself (H1, H2) is measured. This
 experiment therefore does not show whether correction and the
 compression can be addressed independently.
 
@@ -646,7 +647,8 @@ cited ``encoding entity detection at \ldots{} AUROC~$1.000$ before
 deconfounding ($0.794$ after)''. That pairs figures from two different
 experiments in the cited paper: on token-matched prompt pairs, within
 each held-out template, its encoding-only features rank every fake
-prompt above every real one, while its $0.794$ comes from a separate
+prompt above every real one (as name-only baselines also do in the
+three templates whose fakes all end in ``-ton''), while its $0.794$ comes from a separate
 experiment, compares two same-complexity question sets, and is exceeded
 by a question-text baseline. The Limitations now give the figures of
 that second experiment. The
