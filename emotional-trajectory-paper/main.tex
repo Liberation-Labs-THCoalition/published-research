@@ -130,8 +130,8 @@ emotion, not an artifact of categorical processing:
           $24.4\times$ vs.\ control $6.4\times$ median ratio, both over all 24 layers;
           ratio of the two medians $3.8\times$); \Cref{tab:control} gives the
           per-layer comparison at L5--15. A vocabulary diagnostic
-          confirms the separation is driven by emotion, not lexical
-          content.
+          indicates the separation is driven by emotion more than by
+          lexical content (Limitation~3).
     \item \textbf{Output-preparation regime (deep layers 21--23):}
           Cluster separation spikes for all categorical content.
           W\textsubscript{unembed} alignment tests rule out
@@ -159,9 +159,9 @@ approaching the 90$^\circ$ the circumplex predicts at some layers
 \begin{enumerate}[nosep]
     \item The mid-layer emotional signal is emotion-specific
           (24.4$\times$ above permutation baselines; control
-          $6.4\times$, both medians over all 24 layers; ratio of the two medians $3.8\times$), confirmed by a vocabulary
-          diagnostic showing emotion drives the geometry rather than
-          lexical content.
+          $6.4\times$, both medians over all 24 layers; ratio of the two medians $3.8\times$), with a vocabulary
+          diagnostic indicating that emotion drives the geometry more than
+          lexical content does (Limitation~3).
     \item The transformer circumplex trends toward Russell's circular
           model at mid-depth: eccentricity is consistently below the
           permutation null (22/23 layers, sign test $p < 0.001$), with
@@ -571,15 +571,15 @@ layers, control separation exceeds emotional, confirming the deep-layer
 spike is partly generic categorical processing.
 \end{table}
 
-The mid-layer plateau is emotion-specific. A direct diagnostic confirms
-this: calm prompts (nature vocabulary---``quiet, gentle, peaceful'') are
+The mid-layer plateau is emotion-specific. A direct diagnostic supports
+this, in part (Limitation~3): calm prompts (nature vocabulary---``quiet, gentle, peaceful'') are
 consistently nearer to outdoor prompts (shared vocabulary---``hiking,
 meadow'') in L2 distance (0.28--0.92) than to hostile (0.71--2.65) or
 desperate (0.78--2.81) prompts across all mid-layers. Yet all emotional
 categories separate clearly from the control despite the calm/outdoor
 vocabulary overlap. If vocabulary drove the separation, calm would
-cluster with outdoor. It does not---emotion drives the geometry, not
-lexical content. A semantically-intense non-emotional control would
+cluster with outdoor. It does not, which indicates emotion drives the
+geometry more than lexical content does. A semantically-intense non-emotional control would
 further strengthen this conclusion.
 
 The deep-layer spike is partially generic---all categorical content
@@ -819,8 +819,8 @@ geometry is strongest relative to non-emotional content (24.4$\times$
 above permutation baselines; control $6.4\times$, both medians over all 24 layers;
 ratio of the two medians $3.8\times$)---making this the candidate zone for inference-time
 monitoring and correction, pending an intervention test. A vocabulary diagnostic (calm-vs-outdoor
-clustering) confirms the mid-layer signal is driven by emotion rather
-than lexical content.
+clustering) indicates the mid-layer signal is driven by emotion more
+than by lexical content (Limitation~3).
 
 At output depth, separation increases for all categorical content.
 W\textsubscript{unembed} alignment tests rule out token-prediction
@@ -953,6 +953,9 @@ with valence (54--87$^\circ$), where the text called the axes
 near-orthogonal; the range starts $36^\circ$ short of $90^\circ$.
 The Discussion no longer says deep layers are dominated by output
 preparation, which Test~1 contradicts.
+The vocabulary diagnostic is said to indicate that emotion drives the
+geometry more than lexical content does (Limitation~3), where the text
+said it confirms that emotion, not lexical content, drives it.
 The closing reflection names the model as oracle-tiny, a Qwen2.5
 fine-tune, where it said a Qwen2. The notes above moved here from
 the Results, the Method and the Limitations. The opening reflection no
