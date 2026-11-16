@@ -163,8 +163,9 @@ direction (\Cref{sec:eccentricity}).
           at mid-depth. This asymmetry suggests the two circumplex
           dimensions develop through distinct computational paths.
     \item Identification of a mid-layer window (L8--20 in this model)
-          where emotion geometry is stable and measurable---the optimal
-          zone for inference-time monitoring and correction.
+          where emotion geometry is stable and measurable---the candidate
+          zone for inference-time monitoring and correction (no
+          intervention has been tested; Limitation~2).
 \end{enumerate}
 
 % ===================================================================
@@ -522,7 +523,7 @@ values) suggest the circumplex dimensions converge through distinct
 computational paths. At deep layers, valence and arousal Cohen's $d$
 values are nearly equal (L22: 0.83 vs 0.83).
 
-This finding connects to the mid-layer plateau: the optimal monitoring
+This finding connects to the mid-layer plateau: the candidate monitoring
 window (L8--20) coincides with the depth range where the model most
 actively equalizes its emotion axes toward circularity.
 
@@ -642,8 +643,8 @@ specific computational transition. A matched-depth SAE comparison
 The primary finding is that emotion produces a specific, stable geometric
 signal at mid-layers (L8--20 in this model) that substantially exceeds
 non-emotional categorical content. This window---approximately 33--83\%
-of model depth---is where emotional state is most reliably readable from
-the residual stream.
+of model depth---is where the emotion category of the prompt is most
+separable in the residual stream.
 
 \citet{jeong2026emotion} independently found emotion localization at
 approximately 50\% depth across nine models, consistent with our
@@ -652,9 +653,9 @@ extends as a stable plateau across many layers rather than peaking at a
 single depth, and that the signal is measurably stronger than
 non-emotional categorical content at these depths.
 
-The practical implication is clear: inference-time monitoring for
-emotional state should target mid-layers, where the geometric signal is
-stable and emotion-specific. Layer~0 carries no emotional signal, and at
+For inference-time monitoring of emotional content, this points to
+mid-layers, where the geometric signal is stable and emotion-specific;
+no monitor or intervention has been tested (Limitation~2). Layer~0 carries no emotional signal, and at
 deep layers the separation spike is partly generic to all categorical
 content (\Cref{sec:control}).
 
@@ -797,8 +798,8 @@ The mid-layer window where both axes are well-developed and the model
 most actively equalizes them coincides with the depth range where emotion
 geometry is strongest relative to non-emotional content (24.4$\times$
 above permutation baselines; control $6.4\times$, both medians over all 24 layers;
-ratio of the two medians $3.8\times$)---making this the optimal zone for inference-time
-monitoring and correction. A vocabulary diagnostic (calm-vs-outdoor
+ratio of the two medians $3.8\times$)---making this the candidate zone for inference-time
+monitoring and correction, pending an intervention test. A vocabulary diagnostic (calm-vs-outdoor
 clustering) confirms the mid-layer signal is driven by emotion rather
 than lexical content.
 
@@ -908,7 +909,12 @@ valence slightly dominates); and only layer~0 lacks an emotional signal
 (the Discussion said early layers do). The notes above moved here from
 the Results, the Method and the Limitations. The opening reflection no
 longer retells the reversal, which the closing reflection tells; in the
-academic edition both reflections are in an appendix.
+academic edition both reflections are in an appendix. The mid-layer
+window is now called the candidate zone for monitoring and correction,
+not the optimal one, since no intervention has been tested
+(Limitation~2), and the Discussion says what the window separates, the
+emotion category of the prompt, where it said emotional state is most
+reliably readable there.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
