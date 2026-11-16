@@ -39,7 +39,7 @@ Using the Jacobian lens (J-lens) on a Qwen3.5-27B Opus-distilled language model,
 
 Cross-model comparison with a full-attention Qwen3-8B reveals that mid-network ghosting is observed in both architectures, while late-layer workspace entry is architecture-dependent: full-attention models allow PC1 to partially surface (cosine up to 0.46), hybrid models maintain exclusion deeper into the network. This comparison is confounded by model scale (27B vs 8B) and training regimen (distill vs base). The ghost's secondary vocabulary differs between models --- metacognitive evaluation in the distill, code paths and factual reporting in the base --- correlating with training regimen, though a same-scale base model control has not been run.
 
-The model has a 31-layer workspace band simultaneously low-rank and verbalizable (L11--13, L15--17, L24--L48), where a prior study found zero such layers on the 9B base. We document 9 self-corrected claims. Full null methodology in the companion paper. Note: the J-lens used here was fitted on the base model, not the distill (see Limitation~1); all results should be interpreted with this mismatch in mind.
+The model has a 31-layer workspace band simultaneously low-rank and verbalizable (L11--13, L15--17, L24--L48), where a prior study on Qwen3.5-9B found no such layers with a next-token gate and a substantially smaller overlap with a future-window gate. We document 9 self-corrected claims. Full null methodology in the companion paper. Note: the J-lens used here was fitted on the base model, not the distill (see Limitation~1); all results should be interpreted with this mismatch in mind.
 \end{abstract}
 
 %% =========================================================================
@@ -58,7 +58,7 @@ Our approach: decompose the residual stream via PCA at each layer, then measure 
 
 \textbf{Comparison model:} Qwen3-8B. 36 layers, $d_{\text{model}} = 4096$. All 36 layers full attention. Same Qwen architecture family, no hybrid layers.
 
-\textbf{Lenses:} Neuronpedia pre-fitted J-lenses. 27B: 672 WikiText prompts on Qwen3.5-27B base (converged at $\delta = 0.002$). 8B: 461 WikiText prompts on Qwen3-8B. \textbf{Important caveat:} the 27B lens was fitted on the base model, not the Opus distill. Distillation changes activation geometry; all results should be interpreted as characterizing the distill's workspace through a base-fitted lens.
+\textbf{Lenses:} Neuronpedia pre-fitted J-lenses~\cite{neuronpedia2026}. 27B: 672 WikiText prompts on Qwen3.5-27B base (converged at $\delta = 0.002$). 8B: 461 WikiText prompts on Qwen3-8B. \textbf{Important caveat:} the 27B lens was fitted on the base model, not the Opus distill. Distillation changes activation geometry; all results should be interpreted as characterizing the distill's workspace through a base-fitted lens.
 
 %% =========================================================================
 \section{Method}
@@ -241,7 +241,7 @@ L57 & 0.712 (0.453) & someone, guilty, my, her, saying, seeing & Late recovery (
 \end{tabular}
 \end{table}
 
-Note: The L45 random baseline (0.291) indicates a geometrically permissive Jacobian at this layer --- 29\% of any random direction's content reaches the workspace. PC2's $2.3\times$ ratio is genuine but should be understood as significantly above an already-permissive floor, not as selective admission from a closed gate. The L53 gap (below random) means the trajectory from L45 to L57 is not continuous; L57 may represent a separate workspace regime.
+Note: The L45 random baseline (0.291) indicates a geometrically permissive Jacobian at this layer --- 29\% of any random direction's content reaches the workspace. PC2's $2.3\times$ ratio is measured against a single random draw, with no significance test (Limitation~5), and above an already-permissive floor; it should not be read as selective admission from a closed gate. The L53 gap (below random) means the trajectory from L45 to L57 is not continuous; L57 may represent a separate workspace regime.
 
 \textbf{Impersonal control (C5):} With zero first-person prompts, PC2 at L39 reads: ``angry, complaining, complained, Police, feeling, forgot, scared'' (top-7 by rank). At L45: ``injured, stabbed, ashamed, wife'' (top-4 by rank). Emotional entity content persists without self-reference.
 
@@ -286,27 +286,27 @@ Within the aligned L35--L45 range, PCs 3--5 carry: analytical formalism (PC3), p
 At ignition (L45), the workspace shows PC2 (emotional entity evaluation) above its random baseline while PCs 3--5 and 7--10 fall below their respective baselines. Whether this pattern reflects selective workspace routing or properties of the Jacobian at this specific layer cannot be determined without causal intervention (see \Cref{sec:active-filtering}).
 
 %% =========================================================================
-\section{Falsified Claims}
+\section{What the Controls Showed}
 %% =========================================================================
 
 \begin{table}[H]
 \centering
-\caption{Falsified and corrected claims.}
+\caption{Early readings and what the controls showed. None of the nine is a registered falsification; the last column gives each reading's status now.}
 \label{tab:falsified}
 \small
-\begin{tabular}{cp{3.3cm}p{5.5cm}p{2.8cm}}
+\begin{tabular}{cp{2.9cm}p{4.5cm}p{2.3cm}p{2.7cm}}
 \toprule
-\# & Initial claim & What killed/corrected it & Pattern \\
+\# & Initial reading & What the control showed & Pattern & Status \\
 \midrule
-1 & PC1 is a language/script identifier & Multilingual control: clusters by content (ratio $0.003\times$) & Scale artifact \\
-2 & PC2 is a ``self-reference axis'' & Impersonal control: emotional entities persist without ``I'' & Question-priming \\
-3 & PC6 killed by mean-pooled baseline & Position-specific shows $8.1\times$ random. Revised to inconclusive & Measurement dependence \\
-4 & PCs 3--6 show vocabulary ``progressions'' across full network & Cross-layer alignment: directions break outside L35--L45 & Unstable directions \\
-5 & PC5 labeled ``grief'' at L45 & L45 vocabulary is ``Scientists, [Chinese: \textit{scientists}]'' (grief was L39) & Layer-specific mislabeling \\
-6 & PC1 J-lens is empty (ellipsis only) & Structured secondary vocabulary at secondary probability levels & Dominant-signal masking \\
-7 & ``Sourdough at L1 = sensory processing'' & Tokenizer: token 82 = letter ``s'' & Tokenizer artifact \\
-8 & ``Patient at L21 = memory loading'' & Baseline: ``patient'' ranks similarly without memory & Question-priming \\
-9 & RAG context loads into workspace (0.5B) & Workspace set by question, not context & Scale artifact \\
+1 & PC1 is a language/script identifier & Multilingual control: clusters by content (ratio $0.003\times$) & Scale artifact & Not supported: C6 separates content (no significance test) \\
+2 & PC2 is a ``self-reference axis'' & Impersonal control: emotional entities persist without ``I'' & Question-priming & Revised: self is one entity among others \\
+3 & PC6 killed by mean-pooled baseline & Position-specific shows $8.1\times$ random. Revised to inconclusive & Measurement dependence & Inconclusive \\
+4 & PCs 3--6 show vocabulary ``progressions'' across full network & Cross-layer alignment: directions break outside L35--L45 & Unstable directions & Restricted to L35--L45 \\
+5 & PC5 labeled ``grief'' at L45 & L45 vocabulary is ``Scientists, [Chinese: \textit{scientists}]'' (grief was L39) & Layer-specific mislabeling & Relabelled \\
+6 & PC1 J-lens is empty (ellipsis only) & Structured secondary vocabulary at secondary probability levels & Dominant-signal masking & Revised; preliminary \\
+7 & ``Sourdough at L1 = sensory processing'' & Tokenizer: token 82 = letter ``s'' & Tokenizer artifact & Withdrawn \\
+8 & ``Patient at L21 = memory loading'' & Baseline: ``patient'' ranks similarly without memory & Question-priming & Not supported: set by the question \\
+9 & RAG context loads into workspace (0.5B) & Workspace set by question, not context & Scale artifact & Not supported: set by the question \\
 \bottomrule
 \end{tabular}
 \end{table}
