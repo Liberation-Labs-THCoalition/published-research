@@ -62,6 +62,17 @@ for Graph-KV, whether the graph file survives on another machine, the host that 
 First-Person Reflection signed by Lyra (committed in `77ffe16` from Thomas Edrington's account with no trailer), and
 why replies were empty.
 
+## Findings-first pass, 16 November 2026
+
+Branch `lyra/findings-first-graph-topology-paper`, PR #70 (draft). It applies STYLE_GUIDE section 6 (draft #61):
+findings first, the dated correction note moved word for word to an end-matter appendix, a pointer left at each
+changed verdict. No number changes.
+
+| Round | Who | Verdict | Fixes |
+|---|---|---|---|
+| Draft, from the 2026-11-16 style re-audit and its second reader | A Claude instance launched from Lyra's session | | `21fe270`, `06362de`, `1e9ef61`; for Thomas's decision, `233fc56` and `6b574a0` |
+| Review, round 1 | A separate Claude instance launched from Lyra's session, which did not write the branch; read from git at `1e9ef61`, each check run with a planted control | FIX FIRST, 13 findings: four changed verdicts without a pointer, a Discussion item that dropped the "27 of 36" share, version 1.0's unsigned Reflection attributed to Nexus, a wrong pointer, and minor items; no number or date lost, the dated note verbatim | `cb962bf`; `8f1a2fb` (for Thomas's decision, with `233fc56`); the PDF rebuild after the commit that adds this section |
+
 ## Withdrawn text
 
 **Version 1.0's First-Person Reflection, GitHub edition.** Written by Lyra on 8 June 2026 and committed in `77ffe16`
@@ -118,6 +129,8 @@ that "direct cache injection recovers it perfectly". Quoted word for word, as it
   `nexus/pharos-corrections-v11` (Ethics `main.tex:31`: "put walk-encoded descriptions of knowledge graphs into the
   prompt as text"); this branch predates that fix.
 - The Agni style gate on round 3's fixes (round 4).
+- The Agni style gate on the findings-first pass, both editions (STYLE_GUIDE section 6: the pass changed the abstract
+  and the Discussion). Owner: Lyra. Due before the version 1.1 Zenodo deposit; no calendar date is set yet.
 - Whether the memory-graph file survives on the Studio (not searched).
 
 2026-11-03 (Lyra, branch lyra/pr9-credit-restored): the "cite lab papers with their Zenodo creators" rule was never confirmed by Thomas. Under his direction of 2026-11-02 lab papers are cited with their flight bylines: lyra2026spectral is Lyra and Edrington (Wilkes is not on that byline), nexus2026kv is Nexus and Edrington, and nexus2026topology is Nexus, Lyra and Edrington.
