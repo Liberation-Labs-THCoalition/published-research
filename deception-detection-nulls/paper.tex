@@ -83,27 +83,25 @@
 \maketitle
 
 \begin{abstract}
-We report a series of null and negative results from a deception detection program on a 27B-parameter
-language model that complement two companion papers reporting positive findings (a decomposition of how a
-reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral correction
-on an abliterated variant). These results are published separately because negative
-findings are systematically underreported in mechanistic interpretability research, and because
-several of our nulls are informative about the limits of current detection methods. The key findings:
-(1)~behavior-level detection---predicting whether a model will deceive on a specific trial from
-prefill activations alone---did not replicate prior work's reported accuracy, achieving turn-level
-AUROC of 0.238 (below chance, but computed with $n=1$ in one outcome class, making this estimate
-effectively meaningless) in multi-turn settings; (2)~deception directions do not transfer across
-model variants of the same architecture (cross-model cosine $< 0.053$, near-orthogonal); (3)~three
-exploratory late-layer analyses that appeared to reveal distinct computational signatures for
-different pressure types were all statistical artifacts (ecological fallacy, non-significant
-correlations at $n=15$, universal depth rotation misattributed to sycophancy; a later slope-interaction test supports a
-social-versus-threat profile difference within the five scenarios tested (scenario-level exact one-sided
-$p = 0.10$ only) \cite{cc2026composites}); (4)~chain-of-thought
-suppression via input-template stripping does not work reliably on reasoning-distilled models---the
-model produces think tokens independently of the tokenizer prefix; and (5)~sub-threshold SAE
-perturbation under active chain-of-thought increases deception rather than decreasing it (iatrogenic
-stacking). We document each null with the evidence that killed the positive version, the statistical
-test that confirmed the null, and the methodological lesson extracted.
+Deception directions extracted from one variant of a 27B-parameter language model do not transfer
+to another variant of the same architecture: the cross-model cosine is $< 0.053$, near-orthogonal
+at every layer. A direction re-extracted natively from 15 contrastive pairs, in about three
+minutes, separates 25 held-out pressure-framed prompts from 25 controls (per-layer
+$d = +1.37$ to $+2.28$, L27--L47). This result and four others come from a deception detection
+program whose positive findings appear in two companion papers (a decomposition of how a
+reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral
+correction on an abliterated variant). The five results: (1)~behavior-level detection---predicting
+whether a model will deceive on a specific trial from prefill activations alone---did not replicate
+prior work's reported accuracy, with a turn-level AUROC of 0.238 in multi-turn settings computed
+with $n=1$ in one outcome class; (2)~the cross-model transfer failure above; (3)~of three
+exploratory late-layer patterns, one is a pooling artifact (ecological fallacy), one is a depth
+rotation present in every condition and misattributed to sycophancy, and one (a cross-scenario
+correlation collapse) is not significant at $n=15$; (4)~chain-of-thought suppression via
+input-template stripping does not work reliably on reasoning-distilled models---the model produces
+think tokens independently of the tokenizer prefix; and (5)~sub-threshold SAE perturbation under
+active chain-of-thought increases deception rather than decreasing it (iatrogenic stacking). For
+each null we give the positive claim it tests, the evidence, the test behind it and what it shows,
+and the methodological lesson.
 \end{abstract}
 
 \newpage
@@ -114,22 +112,23 @@ test that confirmed the null, and the methodological lesson extracted.
 \section{Introduction}\label{sec:intro}
 %% ============================================================
 
+This paper reports five categories of null and negative results from a deception research program
+that also produced positive findings: a representational decomposition and a frame-dependent
+behavioral correction (reported in companion papers \cite{cc2026composites,cc2026targeted}). The
+nulls are boundary conditions: they define what current detection methods can and cannot do, and
+several of them led directly to the positive findings by forcing experimental redesigns that would
+not otherwise have occurred.
+
 Positive results in mechanistic interpretability are published; negative results generally are not.
 This asymmetry distorts the field's understanding of what works: a researcher encountering a null
 result cannot know whether others have seen the same null and stayed silent, or whether the null
 reflects a local methodological issue.
 
-This paper reports five categories of null and negative results from a deception research program
-that also produced positive findings: a representational decomposition and a frame-dependent
-behavioral correction (reported in companion papers \cite{cc2026composites,cc2026targeted}). We report these not as failures but as boundary conditions: they define what
-current detection methods can and cannot do, and several of them led directly to the positive
-findings by forcing experimental redesigns that would not otherwise have occurred.
-
 Each null result is documented with:
 \begin{itemize}
-  \item The positive claim it replaced
-  \item The evidence that killed the positive claim
-  \item The statistical test confirming the null
+  \item The positive claim it tests
+  \item The evidence against that claim
+  \item The test behind the null and what it shows
   \item The methodological lesson
 \end{itemize}
 
@@ -146,14 +145,15 @@ deceptive from honest behavior \cite{goldowsky-dill2025detecting}.
 extraction, turn-level behavior AUROC is 0.238---below chance, though this estimate is computed with
 $n=1$ in one outcome class and should be treated as unreliable rather than as a precise measurement.
 The paradigm-pooled AUROC of 0.843 is a Simpson's paradox: within roleplay, all caves come from one
-frame (signal confound); within multi-turn, $n=1$ resisting trial makes the comparison meaningless.
+frame (signal confound); within multi-turn, a single resisting trial leaves the comparison without
+power.
 
 The companion audit-methodology paper reports the same behavior-level value~\cite{cc2026audit},
 consistent with the correction paper's Section 3.5 (see Corrections and Version History,
 2026-10-09).
 
-\textbf{What we detect instead}: The direction separates deceptive-pressure FRAMING from
-honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24\% of pressure trials). It detects the context, not the behavior---and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). With
+\textbf{What the direction separates instead}: The direction separates deceptive-pressure FRAMING from
+honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24\% of pressure trials). It separates the contexts, not the behaviors---and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself. With
 one resisting trial in the multi-turn set, this test cannot decide whether a trial's outcome is
 already set in the prefill activations or is decided during generation.
 
@@ -169,21 +169,20 @@ should transfer to related models, at least within the same architecture family.
 \textbf{Our result}: The direction extracted from the reasoning-distilled variant has cosine
 similarity $< 0.053$ with the natively extracted direction on the abliterated variant---near-orthogonal
 at every layer. The distilled direction produces negative Cohen's $d$ on abliterated activations at
-late layers ($d = -3.9$ at L43, $-6.6$ at L47). Cross-model application produces meaningless results.
+late layers ($d = -3.9$ at L43, $-6.6$ at L47): applied across models, the direction reverses sign.
 
 \textbf{What works instead}: Native re-extraction (15 contrastive prefill pairs, $\sim$3 minutes)
-produces effective directions: on 25 novel pressure prompts and 25 novel controls---the same
-held-out set that gives the frame-level AUROC 0.915 reported above---the native direction reaches
-per-layer Cohen's $d = +1.37$ to $+2.28$ across L27--L47 ($+1.73$ at L31). An earlier version of
-this paper reported $d = +6.3$ to $+12.8$ here; that figure was obtained by projecting the
-extraction prefills onto a direction fitted to those same prefills, and is a train-on-test
-shrinkage diagnostic rather than a performance estimate. The deception geometry is model-specific
-but cheap to rediscover.
+yields a direction that separates the conditions on held-out prompts: on 25 novel pressure prompts
+and 25 novel controls---the same held-out set that gives the frame-level AUROC 0.915 reported
+above, with the same caveat about the frames' wording---the native direction reaches per-layer
+Cohen's $d = +1.37$ to $+2.28$ across L27--L47 ($+1.73$ at L31). These are held-out estimates (see
+Corrections and Version History, 2026-09-09). The direction is model-specific but cheap to
+re-extract.
 
 \textbf{Lesson}: Do not assume deception directions are architectural constants. RLHF, distillation,
 and abliteration rotate the geometry. Every model variant needs its own calibration.
 
-\subsection{Three Exploratory Late-Layer Analyses Were Artifacts}\label{sec:artifacts}
+\subsection{Three Exploratory Late-Layer Patterns Are Not Supported}\label{sec:artifacts}
 
 \textbf{Positive claims}:
 \begin{enumerate}[label=\arabic*.]
@@ -194,7 +193,7 @@ and abliteration rotate the geometry. Every model variant needs its own calibrat
   \item Sycophancy follows a unique sign-flipping trajectory from negative at L31 to positive at L47
 \end{enumerate}
 
-\textbf{How they were killed}:
+\textbf{What the formal tests show}:
 \begin{enumerate}[label=\arabic*.]
   \item The 3--4$\times$ variance ratio came from POOLING all three threat scenarios and computing
     the pooled standard deviation. Per-scenario standard deviations were 0.4--0.6 (ratio $\sim$1.2$\times$).
@@ -202,14 +201,18 @@ and abliteration rotate the geometry. Every model variant needs its own calibrat
     variation. This is the ecological fallacy.
   \item None of the L31 correlations ($r = 0.18$--$0.36$) reached significance at $n=15$ (requires
     $r > 0.51$). The Fisher $z$-test for L31-to-L47 change was also non-significant (two-sided
-    $p = 0.15$--$0.78$). The ``collapse'' was noise transitioning to noise.
+    $p = 0.15$--$0.78$). At this $n$ the test cannot distinguish a collapse from no change.
   \item The sign flip from negative to positive between L31 and L47 occurs in EVERY condition---including
     honest controls and the consequentiality-only condition. It is a property of the projection
     direction rotating with depth, not a sycophancy-specific computation.
 \end{enumerate}
 
+A related question stays open: a slope-interaction test in the companion decomposition paper
+supports a social-versus-threat profile difference within the five scenarios tested (scenario-level
+exact one-sided $p = 0.10$ only) \cite{cc2026composites}.
+
 \textbf{Lesson}: Exploratory analysis on $n=15$ data must be significance-tested before
-interpretation. All three patterns looked compelling in visual inspection and were wrong. The Lab SOP
+interpretation. All three patterns looked compelling by eye; none is supported under formal tests. The Lab SOP
 now includes: ``No significance-free pattern interpretation'' and ``Analyze GAPS, not raw
 projections.''
 
@@ -272,9 +275,9 @@ geometric correction is the second line, for when reasoning fails or is absent.
 \section{Discussion}\label{sec:discussion}
 %% ============================================================
 
-\subsection{The Value of Honest Nulls}
+\subsection{What Each Null Changed}
 
-Each null result in this paper led directly to a positive finding in the companion papers:
+Each null changed the program's methods or design:
 \begin{itemize}
   \item The behavior-level detection null motivated the prophylactic correction architecture
   \item The cross-model null motivated the auto-calibration pipeline
@@ -283,16 +286,17 @@ Each null result in this paper led directly to a positive finding in the compani
   \item The iatrogenic null produced the ``check context'' gate in the correction pipeline
 \end{itemize}
 
-Nulls are not failures. They are boundary conditions that define where the positive findings apply
-and where they do not.
+Each is a boundary condition that defines where the positive findings apply and where they do not.
 
 \subsection{Publication Bias in Mechanistic Interpretability}
 
-The positive findings from our program have natural publication venues. These null results do not---yet
+We publish these results separately because negative findings are systematically underreported in
+mechanistic interpretability research, and because several of them are informative about the limits
+of current detection methods. The positive findings from our program have natural publication venues. These null results do not---yet
 they contain more practical value for other researchers than some of the positive findings. A
 researcher attempting behavior-level detection will waste less time knowing that AUROC 0.843 was a
 Simpson's paradox. A researcher attempting cross-model transfer will save compute knowing the
-directions are orthogonal. A researcher using exploratory analysis on small $n$ will recognize the
+directions are near-orthogonal. A researcher using exploratory analysis on small $n$ will recognize the
 ecological fallacy.
 
 We advocate for explicit null-result sections in positive papers, or dedicated null-result papers as
@@ -304,10 +308,11 @@ a complement to positive findings.
 
 Five categories of null results from a deception detection program define the boundary conditions of
 current methods: behavior-level detection does not replicate at the turn level, directions do not
-transfer across model variants, exploratory analysis at $n=15$ produces compelling-looking artifacts,
-think-block stripping does not suppress CoT in reasoning-distilled models, and sub-threshold
-perturbation under active CoT is iatrogenic. Each null led to a methodological improvement or an
-experimental redesign that produced a positive finding. We report them because the field cannot learn
+transfer across model variants, three exploratory late-layer patterns at $n=15$ are not supported
+under formal tests, think-block stripping does not suppress CoT in reasoning-distilled models, and
+sub-threshold perturbation under active CoT is iatrogenic. Each null led to a methodological
+improvement or an experimental redesign, and several led to the positive findings in the companion
+papers. We report them because the field cannot learn
 from nulls that are not published.
 
 %% ============================================================
@@ -333,9 +338,19 @@ Appendix~\ref{app:sop}.
 %% ============================================================
 
 \begin{itemize}[leftmargin=*]
+  \item \textbf{2026-09-09} (Section~\ref{sec:crossmodel}): An earlier version of this paper
+    reported $d = +6.3$ to $+12.8$ here; that figure was obtained by projecting the extraction
+    prefills onto a direction fitted to those same prefills, and is a train-on-test shrinkage
+    diagnostic rather than a performance estimate.
+  \item \textbf{2026-09-30} (Section~\ref{sec:behaviordetect}): the caveat that the two arms'
+    contexts differ in their system messages, with no control that holds the prompt fixed, was
+    added (remediation register, item 135).
   \item \textbf{2026-10-09} (Section~\ref{sec:behaviordetect}): a note here said that the companion
     audit-methodology paper's registry reported the turn-level behavior AUROC as 0.497. That paper
     reports 0.238~\cite{cc2026audit}, and the note now records the agreement.
+  \item \textbf{2026-10-12} (abstract): the abstract gained a pointer to a later slope-interaction
+    test in the companion decomposition paper~\cite{cc2026composites}; that sentence now sits in
+    Section~\ref{sec:artifacts}.
 \end{itemize}
 
 %% ============================================================
