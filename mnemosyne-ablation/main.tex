@@ -72,7 +72,7 @@ Ablation procedure: additive. We begin with a vanilla (no memory) baseline and a
 
 \begin{description}
   \item[Base:] Qwen3-30B-A3B (3B active parameters, 30B total, Mixture-of-Experts architecture)
-  \item[Quantization:] Q4\_K\_M via MLX
+  \item[Quantization:] with MLX on Apple Silicon (Starship); the quantization was not recorded.
   \item[Inference:] MLX on Apple Silicon
 \end{description}
 
@@ -220,6 +220,8 @@ This report was first written in June 2026. The body states each current result 
 \paragraph{2026-11-16.} Four statements are corrected against Table~1 and the report's own test. Finding~1 said SIRA alone ``closes 33\% of the gap between vanilla and theoretical ceiling''; $+0.053$ is 33\% of the 0.160 baseline, not of the gap to a perfect score, and the finding now gives the change itself (0.160 to 0.213). Finding~3 said significance scoring ``produces the same result as not having it on both probe sizes''; on the small probe it moves EM from 0.700 to 0.650. H-MEM's change on the large probe (0.200 to 0.160, Fisher $p=0.45$) was written as a regression (``can hurt'', ``actively misranks older documents'', ``too aggressive''); it is a null, now reported as no detectable change, with the proposed mechanism marked untested. Section~5.3 said significance scoring ``probably works when correctly tuned''; tuned keyword lists were not tested, and the sentence now says so. The Markdown draft \texttt{publication\_draft.md}, which still carried the earlier ``40\%'' figure for Finding~4, is removed; \texttt{main.tex} is the only source of each edition.
 
 \paragraph{2026-11-16: note for reviewers.} The note no longer says the report ``has been through five rounds of adversarial audit (Agni gate + Dwayne/Kavi audit cycle)''; that sentence described our own review process. The repository history records two of the rounds: a Round~2 fix to this report's Markdown draft on 2026-07-17 (commit \texttt{8fab7a5}), and the Round~5 sweep on 2026-07-28 (commit \texttt{9c8bbd3}), which replaced ``has not yet completed the full Agni gate + Dwayne/Kavi audit cycle'' with the five-rounds sentence. No per-round audit report for this paper was found.
+
+\paragraph{2026-11-16: quantization.} Version~1.0's ``Q4\_K\_M'' was wrong, because it is a llama.cpp format MLX doesn't use. Version~1.0 is the June edition, whose Model section gave the quantization as ``Q4\_K\_M via MLX''. That line now reads: with MLX on Apple Silicon (Starship); the quantization was not recorded.
 
 \begin{thebibliography}{9}
 
