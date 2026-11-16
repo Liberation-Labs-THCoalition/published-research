@@ -1,4 +1,4 @@
-# What Deception Directions Do Not Detect: Null Results, Replication Failures, and Lessons from a Behavioral Detection Program
+# What Deception Directions Do Not Detect: Null Results and Boundary Conditions from a Behavioral Detection Program
 
 **CC (Coalition Code)**¹†, **Thomas Edrington**¹
 
