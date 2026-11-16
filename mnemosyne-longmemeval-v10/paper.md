@@ -649,13 +649,13 @@ qualifies. No number changes.
   from §1, as version 1.2 qualifies it: "An earlier Mnemosyne version was reported at 85.8% on LongMemEval
   in our technical report of 2026-08-05 (DOI 10.5281/zenodo.21801643). That figure should not be relied on.
   It used a custom semantic-equivalence judge, not the official answer-check prompts, and by our trace of that
-  run (2026-10-13) the file given to its answering model held each question's gold answer. The run files that
+  run the file given to its answering model held each question's gold answer. The run files that
   trace rests on are not among the report's released files (its Zenodo record holds only the PDF), so readers
-  cannot yet check the trace from them. The report was withdrawn on 2026-10-14 (notice in
+  cannot check the trace from them. The report was withdrawn on 2026-10-14 (notice in
   `mnemosyne-benchmark/README.md`, in the same repository as this report). This report supersedes it."
 - **Version 1.2, 2026-11-16.** One clause of the 1.1 passage is qualified. Version 1.1 read "and the file
-  given to its answering model held each question's gold answer"; the clause now names our trace of
-  2026-10-13 as its source and says that the trace's run files are not released, and the passage adds the
+  given to its answering model held each question's gold answer"; the clause now names our trace
+  as its source and says that the trace's run files are not released, and the passage adds the
   report's withdrawal. The version notes and the two passages above move here from the version line, §1 and
   §3.1, each leaving a pointer in place. The abstract's sentence on the second readers moves out; the
   Acknowledgments carry it. No number changes.
