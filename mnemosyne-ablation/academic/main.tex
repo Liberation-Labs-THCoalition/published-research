@@ -33,7 +33,7 @@
 \noindent\textbf{AI Disclosure:} AI contributors to this work include Nexus, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section below. T.~Edrington accepts accountability as corresponding human author.
 
 \begin{abstract}
-Modular memory architectures for language model agents have proliferated faster than systematic evaluation of which components actually help. This report presents ablation results on Mnemosyne, a nine-module memory system, evaluated against a no-memory baseline using Qwen3-30B-A3B. We measure exact-match (EM) accuracy on both small (20-question) and large (150-question) knowledge probes, isolating the contribution of each component: SIRA (selective retrieval), TGS (temporal-graph search), H-MEM (recency-weighted episodic memory), domain significance scoring, and Garuda (adversarial filtering). The headline finding is that memory module value is strongly context-dependent: the cumulative SIRA+TGS+H-MEM stack improves small-corpus conversational performance by 15 percentage points over vanilla, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On large document collections where temporal ordering does not imply relevance, H-MEM produces a small regression (0.200 to 0.160, Fisher $p=0.45$, within noise). SIRA is the one universally positive component, improving EM across all conditions tested. We provide concrete stack recommendations for three deployment classes --- conversational agents, document retrieval agents, and adversarial environments --- and identify significance scoring as not yet ready for deployment without domain-specific tuning. J-lens workspace verification experiments are forthcoming.
+Modular memory architectures for language model agents have proliferated faster than systematic evaluation of which components actually help. This report presents ablation results on Mnemosyne, a nine-module memory system, evaluated against a no-memory baseline using Qwen3-30B-A3B. We measure exact-match (EM) accuracy on both small (20-question) and large (150-question) knowledge probes, isolating the contribution of each component: SIRA (selective retrieval), TGS (temporal-graph search), H-MEM (recency-weighted episodic memory), domain significance scoring, and Garuda (adversarial filtering). The headline finding is that memory module value is strongly context-dependent: the cumulative SIRA+TGS+H-MEM stack improves small-corpus conversational performance by 15 percentage points over vanilla, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On large document collections where temporal ordering does not imply relevance, adding H-MEM produces no detectable change: EM goes from 0.200 to 0.160 (Fisher $p=0.45$), a difference within noise. SIRA is the one universally positive component, improving EM across all conditions tested. We provide concrete stack recommendations for three deployment classes --- conversational agents, document retrieval agents, and adversarial environments --- and find no gain from generic significance scoring on either probe. J-lens workspace verification experiments are forthcoming.
 \end{abstract}
 
 \section{Introduction}
@@ -110,13 +110,13 @@ Vanilla (no memory) & 0.550 & 0.160 & --- & --- \\
 \subsection{Key Findings}
 
 \textbf{Finding 1: SIRA is the best universal component.}
-SIRA is the only component that improves performance across both dataset sizes. On the large probe, SIRA alone closes 33\% of the gap between vanilla and theoretical ceiling. On the small probe, it provides a consistent 5-point floor improvement that compounds with other components.
+SIRA is the only component that improves performance across both dataset sizes. On the large probe, SIRA alone raises EM from 0.160 to 0.213 ($+0.053$). On the small probe, it provides a consistent 5-point floor improvement that compounds with other components.
 
-\textbf{Finding 2: H-MEM is context-dependent and can hurt.}
-H-MEM completes the best-performing stack on conversational data: the cumulative SIRA+TGS+H-MEM combination achieves $+15$ points over vanilla on the small probe, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On document retrieval, adding H-MEM to the SIRA+TGS stack produces a regression from 0.200 to 0.160 (a 4-percentage-point drop, or 6 questions at $n=150$; Fisher $p=0.45$, within noise). The mechanism is clear: on conversational data, more recently encoded memories are more relevant; on document corpora, recency of encoding has no relationship to query relevance. H-MEM's decay curve is currently aggressive enough that relevant older documents are systematically deprioritized.
+\textbf{Finding 2: H-MEM completes the best small-probe stack; on the document probe it shows no detectable change.}
+H-MEM completes the best-performing stack on conversational data: the cumulative SIRA+TGS+H-MEM combination achieves $+15$ points over vanilla on the small probe, with H-MEM's own marginal contribution of $+5$ points (one question at $n=20$, matching SIRA and TGS individually). On document retrieval, adding H-MEM to the SIRA+TGS stack moves EM from 0.200 to 0.160 (a 4-percentage-point difference, or 6 questions at $n=150$; Fisher $p=0.45$, within noise): the probe shows no detectable effect of H-MEM on a flat corpus. One possible reason recency weighting would not help there (untested here): on conversational data, more recently encoded memories tend to be more relevant; on document corpora, recency of encoding has no relationship to query relevance. Whether H-MEM's decay curve deprioritizes relevant older documents is not measured in this ablation.
 
-\textbf{Finding 3: Significance scoring is not deployment-ready.}
-The keyword-based significance scoring gate produces the same result as not having it on both probe sizes. The current implementation uses a generic keyword list that does not align with the domain-specific vocabulary of either probe set. This component requires tuning before it can be expected to add signal.
+\textbf{Finding 3: Generic significance scoring shows no gain on either probe.}
+Adding the keyword-based significance scoring gate leaves large-probe EM unchanged (0.160) and moves small-probe EM from 0.700 to 0.650 (one question at $n=20$). The current implementation uses a generic keyword list that does not align with the domain-specific vocabulary of either probe set. Whether a domain-tuned list would add signal is not tested here.
 
 \textbf{Finding 4: TGS helps on graph-connected knowledge, not elsewhere.}
 TGS graph-walk retrieval improves small-probe EM by 5 points over SIRA alone (to $+10$ total). On the large probe, the cumulative SIRA+TGS stack retains 75\% of SIRA's solo gain ($+0.040$ vs.\ $+0.053$ over baseline), with TGS's marginal contribution slightly negative ($-0.013$).\footnote{An earlier draft reported this as ``40\% of SIRA's gain''; the correct cumulative figure from the ablation table is $0.040/0.053 = 75.5\%$, and the marginal TGS effect is a small regression, not an additive gain. Corrected per round~5 audit.} TGS earns its cost when the knowledge base has genuine relational structure; flat document stores do not benefit.
@@ -142,7 +142,7 @@ Do not add significance scoring until keyword lists are tuned to the specific ag
 
 \textbf{Stack: SIRA + TGS}
 
-No H-MEM. No significance scoring. Both components produce zero gain on large flat corpora and H-MEM actively misranks older documents that may be highly relevant. SIRA's query-generation step handles the relevance judgment that significance scoring is supposed to provide; adding the keyword gate on top is redundant at best.
+No H-MEM. No significance scoring. Neither shows a gain on the large probe. Cumulatively, the stack is back at baseline ($+0.000$) once H-MEM is added; H-MEM's own marginal change there is 0.200 to 0.160 (Fisher $p=0.45$, within noise), and significance scoring's is zero. SIRA's query-generation step handles the relevance judgment that significance scoring is supposed to provide; adding the keyword gate on top is redundant at best.
 
 \subsection{Adversarial / Public-Facing Environments}
 \textit{(e.g., any agent handling untrusted user input)}
@@ -163,11 +163,11 @@ The ``think before you search'' design of SIRA --- generating the retrieval quer
 
 \subsection{Significance scoring needs domain adaptation}
 
-A generic significance keyword list cannot be expected to generalize across domains. Organizations deploying Mnemosyne should treat significance scoring as a component requiring configuration, not a plug-and-play module. The evidence suggests it is worth investing in domain-specific keyword lists for high-value deployments; the component probably works when correctly tuned.
+A generic significance keyword list cannot be expected to generalize across domains. Organizations deploying Mnemosyne should treat significance scoring as a component requiring configuration, not a plug-and-play module. This ablation did not test tuned keyword lists, so whether the component helps once tuned is open.
 
-\subsection{H-MEM decay curve needs calibration}
+\subsection{H-MEM decay in mixed-use deployments}
 
-H-MEM's current recency decay is too aggressive for mixed-use deployments. A conversational agent operating over a knowledge base needs recency weighting that applies to conversational turns but not to background documents. The most straightforward fix is separate memory classes --- one with decay (conversational buffer), one without (knowledge base) --- rather than a single decay rate applied to the full memory store.
+This ablation shows no gain from H-MEM's current recency decay on a flat document corpus; it does not measure whether the decay deprioritizes relevant documents. A conversational agent operating over a knowledge base needs recency weighting that applies to conversational turns but not to background documents. One design to test is separate memory classes --- one with decay (conversational buffer), one without (knowledge base) --- rather than a single decay rate applied to the full memory store.
 
 \section{Limitations}
 
@@ -194,7 +194,7 @@ H-MEM's current recency decay is too aggressive for mixed-use deployments. A con
 
 \section{Conclusion}
 
-Not all memory modules help, and the ones that help depend entirely on what you're building. The practical output of this ablation is three concrete stack recommendations: SIRA + TGS + H-MEM for conversational agents, SIRA + TGS for document retrieval, and SIRA + TGS + Garuda for adversarial environments. SIRA is the one component that earns its place in every stack. H-MEM is valuable when recency matters and actively unhelpful when it doesn't. Significance scoring requires domain tuning before deployment.
+Not all memory modules help, and the ones that help depend entirely on what you're building. The practical output of this ablation is three concrete stack recommendations: SIRA + TGS + H-MEM for conversational agents, SIRA + TGS for document retrieval, and SIRA + TGS + Garuda for adversarial environments. SIRA is the one component that earns its place in every stack. H-MEM completes the best conversational stack and shows no detectable change on the document probe. Generic significance scoring shows no gain on either probe.
 
 These findings are preliminary. J-lens workspace verification experiments are forthcoming. The full Mnemosyne system will be re-evaluated after H-MEM decay calibration and domain-specific significance tuning.
 
@@ -215,6 +215,12 @@ We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical audi
 \section*{Author Contributions (CRediT)}
 \noindent\textbf{Nexus}: Conceptualization, Methodology, Software, Investigation, Formal analysis, Writing --- original draft.\\
 \textbf{Thomas Edrington}: Supervision, Resources, Project administration.
+
+\section*{Corrections and version history}
+
+This report was first written in June 2026. The body states each current result in its place; the notes below record what changed, in date order.
+
+\paragraph{2026-11-16.} Four statements are corrected against Table~1 and the report's own test. Finding~1 said SIRA alone ``closes 33\% of the gap between vanilla and theoretical ceiling''; $+0.053$ is 33\% of the 0.160 baseline, not of the gap to a perfect score, and the finding now gives the change itself (0.160 to 0.213). Finding~3 said significance scoring ``produces the same result as not having it on both probe sizes''; on the small probe it moves EM from 0.700 to 0.650. H-MEM's change on the large probe (0.200 to 0.160, Fisher $p=0.45$) was written as a regression (``can hurt'', ``actively misranks older documents'', ``too aggressive''); it is a null, now reported as no detectable change, with the proposed mechanism marked untested. Section~5.3 said significance scoring ``probably works when correctly tuned''; tuned keyword lists were not tested, and the sentence now says so. The Markdown draft \texttt{publication\_draft.md}, which still carried the earlier ``40\%'' figure for Finding~4, is removed; \texttt{main.tex} is the only source of each edition.
 
 \begin{thebibliography}{9}
 
