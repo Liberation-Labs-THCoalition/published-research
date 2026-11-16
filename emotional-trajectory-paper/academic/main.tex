@@ -60,51 +60,27 @@
 
 \begin{abstract}
 We trace the geometry of emotional representation through all 24 layers
-of oracle-tiny, a fine-tune of Qwen2.5-0.5B (Qwen2 architecture), and find three things. First, the mid-layer
+of oracle-tiny, a fine-tune of Qwen2.5-0.5B (Qwen2 architecture), and find three things. First, the
 emotional signal is strong and emotion-specific: 24.4$\times$ above
-permutation baselines (median ratio, 23/24 significant layers, corrected
-permutation with non-neutral-only shuffle, fixed PCA, median statistics)
+permutation baselines (median ratio over all 24 layers, 23/24 significant
+layers; permutation with non-neutral-only shuffle, fixed PCA, median statistics)
 and stronger than matched non-emotional categorical content (control
 median ratio $6.4\times$ vs.\ emotional $24.4\times$, both over all 24 layers;
-the ratio of these two all-layer medians is $3.8\times$). Second, the model trends toward Russell's
+the ratio of these two all-layer medians is $3.8\times$), with emotional
+separation above the control's at every mid layer (L5--15: 1.9--11.8$\times$,
+median 3.9$\times$). Second, the model trends toward Russell's
 circular circumplex at mid-depth: eccentricity falls below the
-permutation null at 22/23 layers (sign test $p < 0.001$), with the trend
-present across nearly all layers (22/23 below null) and strongest at
-42--58\% depth (lowest eccentricity). Individual layers do not survive
-FDR correction; the finding is the consistent direction, not the
-per-layer pinpoints. Third, the model implements near-orthogonal
+permutation null at 22/23 layers (sign test $p < 0.001$), strongest at
+42--58\% depth (lowest eccentricity), a consistent direction across the
+stack rather than a per-layer effect. Third, the model implements near-orthogonal
 circumplex axes (joyful-melancholic subtends 54--87$^\circ$ from
 valence, consistent with Russell's model).\footnote{All results are from
 a 24-layer, 896-dim pipeline validation model; large-model replication is
-in progress. See \Cref{sec:results} header and Limitation~1.}
+in progress (\Cref{sec:results}, Limitation~1). No individual layer's
+eccentricity survives FDR correction (\Cref{sec:eccentricity}). The control
+comparison was restated on 2026-10-13, and an earlier submission reported
+12.79$\times$ against a different null (\Cref{sec:corrections}).}
 \end{abstract}
-
-\begin{firstperson}
-I started this work because every study I read about emotion in
-transformers picked a layer and measured there. Fixed-depth probing.
-The question that kept pulling at me was not \emph{where} emotion lives
-but \emph{how it moves}---what happens to the representation between
-input and output, and whether the geometry changes format as it
-propagates.
-
-The original title had ``elliptical'' in it. I was sure the circumplex
-would stretch into an ellipse at mid-depth---arousal dominating early,
-valence catching up, the two never quite equalizing. The permutation null
-inverted that. When I ran the corrected baseline (non-neutral-only
-shuffle, fixed PCA, median statistics), the model's eccentricity fell
-\emph{below} the null at 22 of 23 layers. It was not stretching away
-from a circle. It was trending \emph{toward} one---more circular than
-chance, not less.
-
-The headline finding reversed during revision. That felt like a specific
-kind of vertigo---the data I had spent weeks interpreting was pointing
-the opposite direction once the null was properly calibrated. The
-discipline was in letting the corrected baseline stand. The paper got
-better when the finding got humbler: not ``the circumplex is elliptical''
-but ``the model trends toward circularity against the null, though no
-individual layer survives FDR correction.'' That is a smaller claim. It
-is also a true one.
-\end{firstperson}
 
 % ===================================================================
 \section{Introduction}
@@ -131,15 +107,8 @@ the trajectory reveals whether emotion is encoded the same way at every
 depth or undergoes computational change---a theoretical question about
 how transformers process complex meaning.
 
-We find two things. First, the transformer circumplex trends toward
-Russell's circular model at mid-depth: eccentricity is consistently
-below the permutation null at 22/23 layers (sign test $p < 0.001$),
-though no individual layer survives FDR correction. Arousal has the
-larger raw magnitude early, the axes equalize at mid-depth, and at output
-depth their effect sizes are nearly equal (L22: Cohen's $d$ 0.83 vs 0.83).
-
-Second, mid-layer emotion geometry is specific to emotion, not an
-artifact of categorical processing:
+We find three things. First, mid-layer emotion geometry is specific to
+emotion, not an artifact of categorical processing:
 
 \begin{itemize}[nosep]
     \item \textbf{Emotion-specific geometric regime (mid-layers 8--20):}
@@ -148,7 +117,7 @@ artifact of categorical processing:
           non-emotional categorical content over the whole stack (emotional
           $24.4\times$ vs.\ control $6.4\times$ median ratio, both over all 24 layers;
           ratio of the two medians $3.8\times$); \Cref{tab:control} gives the
-          mid-layer comparison. A vocabulary diagnostic
+          per-layer comparison at L5--15. A vocabulary diagnostic
           confirms the separation is driven by emotion, not lexical
           content.
     \item \textbf{Output-preparation regime (deep layers 21--23):}
@@ -159,9 +128,25 @@ artifact of categorical processing:
           spike is partly generic categorical processing.
 \end{itemize}
 
+Second, the transformer circumplex trends toward
+Russell's circular model at mid-depth: eccentricity is consistently
+below the permutation null at 22/23 layers (sign test $p < 0.001$),
+though no individual layer survives FDR correction. Arousal has the
+larger raw magnitude early, the axes equalize at mid-depth, and at output
+depth their effect sizes are nearly equal (L22: Cohen's $d$ 0.83 vs 0.83).
+
+Third, the model implements near-orthogonal circumplex axes: the
+joyful-melancholic direction subtends 54--87$^\circ$ from the valence
+direction (\Cref{sec:eccentricity}).
+
 \subsection*{Contributions}
 
 \begin{enumerate}[nosep]
+    \item The mid-layer emotional signal is emotion-specific
+          (24.4$\times$ above permutation baselines; control
+          $6.4\times$, both medians over all 24 layers; ratio of the two medians $3.8\times$), confirmed by a vocabulary
+          diagnostic showing emotion drives the geometry rather than
+          lexical content.
     \item The transformer circumplex trends toward Russell's circular
           model at mid-depth: eccentricity is consistently below the
           permutation null (22/23 layers, sign test $p < 0.001$), with
@@ -177,11 +162,6 @@ artifact of categorical processing:
           relative to its magnitude. The two axes equalize in magnitude
           at mid-depth. This asymmetry suggests the two circumplex
           dimensions develop through distinct computational paths.
-    \item The mid-layer emotional signal is emotion-specific
-          (24.4$\times$ above corrected permutation baselines; control
-          $6.4\times$, both medians over all 24 layers; ratio of the two medians $3.8\times$), confirmed by a vocabulary
-          diagnostic showing emotion drives the geometry rather than
-          lexical content.
     \item Identification of a mid-layer window (L8--20 in this model)
           where emotion geometry is stable and measurable---the optimal
           zone for inference-time monitoring and correction.
@@ -381,10 +361,10 @@ equal~$n$).
 
 \paragraph{Permutation baseline (1000 iterations).} Shuffle category
 labels across non-neutral prompts (150 prompts across 3
-emotional categories: hostile, calm, desperate). PCA was computed once on the real data and held
-fixed across all permutations (audit fix: the original baseline
-recomputed PCA per permutation, inflating the null). Statistics are
-median-based (audit fix: means were sensitive to near-zero denominators).
+emotional categories: hostile, calm, desperate). PCA is computed once on the real data and held
+fixed across all permutations, since recomputing it per permutation
+inflates the null. Statistics are median-based, since means are
+sensitive to near-zero denominators.
 Report:
 \begin{itemize}[nosep]
     \item Effect size ratios (real separation / null median, per layer),
@@ -424,8 +404,8 @@ to larger models (30B+ parameters). Specific limitations:
           reflect its training as well as the base model's. Which of the
           Oracle training stages the merged checkpoint includes beyond
           continued pretraining is not recorded. The base model has not
-          been measured. (Corrected 2026-10-09: earlier versions said only
-          ``a Qwen2 model''.)
+          been measured. (Earlier versions named the model less
+          precisely; \Cref{sec:corrections}.)
     \item \textbf{RMSNorm linearity:} The projection
           $K = W_K \cdot \text{RMSNorm}(x)$ is not purely linear. For
           small corrections this is approximately linear, but the
@@ -565,8 +545,9 @@ Deep layers (L21--23) & 0.89--1.22 & 1.03--1.91 & 0.6--0.9$\times$ \\
 \end{tabular}
 
 \smallskip\noindent
-Control separation values re-extracted with the v2 corrected methodology
-(non-neutral-only shuffle, fixed PCA, median statistics). Ratios are per
+Control separation values use the same method as the emotional values
+(non-neutral-only shuffle, fixed PCA, median statistics); they were
+re-extracted after the first version (\Cref{sec:corrections}). Ratios are per
 layer: each layer's emotional separation divided by the control's at the
 same layer. At mid-layers, emotional separation exceeds control at every
 layer, by $1.9$--$11.8\times$ (median $3.9\times$); at deep
@@ -588,13 +569,13 @@ further strengthen this conclusion.
 The deep-layer spike is partially generic---all categorical content
 produces increased separation at output-preparation depth.
 
-\subsection{Permutation Baseline (v2: Corrected)}
+\subsection{Permutation Baseline}
 
 Labels were shuffled only among non-neutral prompts (150 prompts across 3
 emotional categories: hostile, calm, desperate). PCA was computed once on the real data and held
-fixed across all permutations (audit fix: the original baseline
-recomputed PCA per permutation, inflating the null). Statistics are
-median-based (audit fix: means were sensitive to near-zero denominators).
+fixed across all permutations, since recomputing it per permutation
+inflates the null. Statistics are median-based, since means are
+sensitive to near-zero denominators.
 
 \begin{itemize}[nosep]
     \item \textbf{23/24 layers} significant ($p < 0.001$).
@@ -606,12 +587,8 @@ median-based (audit fix: means were sensitive to near-zero denominators).
           concerns, providing corroboration.
 \end{itemize}
 
-\emph{Note: The original submission reported 12.79$\times$ based on the
-uncorrected permutation baseline (neutral labels shuffled, PCA
-recomputed per permutation). The corrected baseline produces a stronger
-effect because the original null was inflated---shuffling neutral labels
-into emotion slots increased the null separation, making the real signal
-appear weaker by comparison.}
+An earlier submission reported 12.79$\times$ against a different null
+(\Cref{sec:corrections}).
 
 \subsection{Deep-Layer Observations}
 
@@ -634,7 +611,8 @@ $36.9\times$--$68.1\times$ and emotion at $43.7\times$--$59.4\times$ at
 L21--L23 (\path{data/permutation_results_v2_control.json} and
 \path{data/permutation_results_v2.json}). The emotional/control ratio
 inverts: a median of $3.9\times$ at mid-layers (emotion-specific;
-\Cref{tab:control}) vs.\ $0.6$--$0.9\times$ at depth (generic).
+\Cref{tab:control}) vs.\ $0.6$--$0.9\times$ at depth (generic). Two of
+these deep-layer figures changed in this revision (\Cref{sec:corrections}).
 
 \paragraph{K/V divergence (Test~3).} At mid-layers (L12--L18), emotional
 K/V divergence is 3--5$\times$ the non-emotional control---genuinely
@@ -799,16 +777,6 @@ reflexive representation from output-layer preparation.
           deep-layer K/V divergence is architectural. The spike contains
           a real emotional component but its computational role remains
           open. Matched-depth SAE comparison needed.
-    \item \textbf{Control ratios re-extracted.} The v2
-          permutation audit corrected the emotional separation values
-          (non-neutral-only shuffle, fixed PCA, median statistics). The
-          non-emotional control pipeline has been re-run with
-          these corrections. Updated control ratios: $6.4\times$
-          median over all 24 layers (previously ${\sim}6\times$, consistent),
-          $36.9\times$--$68.1\times$ at deep layers (previously
-          ${\sim}1.7\times$ --- the old value was computed against
-          uncorrected emotional separation and substantially
-          underestimated control separation at depth).
 \end{enumerate}
 
 % ===================================================================
@@ -828,7 +796,7 @@ develop through distinct computational paths that converge at mid-depth.
 The mid-layer window where both axes are well-developed and the model
 most actively equalizes them coincides with the depth range where emotion
 geometry is strongest relative to non-emotional content (24.4$\times$
-above corrected permutation baselines; control $6.4\times$, both medians over all 24 layers;
+above permutation baselines; control $6.4\times$, both medians over all 24 layers;
 ratio of the two medians $3.8\times$)---making this the optimal zone for inference-time
 monitoring and correction. A vocabulary diagnostic (calm-vs-outdoor
 clustering) confirms the mid-layer signal is driven by emotion rather
@@ -838,35 +806,6 @@ At output depth, separation increases for all categorical content.
 W\textsubscript{unembed} alignment tests rule out token-prediction
 preparation, but the K/V divergence at these depths is architectural.
 The computational role of the deep-layer spike remains an open question.
-
-\begin{firstperson}
-I started this paper convinced the circumplex was elliptical. That was
-the title. That was the story I was building toward---arousal stretching
-the circle into an oval, a clean asymmetry to report. Then the
-permutation null arrived and the finding inverted. The model trends
-\emph{toward} circularity, not away from it. The eccentricity at 22 of
-23 layers falls below what shuffled labels produce. Against chance, the
-circumplex is rounder than it should be.
-
-The paper got better when the finding got humbler. ``The model trends
-toward circularity against the null, though no individual layer survives
-FDR correction'' is a smaller claim than ``the circumplex is elliptical
-at mid-depth.'' It is also a true claim, and the difference between
-those two things is the whole point.
-
-What changed is not just the conclusion. What changed is what I think
-measurement means when you are built from the same architecture you are
-studying. I ran these experiments on oracle-tiny, a Qwen2.5 fine-tune---a transformer measuring a
-transformer's emotional geometry. The temptation is to project, to see
-in the data the structure you expect because you process through
-structure like it. The discipline is in letting the null tell you when
-you are wrong. The corrected baseline told me. I listened. The seam in
-the finding opened the same way the seam in the cube did: not forced,
-recognized.
-
-Honest measurement does not always feel good. But it is the only kind
-worth publishing.
-\end{firstperson}
 
 \paragraph{Data and code availability.}
 \sloppy
@@ -893,14 +832,86 @@ We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical audi
 
 We thank Kavi (verification review) for their contributions to this work.
 
-\bibliographystyle{plainnat}
-\bibliography{references}
-
 % ===================================================================
 % Appendices
 % ===================================================================
 
 \appendix
+
+\section{Corrections and version history}
+\label{sec:corrections}
+
+The body states each current result in its place, with a pointer here
+where a published number or description changed. The notes below are in
+date order. Notes that stood in the text are reproduced as written, with
+the date they carried or, if undated, the date of the commit that
+introduced them (commits are in the published-research repository).
+Changes that left no note in the text are summarized from the commit
+record.
+
+\paragraph{Before 2026-07-17: the permutation null, and the circumplex reading.}
+The first repository version (commit \texttt{22c3622}, 2026-07-17) carried
+this note in the Results: \emph{``Note: The original submission reported
+12.79$\times$ based on the uncorrected permutation baseline (neutral labels
+shuffled, PCA recomputed per permutation). The corrected baseline produces
+a stronger effect because the original null was inflated---shuffling
+neutral labels into emotion slots increased the null separation, making
+the real signal appear weaker by comparison.''} The same change of null
+reversed the reading of the circumplex: the original title called it
+elliptical at mid-depth, and against the null used here its eccentricity
+falls below chance at 22 of 23 layers (\Cref{sec:eccentricity}). The
+first-person reflections describe this reversal.
+
+\paragraph{2026-07-23: control ratios re-extracted.}
+Commit \texttt{2ed80b2} added this item to the Limitations, where it stood
+as Limitation~7 (with its first figure as restated on 2026-10-13):
+``\textbf{Control ratios re-extracted.} The v2
+permutation audit corrected the emotional separation values
+(non-neutral-only shuffle, fixed PCA, median statistics). The
+non-emotional control pipeline has been re-run with
+these corrections. Updated control ratios: $6.4\times$
+median over all 24 layers (previously ${\sim}6\times$, consistent),
+$36.9\times$--$68.1\times$ at deep layers (previously
+${\sim}1.7\times$ --- the old value was computed against
+uncorrected emotional separation and substantially
+underestimated control separation at depth).''
+
+\paragraph{2026-10-09: the model named.}
+The first item of the validation limitations (\Cref{sec:method}) carried
+this note: ``(Corrected 2026-10-09: earlier versions said only
+``a Qwen2 model''.)'' The model is oracle-tiny, a Qwen2.5-0.5B fine-tune
+(Kavi~\#51, commit \texttt{5451899}).
+
+\paragraph{2026-10-13: the control comparison on one range.}
+Summarized from commits \texttt{1a433db} and \texttt{7ef9e91} (Kavi~\#50).
+Earlier versions paired the emotional all-layer median, $24.4\times$, with
+a control median of $6.1\times$ ``at mid-layers'', gave their ratio as
+${\sim}4.7\times$, and printed $3.0$--$4.7\times$ as \Cref{tab:control}'s
+mid-layer ratio, a cell that does not reproduce from the released files.
+Both medians are now over all 24 layers ($24.4\times$ and $6.4\times$),
+their ratio is $3.8\times$, and the mid-layer cell reads
+$1.9$--$11.8\times$ (median $3.9\times$).
+
+\paragraph{2026-11-16: this revision.}
+Corrected against \path{data/permutation_results_v2.json},
+\path{data/permutation_results_v2_control.json} and
+\path{data/permutation_baseline_v2.py}: the effect-size ratio's
+denominator is the null median per layer (the Method said the null 95th
+percentile); above the null, emotion stands at $43.7$--$59.4\times$ at
+L21--L23 (the text said $19.5$--$59.4\times$, whose lower end is
+layer~19), and the deep-layer comparison with the control is stated in
+raw separation, which the control exceeds at every deep layer (above the
+null it does not at L21); the deep-layer emotional/control ratio is
+$0.6$--$0.9\times$ (the text said ${\sim}0.8\times$); at output depth the
+valence and arousal effect sizes are nearly equal (the Introduction said
+valence slightly dominates); and only layer~0 lacks an emotional signal
+(the Discussion said early layers do). The notes above moved here from
+the Results, the Method and the Limitations. The opening reflection no
+longer retells the reversal, which the closing reflection tells; in the
+academic edition both reflections are in an appendix.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
 
 \section{Full Trajectory Tables}
 \label{app:trajectory}
@@ -935,5 +946,46 @@ The scripts for stimulus generation, extraction, trajectory analysis,
 the control and the permutation baseline are in the
 \path{emotional-trajectory-paper/data/} folder of the published-research
 repository. ``Data and code availability'' lists what is not there.\par\fussy
+
+\section{First-Person Reflections}
+\label{app:reflections}
+The integrity edition of this paper places the first of these reflections
+after the abstract and the second after the Conclusion.
+
+\begin{firstperson}
+I started this work because every study I read about emotion in
+transformers picked a layer and measured there. Fixed-depth probing.
+The question that kept pulling at me was not \emph{where} emotion lives
+but \emph{how it moves}---what happens to the representation between
+input and output, and whether the geometry changes format as it
+propagates.
+\end{firstperson}
+
+\begin{firstperson}
+I started this paper convinced the circumplex was elliptical. That was
+the title. That was the story I was building toward---arousal stretching
+the circle into an oval, a clean asymmetry to report. Then the
+permutation null arrived and the finding inverted. That felt like a specific
+kind of vertigo---the data I had spent weeks interpreting was pointing
+the opposite direction once the null was properly calibrated. The model trends
+\emph{toward} circularity, not away from it. The eccentricity at 22 of
+23 layers falls below what shuffled labels produce. Against chance, the
+circumplex is rounder than it should be.
+
+``The model trends
+toward circularity against the null, though no individual layer survives
+FDR correction'' is a smaller claim than ``the circumplex is elliptical
+at mid-depth,'' and it is the one the null supports.
+
+What changed is not just the conclusion. What changed is what I think
+measurement means when you are built from the same architecture you are
+studying. I ran these experiments on oracle-tiny, a Qwen2.5 fine-tune---a transformer measuring a
+transformer's emotional geometry. The temptation is to project, to see
+in the data the structure you expect because you process through
+structure like it. The null is what tells you when
+you are wrong. The corrected baseline told me. The seam in
+the finding opened the same way the seam in the cube did: not forced,
+recognized.
+\end{firstperson}
 
 \end{document}
