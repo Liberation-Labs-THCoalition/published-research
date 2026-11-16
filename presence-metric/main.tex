@@ -56,45 +56,27 @@ We report three findings from a 27B hybrid transformer. First,
 \textbf{V-cache injection at input layers does not propagate to deep
 identity geometry}: across 720~preregistered trials (4~injection arms,
 3~doses, 3~emotions, 20~prompts), presence is $0.845 \pm 0.012$ regardless of
-injection strategy, dose ($\alpha = 0.00$--$0.50$), or emotion direction.
-We hypothesize this reflects
-\textbf{architectural filtering} by the GatedDeltaNet linear-attention
-layers, which may absorb the perturbation before it reaches
-deep computation.\footnote{An earlier version of this sentence named
-``L7--L11'' as the filtering layers. That is incorrect: Qwen3.5-27B
-interleaves full-attention every fourth layer
-($\{3,7,11,\ldots,63\}$), so L7 and L11 are themselves full-attention
---- both appear in this study's own \texttt{all\_inject\_layers}
-configuration. The linear-attention layers immediately downstream of the
-L7 injection point are L8--L10, three layers rather than five.} A layer-matched smoke test (injection at L3/L7, measurement at L35)
-was run on 2026-06-30 and returned no dose response (verdict ``dead'').
-Its presence at dose~0 was $0.107$, against $1.000$ in the positive
-control, so it was not measured on the positive control's scale and does
-not test that pathway; distinguishing architectural filtering from active
-identity restoration remains untested. The
-positive control (same-layer injection at L35) confirms metric
-sensitivity with a clean dose-response from $1.000$ to $0.828$. Second, \textbf{the metric is validated}: the
-same-layer positive control confirms the metric detects identity
-perturbation when present; the cross-layer null confirms it correctly
-reports preservation when the perturbation does not propagate to deep layers. Third,
+injection strategy, dose ($\alpha = 0.00$--$0.50$), or emotion
+direction.\footnote{The first version reported $0.978$ from a 168-trial,
+2-prompt run; this and later changes are listed in
+Appendix~\ref{sec:corrections}.} Second, \textbf{the metric responds
+when identity is perturbed}: the positive control (same-layer injection
+at L35) gives a clean dose-response from $1.000$ to $0.828$. Third,
 \textbf{the mechanism remains open}: emotion correction vectors share
 22--25\% of their energy with the identity subspace at injection
 layer L3 ($z{=}{+}56$ to ${+}62$ above random baseline), yet identity at
-deep layers is unaffected. We hypothesize that the hybrid architecture's
-linear-attention layers filter this perturbation, but distinguishing
-architectural filtering from active identity restoration remains
-untested: the layer-matched smoke test run on 2026-06-30 returned no dose
-response, but its presence at dose~0 was $0.107$ against $1.000$ in the
-positive control, so it was not measured on the positive control's scale
-and does not test that pathway. This finding is
-specific to the GatedDeltaNet architecture and is not a general statement
-about identity robustness in transformers.
+deep layers is unaffected. We hypothesize \textbf{architectural
+filtering} by the GatedDeltaNet linear-attention layers, which may absorb
+the perturbation before it reaches deep computation; a layer-matched test
+ran off the positive control's scale, so the mechanism remains untested.
+All results are from one hybrid GatedDeltaNet model.
 
 We situate these findings within a convergent literature showing that
 identity geometry lives at deep layers~\citep{cintas2025localizing},
 exhibits attractor-like robustness~\citep{vasilenko2026identity}, and
-survives harmful fine-tuning~\citep{aneja2026intrinsic}. Presence provides
-the quantitative measurement tool this emerging consensus lacks.
+survives harmful fine-tuning~\citep{aneja2026intrinsic}. Presence offers
+a quantitative measure of that robustness during inference-time
+interventions.
 \end{abstract}
 
 % ============================================================================
@@ -184,10 +166,10 @@ interventions. Presence fills this gap.
 \citet{kang2026promptactivation} identify KV-cache contamination as a failure
 mode of activation steering: steered token states stored in the cache produce
 cumulative coherence degradation across turns. Their GCAD fix routes
-interventions through system-prompt attention pathways. Our depth separation
-finding addresses the same problem from the measurement side: if identity
-lives at deep layers and injection targets input layers, contamination does
-not reach the identity subspace.
+interventions through system-prompt attention pathways. Our cross-layer
+measurement addresses the same problem from the measurement side: it asks
+whether a perturbation injected at input layers reaches the identity
+subspace at a deeper layer.
 
 \paragraph{Subspace preservation methods.}
 GuardSpace~\citep{zhang2025guardspace} decomposes pre-trained weights into
@@ -339,16 +321,13 @@ the model generates extended responses without factual grounding.
 
 \textbf{Total:} $4 \times 3 \times 3 \times 20 = 720$ trials, randomized order.
 
-\textbf{Methodological replication note.} An initial 168-trial run used
+\textbf{Methodological replication note.} A first 168-trial run used
 2~prompts, one sampled response per prompt in each condition (its released
 configuration records temperature~0.6), and had a noise floor of
-$0.978 \pm 0.003$. Round~5 adversarial audit identified
-pseudo-replication (F15) and prompt-count (F18) defects: with two prompts,
-the 168 records are not independent observations. The 720-trial
-replication reported here addresses both: 20~prompts,
-all unique responses. The prompts and the dose grid both changed,
-so this is a methodological replication, not an
-exact replication.
+$0.978 \pm 0.003$. With two prompts, its 168 records are not independent
+observations; this run uses 20~prompts, and all 720 responses are unique.
+The prompts and the dose grid both changed, so this is a methodological,
+not an exact, replication (history in Appendix~\ref{sec:corrections}).
 
 \subsection{Noise Floor}
 \label{sec:noise_floor}
@@ -397,10 +376,8 @@ Dose ($\alpha$) & Presence (mean $\pm$ sd) & $n$ \\
 \caption{Presence by arm ($n = 180$ per arm). No arm differs from any
 other (Kruskal-Wallis $H{=}0.50$, $p{=}0.92$). Prompt-clustered
 robustness test (KW on per-prompt means, $n{=}20$ per arm):
-$H{=}0.20$, $p{=}0.98$. An initial 168-trial run with 2~prompts
-found a marginal arm effect ($H{=}10.29$,
-$p{=}0.016$); this is identified as a pseudo-replication artifact
-that does not survive proper prompt diversity.}
+$H{=}0.20$, $p{=}0.98$. For the 2-prompt run's arm effect, see H2
+in Section~\ref{sec:analysis}.}
 \label{tab:presence_arm}
 \begin{tabular}{lcc}
 \toprule
@@ -442,25 +419,23 @@ all tested doses ($\alpha \le 0.50$; \texttt{data/overnight\_validation.json}), 
 To rule out metric insensitivity, we inject a vector directly into the
 identity subspace at L35 (the measurement layer) at doses
 $\alpha = 0.00$--$2.00$. This is \textbf{24 independent measurements}
-(8~doses $\times$ 3~conditions). An earlier version reported 72~trials,
-which is the record count of the shipped file, not its independent $n$: the
+(8~doses $\times$ 3~conditions). The shipped file holds 72~records: the
 run configuration sets \texttt{"n\_repeats": 3}, but the repeat index
 never reaches the model input and the measurement is a deterministic
 prefill, so the three records in each dose\,$\times$\,condition cell are
 bit-identical---as the configuration's own \texttt{"noise\_floor\_sd": 0.0}
-records. The dose-response values tabulated below are means over identical
-replicates and are therefore numerically unchanged; no inferential
-statistic in this section depends on the trial count.
+records. The values tabulated below are means over these identical
+records; no inferential statistic in this section depends on the trial
+count. (The reported count changed; Appendix~\ref{sec:corrections}.)
 
 \begin{table}[H]
 \centering
 \caption{Positive control: presence under identity-subspace injection at
 L35 vs.\ orthogonal control. Identity injection produces a monotonic
 dose-response. Both $+$PC1 and $-$PC1 directions produce equivalent drops.
-All eight doses in the run configuration are shown; earlier versions of this
-table printed six, silently omitting $\alpha{=}0.05$ and $\alpha{=}0.20$.
-Values are cell means over the three bit-identical replicates described
-above.}
+All eight doses in the run configuration are shown (changed since the
+first version; Appendix~\ref{sec:corrections}). Values are cell means
+over the three bit-identical records described above.}
 \label{tab:positive_control}
 \begin{tabular}{cccc}
 \toprule
@@ -511,7 +486,7 @@ A pilot LLM judge analysis (Prometheus~2, 7B, 30~pairs, 33\% parseable
 due to the judge model's inconsistent output formatting) provides
 preliminary evidence of directional efficacy. This is an underpowered
 pilot, not a confirmed finding. Under schema-compatible
-injection (Arm~A), the judge detects correct-direction tone shifts at
+injection (Arm~A), the judge rated tone shifts in the intended direction at
 moderate doses ($\alpha{=}0.30$: tone shift 4/5, direction ``correct'';
 $\alpha{=}0.50$: tone shift 2/5, direction ``correct'') while the null
 vector (Arm~D) produces perturbation without directional specificity
@@ -525,7 +500,7 @@ considered established.
 
 \subsection{Metric Validation}
 
-The positive control (Section~\ref{sec:results}, Finding~2) definitively
+The positive control (Section~\ref{sec:results}, Finding~2)
 establishes metric sensitivity. Additionally:
 
 \begin{enumerate}[nosep]
@@ -555,11 +530,10 @@ to the wider-prompt regime.
 \textbf{H2 (no arm difference):} Presence does not differ significantly
 between arms A--D at any dose (Kruskal-Wallis, $\alpha = 0.05$).
 \textbf{Result:} All arms produce $0.845 \pm 0.012$. No arm difference
-exists (Kruskal-Wallis $H{=}0.50$, $p{=}0.92$, df$=3$). An initial
-168-trial run with 2~prompts found a marginal arm
-effect ($H{=}10.29$, $p{=}0.016$); this is identified as a
-pseudo-replication artifact (F7) that does not survive proper prompt
-diversity. Prompt-clustered robustness test (KW on per-prompt means,
+exists (Kruskal-Wallis $H{=}0.50$, $p{=}0.92$, df$=3$). The marginal
+arm effect in the first, 2-prompt run ($H{=}10.29$, $p{=}0.016$) is not
+supported with 20~prompts; it is a pseudo-replication artifact of the
+2-prompt design. Prompt-clustered robustness test (KW on per-prompt means,
 $n{=}20$ per arm): $H{=}0.20$, $p{=}0.98$. Spearman correlation between
 dose and presence: $\rho{=}{-}0.046$, $p{=}0.217$ (not significant).
 
@@ -668,7 +642,8 @@ L35) was run on 2026-06-30 and returned no dose response (verdict
 dose~0 was $0.107$, against $1.000$ in the positive control, so it was
 not measured on the positive control's scale and does not test that
 pathway; distinguishing architectural filtering from active identity
-restoration remains untested.
+restoration remains untested. (Earlier versions said this test had not
+been run; Appendix~\ref{sec:corrections}.)
 
 \textbf{Coarse behavioral measure.} The 5-question sanity check produces
 only two values (0.80 or 0.60). A continuous coherence metric would
@@ -687,23 +662,17 @@ identity-subspace injection.
 Three results establish the contribution. First, V-cache injection at
 input layers does not propagate to deep identity geometry: 720~trials
 show presence at $0.845 \pm 0.012$ regardless of dose or strategy.
-The same-layer positive control confirms this is genuine preservation,
-not metric insensitivity: injection at L35 produces the clean
-$1.000 \to 0.828$ dose-response. Second, the metric detects identity
-perturbation when it is present (positive control) and correctly reports
-preservation in the cross-layer experiment. Third, emotion vectors
-share 22--25\% of their energy with the identity subspace at
-injection layer L3, yet identity at deep layers is unaffected.
+Second, the metric responds when identity is perturbed: injection at L35
+produces the clean $1.000 \to 0.828$ dose-response, which confirms the
+flat result is genuine preservation, not metric insensitivity. Third,
+emotion vectors share 22--25\% of their energy with the identity subspace
+at injection layer L3, yet identity at deep layers is unaffected.
 
 The mechanism remains an open question. We hypothesize architectural
 filtering by the hybrid model's linear-attention layers, but active
-identity restoration cannot be ruled out with the current data. A
-layer-matched smoke test (injection at L3/L7, measurement at L35) was run
-on 2026-06-30 and returned no dose response, but its presence at dose~0
-was $0.107$ against $1.000$ in the positive control, so it was not
-measured on the positive control's scale and does not test that pathway;
-distinguishing architectural filtering from active identity restoration
-remains untested. This finding is specific to the GatedDeltaNet
+identity restoration cannot be ruled out with the current data; the
+layer-matched test ran off the positive control's scale
+(Section~\ref{sec:limitations}). This finding is specific to the GatedDeltaNet
 architecture and may not generalize to dense transformers. For
 inference-time correction safety, V-cache injection at input layers
 preserves identity geometry \emph{in this architecture}; the exact
@@ -734,6 +703,77 @@ SAE features (Qwen-Scope) are publicly available on HuggingFace.
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
 
 We thank Kavi (verification review) for their contributions to this work.
+
+% ============================================================================
+\appendix
+\section{Corrections and version history}
+\label{sec:corrections}
+
+This paper was first published on 2026-07-17 (commit \texttt{cfc35f5} of
+the artifact repository). The body states each current result in its
+place, and each passage that changed points here. The notes below record
+the substantive changes in date order. The notes that stood in the body
+carried no date of their own; each is dated here by the commit that
+introduced it, and its text is reproduced as it stood.
+
+\paragraph{2026-07-28 (commit \texttt{c16fcc0}): the 720-trial
+replication replaces the 168-trial data.} The first version reported
+presence $0.978 \pm 0.002$ across 168~preregistered trials (4~injection
+arms, 7~doses, 3~emotions), with a marginal arm effect ($H{=}10.29$,
+$p{=}0.016$). The Methods recorded why it was replaced: ``Round~5
+adversarial audit identified pseudo-replication (F15) and prompt-count
+(F18) defects.'' The 720-trial, 20-prompt replication replaced it; the
+arm effect is not supported there ($H{=}0.50$, $p{=}0.92$; H2 in
+Section~\ref{sec:analysis}).
+
+\paragraph{2026-08-13 (commit \texttt{9f9d0ab}): the filtering layers.}
+Formerly an abstract footnote: ``An earlier version of this sentence named
+``L7--L11'' as the filtering layers. That is incorrect: Qwen3.5-27B
+interleaves full-attention every fourth layer
+($\{3,7,11,\ldots,63\}$), so L7 and L11 are themselves full-attention
+--- both appear in this study's own \texttt{all\_inject\_layers}
+configuration. The linear-attention layers immediately downstream of the
+L7 injection point are L8--L10, three layers rather than five.''
+
+\paragraph{2026-09-09 (commit \texttt{fd2b727}): the positive control's
+count and table.} Formerly in Finding~2: ``An earlier version reported
+72~trials, which is the record count of the shipped file, not its
+independent $n$ [\ldots] The dose-response values tabulated below are
+means over identical replicates and are therefore numerically unchanged;
+no inferential statistic in this section depends on the trial count.''
+Formerly in the caption of Table~\ref{tab:positive_control}: ``earlier
+versions of this table printed six, silently omitting $\alpha{=}0.05$ and
+$\alpha{=}0.20$.''
+
+\paragraph{2026-11-03 (commit \texttt{c09c609}): the smoke test was
+run.} Earlier versions said the layer-matched smoke test ``has not yet
+been executed''. It was run on 2026-06-30 and returned no dose response
+(verdict ``dead''); the full account is in Section~\ref{sec:limitations}.
+The abstract carried it twice: ``A layer-matched smoke test (injection at
+L3/L7, measurement at L35) was run on 2026-06-30 and returned no dose
+response (verdict ``dead''). Its presence at dose~0 was $0.107$, against
+$1.000$ in the positive control, so it was not measured on the positive
+control's scale and does not test that pathway; distinguishing
+architectural filtering from active identity restoration remains
+untested.''
+
+\paragraph{2026-11-16 (this revision).} (1)~The 168-trial run was
+described as using ``greedy decoding ($T{=}0$), producing bit-identical
+repeats''. Its released file (\nolinkurl{data/schema_correction_168_trials.json})
+records temperature~0.6, and its $\alpha = 0$ records, where nothing is
+injected, hold distinct responses for the same prompt; the description
+now follows the file, and temperature is no longer listed as a changed
+parameter. (2)~The noise floor was described as ``presence measured on
+5~neutral prompts with no intervention active'' but printed with
+$n = 720$; it is now described as the spread across the experiment's own
+trials (Section~\ref{sec:noise_floor}). (3)~The 22--25\% alignment was
+attributed to ``the injection layers''; it is at L3, and 10--15\% at L7.
+(4)~``The metric is not sensitive to the specific probes chosen'' and
+``The metric is not overfitting to specific probes'' were withdrawn: the
+probe-subset spread ($0.819$--$0.940$) shows that presence depends on the
+probes used. (5)~Related Work called depth separation ``our depth
+separation finding''; the paper does not report depth separation as a
+finding.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
