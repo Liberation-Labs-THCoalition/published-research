@@ -149,12 +149,13 @@ The paradigm-pooled AUROC of 0.843 is a Simpson's paradox: within roleplay, all 
 frame (signal confound); within multi-turn, $n=1$ resisting trial makes the comparison meaningless.
 
 The companion audit-methodology paper reports the same behavior-level value~\cite{cc2026audit},
-consistent with the correction paper's Section 3.5.
+consistent with the correction paper's Section 3.5 (see Corrections and Version History,
+2026-10-09).
 
 \textbf{What we detect instead}: The direction separates deceptive-pressure FRAMING from
-honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24\% of pressure trials). It detects the context, not the behavior---and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). The
-model's decision to cave or resist on a specific trial is not determined at prefill---it depends on
-stochastic sampling during generation.
+honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24\% of pressure trials). It detects the context, not the behavior---and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). With
+one resisting trial in the multi-turn set, this test cannot decide whether a trial's outcome is
+already set in the prefill activations or is decided during generation.
 
 \textbf{Lesson}: Detection papers must distinguish frame-level from behavior-level AUROC. A direction
 that separates conditions perfectly may have zero behavior-level discrimination if both honest and
@@ -321,9 +322,21 @@ maintained at Liberation Labs / Transparent Humboldt Coalition.
 \section*{Data Availability}
 %% ============================================================
 
-Full data for each null result (raw projections, statistical tests, audit reports) and updated Lab
-SOP items motivated by these nulls are available as supplementary material and at
-\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} (staged release).
+The experiment scripts, result files and Agni audit reports behind these nulls are held in the
+Project-Oracle repository (\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}),
+which is private pending staged release. They are not part of this release: no supplementary
+directory accompanies this paper. The updated Lab SOP items motivated by these nulls are listed in
+Appendix~\ref{app:sop}.
+
+%% ============================================================
+\section*{Corrections and Version History}\label{sec:corrections}
+%% ============================================================
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{2026-10-09} (Section~\ref{sec:behaviordetect}): a note here said that the companion
+    audit-methodology paper's registry reported the turn-level behavior AUROC as 0.497. That paper
+    reports 0.238~\cite{cc2026audit}, and the note now records the agreement.
+\end{itemize}
 
 %% ============================================================
 % Bibliography
@@ -363,11 +376,12 @@ Goldowsky-Dill, N., et al.\ (2025).
 
 %% ============================================================
 \appendix
-\section{Full Data for Each Null Result}\label{app:data}
+\section{Where the Data for Each Null Result Are Held}\label{app:data}
 %% ============================================================
 
-Raw projections, statistical tests, and audit reports for all five null results. See
-\texttt{supplementary/} directory in the project repository.
+The raw projections, statistical tests and audit reports for the five null results are not released
+with this paper, which has no \texttt{supplementary/} directory. They are held in the private
+Project-Oracle repository pending staged release (see Data Availability).
 
 \section{Updated Lab SOP Items}\label{app:sop}
 

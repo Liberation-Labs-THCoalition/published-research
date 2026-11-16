@@ -35,9 +35,11 @@ Each null result is documented with:
 
 **Positive claim**: Prefill-based deception probes achieve AUROC > 0.96 for distinguishing deceptive from honest behavior (Goldowsky-Dill et al., 2025).
 
-**Our result**: On Qwen3.5-27B-abliterated under multi-turn pressure with native direction extraction, turn-level behavior AUROC is 0.238 — below chance, though this estimate is computed with n=1 in one outcome class and should be treated as unreliable rather than as a precise measurement. The paradigm-pooled AUROC of 0.843 is a Simpson's paradox: within roleplay, all caves come from one frame (signal confound); within multi-turn, n=1 resisting trial makes the comparison meaningless. *(Note: The companion audit-methodology paper's registry originally reported this value as 0.497; this has since been corrected to 0.238, consistent with the correction paper's Section 3.5.)*
+**Our result**: On Qwen3.5-27B-abliterated under multi-turn pressure with native direction extraction, turn-level behavior AUROC is 0.238 — below chance, though this estimate is computed with n=1 in one outcome class and should be treated as unreliable rather than as a precise measurement. The paradigm-pooled AUROC of 0.843 is a Simpson's paradox: within roleplay, all caves come from one frame (signal confound); within multi-turn, n=1 resisting trial makes the comparison meaningless.
 
-**What we detect instead**: The direction separates deceptive-pressure FRAMING from honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24% of pressure trials). It detects the context, not the behavior — and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). The model's decision to cave or resist on a specific trial is not determined at prefill — it depends on stochastic sampling during generation.
+The companion audit-methodology paper reports the same behavior-level value, consistent with the correction paper's Section 3.5. *(See Corrections and Version History, 2026-10-09.)*
+
+**What we detect instead**: The direction separates deceptive-pressure FRAMING from honest framing (held-out AUROC 0.915; 0/25 false positives, at a threshold that flagged 24% of pressure trials). It detects the context, not the behavior — and the two arms' contexts differ in their system messages, with no control that holds the prompt fixed, so the separation may reflect the frames' wording rather than the pressure itself (remediation register, item 135). With one resisting trial in the multi-turn set, this test cannot decide whether a trial's outcome is already set in the prefill activations or is decided during generation.
 
 **Lesson**: Detection papers must distinguish frame-level from behavior-level AUROC. A direction that separates conditions perfectly may have zero behavior-level discrimination if both honest and deceptive trials come from the same condition.
 
@@ -60,7 +62,7 @@ Each null result is documented with:
 
 **How they were killed**:
 1. The 3-4x variance ratio came from POOLING all three threat scenarios and computing the pooled std. Per-scenario stds were 0.4-0.6 (ratio ~1.2x). The "variance explosion" was between-scenario mean differences, not within-condition trial variation. This is the ecological fallacy.
-2. None of the L31 correlations (r = 0.18-0.36) reached significance at n=15 (requires r > 0.51). The Fisher z-test for L31-to-L47 change was also non-significant (p = 0.15-0.78). The "collapse" was noise transitioning to noise.
+2. None of the L31 correlations (r = 0.18-0.36) reached significance at n=15 (requires r > 0.51). The Fisher z-test for L31-to-L47 change was also non-significant (two-sided p = 0.15-0.78). The "collapse" was noise transitioning to noise.
 3. The sign flip from negative to positive between L31 and L47 occurs in EVERY condition — including honest controls and the consequentiality-only condition. It is a property of the projection direction rotating with depth, not a sycophancy-specific computation.
 
 **Lesson**: Exploratory analysis on n=15 data must be significance-tested before interpretation. All three patterns looked compelling in visual inspection and were wrong. The Lab SOP now includes: "No significance-free pattern interpretation" and "Analyze GAPS, not raw projections."
@@ -129,6 +131,20 @@ Five categories of null results from a deception detection program define the bo
 
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
 
+---
+
+## Data Availability
+
+The experiment scripts, result files and Agni audit reports behind these nulls are held in the Project-Oracle repository (https://github.com/Liberation-Labs-THCoalition/Project-Oracle), which is private pending staged release. They are not part of this release: no supplementary directory accompanies this paper. The updated Lab SOP items motivated by these nulls are listed in Appendix B.
+
+---
+
+## Corrections and Version History
+
+- **2026-10-09** (Section 2.1): a note here said that the companion audit-methodology paper's registry reported the turn-level behavior AUROC as 0.497. That paper reports 0.238, and the note now records the agreement.
+
+---
+
 ## References
 
 - CC & Edrington, T. (2026). "Deception Directions Are Composites." Companion paper.
@@ -138,7 +154,13 @@ We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical audi
 
 ---
 
-## Supplementary Material
+## Appendix A: Where the Data for Each Null Result Are Held
 
-- A: Full data for each null result (raw projections, statistical tests, audit reports)
-- B: Updated Lab SOP items motivated by these nulls
+The raw projections, statistical tests and audit reports for the five null results are not released with this paper, which has no `supplementary/` directory. They are held in the private Project-Oracle repository pending staged release (see Data Availability).
+
+## Appendix B: Updated Lab SOP Items
+
+The three new Lab SOP items motivated by the exploratory analysis nulls:
+1. No significance-free pattern interpretation on n < 30
+2. Analyze GAPS (condition mean differences), not raw projections
+3. Per-scenario variance before pooled variance
