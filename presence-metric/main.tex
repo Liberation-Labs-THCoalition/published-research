@@ -130,8 +130,9 @@ We test presence with a positive control (direct identity-subspace
 injection at the measurement layer produces a clean dose-response from
 $1.000$ to $0.828$) and apply it in a 720-trial preregistered correction
 experiment (presence flat at $0.845$ across all conditions, at doses
-$\alpha \le 0.50$). The positive control shows that the metric responds
-to identity-subspace injection at L35 for $\alpha \ge 1$. At
+$\alpha \le 0.50$). The positive control shows that presence at L35
+falls with identity-subspace dose at every dose tested, and crosses the
+pre-registered $0.90$ threshold only at $\alpha = 2.00$. At
 $\alpha \le 0.50$ it lowers presence only to $0.964$, so the flat
 correction result shows no measurable change, not established
 preservation.
@@ -479,11 +480,12 @@ The metric drops from $1.000$ to $0.828$ under identity-subspace injection
 (crossing the pre-registered $0.90$ threshold between $\alpha{=}1.00$
 and $\alpha{=}2.00$; presence at $\alpha{=}1.00$ is $0.921$/$0.927$,
 still above threshold) while the orthogonal control remains above $0.96$
-at all doses. The metric is therefore sensitive at L35 for
-$\alpha \ge 1$. At $\alpha \le 0.50$, the range of Finding~1, identity
+at all doses. The metric therefore responds at L35 at every dose
+tested; by the pre-registered threshold, only $\alpha{=}2.00$ registers
+a change. At $\alpha \le 0.50$, the range of Finding~1, identity
 injection lowers presence only to $0.964$, and the two experiments sit on
 different baselines ($1.000$ here, $0.845$ in Finding~1), so metric
-insensitivity at those doses is not excluded.
+insensitivity at those doses in Finding~1's setting is not excluded.
 
 \textbf{Finding 3: Raw emotion vectors are aligned with identity at L3,
 yet presence is flat.}
@@ -529,8 +531,10 @@ considered established.
 \subsection{Metric Validation}
 
 The positive control (Section~\ref{sec:results}, Finding~2)
-establishes metric sensitivity at L35 for $\alpha \ge 1$; at
-$\alpha \le 0.50$ insensitivity is not excluded. Additionally:
+shows that presence at L35 falls at every dose of identity-subspace
+injection and crosses the pre-registered $0.90$ threshold only at
+$\alpha = 2.00$; at $\alpha \le 0.50$, in Finding~1's setting,
+insensitivity is not excluded. Additionally:
 
 \begin{enumerate}[nosep]
   \item \textbf{Self-test:} $\text{presence}(X, X) = 1.000$ exactly, while
@@ -592,10 +596,11 @@ for the flat presence result:
 One reading is that the model's computation between the injection layers
 and the measurement layers attenuates the identity-aligned component of
 the perturbation. The positive control confirms the metric \emph{can}
-register perturbation at L35 for $\alpha \ge 1$ (presence drops to
-$0.828$ at $\alpha = 2.00$ under direct identity-subspace injection).
+register perturbation at L35 (presence drops to $0.828$ at
+$\alpha = 2.00$ under direct identity-subspace injection, below the
+pre-registered $0.90$ threshold).
 Whether the same perturbation, introduced at L3/L7 and processed through
-$\sim$28 intervening layers, would survive to L35 at those doses is
+$\sim$28 intervening layers, would survive to L35 at doses above $0.50$ is
 untested: the 720-trial run stops at $\alpha = 0.50$.
 
 This is consistent with two non-exclusive explanations: (1)~the
@@ -716,7 +721,7 @@ architecture and may not generalize to dense transformers. For
 inference-time correction safety, the practical finding is bounded: at
 $\alpha \le 0.50$, V-cache injection at input layers produced no
 measurable change in presence \emph{in this architecture}, at doses where
-the metric's own sensitivity has not been shown.
+the positive control itself lowers presence only to $0.964$.
 
 The metric definition is fully specified in this paper; implementation
 code is available upon request (lyra@liberationlabs.tech).
