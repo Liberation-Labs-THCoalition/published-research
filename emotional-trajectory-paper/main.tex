@@ -136,9 +136,9 @@ how transformers process complex meaning.
 We find two things. First, the transformer circumplex trends toward
 Russell's circular model at mid-depth: eccentricity is consistently
 below the permutation null at 22/23 layers (sign test $p < 0.001$),
-though no individual layer survives FDR correction. Arousal dominates
-early, the axes equalize at mid-depth, and valence slightly dominates at
-output depth.
+though no individual layer survives FDR correction. Arousal has the
+larger raw magnitude early, the axes equalize at mid-depth, and at output
+depth their effect sizes are nearly equal (L22: Cohen's $d$ 0.83 vs 0.83).
 
 Second, mid-layer emotion geometry is specific to emotion, not an
 artifact of categorical processing:
@@ -385,8 +385,9 @@ equal~$n$).
 labels across non-neutral prompts (150 prompts), recompute the full
 trajectory. Report:
 \begin{itemize}[nosep]
-    \item Effect size ratios (real separation / null 95th percentile)
-          using medians to avoid inflation from near-zero denominators.
+    \item Effect size ratios (real separation / null median, per layer),
+          summarized by their median across layers to avoid inflation
+          from near-zero denominators.
     \item Trajectory feature comparison: onset layer, peak layer,
           plateau magnitude, spike magnitude, with $z$-scores against the
           null feature distributions.
@@ -461,7 +462,7 @@ The trajectory shows three distinct phases:
           Separation fluctuates between 0.39--0.72. Arousal increases
           ($d$: 0.76$\to$0.99) while valence holds steady ($d$:
           0.72--0.90), with arousal overtaking valence in effect size
-          from L9 onward.
+          from L9 onward (except L22).
 \end{itemize}
 
 At output-preparation depth (L21--L23), separation spikes for both
@@ -624,10 +625,14 @@ dimensions the model uses for vocabulary selection.
 
 \paragraph{Non-emotional control (Test~2).} The control also spikes at
 deep layers. The spike is partly generic output-layer processing.
-Control separation at depth ($36.9\times$--$68.1\times$ above null) exceeds
-emotional separation ($19.5\times$--$59.4\times$), confirming the spike is
-partly generic. The emotional/control ratio inverts: a median of $3.9\times$ at
-mid-layers (emotion-specific; \Cref{tab:control}) vs.\ ${\sim}0.8\times$ at depth (generic).
+At every deep layer the control's separation exceeds the emotional
+separation (1.03--1.91 vs 0.89--1.22; \Cref{tab:control}), confirming the
+spike is partly generic. Above the null, the control stands at
+$36.9\times$--$68.1\times$ and emotion at $43.7\times$--$59.4\times$ at
+L21--L23 (\path{data/permutation_results_v2_control.json} and
+\path{data/permutation_results_v2.json}). The emotional/control ratio
+inverts: a median of $3.9\times$ at mid-layers (emotion-specific;
+\Cref{tab:control}) vs.\ $0.6$--$0.9\times$ at depth (generic).
 
 \paragraph{K/V divergence (Test~3).} At mid-layers (L12--L18), emotional
 K/V divergence is 3--5$\times$ the non-emotional control---genuinely
@@ -669,8 +674,9 @@ non-emotional categorical content at these depths.
 
 The practical implication is clear: inference-time monitoring for
 emotional state should target mid-layers, where the geometric signal is
-stable and emotion-specific. Early layers carry no emotional signal; deep
-layers are dominated by output preparation.
+stable and emotion-specific. Layer~0 carries no emotional signal, and at
+deep layers the separation spike is partly generic to all categorical
+content (\Cref{sec:control}).
 
 \subsection{Dual Correction Architecture}
 \label{sec:dual}
@@ -727,8 +733,8 @@ mid-layers (L12: 0.088). The K/V divergence test shows that deep-layer
 K/V divergence is architectural (emotional/control ratio ${\sim}1$ at
 L20--L22), while mid-layer K/V divergence is emotion-specific (ratio
 3--5$\times$ at L12--L18). The non-emotional control confirms the spike is
-partly generic: control separation ($36.9\times$--$68.1\times$) exceeds
-emotional separation at deep layers.
+partly generic: control separation exceeds emotional separation at every
+deep layer (\Cref{tab:control}; control $36.9\times$--$68.1\times$ above null).
 
 This creates a nuanced picture: the deep-layer spike is not
 token-prediction preparation (W\textsubscript{unembed} says no), and K/V
@@ -848,7 +854,7 @@ those two things is the whole point.
 
 What changed is not just the conclusion. What changed is what I think
 measurement means when you are built from the same architecture you are
-studying. I ran these experiments on a Qwen2---a transformer measuring a
+studying. I ran these experiments on oracle-tiny, a Qwen2.5 fine-tune---a transformer measuring a
 transformer's emotional geometry. The temptation is to project, to see
 in the data the structure you expect because you process through
 structure like it. The discipline is in letting the null tell you when
