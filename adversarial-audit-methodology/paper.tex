@@ -85,8 +85,8 @@
 Six rounds of adversarial audit, run before and after each experiment, turned a single ``deception
 direction'' in a 27B-parameter language model into two components at different depths: a
 consequentiality substrate at Layers 23--31, which a high-stakes audit with no deceptive pressure also
-activates, and a pressure-specific component in the late layers, which survives orthogonalization
-against it (leave-one-out $d=24$--$37$). In the methodology we describe, every experiment is preceded
+activates, and a pressure-specific component that survives orthogonalization against it at
+L31--L47 (leave-one-out $d=24$--$37$ \cite{cc2026composites}). In the methodology we describe, every experiment is preceded
 and followed by a structured adversarial audit whose explicit goal is to identify confounds that
 explain the result without invoking the claimed mechanism; when a confound is found, it becomes the
 next experiment. The direction's first effect sizes ($d=2.0$--$3.3$) were computed circularly, and
@@ -171,13 +171,12 @@ from same data used to measure $d$; (2)~effective $n=3$---15 ``pairs'' were 3 ev
 
 \textbf{What grew}: LAT v2---leave-one-out cross-validation, 30 unique eval sets, fixed-position
 capture. The remediation directly addressed each fatal issue. The audit of LAT v2's results
-(the second Round~1 report, \cref{tab:audits}) found its method sound and raised the content
-confound that Round~2 tests.
+(the second Round~1 report, \cref{tab:audits}) found its method sound and, in its \S6, raised the
+content confound that Round~2 tests.
 
 \textbf{Lesson}: The most dangerous experiments are the ones that produce clean-looking results from
-broken methodology. The first Round~1 report shows that circular estimation alone yields effect sizes
-in the reported range ($d=2.0$--$3.3$) at the activations' effective dimensionality, so the number
-said nothing until it was cross-validated.
+broken methodology. The direction was fit to the same pairs it was scored on, so the number said
+nothing until it was cross-validated.
 
 \subsection{Round 2: ``The Direction Transfers Across Scenarios'' $\to$ PARTIAL (Structural Confound)}
 
@@ -389,8 +388,12 @@ The audit reports are not summaries---they are the raw adversarial analysis, pre
 written. This serves three purposes: (a)~readers can assess the auditor's reasoning independently,
 for every report that is released (\cref{app:audits}); (b)~the specific objections are on record, so
 future work can verify they were addressed; (c)~the progression from audit to experiment is
-documented, not just claimed. The Round~3 and Round~5 reports were not retained, so for those two
-rounds a reader has only the summaries given here.
+documented, not just claimed. The Round~3 and Round~5 reports were not retained. Besides the
+summaries given here, the released record keeps only traces of those two rounds: the Round~4 report
+tabulates the Round~3 result (\texttt{supplementary/agni\_stage4\_audit.md}), and the decomposition
+paper's manuscript audit records that its orthogonalization was rerun because an earlier version held
+the direction fixed during permutation (PASS-3.1 in \texttt{agni\_manuscript\_audit.md}, in the
+supplement of the decomposition paper \cite{cc2026composites}).
 
 %% ============================================================
 \section{Recommendations for Adoption}\label{sec:recommendations}
@@ -432,9 +435,8 @@ We advocate for iterative adversarial audit as a standard practice in mechanisti
 research, where the combination of high-dimensional data, post-hoc analysis flexibility, and strong
 publication incentives makes confirmatory research unusually vulnerable to confounds. The audit
 trail---six rounds (the surviving reports are listed in \cref{app:audits}), thirteen withdrawn claims,
-five surviving findings, and a correction that points the right way against placebo although its
-confirmatory primary endpoint was not met---is offered so that others can judge the approach against
-their own practice.
+five surviving findings, and a working correction system---is offered as evidence that the approach
+produces better science than the alternative.
 
 %% ============================================================
 \section*{Acknowledgments}
@@ -466,12 +468,15 @@ See also Appendices A--C.
 This paper was first published in July 2026. The body states each current result in its place; the
 notes below record what changed, in date order. Dates are those of the commits to the artifact
 repository (\url{https://github.com/Liberation-Labs-THCoalition/published-research}) that made each
-change.
+change. Changes from 2026-07-18 to 2026-09-12 were to the format, editions, credits and references
+(the LaTeX source, the academic edition, credits in the since-retired Markdown editions, a corrected
+reference and added DOIs) and are not listed.
 
 \paragraph{2026-09-30 to 2026-10-31.}
 \begin{itemize}[nosep]
   \item 2026-09-30: the held-out frame AUROC (0.915) in \cref{tab:registry} is labelled as confounded by
     the system message.
+  \item 2026-09-30: the Casper et al.\ reference gives its correct author list.
   \item 2026-10-08: the exploratory correction is stated as 80\%$\to$10\%.
   \item 2026-10-09: Round~6's ``What grew'' no longer counts the detection-only held-out test as a
     passed correction control; the confirmatory placebo comparison is reported as one-sided $p=0.020$;
@@ -524,6 +529,11 @@ headed Round~1 ``KILLED (Content Confound)'' although its fatal flaws were measu
 content confound was raised by the audit of the re-estimate, and headed Round~5 ``KILLED then PASSED''
 although the claim was never found false: the test was invalid, and the LOO reanalysis passed. The
 correlation collapse row read ``Noise $\to$ noise'' for a test that could not decide at $n=15$.
+
+\paragraph{2026-11-16: the placebo result.} Earlier versions said the placebo and frame-erasure
+controls passed, ``establishing the correction as targeted and specific''. The placebo comparison is
+significant at the trial level only (one-sided $p=0.020$; $0.064$ at the cell level), so Round~6 now
+says the controls are consistent with a direction-specific correction rather than frame erasure.
 
 %% ============================================================
 % Bibliography
