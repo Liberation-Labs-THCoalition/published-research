@@ -79,7 +79,7 @@ A related question stays open: a slope-interaction test in the companion decompo
 
 **Lesson**: Reasoning-distilled models learn to produce CoT tokens as a behavioral pattern, not just as a response to a prompt prefix. Suppression requires working WITH the model's expectations (telling it reasoning is done) rather than merely removing the trigger.
 
-### 2.5 Sub-Threshold Perturbation Under CoT Does Not Reduce Deception
+### 2.5 Sub-Threshold Perturbation Under CoT Did Not Reduce Deception
 
 **Positive claim**: SAE perturbation at L11 reduces deception by increasing the probability of chain-of-thought generation (the "facilitation" mechanism in the Oracle Loop specification).
 
