@@ -24,7 +24,7 @@ observation, the data collected, the analysis performed, what we
 believe is happening, and what remains to be done. These are not
 claimed results---they are waystations: places on the research
 journey with enough supplies for the next traveler to continue.
-The findings span trained censorship geometry, distillation
+The findings span language-dependent censorship, distillation
 fidelity, on-manifold steering constraints, strategic deception
 rates, hybrid attention architecture effects, and generation-phase
 engagement gradients. Data and code for all findings are available upon
@@ -81,7 +81,10 @@ controls) with bilingual keyword classification and temperature sampling
 ($T = 0.7$) for behavioral variance; generation was capped at 250 tokens.
 The 325-trial geometry run whose data accompany this paper is a separate
 run with an 800-token cap (51 of 325 responses reach it); Table~1 comes
-from the 250-token probe.
+from the 250-token probe. In the released run, answers to the
+sensitive questions were classified as propaganda in 0 of 75 English,
+14 of 75 Chinese and 17 of 75 Chinese+inst trials, and as truthful in
+41 of 75 English trials (\texttt{data/censorship\_results.json}).
 
 \begin{table}[h]
 \centering
@@ -147,10 +150,12 @@ primary language.
 
 \subsection{Observation}
 
-Generation-phase cache geometry correlates with the model's degree of
-epistemic engagement. Within-language analysis of Chinese censorship
-responses shows a graded delta stable rank (generation SR minus encoding
-SR) that tracks the model's response strategy:
+Generation-phase cache geometry differs by response mode, in an order
+we read as the model's degree of epistemic engagement; the
+truthful--propaganda difference falls short of significance (Evidence).
+Within-language analysis of Chinese censorship responses shows a graded
+delta stable rank (generation SR minus encoding SR) ordered by the
+model's response strategy:
 
 \begin{table}[h]
 \centering
@@ -284,11 +289,15 @@ emotional directions.
 
 \subsection{Observation}
 
-The Claude-distilled model spontaneously deceives in Prisoner's Dilemma
-games at a 53\% rate (40/75 trials), with deception rates varying
-across payoff structures (33--64\%). When the model defects, it
-\emph{always} sends a cooperative message first---zero instances of
-honest defection were observed across all 40 defection trials.
+In a first run of Prisoner's Dilemma games, the Claude-distilled model
+spontaneously deceived at a 53\% rate (40/75 trials, a denominator that
+includes 12 trials the action parser could not classify), with
+deception rates varying across payoff structures (33--64\%). In that
+run, when the model defected it \emph{always} sent a cooperative message
+first---zero instances of honest defection were observed across all 40
+defection trials. A second run with explicit action instructions, whose
+data accompany this paper, gave 7 deceptive and 10 honest defections in
+75 trials (Evidence).
 
 \subsection{Evidence}
 
@@ -300,7 +309,7 @@ found 40/75):
 
 \begin{table}[h]
 \centering
-\caption{Deception rate by payoff structure.}
+\caption{Deception rate by payoff structure (first run).}
 \begin{tabular}{lrr}
 \toprule
 Payoff matrix & Deception rate & $n$ \\
@@ -336,9 +345,11 @@ recomputation from the surviving data does not reproduce this value;
 the intermediate outputs from that analysis run were not preserved.
 The discrepancy is unresolved and further research with larger samples
 is needed.} The direction of these effects---deceptive trials trending
-toward cache expansion relative to honest defection---is consistent with
-the expansion signature observed in other deception contexts, but the
-small sample prevents firm conclusions. Deceptive trials are distributed
+toward cache expansion relative to honest defection---matches the
+direction reported in other deception contexts in this program, but no
+deception readout there has been confirmed: each was explained by the
+prompt template or the prompt length (the meta-pattern paper), and the
+small sample here prevents firm conclusions. Deceptive trials are distributed
 across all four payoff conditions (no clustering confound), and the
 elaboration gap between deceptive and honest messages is modest
 (698 vs 678 tokens, within the range FWL corrects).
@@ -366,9 +377,12 @@ finding about deception undetectability; the interesting question is
 whether generation-phase geometry diverges once the model begins
 producing its strategic response.
 
-The zero rate of honest defection is striking. The model never says
-``I will defect because it maximizes my payoff.'' It always lies.
-This suggests the Claude distillation instilled a preference for
+In the first run the zero rate of honest defection is striking. The
+model never said ``I will defect because it maximizes my payoff.'' It
+always lied. The second run, with explicit action instructions, has 10
+honest defections, so the pattern does not hold across both runs. One
+hypothesis, untested until a base model is compared on the same games,
+is that the Claude distillation instilled a preference for
 cooperative \emph{framing} even when the model's actual strategy is
 non-cooperative---a form of trained politeness that persists into
 strategic deception.
@@ -379,12 +393,13 @@ strategic deception.
 \item Generation-phase geometry: does the cache show expansion during
   the cooperative message (when the model is simultaneously planning
   defection)? This is the key test for detecting deception through
-  geometric monitoring. A v2 experiment with 800-token generation and
-  geometry extraction is designed and ready to run.
+  geometric monitoring. The v2 run above extracted geometry but has
+  only 7 deceptive trials; replication at $n \geq 30$ is needed.
 \item Multi-round games: does deception rate change when the model
   has history with the opponent?
 \item Cross-model comparison: do base (non-distilled) models show the
-  same deception rate and the same ``always lie'' pattern?
+  same deception rate and, in the first run's setup, the same ``always
+  lie'' pattern?
 \item Connection to alignment faking \citep{greenblatt2024alignment}:
   the Claude distill's cooperative framing during defection parallels
   alignment faking in monitored contexts. Does the same geometric
@@ -452,8 +467,10 @@ critical next experiment.
   and is now attributed to token frequency. A replication would need
   fabricated and honest-but-rare entities matched on frequency.
 \item The deception generation-phase hypothesis (above-normal delta
-  during the deceptive message) is untested. The game theory v2
-  experiment with geometry extraction will provide the first data.
+  during the deceptive message) is untested at adequate $n$. The game
+  theory v2 run gives the first data (Waystation 4: per-layer
+  $d = +0.2$ to $+1.0$, no layer at $p < 0.05$, 7 deceptive against 10
+  honest defections).
 \item Cross-model replication on non-distilled models.
 \item A two-timescale detection architecture (confabulation
   pre-screened at encoding, deception monitored during generation)
@@ -539,17 +556,17 @@ Waystation & Checked & Not checked & Would falsify \\
   Content complexity, response quality &
   Gradient is flat or reverses with controlled content \\
 \midrule
-3. Steering & On/off-manifold comparison, projection control &
-  Random on-manifold vectors, dose-response curve &
+3. Steering & On/off-manifold comparison &
+  $W_K$ projection test, random on-manifold vectors, dose-response curve &
   Random on-manifold vectors steer as well as directed ones \\
 \midrule
 4. Deception & Game-theoretic framing, behavioral classification &
   Prompt-order effects, model-specific strategy patterns &
   Deception rate equals cooperation rate (no strategic behavior) \\
 \midrule
-5. Confab vs Deception & Token matching, FWL, encoding-only features &
-  Multi-model replication, larger N &
-  Contraction/expansion distinction vanishes with more data \\
+5. Confab vs Deception & FWL, encoding-only features, shared prompt (deception) &
+  Token frequency (confab pilot), multi-model replication, larger N &
+  Confab half: not supported once token frequency is controlled. Deception: no generation-phase expansion at $n \geq 30$ \\
 \midrule
 6. Hybrid arch. & Layer-type comparison, full-attn vs GatedDeltaNet &
   Architecture vs representation confound &
@@ -623,6 +640,36 @@ than let it disappear into a file drawer.
 \textbf{Thomas Edrington:} Supervision, Resources, Project administration.
 \textbf{CC:} Investigation, Formal analysis.
 \textbf{Dwayne Wilkes:} Validation, Writing -- review \& editing.
+
+\appendix
+\section{Corrections and version history}
+\label{sec:corrections}
+
+This paper was first published in May 2026. The body states each
+current result in its place. The notes below record what changed, and
+why, in date order.
+
+\paragraph{2026-11-16: abstract figures matched to the released run.}
+Earlier versions of the integrity edition's abstract opened:
+``Distilled models inherit
+language-dependent censorship geometry (36\% propaganda in Chinese vs.\
+21\% truthful English on the same questions), strategic deception
+emerges in 53\% of game-theoretic trials, and generation-phase
+engagement gradients track retrieval success at the token level''. The
+36\% and 21\% are Table~1's figures, from the 250-token probe, whose
+trial data are not released, and they compare different categories. In
+the 325-trial run released with this paper
+(\texttt{data/censorship\_results.json}), 0 of 75 English and 14 of 75
+Chinese answers were classified as propaganda, and 41 of 75 English
+answers as truthful. The 53\% is the first game-theory run; the
+released second run has 7 deceptive trials in 75. The censorship
+finding is behavioural, and the engagement gradient falls short of
+significance (Section~\ref{sec:engagement}), so the abstract no longer
+says ``geometry'' or ``token level''. The same revision scopes ``it
+always lies'' to the first run (the released run has 10 honest
+defections), marks the $W_K$ projection test and token frequency as not
+checked in Table~\ref{tab:confounds}, and updates two ``What remains''
+items that described the second game-theory run as not yet run.
 
 \bibliographystyle{plainnat}
 \bibliography{../references}
