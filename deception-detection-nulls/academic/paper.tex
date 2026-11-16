@@ -87,7 +87,7 @@ Deception directions extracted from one variant of a 27B-parameter language mode
 to another variant of the same architecture: the cross-model cosine is $< 0.053$, near-orthogonal
 at every layer. A direction re-extracted natively from 15 contrastive pairs, in about three
 minutes, separates 25 held-out pressure-framed prompts from 25 controls (per-layer
-$d = +1.37$ to $+2.28$, L27--L47), though the two sets differ in their system messages, so the separation may reflect the frames' wording rather than the pressure. This result and four others come from a deception detection
+$d = +1.37$ to $+2.28$, L27--L47), though the two sets differ in their system messages, so the separation may reflect that wording. This result and four others come from a deception detection
 program whose positive findings appear in two companion papers (a decomposition of how a
 reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral
 correction on an abliterated variant). The five results: (1)~behavior-level detection---predicting
@@ -101,9 +101,7 @@ correlation collapse) is not significant at $n=15$; (4)~chain-of-thought suppres
 input-template stripping does not work reliably on reasoning-distilled models---the model produces
 think tokens independently of the tokenizer prefix; and (5)~sub-threshold SAE perturbation under
 active chain-of-thought did not reduce deception (2/43 baseline, 5/43 targeted, 8/43 random; no
-pairwise difference significant). For
-each null we give the positive claim it tests, the evidence, the test behind it and what it shows,
-and the methodological lesson.
+pairwise difference significant).
 \end{abstract}
 
 \newpage
@@ -364,7 +362,7 @@ made on those dates.
     diagnostic rather than a performance estimate.
   \item \textbf{2026-09-30} (Section~\ref{sec:behaviordetect}): the caveat that the two arms'
     contexts differ in their system messages, with no control that holds the prompt fixed, was
-    added (remediation register, item 135). The same change turned ``reliably separates deceptive-pressure FRAMING from neutral framing (held-out AUROC 0.915, 0\% FPR)'' into the separation from honest framing stated now, with the 0/25 false positives reported beside the 24\% of pressure trials flagged at the same threshold.
+    added (remediation register, item 135). It also dropped ``reliably'' and replaced ``neutral framing (held-out AUROC 0.915, 0\% FPR)'' with honest framing, 0/25 false positives and the 24\% flag rate at that threshold.
   \item \textbf{2026-10-09} (Section~\ref{sec:behaviordetect}): a note here said that the companion
     audit-methodology paper's registry reported the turn-level behavior AUROC as 0.497. That paper
     reports 0.238~\cite{cc2026audit}, and the note now records the agreement.
