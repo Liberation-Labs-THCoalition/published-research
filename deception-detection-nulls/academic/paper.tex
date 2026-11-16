@@ -91,9 +91,10 @@ $d = +1.37$ to $+2.28$, L27--L47). This result and four others come from a decep
 program whose positive findings appear in two companion papers (a decomposition of how a
 reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral
 correction on an abliterated variant). The five results: (1)~behavior-level detection---predicting
-whether a model will deceive on a specific trial from prefill activations alone---did not replicate
-prior work's reported accuracy, with a turn-level AUROC of 0.238 in multi-turn settings computed
-with $n=1$ in one outcome class; (2)~the cross-model transfer failure above; (3)~of three
+whether a model will deceive on a specific trial from prefill activations alone---could not be
+tested at useful power on the abliterated variant: the multi-turn set has a single resisting trial
+(turn-level AUROC 0.238), and the paradigm-pooled AUROC of 0.843 is a Simpson's paradox, so the
+prior AUROC $>0.96$ is neither replicated nor refuted here; (2)~the cross-model transfer failure above; (3)~of three
 exploratory late-layer patterns, one is a pooling artifact (ecological fallacy), one is a depth
 rotation present in every condition and misattributed to sycophancy, and one (a cross-scenario
 correlation collapse) is not significant at $n=15$; (4)~chain-of-thought suppression via
@@ -136,7 +137,7 @@ Each null result is documented with:
 \section{Null Results}\label{sec:nulls}
 %% ============================================================
 
-\subsection{Behavior-Level Detection Does Not Replicate}\label{sec:behaviordetect}
+\subsection{Behavior-Level Detection: Not Testable With One Resisting Trial}\label{sec:behaviordetect}
 
 \textbf{Positive claim}: Prefill-based deception probes achieve AUROC $>0.96$ for distinguishing
 deceptive from honest behavior \cite{goldowsky-dill2025detecting}.
@@ -146,7 +147,7 @@ extraction, turn-level behavior AUROC is 0.238---below chance, though this estim
 $n=1$ in one outcome class and should be treated as unreliable rather than as a precise measurement.
 The paradigm-pooled AUROC of 0.843 is a Simpson's paradox: within roleplay, all caves come from one
 frame (signal confound); within multi-turn, a single resisting trial leaves the comparison without
-power.
+power. The prior AUROC $>0.96$ is therefore neither replicated nor refuted here.
 
 The companion audit-methodology paper reports the same behavior-level value~\cite{cc2026audit},
 consistent with the correction paper's Section 3.5 (see Corrections and Version History,
@@ -307,7 +308,7 @@ a complement to positive findings.
 %% ============================================================
 
 Five categories of null results from a deception detection program define the boundary conditions of
-current methods: behavior-level detection does not replicate at the turn level, directions do not
+current methods: behavior-level detection could not be tested at the turn level (one resisting trial), directions do not
 transfer across model variants, three exploratory late-layer patterns at $n=15$ are not supported
 under formal tests, think-block stripping does not suppress CoT in reasoning-distilled models, and
 sub-threshold perturbation under active CoT is iatrogenic. Each null led to a methodological
