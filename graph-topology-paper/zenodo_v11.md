@@ -4,8 +4,8 @@ Paste these over the fields Zenodo pre-fills from the version of 14 September 20
 description says the walks were encoded "as cache tensors", which this version withdraws, so no pre-filled text may
 survive. Gate this file with the two editions before deposit.
 
-**Title:** Walk-Encoded Graph Descriptions in the Prompt: Two Pilots and a Larger Run That Cannot Separate Structure
-from Content
+**Title:** Walk-Encoded Graph Descriptions in the Prompt: Both a Walk Encoding and a Hand-Written Paragraph Raise
+Multi-Hop Accuracy on One Model
 
 **Creators:** Edrington, Thomas (Liberation Labs / Transparent Humboldt Coalition). This matches the academic
 edition's byline. The AI contributor is named in the PDF's AI disclosure and CRediT.
