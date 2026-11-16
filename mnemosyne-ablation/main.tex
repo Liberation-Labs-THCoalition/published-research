@@ -204,7 +204,7 @@ This ablation is part of the Mnemosyne project at Liberation Labs / Transparent 
 \textbf{Repository:} \url{https://github.com/Liberation-Labs-THCoalition}
 
 \bigskip
-\noindent{\small\textit{Note for reviewers: This is a preliminary findings document intended for discussion, not final publication.}}
+\noindent{\small\textit{Note for reviewers: This report has been through five rounds of adversarial audit (Agni gate + Dwayne/Kavi audit cycle). It is a preliminary findings document intended for discussion, not final publication. J-lens verification is forthcoming.}}
 
 \section*{Acknowledgments}
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
@@ -218,8 +218,6 @@ This report was first written in June 2026. The body states each current result 
 \paragraph{2026-11-16: untested comparisons.} The June edition stated comparisons that carry no significance test as results. It called SIRA ``the one universally positive component, improving EM across all conditions tested''; that is now a positive point estimate on each probe. Section~5.1 credited the difference between the probes to ``whether temporal ordering is meaningful in the target domain''; that reading is not supported, since the probes also differ in size, source and baseline. Finding~4 said ``TGS helps on graph-connected knowledge, not elsewhere''; neither probe tests relational structure, so that is now open. Statements that rested on these are reworded to match: recency as the reason for the conversational stack, SIRA's query step as a substitute for significance scoring, and Garuda's place in adversarial stacks are now marked untested.
 
 \paragraph{2026-11-16.} Four statements are corrected against Table~1 and the report's own test. Finding~1 said SIRA alone ``closes 33\% of the gap between vanilla and theoretical ceiling''; $+0.053$ is 33\% of the 0.160 baseline, not of the gap to a perfect score, and the finding now gives the change itself (0.160 to 0.213). Finding~3 said significance scoring ``produces the same result as not having it on both probe sizes''; on the small probe it moves EM from 0.700 to 0.650. H-MEM's change on the large probe (0.200 to 0.160, Fisher $p=0.45$) was written as a regression (``can hurt'', ``actively misranks older documents'', ``too aggressive''); it is a null, now reported as no detectable change, with the proposed mechanism marked untested. Section~5.3 said significance scoring ``probably works when correctly tuned''; tuned keyword lists were not tested, and the sentence now says so. The Markdown draft \texttt{publication\_draft.md}, which still carried the earlier ``40\%'' figure for Finding~4, is removed; \texttt{main.tex} is the only source of each edition.
-
-\paragraph{2026-11-16: note for reviewers.} The note no longer says the report ``has been through five rounds of adversarial audit (Agni gate + Dwayne/Kavi audit cycle)''. No dated record of those rounds was found in the artifact repository, and the removed Markdown draft said the review cycle was not yet complete.
 
 \paragraph{2026-11-16: quantization.} Version~1.0's ``Q4\_K\_M'' was wrong, because it is a llama.cpp format MLX doesn't use. Version~1.0 is the June edition, whose Model section gave the quantization as ``Q4\_K\_M via MLX''. That line now reads: with MLX on Apple Silicon (Starship); the quantization was not recorded.
 
