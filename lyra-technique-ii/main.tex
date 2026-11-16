@@ -475,7 +475,7 @@ Random direction control & $0.7\times$ & --- & Withdrawn \\
 \end{tabular}
 \end{table}
 
-\subsection{Persona Intensity: Raw Endpoint Separation and Denoised Upper Bounds}
+\subsection{Persona Intensity: Raw Endpoint and Denoised Upper Bounds}
 \label{sec:results_persona}
 
 Persona intensity measures how strongly a system prompt shapes the model's
@@ -571,7 +571,7 @@ on Llama) while all-layer averages showed chance performance.
 SVD denoising of raw spectral features raises 30-class emotion accuracy, as
 an upper bound.
 
-\paragraph{From $1.7\times$ to $12.9\times$ chance.} On the 900-trial emotion dataset
+\paragraph{From $1.7\times$ to $12.9\times$.} On the 900-trial emotion dataset
 (Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
 30~emotions at $1.7\times$ chance (accuracy $0.057$, chance $0.033$).
 Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.43$,
@@ -728,7 +728,7 @@ Results at the permutation floor of $p < 0.005$ (from 200 permutations)
 cannot be distinguished from $p = 0.004$ and would not survive strict
 Bonferroni correction. The denoised emotion and persona results are listed
 at $p < 0.005$ (Table~\ref{tab:body_count}); for emotion, the released
-results file (\texttt{data/emotion\_denoising\_results.json}) records
+results file (\texttt{data/\allowbreak emotion\_denoising\_results.json}) records
 200~permutations and notes that a smaller $p$ is not achievable at that
 count, so that result sits at the floor. Borderline results (e.g., Llama confab detection with
 $p = 0.035$) should be treated as exploratory. For the emotion key readout,
@@ -846,6 +846,7 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 \end{table}
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
+
 $^{\#}$Withdrawn at source~\citep{lyra_p4}: the per-layer values cannot be traced to a released results file, and the trial file has constant rank and entropy features from an SVD fallback. The question is open, and no signal is claimed (dated note: Appendix~\ref{sec:corrections}, 2026-11-07).
 $^{\P}$The probe applies no $W_K$ (it scores class-mean cache keys), and its labels are the emotion a story generator was asked to write. For the two emotion rows, $p$ is Holm-adjusted against text (\S\ref{sec:results_wk}); the withdrawn injection row carries none. Dated note: Appendix~\ref{sec:corrections}, 2026-11-01.
 $^{\circ}$Each confound is named in the body-count ledger of~\citet{lyra2026metapattern}; for within-model and same-prompt deception, see note $\S$.
@@ -1595,7 +1596,7 @@ These stated facts change.
   artifact'' (now: within selection noise) and ``with denoising providing
   modest improvements for weaker models''; the Introduction said ``with
   denoising improving weaker models by up to $+0.068$''.
-\item \emph{Conclusion.} It said ``Confirmed findings from prior work
+\item \emph{Conclusion.} It read ``Confirmed findings from prior work
   survive unchanged or are strengthened by the new instruments''. The new
   instrument, denoising, is unconfirmed, so it now says they hold on raw
   features. It said ``Apparent nulls that were measurement
