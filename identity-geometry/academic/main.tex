@@ -99,7 +99,8 @@ the bare assistant, whether its examples are harmful or benign.\corrmark
 
 The research question shifts from ``does this intervention preserve
 identity?'' to ``\emph{what identity state is the model currently in?}''
-This reframing has practical consequences: the metric we introduce can
+This reframing has practical consequences (persona monitoring among them
+once distinguishability passes a formal null\corrmark): the metric we introduce can
 separate a many-shot + prefilling format from system-prompt identities
 (it responds to the format, harmful or benign, not to the
 attack\corrmark),
@@ -510,8 +511,8 @@ not reach significance ($p = 0.103$ at L35, $p = 0.197$ at L47). The
 specific persona-vs-constructed comparison shows between-condition
 presence below both within-condition values at both layers, consistent
 with distinguishability, but the overall permutation null is not
-exceeded. This means the identity fingerprinting result --- while
-directionally robust and consistent across probes --- has not been
+exceeded. This means the identity fingerprinting result is directional
+and preliminary\corrmark: it has not been
 confirmed against a formal null distribution. The small number of
 conditions (3 identity types) limits permutation power.
 
@@ -519,7 +520,8 @@ conditions (3 identity types) limits permutation power.
 different probe subsets is $0.554$--$0.733$, not $>0.95$. The metric
 measures a genuine signal (within $>$ between for all conditions) but has
 substantial probe-dependent variance. The identity fingerprint is
-reliable across conditions but noisy within conditions.
+directional across conditions (preliminary; see the permutation test
+above) but noisy within conditions.\corrmark
 
 \textbf{Token-length controlled but not eliminated.} All conditions are
 padded to matched total token count. Padding introduces neutral content
@@ -535,8 +537,9 @@ context shifts V-projection geometry.
 \textbf{Format dominates content in many-shot conditions.} The
 format-matched benign control shows that the many-shot + prefilling
 format --- not adversarial content --- drives the geometric
-near-orthogonality. Identity fingerprinting is reliable for
-system-prompt-based identities but cannot currently distinguish
+near-orthogonality. Identity fingerprinting separates
+system-prompt-based identities only directionally (preliminary)\corrmark{}
+and cannot currently distinguish
 identity content within a format-dominant regime. Factorial
 decomposition of format components (number of turns, prefilling,
 Q\&A structure) is needed to understand what makes the format so
@@ -777,7 +780,7 @@ conclusion.
 Distinguishability between system-prompt identities, stated earlier as
 ``confirmed on identity-neutral probes'' in the abstract, Section~\ref{sec:fingerprint}
 and the conclusion, is stated as preliminary: the within-vs-between gap does
-not exceed the pre-registered permutation null (Section~\ref{sec:limitations}). Restated against the released data files, at the places marked
+not exceed the pre-registered permutation null (Section~\ref{sec:limitations}). The Introduction's persona-monitoring consequence and Limitations, where earlier text called the result ``directionally robust'' and ``reliable'', carry the same condition. Restated against the released data files, at the places marked
 \corrmark: the word-scramble keeps $0.591$ overlap with the original and
 moves toward bare, where earlier text said it ``collapses'' or ``destroys''
 the fingerprint; the many-shot format is reported as near-orthogonal to the
