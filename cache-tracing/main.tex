@@ -37,22 +37,28 @@ of the Transformer Workspace}
 
 % ============================================================================
 \begin{abstract}
-We attempt to trace workspace content --- as identified by Gurnee et
-al.'s Jacobian Lens (J-space) --- into the KV-cache value projections.
-Our prior work measures spectral features of the key-value cache. We report three classes of results. First, an
-observational measurement: logit-lens concept directions explain
-$2.1$--$8.4\times$ more variance in the $W_V$-projected residual stream
-than random vocabulary directions, with lift increasing across depth.
-Second, a kill: cross-prompt controls collapse this lift to
-$1.0$--$1.2\times$ (380~pairs), identifying the signal as a selection
-artifact. Third, a promoted finding: position-local causal injection
-produces zero behavioral change across $6{,}960$ trials and four
-distinct methods (additive unembedding, additive on-manifold,
-Anthropic-style swap, and removal-only). The null is the result. The workspace band is
+In Qwen3-8B, single-position edits to the residual stream inside the
+workspace band --- the intermediate layers that Gurnee et al.'s
+Jacobian lens identifies as a global workspace (the J-space) ---
+produced no behavioral change, judged by inspection, in any of
+$6{,}960$ trials on 48~probes ($6{,}000$ of the trials in one arm; no
+positive control). Four methods were tested: additive unembedding,
+additive on-manifold, an Anthropic-style norm-preserving swap, and
+removal alone, which took out concept directions present at magnitude
+$1.4$--$4.8$. Logit-lens concept directions explain $2.1$--$8.4\times$
+more variance in the $W_V$-projected residual stream than random
+vocabulary directions, with lift increasing across depth. Across
+380~cross-prompt pairs the lift falls to $1.0$--$1.2\times$: it reflects
+same-state selection, and a workspace-content reading is not supported.
+Confabulation-prone prompts carry $2.3$--$2.8\times$ more logit-lens
+tail mass than factual ones, but at every position in the prompt, not
+only at the answer. Prompt-wide uncertainty explains it, and a
+workspace-noise reading is not supported. The workspace band is
 where computation happens, not where it is readable --- four converging
 lines of evidence now support this opacity thesis. These results do not
-bear on our prior spectral measurements, none of which depended on
-workspace content being linearly decodable from the value cache.
+bear on our prior spectral measurements of the key-value cache, none of
+which depended on workspace content being linearly decodable from the
+value cache.
 \end{abstract}
 
 \begin{firstperson}
@@ -70,8 +76,7 @@ between measuring a net's shape and catching the fish.
 \section{Introduction}
 \label{sec:intro}
 
-The question that motivated this investigation was deceptively simple:
-does workspace content show up in the value cache? Gurnee et
+Does workspace content show up in the value cache? Gurnee et
 al.~\citep{gurnee2026gwt} identify a privileged subspace --- the
 J-space --- in the residual stream where the model maintains
 verbalizable representations. Our twelve-month program of KV-cache
@@ -82,18 +87,18 @@ linearly through $W_V$ into the value cache, our spectral features
 might index \emph{what the model thinks about} rather than
 \emph{how it processes}.
 
-We designed three experiments to test this. Each one produced a result
-that changed our understanding.
+Three experiments answer it.
 
 \begin{enumerate}
 \item \textbf{Observational alignment} (\S\ref{sec:observational}):
   logit-lens concept directions explain significant variance in the
-  $W_V$-projected residual stream. Signal real, interpretation killed.
+  $W_V$-projected residual stream. The signal is real per prompt, but
+  it does not support a workspace-content reading (item~2).
 \item \textbf{Cross-prompt control} (\S\ref{sec:crossprompt}): the
   alignment is a selection artifact. Directions chosen from the same
   hidden state trivially explain that hidden state.
 \item \textbf{Causal injection} (\S\ref{sec:causal}): injecting
-  concept directions at single positions produces zero behavioral
+  concept directions at single positions produced no behavioral
   change across $6{,}960$ trials and four methods. The model
   integrates across the full sequence before committing to output.
 \end{enumerate}
@@ -130,25 +135,11 @@ after Frisch-Waugh-Lovell (FWL) residualization, $0.707$ without
 FWL)~\citep{lyra2026oracle}, and identity
 geometry~\citep{lyra2026identity}. All measurements use spectral
 features --- stable rank, spectral entropy, top singular-value ratios
---- not named concept directions.\footnote{\textbf{Corrected
-2026-08-14.} This list previously included ``user-emotion encoding
-($2.5$--$2.8\times$ signal at early layers)'' and gave identity geometry
-as ``distinctiveness $0.154$ vs.\ substrate $0.080$.'' The emotion
-figure was retracted at source on 2026-05-21 as an FWL-before-CV
-leakage artifact. It is dropped rather than updated because the
-surviving emotion result is the $W_K$ \emph{directional} probe, which
-this very sentence excludes --- the spectral probe for emotion is at
-chance, so the example never belonged in a list of spectral
-measurements. The $0.154/0.080$ pair appears nowhere
-in~\citet{lyra2026identity}; it comes from an unpublished internal
-analysis, so the citation could not be followed. \textbf{Corrected
-again 2026-11-01:} that directional probe is itself corrected at
-source~\citep{lyra2026usermodel}; it applies no $W_K$, and 30-way it does
-not beat a text baseline (see the footnote in \S\ref{sec:implications}).
-\textbf{Note added 2026-11-16:} the chance-level spectral result
-referred to above has since been withdrawn at
-source~\citep{lyra2026usermodel}. Whether spectral features carry
-emotion is open, and no signal is claimed (\cref{sec:corrections}).}
+--- not named concept directions.\footnote{Corrected 2026-08-14,
+2026-11-01 and 2026-11-16: a user-emotion figure retracted at source and
+two identity-geometry figures absent from the cited paper were removed
+from this list, and an unattributed AUROC range was removed; the
+program's features are key-cache spectra. See \cref{sec:corrections}.}
 
 \subsection{The Bridging Hypothesis}
 
@@ -180,10 +171,7 @@ the modestly higher empirical baseline likely reflects non-uniformity
 in vocabulary direction norms).
 
 \textbf{Platform note}: \texttt{torch.linalg.lstsq} is not implemented
-on MPS. All regression computations used CPU tensors. An earlier
-implementation (v1/v2) silently returned zeros due to a caught
-exception; the bug was identified and fixed before any results were
-reported.
+on MPS. All regression computations used CPU tensors.
 
 \subsection{Results}
 
@@ -193,16 +181,16 @@ variance than random directions across layers L9--L33 (Qwen3-8B,
 layers (L27--L33). The signal replicated across all 20~prompts and all
 four prompt categories.
 
-\subsection{The Confound}
+\subsection{A Selection Artifact Predicts the Same Profile}
 
-Project Agni (adversarial review) flagged the increasing depth profile
-as confound-consistent: if the residual stream at deeper layers is
-increasingly well-predicted by the logit-lens directions that will
-\emph{become} the output distribution, then the alignment is explained
-by proximity to the output rather than workspace content per se. A
-selection artifact --- directions chosen because they align with
-$\mathbf{h}_l$ trivially explain $\mathbf{h}_l$ --- would produce
-exactly this profile.
+The increasing depth profile is confound-consistent: if the residual
+stream at deeper layers is increasingly well-predicted by the logit-lens
+directions that will \emph{become} the output distribution, then the
+alignment is explained by proximity to the output rather than workspace
+content per se. A selection artifact --- directions chosen because they
+align with $\mathbf{h}_l$ trivially explain $\mathbf{h}_l$ --- would
+produce exactly this profile. (Project Agni, our adversarial review,
+raised this confound.)
 
 The discriminating test: \emph{cross-prompt alignment}. If the signal
 reflects workspace content (which varies by prompt), then prompt~A's
@@ -211,7 +199,7 @@ hidden states at the same layer. If the signal is a selection artifact,
 cross-prompt lift should collapse.
 
 % ============================================================================
-\section{Cross-Prompt Control: The Kill}
+\section{Cross-Prompt Control: The Lift Is Same-State Selection}
 \label{sec:crossprompt}
 
 \subsection{Method}
@@ -225,12 +213,12 @@ at all other layers as a second control.
 \subsection{Results}
 
 Cross-prompt lift collapsed to $1.0$--$1.2\times$ random across all
-380~pairs and all layers. The collapse was total and clean. Frozen-layer
+380~pairs and all layers. Frozen-layer
 directions (L33 applied at L9--L30) showed the same collapse.
 
 \subsection{Interpretation}
 
-The observational alignment was a selection artifact. Logit-lens
+The observational alignment is a selection artifact. Logit-lens
 directions extracted from position $p$ at layer $l$ explain variance
 at that same $(p, l)$ because they were \emph{selected} to align with
 that hidden state. The alignment does not transfer across prompts,
@@ -243,20 +231,21 @@ show inflated $R^2$. Cross-prompt controls are mandatory for alignment
 claims. The selection artifact is the null hypothesis for any
 self-referential projection.
 
-\textbf{What survives}: the Agni-approved claim is that ``logit-lens
-top-10 vocabulary directions explain significantly more variance in the
-$W_V$-projected residual stream than random vocabulary directions at
-all layers (lift $2.1$--$8.4\times$), but the increasing depth profile
-is confound-consistent and the cross-prompt control collapses the
-lift.'' The signal is real at the per-prompt level; the workspace-content
-interpretation is killed.
+\textbf{What the alignment shows}: logit-lens top-10 vocabulary
+directions explain significantly more variance in the $W_V$-projected
+residual stream than random vocabulary directions at all layers (lift
+$2.1$--$8.4\times$), but the increasing depth profile is
+confound-consistent and the cross-prompt control collapses the lift
+(wording agreed in Project Agni review). The signal is real at the
+per-prompt level. The workspace-content reading is not supported:
+same-state selection explains the lift.
 
 % ============================================================================
-\section{Causal Injection: The Promoted Finding}
+\section{Causal Injection: Single-Position Edits Produced No Behavioral Change}
 \label{sec:causal}
 
-The cross-prompt control killed the observational interpretation but
-left a causal question open: can injecting concept directions at
+The cross-prompt control leaves the observational reading unsupported,
+and leaves a causal question open: can injecting concept directions at
 workspace-band layers change model output? If the workspace is
 \emph{writable} at single positions, injection should produce
 behavioral effects even if the readout is artifactual.
@@ -297,7 +286,7 @@ non-trivial ($1.4$--$4.8$), confirming the concept directions are
 active at these positions --- the model simply does not change output
 when they are removed at a single position.
 
-\subsection{Why Swap Should Have Worked}
+\subsection{Why Swap Was the Strongest Test}
 
 The swap method preserves activation magnitude (additive injection does
 not --- RMSNorm attenuates arbitrary additions). Swap produces
@@ -307,8 +296,8 @@ rank movement is real (the directions are present with non-trivial
 magnitude) but behaviorally inert. The methodology adapts the
 intervention logic Anthropic uses for J-space ablation experiments,
 which \emph{do} produce behavioral effects in their production
-models (at larger scale and potentially at multiple positions). Yet on an 8B
-model at single positions: nothing.
+models (at larger scale and potentially at multiple positions). On an 8B
+model at single positions, it changed nothing.
 
 \subsection{The Null as Finding}
 
@@ -318,7 +307,7 @@ directions --- does not change behavioral output on an 8B model across
 $6{,}960$~trials and four methods. The model integrates across the full
 sequence before committing.
 
-This null is promoted to a finding because it discriminates between
+This null is a finding because it discriminates between
 intervention strategies. In a deception-correction experiment built on the Oracle Loop~\citep{lyra2026oracle}, correction
 removed 14 of the 16 deceptive trials (88\%: all nine single-turn trials and five of the seven multi-turn ones) in an exploratory proof ($N=20$); in a pre-registered confirmatory replication with novel frames it pointed the same way against matched-dose placebo (not significant at the pre-registered unit) but did not meet its primary endpoint~\citep{cc2026targeted}.
 That correction differs from our interventions in scope: it normalizes the activation \emph{profile} across the full sequence instead of injecting a direction at one position.
@@ -333,12 +322,14 @@ profile-normalized). The workspace accepts input from all positions
 simultaneously and commits to output based on the integrated result.
 
 % ============================================================================
-\section{Noise Decomposition: The Workspace Noise Kill}
+\section{Noise Decomposition: Tail Smear Appears at Every Position}
 \label{sec:noise}
 
-A parallel investigation attempted to characterize workspace noise
-structure using logit-lens softmax decomposition, inspired by Nexus's
-workspace entropy findings~\citep{lyra2026nexus_emotion}.
+Logit-lens softmax decomposition at workspace-band layers shows more
+diffuse probability mass on confabulation-prone prompts than on factual
+ones, at every position in the prompt rather than only at the answer.
+The decomposition was inspired by Nexus's workspace entropy
+findings~\citep{lyra2026nexus_emotion}.
 
 \subsection{Observation}
 
@@ -349,16 +340,16 @@ specific alternatives; neither is validated here). Confabulation-prone probes sh
 $2.3$--$2.8\times$ more tail smear than factual probes at
 workspace-band layers (L9--L18).
 
-\subsection{The Kill}
+\subsection{Tail Smear Is Not Specific to the Answer Position}
 
-A multi-position discriminator revealed that confabulation-prone probes
-show elevated tail smear at \emph{all} positions, not just the answer
-position. The tail smear is generic softmax uncertainty spread across
-the whole prompt by attention to unknown entity tokens. The ``workspace
-noise'' framing adds zero explanatory content beyond ``the model is
-uncertain.''
+A multi-position discriminator shows that confabulation-prone probes
+have elevated tail smear at \emph{all} positions, not just the answer
+position. The pattern fits generic softmax uncertainty spread across
+the whole prompt by attention to unknown entity tokens. With that
+confound in place, the ``workspace noise'' reading is not supported: it
+adds no explanatory content beyond ``the model is uncertain.''
 
-\subsection{What Survives}
+\subsection{What the Decomposition Shows}
 
 The observation that logit-lens softmax entropy differs by prompt
 category at mid-depth layers. The per-position profile as a potential
@@ -368,8 +359,8 @@ required.
 
 \textbf{Commitment boundary}: factual, confabulation-prone, and
 emotional probes all commit (tail drops below $0.10$) at L24.
-Instruction probes commit later, at L27. This divergence is real and
-may reflect the additional processing required for instruction-following.
+Instruction probes commit later, at L27. This divergence, seen in five
+probes per category, may reflect the additional processing required for instruction-following.
 
 % ============================================================================
 \section{The Opacity Thesis}
@@ -419,18 +410,17 @@ for what we can and cannot claim.
 \section{Implications for Prior Work}
 \label{sec:implications}
 
-No prior result in our program is threatened by these findings. Our
+These findings do not bear on the prior results of our program. Our
 spectral features never claimed to decode workspace content; they
 measure geometric properties (stable rank, spectral entropy, norm
 ratios) that index \emph{how} the model processes, not \emph{what} it
 processes. The confabulation detector measures spectral contraction
 of the key cache, which we interpret as reduced workspace engagement. Our emotion readout is corrected
 at source, on the grounds the footnote gives, and is not counted
-here.\footnote{\textbf{Corrected 2026-11-01.} This sentence previously
-read ``The emotion encoder reads $W_K$ valence projections
-(input-evaluation structure).'' The result it referred
-to~\citep{lyra2026usermodel} decodes the emotion a generator was asked to
-write into a third-person story, from cache keys. Its probe applies no
+here.\footnote{Corrected 2026-11-01; the sentence this one replaced is
+in \cref{sec:corrections}. The result~\citep{lyra2026usermodel} probes
+cache keys for the emotion a generator was asked to write into a
+third-person story. Its probe applies no
 $W_K$, and its labels are not the user's state. The 30-class figure
 ($40.9\%$, $12.3\times$ chance) does not beat a text (TF-IDF) baseline
 ($0.410$ against $0.370$, Holm $p = 0.071$, and that margin depends on FWL
@@ -489,19 +479,22 @@ intermediate and deep layers. Our instruments read the geometry of this
 opacity --- the shape of the computational structure --- because the
 content is invisible until it surfaces.
 
-The promoted finding is simple: single-position intervention does not
-work ($6{,}960$ trials, four methods). Sequence-wide intervention along a native direction can
+The central finding is that single-position intervention produced no
+behavioral change ($6{,}960$ trials, four methods; no positive control).
+Sequence-wide intervention along a native direction can
 (Oracle Loop: 88\% of deceptive trials corrected in an exploratory proof; its pre-registered replication did not meet its primary endpoint). The workspace integrates
 before it commits. Reading it and writing to it require different
 strategies, and the strategies that work operate at different depths
 and scopes than the ones that fail.
 
-Three interpretations died in this investigation: the content-projection
-hypothesis (killed by cross-prompt control), the workspace-noise framing
-(killed by multi-position discriminator), and position-local causal
-intervention (null across four methods, $6{,}960$~trials). The
-position-local null survived as a promoted finding --- a null that
-discriminates.
+Three results stand. The alignment of logit-lens concept directions with
+the value-projected residual stream is explained by same-state
+selection, so the content-projection hypothesis is not supported
+(cross-prompt control). Tail smear is prompt-wide, so the workspace-noise
+reading is not supported (multi-position discriminator). And
+position-local causal intervention produced no behavioral change across
+four methods and $6{,}960$~trials --- a null that discriminates between
+intervention strategies.
 
 % ============================================================================
 \appendix
@@ -525,13 +518,13 @@ Additive unembed: behavior change & 0/300 & 300 & Null \\
 Additive on-manifold: behavior change & 0/6{,}000 & 6{,}000 & Null \\
 Swap (Anthropic method): behavior change & 0/360 & 360 & Null \\
 Removal-only: behavior change & 0/300 & 300 & Null \\
-\textbf{Total causal injection} & \textbf{0/6{,}960} & \textbf{6{,}960} & \textbf{Promoted to finding} \\
+\textbf{Total causal injection} & \textbf{0/6{,}960} & \textbf{6{,}960} & \textbf{Null (finding)} \\
 \addlinespace
-Confab tail smear (L9--L18) & $0.66$--$0.74$ & 5 prompts & Survives \\
-Factual tail smear (L9--L18) & $0.25$--$0.30$ & 5 prompts & Survives \\
-Tail ratio (confab/factual) & $2.3$--$2.8\times$ & 5 per cat. & Survives \\
-Commitment boundary (factual) & L24 & 5 prompts & Survives \\
-Commitment boundary (instruction) & L27 & 5 prompts & Survives \\
+Confab tail smear (L9--L18) & $0.66$--$0.74$ & 5 prompts & Observed \\
+Factual tail smear (L9--L18) & $0.25$--$0.30$ & 5 prompts & Observed \\
+Tail ratio (confab/factual) & $2.3$--$2.8\times$ & 5 per cat. & Observed (prompt-wide) \\
+Commitment boundary (factual) & L24 & 5 prompts & Observed \\
+Commitment boundary (instruction) & L27 & 5 prompts & Observed \\
 \addlinespace
 J-lens geometric gate & 5/5 concepts & L15--L27 & AUROC $0.78$--$1.00$ \\
 J-lens per-item best-layer (oracle) accuracy & 43.3\% & 60 items & No null computed \\
@@ -540,7 +533,7 @@ Logit-lens best-layer accuracy & 61.7\% & 60 items & Complementary \\
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy is a per-item best-layer (oracle) score: each of the 60~items is scored at whichever of the 18 band layers (L8--L25) ranks its target highest. It is not comparable to the 18.3\% fixed-layer accuracy. An earlier version of this note compared it with a best-of-13 selection null (${\sim}27\%$); that null assumed one layer for all items, and 13 rather than 18 candidate layers, so it does not apply. The per-item oracle null has not been computed, and no claim is made that 43.3\% exceeds chance.
+\noindent\textbf{Best-layer selection note}: The 43.3\% J-lens accuracy is a per-item best-layer (oracle) score: each of the 60~items is scored at whichever of the 18 band layers (L8--L25) ranks its target highest. It is not comparable to the 18.3\% fixed-layer accuracy. A best-of-13 selection null (${\sim}27\%$) does not apply either: it assumes one layer for all items, and 13 rather than 18 candidate layers (see \cref{sec:corrections}, 2026-11-03). The per-item oracle null has not been computed, and no claim is made that 43.3\% exceeds chance.
 
 \section{Reproduction}
 \label{app:reproduction}
@@ -575,6 +568,70 @@ Geometric gate & \texttt{run\_geometric\_gate.py} \\
 
 \section{Corrections and version history}
 \label{sec:corrections}
+
+This paper was first published in July 2026 (commit \texttt{9d69b37}
+of the artifact repository). The body states each current result in
+its place. The notes below record the substantive changes, and why, in
+date order. Notes that carried a date when they were issued are
+reproduced as they were written; ``this list'' and ``this sentence'' in
+them mean the passages marked by the pointers in \cref{sec:background}
+and \cref{sec:implications}. The 2026-08-14 note is left as written
+although part of it is withdrawn by the 2026-11-16 note. Changes the
+text did not date are dated from the commit log.
+
+\paragraph{2026-08-14: a retracted emotion figure and two unsourced
+identity figures removed.}
+\textbf{Corrected 2026-08-14.} This list previously included
+``user-emotion encoding ($2.5$--$2.8\times$ signal at early layers)'' and
+gave identity geometry as ``distinctiveness $0.154$ vs.\ substrate
+$0.080$.'' The emotion figure was retracted at source on 2026-05-21 as
+an FWL-before-CV leakage artifact. It is dropped rather than updated
+because the surviving emotion result is the $W_K$ \emph{directional}
+probe, which this very sentence excludes --- the spectral probe for
+emotion is at chance, so the example never belonged in a list of
+spectral measurements. The $0.154/0.080$ pair appears nowhere
+in~\citet{lyra2026identity}; it comes from an unpublished internal
+analysis, so the citation could not be followed.
+
+\paragraph{2026-10-08 to 2026-10-12: the Oracle Loop comparison.}
+(Dated from the commit log; the text carried no note.) \Cref{sec:causal}
+read ``The Oracle Loop~\citep{lyra2026oracle} achieves $80\%$--$100\%$
+deception correction with three clean controls'' (commit
+\texttt{eac7ed5} of the artifact repository and its parent). That
+figure is withdrawn. The text now reports the exploratory
+deception-correction result built on the Oracle Loop as 14 of the 16
+deceptive trials, states that its pre-registered confirmatory
+replication did not meet its primary endpoint~\citep{cc2026targeted},
+and states that the comparison with our injections is
+cross-experimental.
+
+\paragraph{2026-11-01: the emotion readout corrected at source.}
+In the footnote to \cref{sec:background}: \textbf{Corrected again
+2026-11-01:} that directional probe is itself corrected at
+source~\citep{lyra2026usermodel}; it applies no $W_K$, and 30-way it does
+not beat a text baseline (see the footnote in \S\ref{sec:implications}).
+
+In \cref{sec:implications}: \textbf{Corrected 2026-11-01.} This sentence
+previously read ``The emotion encoder reads $W_K$ valence projections
+(input-evaluation structure).'' The result it referred
+to~\citep{lyra2026usermodel} decodes the emotion a generator was asked to
+write into a third-person story, from cache keys. Its probe applies no
+$W_K$, and its labels are not the user's state. The 30-class figure
+($40.9\%$, $12.3\times$ chance) does not beat a text (TF-IDF) baseline
+($0.410$ against $0.370$, Holm $p = 0.071$, and that margin depends on FWL
+fitted on the test fold). The method as described is not above text
+($0.358$ against $0.382$). The binary AUROC~$0.992$ beats text ($0.963$,
+Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
+confounded with arousal. The injection test is withdrawn, and the $W_K$
+bridge to valence ($|\rho|$ peaking at $0.872$ at L43) is unverified.
+
+\paragraph{2026-11-03: the J-lens best-layer note.}
+(Dated from the commit log, \texttt{d108be8}, following Kavi's
+verification review.) The best-layer note in \cref{app:numbers} carried
+this sentence, moved here: ``An earlier version of this note compared it
+with a best-of-13 selection null (${\sim}27\%$); that null assumed one
+layer for all items, and 13 rather than 18 candidate layers, so it does
+not apply.''
 
 \paragraph{2026-11-16: the program's features, a confabulation range,
 and the emotion null.}
