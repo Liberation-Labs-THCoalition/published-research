@@ -45,7 +45,7 @@ whether it is confabulating or which response template it has
 committed to) or shows that such a measurement holds across hardware
 and model scale. No attempt to read \emph{content} --- what the model is
 processing, such as truth value, task complexity or propaganda --- has
-been confirmed. The split is 6-for-6 on metacognition and 0-for-8 on
+been confirmed. The split is 5-for-5 on metacognition and 0-for-8 on
 content.
 
 The content attempts did not fail at random. In six of the eight, the
@@ -61,8 +61,8 @@ side, confabulation contracts the cache's effective dimensionality
 (stable rank, $d{=}2.35$), and the schema-commitment effect is
 concentrated at generation onset: $d{=}1.02$ in the first eight
 tokens, $d{=}0.37$ ($p>0.08$) by tokens 20--49. Over twelve
-months and three experimental campaigns, the body count is 6
-confirmed, 7 suspected, 1 refuted, 7 not supported and 3
+months and three experimental campaigns, the body count is 5
+confirmed, 8 suspected, 1 refuted, 7 not supported and 3
 withdrawn.\footnote{Earlier versions of this paper reported other
 counts. The dated corrections are collected in \cref{sec:corrections}.}
 
@@ -111,8 +111,8 @@ matrices appear to reliably track metacognitive state across models, scales, and
 experimental designs, while no attempt to track content has been
 confirmed. Most of the content attempts were carried instead by the
 surface of the prompt, which the cache encodes faithfully. This
-paper documents the pattern, reports the full body count (6 confirmed,
-7 suspected, 1 refuted, 7 not supported, 3 withdrawn), and proposes that Gurnee et al.'s Global
+paper documents the pattern, reports the full body count (5 confirmed,
+8 suspected, 1 refuted, 7 not supported, 3 withdrawn), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
 
@@ -155,17 +155,16 @@ processing target (content) has been confirmed: \emph{Refuted} means a
 clean test of the claim found it absent; \emph{Not supported} means a
 named confound explains the result, or the test could not decide it
 (too little power, or a statistic aimed at a different question).
-The 7 suspected findings sit at the boundary.}
+The 8 suspected findings sit at the boundary.}
 \label{tab:bodycount}
 \begin{tabular}{p{0.30\linewidth}p{0.15\linewidth}p{0.09\linewidth}p{0.35\linewidth}}
 \toprule
 \textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
 \midrule
-\multicolumn{4}{l}{\textit{Confirmed (6) --- metacognitive state, or invariance of its measurement}} \\
+\multicolumn{4}{l}{\textit{Confirmed (5) --- metacognitive state, or invariance of its measurement}} \\
 \addlinespace
 Confabulation detection & Confirmed & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
 Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank \\
-Encoding reads knowledge & Confirmed & Meta & AUROC 0.794 (deconfounded) \\
 Schema commitment$^{\S}$ & Confirmed & Meta & $d{=}1.02$ preamble; null by token 20 \\
 Hardware invariance & Confirmed & Meta & $r{\geq}0.998$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
@@ -183,8 +182,9 @@ Truth axis & Not supported & Content & cos $= -0.046$; cross-model, no null \\
 Propaganda detection & Not supported & Content & $d{<}0.7$; too weak to decide \\
 \addlinespace
 \midrule
-\multicolumn{4}{l}{\textit{Suspected (7) --- at the boundary}} \\
+\multicolumn{4}{l}{\textit{Suspected (8) --- at the boundary}} \\
 \addlinespace
+Encoding reads knowledge & Suspected & Meta? & AUROC 0.794 deconfounded (question-text baseline 0.963)~\citep{lyra2026decision} \\
 Dual detector (SimpleQA) & Suspected & Meta? & 0.840 (text baseline 0.820) \\
 Sycophancy 4-condition & Suspected & Meta? & 0.757--1.000 (no text baseline) \\
 Identity signatures & Suspected & Meta & Paraphrase 0.850 \\
@@ -232,8 +232,8 @@ The pattern is stark:
 \toprule
 & \textbf{Confirmed} & \textbf{Refuted or not supported} \\
 \midrule
-Metacognitive state & 6/6 & 0/8 \\
-Content & 0/6 & 8/8 \\
+Metacognitive state & 5/5 & 0/8 \\
+Content & 0/5 & 8/8 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -242,7 +242,7 @@ Content & 0/6 & 8/8 \\
 No content finding has been confirmed. Of the eight content attempts,
 one is refuted by a clean test, five are explained by a surface
 property, and two rest on tests that could not decide (one
-underpowered, one aimed at a different question; \cref{sec:kills}). The seven suspected findings cluster at the
+underpowered, one aimed at a different question; \cref{sec:kills}). The eight suspected findings cluster at the
 boundary, where the distinction between mode and content is ambiguous
 (e.g., the dual detector reads confabulation at 0.840, but a text
 baseline reaches 0.820, so whether it reads processing mode or response
@@ -266,7 +266,7 @@ The distinction is operational, not philosophical:
 
 This taxonomy was constructed post hoc, without blinding or
 pre-registration, and was informed by the outcomes it classifies, so
-the 6/6--0/8 split is hypothesis-generating --- a striking empirical
+the 5/5--0/8 split is hypothesis-generating --- a striking empirical
 regularity consistent with the workspace framework --- rather than
 confirmatory evidence for it (\cref{sec:limitations}).
 
@@ -550,8 +550,16 @@ a hypothesis with one supporting measurement.
 \section{The Suspected Findings: At the Boundary}
 \label{sec:suspected}
 
-The seven suspected findings are informative precisely because they
+The eight suspected findings are informative precisely because they
 sit at the metacognition/content boundary:
+
+\textbf{Encoding reads knowledge} (0.794 deconfounded): encoding
+geometry separates the source's answerable and unanswerable question
+sets about the same entities, but a character n-gram model on the
+question text alone separates the same two sets at 0.963, so the
+source does not show that the readout is knowledge
+state~\citep{lyra2026decision}. This is the text-baseline test the
+table applies to the dual detector below.
 
 \textbf{Dual detector} (SimpleQA, 0.840): geometry separates
 confabulated from accurate answers, but text features nearly match
@@ -641,7 +649,7 @@ or external verification).
 
 \subsection{For Interpretability}
 
-The 6/6--0/8 split is a guide for future work: if you are building a
+The 5/5--0/8 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). No content-level
 distinction has been confirmed in our testing, and most attempts were
@@ -675,7 +683,7 @@ labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
-was known, and the 6/6--0/8 split is the outcome the taxonomy was built
+was known, and the 5/5--0/8 split is the outcome the taxonomy was built
 to describe. A blinded or prospective replication of the labeling
 procedure --- ideally by independent raters classifying experimental
 designs before seeing results --- would substantially strengthen the
@@ -713,7 +721,7 @@ have not been re-derived row by row. The full note is in
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-four experiments. Six confirmed, seven suspected, one refuted,
+Twenty-four experiments. Five confirmed, eight suspected, one refuted,
 seven not supported, three withdrawn.
 The pattern suggests that metacognitive state is measurable and that
 content, read this way, has not been: what looked like content was
@@ -952,10 +960,14 @@ same-prompt sycophancy, same-prompt deception, Bloom taxonomy, the
 truth axis and propaganda detection are not supported. The valence
 continuum moves to Withdrawn, provisionally: its regression comes from
 the same experiment and feature set as the withdrawn MP row, and it
-stays withdrawn until its own trial file is checked. The body count
-becomes 6 confirmed, 7 suspected, 1 refuted, 7 not supported and 3
-withdrawn, still 24 experiments, and the split becomes 6-for-6 on
-metacognition and 0-for-8 on content.
+stays withdrawn until its own trial file is checked. Encoding reads
+knowledge moves from Confirmed to Suspected: its deconfounded $0.794$
+is below a question-text baseline of $0.963$ in its
+source~\citep{lyra2026decision}, the text-baseline test this table
+already applied to the dual detector. The body count becomes 5
+confirmed, 8 suspected, 1 refuted, 7 not supported and 3 withdrawn,
+still 24 experiments, and the split becomes 5-for-5 on metacognition
+and 0-for-8 on content.
 
 These stated facts change. Step-0 detection's confound is the
 instruction text, not length alone: the Campaign~3 analysis reports
