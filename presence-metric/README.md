@@ -10,7 +10,7 @@
 We introduce presence, a geometric metric that measures whether inference-time interventions preserve a model's identity. Three findings:
 
 1. **Metric responds at the measurement layer** (24 independent measurements, 72 records): positive control drops presence 1.000 → 0.828 under direct identity injection at L35; orthogonal control stays at 0.965 or above
-2. **Identity preserved** (720 trials, doses α ≤ 0.50): presence = 0.845 +/- 0.012 across all arms, doses, emotions. The 720-trial records are not in `data/`. An earlier 168-trial, 2-prompt run (in `data/`) gave 0.978 +/- 0.002
+2. **No change detected under input-layer V-cache injection** (720 trials, doses α ≤ 0.50, where the positive control itself only reaches 0.964, so insensitivity there is not excluded): presence = 0.845 +/- 0.012 across all arms, doses, emotions. The 720-trial records are not in `data/`. An earlier 168-trial, 2-prompt run (in `data/`) gave 0.978 +/- 0.002
 3. **Mechanism open**: raw emotion vectors share 22-25% energy with identity subspace at L3 (z=+56 to +62 above random; 10-15% at L7) yet presence at deep layers is unaffected
 
 ## Data Package
@@ -43,7 +43,7 @@ presence-metric/
 
 ## Notes for Reviewer
 
-- The paper originally claimed "depth separation" as the mechanism. The Arm C data (all-layer injection, presence still flat) and the orthogonality data (22-25% alignment at L3) led the rewrite to state the mechanism as an open question.
+- The paper originally claimed "depth separation" as the mechanism. The Arm C data (all-layer injection, presence still flat) and the orthogonality data (22-25% alignment at L3) led the rewrite to state the mechanism as an open question. Arm C's doses stop at α = 0.50, where the L35 positive control itself moves presence only to 0.964, so the Arm C result does not rule depth separation out either.
 - The 168-trial file's configuration records temperature 0.6, and its α = 0 records (no injection) carry distinct responses for the same prompt, so that run sampled; it was not greedy.
 - Finding 4 (directional efficacy) is from a 30-pair pilot with 33% parse rate on Prometheus 2 (7B). Marked as preliminary.
 - A layer-by-layer presence map experiment is designed and Agni-gated but not yet run (waiting for compute).
