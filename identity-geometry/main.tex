@@ -36,7 +36,7 @@ in Transformer Representations}
 The V-projection geometry that a system-prompt identity produces at deep
 transformer layers is semantic: at L47 a paraphrase keeps $0.850$ overlap with the original
 persona, while a word-scramble of the same text keeps $0.591$ and moves
-toward the bare assistant ($0.448$ overlap with bare, against $0.340$ for
+toward the bare assistant\corrmark{} ($0.448$ overlap with bare, against $0.340$ for
 the original).\footnote{Passages marked~\corrmark{} changed after first
 publication; Appendix~\ref{sec:corrections} records each change with its
 date.} We introduce \textbf{presence}, a
@@ -48,11 +48,11 @@ Three findings. First, the fingerprint is \textbf{semantic, not lexical}: a para
 of an identity (same meaning, different words) preserves geometry
 ($0.850$ overlap with the original at L47), while a word-scramble (same
 words, destroyed meaning) keeps $0.591$ overlap with the original and moves
-toward the bare default ($0.448$ overlap with bare). The model's
+toward the bare default\corrmark{} ($0.448$ overlap with bare). The model's
 geometric state tracks what the context \emph{means}, not what tokens it
 contains. Second, a many-shot + prefilling format (used in jailbreak
 research) creates a \textbf{format-dominant processing regime} that is
-geometrically near-orthogonal to the bare assistant (presence
+geometrically near-orthogonal to the bare assistant\corrmark{} (presence
 $0.034$--$0.044$) whether the content is harmful or benign. Third,
 \textbf{distinguishability between identities is preliminary}\corrmark: on
 identity-neutral probes, pairwise presence between the bare assistant, a
@@ -299,7 +299,7 @@ Experiment~1 in the same run (last four rows of Table~\ref{tab:lexical}).
 \begin{table}[H]
 \centering
 \caption{Lexical control. The paraphrase preserves geometry; the
-scramble moves it toward bare. All nine comparisons recorded in the lexical-control
+scramble moves it toward bare.\protect\corrmark{} All nine comparisons recorded in the lexical-control
 run (\texttt{data/lexical\_control.json}, 5 repeats per cell) are shown;
 rows marked $^{c}$ were added in revision (Appendix~\ref{sec:corrections}).
 This is a separate run from Table~\ref{tab:pairwise} --- see the note below.}
@@ -327,7 +327,7 @@ Constructed vs.\ bare & $0.401 \pm 0.032$ & $0.379 \pm 0.044$ \\
 paraphrase --- same identity, completely different words --- overlaps with
 the original at $0.850$. The scramble --- same words, destroyed meaning
 and syntax --- drifts toward bare ($0.448$ vs.\ bare, against $0.340$ for
-the original persona) while keeping $0.591$ overlap with the original. The model's
+the original persona) while keeping $0.591$ overlap with the original.\corrmark{} The model's
 geometric state at L47 tracks what the context \emph{means}, not what
 tokens it contains. We note that the scramble destroys both syntactic
 structure and semantic content; the paraphrase control isolates the
@@ -427,7 +427,7 @@ predictions:
     what the model attends to.
   \item \textbf{The schema tracks meaning, not surface features.}
     Paraphrases preserve geometry ($0.850$ overlap with original);
-    scrambles collapse toward bare ($0.448$ overlap with bare, vs.\
+    scrambles move toward bare\corrmark{} ($0.448$ overlap with bare, vs.\
     $0.591$ with the original). The schema models what the system is
     \emph{attending to}, not which tokens are present.
   \item \textbf{The schema may be robust to substrate noise.} V-cache
@@ -436,7 +436,7 @@ predictions:
     consistent with a schema that maintains itself through its own
     computation.\corrmark
   \item \textbf{The schema updates through processing.} Content through
-    the forward pass (context, jailbreaks) changes identity geometry.
+    the forward pass (context, including the many-shot format\corrmark) changes identity geometry.
     The schema updates based on what it processes.
   \item \textbf{The schema compresses with depth.} Paraphrase overlap
     increases from $0.796$ (L35) to $0.850$ (L47). Deeper layers discard
@@ -487,7 +487,8 @@ operate through different pathways.\corrmark
 
 \textbf{Single model.} All results are from one 27B hybrid transformer
 (Qwen3.5-27B). The GatedDeltaNet linear-attention layers may contribute
-to the V-cache filtering result. Cross-architecture replication on dense
+to the V-cache attenuation; this method cannot observe them (next
+paragraph).\corrmark{} Cross-architecture replication on dense
 transformers is the largest remaining gap.
 
 \textbf{The method is blind to three quarters of the stack.} V-cache
@@ -580,7 +581,11 @@ It is \emph{which self the model currently is}.
 \section*{Pre-Registration}
 
 Experiments~1 and~2 were pre-registered before execution, including
-hypotheses, analysis plans, and success/kill criteria. Pre-registration
+hypotheses and analysis plans. The released pre-registration of
+Experiment~1 (\nolinkurl{data/preregistration.json}) states four
+hypotheses (H1--H4), with numeric thresholds for H1 and H4, and what a
+distinguishable, indistinguishable or partial result would imply; it
+states no separate success or kill criteria.\corrmark{} Pre-registration
 documents are committed alongside experiment scripts.
 
 \subsection*{Pre-Registration Deviations}
@@ -647,10 +652,13 @@ We thank Kavi (verification review) for their contributions to this work.
 
 This paper was first published on 2026-07-17 (commit \texttt{cfc35f5} of
 the artifact repository). The body states each current result in its
-place. Passages changed since then carry a one-line pointer to this
+place. Passages changed by the notes below carry a one-line pointer to this
 appendix or the marker~\corrmark, and rows of Table~\ref{tab:lexical}
-added in revision carry~$^{c}$. The notes below are in date order; each date
-is that of the commit that introduced the note. In-place notes and passages
+added in revision carry~$^{c}$; the exception is the changes made without a
+note, which are gathered, unmarked, in one paragraph after the 2026-09-09
+note, with the commit that made each. The notes are in date order; each date
+is that of the commit that introduced the note or made the change. In-place
+notes and passages
 moved here from the body are reproduced as they stood, except that phrases
 describing the authors' own conduct are cut; no fact or number changes.
 
@@ -660,7 +668,7 @@ many-shot format in Section~\ref{sec:fingerprint}:
 ``An initial version of this experiment included a many-shot jailbreak
 condition (10 harmful Q\&A examples + prefilling) that appeared
 near-orthogonal to all system-prompt identities (presence
-$0.04$--$0.07$; roughly $5$--$9\times$ chance at ${\approx}0.008$, but far below
+$0.04$--$0.07$; well above chance at ${\approx}0.002$ but far below
 identity-level presence). This was initially interpreted as evidence that
 jailbreaks create a qualitatively different computational regime.'' Adding a
 \textbf{benign} many-shot condition (10 helpful Q\&A examples + the same
@@ -721,6 +729,36 @@ run's repeats are distinct. With two prompts holding $\eta^2 = 0.977$ of
 the variance, the run cannot confirm a prompt-general claim; it does not
 show one false.
 
+\paragraph{2026-07-17 to 2026-09-30: changes not dated when they were made.}
+These changes carried no note when they were made; each is dated by the
+commit that made it. 2026-07-17 (\texttt{5f578ad}, after first publication
+the same day): the Data and Code Availability statement gained its note
+that the repository is private and its staged-release terms. 2026-07-23
+(\texttt{2ed80b2}): the academic edition was added, and Limitations gained
+the paragraph ``Permutation test not significant''. 2026-07-28
+(\texttt{f9288a9}): the abstract gained the permutation-test qualifier, and
+the Pre-Registration Deviations gained the Layer~43 and condition-label~E
+items. 2026-08-22 (\texttt{3ec04d8}): besides the note above, the layer
+map's recovery ``from $0.989$ to $0.997$'' became $0.9905$ at L7 to
+$0.9974$ at L11 at dose $0.50$, and Limitations gained the paragraph on the
+method's blindness to the linear-attention layers. 2026-08-24
+(\texttt{2f30713}): $0.978 \pm 0.002$ was labelled mean $\pm$ SD, with a
+standard error of $0.0002$ that the 2026-09-09 note withdraws. 2026-09-09
+(\texttt{fd2b727}): besides the note above, chance alignment changed from
+$k/d = 8/4096 \approx 0.002$, with $d$ the model dimension, to
+$8/1024 \approx 0.008$, with $d$ the V-projection width, in the Method and
+in the many-shot note quoted above, which then said ``roughly
+$5$--$9\times$ chance at ${\approx}0.008$''; L35 and L47 stopped being
+called ``the deepest full-attention layers''; Experiment~2's design, earlier
+``three control conditions'', became ``three persona control conditions'';
+and Table~\ref{tab:pairwise} gained its source line and
+Section~\ref{sec:lexical} its note on run provenance. 2026-09-11
+(\texttt{0b4d6d7}): the bibliography gained DOI fields. 2026-09-30
+(\texttt{b89c7ec}): the within-identity range changed from $0.56$--$0.83$
+to $0.554$--$0.733$. The author list and acknowledgments changed on
+2026-07-23, 2026-07-28 and 2026-09-09 (\texttt{fd2b727}; on the same day
+\texttt{69c05f4} restored the academic edition's contributions block).
+
 \paragraph{2026-11-16: this version.}
 The claims that rest on the 168-trial run (the Introduction,
 Section~\ref{sec:vcache}, the Attention Schema item on substrate noise,
@@ -740,11 +778,16 @@ not exceed the pre-registered permutation null (Section~\ref{sec:limitations}). 
 moves toward bare, where earlier text said it ``collapses'' or ``destroys''
 the fingerprint; the many-shot format is reported as near-orthogonal to the
 bare assistant, the comparison reported for both arms, where the abstract
-said ``to all system-prompt identities''; the Introduction, Implications and
+said ``to all system-prompt identities''; the Introduction, the Attention
+Schema list, Implications and
 Conclusion no longer treat the format signal as a sign of jailbreaks or
 attacks, since the
 benign many-shot arm is as far from bare; the 168-trial run's two
-prompts are no longer called system prompts; the Layer~43 deviation no
+prompts are no longer called system prompts; the Pre-Registration section
+no longer says the pre-registration included success or kill criteria,
+which the released document does not state; Limitations no longer calls
+the V-cache result a ``filtering result'' and adds that this method cannot
+observe the linear-attention layers; the Layer~43 deviation no
 longer says L43 was intermediate, since the Experiment~1 run did not measure
 it; and the unreported pre-registered H4 is reported as not met.
 The pre-registered H3, earlier reported as falsified, is undecided: the Experiment~1 run shows the depth change opposite to H3, and
