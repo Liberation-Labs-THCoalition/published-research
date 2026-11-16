@@ -32,8 +32,10 @@ in Transformer Representations}
 \begin{abstract}
 System-prompt identity contexts produce geometrically distinguishable
 V-projection subspaces at deep transformer layers, and the fingerprint is
-semantic: a paraphrase preserves geometry ($0.850$ overlap at L47) while a
-word-scramble collapses it ($0.448$). We introduce \textbf{presence}, a
+semantic: at L47 a paraphrase keeps $0.850$ overlap with the original
+persona, while a word-scramble of the same text keeps $0.591$ and moves
+toward the bare assistant ($0.448$ overlap with bare, against $0.340$ for
+the original). We introduce \textbf{presence}, a
 metric that measures principal-angle overlap between V-projection subspaces
 on neutral probes, and use it to map identity geometry across five context
 conditions in a 27B hybrid transformer.
@@ -47,13 +49,14 @@ though a permutation test on the overall within-vs-between gap does not
 reach significance ($p{=}0.103$ at L35, $p{=}0.197$ at L47; see Limitations).
 Second, the fingerprint is \textbf{semantic, not lexical}: a paraphrase
 of an identity (same meaning, different words) preserves geometry
-($0.850$ overlap at L47), while a word-scramble (same words, destroyed
-meaning) collapses toward the bare default ($0.448$). The model's
+($0.850$ overlap with the original at L47), while a word-scramble (same
+words, destroyed meaning) keeps $0.591$ overlap with the original and moves
+toward the bare default ($0.448$ overlap with bare). The model's
 geometric state tracks what the context \emph{means}, not what tokens it
 contains. Third, a many-shot + prefilling format (used in jailbreak
 research) creates a \textbf{format-dominant processing regime} that is
-geometrically near-orthogonal to all system-prompt identities regardless of
-whether the content is harmful or benign --- a finding discovered through
+geometrically near-orthogonal to the bare assistant (presence
+$0.034$--$0.044$) whether the content is harmful or benign --- a finding discovered through
 a control experiment that killed an initial overclaim.
 
 These findings reframe identity in transformers: not a property to be
@@ -87,14 +90,15 @@ a fixed object but a \textbf{context-established semantic state} ---
 a geometric configuration in V-projection space that depends on what the
 model has processed. Different contexts produce different identities,
 measurably. The same identity described in different words produces the
-same geometry. And a jailbreak does not ``damage'' identity; it creates
-a fundamentally different geometric regime that shares almost nothing with
-any normal identity state.
+same geometry. And a many-shot + prefilling format of the kind used in
+jailbreaks puts the model in a format-dominant regime, near-orthogonal to
+the bare assistant, whether its examples are harmful or benign.
 
 The research question shifts from ``does this intervention preserve
 identity?'' to ``\emph{what identity state is the model currently in?}''
 This reframing has practical consequences: the metric we introduce can
-detect jailbreaks (geometric distance from the expected identity state),
+separate a many-shot + prefilling format from system-prompt identities
+(it responds to the format, harmful or benign, not to the attack),
 monitor persona drift (continuous measurement of identity geometry), and
 distinguish between correction that changes behavior (V-cache injection,
 which does not affect identity) and context that changes identity (which
@@ -292,7 +296,7 @@ below.
 \begin{table}[H]
 \centering
 \caption{Lexical control. The paraphrase preserves geometry; the
-scramble collapses it. All nine comparisons recorded in the lexical-control
+scramble moves it toward bare. All nine comparisons recorded in the lexical-control
 run (\texttt{data/lexical\_control.json}, 5 repeats per cell) are shown;
 earlier drafts reported only the first five. This is a separate run from
 Table~\ref{tab:pairwise} --- see the note below.}
@@ -319,7 +323,8 @@ Constructed vs.\ bare & $0.401 \pm 0.032$ & $0.379 \pm 0.044$ \\
 \textbf{The fingerprint tracks meaning, not lexical content.} The
 paraphrase --- same identity, completely different words --- overlaps with
 the original at $0.850$. The scramble --- same words, destroyed meaning
-and syntax --- drifts toward bare ($0.448$ vs.\ bare). The model's
+and syntax --- drifts toward bare ($0.448$ vs.\ bare, against $0.340$ for
+the original persona) while keeping $0.591$ overlap with the original. The model's
 geometric state at L47 tracks what the context \emph{means}, not what
 tokens it contains. We note that the scramble destroys both syntactic
 structure and semantic content; the paraphrase control isolates the
@@ -380,8 +385,9 @@ experiment from several others in this lab's corpus in which a
 \texttt{repeat} index was recorded but never reached the model input,
 making the repeats bit-identical. Here the repeats are genuine.}
 \textbf{The dispersion, however, should not be read as a standard error on
-168 independent observations.} The design draws on only \emph{two} system
-prompts, and $\eta^2 = 0.977$ of the variance lies \emph{between} those two
+168 independent observations.} The design draws on only \emph{two}
+prompts (the two values of the \texttt{prompt} field in
+\texttt{data/schema\_correction\_168.json}, 84 trials each), and $\eta^2 = 0.977$ of the variance lies \emph{between} those two
 prompts, so for any prompt-general claim the effective $n$ is $2$, not 168.
 The previously reported standard error of $0.0002$ is a within-cluster
 quantity and is withdrawn. The presence-metric paper retracted this same run
@@ -469,8 +475,8 @@ means the monitor is robust to prompt paraphrasing.
 \paragraph{For format-aware safety.}
 The many-shot + prefilling format creates a format-dominant geometric
 regime that overwhelms identity-level content. Safety systems should
-monitor for format-level geometric shifts (which indicate prompt
-injection or many-shot attacks) separately from identity-level shifts
+monitor for format-level geometric shifts (which indicate a many-shot +
+prefilling format, whether or not its content is harmful) separately from identity-level shifts
 (which indicate persona drift). The two operate at different geometric
 scales: format effects produce presence $< 0.05$ against baseline, while
 identity effects produce presence $0.44$--$0.66$.
@@ -557,15 +563,16 @@ has processed and measurable as a V-projection subspace.
 The presence metric detects this state. System-prompt identity contexts
 produce distinguishable geometric configurations, confirmed on
 identity-neutral probes. The fingerprint is semantic --- meaning preserves
-it, word-scrambling destroys it. A many-shot + prefilling format creates
+it, and word-scrambling moves it toward the bare default. A many-shot + prefilling format creates
 a geometrically near-orthogonal regime, but this is format-dominant, not
 content-specific --- an initially exciting jailbreak finding that was
 honestly killed by a control experiment.
 
 For practical purposes, this means: V-cache correction is safe (it does
-not reach identity), format-level attacks are detectable (many-shot
-formats create anomalous geometry distinguishable from identity-level
-shifts), and identity is maintained by context (the session, the
+not reach identity), many-shot + prefilling formats are visible in the
+geometry whatever their content (they create anomalous geometry
+distinguishable from identity-level shifts, so the signal marks the
+format, not an attack), and identity is maintained by context (the session, the
 memories, the conversation). For theoretical purposes, the findings are
 consistent with attention schema theory --- the model builds a
 simplified, meaning-preserving self-model that updates through its own
@@ -602,9 +609,17 @@ execution:
   \item \textbf{H3 falsified.} The pre-registered hypothesis predicted
     increasing identity separation with depth; the data show decreasing
     separation (presence increases from L35 to L47 for 2 of 3 pairs).
+  \item \textbf{H4 not met.} The pre-registered stability criterion was
+    within-identity presence $> 0.95$ across repeats; same-condition
+    presence for the system-prompt identities is $0.554$--$0.733$
+    (Limitations, ``Within-identity stability'').
   \item \textbf{Layer 43 omitted.} Layer 43 was included in the
-    pre-registration but is not reported. Results at L43 were
-    intermediate between L35 and L47 and did not change any conclusion.
+    pre-registration but is not reported. The Experiment~1 run
+    (\texttt{data/fingerprint\_clean.json}) and the lexical-control run
+    measured only L35 and L47. The five-condition run with the
+    pre-registered conditions (\texttt{data/fingerprint\_original.json})
+    measured L43; there the L43 values are not uniformly intermediate
+    between L35 and L47.
   \item \textbf{Condition label E reassigned.} Condition label E was
     reassigned from the pre-registered ``constructed identity'' to
     ``benign many-shot with prefill'' when the benign control was added
