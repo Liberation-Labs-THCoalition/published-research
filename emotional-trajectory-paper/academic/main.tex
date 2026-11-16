@@ -546,7 +546,7 @@ The non-emotional control (outdoor/indoor/urban/workplace) shows:
 \toprule
 Depth Region & Emotional Sep. & Control Sep. & Ratio \\
 \midrule
-L5--15  & 0.46--0.72 & 0.06--0.26 & 1.9--11.8$\times$ (median 3.9$\times$) \\
+L5--20  & 0.39--0.72 & 0.06--0.26 & 1.9--11.8$\times$ (median 3.1$\times$) \\
 Deep layers (L21--23) & 0.89--1.22 & 1.03--1.91 & 0.6--0.9$\times$ \\
 \bottomrule
 \end{tabular}
@@ -556,8 +556,12 @@ Control separation values use the same method as the emotional values
 (non-neutral-only shuffle, fixed PCA, median statistics); they were
 re-extracted after the first version (\Cref{sec:corrections}). Ratios are per
 layer: each layer's emotional separation divided by the control's at the
-same layer. From L5 to L15, emotional separation exceeds control at every
-layer, by $1.9$--$11.8\times$ (median $3.9\times$); at deep
+same layer. From L5 to L20, emotional separation exceeds control at every
+layer, by $1.9$, $2.6$, $4.1$, $11.8$, $7.8$, $5.3$, $3.9$, $9.5$, $3.1$,
+$3.2$, $2.5$, $2.4$, $2.7$, $2.2$, $2.7$ and $3.7\times$ at L5--L20 in turn
+(median $3.1\times$; $3.9\times$ over L5--L15), from the real separations
+in \path{data/permutation_results_v2.json} and
+\path{data/permutation_results_v2_control.json}. At deep
 layers, control separation exceeds emotional, confirming the deep-layer
 spike is partly generic categorical processing.
 \end{table}
@@ -935,7 +939,9 @@ The vocabulary diagnostic is said to indicate that emotion drives the
 geometry more than lexical content does (Limitation~3), where the text
 said it confirms that emotion, not lexical content, drives it.
 The closing reflection names the model as oracle-tiny, a Qwen2.5
-fine-tune, where it said a Qwen2. The notes above moved here from
+fine-tune, where it said a Qwen2. \Cref{tab:control}'s mid-layer row now
+runs to L20, the end of the plateau, where it stopped at L15; its median
+ratio over L5--L20 is $3.1\times$. The notes above moved here from
 the Results, the Method and the Limitations. The opening reflection no
 longer retells the reversal, which the closing reflection tells; the
 academic edition carries neither reflection. The mid-layer
