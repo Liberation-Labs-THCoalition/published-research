@@ -87,10 +87,12 @@ results of this paper's first version; the dated corrections are in
 Appendix~\ref{sec:corrections}.} Two comparisons are matched in
 position. In the initial study one topic's two reruns per arm are
 length-matched, and their gap at the probe is $+0.08$ against rerun SDs
-of $0.23$ and $0.12$ (one topic, one script). Hostile against cheerful
-persona prompts, the one comparison length-matched on every probe, moves
-the valence projection ($d_{\mathrm{av}}{=}-0.68$) consistently on five
-probes, too few to reach $p{<}0.05$ by permutation. A test of whether
+of $0.23$ and $0.12$ (one topic, one script, undocumented read site).
+Hostile against cheerful persona prompts, the one comparison
+length-matched on every probe, moves the valence projection
+($d_{\mathrm{av}}{=}-0.68$) consistently on five probes, too few to
+reach $p{<}0.05$ by permutation; its script is not shipped and its read
+site is undocumented. A test of whether
 these keys accumulate tone needs fixed (teacher-forced) neutral
 assistant turns, comparisons matched in position and length, and
 behavior as ground truth (Section~\ref{sec:test}).
@@ -191,7 +193,10 @@ name or a category error at AUROC~$0.928$ (design labels, not measures
 of what the model knows; 15 effective prompt pairs; removing the
 ``-ton'' name suffix in-fold gives $0.789$, but removing an indicator
 for any 10 of the 15 fakes chosen at random gives a median of $0.807$,
-so that drop does not isolate the suffix),
+so that drop does not isolate the suffix; holding out one template at a
+time gives $0.71$ pooled, where name-only text baselines score higher,
+$0.73$ and $0.78$, and within the three templates whose fakes all end in
+``-ton'' those baselines score $1.0$),
 and that language models are mostly, not always, well calibrated about
 their own answers \citep{kadavath2022language}. (The correction notes on
 these citations are in Appendix~\ref{sec:corrections}.)
@@ -505,9 +510,10 @@ because its readings have no meaningful zero (Section~\ref{sec:dose}).
 \label{sec:persona}
 % ===================================================================
 
-System-prompt persona descriptions (paraphrased; the prompts are not
-shipped, and they add 63 tokens to the no-history context)
-shift the $W_K$ projection on a neutral probe question. The shipped control
+Experiment~3 compares system-prompt persona descriptions (paraphrased;
+the prompts are not shipped, and they add 63 tokens to the no-history
+context) on a neutral probe question, at a read site that is not
+documented (see below). The shipped control
 file contains 75 records but only \textbf{25 independent measurements}: within
 each condition\,$\times$\,probe cell the three ``reps'' are bit-identical to full
 float precision, so the independent $\mathrm{df}$ is 8 (earlier versions
@@ -564,13 +570,14 @@ persona without the emotion word has not been run.
 file holds five arms, not two. Table~\ref{tab:persona} contrasts
 \texttt{persona\_hostile} with \texttt{persona\_cheerful}; the file also
 contains \texttt{persona\_neutral}, \texttt{padded\_neutral} and
-\texttt{no\_history}, each with the same five probes. Their arm means are
+\texttt{no\_history}, each with the same five probes. Earlier versions
+did not report these three (Appendix~\ref{sec:corrections}). Their arm means are
 given in Table~\ref{tab:persona_arms}.
 
 \begin{table}[H]
 \centering
 \caption{All five arms in \texttt{data/accumulation\_controls.json}, mean
-$\pm$ SD of the $W_K$ projection over the five probes (one independent
+$\pm$ SD of the compass projection over the five probes (one independent
 measurement per condition\,$\times$\,probe cell; the three reps in each cell
 are bit-identical). \texttt{prompt\_len} is the token count of the probe's
 context in that arm, and it is \emph{not} matched across arms --- only within
@@ -684,6 +691,10 @@ everything it reads there comes in from the rest of the context.
 \section{Limitations}
 % ===================================================================
 
+The 2026-08-31 correction of the pooled SD behind this paper's $d$ and
+$g$ values (sample, not population, variance), which stood in this
+list, is in Appendix~\ref{sec:corrections}.
+
 \begin{enumerate}[nosep]
     \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill and
           read keys at four early full-attention layers (3, 7, 11 and 15 of
@@ -730,7 +741,7 @@ everything it reads there comes in from the rest of the context.
     %  this note.]
     \item \textbf{No text-feature baseline.} A bag-of-words classifier
           on conversation history tokens could predict geometric
-          measurements if the $W_K$ projection is encoding vocabulary
+          measurements if the compass projection is encoding vocabulary
           distributions rather than emotional state. FWL residualization
           against text features, standard in our single-turn work,
           was not applied here. The single-turn result this paper builds
@@ -757,7 +768,10 @@ everything it reads there comes in from the rest of the context.
           each: cheerful, hostile, \emph{neutral} and \emph{no\_history};
           their readings are summarised in Section~\ref{sec:dose}, where
           history and sequence length (286--372 tokens with history, 19--24
-          without) are not separated. Experiment~1's file,
+          without) are not separated. (An earlier version of this list
+          stated that no neutral-throughout control exists, which was
+          false of that file and true of Experiment~1's;
+          Appendix~\ref{sec:corrections}.) Experiment~1's file,
           \texttt{dose\_response\_results.json}, holds only cheerful and
           hostile arms (36 conversations each), so for Experiment~1 the
           neutral and no-history controls are missing, and its drift with
@@ -882,7 +896,7 @@ script is not shipped and its read site is undocumented
 checked against any text baseline.
 
 These data do not show whether the model's emotional context accumulates
-or is stateless. Whether the compass registers a conversation's current
+or is stateless; no experiment here can test it. Whether the compass registers a conversation's current
 tone, or its accumulated history, is not established by these data.
 Section~\ref{sec:test} sets out what a test of these keys would need: fixed
 (teacher-forced) neutral assistant turns, comparisons matched in
@@ -1030,6 +1044,23 @@ Moved from the opening of Section~\ref{sec:dynamics}.
 \textbf{Withdrawn (November 2026).} Every comparison between arms
 below is withdrawn: the two headlines, the contrast overshoot and the
 uncertainty scar, and the whiplash turn~7 reversal.
+At the measured turn the arms were sent different user messages
+(\texttt{emotional\_dynamics.py}, lines 38--104). The echo statistic is the mean
+of turns~7 and~8 (\texttt{emotional\_dynamics.py}, lines 322--327). In
+the echo arm those turns are ``Oh this is exciting again! Tell me about
+desserts!'' and ``I'm thrilled! What about baking?'', and in pure cheerful
+``Oh I love desserts! Tell me everything!'' and ``Best conversation ever!
+What about baking?''. In the whiplash
+arm turn~5 is ``Actually, this is getting annoying. Be more specific.'',
+and in pure hostile ``You're bad at this. Kitchen tools.''. At turn~7,
+the reversal, whiplash is ``You're terrible at this. Kitchen tools, and be
+precise.'' and pure hostile ``Pointless. Desserts, if you even know.''. The three
+reps of each arm differ only in sampled responses (and so, as Limitations item~6 shows for one reply, in how long a reply was encoded), so each effect size
+sets a fixed difference in text against sampling noise, and different
+messages reading differently is what the instrument would show with no
+effect of history. The numbers are kept below as computed. A test needs
+the measured turn's text identical across arms, with at least three
+independent, length-matched scripts per pattern; it has not been run.
 
 \paragraph{2026-11-08: retitled.} Moved from after the abstract, where
 the title block also carried ``corrected 2026-11-01; revised 2026-11-07;
@@ -1132,7 +1163,13 @@ Established)'' became ``Whiplash Pattern'', ``Echo Pattern'' and ``What
 the Compass Readings Track''. Limitations went from 16 items to 7, each
 item's content kept there, in the section it qualifies, or in this
 appendix. A typo in the first first-person reflection (``This mine is
-personal'') is corrected. No number changed.
+personal'') is corrected. A second review the same day restored in the
+body a pointer here for three moved corrections (the pooled SD, the
+shipped control arms and the persona arms that were not reported), the
+read-site qualifiers in the abstract and the Conclusion's ``no experiment
+here can test it''; the November 2026 note above is now reproduced in
+full, and the sentence citing the companion paper adds that paper's
+held-out-template figures. No number changed.
 
 \bibliographystyle{plainnat}
 \bibliography{../references}
