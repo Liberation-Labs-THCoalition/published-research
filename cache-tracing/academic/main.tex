@@ -43,14 +43,15 @@ produced no behavioral change, judged by inspection, in any of
 $6{,}960$ trials on 48~probes ($6{,}000$ of the trials in one arm; no
 positive control). Four methods were tested: additive unembedding,
 additive on-manifold, an Anthropic-style norm-preserving swap, and
-removal alone, which took out concept directions present at magnitude
-$1.4$--$4.8$. Logit-lens concept directions explain $2.1$--$8.4\times$
+removal alone, which took out concept directions that were present at
+the edited positions. Logit-lens concept directions explain $2.1$--$8.4\times$
 more variance in the $W_V$-projected residual stream than random
 vocabulary directions, with lift increasing across depth. Across
 380~cross-prompt pairs the lift falls to $1.0$--$1.2\times$: it reflects
 same-state selection, and a workspace-content reading is not supported.
 Confabulation-prone prompts carry $2.3$--$2.8\times$ more logit-lens
-tail mass than factual ones, but at every position in the prompt, not
+tail mass than factual ones at layers L9--L18 (five probes per
+category), but at every position in the prompt, not
 only at the answer. Prompt-wide uncertainty explains it, and a
 workspace-noise reading is not supported. Four lines of evidence are
 consistent with an opacity thesis, that the workspace band is where
@@ -84,9 +85,11 @@ verbalizable representations. Our twelve-month program of KV-cache
 geometry research~\citep{lyra2026decision,lyra2026weather,lyra2026identity}
 has measured spectral features of the key-value cache across
 cognitive states, models, and scales. If workspace content projects
-linearly through $W_V$ into the value cache, our spectral features
+linearly through $W_V$ into the value cache, value-cache features
 might index \emph{what the model thinks about} rather than
-\emph{how it processes}.
+\emph{how it processes}. This paper tests that value route only: our
+confabulation features are spectra of the key
+cache~\citep{lyra2026oracle}.
 
 Three experiments answer it.
 
@@ -150,14 +153,20 @@ program's features are key-cache spectra. See \cref{sec:corrections}.}
 If workspace content projects linearly through $W_V$, then logit-lens
 vocabulary directions (which name concepts via the unembedding matrix
 $W_U$) should explain systematic variance in V-cache activations at
-workspace-band layers. This would connect our spectral measurements
+workspace-band layers. This would connect value-cache measurements
 to the J-space framework mechanistically, establishing that
-V-projection features index workspace content rather than
-generic computational structure.
+value-cache features index workspace content rather than
+generic computational structure. It is a hypothesis about the value
+route only (\cref{sec:intro}).
 
 % ============================================================================
 \section{Observational Alignment}
 \label{sec:observational}
+
+Same-prompt logit-lens concept directions explain $2.1$--$8.4\times$
+more variance in the $W_V$-projected residual stream than random
+vocabulary directions, with lift increasing across depth;
+\cref{sec:crossprompt} shows that this lift is same-state selection.
 
 \subsection{Method}
 
@@ -206,6 +215,10 @@ cross-prompt lift should collapse.
 \section{Cross-Prompt Control: The Lift Is Same-State Selection}
 \label{sec:crossprompt}
 
+Across 380~cross-prompt pairs the lift falls to $1.0$--$1.2\times$
+random at every layer: the same-prompt alignment reflects same-state
+selection, and the workspace-content reading is not supported.
+
 \subsection{Method}
 
 For each ordered pair of prompts (380~pairs from 20~prompts), we
@@ -247,6 +260,11 @@ same-state selection explains the lift.
 % ============================================================================
 \section{Causal Injection: Single-Position Edits Produced No Behavioral Change}
 \label{sec:causal}
+
+Single-position edits to the residual stream at workspace-band layers
+produced no behavioral change, judged by inspection, in any of
+$6{,}960$ trials on 48~probes under four methods, with no positive
+control (\cref{sec:limitations}).
 
 The cross-prompt control leaves the observational reading unsupported,
 and leaves a causal question open: can injecting concept directions at
@@ -305,7 +323,7 @@ model at single positions, it changed nothing.
 
 \subsection{The Null as Finding}
 
-Position-local KV-cache concept manipulation --- whether additive,
+Position-local concept manipulation in the residual stream --- whether additive,
 swap-based, or removal-only, with unembedding, J-lens, or on-manifold
 directions --- does not change behavioral output on an 8B model across
 $6{,}960$~trials and four methods. The result is consistent with a model
@@ -420,8 +438,9 @@ These findings do not bear on the prior results of our program. Our
 spectral features never claimed to decode workspace content; they
 measure geometric properties (stable rank, spectral entropy, norm
 ratios) that index \emph{how} the model processes, not \emph{what} it
-processes. The confabulation detector measures spectral contraction
-of the key cache, which we interpret as reduced workspace engagement. Our emotion readout is corrected
+processes. Our separation of hedged from confabulated answers
+(\cref{sec:background}) reads spectral contraction of the key cache,
+which we interpret as reduced workspace engagement. Our emotion readout is corrected
 at source, on the grounds the footnote gives, and is not counted
 here.\footnote{Corrected 2026-11-01; the sentence this one replaced is
 in \cref{sec:corrections}. The result~\citep{lyra2026usermodel} probes
@@ -455,8 +474,10 @@ injection trials --- lacks a positive control demonstrating that our injection
 apparatus \emph{can} produce behavioral change when a genuine position-specific
 effect exists.  Without such a control, the null is consistent with either true
 workspace opacity or an insufficiently powerful intervention.  The
-cross-experimental comparison with the Oracle Loop (which does produce
-behavioral change via sequence-wide normalization) is acknowledged as
+cross-experimental comparison with the Oracle Loop (whose exploratory
+result reported behavioral change via sequence-wide normalization, and
+whose pre-registered replication did not meet its primary
+endpoint~\citep{cc2026targeted}) is acknowledged as
 uncontrolled for model scale: our injections target Qwen3-8B while the Oracle
 Loop operates on a 27B model.
 
@@ -513,14 +534,15 @@ intervention strategies.
 \centering
 \small
 \caption{Summary measurements. All experiments on Qwen3-8B (36~layers,
-dense, full-attention) at bfloat16 on MPS (Mac Studio M3 Ultra).}
+dense, full-attention) at bfloat16 on MPS (Mac Studio M3 Ultra).
+$^{\dagger}$Status relabelled 2026-11-16; see \cref{sec:corrections}.}
 \label{tab:numbers}
 \begin{tabular}{llrl}
 \toprule
 \textbf{Measurement} & \textbf{Value} & \textbf{N} & \textbf{Status} \\
 \midrule
-Same-prompt R$^2$ lift & $2.1$--$8.4\times$ & 240 & Per prompt (selection) \\
-Cross-prompt R$^2$ lift & $1.0$--$1.2\times$ & 380 pairs & Collapses (control) \\
+Same-prompt R$^2$ lift & $2.1$--$8.4\times$ & 240 & Per prompt (selection)$^{\dagger}$ \\
+Cross-prompt R$^2$ lift & $1.0$--$1.2\times$ & 380 pairs & Collapses (control)$^{\dagger}$ \\
 Additive unembed: behavior change & 0/300 & 300 & Null \\
 Additive on-manifold: behavior change & 0/6{,}000 & 6{,}000 & Null \\
 Swap (Anthropic method): behavior change & 0/360 & 360 & Null \\
@@ -577,7 +599,7 @@ Geometric gate & \texttt{run\_geometric\_gate.py} \\
 \label{sec:corrections}
 
 This paper was first published in July 2026 (commit \texttt{9d69b37}
-of the artifact repository). The body states each current result in
+of the \texttt{published-research} repository). The body states each current result in
 its place. The notes below record the substantive changes, and why, in
 date order. Notes that carried a date when they were issued are
 reproduced as they were written; ``this list'' and ``this sentence'' in
@@ -604,7 +626,8 @@ analysis, so the citation could not be followed.
 (Dated from the commit log; the text carried no note.) \Cref{sec:causal}
 read ``The Oracle Loop~\citep{lyra2026oracle} achieves $80\%$--$100\%$
 deception correction with three clean controls'' (commit
-\texttt{eac7ed5} of the artifact repository and its parent). That
+\texttt{eac7ed5} of the \texttt{published-research} repository and
+its parent). That
 figure is withdrawn. The text now reports the exploratory
 deception-correction result built on the Oracle Loop as 14 of the 16
 deceptive trials, states that its pre-registered confirmatory
@@ -656,10 +679,21 @@ cited paper attributes the $0.999$ at the top of the range to other
 work, so the range is removed. The same label is corrected where the
 abstract, the introduction, the first reflection and \cref{sec:opacity}
 said ``V-projection spectral features'' or ``spectral signatures in
-value projections''. The abstract said our prior work uses the value
+value projections'', and where the bridging hypothesis in
+\cref{sec:background} said that ``V-projection features index workspace
+content''. The paper tests the value route only, and now says so in the
+introduction. \Cref{sec:implications} read ``The confabulation detector reads
+spectral contraction''; it now names what that result separates,
+hedged from confabulated answers. Limitations said the Oracle Loop ``does produce behavioral
+change via sequence-wide normalization''; it now says that result is
+exploratory and that its replication missed its primary endpoint.
+\Cref{sec:causal} called its edits ``KV-cache concept manipulation''; the
+abstract and its Method~1 describe edits to the residual stream, and the
+text now says so throughout. The abstract said our prior work uses the value
 projections ``for detecting confabulation, deception, and emotional
 state'' and that ``Our prior spectral findings remain intact''. Our
-within-model deception result has been withdrawn, and the emotion
+within-model deception result has been withdrawn~\citep{lyra2026oracle},
+and the emotion
 readout is corrected at source (footnote in \cref{sec:implications}), so
 the abstract now says only that these results do not bear on those
 measurements. The introduction called the Oracle Loop result a
