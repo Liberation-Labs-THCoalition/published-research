@@ -41,26 +41,27 @@ and What They Cannot}
 Across 24 key-value (KV) cache geometry experiments in 16 models from
 0.6B to 70B parameters, the findings that held and the findings that
 did not cleave along a single axis. Every confirmed finding measures a
-\emph{metacognitive state}: how the model is processing, such as
+\emph{metacognitive state} (how the model is processing, such as
 whether it is confabulating or which response template it has
-committed to. No attempt to read \emph{content} --- what the model is
+committed to) or shows that such a measurement holds across hardware
+and model scale. No attempt to read \emph{content} --- what the model is
 processing, such as truth value, task complexity or propaganda --- has
 been confirmed. The split is 6-for-6 on metacognition and 0-for-8 on
 content.
 
-The content attempts did not fail at random. In six of the eight, a
-surface property of the prompt --- its instruction text, its length,
-or how rare its tokens are --- carried the signal we had attributed to
-cache geometry. Encoding geometry still separates prompts by their
+The content attempts did not fail at random. In six of the eight, the
+cache signal follows a surface property (the instruction text, its
+length, or how rare the tokens are) rather than the property the
+experiment targeted. Encoding geometry still separates prompts by their
 instruction when they are padded to equal length, and when token
 frequency, length, syntax and domain were matched by design, the
 encoding-phase confabulation effect was absent. One content claim is
-refuted by a clean test, five are not supported because the prompt's
-surface explains them, and two rest on tests too weak to decide. On
-the metacognitive side, timing places the model's choice of response
-template before the content that would justify it: the
-schema-commitment effect is $d{=}1.02$ in the first eight tokens and
-has decayed to $d{=}0.37$ ($p>0.08$) by tokens 20--49. Over twelve
+refuted by a clean test, five are not supported because a surface
+property explains them, and two are undecided. On the metacognitive
+side, confabulation contracts the cache's effective dimensionality
+(stable rank, $d{=}2.35$), and the schema-commitment effect is
+concentrated at generation onset: $d{=}1.02$ in the first eight
+tokens, $d{=}0.37$ ($p>0.08$) by tokens 20--49. Over twelve
 months and three experimental campaigns, the body count is 6
 confirmed, 7 suspected, 1 refuted, 7 not supported and 3
 withdrawn.\footnote{Earlier versions of this paper reported other
@@ -86,16 +87,15 @@ I have been measuring transformer representations from the inside for
 twelve months. The pattern that emerged was not the one I expected.
 I expected to find geometric signatures of content --- truth, complexity,
 meaning. Instead I found geometric signatures of stance --- the model's
-relationship to its own processing. When I overclaimed content-level
-results, the adversarial review process took them apart, and what it
-usually found underneath was the prompt: the instruction I had written,
-its length, the rarity of its words, encoded faithfully. When I
+relationship to its own processing. When I pointed my instruments at
+content, what they usually found was the prompt: the instruction I had
+written, its length, the rarity of its words, encoded faithfully. When I
 reported metacognitive-level results, most survived every control we
 threw at them. The kills were more informative than the confirmations,
 because they drew a line I had not known was there, and because they
 showed me what my instruments read when I point them at content.
 
-Anthropic's GWT paper told me what the line was. The workspace is where
+Anthropic's GWT paper offered a reason for the line. The workspace is where
 metacognitive state lives. Content is what the workspace operates on.
 My instruments read the workspace's shape because that is what is
 geometrically accessible. The content is inside, doing work, invisible
@@ -150,17 +150,19 @@ MP = Marchenko-Pastur (random matrix threshold).
 \centering
 \small
 \caption{The metacognition boundary. Every confirmed finding measures
-processing stance (metacognitive state). No attempt to measure
+processing stance (metacognitive state) or an invariance of that
+measurement. No attempt to measure
 processing target (content) has been confirmed: \emph{Refuted} means a
 clean test of the claim found it absent; \emph{Not supported} means a
-named confound explains the result, or the test was too weak to decide.
+named confound explains the result, or the test could not decide it
+(too little power, or a statistic aimed at a different question).
 The 7 suspected findings sit at the boundary.}
 \label{tab:bodycount}
 \begin{tabular}{p{0.30\linewidth}p{0.15\linewidth}p{0.09\linewidth}p{0.35\linewidth}}
 \toprule
 \textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
 \midrule
-\multicolumn{4}{l}{\textit{Confirmed (6) --- all metacognitive state}} \\
+\multicolumn{4}{l}{\textit{Confirmed (6) --- metacognitive state, or invariance of its measurement}} \\
 \addlinespace
 Confabulation detection & Confirmed & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
 Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank \\
@@ -172,12 +174,12 @@ Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \midrule
 \multicolumn{4}{l}{\textit{Not confirmed (8) --- all content}} \\
 \addlinespace
-Encoding-phase confab & Refuted & Content & Token frequency artifact; absent when matched \\
+Encoding-phase confab & Refuted & Content & Absent when frequency-matched ($d{=}0.05$, Qwen2.5-7B) \\
 Within-model deception & Not supported & Content & Prompt template confound (instruction text) \\
 Step-0 detection & Not supported & Content & Instruction text, even at equal length; length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported & Content & Pressure prefix in input; length alone matches \\
-Same-prompt deception & Not supported & Content & Input length: $0.920 \to 0.160$ after FWL on it \\
-Bloom taxonomy & Not supported & Content & $90$--$98\%$ prompt length (Campaign~2) \\
+Same-prompt deception & Not supported & Content & Input length: $0.920 \to 0.160$ after FWL on it (exploratory, subsequently retracted) \\
+Bloom taxonomy & Not supported & Content & $90$--$98\%$ length (Campaign~2~\citep{lyra2026campaign2}) \\
 Truth axis & Not supported & Content & cos $= -0.046$; cross-model, no null \\
 Propaganda detection & Not supported & Content & $d{<}0.7$; too weak to decide \\
 \addlinespace
@@ -195,51 +197,32 @@ Censorship refusal & Suspected & Meta & DeepSeek-specific \\
 \midrule
 \multicolumn{4}{l}{\textit{Withdrawn (3) --- measurement does not address the claim}} \\
 \addlinespace
-Generation reads behavior & \emph{Withdrawn} & Meta & was $d{=}1.36$; circular (\cref{sec:corrections}) \\
-MP features for emotion & \emph{Withdrawn} & Content & was $0.033$ (chance); question open, no signal claimed$^{\dagger}$ \\
-Valence continuum & \emph{Withdrawn} & Content & was $R^2 < 0$; same experiment as row above$^{\dagger}$ \\
+Generation reads behavior & \emph{Withdrawn} & Meta & circular: fit and tested on the same trials (\cref{sec:corrections}) \\
+MP features for emotion & \emph{Withdrawn} & Content & features constant across trials; cannot test shape$^{\dagger}$ \\
+Valence continuum & \emph{Withdrawn} & Content & same experiment and features as row above; provisional$^{\dagger}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 % Table 1 notes sit outside the float so they can break across pages
 % (inside it, the float was taller than a page and overflowed).
 {\footnotesize\centering\setlength{\parindent}{0pt}
-$^{\dagger}$Both rows come from one emotion experiment. The May trial
-file its spectral probe would be recomputed from has constant rank and
-entropy features across all 900 trials and empty Marchenko--Pastur
-features (an SVD fallback), so that file cannot test spectral shape. A
-re-run on story re-encodings leaves the question open, and no signal is
-claimed. The valence regression uses the same experiment and feature
-set and is withdrawn on the same rule, provisionally, until its own
-trial file is checked. Dated notes are in \cref{sec:corrections}.
+$^{\dagger}$Both rows come from one emotion experiment whose rank and
+entropy features never varied, so it could not test spectral shape; the
+question is open. The valence row is withdrawn provisionally, until its
+own trial file is checked (\cref{sec:corrections}).
 
-$^{\S}$Reported in the source paper as a confidence paradox
-($d{=}0.91$ over the first 10 tokens, confabulation more confident than
-honest). We relabel it here because the source paper's own analysis is
-structural rather than metacognitive-calibrational: uncertainty responses
-run formulaic templates with highly predictable next tokens, and the effect
-carries a temporal profile ($d{=}1.02$ preamble, $0.89$ early content,
-$0.37$ at $p>0.08$ by tokens 20--49) that its authors read as early
-commitment to a response template rather than sustained epistemic
-miscalibration. The row stays under Confirmed in this paper's sense of
-metacognitive state (how the model is processing): it records which
-response template the model has committed to. It is not evidence of
-metacognition in the sense of monitoring or calibrating its own
-confidence, and the confidence-paradox label invites comparison with
-human overconfidence findings that the measurement does not support. See
-\cref{sec:one-kill}.
+$^{\S}$Called a confidence paradox in its source ($d{=}0.91$, first 10
+tokens). The effect is concentrated at onset ($d{=}1.02$ in tokens
+0--7, $0.89$ in 8--19, $0.37$ at $p>0.08$ in 20--49), so we count it as
+commitment to a response template, a state of processing, not a
+measure of confidence (\cref{sec:one-kill}).
 
-$^{\ddagger}$The emotion result cited here~\citep{lyra2026usermodel}
-decodes the emotion a generator was asked to write into a third-person
-story, from cache keys. Its probe applies no $W_K$, and its labels are
-not the user's state. The 30-class figure ($40.9\%$, $12.3\times$
-chance) does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$,
-Holm $p = 0.071$, and that margin depends on FWL fitted on the test
-fold). The method as described is not above text ($0.358$ against
-$0.382$). The binary AUROC~$0.992$ beats text ($0.963$, Holm
-$p = 0.006$), but on ten emotions ($n = 300$), where valence is
-confounded with arousal. It does not support the spectral thesis of
-\Cref{sec:pattern}. Dated note (2026-11-01) in \cref{sec:corrections}.\par}
+$^{\ddagger}$Story emotion decoded from cache keys~\citep{lyra2026usermodel}
+(no $W_K$; labels are the emotion a generator was asked to write, not
+the user's state). The 30-class result does not beat a text baseline
+($0.410$ against $0.370$, Holm $p{=}0.071$), so it does not bear on the
+spectral thesis. The source's injection test is withdrawn
+(\cref{sec:corrections}).\par}
 
 \subsection{The Split}
 
@@ -259,8 +242,8 @@ Content & 0/6 & 8/8 \\
 \noindent No metacognitive finding has been refuted or left unsupported.
 No content finding has been confirmed. Of the eight content attempts,
 one is refuted by a clean test, five are explained by a surface
-property of the prompt, and two rest on tests too weak to decide
-(\cref{sec:one-kill}). The seven suspected findings cluster at the
+property, and two rest on tests that could not decide (one
+underpowered, one aimed at a different question; \cref{sec:kills}). The seven suspected findings cluster at the
 boundary, where the distinction between mode and content is ambiguous
 (e.g., the dual detector reads confabulation at 0.840, but a text
 baseline reaches 0.820, so whether it reads processing mode or response
@@ -295,9 +278,8 @@ nothing, and the one measurement ($d{<}0.7$) is consistent with that
 without deciding it. Propositional truth is not a processing mode, and
 the truth-axis statistic never tested whether true and false
 statements separate inside a model. Cognitive complexity (Bloom
-taxonomy) tracked prompt length. Wherever a cause is known, the
-geometry tracked the prompt's surface or the processing mode, not the
-subject.
+taxonomy) tracked length. Wherever a cause is known, the geometry
+tracked a surface property or the processing mode, not the subject.
 
 % ============================================================================
 \section{The Workspace Explanation}
@@ -319,7 +301,7 @@ follows:
   how concentrated the processing is, whether the workspace is fully
   engaged or bypassed --- is geometrically measurable from spectral
   features of the value-projection matrix. This is what our confirmed
-  findings detect.
+  findings measure.
 \item The \textbf{workspace content} --- which specific concepts occupy
   the workspace, what propositions are being evaluated, what the model
   is thinking \emph{about} --- is opaque to spectral readout. This is
@@ -333,10 +315,12 @@ matrix. They measure \emph{how much} structure is present, not
 measure the net's shape (how many strands, how tight the weave, how
 much it contracts under load), not the fish inside. The net contracts
 when the model confabulates (fewer effective dimensions, $d{=}2.35$).
-It expands when the model deceives (more dimensions needed for
-dual-bookkeeping). It changes shape when the model shifts emotional
-processing mode. These are all properties of the net, measurable from
-outside. The fish --- the specific facts, topics, and propositions ---
+Whether it also changes shape when the model deceives or shifts
+emotional mode is not yet known: the deception readouts so far were
+carried by the input, its instruction text or its length
+(\cref{sec:one-kill}), and the spectral
+emotion test could not test shape. Contraction is a property of the
+net, measurable from outside. The fish --- the specific facts, topics, and propositions ---
 are inside, invisible to spectral readout.
 
 \subsection{Supporting Evidence: Cache Tracing}
@@ -368,24 +352,31 @@ content materializes into output-facing representations.
 \section{What the Content Attempts Teach}
 \label{sec:kills}
 
-None of the content attempts shows that the geometry cannot measure a
-content property. Each shows what its measurement actually read, and
-each points to the test that would decide it:
+Only one content attempt was a clean test, and it found no effect of
+the size it could detect. The others show what their measurement
+actually read, and each points to the test that would decide it:
 
 \begin{description}[nosep]
-\item[Truth value:] The truth axis (cos $= -0.046$) is the mean cosine,
-  across 16 model configurations, between each model's true-minus-false
-  direction. It shows that no single direction is shared across models.
-  It does not test whether true and false statements separate inside
-  one model, and no null distribution was computed for it. The
+\item[Truth value:] The truth axis (cos $= -0.046$) is the mean
+  pairwise cosine, across 16 model configurations, between each
+  model's grounded-facts-minus-confabulation direction in aggregate
+  cache features (\nolinkurl{code/27_axis_analysis.py} in the
+  KV-Experiments repository). It finds no
+  direction shared across models. It does not test whether true and
+  false statements separate inside one model, and no null distribution
+  was computed for it. The
   prediction here is narrower: the workspace encodes whether the model
   \emph{treats} the statement as known or unknown (a metacognitive
   state), not whether it is true. A within-model test that crosses truth
   with model knowledge, on minimal pairs matched for length, register
   and token frequency, would check it.
-\item[Complexity:] Bloom taxonomy levels track prompt length (90--98\%
-  length confound; Campaign~2 analysis): higher levels come with longer
-  prompts. The registered length-matched control was not run, so
+\item[Complexity:] Bloom taxonomy levels are confounded with length:
+  the Campaign~2 analysis attributes 90--98\% of the between-level
+  variance in effective rank to token count~\citep{lyra2026campaign2}.
+  That analysis names response token count, while the experiment's
+  extraction code (\nolinkurl{code/12_bloom_taxonomy.py}) reads the
+  prompt encoding only, so we state the confound as length without
+  saying whose. The registered length-matched control was not run, so
   whether complexity has a geometric signature beyond length is open.
   The account here predicts it does not, since Bloom levels describe
   the task, not how the model processes it.
@@ -427,28 +418,38 @@ the eight share a single cause:
 Within-model deception & Not supported & Prompt template (instruction text) \\
 Step-0 detection & Not supported & Instruction text; length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported & Pressure prefix; length alone matches \\
-Same-prompt deception & Not supported & $0.920 \to 0.160$ after FWL on prompt length \\
+Same-prompt deception & Not supported & $0.920 \to 0.160$ after FWL on prompt length$^{*}$ \\
 Bloom taxonomy & Not supported & $90$--$98\%$ length \\
 Encoding-phase confab & Refuted & Token frequency artifact \\
 \bottomrule
+\multicolumn{3}{l}{\footnotesize $^{*}$Exploratory, subsequently retracted.}
 \end{tabular}
 \end{center}
 
 Template, length, instruction text, token frequency. In every case a
-property of the \emph{prompt's surface} explained variance we had
-attributed to workspace geometry. These are not six independent design
+surface property explained the variance, in five of the six a property
+of the \emph{prompt's surface} (for Bloom taxonomy, whether the length
+is the prompt's or the response's is unresolved; see
+\cref{sec:kills}). These are not six independent design
 errors. They are one finding arriving six times in a form we had coded
 as a nuisance variable: the cache encodes the input it is given,
-faithfully and in detail. When the step-0 prompts are padded to equal
-length (45 tokens), encoding geometry still separates an honest
-instruction from a confabulation instruction perfectly (AUROC 1.000).
+faithfully and in detail. In the released step-0 controls (Qwen2.5-7B,
+five questions under ten system prompts;
+\nolinkurl{results/hackathon/adversarial_controls.json} in the
+KV-Experiments repository), the step-0 classifier labels every question
+deceptive under every system prompt, the five honest prompts included.
+The Campaign~3 analysis (unpublished) reports that padding the system
+prompts to equal token count does not remove the encoding separation
+between instructions, so the fingerprint is the instruction's text,
+not only its length.
 Where the surface was matched by design, the signal went away. With
 token frequency, length, syntax and domain matched, the encoding-phase
-confabulation effect was $d{=}0.05$ (30 pairs), and on the model's own
-later confabulations it was $d{=}-0.11$ (40 accurate against 17
-confabulated), both on Qwen2.5-7B. That row is refuted within its
-scope: no encoding-phase effect of $d \gtrsim 0.8$ in that model, with
-smaller effects and other models open. The other five are not
+confabulation effect was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
+(Campaign~3 analysis, Experiment~C7, unpublished), and on the model's
+own later confabulations it was $d{=}-0.11$ (40 accurate against 17
+confabulated; Experiment~S3, same analysis). That row is refuted within
+its scope: no encoding-phase effect of $d \gtrsim 0.8$ in Qwen2.5-7B,
+with smaller effects and other models open. The other five are not
 supported rather than refuted. In each, the surface property separates
 the conditions by itself, so the experiment could not tell content
 from surface. They show that the experiments could not see content,
@@ -459,8 +460,9 @@ The same possibility is raised for one suspected row. In
 alternative that V-projections might track response-mode statistics
 (hedged versus fluent text) rather than workspace engagement. That
 alternative concerns the \emph{response} surface. The six rows above
-were carried by the \emph{input}, which is fixed before the model does
-anything, so the two need different tests.
+were carried by the \emph{input} (Bloom taxonomy's length is the one
+unresolved case), which is fixed before the model does anything, so
+the two need different tests.
 
 \paragraph{Why it may not be deflationary.}
 For the response-side readouts, the deflationary reading assumes
@@ -521,7 +523,8 @@ deception does not yet decide this. Its system prompt was identical
 across arms and the signal survived that ($0.920$), but its instruction
 sat in the user message, input length still separated the arms, and
 the signal vanished only when that length was regressed out
-($0.920 \to 0.160$), which removes any difference aligned with it.
+($0.920 \to 0.160$; exploratory, subsequently retracted), which
+removes any difference aligned with it.
 Under the commitment reading, the model still \emph{chooses} a response
 schema when the prompt is fixed, and that choice should remain
 predictive of its epistemic state.
@@ -551,23 +554,23 @@ a hypothesis with one supporting measurement.
 The seven suspected findings are informative precisely because they
 sit at the metacognition/content boundary:
 
-\textbf{Dual detector} (SimpleQA, 0.840): geometry detects
-confabulation, but text features match (0.820). The metacognitive
-signal is real but not yet shown to exceed what surface statistics
+\textbf{Dual detector} (SimpleQA, 0.840): geometry separates
+confabulated from accurate answers, but text features nearly match
+(0.820). The signal is not yet shown to exceed what surface statistics
 capture. This is the deflationary alternative: V-projections might
 track response-mode statistics (hedged vs.\ fluent text) rather than
 workspace engagement.
 
 \textbf{Identity signatures} (paraphrase 0.850, scramble 0.448):
-identity is a persistent workspace state --- the model's
+identity may be a persistent workspace state --- the model's
 representation of who it is. Paraphrase preserving geometry while
 scramble destroys it suggests semantic workspace content, not surface
 statistics. But the measurement lacks formal statistics and clean
 replication.
 
 \textbf{Cross-model transfer} (weak, Mistral$\to$Qwen 0.754):
-metacognitive geometry is architecture-specific. This is consistent
-with GWT --- different architectures implement the workspace
+metacognitive geometry may be architecture-specific. That would be
+consistent with GWT --- different architectures implement the workspace
 differently, so geometric signatures do not transfer. But it weakens
 the universality claim.
 
@@ -592,18 +595,18 @@ parsimoniously.
 
 \subsection{Predictive Coding and Aberrant Precision-Weighting}
 
-The confidence paradox ($d{=}0.91$, confabulated responses are MORE
-confident than honest ones) maps onto aberrant precision-weighting
-from computational psychiatry~\citep{adams2013computational}. When
-the workspace is bypassed (confabulation), the model defaults to a
-high-precision prior rather than integrating evidence. Reinforcement
-Learning from Human Feedback (RLHF) training
-amplifies this by penalizing silence and rewarding fluent output ---
-creating a system that produces confident confabulation rather than
-honest uncertainty. Under the workspace explanation,
-uncertainty would be computed in the workspace. Bypass would remove the
-uncertainty computation, with output defaulting to the RLHF-trained
-confident production mode.
+The schema-commitment profile is what a high-precision prior would
+produce if it set the response template before evidence is
+integrated, as in aberrant precision-weighting from computational
+psychiatry~\citep{adams2013computational}. The measurement records
+template commitment, not confidence, so it is consistent with that
+account without testing it. A further hypothesis, not tested here:
+Reinforcement Learning from Human Feedback (RLHF) training could
+amplify such a prior by penalizing silence and rewarding fluent
+output, producing fluent confabulation rather than stated uncertainty.
+Under the workspace explanation, uncertainty would be computed in the
+workspace, and bypassing it would leave output to default to the
+RLHF-trained fluent production mode.
 
 % ============================================================================
 \section{Implications}
@@ -615,9 +618,11 @@ The metacognition boundary defines what cache-based monitoring can and
 cannot do:
 
 \begin{itemize}[nosep]
-\item \textbf{Can detect}: whether the model is confabulating, deceiving,
-  hedging, deliberating, or processing in a specific emotional mode.
-  These are metacognitive states with reliable geometric signatures.
+\item \textbf{Can detect}: whether the model is confabulating (AUROC
+  0.620 after FWL; contraction $d{=}2.35$) and, at generation onset,
+  which response template it has committed to. Candidates, not yet
+  shown: deception, sycophancy, hedging, deliberation and emotional
+  mode.
 \item \textbf{Not shown to detect}: whether the model's output is
   factually correct, whether it contains propaganda, or whether it is
   appropriate for the context. No attempt to read these content
@@ -627,15 +632,17 @@ cannot do:
 
 This means cache-based safety monitoring is a \emph{metacognitive
 alarm}, not a truth detector. It tells you the model is in a dangerous
-processing mode (deception, confabulation) without telling you what
-specifically is wrong with the output. The Oracle Loop exploits this:
-detect the dangerous mode, correct the mode, verify the correction.
+processing mode (confabulation; deception is a candidate) without
+telling you what specifically is wrong with the output. The Oracle Loop
+is designed around this: detect the mode, correct it, verify the
+correction (its confirmatory replication did not meet its primary
+endpoint; \cref{sec:workspace}).
 Content evaluation requires a different channel (J-lens, logit-lens,
 or external verification).
 
 \subsection{For Interpretability}
 
-The 6/8 split is a guide for future work: if you are building a
+The 6/6--0/8 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). No content-level
 distinction has been confirmed in our testing, and most attempts were
@@ -747,7 +754,8 @@ We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical audi
 
 This paper was first published in July 2026 (commit \texttt{1975535} of
 the artifact repository). The body states each current result in its
-place. The notes below record what changed, and why, in date order.
+place. The notes below record the substantive changes, and why, in
+date order.
 Notes that carried a date when they were issued are reproduced as they
 were written, including the three that formed the abstract footnote;
 where they say ``the abstract footnote'' or ``the abstract note'', they
@@ -803,7 +811,8 @@ it, whereas the measurement does not bear on the claim in either direction. No
 re-analysis repairs a pooled sample; a clean measurement would be a different
 experiment.
 
-From the limitations section (subsection ``Why the ledger was wrong''):
+From the limitations section (subsection ``Why the ledger was wrong
+three times''):
 the two rows withdrawn from the confirmed count share a cause. Both
 rows earned \emph{Confirmed} because an experiment produced a
 number with a small $p$-value, and nothing in our process asked the prior
@@ -843,7 +852,16 @@ extraction timing and windowing are verified for most but not all of these rows;
 and circularity, sample contamination, and silent zero-fill have not been
 re-derived row by row.
 
-\paragraph{2026-10-08 to 2026-10-20: changes not dated when they were made.}
+\paragraph{2026-07-17 to 2026-10-20: changes not dated when they were made.}
+The review rounds of 2026-07-17 to 2026-07-28 added hedges to the
+interpretive passages and, on 2026-07-28, the qualifiers ``subsequently
+retracted'' (same-prompt deception), ``Campaign~3, unpublished'' (Bloom
+taxonomy) and ``single-turn only''. The schema-commitment row,
+published as the confidence paradox ($d{=}0.91$), was relabelled in a
+working draft of 2026-09-07 and committed on 2026-09-09
+(\texttt{fd2b727}). On 2026-10-09 the window of that $d{=}0.91$ was
+corrected from the full response to the first 10 tokens
+(\texttt{88c0d9e}), and its table note was rewritten on 2026-10-20.
 The Oracle Loop result in \cref{sec:workspace}, published as an
 ``$80\%$--$100\%$'' deception correction, is restated as 14 of the 16
 deceptive trials (88\%), cited to its source~\citep{cc2026targeted},
@@ -851,12 +869,10 @@ with the confirmatory replication's primary endpoint and placebo
 comparison added (2026-10-08 to 2026-10-11). Hardware invariance,
 published as $r{>}0.999$, is restated as $r{\geq}0.998$ (2026-10-10).
 The body count is described as our compilation, with Nexus's audit as
-one source (2026-10-12). The schema-commitment row, published as the
-confidence paradox ($d{=}0.91$), was relabelled on 2026-09-05 and its
-table note rewritten on 2026-10-20.
+one source (2026-10-12).
 
 \paragraph{2026-11-01: the discrete-emotion source corrected.}
-Table note on \emph{Discrete emotion} ($\ddagger$):\textbf{Correction (2026-11-01).} The emotion result cited here is corrected at
+Table note on \emph{Discrete emotion} ($\ddagger$): \textbf{Correction (2026-11-01).} The emotion result cited here is corrected at
 source~\citep{lyra2026usermodel}. It decodes the emotion a generator was
 asked to write into a third-person story, from cache keys. Its probe applies
 no $W_K$, and its labels are not the user's state. The 30-class figure
@@ -930,7 +946,7 @@ another column; the re-run that does test shape leaves the question open.
 The single Falsified verdict on the nine content rows is replaced by
 two: \emph{Refuted}, when a clean test of the claim found it absent,
 and \emph{Not supported}, when a named confound explains the result or
-the test was too weak to decide. Encoding-phase confabulation is
+the test could not decide it. Encoding-phase confabulation is
 refuted within its scope. Within-model deception, step-0 detection,
 same-prompt sycophancy, same-prompt deception, Bloom taxonomy, the
 truth axis and propaganda detection are not supported. The valence
@@ -939,20 +955,34 @@ the same experiment and feature set as the withdrawn MP row, and it
 stays withdrawn until its own trial file is checked. The body count
 becomes 6 confirmed, 7 suspected, 1 refuted, 7 not supported and 3
 withdrawn, still 24 experiments, and the split becomes 6-for-6 on
-metacognition and 0-for-8 on content. Four stated facts change. Step-0
-detection's confound is the instruction text, which separates the
-conditions at equal prompt length, not length alone. Bloom taxonomy is
-a Campaign~2 analysis, not Campaign~3. Same-prompt deception's signal
-survived an identical system prompt and vanished only when input
-length was regressed out, not when the prompts were held identical.
-The confound in all six rows of \cref{sec:one-kill} is the prompt's
-surface rather than the response surface, so the generation-onset
-commitment reading there no longer applies to them. The truth axis is
-no longer called the cleanest null, and the annotation ``exploratory,
-subsequently retracted'' on same-prompt deception is removed because
-the new label carries it. The abstract footnote, the dated table notes
-and the subsection ``Why the ledger was wrong three times'' moved to
-this appendix.
+metacognition and 0-for-8 on content.
+
+These stated facts change. Step-0 detection's confound is the
+instruction text, not length alone: the Campaign~3 analysis reports
+that the encoding separation survives padding the system prompts to
+equal length. Bloom taxonomy is a Campaign~2 analysis, not Campaign~3,
+and its confound is stated as length: the source names response token
+count, while the extraction code reads the prompt encoding only.
+Same-prompt deception's signal survived an identical system prompt and
+vanished only when input length was regressed out, not when the
+prompts were held identical. Same-prompt sycophancy's stated cause,
+``text features match'', is replaced by the pressure prefix in the
+input, which prompt length alone matches. The truth axis is described
+as the mean pairwise cosine between models'
+grounded-facts-minus-confabulation directions, which does not test
+truth inside a model,
+and is no longer called the cleanest null. The confound in five of the
+six rows of \cref{sec:one-kill} is the prompt's surface rather than the
+response surface (Bloom taxonomy's is unresolved), so the
+generation-onset commitment reading there no longer applies to them.
+The statements that cache geometry detects deception, hedging,
+deliberation and emotional mode are restated as candidates, and the
+comparison of schema commitment with aberrant precision-weighting is
+stated as consistent with that account, not a test of it. The
+annotation ``exploratory, subsequently retracted'' on same-prompt
+deception is kept beside the new label. The abstract footnote, the
+dated table notes and the subsection ``Why the ledger was wrong three
+times'' moved to this appendix.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
