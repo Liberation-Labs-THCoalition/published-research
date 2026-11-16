@@ -6,7 +6,7 @@ Written 2026-05-29, after a heavy audit-correction pass revealed a predictable f
 
 The abstract's first sentence states the contribution, not the setup, not the floor number, not a caveat.
 
-- **Do:** "KV-cache geometry distinguishes a canonical template referent from a minor place name or a category error" (Decision State's first sentence, integrity edition: the contribution, at the strength its tests carry). This line used to model "Encoding-phase cache geometry distinguishes known from unknown entities at AUROC 0.93", which claims more than that paper shows: its 0.928 classifier uses encoding- and generation-phase features, its encoding-only 0.9377 is not reproducible from the shipped code, its "known" and "unknown" entities are "design labels, not measures of what the model knows" (abstract), and the deconfounded signal is "not shown to be knowledge state" (Conclusion).
+- **Do:** "KV-cache geometry distinguishes a canonical template referent from a minor place name or a category error" (Decision State's first sentence, integrity edition: the contribution, at the strength its tests carry).
 - **Don't:** open with "We investigate whether..." (setup) or with the most conservative number (Oracle Loop opened on the 0.707 LOO floor when the contribution was 100% / 95.6% correction).
 - **Rule:** State the conservative/corrected number *in its place*, but lead with what the work establishes. The honesty instinct ("show the floor first") is wrong for the lede — put the floor in Results, the contribution in the first line.
 - **Two-headline papers:** if there are two co-equal results (e.g. a detection AUROC *and* a methodological reversal), foreshadow both in the opening, don't bury the second in paragraph 3.
@@ -16,7 +16,7 @@ The abstract's first sentence states the contribution, not the setup, not the fl
 A limitations section exists to tell a replicator what to control for — not to demonstrate contrition.
 
 - **Cap the count.** If you have 15+ itemized limitations, you are over-disclosing. Keep the ~6 that change how someone would replicate or interpret; fold the rest into the relevant Methods/Results sentence or an appendix. (Weather had 15, Lyra II had 16 — both bury their real findings.)
-- **Disclose methodology, not code.** A limitation earns its place only if it tells a replicator or reviewer something useful about *interpretation or replication* — a confound, a small n, a missing control, a selection effect, an unvalidated judge. A pure **code bug** (an unpack crash, a sklearn-version break, a wrong covariate that's now corrected) is *fixed in the code and never mentioned*: no reviewer learns anything from "we had a bug, then we didn't." **Exception:** if outside research has relied on the buggy output (cited it, built on it), the correction must be disclosed because the downstream reliance makes it methodologically relevant. This is also the trim criterion — when cutting a long limitations list, the survivors are the methodological ones; anything that's really just "the code did X" comes out.
+- **Disclose methodology, not code.** A limitation earns its place only if it tells a replicator or reviewer something useful about *interpretation or replication* — a confound, a small n, a missing control, a selection effect, an unvalidated judge. A pure **code bug** (an unpack crash, a sklearn-version break, a wrong covariate that's now corrected) is *fixed in the code and never mentioned*: no reviewer learns anything from "we had a bug, then we didn't." **Exception:** if outside research has relied on the buggy output (cited it, built on it), the correction must be disclosed because the downstream reliance makes it methodologically relevant. This rule covers bugs fixed before publication: once a number, verdict or row is published, a bug that changes it gets §6's pointer. This is also the trim criterion — when cutting a long limitations list, the survivors are the methodological ones; anything that's really just "the code did X" comes out.
 - **No multi-paragraph limitation essays in the main text.** If a single limitation needs 25 lines (Decision State's judge-κ saga), it's an appendix or a methods subsection, not a limitation bullet that becomes the paper's center of gravity.
 - **Order: robust survivors before fragilities.** State what survived correction *before* what didn't. A reader who meets the fragilities first reads the survivors through a skeptical lens they shouldn't.
 - **Keep hedges out of the abstract body.** The abstract states results; caveats live in Limitations. Hedging mid-sentence in the abstract ("...though this partly reflects variance compression") double-counts the limitation and weakens the lede. One footnote pointer is enough.
@@ -53,16 +53,22 @@ When a paper has both solid and underpowered results, partition them explicitly 
 
 (Thomas, 2026-11-16.) The meta-pattern abstract carried three dated corrections, 612 words and three quarters of the abstract, and its §2 spent more words on what we withdrew than on what we found. Corrections belong in the record. They are not what the paper is about.
 
-- **Lead with what was found.** State each correction once, in its place, in the present tense: "is 0.62", not "was wrongly reported as 0.70".
-- **Revision history goes at the end.** Dated notes go word for word into a "Corrections and version history" section at the end of the paper, in both editions, and into the Zenodo version notes, not into the abstract, the introduction or the opening of a section. *(Don't: meta-pattern's abstract footnote, and its §8.1 "Why the ledger was wrong three times".)*
-- **The pointer in place is required, and it is enough.** Every correction keeps a one-line pointer to Corrections where it lands. When a published headline number changed, the abstract states the current number, with a one-line pointer saying it changed. Moving the history to the end never means hiding a correction.
+- **Lead with what was found.** State the current result in the present tense: "is 0.62", not "was wrongly reported as 0.70". Tell the story of a correction once, in Corrections; every other place it touches gets only the pointer below.
+- **Revision history goes at the end.** Dated notes go word for word into a "Corrections and version history" section at the end of the paper, in both editions, and into the Zenodo version notes, not into the abstract, the introduction or the opening of a section. *(Don't: meta-pattern at commit `8b4b937`, its abstract footnote and its §8.1 "Why the ledger was wrong three times".)*
+- **The pointer in place is required, and it is enough.**
+  - A published number, verdict or row that changes gets a one-line pointer to Corrections wherever it appears, whatever the cause; §2's rule covers bugs fixed before publication. A table can use one marker.
+  - When a published headline number changed, the abstract states the current number, with a one-line pointer saying it changed.
+  - If a correction removes or reverses the paper's central claim, the abstract says so in its first sentences; that is now what was found.
+  - Moving the history to the end never means hiding a correction.
 - **Don't describe our own honesty or rigor.** No "honestly falsified", "to our credit", "we must admit", "we state plainly", "the honest description is". The disclosure shows the honesty, and saying so adds nothing. Describing a procedure is not describing rigor: "the threshold was registered before the run" stays. Check this by reading, since a word scan misses self-description that uses none of these words.
-- **A null is a finding. Say what it shows.** Write "encoding geometry reads the instruction text, even when prompts are padded to equal length", not only "Step-0 detection: killed".
+- **Don't defend our instruments either.** Where a test could not see something, say that, not that the instrument succeeded.
+- **A null is a finding, at the strength its test carries. Say what it shows.** Write "the entity deconfound separates its two same-complexity question sets at AUROC 0.794, but the question text alone separates them at 0.963, so this comparison does not isolate knowledge state" (`decision-state-paper/main.tex:97-98`), not "the cache carries no knowledge signal" (more than the test shows), and not only "entity deconfound: killed".
 - **Name the verdict after the test.**
   - *Refuted* (or *falsified*, where a registered falsifier fired) when a clean test found the claim absent.
   - *Not supported* when a named confound explains the result or the test could not decide it. Say which: "not supported: the instruction text separates the arms".
   - *Withdrawn* when the measurement does not address the claim.
-  - Never upgrade *not supported* to "possibly true". This is §5's rule for *establish*, applied the other way: before filing a result as refuted, name the valid measurement that returned the null.
+  - Before filing a result as refuted, name the valid measurement that returned the null. This is §5's rule for *establish*, applied the other way.
+  - Never move a *not supported* result into the findings or into Suspected without a new test; saying it is open, and naming the test that would decide it, is correct.
 - **A deferred style finding gets an owner and an end date, and the style gate re-runs after any correction pass** that touches the abstract, introduction or discussion. Accuracy passes don't check register. *(The 2026-09-05 gate caught meta-pattern's abstract footnote. Round 1 rejected it (MAJOR #5); round 2 marked it "OPEN BY DESIGN ... Acceptable to defer; not acceptable to forget", naming no owner or date. Two later correction passes with no gate, 11-01 and 11-07, then grew it from 348 to 612 words.)*
 - **What doesn't change:** every correction stays findable, through the pointer in place, the full note in Corrections and the version notes. Nothing leaves the record. Only where it sits and how it sounds change.
 
@@ -86,9 +92,9 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Limitations ≤ ~6 main-text items; no multi-paragraph limitation essays
 - [ ] No hedges inside the abstract body (footnote pointer only)
 - [ ] No revision history in the abstract, introduction or section openings; dated notes in an end-matter Corrections section, both editions
-- [ ] Every correction keeps its one-line pointer in place; a changed headline number is stated current in the abstract, with a pointer saying it changed
-- [ ] No sentence describing our own honesty or rigor (checked by reading; describing a procedure is fine)
-- [ ] Every verdict named after its test: *refuted* (or *falsified*, where a registered falsifier fired) for a clean test that found the claim absent; *not supported* when a named confound explains it or the test could not decide (say which); *withdrawn* when the measurement does not address the claim
+- [ ] Every published number, verdict or row that changed has a one-line pointer where it appears, whatever the cause (one marker per table is enough); a changed headline number is stated current in the abstract, with a pointer saying it changed; a removed or reversed central claim is stated in the abstract's first sentences
+- [ ] No sentence describing our own honesty or rigor, or defending our instruments where a test could not see (checked by reading; describing a procedure is fine)
+- [ ] Every verdict named after its test: *refuted* (or *falsified*, where a registered falsifier fired) for a clean test that found the claim absent; *not supported* when a named confound explains it or the test could not decide (say which); *withdrawn* when the measurement does not address the claim; no *not supported* result moved into the findings or Suspected without a new test
 - [ ] Style gate re-run if a correction pass touched the abstract, introduction or discussion; every deferred style finding has an owner and an end date
 - [ ] "Establish" vs "preliminary" results partitioned where both exist
 - [ ] Every first-person box matches the final corrected state
@@ -135,3 +141,7 @@ lines** must not. Fix a result in every edition - fixing only one is the desync 
 
 **Before filing, name the axis.** Same edition, two formats -> real TWIN_DESYNC. Two editions
 -> ask whether a *finding* diverged, not whether the *text* diverged.
+
+### Changelog
+
+- **2026-11-16, §1 Do:** replaced "Encoding-phase cache geometry distinguishes known from unknown entities at AUROC 0.93", which claims more than decision-state-paper shows (mixed-phase 0.928 classifier; "design labels, not measures of what the model knows"; "not shown to be knowledge state").
