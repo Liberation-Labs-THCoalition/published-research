@@ -85,7 +85,10 @@ v10 has one job: evidence recall at a fixed token budget. This report contribute
 
 An earlier Mnemosyne version was reported at 85.8% on LongMemEval in our technical report of 2026-08-05
 (DOI 10.5281/zenodo.21801643). That figure should not be relied on. It used a custom semantic-equivalence judge, not the official
-answer-check prompts, and the file given to its answering model held each question's gold answer. This
+answer-check prompts, and by our trace of that run (2026-10-13) the file given to its answering model held each
+question's gold answer. The run files that trace rests on are not among the report's released files (its Zenodo
+record holds only the PDF), so readers cannot yet check the trace from them. The report was withdrawn on 2026-10-14
+(notice in `mnemosyne-benchmark/README.md`, in the same repository as this report). This
 report supersedes it.
 
 ## 2. Mnemosyne v10 retrieval
