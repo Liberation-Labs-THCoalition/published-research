@@ -33,9 +33,8 @@ in Transformer Representations}
 
 % ============================================================================
 \begin{abstract}
-System-prompt identity contexts produce geometrically distinguishable
-V-projection subspaces at deep transformer layers, and the fingerprint is
-semantic: at L47 a paraphrase keeps $0.850$ overlap with the original
+The V-projection geometry that a system-prompt identity produces at deep
+transformer layers is semantic: at L47 a paraphrase keeps $0.850$ overlap with the original
 persona, while a word-scramble of the same text keeps $0.591$ and moves
 toward the bare assistant ($0.448$ overlap with bare, against $0.340$ for
 the original).\footnote{Passages marked~\corrmark{} changed after first
@@ -45,28 +44,28 @@ metric that measures principal-angle overlap between V-projection subspaces
 on neutral probes, and use it to map identity geometry across five context
 conditions in a 27B hybrid transformer.
 
-Three findings. First, \textbf{identities are geometrically
-distinguishable}: system-prompt-based identity contexts (bare assistant,
-rich persona, constructed AI identity) produce
-distinct V-projection subspaces at deep layers, confirmed on
-identity-neutral probes (pairwise presence $0.44$--$0.66$ at L47),
-though a permutation test on the overall within-vs-between gap does not
-reach significance ($p{=}0.103$ at L35, $p{=}0.197$ at L47; see Limitations).
-Second, the fingerprint is \textbf{semantic, not lexical}: a paraphrase
+Three findings. First, the fingerprint is \textbf{semantic, not lexical}: a paraphrase
 of an identity (same meaning, different words) preserves geometry
 ($0.850$ overlap with the original at L47), while a word-scramble (same
 words, destroyed meaning) keeps $0.591$ overlap with the original and moves
 toward the bare default ($0.448$ overlap with bare). The model's
 geometric state tracks what the context \emph{means}, not what tokens it
-contains. Third, a many-shot + prefilling format (used in jailbreak
+contains. Second, a many-shot + prefilling format (used in jailbreak
 research) creates a \textbf{format-dominant processing regime} that is
 geometrically near-orthogonal to the bare assistant (presence
-$0.034$--$0.044$) whether the content is harmful or benign.
+$0.034$--$0.044$) whether the content is harmful or benign. Third,
+\textbf{distinguishability between identities is preliminary}: on
+identity-neutral probes, pairwise presence between the bare assistant, a
+rich persona and a constructed AI identity is $0.44$--$0.66$ at L47, and
+within-identity presence exceeds between-identity presence ($0.639$ vs.\
+$0.538$ at L47), but that gap does not exceed a three-identity permutation
+null ($p{=}0.103$ at L35, $p{=}0.197$ at L47).
 
 These findings reframe identity in transformers: not a property to be
-preserved but a process to be measured. The metric detects which
-context-established state the model is currently in, with implications
-for persona monitoring, identity drift detection, and the relationship
+preserved but a process to be measured. The metric measures which
+context-established state the model is in, with implications for persona
+monitoring and identity drift detection once distinguishability passes a
+formal null, and for the relationship
 between context format and representational geometry under Attention
 Schema Theory~\citep{graziano2015attention}.
 \end{abstract}
@@ -92,8 +91,9 @@ question is: \emph{does this intervention preserve identity?}
 We report evidence for a different view. Identity in a transformer is not
 a fixed object but a \textbf{context-established semantic state} ---
 a geometric configuration in V-projection space that depends on what the
-model has processed. Different contexts produce different identities,
-measurably. The same identity described in different words produces the
+model has processed. Different contexts produce different geometry, though
+the separation between system-prompt identities does not yet exceed a
+formal permutation null (Section~\ref{sec:limitations}). The same identity described in different words produces the
 same geometry. And a many-shot + prefilling format of the kind used in
 jailbreaks puts the model in a format-dominant regime, near-orthogonal to
 the bare assistant, whether its examples are harmful or benign.\corrmark
@@ -179,10 +179,12 @@ seed~42, $n{=}4$ probes per repeat from a pool of 12).
 
 \subsection{Results}
 
-\textbf{Identities are geometrically distinguishable.} System-prompt
-identities produce distinct V-projection subspaces, confirmed on
-identity-neutral probes (no marine biology, no AI research, no harmful
-content --- pure factual trivia equally irrelevant to all conditions).
+\textbf{Identities separate directionally; distinguishability is
+preliminary.} On identity-neutral probes (no marine biology, no AI
+research, no harmful content --- pure factual trivia equally irrelevant to
+all conditions), presence between system-prompt identities is lower than
+presence within each, but the overall within-vs-between gap does not exceed
+a permutation null (Section~\ref{sec:limitations}).
 
 \begin{table}[H]
 \centering
@@ -447,8 +449,8 @@ content. This stronger claim remains testable but untested.
 \label{sec:implications}
 
 \paragraph{For persona monitoring.}
-Different system-prompt identities occupy distinct, stable regions of
-V-projection space. A monitoring system could track identity drift in
+If the separation between system-prompt identities holds against a formal
+null (Section~\ref{sec:limitations}), a monitoring system could track identity drift in
 real time --- detecting when a deployed model's geometric state shifts
 away from its intended persona. The semantic nature of the fingerprint
 means the monitor is robust to prompt paraphrasing.
@@ -541,9 +543,10 @@ a single geometric object. It is a process: the ongoing construction of
 a meaning-level representation at deep layers, shaped by what the model
 has processed and measurable as a V-projection subspace.
 
-The presence metric detects this state. System-prompt identity contexts
-produce distinguishable geometric configurations, confirmed on
-identity-neutral probes. The fingerprint is semantic --- meaning preserves
+The presence metric measures this state. On identity-neutral probes,
+system-prompt identities separate in the expected direction, short of a
+formal permutation null, so their distinguishability is preliminary. The
+fingerprint is semantic --- meaning preserves
 it, and word-scrambling moves it toward the bare default.\corrmark{} A many-shot + prefilling format creates
 a geometrically near-orthogonal regime, and a format-matched benign
 control shows that the format, not the harmful content, produces it.
