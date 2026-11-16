@@ -38,16 +38,15 @@ and What They Cannot}
 
 % ============================================================================
 \begin{abstract}
-Across 24 key-value (KV) cache geometry experiments in 16 models from
+Across 23 key-value (KV) cache geometry experiments in 16 models from
 0.6B to 70B parameters, the findings that held and the findings that
 did not cleave along a single axis. Every confirmed finding measures a
 \emph{metacognitive state} (how the model is processing, such as
-whether it is confabulating or which response template it has
-committed to) or shows that such a measurement holds across hardware
+whether it is confabulating) or shows that such a measurement holds across hardware
 and model scale. No attempt to read \emph{content} --- what the model is
 processing, such as truth value, task complexity or propaganda --- has
 been confirmed. Counting confirmed against refuted or not supported,
-the split is 5-for-5 on metacognition and 0-for-8 on content. Of the
+the split is 4-for-4 on metacognition and 0-for-8 on content. Of the
 content attempts, none was confirmed: one was refuted, five are
 explained by a surface property, and two are undecided.
 
@@ -64,11 +63,12 @@ side, the change in the cache's stable rank from encoding to
 generation separates confabulation from grounded prompts (Hedges'
 $g{=}2.32$; grounded rises, confabulation stays flat), between groups
 whose prompts were not matched on form, so part of it may reflect
-prompt length and template. The schema-commitment effect, in logit
-entropy, is $d{=}{-}1.02$ in the first eight generated tokens; in
-tokens 20--49 it is not detected and points the opposite way
-($d{=}{+}0.37$, $p>0.08$). Over twelve
-months and three experimental campaigns, the body count is 5
+prompt length and template. A companion measurement read from output
+logits, not the cache, schema commitment, is $d{=}{-}1.02$ in logit
+entropy in the first eight generated tokens; in tokens 20--49 it is
+not detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$). It
+is reported beside the ledger, not counted in it. Over twelve
+months and three experimental campaigns, the body count is 4
 confirmed, 8 suspected, 1 refuted, 7 not supported and 3
 withdrawn.\footnote{Earlier versions of this paper reported other
 counts. The dated corrections are collected in \cref{sec:corrections}.}
@@ -115,14 +115,15 @@ until it materializes at deeper layers.
 
 The KV-cache geometry research program at Liberation Labs has produced
 a clear empirical pattern: features of the KV cache track some
-metacognitive states (confabulation at AUROC 0.620 after FWL,
+metacognitive states (confabulation at AUROC 0.620 after FWL, and
 a change in stable rank from encoding to generation, $g{=}2.32$,
-between groups not matched on prompt form,
-template commitment at generation onset), and
+between groups not matched on prompt form), and
 these measurements hold across hardware and scale, while no attempt to
-track content has been confirmed. Most of the content attempts were carried instead by the
+track content has been confirmed. (Template commitment at generation
+onset, a companion measurement, is read from output logits, not the
+cache.) Most of the content attempts were carried instead by the
 surface of the prompt, which the cache encodes faithfully. This
-paper documents the pattern, reports the full body count (5 confirmed,
+paper documents the pattern, reports the full body count (4 confirmed,
 8 suspected, 1 refuted, 7 not supported, 3 withdrawn), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
@@ -172,11 +173,10 @@ The 8 suspected findings sit at the boundary.}
 \toprule
 \textbf{Finding} & \textbf{Status} & \textbf{Type} & \textbf{Key Number} \\
 \midrule
-\multicolumn{4}{l}{\textit{Confirmed (5) --- metacognitive state, or invariance of its measurement}} \\
+\multicolumn{4}{l}{\textit{Confirmed (4) --- metacognitive state, or invariance of its measurement}} \\
 \addlinespace
 Confabulation detection & Confirmed$^{c}$ & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
 Confab geometry: stable-rank change & Confirmed$^{c}$ & Meta & $g{=}2.32$, encoding to generation; prompts not matched on form$^{\P}$ \\
-Schema commitment$^{\S}$ & Confirmed$^{c}$ & Meta & $d{=}{-}1.02$ tokens 0--7; opposite sign, n.s., tokens 20--49 \\
 Hardware invariance & Confirmed$^{c}$ & Meta & $r{\geq}0.998$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \addlinespace
@@ -224,13 +224,17 @@ entropy features never varied, so it could not test spectral shape; the
 question is open. The valence row is withdrawn provisionally, until its
 own trial file is checked (\cref{sec:corrections}).
 
-$^{\S}$Called a confidence paradox in its source ($d{=}0.91$, first 10
-tokens). The effect, in logit entropy, is at onset ($d{=}{-}1.02$ in
-tokens 0--7 and ${-}0.89$ in 8--19); in tokens 20--49 it is not
-detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$), so we
-count it as
-commitment to a response template, a state of processing, not a
-measure of confidence (\cref{sec:one-kill}).
+Companion measurement, not counted in this table. Schema commitment,
+a Confirmed row of this table until 2026-11-16, is measured in output
+logits, not the KV cache: its source says that no statistic there ties
+it to KV-cache spectral features~\citep{lyra2026decision}. Called a
+confidence paradox in its source ($d{=}0.91$ in logit margin, first 10
+tokens), it is, in logit entropy, $d{=}{-}1.02$ in tokens 0--7 and
+${-}0.89$ in 8--19; in tokens 20--49 it is not detected and points the
+opposite way ($d{=}{+}0.37$, $p>0.08$). We read it as commitment to a
+response template, a state of processing, not a measure of confidence
+(\cref{sec:one-kill}), and keep it beside the cache findings rather
+than among them (\cref{sec:corrections}).
 
 $^{\ddagger}$Story emotion decoded from cache keys~\citep{lyra2026usermodel}
 (no $W_K$; labels are the emotion a generator was asked to write, not
@@ -265,8 +269,7 @@ Sources. Confabulation detection: the key-cache detector in
 pre-registered test~\citep{lyra2026oracle}. Stable-rank change:
 \nolinkurl{delta-manifold-paper/main.tex}, the delta in stable rank
 between generation and encoding (Hedges' $g{=}2.32$, its primary
-statistic; the uncorrected $d$ is 2.35). Schema commitment: \citet{lyra2026decision}, whose
-temporal profile is measured in logit entropy. Hardware and scale
+statistic; the uncorrected $d$ is 2.35). Hardware and scale
 invariance: \citet{lyra2026campaign2}, as summarised in
 \nolinkurl{convergence-paper/main.tex}. Encoding-phase confab:
 Experiments C7 and S3 of Campaign~3, in an unpublished analysis
@@ -309,13 +312,13 @@ Under the post hoc taxonomy (\cref{sec:limitations}), the split is:
 \cmidrule(lr){4-5}
 & \textbf{Confirmed} & \textbf{Refuted} & surface & undecided & \textbf{Total} \\
 \midrule
-Metacognitive (state or invariance) & 5 & 0 & 0 & 0 & 5 \\
+Metacognitive (state or invariance) & 4 & 0 & 0 & 0 & 4 \\
 Content & 0 & 1 & 5 & 2 & 8 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent Read by row: 5 of 5 metacognitive findings are confirmed and
+\noindent Read by row: 4 of 4 metacognitive findings are confirmed and
 0 of 8 content attempts are. No metacognitive finding has been refuted
 or left unsupported. No content finding has been confirmed. Of the
 eight content attempts, one is refuted by a clean test, five are
@@ -345,7 +348,7 @@ The distinction is operational, not philosophical:
 
 This taxonomy was constructed post hoc, without blinding or
 pre-registration, and was informed by the outcomes it classifies, so
-the 5/5--0/8 split is hypothesis-generating --- a striking empirical
+the 4/4--0/8 split is hypothesis-generating --- a striking empirical
 regularity consistent with the workspace framework --- rather than
 confirmatory evidence for it (\cref{sec:limitations}).
 
@@ -555,8 +558,9 @@ the two need different tests.
 For the response-side readouts, the deflationary reading assumes
 response-mode statistics are downstream of content: the model produces
 an answer, and hedged answers happen to be phrased differently. The
-timing does not fit that order. The schema-commitment result, in logit
-entropy, locates the effect at $d{=}{-}1.02$ in preamble tokens $0$--$7$
+timing does not fit that order. The schema-commitment result, a
+companion measurement read from output logits rather than the cache
+(\cref{tab:bodycount}), locates the effect, in logit entropy, at $d{=}{-}1.02$ in preamble tokens $0$--$7$
 and $d{=}{-}0.89$ in tokens $8$--$19$; in tokens $20$--$49$ it is not
 detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$). The
 response mode is selected \emph{before} the content that would justify
@@ -720,8 +724,9 @@ cannot do:
 \begin{itemize}[nosep]
 \item \textbf{Can detect}: whether the model is confabulating (AUROC
   0.620 after FWL, in one model, Qwen2.5-7B; and a stable-rank change
-  of $g{=}2.32$, between groups not matched on prompt form) and, at generation onset,
-  which response template it has committed to. Candidates, not yet
+  of $g{=}2.32$, between groups not matched on prompt form). Which
+  response template it has committed to at generation onset is read
+  from output logits, not the cache (\cref{tab:bodycount}). Candidates, not yet
   shown: deception, sycophancy, hedging, deliberation and emotional
   mode.
 \item \textbf{Not shown to detect}: whether the model's output is
@@ -743,7 +748,7 @@ or external verification).
 
 \subsection{For Interpretability}
 
-The 5/5--0/8 split is a guide for future work: if you are building a
+The 4/4--0/8 split is a guide for future work: if you are building a
 KV-cache geometry detector, test it on metacognitive distinctions
 first (modes, stances, processing regimes). No content-level
 distinction has been confirmed in our testing, and most attempts were
@@ -779,7 +784,7 @@ their outcomes, labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
-was known, and the 5/5--0/8 split is the outcome the taxonomy was built
+was known, and the 4/4--0/8 split is the outcome the taxonomy was built
 to describe. A blinded or prospective replication of the labeling
 procedure --- ideally by independent raters classifying experimental
 designs before seeing results --- would substantially strengthen the
@@ -810,14 +815,14 @@ encoding-phase geometry. It does not verify every confirmed row here.
 The confabulation-detection and invariance rows have no entry in its
 file-by-file section, and circularity, sample contamination, and the
 silent zero-fill of missing layers (fifty-eight sites, including
-\texttt{matched\_burn.py}, which produces the schema-commitment row)
+\texttt{matched\_burn.py}, which produces the schema-commitment measurement)
 have not been re-derived row by row. The full note is in
 \cref{sec:corrections}.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-four experiments. Five confirmed, eight suspected, one refuted,
+Twenty-three experiments. Four confirmed, eight suspected, one refuted,
 seven not supported, three withdrawn.
 The pattern suggests that metacognitive state is measurable and that
 content, read this way, has not been: what looked like content was
@@ -950,7 +955,7 @@ invariance rows have no entry in its file-by-file section. Separately, the sweep
 records that extraction code silently substitutes zeros for missing layers at
 fifty-eight sites with no warning anywhere in the codebase, and it names
 \texttt{matched\_burn.py} --- the producer of the confidence-paradox row [now
-Schema commitment in \cref{tab:bodycount}] ---
+Schema commitment, reported beside \cref{tab:bodycount}] ---
 among them. Correct windowing does not protect against a partially-zero feature
 vector.
 
@@ -1167,6 +1172,20 @@ since it does not show opacity. A table note records that Identity
 signatures, typed Meta, is read as semantic content. The notes above
 now say what ``single-turn only'' qualified and when it went, and give
 discrete emotion's earlier key numbers.
+
+\paragraph{2026-11-16: Schema commitment moved beside the table.}
+Schema commitment is no longer counted as a KV-cache finding. Its
+source measures logit entropy and a logit margin, and says that no
+statistic there ties the effect to KV-cache spectral
+features~\citep{lyra2026decision}, so the row was not evidence about
+the cache, although the abstract, the introduction and
+\cref{sec:implications} counted it as such. It is kept, unchanged in
+value and reading, as a companion measurement in the notes to
+\cref{tab:bodycount}. The body count becomes 4 confirmed, 8 suspected,
+1 refuted, 7 not supported and 3 withdrawn, over 23 rows, and the split
+becomes 4-for-4 on metacognition and 0-for-8 on content. Like the
+withdrawals of 2026-08-14 and 2026-09-05, this narrows the confirmed
+side.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
