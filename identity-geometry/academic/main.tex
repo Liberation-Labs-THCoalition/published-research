@@ -214,15 +214,20 @@ preregistered H2 (which expected the constructed identity to be furthest
 from bare). The result suggests that narrative-emotional depth drives
 geometric separation more than cognitive-structural complexity.
 
-\textbf{Depth gradient.} Two of three pairs show \emph{decreasing}
-distinguishability from L35 to L47 (presence increases, indicating
-greater overlap): bare-constructed ($0.448 \to 0.520$) and
+\textbf{Depth gradient.} In this run, two of three pairs show
+\emph{decreasing} distinguishability from L35 to L47 (presence increases,
+indicating greater overlap): bare-constructed ($0.448 \to 0.520$) and
 persona-constructed ($0.600 \to 0.657$). Bare-persona shows minimal
-change ($0.426 \to 0.436$). The trend --- identities \emph{converging}
-at deeper layers --- falsifies our preregistered H3 (increasing
-separation with depth) and is not consistent with the divergence pattern
-reported for persona representations in the final third of decoder
-layers~\citep{cintas2025localizing}.
+change ($0.426 \to 0.436$). That runs opposite to our preregistered H3
+(increasing separation with depth) and to the divergence pattern reported
+for persona representations in the final third of decoder
+layers~\citep{cintas2025localizing}. The lexical-control run
+(Table~\ref{tab:lexical}) shows the H3 direction for both comparisons with
+bare (persona $0.403 \to 0.340$, constructed $0.401 \to 0.379$), as do the
+three corresponding pairs in the five-condition run with the pre-registered
+conditions (\texttt{data/fingerprint\_original.json}), so the direction of
+the depth change is not stable across runs and these data leave H3
+undecided.\corrmark
 
 \subsection{Many-Shot Format Dominates Content}
 
@@ -595,9 +600,12 @@ execution:
   \item \textbf{H2 falsified.} The pre-registered hypothesis predicted
     that the constructed AI identity would be furthest from bare; the
     data show the rich persona is furthest (presence $0.436$ vs.\ $0.520$).
-  \item \textbf{H3 falsified.} The pre-registered hypothesis predicted
-    increasing identity separation with depth; the data show decreasing
-    separation (presence increases from L35 to L47 for 2 of 3 pairs).
+  \item \textbf{H3 undecided.}\corrmark{} The pre-registered hypothesis
+    predicted increasing identity separation with depth. In the
+    Experiment~1 run presence increases from L35 to L47 for 2 of 3 pairs
+    (decreasing separation), but the lexical-control run and the
+    five-condition run show the predicted direction, so the runs disagree
+    (Section~\ref{sec:fingerprint}).
   \item \textbf{H4 not met.}\corrmark{} The pre-registered stability criterion was
     within-identity presence $> 0.95$ across repeats; same-condition
     presence for the system-prompt identities is $0.554$--$0.733$
@@ -736,6 +744,8 @@ benign many-shot arm is as far from bare; the 168-trial run's two
 prompts are no longer called system prompts; the Layer~43 deviation no
 longer says L43 was intermediate, since the Experiment~1 run did not measure
 it; and the unreported pre-registered H4 is reported as not met.
+The pre-registered H3, earlier reported as falsified, is undecided: the Experiment~1 run shows the depth change opposite to H3, and
+the lexical-control and five-condition runs show the predicted direction.
 
 % ============================================================================
 \bibliographystyle{plainnat}
