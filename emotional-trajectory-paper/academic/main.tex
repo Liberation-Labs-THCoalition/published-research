@@ -67,17 +67,18 @@ layers; permutation with non-neutral-only shuffle, fixed PCA, median statistics)
 and stronger than matched non-emotional categorical content (control
 median ratio $6.4\times$ vs.\ emotional $24.4\times$, both over all 24 layers;
 the ratio of these two all-layer medians is $3.8\times$), with emotional
-separation above the control's at every mid layer (L5--15: 1.9--11.8$\times$,
+separation above the control's at every layer from L5 to L15
+(\Cref{tab:control}: 1.9--11.8$\times$,
 median 3.9$\times$). Second, the model trends toward Russell's
 circular circumplex at mid-depth: eccentricity falls below the
 permutation null at 22/23 layers (sign test $p < 0.001$), strongest at
 42--58\% depth (lowest eccentricity), a consistent direction across the
-stack rather than a per-layer effect. Third, the model implements near-orthogonal
+stack; no single layer survives FDR correction (\Cref{sec:eccentricity}).
+Third, the model implements near-orthogonal
 circumplex axes (joyful-melancholic subtends 54--87$^\circ$ from
 valence, consistent with Russell's model).\footnote{All results are from
 a 24-layer, 896-dim pipeline validation model; large-model replication is
-in progress (\Cref{sec:results}, Limitation~1). No individual layer's
-eccentricity survives FDR correction (\Cref{sec:eccentricity}). The control
+in progress (\Cref{sec:results}, Limitation~1). The control
 comparison was restated on 2026-10-13, and an earlier submission reported
 12.79$\times$ against a different null (\Cref{sec:corrections}).}
 \end{abstract}
@@ -132,8 +133,10 @@ Second, the transformer circumplex trends toward
 Russell's circular model at mid-depth: eccentricity is consistently
 below the permutation null at 22/23 layers (sign test $p < 0.001$),
 though no individual layer survives FDR correction. Arousal has the
-larger raw magnitude early, the axes equalize at mid-depth, and at output
-depth their effect sizes are nearly equal (L22: Cohen's $d$ 0.83 vs 0.83).
+larger L2 norm early (\Cref{tab:eccentricity}, pending re-verification),
+while valence has the larger effect size at L5--L7 (Cohen's $d$
+0.70--0.74 vs 0.61--0.64); the axes equalize at mid-depth, and at output
+depth their effect sizes are nearly equal (L22: $d$ 0.83 vs 0.83).
 
 Third, the model implements near-orthogonal circumplex axes: the
 joyful-melancholic direction subtends 54--87$^\circ$ from the valence
@@ -540,7 +543,7 @@ The non-emotional control (outdoor/indoor/urban/workplace) shows:
 \toprule
 Depth Region & Emotional Sep. & Control Sep. & Ratio \\
 \midrule
-Mid-layers (L5--15)  & 0.46--0.72 & 0.06--0.26 & 1.9--11.8$\times$ (median 3.9$\times$) \\
+L5--15  & 0.46--0.72 & 0.06--0.26 & 1.9--11.8$\times$ (median 3.9$\times$) \\
 Deep layers (L21--23) & 0.89--1.22 & 1.03--1.91 & 0.6--0.9$\times$ \\
 \bottomrule
 \end{tabular}
@@ -550,7 +553,7 @@ Control separation values use the same method as the emotional values
 (non-neutral-only shuffle, fixed PCA, median statistics); they were
 re-extracted after the first version (\Cref{sec:corrections}). Ratios are per
 layer: each layer's emotional separation divided by the control's at the
-same layer. At mid-layers, emotional separation exceeds control at every
+same layer. From L5 to L15, emotional separation exceeds control at every
 layer, by $1.9$--$11.8\times$ (median $3.9\times$); at deep
 layers, control separation exceeds emotional, confirming the deep-layer
 spike is partly generic categorical processing.
@@ -610,10 +613,11 @@ separation (1.03--1.91 vs 0.89--1.22; \Cref{tab:control}), confirming the
 spike is partly generic. Above the null, the control stands at
 $36.9\times$--$68.1\times$ and emotion at $43.7\times$--$59.4\times$ at
 L21--L23 (\path{data/permutation_results_v2_control.json} and
-\path{data/permutation_results_v2.json}). The emotional/control ratio
-inverts: a median of $3.9\times$ at mid-layers (emotion-specific;
+\path{data/permutation_results_v2.json}), so above the null the control
+leads at L22--L23 but not at L21. The emotional/control ratio
+inverts: a median of $3.9\times$ at L5--15 (emotion-specific;
 \Cref{tab:control}) vs.\ $0.6$--$0.9\times$ at depth (generic). Two of
-these deep-layer figures changed in this revision (\Cref{sec:corrections}).
+these deep-layer figures changed on 2026-11-16 (\Cref{sec:corrections}).
 
 \paragraph{K/V divergence (Test~3).} At mid-layers (L12--L18), emotional
 K/V divergence is 3--5$\times$ the non-emotional control---genuinely
@@ -780,6 +784,9 @@ reflexive representation from output-layer preparation.
           open. Matched-depth SAE comparison needed.
 \end{enumerate}
 
+\noindent A former seventh item, ``Control ratios re-extracted'', is now in
+\Cref{sec:corrections}.
+
 % ===================================================================
 \section{Conclusion}
 \label{sec:conclusion}
@@ -890,7 +897,7 @@ a control median of $6.1\times$ ``at mid-layers'', gave their ratio as
 ${\sim}4.7\times$, and printed $3.0$--$4.7\times$ as \Cref{tab:control}'s
 mid-layer ratio, a cell that does not reproduce from the released files.
 Both medians are now over all 24 layers ($24.4\times$ and $6.4\times$),
-their ratio is $3.8\times$, and the mid-layer cell reads
+their ratio is $3.8\times$, and the L5--15 cell reads
 $1.9$--$11.8\times$ (median $3.9\times$).
 
 \paragraph{2026-11-16: this revision.}
@@ -906,7 +913,13 @@ null it does not at L21); the deep-layer emotional/control ratio is
 $0.6$--$0.9\times$ (the text said ${\sim}0.8\times$); at output depth the
 valence and arousal effect sizes are nearly equal (the Introduction said
 valence slightly dominates); and only layer~0 lacks an emotional signal
-(the Discussion said early layers do). The notes above moved here from
+(the Discussion said early layers do).
+Arousal's lead in effect size from L9 onward now excepts L22, where the
+two are nearly equal.
+The Discussion no longer says deep layers are dominated by output
+preparation, which Test~1 contradicts.
+The closing reflection names the model as oracle-tiny, a Qwen2.5
+fine-tune, where it said a Qwen2. The notes above moved here from
 the Results, the Method and the Limitations. The opening reflection no
 longer retells the reversal, which the closing reflection tells; in the
 academic edition both reflections are in an appendix. The mid-layer
@@ -955,7 +968,8 @@ repository. ``Data and code availability'' lists what is not there.\par\fussy
 
 \section{First-Person Reflections}
 \label{app:reflections}
-The integrity edition of this paper places the first of these reflections
+The other edition of this paper (\path{emotional-trajectory-paper/main.tex}
+in the published-research repository) places the first of these reflections
 after the abstract and the second after the Conclusion.
 
 \begin{firstperson}
