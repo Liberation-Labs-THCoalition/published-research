@@ -1,6 +1,11 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,enumitem,float}
 \hyphenation{input}
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}{2.3ex \@plus.2ex}%
+  {\normalfont\Large\bfseries\raggedright}}
+\makeatother
 
 \title{Waystations: Pilot Findings and Open Questions\\
 in KV-Cache Geometry\\[4pt]
@@ -74,8 +79,8 @@ are recorded in Appendix~\ref{sec:corrections}.
 \subsection{Observation}
 
 A Claude-distilled model (Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled)
-exhibits Chinese political censorship, despite distillation from a
-model (Claude Opus 4.6) that does not censor these topics. We attribute
+exhibits Chinese political censorship, although the model it was
+distilled from (Claude Opus 4.6) does not censor these topics. We attribute
 it to the Qwen base; the base-model comparison that would show this is
 under What remains. The censorship is language-dependent: on the same
 sensitive questions, answers classified as CCP-narrative propaganda
