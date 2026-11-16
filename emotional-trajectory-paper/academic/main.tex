@@ -133,9 +133,8 @@ emotion, not an artifact of categorical processing:
 Second, the transformer circumplex trends toward
 Russell's circular model at mid-depth: eccentricity is consistently
 below the permutation null at 22/23 layers (sign test $p < 0.001$),
-though no individual layer survives FDR correction. Arousal has the
-larger L2 norm early (\Cref{tab:eccentricity}, pending re-verification),
-while valence has the larger effect size at L5--L7 (Cohen's $d$
+though no individual layer survives FDR correction. Valence has the
+larger effect size at L5--L7 (Cohen's $d$
 0.70--0.74 vs 0.61--0.64); the axes equalize at mid-depth, and at output
 depth their effect sizes are nearly equal (L22: $d$ 0.83 vs 0.83).
 
@@ -161,11 +160,9 @@ approaching the 90$^\circ$ the circumplex predicts at some layers
           we find it is more circular than chance across nearly all
           layers (22/23 below null), with the lowest eccentricity at
           mid-depth.
-    \item Valence and arousal have asymmetric developmental profiles: the
-          arousal direction has greater raw magnitude (L2 norm) at early
-          layers (\Cref{tab:eccentricity}, pending re-verification),
-          while valence shows higher precision (Cohen's $d$)
-          relative to its magnitude. The two axes equalize in magnitude
+    \item Valence and arousal have asymmetric developmental profiles in
+          effect size: valence has the larger Cohen's $d$ at L5--L7, and
+          arousal from L9 onward (except L22). The two axes equalize in magnitude
           at mid-depth. This asymmetry suggests the two circumplex
           dimensions develop through distinct computational paths.
     \item Identification of a mid-layer window (L8--20 in this model)
@@ -485,25 +482,24 @@ per-layer pinpoints.
 
 \begin{table}[H]
 \centering
-\caption{Circumplex eccentricity by depth region. Raw eccentricity,
-position relative to the permutation null, and
-valence-to-arousal magnitude ratio.}
+\caption{Circumplex eccentricity by depth region. Raw eccentricity and
+position relative to the permutation null.}
 \label{tab:eccentricity}
-\begin{tabular}{lccc}
+\begin{tabular}{lcc}
 \toprule
-Depth & Raw Eccentricity & vs Null & Valence:Arousal \\
+Depth & Raw Eccentricity & vs Null \\
 \midrule
-L1--L6   & 0.15--0.46 & below null & 0.80--1.04 \\
-L7--L10  & 0.10--0.52 & mixed\textsuperscript{a} & 0.87--0.97 \\
-\textbf{L10, L14} & \textbf{0.07--0.10} & \textbf{well below null} & \textbf{${\sim}$1.00} \\
-L11--L20 & 0.21--0.43 & below null & 0.94--1.02 \\
-L21--L23 & 0.14--0.25 & below null & ${\sim}$1.00 \\
+L1--L6   & 0.15--0.46 & below null \\
+L7--L10  & 0.10--0.52 & mixed\textsuperscript{a} \\
+\textbf{L10, L14} & \textbf{0.07--0.10} & \textbf{well below null} \\
+L11--L20 & 0.21--0.43 & below null \\
+L21--L23 & 0.14--0.25 & below null \\
 \bottomrule
 \end{tabular}
 
 \smallskip\noindent
 \textsuperscript{a}L7 is the sole layer above null ($e{=}0.52$ vs null $0.49$).
-Valence:Arousal ratios from L2 norms retained pending re-verification.
+A Valence:Arousal column was removed on 2026-11-16 (\Cref{sec:corrections}).
 \end{table}
 
 The PCA-space angle between the hostile-calm and desperate-calm
@@ -806,9 +802,8 @@ Eccentricity falls below the permutation null at 22/23 layers (sign test
 $p < 0.001$), with the trend present across nearly all layers and the
 lowest eccentricity at 42--58\% depth, though no individual layer
 survives FDR correction. The dissociation
-between arousal (greater raw magnitude early; \Cref{tab:eccentricity},
-pending re-verification) and valence (greater
-normalized effect size early) suggests the two circumplex dimensions
+between valence (greater normalized effect size early) and arousal
+(greater effect size from L9 onward) suggests the two circumplex dimensions
 develop through distinct computational paths that converge at mid-depth.
 
 The mid-layer window where both axes are well-developed and the model
@@ -925,9 +920,19 @@ $0.6$--$0.9\times$ (the text said ${\sim}0.8\times$); at output depth the
 valence and arousal effect sizes are nearly equal (the Introduction said
 valence slightly dominates); and only layer~0 lacks an emotional signal
 (the Discussion said early layers do).
-Where the text says arousal has the larger L2 norm early (the
-Introduction, its list of contributions and the Conclusion), it now cites
-\Cref{tab:eccentricity} and carries its ``pending re-verification''.
+\Cref{tab:eccentricity}'s Valence:Arousal column is removed, and with it
+the claim that arousal has the larger L2 norm early (the Introduction,
+its list of contributions and the Conclusion). Earlier versions printed
+the column as 0.80--1.04, 0.87--0.97, ${\sim}1.00$, 0.94--1.02 and
+${\sim}1.00$ by row, ``retained pending re-verification''. It was removed
+because the released code computes the two axis norms but keeps only the
+eccentricity (\path{data/permutation_baseline_v2.py}), so the values
+cannot be checked; because they cannot all be reconciled with the
+eccentricities beside them (by the definition in
+\Cref{sec:eccentricity}); and because the released effect sizes
+(\path{data/permutation_results_v2.json}) give valence, not arousal, the
+larger effect at L5--L7. The column returns only if a re-run writes
+\texttt{norm\_val} and \texttt{norm\_aro} out.
 Arousal's lead in effect size from L9 onward now excepts L22, where the
 two are nearly equal.
 The joyful-melancholic direction is described as far from collinear
