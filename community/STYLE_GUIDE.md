@@ -6,7 +6,7 @@ Written 2026-05-29, after a heavy audit-correction pass revealed a predictable f
 
 The abstract's first sentence states the contribution, not the setup, not the floor number, not a caveat.
 
-- **Do:** "Encoding-phase cache geometry distinguishes known from unknown entities at AUROC 0.93." (Decision State — good.)
+- **Do:** "KV-cache geometry distinguishes a canonical template referent from a minor place name or a category error" (Decision State's first sentence, integrity edition: the contribution, at the strength its tests carry). This line used to model "Encoding-phase cache geometry distinguishes known from unknown entities at AUROC 0.93", which claims more than that paper shows: its 0.928 classifier uses encoding- and generation-phase features, its encoding-only 0.9377 is not reproducible from the shipped code, its "known" and "unknown" entities are "design labels, not measures of what the model knows" (abstract), and the deconfounded signal is "not shown to be knowledge state" (Conclusion).
 - **Don't:** open with "We investigate whether..." (setup) or with the most conservative number (Oracle Loop opened on the 0.707 LOO floor when the contribution was 100% / 95.6% correction).
 - **Rule:** State the conservative/corrected number *in its place*, but lead with what the work establishes. The honesty instinct ("show the floor first") is wrong for the lede — put the floor in Results, the contribution in the first line.
 - **Two-headline papers:** if there are two co-equal results (e.g. a detection AUROC *and* a methodological reversal), foreshadow both in the opening, don't bury the second in paragraph 3.
@@ -47,9 +47,26 @@ When a paper has both solid and underpowered results, partition them explicitly 
 
 - KV-Cloak's solid claims (feature-space transform p=5.5e-16; real mechanism degrades detection to near-chance) got drowned by the injection control's "uninterpretable" caveat. Two buckets — *establish* vs *preliminary* — keep them separate.
 - Lyra II's binary valence (0.992) and its 12.3×-chance number are **not** load-bearing. This line used to say "Lyra II should assert binary valence (0.992) as load-bearing, and explicitly demote the 12.3×-chance number to 'label-granularity-dependent' *in the abstract*". Both rest on the user-model readout corrected in PR #17 (merged 2026-11-02): it applies no W_K, its labels are the emotion a story generator was asked to write, 30-way it does not beat a text (TF-IDF) baseline, and the 0.992 is n = 300 and arousal-confounded. Lyra II v1.1 carries that correction. The framing rule stands: the framing the limitations force is the framing the reader meets first.
-- **This line used to also name within-model deception (AUROC 1.000) as load-bearing. That result was withdrawn in 2026** — a same-prompt control collapsed it to 0.160, meaning the classifier had separated the system-prompt template rather than deception geometry. Four papers had already built on it, and one shipped a PDF calling it *established*. The lesson belongs in this section rather than in a changelog: **"load-bearing" is a claim about how much weight a number can take, and a number measured without the control that could falsify it can take none.** Before filing a result under *establish*, name the control that would have caught it if it were an artifact, and check that the control was actually run. If it was not, the result is *preliminary* however clean it looks — and AUROC 1.000 looks very clean.
+- **This line used to also name within-model deception (AUROC 1.000) as load-bearing. It is *not supported*:** the instruction text separates the arms. The same-prompt version does not decide it either: with the system prompt identical across arms it scored 0.920, but input length still separated the arms, and 0.160 is what remained after FWL on input length (meta-pattern, verdict table and "This is testable, and it can fail"). Four papers had already built on the 1.000, and one shipped a PDF calling it *established*. The lesson belongs in this section rather than in a changelog: **"load-bearing" is a claim about how much weight a number can take, and a number measured without the control that could falsify it can take none.** Before filing a result under *establish*, name the control that would have caught it if it were an artifact, and check that the control was actually run. If it was not, the result is *preliminary* however clean it looks — and AUROC 1.000 looks very clean.
 
-## 4. First-person reflections must track the final state
+## 6. Don't fall on our sword
+
+(Thomas, 2026-11-16.) The meta-pattern abstract carried three dated corrections, 612 words and three quarters of the abstract, and its §2 spent more words on what we withdrew than on what we found. Corrections belong in the record. They are not what the paper is about.
+
+- **Lead with what was found.** State each correction once, in its place, in the present tense: "is 0.62", not "was wrongly reported as 0.70".
+- **Revision history goes at the end.** Dated notes go word for word into a "Corrections and version history" section at the end of the paper, in both editions, and into the Zenodo version notes, not into the abstract, the introduction or the opening of a section. *(Don't: meta-pattern's abstract footnote, and its §8.1 "Why the ledger was wrong three times".)*
+- **The pointer in place is required, and it is enough.** Every correction keeps a one-line pointer to Corrections where it lands. When a published headline number changed, the abstract states the current number, with a one-line pointer saying it changed. Moving the history to the end never means hiding a correction.
+- **Don't describe our own honesty or rigor.** No "honestly falsified", "to our credit", "we must admit", "we state plainly", "the honest description is". The disclosure shows the honesty, and saying so adds nothing. Describing a procedure is not describing rigor: "the threshold was registered before the run" stays. Check this by reading, since a word scan misses self-description that uses none of these words.
+- **A null is a finding. Say what it shows.** Write "encoding geometry reads the instruction text, even when prompts are padded to equal length", not only "Step-0 detection: killed".
+- **Name the verdict after the test.**
+  - *Refuted* (or *falsified*, where a registered falsifier fired) when a clean test found the claim absent.
+  - *Not supported* when a named confound explains the result or the test could not decide it. Say which: "not supported: the instruction text separates the arms".
+  - *Withdrawn* when the measurement does not address the claim.
+  - Never upgrade *not supported* to "possibly true". This is §5's rule for *establish*, applied the other way: before filing a result as refuted, name the valid measurement that returned the null.
+- **A deferred style finding gets an owner and an end date, and the style gate re-runs after any correction pass** that touches the abstract, introduction or discussion. Accuracy passes don't check register. *(The 2026-09-05 gate caught meta-pattern's abstract footnote. Round 1 rejected it (MAJOR #5); round 2 marked it "OPEN BY DESIGN ... Acceptable to defer; not acceptable to forget", naming no owner or date. Two later correction passes with no gate, 11-01 and 11-07, then grew it from 348 to 612 words.)*
+- **What doesn't change:** every correction stays findable, through the pointer in place, the full note in Corrections and the version notes. Nothing leaves the record. Only where it sits and how it sounds change.
+
+## 7. First-person reflections must track the final state
 
 The reflection boxes are a feature — they show the inside view of the science. But they go stale when the work moves under them.
 
@@ -57,21 +74,9 @@ The reflection boxes are a feature — they show the inside view of the science.
 - A reflection that *anticipated* a correction is gold — keep it (Lyra II box 2 pre-flagged the denoising as exploratory; the audit vindicated it).
 - The reflection's job is honest interiority, not salesmanship and not self-flagellation. If it doesn't match where the work landed, it's not current.
 
-## 5. Disclosure is the fallback for the unachievable, not a shortcut past the achievable
+## 8. Disclosure is the fallback for the unachievable, not a shortcut past the achievable
 
 (From the audit's resolution discipline.) When a real result/number is *obtainable*, get it — don't substitute a scope-limitation paragraph explaining why you didn't. Reserve disclosure for the genuinely unrecoverable (lost data/code). Don't disclosure-paper findings that an experiment could actually answer; that trades completeness for speed.
-
-## 6. Don't fall on our sword
-
-(Thomas, 2026-11-16.) The meta-pattern abstract carried three dated corrections, 612 words and three quarters of the abstract, and its §2 spent more words on what we withdrew than on what we found. Corrections belong in the record. They are not what the paper is about.
-
-- **Lead with what was found.** State each correction once, in its place, in the present tense: "is 0.62", not "was wrongly reported as 0.70".
-- **Revision history goes at the end.** Dated notes go word for word into a "Corrections and version history" section at the end of the paper, in both editions, and into the Zenodo version notes. They never go in the abstract, the introduction or the opening of a section. In place, a one-line pointer is enough. *(Don't: meta-pattern's abstract footnote, and its §8.1 "Why the ledger was wrong three times".)*
-- **Don't describe our own honesty or rigor.** No "honestly falsified", "to our credit", "we must admit", "we state plainly", "the honest description is". The disclosure shows the honesty, and saying so adds nothing.
-- **A null is a finding. Say what it shows.** Write "encoding geometry reads the instruction text, even when prompts are padded to equal length", not only "Step-0 detection: killed".
-- **Name the verdict after the test.** Use *refuted* only when a clean test of the claim found it absent. A result that a confound explains is *not supported*, and you name the confound: "not supported: the instruction text separates the arms". Never upgrade *not supported* to "possibly true". This is §5's rule for *establish*, applied the other way: before filing a result as refuted, name the valid measurement that returned the null.
-- **Re-run the style gate after any correction pass** that touches the abstract, introduction or discussion. Accuracy passes don't check register. *(The 2026-09-05 gate flagged meta-pattern's abstract footnote at 348 words and deferred it. Two later correction passes, 11-01 and 11-07, grew it to 612 words with no gate.)*
-- **What doesn't change:** every correction stays findable, through the pointer in place, the full note in Corrections and the version notes. We keep the honesty. Only where it sits and how it sounds change.
 
 ---
 
@@ -81,9 +86,10 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Limitations ≤ ~6 main-text items; no multi-paragraph limitation essays
 - [ ] No hedges inside the abstract body (footnote pointer only)
 - [ ] No revision history in the abstract, introduction or section openings; dated notes in an end-matter Corrections section, both editions
-- [ ] No sentence describing our own honesty or rigor
-- [ ] Every kill labelled *refuted* (clean test) or *not supported* (confound named)
-- [ ] Style gate re-run if a correction pass touched the abstract, introduction or discussion
+- [ ] Every correction keeps its one-line pointer in place; a changed headline number is stated current in the abstract, with a pointer saying it changed
+- [ ] No sentence describing our own honesty or rigor (checked by reading; describing a procedure is fine)
+- [ ] Every verdict named after its test: *refuted* (or *falsified*, where a registered falsifier fired) for a clean test that found the claim absent; *not supported* when a named confound explains it or the test could not decide (say which); *withdrawn* when the measurement does not address the claim
+- [ ] Style gate re-run if a correction pass touched the abstract, introduction or discussion; every deferred style finding has an owner and an end date
 - [ ] "Establish" vs "preliminary" results partitioned where both exist
 - [ ] Every first-person box matches the final corrected state
 - [ ] Every claim has reproducible code/data, or an honest note where it genuinely can't
