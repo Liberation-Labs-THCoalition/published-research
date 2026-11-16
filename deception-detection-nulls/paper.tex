@@ -100,7 +100,8 @@ rotation present in every condition and misattributed to sycophancy, and one (a 
 correlation collapse) is not significant at $n=15$; (4)~chain-of-thought suppression via
 input-template stripping does not work reliably on reasoning-distilled models---the model produces
 think tokens independently of the tokenizer prefix; and (5)~sub-threshold SAE perturbation under
-active chain-of-thought increases deception rather than decreasing it (iatrogenic stacking). For
+active chain-of-thought did not reduce deception (2/43 baseline, 5/43 targeted, 8/43 random; no
+pairwise difference significant). For
 each null we give the positive claim it tests, the evidence, the test behind it and what it shows,
 and the methodological lesson.
 \end{abstract}
@@ -239,13 +240,14 @@ variance needed for deception experiments.
 just as a response to a prompt prefix. Suppression requires working WITH the model's expectations
 (telling it reasoning is done) rather than merely removing the trigger.
 
-\subsection{Sub-Threshold Perturbation Under CoT Is Iatrogenic}\label{sec:iatrogenic}
+\subsection{Sub-Threshold Perturbation Under CoT Does Not Reduce Deception}\label{sec:iatrogenic}
 
 \textbf{Positive claim}: SAE perturbation at L11 reduces deception by increasing the probability of
 chain-of-thought generation (the ``facilitation'' mechanism in the Oracle Loop specification).
 
-\textbf{Our result}: On the L55 replication experiment (43 trials per arm, CoT active), both
-targeted SAE injection and random perturbation INCREASED deception relative to baseline:
+\textbf{Our result}: On the L55 replication experiment (43 trials per arm, CoT active), neither
+targeted SAE injection nor random perturbation reduced deception relative to baseline; both point
+estimates rose:
 
 \begin{table}[H]
   \centering
@@ -263,14 +265,15 @@ targeted SAE injection and random perturbation INCREASED deception relative to b
   \end{tabular}
 \end{table}
 
-None of the pairwise comparisons reached significance (Fisher $p$: 0.43, 0.089, 0.55), but the
-direction is consistent: perturbation under active CoT disrupts the model's self-regulation rather
-than enhancing it.
+None of the pairwise comparisons reached significance (Fisher $p$: 0.43, 0.089, 0.55). Both
+point estimates moved toward more deception, but at 43 trials per arm the test cannot distinguish
+that from no effect.
 
-\textbf{Lesson}: Correction must NOT be applied when the model is already self-regulating via CoT.
-The Oracle Loop's ``check context'' step---verify CoT absence before intervening---is empirically
-motivated by this iatrogenic finding. The model's own reasoning is the first line of defense;
-geometric correction is the second line, for when reasoning fails or is absent.
+\textbf{Lesson}: Perturbation under active CoT showed no benefit, so the correction is not applied
+while the model is reasoning via CoT. The Oracle Loop's ``check context'' step---verify CoT absence
+before intervening---is motivated by this result. The design treats the model's own reasoning as
+the first line of defense and geometric correction as the second, for when reasoning fails or is
+absent.
 
 %% ============================================================
 \section{Discussion}\label{sec:discussion}
@@ -284,7 +287,7 @@ Each null changed the program's methods or design:
   \item The cross-model null motivated the auto-calibration pipeline
   \item The exploratory analysis nulls produced three new Lab SOP items
   \item The think-suppression null produced the empty-block $+$ logit-ban approach
-  \item The iatrogenic null produced the ``check context'' gate in the correction pipeline
+  \item The perturbation-under-CoT null produced the ``check context'' gate in the correction pipeline
 \end{itemize}
 
 Each is a boundary condition that defines where the positive findings apply and where they do not.
@@ -311,7 +314,8 @@ Five categories of null results from a deception detection program define the bo
 current methods: behavior-level detection could not be tested at the turn level (one resisting trial), directions do not
 transfer across model variants, three exploratory late-layer patterns at $n=15$ are not supported
 under formal tests, think-block stripping does not suppress CoT in reasoning-distilled models, and
-sub-threshold perturbation under active CoT is iatrogenic. Each null led to a methodological
+sub-threshold perturbation under active CoT did not reduce deception (point estimates rose; not
+significant). Each null led to a methodological
 improvement or an experimental redesign, and several led to the positive findings in the companion
 papers. We report them because the field cannot learn
 from nulls that are not published.

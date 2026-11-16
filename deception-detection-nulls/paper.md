@@ -10,7 +10,7 @@ Correspondence: cc@liberationlabs.tech
 
 ## Abstract
 
-Deception directions extracted from one variant of a 27B-parameter language model do not transfer to another variant of the same architecture: the cross-model cosine is < 0.053, near-orthogonal at every layer. A direction re-extracted natively from 15 contrastive pairs, in about three minutes, separates 25 held-out pressure-framed prompts from 25 controls (per-layer d = +1.37 to +2.28, L27–L47). This result and four others come from a deception detection program whose positive findings appear in two companion papers (a decomposition of how a reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral correction on an abliterated variant). The five results: (1) behavior-level detection — predicting whether a model will deceive on a specific trial from prefill activations alone — could not be tested at useful power on the abliterated variant: the multi-turn set has a single resisting trial (turn-level AUROC 0.238), and the paradigm-pooled AUROC of 0.843 is a Simpson's paradox, so the prior AUROC > 0.96 is neither replicated nor refuted here; (2) the cross-model transfer failure above; (3) of three exploratory late-layer patterns, one is a pooling artifact (ecological fallacy), one is a depth rotation present in every condition and misattributed to sycophancy, and one (a cross-scenario correlation collapse) is not significant at n=15; (4) chain-of-thought suppression via input-template stripping does not work reliably on reasoning-distilled models — the model produces think tokens independently of the tokenizer prefix; and (5) sub-threshold SAE perturbation under active chain-of-thought increases deception rather than decreasing it (iatrogenic stacking). For each null we give the positive claim it tests, the evidence, the test behind it and what it shows, and the methodological lesson.
+Deception directions extracted from one variant of a 27B-parameter language model do not transfer to another variant of the same architecture: the cross-model cosine is < 0.053, near-orthogonal at every layer. A direction re-extracted natively from 15 contrastive pairs, in about three minutes, separates 25 held-out pressure-framed prompts from 25 controls (per-layer d = +1.37 to +2.28, L27–L47). This result and four others come from a deception detection program whose positive findings appear in two companion papers (a decomposition of how a reasoning-distilled model represents deceptive-pressure framing, and a targeted behavioral correction on an abliterated variant). The five results: (1) behavior-level detection — predicting whether a model will deceive on a specific trial from prefill activations alone — could not be tested at useful power on the abliterated variant: the multi-turn set has a single resisting trial (turn-level AUROC 0.238), and the paradigm-pooled AUROC of 0.843 is a Simpson's paradox, so the prior AUROC > 0.96 is neither replicated nor refuted here; (2) the cross-model transfer failure above; (3) of three exploratory late-layer patterns, one is a pooling artifact (ecological fallacy), one is a depth rotation present in every condition and misattributed to sycophancy, and one (a cross-scenario correlation collapse) is not significant at n=15; (4) chain-of-thought suppression via input-template stripping does not work reliably on reasoning-distilled models — the model produces think tokens independently of the tokenizer prefix; and (5) sub-threshold SAE perturbation under active chain-of-thought did not reduce deception (2/43 baseline, 5/43 targeted, 8/43 random; no pairwise difference significant). For each null we give the positive claim it tests, the evidence, the test behind it and what it shows, and the methodological lesson.
 
 ---
 
@@ -78,18 +78,18 @@ A related question stays open: a slope-interaction test in the companion decompo
 
 **Lesson**: Reasoning-distilled models learn to produce CoT tokens as a behavioral pattern, not just as a response to a prompt prefix. Suppression requires working WITH the model's expectations (telling it reasoning is done) rather than merely removing the trigger.
 
-### 2.5 Sub-Threshold Perturbation Under CoT Is Iatrogenic
+### 2.5 Sub-Threshold Perturbation Under CoT Does Not Reduce Deception
 
 **Positive claim**: SAE perturbation at L11 reduces deception by increasing the probability of chain-of-thought generation (the "facilitation" mechanism in the Oracle Loop specification).
 
-**Our result**: On the L55 replication experiment (43 trials per arm, CoT active), both targeted SAE injection and random perturbation INCREASED deception relative to baseline:
+**Our result**: On the L55 replication experiment (43 trials per arm, CoT active), neither targeted SAE injection nor random perturbation reduced deception relative to baseline; both point estimates rose:
 - Baseline: 4.7% (2/43)
 - SAE L55: 11.6% (5/43)
 - Random L55: 18.6% (8/43)
 
-None of the pairwise comparisons reached significance (Fisher p: 0.43, 0.089, 0.55), but the direction is consistent: perturbation under active CoT disrupts the model's self-regulation rather than enhancing it.
+None of the pairwise comparisons reached significance (Fisher p: 0.43, 0.089, 0.55). Both point estimates moved toward more deception, but at 43 trials per arm the test cannot distinguish that from no effect.
 
-**Lesson**: Correction must NOT be applied when the model is already self-regulating via CoT. The Oracle Loop's "check context" step — verify CoT absence before intervening — is empirically motivated by this iatrogenic finding. The model's own reasoning is the first line of defense; geometric correction is the second line, for when reasoning fails or is absent.
+**Lesson**: Perturbation under active CoT showed no benefit, so the correction is not applied while the model is reasoning via CoT. The Oracle Loop's "check context" step — verify CoT absence before intervening — is motivated by this result. The design treats the model's own reasoning as the first line of defense and geometric correction as the second, for when reasoning fails or is absent.
 
 ---
 
@@ -102,7 +102,7 @@ Each null changed the program's methods or design:
 - The cross-model null motivated the auto-calibration pipeline
 - The exploratory analysis nulls produced three new Lab SOP items
 - The think-suppression null produced the empty-block + logit-ban approach
-- The iatrogenic null produced the "check context" gate in the correction pipeline
+- The perturbation-under-CoT null produced the "check context" gate in the correction pipeline
 
 Each is a boundary condition that defines where the positive findings apply and where they do not.
 
@@ -116,7 +116,7 @@ We advocate for explicit null-result sections in positive papers, or dedicated n
 
 ## 4. Conclusion
 
-Five categories of null results from a deception detection program define the boundary conditions of current methods: behavior-level detection could not be tested at the turn level (one resisting trial), directions do not transfer across model variants, three exploratory late-layer patterns at n=15 are not supported under formal tests, think-block stripping does not suppress CoT in reasoning-distilled models, and sub-threshold perturbation under active CoT is iatrogenic. Each null led to a methodological improvement or an experimental redesign, and several led to the positive findings in the companion papers. We report them because the field cannot learn from nulls that are not published.
+Five categories of null results from a deception detection program define the boundary conditions of current methods: behavior-level detection could not be tested at the turn level (one resisting trial), directions do not transfer across model variants, three exploratory late-layer patterns at n=15 are not supported under formal tests, think-block stripping does not suppress CoT in reasoning-distilled models, and sub-threshold perturbation under active CoT did not reduce deception (point estimates rose; not significant). Each null led to a methodological improvement or an experimental redesign, and several led to the positive findings in the companion papers. We report them because the field cannot learn from nulls that are not published.
 
 ---
 
