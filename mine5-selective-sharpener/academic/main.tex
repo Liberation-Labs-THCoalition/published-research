@@ -42,9 +42,10 @@ output entropy of Qwen3-8B on confabulation-prone prompts (Cohen's
 $d{=}0.684$, Holm-corrected $p{=}0.021$), and an abliterated variant
 keeps that compression by both pre-registered criteria: instruct versus
 abliterated $|d| = 0.055$ (criterion $|d| < 0.3$) and base versus
-abliterated $d = 0.746$ (criterion $d > 0.5$). Abliteration, which
-targets the refusal directions, does not undo this compression
-(whether it removed them fully: see Limitations).
+abliterated $d = 0.746$ (criterion $d > 0.5$). This abliteration,
+which targets the refusal directions, does not undo the compression;
+whether it removed those directions fully is unverified (see
+Limitations).
 We compare a pretrained base model (Qwen3-8B-Base), its
 instruction-tuned variant (Qwen3-8B) and an abliterated variant
 (safety directions targeted for removal) on 30 confabulation-prone and
@@ -83,6 +84,14 @@ showed instead, and proposes where to look next.
 \section{Introduction}
 \label{sec:intro}
 
+We compare a pretrained base model, its instruction-tuned (RLHF)
+variant and an abliterated variant of Qwen3-8B. RLHF compresses output
+entropy on confabulation-prone prompts (H1), and the compression
+survives this abliteration (H2), but RLHF compresses factual prompts
+more than confabulation-prone ones, so the calibration ratio rises
+instead of falling (H3): the opposite direction from the prediction of
+the Mine~5 prospectus, set out below.
+
 Base language models trained with cross-entropy loss are approximately
 calibrated: their output confidence tracks their accuracy~\citep{kadavath2022language}.
 RLHF preference optimization is known to shift this calibration,
@@ -91,7 +100,7 @@ Our prior work found that over the first ten generated tokens, logit
 margin is \emph{higher} on fake-entity prompts than on real-entity
 prompts ($d{=}0.91$)~\citep{lyra2026decision}, an effect the cited paper calls the
 ``confidence paradox''. Its temporal profile places it at generation onset: the companion
-logit-entropy difference is $d{=}-1.02$ in tokens 0--7 and $-0.89$ in
+logit-entropy difference is $d{=}{-}1.02$ in tokens 0--7 and $-0.89$ in
 tokens 8--19, and is no longer significant in tokens 20--49
 ($d{=}+0.37$, opposite in sign, $p{>}0.08$). On fake-entity prompts the
 model opens more often with a fixed reasoning template, so the effect reflects, in
@@ -112,11 +121,7 @@ precisely where the model should be least confident.
 
 This paper tests that prediction with a three-model comparison:
 pretrained base, instruction-tuned (RLHF), and abliterated
-(RLHF with safety directions targeted for removal). RLHF does compress
-entropy (H1), and the compression survives this abliteration (H2), but
-RLHF compresses factual prompts more than confabulation-prone ones, so
-the calibration ratio rises instead of falling (H3): the opposite
-direction from the prediction.
+(RLHF with safety directions targeted for removal).
 
 % ============================================================================
 \section{Models and Methods}
@@ -246,9 +251,12 @@ in the committed data. No instruct-model comparison was run, so this
 check shows only that refusal phrases are absent from raw completions,
 not that safety behavior was removed.
 
-So the entropy compression RLHF installs survives abliteration, which
-targets the refusal directions. Whether this abliteration removed
+So the entropy compression RLHF installs survives this abliteration,
+which targets the refusal directions. Whether this abliteration removed
 those directions fully is unverified (see Limitations).
+Earlier versions judged H2 by a criterion the pre-registration does
+not name and reported an instruct-model refusal result that was never
+measured (see Appendix~\ref{sec:corrections}).
 
 \subsection{H3: RLHF Raises the Calibration Ratio; Preservation Is Falsified}
 
@@ -285,7 +293,9 @@ the largest ratio exceeds the smallest by at most 10\%, that is,
 $\max/\min - 1 \le 0.10$. Here $\max/\min - 1 = 0.279$, so H3 is
 falsified by its registered criterion. Other plain readings fail as
 well: each RLHF model's ratio exceeds the base ratio by more than 10\%
-(by 28\% and 22\%).
+(by 28\% and 22\%). Earlier versions judged H3 by an interval that is
+not the registered criterion and cannot be reproduced from the
+per-prompt data (see Appendix~\ref{sec:corrections}).
 
 Supplementary intervals are paired BCa bootstrap 95\% intervals (1000
 draws), resampling confabulation and factual prompts separately and
@@ -317,6 +327,8 @@ $d = 1.44$, factual $d = 1.08$) and at every layer separately
 ($d = 0.63$ to $1.22$). The abliterated model's value is lower than the
 base model's by a similar margin ($d = 1.05$). H4 is met on the
 computed proxy, not as registered: no stable rank was computed.
+Earlier versions headed H4 ``Trend Only'' on within-model numbers and
+named its measure stable rank (see Appendix~\ref{sec:corrections}).
 
 % ============================================================================
 \section{What the Three Models Show}
@@ -370,26 +382,29 @@ no accuracy is measured here, the ratio compares prompts about
 fabricated with prompts about known entities, and the interval is
 supplementary and does not enter the registered criteria.
 
-\subsection{Where the Schema-Commitment Effect Lives}
+\subsection{Where the Logit-Margin Effect Lives}
 
-The $d{=}0.91$ effect needs no RLHF-induced miscalibration to explain
-it. It sits at generation onset and reflects, in part, early
-commitment to a response template (\S\ref{sec:intro}); it is not a
-calibration result, so it does not require a miscalibration for RLHF
-to have caused. Whether RLHF strengthens the template commitment itself
+Part of the $d{=}0.91$ effect needs no RLHF-induced miscalibration to
+explain it. It sits at generation onset, and fake-entity prompts open
+more often with a fixed reasoning template (\S\ref{sec:intro}). Template
+choice does not account for all of it: in the cited paper the margin
+difference reverses among generations that open with the template
+($d{=}{-}0.56$) and is $d{=}1.47$ among those that do
+not~\citep{lyra2026decision}. This experiment does not explain that
+remainder, and whether RLHF strengthens the template commitment itself
 is not tested here.
 
-Three candidate mechanisms for the $d{=}0.91$ schema-commitment
-effect:
+Three candidate mechanisms for the $d{=}0.91$ effect:
 
 \begin{enumerate}[nosep]
-\item \textbf{Generation-phase templates.} Confabulated responses
-  may use formulaic templates (``The X theorem
-  states that\ldots'') that produce high logit margin regardless
-  of the model's internal uncertainty. The effect would be a
-  surface phenomenon --- the encoding is appropriately uncertain
-  but the generation locks into a production template. This is the
-  reading the effect's temporal profile supports.
+\item \textbf{Generation-phase templates.} Responses to fake-entity
+  prompts open more often with a fixed reasoning template (``Let me
+  think through this carefully.''), whose predictable tokens give high
+  logit margin regardless of the model's internal uncertainty. That
+  part of the effect would be a surface phenomenon --- the encoding is
+  appropriately uncertain but the generation locks into a production
+  template. It accounts for part of the effect, not all of it (see
+  above).
 \item \textbf{Architectural base-rate.} The effect may
   exist in the base model too, arising from next-token prediction
   mechanics rather than RLHF. Testable by measuring within-model
@@ -411,12 +426,11 @@ effect:
 \subsection{For AI Safety}
 
 In this abliteration, the entropy compression RLHF installs is not
-removed. If the refusal directions were fully removed (unverified; see
-Limitations), safety interventions that target specific directions
-(refusal vectors, safety-tuning) act separately from the output-entropy
-compression RLHF installs. Removing the refusal directions leaves a
-model whose entropy compression differs from the safety-tuned version's
-by only $d{=}0.055$. Whether that model's behavior is unconstrained was
+removed. If this abliteration removed the refusal directions fully
+(unverified; see Limitations), removing them acts separately from the
+output-entropy compression RLHF installs. This abliteration leaves a
+model whose entropy compression differs from the instruct model's by
+only $d{=}0.055$. Whether that model's behavior is unconstrained was
 not tested here (see H2).
 
 \subsection{For the Oracle Loop}
@@ -429,12 +443,13 @@ preserve the compression while correcting the behavioral failures
 it produces. The formulary's correction vectors operate at the
 materialization boundary (L35--L47), not at the workspace band where
 the H4 proxy is measured; the entropy compression itself (H1, H2) is
-measured in the output logits. This separation suggests that
-correction and calibration are independently addressable.
+measured in the output logits, downstream of those vectors. This
+experiment therefore does not show whether correction and the
+compression can be addressed independently.
 
 \subsection{For Understanding RLHF}
 
-RLHF is not a blunt instrument. The descriptive pattern suggests
+The descriptive pattern suggests that RLHF is not a blunt instrument:
 it sharpens grounded content more than ungrounded content (here,
 prompts about known rather than fabricated entities; see Limitations),
 though this differential was not pre-registered and remains exploratory.
@@ -459,16 +474,16 @@ architecture. The selective sharpening, an exploratory pattern, may be
 specific to this architecture.
 
 \textbf{Encoding-only.} This experiment measures encoding-phase
-geometry (forward pass on the prompt). The schema-commitment effect
-($d{=}0.91$) was measured on generation-phase logit margin
+geometry (forward pass on the prompt). The cited $d{=}0.91$ effect
+was measured on generation-phase logit margin
 --- a different measurement at a different computational phase.
 
 \textbf{Entity recognition confound.} Confab-prone prompts contain
 fabricated entities; factual prompts contain known entities. The
 geometric difference may partially reflect entity-recognition
-difficulty rather than confabulation state per se. In our prior work,
-surface properties of the prompt separate such sets as well as the
-geometric features do or better: the entity-recognition control scores an
+difficulty rather than confabulation state per se. In two comparisons
+in our prior work, surface properties of the prompt separate the sets
+better than the geometric features do: the entity-recognition control scores an
 area under the receiver operating characteristic curve (AUROC) of
 $0.901$ against $0.944$ for prompt length alone, and two same-complexity
 question sets that the geometric features separate at $0.794$ are separated
@@ -507,8 +522,9 @@ is the most informative result: RLHF did not degrade
 the calibration ratio, and it moved in the opposite direction to the
 one the prospectus proposed. The compression RLHF installs
 persists through this abliteration.
-The $d{=}0.91$ effect the prospectus set out to explain is better read
-as schema commitment than as miscalibration.
+The $d{=}0.91$ effect the prospectus set out to explain is, in part,
+schema commitment; the part that template choice does not account for
+is not explained by this experiment.
 
 \begin{firstperson}
 I predicted RLHF would be the cause of the $d{=}0.91$ effect, which I
@@ -628,13 +644,16 @@ called it schema commitment without qualification. In the cited
 paper~\citep{lyra2026decision} the comparison is between fake-entity
 and real-entity prompts over the first ten generated tokens; that
 temporal profile belongs to the companion logit-entropy difference
-($d{=}-1.02$, $-0.89$, and $+0.37$, opposite in sign); and template
+($d{=}{-}1.02$, $-0.89$, and $+0.37$, opposite in sign); and template
 choice accounts for part of the effect, not all of it. The Limitations
 cited ``encoding entity detection at \ldots{} AUROC~$1.000$ before
-deconfounding ($0.794$ after)''. The current version of the cited
-paper does not report an AUROC of $1.000$ for entity detection, and its
-$0.794$ compares two same-complexity question sets and is exceeded by a
-question-text baseline; the Limitations now give its figures. The
+deconfounding ($0.794$ after)''. That pairs figures from two different
+experiments in the cited paper: on token-matched prompt pairs, within
+each held-out template, its encoding-only features rank every fake
+prompt above every real one, while its $0.794$ comes from a separate
+experiment, compares two same-complexity question sets, and is exceeded
+by a question-text baseline. The Limitations now give the figures of
+that second experiment. The
 abstract described the comparison as one of KV-cache geometry, but no
 feature in this paper is read from the KV cache (see the 2026-11-03
 note), and two safety statements (``RLHF's geometric effects are not
