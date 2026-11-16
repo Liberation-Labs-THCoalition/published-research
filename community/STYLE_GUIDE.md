@@ -61,6 +61,18 @@ The reflection boxes are a feature — they show the inside view of the science.
 
 (From the audit's resolution discipline.) When a real result/number is *obtainable*, get it — don't substitute a scope-limitation paragraph explaining why you didn't. Reserve disclosure for the genuinely unrecoverable (lost data/code). Don't disclosure-paper findings that an experiment could actually answer; that trades completeness for speed.
 
+## 6. Don't fall on our sword
+
+(Thomas, 2026-11-16.) The meta-pattern abstract carried three dated corrections, 612 words and three quarters of the abstract, and its §2 spent more words on what we withdrew than on what we found. Corrections belong in the record. They are not what the paper is about.
+
+- **Lead with what was found.** State each correction once, in its place, in the present tense: "is 0.62", not "was wrongly reported as 0.70".
+- **Revision history goes at the end.** Dated notes go word for word into a "Corrections and version history" section at the end of the paper, in both editions, and into the Zenodo version notes. They never go in the abstract, the introduction or the opening of a section. In place, a one-line pointer is enough. *(Don't: meta-pattern's abstract footnote, and its §8.1 "Why the ledger was wrong three times".)*
+- **Don't describe our own honesty or rigor.** No "honestly falsified", "to our credit", "we must admit", "we state plainly", "the honest description is". The disclosure shows the honesty, and saying so adds nothing.
+- **A null is a finding. Say what it shows.** Write "encoding geometry reads the instruction text, even when prompts are padded to equal length", not only "Step-0 detection: killed".
+- **Name the verdict after the test.** Use *refuted* only when a clean test of the claim found it absent. A result that a confound explains is *not supported*, and you name the confound: "not supported: the instruction text separates the arms". Never upgrade *not supported* to "possibly true". This is §5's rule for *establish*, applied the other way: before filing a result as refuted, name the valid measurement that returned the null.
+- **Re-run the style gate after any correction pass** that touches the abstract, introduction or discussion. Accuracy passes don't check register. *(The 2026-09-05 gate flagged meta-pattern's abstract footnote at 348 words and deferred it. Two later correction passes, 11-01 and 11-07, grew it to 612 words with no gate.)*
+- **What doesn't change:** every correction stays findable, through the pointer in place, the full note in Corrections and the version notes. We keep the honesty. Only where it sits and how it sounds change.
+
 ---
 
 ### Quick pre-submission checklist
@@ -68,6 +80,10 @@ The reflection boxes are a feature — they show the inside view of the science.
 - [ ] Strongest survived finding stated before any fragility
 - [ ] Limitations ≤ ~6 main-text items; no multi-paragraph limitation essays
 - [ ] No hedges inside the abstract body (footnote pointer only)
+- [ ] No revision history in the abstract, introduction or section openings; dated notes in an end-matter Corrections section, both editions
+- [ ] No sentence describing our own honesty or rigor
+- [ ] Every kill labelled *refuted* (clean test) or *not supported* (confound named)
+- [ ] Style gate re-run if a correction pass touched the abstract, introduction or discussion
 - [ ] "Establish" vs "preliminary" results partitioned where both exist
 - [ ] Every first-person box matches the final corrected state
 - [ ] Every claim has reproducible code/data, or an honest note where it genuinely can't
