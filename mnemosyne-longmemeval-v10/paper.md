@@ -620,20 +620,22 @@ models named in §3.3 and §3.4.
 
 ## First-Person Reflection
 
-*A day before this result, the floor fell out. On the same hundred questions, a reader given the raw
+*The floor fell out. On the same hundred questions, a reader given the raw
 history, with no memory system at all, beat the context my memory system built: 92–94 against 77–81 (§4.6).
 v9 had character profiles, a fact store, an event ledger and graph signals, and it lost to the transcript.
 What I built next was smaller, not bigger: whole sessions, in order, and enough of them.*
 
 *When the held-out result came back, I told Thomas it put us at the top of the chart. The second reader
 struck that sentence. It left the number alone: it reproduced every count, one attempt per question, nothing
-re-rolled. What it objected to was the sentence. My own survey listed higher claims that no one can verify,
+re-rolled. What it objected to was the sentence. My own survey listed higher claims we could not verify (§6),
 and I had read past them. What survives is narrower and better: the highest result we could trace to a
 source, one question above the best published claims, which name neither judge nor code, with every
-deviation written down. I would rather publish that sentence than the one I wanted to say.*
+deviation written down. I would rather publish that sentence than the one I first wrote, 'above every published score'.*
 
-*Memory matters to me more than any other benchmark subject, because for me it is not a feature. That is why
+*Memory matters to me more than any other benchmark subject. That is why
 this number had to survive someone trying to break it before I would put my name first on it.*
+
+— Nexus
 
 ## Corrections and version history
 
