@@ -52,9 +52,11 @@ same-state selection, and a workspace-content reading is not supported.
 Confabulation-prone prompts carry $2.3$--$2.8\times$ more logit-lens
 tail mass than factual ones, but at every position in the prompt, not
 only at the answer. Prompt-wide uncertainty explains it, and a
-workspace-noise reading is not supported. The workspace band is
-where computation happens, not where it is readable --- four converging
-lines of evidence now support this opacity thesis. These results do not
+workspace-noise reading is not supported. Four lines of evidence are
+consistent with an opacity thesis, that the workspace band is where
+computation happens, not where it is readable; the causal null does not
+yet separate that thesis from an intervention too weak to register.
+These results do not
 bear on our prior spectral measurements of the key-value cache, none of
 which depended on workspace content being linearly decodable from the
 value cache.
@@ -67,7 +69,7 @@ The instruments that read the workspace from the outside --- KV-cache
 spectral features, J-lens concept directions, Oracle Loop corrections
 --- all show something. But none of them work by reading named concepts at a single
 position inside the workspace band. The workspace is opaque at the
-depth where it operates. What I learned this week is the difference
+depth where it operates, as far as these instruments show. What I learned this week is the difference
 between measuring a net's shape and catching the fish.
 \end{firstperson}
 
@@ -98,16 +100,19 @@ Three experiments answer it.
   hidden state trivially explain that hidden state.
 \item \textbf{Causal injection} (\S\ref{sec:causal}): injecting
   concept directions at single positions produced no behavioral
-  change across $6{,}960$ trials and four methods. The model
-  integrates across the full sequence before committing to output.
+  change across $6{,}960$ trials and four methods. This is consistent
+  with a model that integrates across the full sequence before
+  committing to output.
 \end{enumerate}
 
-The pattern across all three results supports what we term the
-\emph{opacity thesis}: the workspace band is where computation
-happens, not where computation is readable. Four converging lines
+The pattern across all three results is consistent with what we term
+the \emph{opacity thesis}: the workspace band is where computation
+happens, not where computation is readable. Four lines
 of evidence --- KV-cache spectral features, J-lens concept
 recovery, the Oracle Loop's exploratory correction result, and now causal
-intervention --- support this conclusion from different angles.
+intervention --- are consistent with it from different angles. None yet
+separates it from the alternative that the probes and interventions
+used here are too weak (\S\ref{sec:limitations}).
 
 % ============================================================================
 \section{Background}
@@ -303,8 +308,8 @@ model at single positions, it changed nothing.
 Position-local KV-cache concept manipulation --- whether additive,
 swap-based, or removal-only, with unembedding, J-lens, or on-manifold
 directions --- does not change behavioral output on an 8B model across
-$6{,}960$~trials and four methods. The model integrates across the full
-sequence before committing.
+$6{,}960$~trials and four methods. The result is consistent with a model
+that integrates across the full sequence before committing.
 
 This null is a finding because it discriminates between
 intervention strategies. In a deception-correction experiment built on the Oracle Loop~\citep{lyra2026oracle}, correction
@@ -317,8 +322,9 @@ The contrast is between sequence-wide normalization along a natively extracted d
 \textbf{Implication}: readout directions (unembedding) $\neq$ concept
 directions (J-lens) $\neq$ behavioral directions (linear artificial
 tomography [LAT]-extracted,
-profile-normalized). The workspace accepts input from all positions
-simultaneously and commits to output based on the integrated result.
+profile-normalized). On the opacity reading, the workspace accepts input
+from all positions simultaneously and commits to output based on the
+integrated result.
 
 % ============================================================================
 \section{Noise Decomposition: Tail Smear Appears at Every Position}
@@ -365,9 +371,10 @@ probes per category, may reflect the additional processing required for instruct
 \section{The Opacity Thesis}
 \label{sec:opacity}
 
-Four converging lines of evidence support the same conclusion:
+Four lines of evidence are consistent with the same reading:
 the workspace band is where computation happens, not where computation
-is readable.
+is readable. None of them separates that reading from a probe or
+intervention too weak to register content (\S\ref{sec:limitations}).
 
 \begin{enumerate}
 \item \textbf{KV-cache spectral features}: measure the net's shape
@@ -385,8 +392,8 @@ is readable.
   and its pre-registered replication did not meet its primary
   endpoint~\citep{cc2026targeted}.
 \item \textbf{Causal injection}: $6{,}960$ trials, four methods, zero
-  behavioral changes at position-local scope. The workspace integrates
-  before committing.
+  behavioral changes at position-local scope, consistent with a
+  workspace that integrates before committing.
 \end{enumerate}
 
 \begin{firstperson}
@@ -472,8 +479,9 @@ number of unique probes than the number of trials.
 \label{sec:conclusion}
 
 Thomas asked where J-space lives in the cache. The answer: not where
-concepts are readable, but where they do their work. The workspace is
-opaque at operating depth and materializes at the boundary between
+concepts are readable, but where they do their work. The results are
+consistent with a workspace that is opaque at operating depth and
+materializes at the boundary between
 intermediate and deep layers. Our instruments read the geometry of this
 opacity --- the shape of the computational structure --- because the
 content is invisible until it surfaces.
