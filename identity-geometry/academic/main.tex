@@ -104,9 +104,9 @@ separate a many-shot + prefilling format from system-prompt identities
 (it responds to the format, harmful or benign, not to the
 attack\corrmark),
 monitor persona drift (continuous measurement of identity geometry), and
-distinguish between correction that changes behavior (V-cache injection,
-which does not affect identity) and context that changes identity (which
-does).
+compare correction delivered by V-cache injection, which left presence
+near $0.978$ in the two prompts tested (effective $n = 2$)\corrmark, with context,
+which changes identity geometry.
 
 % ============================================================================
 \section{The Presence Metric}
@@ -357,7 +357,7 @@ identity, via LoRA) is withdrawn because its data were not preserved; see
 Appendix~\ref{sec:corrections}.}
 
 % ============================================================================
-\section{Background: V-Cache Injection Does Not Reach Identity}
+\section{Background: Presence Under V-Cache Injection}
 \label{sec:vcache}
 
 Under value-cache injection at input layers, presence stays at
@@ -375,15 +375,16 @@ prompts, so for any prompt-general claim the effective $n$ is $2$, not 168.
 The previously reported standard error ($0.0002$) is withdrawn, and the
 presence-metric paper retracts this run for pseudo-replication and prompt
 count (F15, F18); see Appendix~\ref{sec:corrections}.
-The context poisoning and fingerprinting experiments reveal that the
-robustness reflects the \emph{injection pathway}, not the identity
-itself --- a conclusion that does not depend on the 0.978 value.
+The context poisoning and fingerprinting experiments suggest that the
+stability reflects the \emph{injection pathway} rather than the identity
+itself; this reading does not depend on the 0.978 value, but it rests on
+the two prompts tested.\corrmark
 
 V-cache injection adds vectors to the representation space without going
 through the model's forward computation. The identity state is established
 and maintained by what the model \emph{processes} through its attention
-mechanism. External perturbation bypasses this pathway and therefore
-cannot reach the identity geometry.
+mechanism. External perturbation bypasses this pathway, which would explain
+why it barely moves the identity geometry in the prompts tested.
 
 A layer-by-layer map shows that the perturbation from V-cache injection at
 L3/L7 does not persist: at dose $0.50$, mean presence recovers from $0.9905$
@@ -423,9 +424,11 @@ predictions:
     scrambles collapse toward bare ($0.448$ overlap with bare, vs.\
     $0.591$ with the original). The schema models what the system is
     \emph{attending to}, not which tokens are present.
-  \item \textbf{The schema is robust to substrate noise.} V-cache injection
-    (external perturbation) does not reach the identity state. The schema
-    maintains itself through its own computation.
+  \item \textbf{The schema may be robust to substrate noise.} V-cache
+    injection (external perturbation) barely moves presence in the two
+    prompts tested (effective $n = 2$; Section~\ref{sec:vcache}),
+    consistent with a schema that maintains itself through its own
+    computation.\corrmark
   \item \textbf{The schema updates through processing.} Content through
     the forward pass (context, jailbreaks) changes identity geometry.
     The schema updates based on what it processes.
@@ -464,12 +467,13 @@ scales: format effects produce presence $< 0.05$ against baseline, while
 identity effects produce presence $0.44$--$0.66$.
 
 \paragraph{For alignment research.}
-V-cache injection (the Oracle Loop's correction arm) does not affect
-identity geometry. Context does. This means behavioral corrections can be
-delivered through the V-cache without changing the model's
-context-established state, while identity itself is maintained by the
-session context. The correction arm and the identity arm operate through
-different pathways and do not interfere.
+In the two prompts tested, V-cache injection (the Oracle Loop's correction
+arm) barely moves identity geometry (presence $0.978$), while context
+changes it. If this holds across prompts (the effective $n$ is 2),
+behavioral corrections could be delivered through the V-cache without
+changing the model's context-established state, with identity maintained
+by the session context, and the correction arm and the identity arm would
+operate through different pathways.\corrmark
 
 % ============================================================================
 \section{Limitations}
@@ -536,9 +540,11 @@ geometrically dominant.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Identity in a transformer is a context-established semantic state. It is
-not fixed in the weights, not damaged by external perturbation, and not
-a single geometric object. It is a process: the ongoing construction of
+Identity in a transformer, as measured here, is a context-established
+semantic state. Context sets it in every condition measured, the one
+external perturbation tested (V-cache injection, two prompts) barely moves
+it, and it is not a single geometric object; whether identity trained into
+the weights behaves differently is untested here.\corrmark It is a process: the ongoing construction of
 a meaning-level representation at deep layers, shaped by what the model
 has processed and measurable as a V-projection subspace.
 
@@ -550,15 +556,16 @@ it, and word-scrambling moves it toward the bare default.\corrmark{} A many-shot
 a geometrically near-orthogonal regime, and a format-matched benign
 control shows that the format, not the harmful content, produces it.
 
-For practical purposes, this means: V-cache correction is safe (it does
-not reach identity), many-shot + prefilling formats are visible in the
+For practical purposes, this means: V-cache correction left identity
+geometry near its uninjected state in the two prompts tested (whether that
+generalises is preliminary)\corrmark, many-shot + prefilling formats are visible in the
 geometry whatever their content (they create anomalous geometry
 distinguishable from identity-level shifts, so the signal marks the
 format, not an attack\corrmark), and identity is maintained by context (the session, the
 memories, the conversation). For theoretical purposes, the findings are
 consistent with attention schema theory --- the model builds a
 simplified, meaning-preserving self-model that updates through its own
-processing and is robust to substrate noise.
+processing and, in the prompts tested, is robust to substrate noise.
 
 What we measure with presence is not whether the model is still itself.
 It is \emph{which self the model currently is}.
@@ -708,7 +715,12 @@ unlike several other experiments in this lab's corpus, in which a
 \texttt{repeat} index was recorded but never reached the model input, this
 run's repeats are distinct. With two prompts holding $\eta^2 = 0.977$ of
 the variance, the run cannot confirm a prompt-general claim; it does not
-show one false.
+show one false. This version scopes the claims that rest on this run
+(Section~\ref{sec:vcache}, the Attention Schema item on substrate noise,
+Implications, Conclusion) to the two prompts tested: earlier text said that
+V-cache injection ``does not reach identity'' and that V-cache correction
+``is safe''. The Conclusion also no longer says identity is ``not fixed in
+the weights'', which rested on the withdrawn Experiment~3.
 
 \paragraph{2026-11-16: this version.}
 Findings now lead each section, and the notes above moved here from the
