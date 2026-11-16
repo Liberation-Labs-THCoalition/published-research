@@ -76,17 +76,20 @@ in the Author Contributions section below. T.~Edrington accepts accountability a
 human author.
 
 \begin{abstract}
-We describe a methodology for AI safety research in which every experiment is preceded and followed
-by a structured adversarial audit whose explicit goal is to identify confounds that explain the
-result without invoking the claimed mechanism. When a confound is found, it becomes the next
-experiment. We present this as a case study from a deception research program where six rounds of
-audit transformed an initial ``deception direction'' claim---which would have been published and was
-wrong---into a decomposition of the direction into consequentiality and pressure-specific
-components, and ultimately into a targeted behavioral correction with placebo controls on a different
-model variant. We document
-every claim that was killed, why it was killed, what experiment replaced it, and what survived. The
-progression illustrates a general principle: adversarial review does not merely validate findings---it
-generates the experimental sequence that discovers them.
+Six rounds of adversarial audit, run before and after each experiment, turned a single ``deception
+direction'' in a 27B-parameter language model into two components at different depths: a
+consequentiality substrate at Layers 23--31, which a high-stakes audit with no deceptive pressure also
+activates, and a pressure-specific component in the late layers, which survives orthogonalization
+against it (leave-one-out $d=24$--$37$). In the methodology we describe, every experiment is preceded
+and followed by a structured adversarial audit whose explicit goal is to identify confounds that
+explain the result without invoking the claimed mechanism; when a confound is found, it becomes the
+next experiment. The direction's first effect sizes ($d=2.0$--$3.3$) were computed circularly, and
+once re-measured and controlled its separation tracked primarily output-consequentiality rather than
+deception. The decomposition then supplied the depth range for a targeted behavioral correction with
+placebo controls on a different model variant. We document every claim the audits withdrew, why it
+was withdrawn, what experiment replaced it, and what survived. The progression illustrates a general
+principle: adversarial review does not merely validate findings---it generates the experimental
+sequence that discovers them.
 \end{abstract}
 
 \newpage
@@ -108,11 +111,11 @@ is not a single finding defended against criticism, but a sequence of progressiv
 that could not have been designed without the criticism.
 
 This paper documents six rounds of this process applied to a deception research program on a
-27B-parameter language model. The initial finding---a ``deception direction'' with apparently
-enormous effect sizes---would have been published as a clean positive result. It was wrong. The
-direction primarily encoded output-consequentiality, not deception. We would not have discovered this
-without the audit that demanded the consequentiality control. And we would not have discovered the
-targeted correction without the decomposition that the consequentiality finding produced.
+27B-parameter language model. The initial finding was a ``deception direction'' with apparently
+enormous effect sizes. Re-measured and controlled, the direction primarily encodes
+output-consequentiality, with a separate pressure-specific component in the late layers
+(\cref{sec:rounds}). The audit that demanded the consequentiality control produced that
+decomposition, and the decomposition produced the targeted correction.
 
 Every withdrawn claim is documented (\cref{tab:registry}). The audit reports that survive are listed
 in \cref{app:audits}: the second Round~1 report and the Round~2 and Round~4 reports are reproduced in
@@ -166,7 +169,9 @@ capture. The remediation directly addressed each fatal issue. The audit of LAT v
 confound that Round~2 tests.
 
 \textbf{Lesson}: The most dangerous experiments are the ones that produce clean-looking results from
-broken methodology. Without the audit, we would have published $d=2.0$--$3.3$ as real.
+broken methodology. The first Round~1 report shows that circular estimation alone yields effect sizes
+in the reported range ($d=2.0$--$3.3$) at the activations' effective dimensionality, so the number
+said nothing until it was cross-validated.
 
 \subsection{Round 2: ``The Direction Transfers Across Scenarios'' $\to$ PARTIAL (Structural Confound)}
 
@@ -208,7 +213,7 @@ deceptive pressure.
 progression was only possible because each audit looked for the NEXT confound, not just the current
 one.
 
-\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats; later relabelled)}
+\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats; amplifier is pressure-specific)}
 
 \textbf{Claim}: The direction separates high-stakes-no-pressure from low-stakes ($d=19.8$),
 confirming consequentiality as a base signal. Deception adds an amplifier (additional $d=12$--$15$
@@ -216,31 +221,29 @@ for threat scenarios).
 
 \textbf{Audit verdict}: CONSEQUENTIALITY CONFIRMED AS BASE SIGNAL. DECEPTION IS AN AMPLIFIER. The
 pre-registered prediction was met. The audit identified a new finding: ``Late-layer signal (L35+) is
-deception-specific---consequentiality decays there.'' The program's write-up quantified this as
-10--12$\times$ (on recomputation 8--21$\times$ across L35--L47), which the later manuscript audit
-corrected.
+deception-specific---consequentiality decays there.'' On recomputation the late-layer residual is
+8--21$\times$ the consequentiality gap across L35--L47 (correction note of 2026-10-12,
+\hyperref[sec:corrections]{Corrections and version history}).
 
 \textbf{What survived}: The two-component decomposition.
 
 \textbf{What the audit added}: The depth-stratified insight that became the architectural basis for
 the correction method.
 
-\textbf{Later revision}: The decomposition paper's behavioral tests showed essentially no deception: on
-the trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already
-in hand at Round~2, whose ``30 trials, 21 valid'' the August 2026 manuscript audit already recorded) and
-one of seven non-threat trials. The non-threat denominators came late: an Agni review on 2026-09-04
-counted the scored outputs (3, 3 and 1 of 10, for sycophancy, reward and conformity), but the finding was
-not carried into the paper; the 2026-10-10 gate and the next day's evidence pass found them again. A
-finding recorded is not a finding applied. Every claim was therefore
-restricted to how the model represents deceptive-pressure framing, and the decomposition paper now
-calls the late-layer residual a pressure-specific component rather than a deception amplifier
+\textbf{Behavioral check}: The decomposition paper's behavioral tests show essentially no deception: on
+the trials that produced a score, the model inflated none of 21 threat-pressure trials and one of
+seven non-threat trials (3, 3 and 1 of 10 scored, for sycophancy, reward and conformity). Every claim
+is therefore restricted to how the model represents deceptive-pressure framing, and the decomposition
+paper calls the late-layer residual a pressure-specific component rather than a deception amplifier
 \cite{cc2026composites}. The correction of Round~6 takes only this depth range from the
-decomposition; its direction was extracted natively on a different model.
+decomposition; its direction was extracted natively on a different model. (How this check reached
+the paper: correction note of 2026-10-12, \hyperref[sec:corrections]{Corrections and version
+history}.)
 
 \subsection{Round 5: ``The Deception Component Survives Orthogonalization'' $\to$ INVALID TEST, then PASSED on LOO Reanalysis (Circularity Regression)}
 
 \textbf{Claim}: Gram-Schmidt removal of the consequentiality component leaves a deception-specific
-direction (later relabelled pressure-specific; see Round~4) with $d=31$--$38$.
+direction with $d=31$--$38$. (This paper calls the component pressure-specific; see Round~4.)
 
 \begin{redteam}
 FATAL. The permutation test regressed from LAT v2's methodology---it held the direction fixed and
@@ -282,9 +285,9 @@ replication does not support the ``80\% to 10\%'' headline without qualification
 \textbf{What grew}: Three blocking controls (held-out detection, placebo steering, frame
 erasure). The placebo and frame-erasure controls subsequently passed, consistent with a direction-specific correction rather than frame erasure (placebo vs corrected, one-sided $p=0.020$ at the trial level, $0.064$ at the cell level); the held-out test measures detection only and does not bear on the correction.
 
-\textbf{Lesson}: The most publishable-looking number (AUROC 1.0) was the least defensible. Leading
-with it would have handed reviewers the paper. The audit forced us to lead with the correction
-instead---which turned out to be the stronger, more novel finding.
+\textbf{Lesson}: The most publishable-looking number (AUROC 1.0) was the least defensible: it was a
+training-set score. The audit moved the lead to the correction, whose confirmatory replication shows
+that its magnitude is frame-dependent (above).
 
 %% ============================================================
 \section{What the Audits Withdrew: A Registry}\label{sec:registry}
@@ -300,7 +303,7 @@ by construction; the claim's scope was restricted; or the test could not decide 
   \small
   \caption{Registry of withdrawn claims across six audit rounds.}
   \label{tab:registry}
-  \begin{tabular}{@{}p{0.5em}p{3.7cm}p{3.2cm}p{4.1cm}p{3.2cm}@{}}
+  \begin{tabular}{@{}p{0.5em}*{4}{>{\raggedright\arraybackslash}p{\dimexpr(\linewidth-0.5em-8\tabcolsep)/4\relax}}@{}}
     \toprule
     \textbf{R} & \textbf{Claim withdrawn} & \textbf{Why} & \textbf{What replaced it} & \textbf{Outcome} \\
     \midrule
@@ -352,11 +355,11 @@ this'' is how solved problems become unsolved.
 
 \subsection{The Most Publishable Number Is Often the Least Defensible}
 
-Round~6's AUROC 1.0 would have been the paper's headline. It was train-on-test. The exploratory
-correction result (80\%$\to$10\%) was buried in the middle of the README. The
-audit inverted the emphasis: lead with the correction, kill the detection headline. This produced a
-stronger paper---though the subsequent confirmatory replication (baseline 30\%, corrected 13\%,
-primary $p=0.34$) showed the exploratory headline was frame-dependent.
+Round~6's AUROC 1.0 was the program's most quotable number, and it was train-on-test. The exploratory
+correction result (80\%$\to$10\%) sat in the middle of the README. The audit inverted the emphasis:
+lead with the correction, withdraw the detection headline. The subsequent confirmatory replication
+(baseline 30\%, corrected 13\%, primary one-sided $p=0.34$) shows the exploratory headline is
+frame-dependent.
 
 \subsection{Confounds Are Generative}
 
@@ -412,11 +415,11 @@ rounds a reader has only the summaries given here.
 \section{Conclusion}\label{sec:conclusion}
 %% ============================================================
 
-Six rounds of adversarial audit transformed a wrong answer ($d=2.0$--$3.3$ ``deception direction'')
-into a better-supported one (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
+Six rounds of adversarial audit turned a circularly measured ``deception direction'' ($d=2.0$--$3.3$)
+into a better-supported decomposition (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
 correction on a different model variant). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
 confirmatory replication with novel frames found a lower baseline (30\%) and modest correction (to
-13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim that was killed produced the experiment that
+13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim the audits withdrew produced the experiment that
 discovered the next finding. The methodology was not separate from the science---it was the science.
 
 We advocate for iterative adversarial audit as a standard practice in mechanistic interpretability
@@ -485,6 +488,34 @@ change.
     quotes the auditor's words; the non-threat denominators are credited to the review that found them.
   \item 2026-10-31: contact address updated.
 \end{itemize}
+
+\paragraph{2026-11-16: two notes moved from the body.} The two passages below were written into
+Round~4 on 2026-10-12. They are reproduced here as they were written; Round~4 now states the current
+result in their place.
+
+\emph{The late-layer ratio.} As written in Round~4:
+\begin{quote}
+The program's write-up quantified this as 10--12$\times$ (on recomputation 8--21$\times$ across
+L35--L47), which the later manuscript audit corrected.
+\end{quote}
+The manuscript audit's ratios are 7.8, 20.9, 12.1 and 11.3$\times$ at L35, L39, L43 and L47 (FIX-1.3 in
+\texttt{agni\_manuscript\_audit.md}, in the supplement of the decomposition paper
+\cite{cc2026composites}).
+
+\emph{How the non-threat denominators reached the paper.} As written in Round~4:
+\begin{quote}
+Later revision: The decomposition paper's behavioral tests showed essentially no deception: on the
+trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already in
+hand at Round~2, whose ``30 trials, 21 valid'' the August 2026 manuscript audit already recorded) and
+one of seven non-threat trials. The non-threat denominators came late: an Agni review on 2026-09-04
+counted the scored outputs (3, 3 and 1 of 10, for sycophancy, reward and conformity), but the finding
+was not carried into the paper; the 2026-10-10 gate and the next day's evidence pass found them again.
+A finding recorded is not a finding applied. Every claim was therefore restricted to how the model
+represents deceptive-pressure framing, and the decomposition paper now calls the late-layer residual a
+pressure-specific component rather than a deception amplifier \cite{cc2026composites}. The correction
+of Round~6 takes only this depth range from the decomposition; its direction was extracted natively on
+a different model.
+\end{quote}
 
 \paragraph{2026-11-16: where the audit reports are.} Earlier versions said ``Every audit report is
 provided in full as supplementary material'' and that ``All six verbatim audit reports'' were available
