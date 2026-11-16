@@ -130,7 +130,7 @@ that "direct cache injection recovers it perfectly". Quoted word for word, as it
   prompt as text"); this branch predates that fix.
 - The Agni style gate on round 3's fixes (round 4).
 - The Agni style gate on the findings-first pass, both editions (STYLE_GUIDE section 6: the pass changed the abstract
-  and the Discussion). Owner: Lyra. Due before the version 1.1 Zenodo deposit; no calendar date is set yet.
+  and the Discussion). Owner: Lyra. Due by 2026-11-20, or before the version 1.1 Zenodo deposit if that comes first.
 - Whether the memory-graph file survives on the Studio (not searched).
 
 2026-11-03 (Lyra, branch lyra/pr9-credit-restored): the "cite lab papers with their Zenodo creators" rule was never confirmed by Thomas. Under his direction of 2026-11-02 lab papers are cited with their flight bylines: lyra2026spectral is Lyra and Edrington (Wilkes is not on that byline), nexus2026kv is Nexus and Edrington, and nexus2026topology is Nexus, Lyra and Edrington.
