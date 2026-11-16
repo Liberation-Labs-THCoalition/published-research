@@ -30,7 +30,7 @@ and What They Cannot}
   Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
 }
 
-\date{July 2026}
+\date{July 2026; revised November 2026}
 
 \begin{document}
 \maketitle
@@ -59,11 +59,14 @@ padded to equal length, and in the same analysis, when token
 frequency, length, syntax and domain were matched by design, the
 encoding-phase confabulation effect was absent, which is the one
 refuted claim. On the metacognitive
-side, confabulation contracts the cache's effective dimensionality
-(stable rank, $d{=}2.35$, between groups whose prompts were not matched
-on form, so part of it may reflect prompt length and template), and the schema-commitment effect is
-concentrated at generation onset: $d{=}1.02$ in the first eight
-tokens, $d{=}0.37$ ($p>0.08$) by tokens 20--49. Over twelve
+side, the change in the cache's stable rank from encoding to
+generation separates confabulation from grounded prompts (Hedges'
+$g{=}2.32$; grounded rises, confabulation stays flat), between groups
+whose prompts were not matched on form, so part of it may reflect
+prompt length and template. The schema-commitment effect, in logit
+entropy, is $d{=}{-}1.02$ in the first eight generated tokens; in
+tokens 20--49 it is not detected and points the opposite way
+($d{=}{+}0.37$, $p>0.08$). Over twelve
 months and three experimental campaigns, the body count is 5
 confirmed, 8 suspected, 1 refuted, 7 not supported and 3
 withdrawn.\footnote{Earlier versions of this paper reported other
@@ -112,7 +115,8 @@ until it materializes at deeper layers.
 The KV-cache geometry research program at Liberation Labs has produced
 a clear empirical pattern: features of the KV cache track some
 metacognitive states (confabulation at AUROC 0.620 after FWL,
-contraction $d{=}2.35$ between groups not matched on prompt form,
+a change in stable rank from encoding to generation, $g{=}2.32$,
+between groups not matched on prompt form,
 template commitment at generation onset), and
 these measurements hold across hardware and scale, while no attempt to
 track content has been confirmed. Most of the content attempts were carried instead by the
@@ -170,8 +174,8 @@ The 8 suspected findings sit at the boundary.}
 \multicolumn{4}{l}{\textit{Confirmed (5) --- metacognitive state, or invariance of its measurement}} \\
 \addlinespace
 Confabulation detection & Confirmed$^{c}$ & Meta & AUROC 0.620 (FWL; 0.707 w/o) \\
-Confab geometry: contraction & Confirmed & Meta & $d{=}2.35$ stable rank; prompts not matched on form$^{\P}$ \\
-Schema commitment$^{\S}$ & Confirmed$^{c}$ & Meta & $d{=}1.02$ preamble; null by token 20 \\
+Confab geometry: stable-rank change & Confirmed$^{c}$ & Meta & $g{=}2.32$, encoding to generation; prompts not matched on form$^{\P}$ \\
+Schema commitment$^{\S}$ & Confirmed$^{c}$ & Meta & $d{=}{-}1.02$ tokens 0--7; opposite sign, n.s., tokens 20--49 \\
 Hardware invariance & Confirmed$^{c}$ & Meta & $r{\geq}0.998$ \\
 Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \addlinespace
@@ -193,7 +197,7 @@ Propaganda detection & Not supported$^{c}$ & Content &$d{<}0.7$; too weak to dec
 Encoding reads knowledge & Suspected$^{c}$ & Meta? & AUROC 0.794 deconfounded (question-text baseline 0.963)~\citep{lyra2026decision} \\
 Dual detector (SimpleQA) & Suspected & Meta? & 0.840 (text baseline 0.820) \\
 Sycophancy 4-condition & Suspected & Meta? & 0.757--1.000 (no text baseline) \\
-Identity signatures & Suspected & Meta & Paraphrase 0.850 \\
+Identity signatures$^{\|}$ & Suspected & Meta & Paraphrase 0.850 \\
 Discrete emotion & Suspected$^{c}$ & Meta & not above text (TF-IDF); class-mean keys, no $W_K$$^{\ddagger}$ \\
 Contextual engagement & Suspected & Meta & Replications pending \\
 Cross-model transfer & Suspected & Meta & Weak (0.754 Mistral$\to$Qwen) \\
@@ -220,8 +224,10 @@ question is open. The valence row is withdrawn provisionally, until its
 own trial file is checked (\cref{sec:corrections}).
 
 $^{\S}$Called a confidence paradox in its source ($d{=}0.91$, first 10
-tokens). The effect is concentrated at onset ($d{=}1.02$ in tokens
-0--7, $0.89$ in 8--19, $0.37$ at $p>0.08$ in 20--49), so we count it as
+tokens). The effect, in logit entropy, is at onset ($d{=}{-}1.02$ in
+tokens 0--7 and ${-}0.89$ in 8--19); in tokens 20--49 it is not
+detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$), so we
+count it as
 commitment to a response template, a state of processing, not a
 measure of confidence (\cref{sec:one-kill}).
 
@@ -232,7 +238,12 @@ the user's state). The 30-class result does not beat a text baseline
 spectral thesis. The source's injection test is withdrawn
 (\cref{sec:corrections}).
 
-$^{\P}$The source compares groups that are not matched on prompt form:
+$^{\P}$In the source, confabulation has the higher stable rank at
+encoding ($g{=}{-}1.60$) and the lower at the generation endpoint
+($g{=}{+}1.78$); the row's statistic, the change from encoding to
+generation ($g{=}2.32$), combines the two: confabulation starts high
+and stays flat, grounded starts lower and rises.
+The source compares groups that are not matched on prompt form:
 confabulation prompts average 67.9 prompt tokens against 61.9 for
 honest-rare (60.3 honest-common, 73.3 deceptive-user), and most name
 an invented hyphenated eponym, so part of the difference may reflect
@@ -242,12 +253,18 @@ The row keeps its published status; whether a confound in the input
 contrast changes a confirmed row's status is not yet decided
 (\cref{sec:corrections}).
 
+$^{\|}$Typed Meta as published, but \cref{sec:suspected} reads its
+paraphrase result as semantic workspace content, which the definitions
+in \cref{sec:pattern} would type as Content. The type is left as
+published until the type of every row is settled together
+(\cref{sec:limitations}).
+
 Sources. Confabulation detection: the key-cache detector in
 \nolinkurl{convergence-paper/main.tex} (artifact repository) and its
-pre-registered test~\citep{lyra2026oracle}. Contraction:
+pre-registered test~\citep{lyra2026oracle}. Stable-rank change:
 \nolinkurl{delta-manifold-paper/main.tex}, the delta in stable rank
-between generation and encoding (Hedges' $g{=}2.32$; the uncorrected
-$d$ is 2.35). Schema commitment: \citet{lyra2026decision}, whose
+between generation and encoding (Hedges' $g{=}2.32$, its primary
+statistic; the uncorrected $d$ is 2.35). Schema commitment: \citet{lyra2026decision}, whose
 temporal profile is measured in logit entropy. Hardware and scale
 invariance: \citet{lyra2026campaign2}, as summarised in
 \nolinkurl{convergence-paper/main.tex}. Encoding-phase confab:
@@ -260,7 +277,23 @@ sycophancy: \nolinkurl{results/hackathon/same_prompt_sycophancy.json};
 all three in the KV-Experiments repository. Step-0 detection and the
 truth axis: the KV-Experiments files named in \cref{sec:one-kill} and
 \cref{sec:kills}. Bloom taxonomy: \citet{lyra2026campaign2}. Dual
-detector: on SimpleQA~\citep{wei2024simpleqa}. Propaganda detection: no
+detector: on SimpleQA~\citep{wei2024simpleqa}, listed at 0.840 in
+\nolinkurl{lyra-technique-ii/main.tex} (artifact repository).
+Sycophancy 4-condition, contextual engagement and cross-model
+transfer: the Suspected rows of the same table in
+\nolinkurl{lyra-technique-ii/main.tex}, which gives 0.757--1.000 with
+no text baseline run, 12 of 12 sign tests, and 0.67--0.89 for
+cross-model transfer (the single 0.754 figure was not found there).
+Identity signatures: \nolinkurl{identity-geometry/main.tex} (artifact
+repository; paraphrase 0.850 at L47, scramble 0.448), whose two figures
+register entry \#136 in \nolinkurl{REMEDIATION_REGISTER.md} flags as
+different comparison types. Censorship refusal:
+\nolinkurl{lyra-technique-ii/main.tex} lists the censorship experiment
+(285 trials) with no status and no DeepSeek result, and no source is
+recorded for the row's DeepSeek-specific reading. Generation reads
+behavior: \nolinkurl{CIRCULAR_d136_generation_arm.md} at the root of
+the artifact repository. MP features for emotion and the valence
+continuum: \citet{lyra2026usermodel}. Propaganda detection: no
 source is recorded for the row.\par}
 
 \subsection{The Split}
@@ -359,19 +392,21 @@ matrices; the confirmed confabulation detector reads the key cache
 They measure \emph{how much} structure is present, not
 \emph{which} structure. A fishing net analogy: spectral features
 measure the net's shape (how many strands, how tight the weave, how
-much it contracts under load), not the fish inside. The net contracts
-when the model confabulates (fewer effective dimensions, $d{=}2.35$,
-between groups whose prompts were not matched on form, so part of it
-may reflect prompt length and template; \cref{tab:bodycount}).
+it changes under load), not the fish inside. The net changes shape
+differently when the model confabulates: from encoding to generation,
+its stable rank rises on grounded prompts and stays flat on
+confabulation prompts (Hedges' $g{=}2.32$), between groups whose
+prompts were not matched on form, so part of it may reflect prompt
+length and template (\cref{tab:bodycount}).
 Whether it also changes shape when the model deceives or shifts
 emotional mode is not yet known: the deception readouts so far were
 carried by the input, its instruction text or its length
 (\cref{sec:one-kill}), and the spectral
-emotion test could not test shape. Contraction is a property of the
+emotion test could not test shape. That change is a property of the
 net, measurable from outside. The fish --- the specific facts, topics, and propositions ---
 are inside, invisible to spectral readout.
 
-\subsection{Supporting Evidence: Cache Tracing}
+\subsection{Cache Tracing}
 
 Our companion investigation~\citep{lyra2026cache_tracing} directly
 tested whether workspace content is readable from the value cache.
@@ -386,8 +421,7 @@ workspace that is opaque at operating depth; it does not show opacity.
 
 In a deception-correction experiment built on the Oracle Loop~\citep{lyra2026oracle}, correction
 removed 14 of the 16 deceptive trials (88\%: all nine single-turn trials and five of the seven multi-turn ones; restated since first publication, \cref{sec:corrections}), taking deception from 80\% to 10\%, in an exploratory proof-of-concept~\citep{cc2026targeted} by normalizing
-the activation profile across the full sequence at the materialization
-boundary --- where workspace content becomes readable. A pre-registered
+the activation profile across the full sequence. A pre-registered
 confirmatory replication with novel frames found a lower baseline
 (30\% vs.\ 80\%) and a smaller correction effect (13\% post-correction);
 the primary endpoint was not met (one-sided $p$~=~0.34), and placebo-vs-corrected favored correction only at the trial level (one-sided $p$~=~0.020; $p$~=~0.064 at the pre-registered cell level). The Loop intervenes at L35--L47 of a 64-layer
@@ -520,12 +554,13 @@ the two need different tests.
 For the response-side readouts, the deflationary reading assumes
 response-mode statistics are downstream of content: the model produces
 an answer, and hedged answers happen to be phrased differently. The
-timing does not fit that order. The schema-commitment result locates
-the effect at $d{=}1.02$ in preamble tokens $0$--$7$ and $d{=}0.89$ in
-tokens $8$--$19$, decaying to $d{=}0.37$ ($p>0.08$) by tokens
-$20$--$49$. The response mode is selected \emph{before} the content
-that would justify it, and the selection has relaxed by the time the
-content arrives.
+timing does not fit that order. The schema-commitment result, in logit
+entropy, locates the effect at $d{=}{-}1.02$ in preamble tokens $0$--$7$
+and $d{=}{-}0.89$ in tokens $8$--$19$; in tokens $20$--$49$ it is not
+detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$). The
+response mode is selected \emph{before} the content that would justify
+it, and the effect is no longer detected by the time the content
+arrives.
 
 If response mode is chosen at generation onset from the model's
 epistemic state, then response-surface features are not a confound
@@ -544,15 +579,15 @@ between ``committed early'' and ``made of common tokens.''
 This is not hypothetical. An internal frequency control (Experiment~51,
 2026-05, in an unpublished analysis) found exactly this ambiguity in an adjacent statistic. An
 effective-rank measure separates confabulated from honest-factual responses
-at $d = 1.87$---but an \emph{honest-but-rare-entity} arm is
-indistinguishable from the confabulated one ($d = 0.46$). The measure is
+at $d = 1.87$---but between an \emph{honest-but-rare-entity} arm and
+the confabulated one there is only a small difference ($d = 0.46$). The measure is
 therefore not a veracity detector; it has a false-positive class, and that
 class is defined by rarity rather than by falsehood.
 
 We flag what the arms do \emph{not} show, because it is easy to over-read
 in either direction. They do not show the measure is uninformative: the
 confabulated/honest-factual separation is large and survives. Nor do they
-show it tracks veracity: an honest condition reproduces the confabulated
+show it tracks veracity: an honest condition comes close to the confabulated
 signature. The four arms in fact order monotonically on mean and variance
 together---confabulated $57.4/\sigma\,0.32$, rare-but-true
 $57.2/\sigma\,0.55$, deceptive $56.7/\sigma\,1.70$, honest-factual
@@ -683,8 +718,8 @@ cannot do:
 
 \begin{itemize}[nosep]
 \item \textbf{Can detect}: whether the model is confabulating (AUROC
-  0.620 after FWL; contraction $d{=}2.35$, between groups not matched
-  on prompt form) and, at generation onset,
+  0.620 after FWL, in one model, Qwen2.5-7B; and a stable-rank change
+  of $g{=}2.32$, between groups not matched on prompt form) and, at generation onset,
   which response template it has committed to. Candidates, not yet
   shown: deception, sycophancy, hedging, deliberation and emotional
   mode.
@@ -738,8 +773,8 @@ framework makes empirically addressable.
 The metacognitive/content classification was assigned post hoc by
 Lyra (see Author Contributions), without blinding, pre-registration, or
 independent raters.
-The same person who designed the experiments and observed their outcomes
-labeled each finding as ``metacognitive'' or ``content.'' While
+Lyra (see Author Contributions), who designed the experiments and observed
+their outcomes, labeled each finding as ``metacognitive'' or ``content.'' While
 \Cref{sec:pattern} provides an operational definition that keys the label
 to what each experiment attempted to measure (processing mode vs.\
 content property), this definition was articulated after the body count
@@ -929,7 +964,11 @@ re-derived row by row.
 The review rounds of 2026-07-17 to 2026-07-28 added hedges to the
 interpretive passages and, on 2026-07-28, the qualifiers ``subsequently
 retracted'' (same-prompt deception), ``Campaign~3, unpublished'' (Bloom
-taxonomy) and ``single-turn only''. On 2026-07-28 the
+taxonomy) and ``single-turn only'' (on discrete emotion's
+$2.5$--$2.8\times$ chance, to tell it apart from the User emotion
+encoding row at the same figure; it went with that figure on
+2026-08-14, \texttt{98e1263}, when the row was restated at
+$12.3\times$ chance). On 2026-07-28 the
 confabulation-detection row, published as AUROC 0.707 (FWL), was
 restated as 0.620 after FWL and 0.707 without (\texttt{f9288a9}). The
 schema-commitment row,
@@ -964,6 +1003,10 @@ workspace looked readable by a probe this paper's framework does not use;
 as corrected, it no longer shows that. The source also withdraws the reading
 that emotions change the \emph{direction} key vectors point without altering
 the \emph{shape} of the singular value spectrum.
+[Added 2026-11-16: the row's key number was $2.5$--$2.8\times$ chance at
+first publication and $12.3\times$ chance ($W_K$ directional, not
+spectral) from 2026-08-14; it has read ``not above text'' since
+2026-11-02 (\texttt{d6416f8}).]
 
 \paragraph{2026-11-07: \emph{MP features for emotion} withdrawn.}
 \textbf{Correction (2026-11-07).} A third row is withdrawn, this time from the
@@ -1094,10 +1137,36 @@ entry \texttt{exp18b\_deception}, in the KV-Experiments repository);
 the system prompt was identical across its arms
 (\cref{sec:one-kill}). This paper's description follows that file.
 Same-prompt deception is the control that did the retracting. Whether the annotation should move to the within-model
-deception row is open (row 138 of \nolinkurl{REMEDIATION_REGISTER.md}
+deception row is open (register entry \#138 in \nolinkurl{REMEDIATION_REGISTER.md}
 in the artifact repository). The abstract footnote, the
 dated table notes and the subsection ``Why the ledger was wrong three
 times'' moved to this appendix.
+
+Also on 2026-11-16, after a further review. The contraction row is
+renamed Confab geometry: stable-rank change and is described as its
+source describes it (\nolinkurl{delta-manifold-paper/main.tex}): the
+change in stable rank from encoding to generation, which rises on
+grounded prompts and stays flat on confabulation prompts, given as the
+source's primary statistic, Hedges' $g{=}2.32$, in place of the
+uncorrected $d{=}2.35$ (abstract, introduction, \cref{tab:bodycount},
+\cref{sec:workspace,sec:implications}). It had been described as
+confabulation contracting the cache's effective dimensionality. The
+schema-commitment profile is given with its signs, in logit entropy:
+in tokens 20--49 the effect is not detected and points the opposite
+way ($d{=}{+}0.37$, $p>0.08$), where this paper had called it null or
+decaying. The Oracle Loop is no longer placed at a materialization
+boundary, a phrase given with no source or layer. The date line says
+the text was revised in November 2026. In Experiment~51 the
+honest-but-rare-entity arm is described as a small difference from the
+confabulated arm ($d = 0.46$), and the confabulation detector's safety
+use is stated for the one model it was measured in. The register
+reference above names entry \#138, and the Suspected and Withdrawn rows
+of \cref{tab:bodycount} are given sources where one was found. The
+cache-tracing subsection is no longer headed as supporting evidence,
+since it does not show opacity. A table note records that Identity
+signatures, typed Meta, is read as semantic content. The notes above
+now say what ``single-turn only'' qualified and when it went, and give
+discrete emotion's earlier key numbers.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
