@@ -14,20 +14,21 @@ edition's byline. The AI contributor is named in the PDF's AI disclosure and CRe
 
 **Description:**
 
-Version 1.1, a correction. We put text descriptions of knowledge graphs into a language model's system prompt
-(Qwen3-30B-A3B, keyword scoring) and asked it questions about the graphs. In the larger run, a walk-encoded
-description of the lab's memory graph raised multi-hop accuracy from 0.005 to 0.472. A hand-written paragraph
-containing every expected answer term, though not every path the questions ask for, raised it to 0.676, and
-unrelated prose left it at 0.003. Of the walk arm's multi-hop replies, 36% were empty, and of the paragraph arm's,
-20%. The two arms differ in content, length and format at once, so the run does not isolate structure. A
-scrambled-label pilot (six questions, one run) is suggestive, not significant (paired p = 0.125, two-sided).
+On Qwen3-30B-A3B, a text description of a knowledge graph in the system prompt raised keyword-scored accuracy on
+36 hand-written multi-hop questions from 0.005 to 0.472 when it was a walk encoding of the lab's memory graph, and
+to 0.676 when it was a hand-written paragraph containing every expected answer term, though not every path the
+questions ask for; unrelated prose left it at 0.003. The two arms differ in content, length and format at once, so
+the run does not isolate structure. Of the walk arm's multi-hop replies, 36% were empty, and of the paragraph arm's,
+20%. A scrambled-label pilot (six questions, one run) is suggestive, not significant (paired p = 0.125,
+two-sided). Every condition in these runs gives the graph to the model as text. Corrections to version 1.0 are
+listed in the PDF's appendix "Corrections and version history".
 
-Every condition in these runs gives the graph to the model as text. Version 1.0's cache-injection framing, its
-conclusion that cache injection is "the more powerful path", and its reliance on the companion study are withdrawn
-(the companion's version 1.1 withdraws superadditivity and reports its six of six as a one-run pilot of six
-questions). So is this record's earlier description, which said the walks were encoded as cache tensors. Version
-1.0's results table, whose absolute values no data file contains, is corrected. The PDF's correction note lists every
-change, and its Review History records how each defect was found.
+**Version notes (version 1.1):** Version 1.0's cache-injection framing, its conclusion that cache injection is "the
+more powerful path", and its reliance on the companion study are withdrawn (the companion's version 1.1 withdraws
+superadditivity and reports its six of six as a one-run pilot of six questions). So is this record's earlier
+description, which said the walks were encoded as cache tensors. Version 1.0's results table, whose absolute values
+no data file contains, is corrected. The PDF's correction note, now its appendix "Corrections and version history",
+lists every change, and its Review History records how each defect was found.
 
 **Related identifiers (at deposit):**
 - is a new version of 10.5281/zenodo.20604338 (Zenodo sets this);
