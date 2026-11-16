@@ -113,7 +113,8 @@ cross-validation scheme, one classifier, with SVD denoising as an evaluated
 (not assumed) step---to 17~models across confabulation, self-reference,
 individuation, persona intensity, emotion, and cognitive modes. Raw
 features also separate the persona-intensity endpoint (L0 vs.\ L3) at
-AUROC~0.749.
+AUROC~0.749, which is suspected: for two of the three models, prompt length
+alone separates it at 0.81.
 
 SVD denoising (within-fold rank-$k$ projection after FWL) raises persona
 intensity to 0.899--0.992 (raw 0.611--0.751) and 30-class spectral emotion
@@ -534,7 +535,10 @@ persona. The two comparisons we can verify from the data:
     \item L0 vs.\ L0.5: AUROC~0.688--0.811 (instruction complexity alone)
     \item L0 vs.\ L3: AUROC~0.749 raw, 0.899--0.992 denoised (persona intensity)
 \end{itemize}
-The L0-vs-L3 endpoint separation is the defensible persona finding; the raw
+The L0-vs-L3 endpoint separation is the defensible persona finding, and it
+is Suspected, not Confirmed: for Qwen and Llama, prompt length alone
+(AUROC~0.81, Table~\ref{tab:persona_raw_denoised}) separates the endpoint
+better than the length-corrected cache features do. The raw
 AUROC (0.749 for Qwen) is the conservative number, as the denoising
 improvement was not tested against the max-over-rank selection envelope
 (\S\ref{sec:results_confab}). On raw AUROCs the endpoint (0.749) does not
@@ -576,7 +580,9 @@ permutation null $0.027$, $p < 0.005$).
 The raw value is well below the story-text TF-IDF baseline ($11.1\times$,
 Table~\ref{tab:emotion_methods}) and the denoised value is above it, but the
 rank was chosen per task and not pre-registered, and this cell was not
-tested against the selection envelope.
+tested against the selection envelope. Because the text baseline beats the
+raw features and the denoised value is an upper bound, the result is at most
+Suspected (Table~\ref{tab:body_count}).
 
 \paragraph{The scale dominance mechanism.} Examination of the singular values
 of the FWL-residualized spectral feature matrix suggests a mechanism. The
@@ -805,9 +811,9 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 Binary split, 10 emotions ($n{=}300$, arousal-confounded) & 0.992 & --- & --- & $0.006$ & Suspected$^{\P}$ \\
 Injection (neutral text) & 100\% & --- & --- & --- & Withdrawn$^{\P}$ \\
 \midrule
-\multicolumn{6}{l}{\textit{Raised by denoising (upper bounds)$^\|$}} \\
-Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Upper bound$^\|$ \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Upper bound$^\|$ \\
+\multicolumn{6}{l}{\textit{Suspected --- raised by denoising (upper bounds)$^\|$}} \\
+Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Suspected$^\|$ \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Suspected$^\|$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -844,7 +850,7 @@ $^{\#}$Withdrawn at source~\citep{lyra_p4}: the per-layer values cannot be trace
 $^{\P}$The probe applies no $W_K$ (it scores class-mean cache keys), and its labels are the emotion a story generator was asked to write. For the two emotion rows, $p$ is Holm-adjusted against text (\S\ref{sec:results_wk}); the withdrawn injection row carries none. Dated note: Appendix~\ref{sec:corrections}, 2026-11-01.
 $^{\circ}$Each confound is named in the body-count ledger of~\citet{lyra2026metapattern}; for within-model and same-prompt deception, see note $\S$.
 $^\S$Within-model deception is not supported: its prompts carry the instruction to lie and it uses no system prompt, so the instruction text separates the arms, and deception on matched inputs was not tested. The same-prompt control (the \emph{Same-prompt deception} row) holds one system prompt across arms with the instruction in the user message; its signal falls from 0.920 to 0.160 after FWL (exploratory, subsequently retracted)~\citep{lyra2026metapattern}, so it does not decide the question either. Earlier wording: \S\ref{sec:corrections}.
-$^\|$``Upper bound'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising raises it. The selection-envelope test covers confabulation and self-reference only (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}); persona and emotion were not tested against it. The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
+$^\|$``Upper bound'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising raises it. The selection-envelope test covers confabulation and self-reference only (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}); persona and emotion were not tested against it. The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}). Both rows are at most Suspected under the text-baseline rule: for Qwen and Llama, prompt length alone separates L0 from L3 at AUROC~0.81, above their raw 0.749 and 0.751; for emotion, the story-text baseline ($11.1\times$, Table~\ref{tab:emotion_methods}) is far above the raw $1.7\times$.
 
 \paragraph{Pattern.} The body count suggests an organizing principle.
 \textbf{Shape-level signals} (confabulation, ethical deliberation,
@@ -1261,7 +1267,8 @@ is open and no signal is claimed (Appendix~\ref{sec:corrections},
 explanation rested on the key readout of item~2. Persona intensity and emotion
 classification from spectral features, weak in raw features, are raised by
 SVD denoising to upper bounds that were not tested against the selection
-envelope (Table~\ref{tab:body_count}).
+envelope; both are Suspected, since an input-only baseline beats their raw
+features (Table~\ref{tab:body_count}).
 
 The Lyra Technique is not one measurement. It is a toolkit. Its raw
 spectral thermometer separates processing modes across fifteen models, and
@@ -1678,6 +1685,16 @@ to read disposition'', ``The other explanation first given here, that
 emotions are direction, not shape, is withdrawn at source with the result it
 rested on'', and closed ``This paper proposed two additions to it: one is
 withdrawn for emotion, and the other awaits a confirmatory test.''
+
+The text-baseline rule that this paper applies to the key readout, and that
+the meta-pattern ledger~\citep{lyra2026metapattern} applies to every
+confirmed row, is applied to the two denoised rows: a result that a text or
+input-only baseline matches or beats is at most Suspected. For persona,
+prompt length alone separates L0 from L3 at AUROC~0.81 for Qwen and Llama,
+above their raw 0.749 and 0.751; for spectral emotion, the story-text
+baseline ($11.1\times$) is far above the raw $1.7\times$. Both rows, first
+\emph{Rescued}, move to Suspected, and the abstract, \S\ref{sec:results_persona},
+\S\ref{sec:results_denoise_emo} and the Conclusion say so.
 
 \subsection*{Correction Note (version 1.1, 2026-11-01)}
 
