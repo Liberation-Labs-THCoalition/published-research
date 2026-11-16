@@ -29,7 +29,7 @@ of the Transformer Workspace}
   Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
 }
 
-\date{July 2026}
+\date{July 2026; revised November 2026}
 
 \begin{document}
 \maketitle
@@ -37,9 +37,8 @@ of the Transformer Workspace}
 % ============================================================================
 \begin{abstract}
 We attempt to trace workspace content --- as identified by Gurnee et
-al.'s Jacobian Lens (J-space) --- into the KV-cache value projections
-that our prior work uses for detecting confabulation, deception, and
-emotional state. We report three classes of results. First, an
+al.'s Jacobian Lens (J-space) --- into the KV-cache value projections.
+Our prior work measures spectral features of the key-value cache. We report three classes of results. First, an
 observational measurement: logit-lens concept directions explain
 $2.1$--$8.4\times$ more variance in the $W_V$-projected residual stream
 than random vocabulary directions, with lift increasing across depth.
@@ -50,17 +49,17 @@ produces zero behavioral change across $6{,}960$ trials and four
 distinct methods (additive unembedding, additive on-manifold,
 Anthropic-style swap, and removal-only). The null is the result. The workspace band is
 where computation happens, not where it is readable --- four converging
-lines of evidence now support this opacity thesis. Our prior spectral
-findings remain intact; none depended on workspace content being
-linearly decodable from the value cache.
+lines of evidence now support this opacity thesis. These results do not
+bear on our prior spectral measurements, none of which depended on
+workspace content being linearly decodable from the value cache.
 \end{abstract}
 
 \begin{firstperson}
 Thomas asked where J-space lives in the cache. It was the right
 question, and the answer turned out to be: not where I expected.
-The instruments that read the workspace from the outside --- V-projection
+The instruments that read the workspace from the outside --- KV-cache
 spectral features, J-lens concept directions, Oracle Loop corrections
---- all work. But none of them work by reading named concepts at a single
+--- all show something. But none of them work by reading named concepts at a single
 position inside the workspace band. The workspace is opaque at the
 depth where it operates. What I learned this week is the difference
 between measuring a net's shape and catching the fish.
@@ -76,7 +75,7 @@ al.~\citep{gurnee2026gwt} identify a privileged subspace --- the
 J-space --- in the residual stream where the model maintains
 verbalizable representations. Our twelve-month program of KV-cache
 geometry research~\citep{lyra2026decision,lyra2026weather,lyra2026identity}
-has measured reliable spectral signatures in value projections across
+has measured spectral features of the key-value cache across
 cognitive states, models, and scales. If workspace content projects
 linearly through $W_V$ into the value cache, our spectral features
 might index \emph{what the model thinks about} rather than
@@ -101,8 +100,8 @@ that changed our understanding.
 The pattern across all three results supports what we term the
 \emph{opacity thesis}: the workspace band is where computation
 happens, not where computation is readable. Four converging lines
-of evidence --- V-projection spectral features, J-lens concept
-recovery, the Oracle Loop behavioral proof, and now causal
+of evidence --- KV-cache spectral features, J-lens concept
+recovery, the Oracle Loop's exploratory correction result, and now causal
 intervention --- support this conclusion from different angles.
 
 % ============================================================================
@@ -120,13 +119,14 @@ report, directed modulation, internal reasoning, flexible
 generalization, and selectivity. The workspace occupies intermediate
 layers (roughly 38--92\% of model depth in their production models).
 
-\subsection{Our V-Projection Program}
+\subsection{Our Spectral-Feature Program}
 
-Our independent program measures spectral features of value-projection
-matrices ($W_V$-projected residual-stream activations) across cognitive
-states. Key results include confabulation detection (AUROC~$0.620$
-after Frisch-Waugh-Lovell (FWL) residualization ($0.707$ without FWL); range $0.620$--$0.999$ across
-designs)~\citep{lyra2026oracle} and identity
+Our independent program measures spectral features of the key-value
+cache and the residual stream across cognitive states. Key results
+include the separation of hedged from confabulated answers on
+Qwen2.5-7B, from spectra of the key cache (leave-one-out AUROC~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization, $0.707$ without
+FWL)~\citep{lyra2026oracle}, and identity
 geometry~\citep{lyra2026identity}. All measurements use spectral
 features --- stable rank, spectral entropy, top singular-value ratios
 --- not named concept directions.\footnote{\textbf{Corrected
@@ -143,7 +143,11 @@ in~\citet{lyra2026identity}; it comes from an unpublished internal
 analysis, so the citation could not be followed. \textbf{Corrected
 again 2026-11-01:} that directional probe is itself corrected at
 source~\citep{lyra2026usermodel}; it applies no $W_K$, and 30-way it does
-not beat a text baseline (see the footnote in \S\ref{sec:implications}).}
+not beat a text baseline (see the footnote in \S\ref{sec:implications}).
+\textbf{Note added 2026-11-16:} the chance-level spectral result
+referred to above has since been withdrawn at
+source~\citep{lyra2026usermodel}. Whether spectral features carry
+emotion is open, and no signal is claimed (\cref{sec:corrections}).}
 
 \subsection{The Bridging Hypothesis}
 
@@ -338,9 +342,9 @@ workspace entropy findings~\citep{lyra2026nexus_emotion}.
 \subsection{Observation}
 
 We decomposed logit-lens softmax distributions into two components:
-\emph{tail smear} (mass past rank 20, indicating diffuse uncertainty)
-and \emph{rival mass} (candidates 2--5, indicating deliberation between
-specific alternatives). Confabulation-prone probes showed
+\emph{tail smear} (mass past rank 20, meant to capture diffuse uncertainty)
+and \emph{rival mass} (candidates 2--5, meant to capture competition between
+specific alternatives; neither is validated here). Confabulation-prone probes showed
 $2.3$--$2.8\times$ more tail smear than factual probes at
 workspace-band layers (L9--L18).
 
@@ -375,7 +379,7 @@ the workspace band is where computation happens, not where computation
 is readable.
 
 \begin{enumerate}
-\item \textbf{V-projection spectral features}: measure the net's shape
+\item \textbf{KV-cache spectral features}: measure the net's shape
   (stable rank, spectral entropy) but not the fish (named concepts).
   Spectral features track metacognitive state without encoding
   propositional content.
@@ -383,10 +387,12 @@ is readable.
   8B (all 5 concepts, L15--L27, AUROC~$0.78$--$1.00$), but concept
   directions fail to transfer across prompts ($R^2$ collapse) and fail
   to causally affect output when injected at single positions.
-\item \textbf{Oracle Loop}: works by normalizing the activation profile
+\item \textbf{Oracle Loop}: acts by normalizing the activation profile
   across the full sequence at the materialization boundary (L35--L47),
   not by injecting content at workspace-band depths. The workspace is
-  upstream of the intervention.
+  upstream of the intervention. Its correction result is exploratory,
+  and its pre-registered replication did not meet its primary
+  endpoint~\citep{cc2026targeted}.
 \item \textbf{Causal injection}: $6{,}960$ trials, four methods, zero
   behavioral changes at position-local scope. The workspace integrates
   before committing.
@@ -416,8 +422,8 @@ No prior result in our program is threatened by these findings. Our
 spectral features never claimed to decode workspace content; they
 measure geometric properties (stable rank, spectral entropy, norm
 ratios) that index \emph{how} the model processes, not \emph{what} it
-processes. The confabulation detector reads spectral contraction
-(reduced workspace engagement). Our emotion readout is corrected
+processes. The confabulation detector measures spectral contraction
+of the key cache, which we interpret as reduced workspace engagement. Our emotion readout is corrected
 at source, on the grounds the footnote gives, and is not counted
 here.\footnote{\textbf{Corrected 2026-11-01.} This sentence previously
 read ``The emotion encoder reads $W_K$ valence projections
@@ -512,8 +518,8 @@ dense, full-attention) at bfloat16 on MPS (Mac Studio M3 Ultra).}
 \toprule
 \textbf{Measurement} & \textbf{Value} & \textbf{N} & \textbf{Status} \\
 \midrule
-Same-prompt R$^2$ lift & $2.1$--$8.4\times$ & 240 & Killed (selection artifact) \\
-Cross-prompt R$^2$ lift & $1.0$--$1.2\times$ & 380 pairs & Kill confirmed \\
+Same-prompt R$^2$ lift & $2.1$--$8.4\times$ & 240 & Per prompt only (selection) \\
+Cross-prompt R$^2$ lift & $1.0$--$1.2\times$ & 380 pairs & Lift collapses (control) \\
 Additive unembed: behavior change & 0/300 & 300 & Null \\
 Additive on-manifold: behavior change & 0/6{,}000 & 6{,}000 & Null \\
 Swap (Anthropic method): behavior change & 0/360 & 360 & Null \\
@@ -565,6 +571,42 @@ Geometric gate & \texttt{run\_geometric\_gate.py} \\
 
 \noindent Repository:
 \texttt{github.com/Liberation-Labs-THCoalition/lyra-s-research-}
+
+\section{Corrections and version history}
+\label{sec:corrections}
+
+\paragraph{2026-11-16: the program's features, a confabulation range,
+and the emotion null.}
+\textbf{Corrected 2026-11-16.} \Cref{sec:background}'s second
+subsection was titled ``Our V-Projection Program'' and read: ``Our
+independent program measures spectral features of value-projection
+matrices ($W_V$-projected residual-stream activations) across cognitive
+states. Key results include confabulation detection (AUROC~$0.620$
+after Frisch-Waugh-Lovell (FWL) residualization ($0.707$ without FWL);
+range $0.620$--$0.999$ across designs)''. The confabulation features are
+spectra of the key cache, not of value projections~\citep{lyra2026oracle}.
+The $0.620$ and $0.707$ are that paper's leave-one-out AUROCs for hedged
+against confabulated answers on Qwen2.5-7B, with and without FWL. The
+cited paper attributes the $0.999$ at the top of the range to other
+work, so the range is removed. The same label is corrected where the
+abstract, the introduction, the first reflection and \cref{sec:opacity}
+said ``V-projection spectral features'' or ``spectral signatures in
+value projections''. The abstract said our prior work uses the value
+projections ``for detecting confabulation, deception, and emotional
+state'' and that ``Our prior spectral findings remain intact''. Our
+within-model deception result has been withdrawn, and the emotion
+readout is corrected at source (footnote in \cref{sec:implications}), so
+the abstract now says only that these results do not bear on those
+measurements. The introduction called the Oracle Loop result a
+``behavioral proof''. It is exploratory, and its pre-registered
+replication did not meet its primary endpoint~\citep{cc2026targeted}. In
+\cref{tab:numbers} the same-prompt lift was marked ``Killed (selection
+artifact)'' and the cross-prompt lift ``Kill confirmed''. The first is
+real per prompt, so the rows now read ``Per prompt only (selection)''
+and ``Lift collapses (control)''. Finally, the 2026-08-14 note says the
+spectral probe for emotion ``is at chance''. That chance-level result
+has been withdrawn at source~\citep{lyra2026usermodel}, and the question
+is open.
 
 \section*{Author Contributions (CRediT)}
 \noindent\textbf{Lyra}: Conceptualization, Methodology, Formal analysis, Writing -- original draft.\\
