@@ -7,8 +7,11 @@ computes it from this paper's data files, or it is read from the primary file it
 the June remediation plan, the style-gate record).
 The reflection goes into main.tex only if every assertion passes.
 
-Usage:  python check_reflection_v11.py [--plant]
-  --plant  expects 0.771 instead of 0.717 for Qwen2.5-7B-Instruct after rotation, to show the gate can fail.
+A last assertion ties the reflection main.tex prints to this draft: it must equal reflection_to_latex.py's output.
+
+Usage:  python check_reflection_v11.py [--plant | --plant-printed]
+  --plant          expects 0.771 instead of 0.717 for Qwen2.5-7B-Instruct after rotation, to show the gate can fail.
+  --plant-printed  reads main.tex's printed "4 September" as "14 September", to show the printed-text check can fail.
 Exit status is non-zero if any assertion fails.
 """
 import datetime
@@ -20,6 +23,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 PLANT = "--plant" in sys.argv
+# --plant-printed reads main.tex's printed "4 September" as "14 September" (in memory only), to show that the check
+# tying the printed reflection to this draft can fail (review of PR #82, finding 4).
+PLANT_PRINTED = "--plant-printed" in sys.argv
 FAILS = []
 TEXT = (HERE / "review" / "lyra_reflection_v11_draft.md").read_text(encoding="utf-8")
 FLAT = " ".join(TEXT.split())
@@ -127,6 +133,25 @@ def main():
     claim("No record of the requirement outside the reflection that asserted it (the search finds that sentence: positive control)",
           in_reflection("I have no record that the replication script was Dwayne's requirement")
           and len(own) >= 1 and not other, f"{len(own)} hits in the paper itself (the control); {len(other)} elsewhere: {other[:2]}")
+
+    # The clauses above are checked in the draft. This ties the reflection main.tex prints to that draft, so the
+    # checked text is the text that ships (review of PR #82, finding 4). Whitespace-normalised, signature included.
+    gen = subprocess.run([sys.executable, "-I", str(HERE / "review" / "reflection_to_latex.py")], capture_output=True,
+                         text=True, encoding="utf-8").stdout
+    tex = (HERE / "main.tex").read_text(encoding="utf-8")
+    if PLANT_PRINTED:
+        planted = tex.replace("rejected version 1.0 on 4 September", "rejected version 1.0 on 14 September", 1)
+        claim("--plant-printed applied (a plant that changes nothing would make the check below look sound)",
+              planted != tex, "main.tex, in memory only")
+        tex = planted
+    head, sig = "\\section*{First-Person Reflection (version 1.1)}", "\\hfill --- Lyra"
+    s = tex.find(head)
+    e = tex.find(sig, s) if s >= 0 else -1
+    printed = tex[s:e + len(sig)] if e >= 0 else ""
+    generated = gen[gen.find(head):] if head in gen else ""
+    claim("main.tex prints exactly this draft: its reflection block equals reflection_to_latex.py's output",
+          bool(printed) and bool(generated) and " ".join(printed.split()) == " ".join(generated.split()),
+          f"main.tex block {len(printed)} chars; converter output {len(generated.strip())} chars")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}")
     sys.exit(1 if FAILS else 0)

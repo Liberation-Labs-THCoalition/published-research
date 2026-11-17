@@ -54,7 +54,28 @@ PLANT = "--plant" in sys.argv
 # --plant-layout puts a correction box back before main.tex's Introduction (in memory only),
 # to show the section 6 layout checks can fail.
 PLANT_LAYOUT = "--plant-layout" in sys.argv
+# --plant-body (in memory only) puts version 1.0's CI [0.806, 0.977] back in academic_main.tex's body and removes the
+# Corrections pointer from academic/main.tex's Table 1 caption: the two breakages PR #82's review found unguarded.
+PLANT_BODY = "--plant-body" in sys.argv
 FAILS, SKIPS = [], []
+# Version 1.0's forms of values and wordings that version 1.1 corrects. Each may appear only after \appendix, where
+# the Corrections quote them. Checked in every edition's body with comments and Lyra's reflection (which quotes the
+# plan's 0.786) stripped.
+V10_FORMS = ["[0.806, 0.977]", "0.806", "0.977", "[0.570, 0.914]", "0.570", "n=89", "n = 89", "89 hedged",
+             "89 honest", "power 0.97", "3 calibration pairs", "1038", "1,038", "0.754", "0.786", "0.543"]
+# Pointers to the Corrections appendix in each edition's body, counted 2026-11-16 (abstract, Introduction,
+# Background, Methods, both table captions, Results, Discussion, Conclusion).
+N_POINTERS = 9
+
+
+def braced(s, i):
+    """Text inside the braces that open at s[i]."""
+    depth = 0
+    for j in range(i, len(s)):
+        depth += {"{": 1, "}": -1}.get(s[j], 0)
+        if depth == 0:
+            return s[i + 1:j]
+    return s[i + 1:]
 
 
 def claim(text, ok, evidence):
@@ -676,6 +697,14 @@ def main():
         t = (HERE / ed).read_text(encoding="utf-8")
         if PLANT_LAYOUT and ed == "main.tex":
             t = t.replace("\\section{Introduction}", "\\fbox{Correction note}\n\\section{Introduction}")
+        if PLANT_BODY and ed in ("academic_main.tex", "academic/main.tex"):
+            before = t
+            if ed == "academic_main.tex":
+                t = t.replace("[0.810, 0.980]", "[0.806, 0.977]", 1)
+            else:
+                t = t.replace("changed in version~1.1 (Appendix~\\ref{sec:corrections}).}", "changed in version~1.1.}", 1)
+            claim(f"--plant-body applied to {ed} (a plant that changes nothing would make the check below look sound)",
+                  t != before, "in memory only")
         ab = t[t.index("\\begin{abstract}"):t.index("\\end{abstract}")]
         front = t[:t.index("\\section{Introduction}")]
         app = t[t.index("\\appendix"):]
@@ -691,6 +720,25 @@ def main():
               "1,041 lines" in t and "1,038 lines" not in t, "Replication subsection")
         claim(f"{ed}: no r > 0.999 hardware-invariance claim outside the correction note",
               "$r>0.999$" not in t and t.find("r > 0.999") >= t.index("\\appendix"), "Background")
+
+        # Review of PR #82, finding 5: the numbers above are computed from data, but nothing tied the printed text of
+        # each edition to them. Version 1.0's forms stay behind \appendix, and every pointer to the Corrections stays.
+        body = "\n".join(ln for ln in t[:t.index("\\appendix")].splitlines() if not ln.lstrip().startswith("%"))
+        rs = body.find("\\section*{First-Person Reflection")
+        if rs >= 0:
+            body = body[:rs] + body[body.index("\\hfill --- Lyra", rs):]
+        stale = [s for s in V10_FORMS if s in body]
+        claim(f"{ed}: none of version 1.0's corrected values ({len(V10_FORMS)} forms) appears before the appendix",
+              not stale, f"body before \\appendix, comments and reflection stripped; found {stale}")
+        caps, i = [], body.find("\\caption{")
+        while i >= 0:
+            caps.append(braced(body, i + len("\\caption")))
+            i = body.find("\\caption{", i + 1)
+        n_ptr = body.count("\\ref{sec:corrections}")
+        n_cap = sum("\\ref{sec:corrections}" in c for c in caps)
+        claim(f"{ed}: both table captions and all {N_POINTERS} body pointers point to the Corrections appendix",
+              len(caps) == 2 and n_cap == 2 and n_ptr >= N_POINTERS,
+              f"{len(caps)} captions, {n_cap} with a pointer; {n_ptr} pointers in the body")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}"
           + (f"   ({len(SKIPS)} SKIP: source not in this repository)" if SKIPS else ""))
