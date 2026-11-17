@@ -54,8 +54,10 @@ def main():
     claim("The paper's own gate passes in full (every number below is computed there from data)",
           "ALL PASS" in out, out.strip().splitlines()[-1] if out.strip() else "no output")
 
-    v10 = git("show", "origin/master:kv-cloak-defense-paper/main.tex")
-    added = git("log", "origin/master", "--reverse", "--format=%ad", "--date=short", "-S", "The defense works",
+    # Pinned to the last v1.0 commit of main.tex (#14's base): origin/master carries v1.1 once this merges.
+    V10 = "2167477"
+    v10 = git("show", f"{V10}:kv-cloak-defense-paper/main.tex")
+    added = git("log", V10, "--reverse", "--format=%ad", "--date=short", "-S", "The defense works",
                 "--", "kv-cloak-defense-paper/main.tex").split()
     claim('Version 1.0 ended with my sentence "The defense works."',
           in_reflection('Version 1.0 ended with my sentence "The defense works."') and "The defense works." in v10

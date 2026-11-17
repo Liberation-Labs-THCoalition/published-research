@@ -51,6 +51,9 @@ HERE = Path(__file__).resolve().parent
 DATA = HERE / "data"
 REPO = HERE.parent
 PLANT = "--plant" in sys.argv
+# --plant-layout puts a correction box back before main.tex's Introduction (in memory only),
+# to show the section 6 layout checks can fail.
+PLANT_LAYOUT = "--plant-layout" in sys.argv
 FAILS, SKIPS = [], []
 
 
@@ -411,14 +414,17 @@ def main():
     claim("The text-only baseline cannot be recomputed: trials store only the first 150 characters of each reply, and no run file holds the comparison",
           prev == 150 and not textkeys, f"max response_preview length {prev}; text-baseline keys in results: {textkeys}")
     lines = len((HERE / "code" / "kv_cloak_replication.py").read_bytes().replace(b"\r\n", b"\n").decode("utf-8").splitlines())
-    claim("The replication script is 1,038 lines", lines == 1038, f"{lines} lines")
+    # 1,038 at v1.0 (2167477); adf4c2d (2026-11-03) added three path-handling lines.
+    claim("The replication script is 1,041 lines", lines == 1041, f"{lines} lines")
 
     # ---------------------------------------------- citations in Background
     section("Background citations (checked against the cited papers in this repository)")
     ol = (REPO / "oracle-loop-paper" / "sections" / "background.tex").read_text(encoding="utf-8")
-    claim("Oracle Loop paper reports confabulation detection at 0.969-0.999 and r > 0.999 between RTX 3090 and H200",
-          "0.969--0.999" in ol and "r > 0.999" in ol and "H200" in ol, "oracle-loop-paper/sections/background.tex")
+    claim("Oracle Loop paper reports confabulation detection at 0.969-0.999 and hardware invariance between RTX 3090 and H200",
+          "0.969--0.999" in ol and "3090" in ol and "H200" in ol, "oracle-loop-paper/sections/background.tex")
     lt = (REPO / "lyra-technique-ii" / "main.tex").read_text(encoding="utf-8")
+    claim("Lyra Technique II gives the per-feature hardware correlation as r = 0.9986-0.9999 (register N1: r > 0.999 is false for two of four features)",
+          "$r = 0.9986$--$0.9999$" in lt and "0.9988" in lt, "lyra-technique-ii/main.tex")
     claim("Lyra Technique II withdraws the 1.000 deception result; same-prompt control 0.160",
           "retracted" in lt and "0.160" in lt, "lyra-technique-ii/main.tex")
     fb = json.load(open(REPO / "formulary-paper" / "data" / "formulary_base_summary.json", encoding="utf-8"))
@@ -663,6 +669,28 @@ def main():
           and [(r["phase"], r["verdict"]) for r in recs.values()] == [("paper", "REJECTED"), ("style", "CONDITIONAL"),
                                                                       ("paper", "CONDITIONAL"), ("style", "CONDITIONAL")],
           f"{ {k: (v['phase'], v['verdict'], v['timestamp'][:16]) if v else None for k, v in recs.items()} }")
+
+    # ---------------------------------------------- layout (STYLE_GUIDE section 6, draft #61)
+    section("Findings-first layout, all three editions (STYLE_GUIDE section 6)")
+    for ed in ("main.tex", "academic/main.tex", "academic_main.tex"):
+        t = (HERE / ed).read_text(encoding="utf-8")
+        if PLANT_LAYOUT and ed == "main.tex":
+            t = t.replace("\\section{Introduction}", "\\fbox{Correction note}\n\\section{Introduction}")
+        ab = t[t.index("\\begin{abstract}"):t.index("\\end{abstract}")]
+        front = t[:t.index("\\section{Introduction}")]
+        app = t[t.index("\\appendix"):]
+        claim(f"{ed}: no correction box or revision note before the Introduction",
+              "\\fbox" not in front and "Correction note" not in front, "text before \\section{Introduction}")
+        claim(f"{ed}: the abstract leads with the finding, then names both verdicts and points to Corrections",
+              ab.find("still") < ab.find("Version~1.0") and "is refuted" in ab and "is not supported" in ab
+              and "\\ref{sec:corrections}" in ab, "abstract")
+        claim(f"{ed}: an end-matter appendix 'Corrections and Version History' holds the dated note and the v1.0 wording",
+              "\\section{Corrections and Version History}" in app and "\\label{app:record}" in app
+              and "\\textbf{Refuted:}" in app and "\\textbf{Not supported:}" in app and "\\textbf{Withdrawn}" in app, "appendix")
+        claim(f"{ed}: Methods gives the replication script's current length (1,041 lines), not v1.0's",
+              "1,041 lines" in t and "1,038 lines" not in t, "Replication subsection")
+        claim(f"{ed}: no r > 0.999 hardware-invariance claim outside the correction note",
+              "$r>0.999$" not in t and t.find("r > 0.999") >= t.index("\\appendix"), "Background")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}"
           + (f"   ({len(SKIPS)} SKIP: source not in this repository)" if SKIPS else ""))
