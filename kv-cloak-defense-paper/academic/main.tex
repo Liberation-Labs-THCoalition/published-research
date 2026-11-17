@@ -682,13 +682,26 @@ signal from a surviving one: after removing reply length the best feature
 reaches 0.705, adjusted $p = 0.19$ (Section~\ref{sec:real}). With it go
 ``KV-Cloak alone prevents external adversaries from deploying malicious
 geometric steering'' and ``the architecture ensures that defenders retain
-capabilities that attackers lose''.
+capabilities that attackers lose''. Also not supported: ``A detector
+calibrated on uncloaked caches cannot operate on cloaked caches''. It
+holds only for a fixed threshold on a feature the rotation changes. Under
+the rotation the spectral gap keeps its direction and still ranks the
+classes at 0.787, norm per token in the last 80 tokens detects at 0.800
+with and without it, and in the replication a classifier fitted on
+uncloaked caches scores 0.994 on cloaked ones, an invariance check on
+prompt types (Sections~\ref{sec:replication} and~\ref{sec:shift}).
+
+\textbf{Corrected to the scope measured:} ``Obfuscation defeats transfer
+attacks'' holds only for a fixed spectral-gap threshold: the threshold
+that best separates the classes without the cloak flags none of the 94
+replies under the rotation and all 94 under the full transform
+(Section~\ref{sec:shift}). It does not cover an adversary who refits the
+threshold on cloaked caches, or one who uses a feature the rotation does
+not change, such as norm per token or per-head spectra.
 
 \textbf{Withdrawn}, because the measurement does not address the claim:
 $p = 5.5 \times 10^{-16}$ as evidence about detection (it tests how far
-the rotation shifts one feature's values); ``Obfuscation defeats transfer
-attacks'' and ``A detector calibrated on uncloaked caches cannot operate
-on cloaked caches'', which hold only for a fixed threshold; that the
+the rotation shifts one feature's values); that the
 rotation result ``represents transfer-attack failure (domain shift under
 coordinate change), not signal degradation'', when it was measured with
 both classes under the same cloak; that this setting ``is relevant only to
@@ -771,7 +784,8 @@ preserves the underlying geometric structure but changes the coordinate
 system, preventing transfer from uncloaked calibration data.'' True only
 of a fixed threshold; the ranking survives the rotation, and in a
 per-head layout nothing moves (Sections~\ref{sec:replication}
-and~\ref{sec:shift}).
+and~\ref{sec:shift}). Appendix~\ref{app:v11} restates the heading at the
+scope measured and marks the sentence after it not supported.
 
 \item \textbf{Abstract, finding 3, and the academic limitation on the
 magnitude attack.} ``0--2 adverse events per model in 10 trials,
