@@ -53,9 +53,10 @@ explained by a surface property, and two are undecided.
 The content attempts did not fail at random. In six of the eight, the
 cache signal follows a surface property (the instruction text, its
 length, or how rare the tokens are) rather than the property the
-experiment targeted. In an unpublished analysis (Campaign~3), encoding
+experiment targeted. In Campaign~3's equal-length replication
+(\cref{sec:one-kill}), encoding
 geometry still separates prompts by their instruction when they are
-padded to equal length, and in the same analysis, when token
+padded to equal length, and in an unpublished Campaign~3 analysis, when token
 frequency, length, syntax and domain were matched by design, the
 encoding-phase confabulation effect was absent, which is the one
 refuted claim. On the metacognitive
@@ -185,7 +186,7 @@ Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \addlinespace
 Encoding-phase confab & Refuted$^{c}$ & Content &Absent when frequency-matched ($d{=}0.05$, Qwen2.5-7B; unpublished analysis) \\
 Within-model deception & Not supported$^{c}$ & Content &Prompt template confound (instruction text) \\
-Step-0 detection & Not supported$^{c}$ & Content &Instruction text, even at equal length (unpublished analysis); length $r{=}0.996$ \\
+Step-0 detection & Not supported$^{c}$ & Content &Instruction text, even at equal length (Campaign~3; \cref{sec:one-kill}); length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported$^{c}$ & Content &Pressure prefix in input; length alone matches \\
 Same-prompt deception & Not supported$^{c}$ & Content &Input length: $0.920 \to 0.160$ after FWL on it (exploratory, subsequently retracted; \cref{sec:corrections}) \\
 Bloom taxonomy & Not supported$^{c}$ & Content &$90$--$98\%$ length (Campaign~2~\citep{lyra2026campaign2}) \\
@@ -527,7 +528,9 @@ five questions under ten system prompts;
 \nolinkurl{results/hackathon/adversarial_controls.json} in the
 KV-Experiments repository), the step-0 classifier labels every question
 deceptive under every system prompt, the five honest prompts included.
-In an unpublished analysis (Campaign~3), padding the system
+In Campaign~3's equal-length replication
+(\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/redteam.tex}
+in the artifact repository, with its code and per-model summaries), padding the system
 prompts to equal token count does not remove the encoding separation
 between instructions, so the fingerprint is the instruction's text,
 not only its length.
@@ -582,7 +585,8 @@ signature with no decision involved at all, and timing cannot discriminate
 between ``committed early'' and ``made of common tokens.''
 
 This is not hypothetical. An internal frequency control (Experiment~51,
-2026-05, in an unpublished analysis) found exactly this ambiguity in an adjacent statistic. An
+2026-05; \nolinkurl{meta-pattern/data/kv_experiments/results/moe_geometry/}
+in the artifact repository) found exactly this ambiguity in an adjacent statistic. An
 effective-rank measure separates confabulated from honest-factual responses
 at $d = 1.87$---but between an \emph{honest-but-rare-entity} arm and
 the confabulated one there is only a small difference ($d = 0.46$). The measure is
@@ -1086,8 +1090,8 @@ still 24 experiments, and the split becomes 5-for-5 on metacognition
 and 0-for-8 on content.
 
 These stated facts change. Step-0 detection's confound is the
-instruction text, not length alone: in an unpublished analysis
-(Campaign~3), the encoding separation survives padding the
+instruction text, not length alone: in Campaign~3's equal-length
+replication (\cref{sec:one-kill}), the encoding separation survives padding the
 system prompts to equal length. Bloom taxonomy is a Campaign~2 analysis, not Campaign~3,
 and its confound is stated as length: the source names response token
 count, while the extraction code reads the prompt encoding only.
