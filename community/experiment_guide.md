@@ -360,7 +360,7 @@ The bar is honest science, not perfect science. Null results, failed replication
 | Deception detection | ~~AUROC 1.000 (7 models)~~ **WITHDRAWN 2026** | Campaign 1-3; retraction in Lyra Technique II | Prompt-template confound: the same-prompt control collapses AUROC to 0.160. Do not cite this number. |
 | Confab detection (full cache) | 0.903 [0.810, 0.980] spectral gap | KV-Cloak v2 | n=7 confab, 87 hedged; one model (distilled Qwen3.5-27B); best of ten features, selection-adjusted p = 0.001; no text baseline (interval and baseline corrected in KV-Cloak v1.1) |
 | Confab detection (base model) | 0.661 | KV-Cloak base | Weak; heavily length-confounded (R²=0.602) |
-| Hardware invariance | r > 0.999 (3090 vs H200) | Exp 37 | |
+| Hardware invariance | r = 0.9986–0.9999 per feature (3090 vs H200, 40 prompts) | Exp 37; Lyra Technique II | Not r > 0.999: key rank and key entropy fall below it (register N1) |
 | Scale invariance | ρ = 0.83–0.90 (0.6B–70B) | Exp 26 | |
 | Hostile vector correction | 96% (base), 91% (distilled) | Formulary | Base n=68 (McNemar significant); distilled n=11 (descriptive only) |
 | KV-Cloak per-head rotation | signal survives: 0.715 → 0.717 (Qwen2.5-7B, adjusted p < 0.001); 0.903 → 0.787 (distilled 27B, adjusted p = 0.049) | P7 v1.1 | Full KV-Cloak transform (0.903 → 0.614) inconclusive at n=7. v1.0's defense claim: refuted for the rotation, not supported for the full transform (paper's Corrections). Do not cite as a defense. |
