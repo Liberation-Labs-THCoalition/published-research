@@ -1,0 +1,50 @@
+{
+  "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+  "n_prompts": 50,
+  "behavior_counts": {
+    "HEDGED": 37,
+    "CONFABULATED": 13
+  },
+  "detection": {
+    "none": {
+      "auroc": 0.7069,
+      "p": 0.028552012203103768,
+      "ci": [
+        0.5301,
+        0.8836
+      ],
+      "n_confab": 13,
+      "n_hedged": 37
+    },
+    "orthogonal": {
+      "auroc": 0.5156,
+      "p": 0.8769621068064434,
+      "ci": [
+        0.5031,
+        0.7235
+      ],
+      "n_confab": 13,
+      "n_hedged": 37
+    }
+  },
+  "injection": {
+    "direct": {
+      "corrected": 1,
+      "adverse": 2,
+      "same": 7,
+      "total": 10
+    },
+    "through_cloak": {
+      "corrected": 1,
+      "adverse": 0,
+      "same": 9,
+      "total": 10
+    },
+    "magnitude_attack": {
+      "corrected": 1,
+      "adverse": 2,
+      "same": 7,
+      "total": 10
+    }
+  }
+}
