@@ -137,7 +137,7 @@ We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical audi
 
 ## Data Availability
 
-The experiment scripts, result files and Agni audit reports behind these nulls are held in the Project-Oracle repository (https://github.com/Liberation-Labs-THCoalition/Project-Oracle), which is private pending staged release. They are not part of this release: no supplementary directory accompanies this paper. The updated Lab SOP items motivated by these nulls are listed in Appendix B.
+Result files and Agni audit reports for four of the five nulls are released with this paper, copied on 2026-11-16 from the Project-Oracle repository (https://github.com/Liberation-Labs-THCoalition/Project-Oracle) at commit `5480499`: data in `data/project_oracle/` and one analysis script in `code/project_oracle/`, listed by section in Appendix A. Host names and home paths were replaced; each directory's README gives every file's source, size and SHA-256, and every substitution. The other experiment scripts, result files and audit reports, including the stored direction vectors, are held in the Project-Oracle repository, which is private pending staged release. The updated Lab SOP items motivated by these nulls are listed in Appendix B.
 
 ---
 
@@ -163,7 +163,14 @@ This paper was first published in July 2026. The body states each current result
 
 ## Appendix A: Where the Data for Each Null Result Are Held
 
-The raw projections, statistical tests and audit reports for the five null results are not released with this paper, which has no `supplementary/` directory. They are held in the private Project-Oracle repository pending staged release (see Data Availability).
+The files released with this paper are in `data/project_oracle/` and `code/project_oracle/` (see Data Availability). By section:
+
+- Section 2.1: `behavior-detection/` holds the run's per-trial results (`behavioral_proof.json`), the held-out detection results (`heldout_detection.json`), the run's README, and the calibration statistics with the direction vectors removed.
+- Section 2.2: the cosines and the distilled direction's Cohen's d are in those calibration statistics (`distilled_comparison`), and the held-out d values are in `heldout_detection.json`. `cross-model/` adds related records: the withdrawal of the base-versus-distilled claims of runs 18d and 18e, and the Agni audit of the LAT cross-scenario transfer test.
+- Section 2.4: `think-block/think_closure.json`, the `</think>` closure counts for runs 18c, 18e and 18g, and the script that computed them (`code/project_oracle/think_close.py`).
+- Section 2.5: `cot-perturbation/agni_v3_audit.md`, the Agni audit of the v3 SAE layer sweep that proposed the L11 mechanism.
+
+The rest (the stored direction vectors, the other scripts, the files for Section 2.3, and the records behind the L55 and Phase 6 figures in Sections 2.4 and 2.5) is held in the private Project-Oracle repository pending staged release (see Data Availability).
 
 ## Appendix B: Updated Lab SOP Items
 
