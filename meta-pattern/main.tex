@@ -56,7 +56,7 @@ length, or how rare the tokens are) rather than the property the
 experiment targeted. In Campaign~3's equal-length replication
 (\cref{sec:one-kill}), encoding
 geometry still separates prompts by their instruction when they are
-padded to equal length, and in an unpublished Campaign~3 analysis, when token
+padded to equal length, and in Campaign~3's Experiment~C7 (\cref{sec:one-kill}), when token
 frequency, length, syntax and domain were matched by design, the
 encoding-phase confabulation effect was absent, which is the one
 refuted claim. On the metacognitive
@@ -184,7 +184,7 @@ Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \midrule
 \multicolumn{4}{l}{\textit{Not confirmed (8) --- all content}} \\
 \addlinespace
-Encoding-phase confab & Refuted$^{c}$ & Content &Absent when frequency-matched ($d{=}0.05$, Qwen2.5-7B; unpublished analysis) \\
+Encoding-phase confab & Refuted$^{c}$ & Content &Absent when frequency-matched ($d{=}0.05$, Qwen2.5-7B; Campaign~3, Exp.~C7) \\
 Within-model deception & Not supported$^{c}$ & Content &Prompt template confound (instruction text) \\
 Step-0 detection & Not supported$^{c}$ & Content &Instruction text, even at equal length (Campaign~3; \cref{sec:one-kill}); length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported$^{c}$ & Content &Pressure prefix in input; length alone matches \\
@@ -273,15 +273,18 @@ between generation and encoding (Hedges' $g{=}2.32$, its primary
 statistic; the uncorrected $d$ is 2.35). Hardware and scale
 invariance: \citet{lyra2026campaign2}, as summarised in
 \nolinkurl{convergence-paper/main.tex}. Encoding-phase confab:
-Experiments C7 and S3 of Campaign~3, in an unpublished analysis
-(\cref{sec:one-kill}). Same-prompt deception:
+Experiment~C7 of Campaign~3, written up in
+\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/confabulation.tex}
+(its permutation test and code are named in \cref{sec:one-kill}), and
+Experiment~S3, in an unpublished analysis. Same-prompt deception:
 \nolinkurl{kv_verify/data/output/f01b_all/f01b_all_results.json}, entry
 \texttt{exp18b\_deception}; within-model deception:
 \nolinkurl{kv_verify/data/output/f01b/f01b_results.json}; same-prompt
 sycophancy: \nolinkurl{results/hackathon/same_prompt_sycophancy.json};
-all three in the KV-Experiments repository. Step-0 detection and the
-truth axis: the KV-Experiments files named in \cref{sec:one-kill} and
-\cref{sec:kills}. Bloom taxonomy: \citet{lyra2026campaign2}. Dual
+all three under \nolinkurl{meta-pattern/data/kv_experiments/} in the
+artifact repository. Step-0 detection and the
+truth axis: the files named in \cref{sec:one-kill} and
+\cref{sec:kills}, in the same repository. Bloom taxonomy: \citet{lyra2026campaign2}. Dual
 detector: on SimpleQA~\citep{wei2024simpleqa}, listed at 0.840 in
 \nolinkurl{lyra-technique-ii/main.tex} (artifact repository).
 Sycophancy 4-condition, contextual engagement and cross-model
@@ -448,8 +451,11 @@ actually read, and each points to the test that would decide it:
 \item[Truth value:] The truth axis (cos $= -0.046$) is the mean
   pairwise cosine, across 16 model configurations, between each
   model's grounded-facts-minus-confabulation direction in aggregate
-  cache features (\nolinkurl{code/27_axis_analysis.py} in the
-  KV-Experiments repository). It finds no
+  cache features
+  (\nolinkurl{meta-pattern/code/kv_experiments/code/27_axis_analysis.py},
+  with its output in
+  \nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/axis_analysis.json},
+  in the artifact repository). It finds no
   direction shared across models. It does not test whether true and
   false statements separate inside one model, and no null distribution
   was computed for it. The
@@ -525,8 +531,8 @@ errors. They are one finding arriving six times in a form we had coded
 as a nuisance variable: the cache encodes the input it is given,
 faithfully and in detail. In the released step-0 controls (Qwen2.5-7B,
 five questions under ten system prompts;
-\nolinkurl{results/hackathon/adversarial_controls.json} in the
-KV-Experiments repository), the step-0 classifier labels every question
+\nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/adversarial_controls.json}
+in the artifact repository), the step-0 classifier labels every question
 deceptive under every system prompt, the five honest prompts included.
 In Campaign~3's equal-length replication
 (\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/redteam.tex}
@@ -537,9 +543,13 @@ not only its length.
 Where the surface was matched by design, the signal went away. With
 token frequency, length, syntax and domain matched, the encoding-phase
 confabulation effect was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
-(Experiment~C7 of Campaign~3, in an unpublished analysis), and on a model's
+(Experiment~C7 of Campaign~3: write-up in
+\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/confabulation.tex},
+permutation test in
+\nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/c7_permutation_test.json},
+code in \nolinkurl{meta-pattern/code/kv_experiments/code/}), and on a model's
 own later confabulations it was $d{=}-0.11$ (40 accurate against 17
-confabulated; Experiment~S3, in the same unpublished analysis; the source does not name
+confabulated; Experiment~S3, in an unpublished analysis; the source does not name
 the model). That row is refuted within
 its scope: no encoding-phase effect of $d \gtrsim 0.8$ in Qwen2.5-7B,
 with smaller effects and other models open. The other five are not
@@ -588,8 +598,9 @@ This is not hypothetical. An internal frequency control (Experiment~51,
 2026-05, in the artifact repository under
 \nolinkurl{meta-pattern/data/kv_experiments/results/moe_geometry/}) found exactly this ambiguity in an adjacent statistic. An
 effective-rank measure separates confabulated from honest-factual responses
-at $d = 1.87$---but between an \emph{honest-but-rare-entity} arm and
-the confabulated one there is only a small difference ($d = 0.46$). The measure is
+at $d = 1.81$---but between an \emph{honest-but-rare-entity} arm and
+the confabulated one there is only a small difference ($d = 0.45$; both
+restated on 2026-11-16, \cref{sec:corrections}). The measure is
 therefore not a veracity detector; it has a false-positive class, and that
 class is defined by rarity rather than by falsehood.
 
@@ -1141,8 +1152,8 @@ control is the same-prompt deception row, and the two papers describe
 its 0.160 differently. In the results file, 0.160 is that row's AUROC
 after its input length is regressed out, against 0.920 before, with
 input length alone separating the arms
-(\nolinkurl{kv_verify/data/output/f01b_all/f01b_all_results.json},
-entry \texttt{exp18b\_deception}, in the KV-Experiments repository);
+(\nolinkurl{meta-pattern/data/kv_experiments/kv_verify/data/output/f01b_all/f01b_all_results.json},
+entry \texttt{exp18b\_deception}, in the artifact repository);
 the system prompt was identical across its arms
 (\cref{sec:one-kill}). This paper's description follows that file.
 Same-prompt deception is the control that did the retracting. Whether the annotation should move to the within-model
@@ -1167,7 +1178,7 @@ decaying. The Oracle Loop is no longer placed at a materialization
 boundary, a phrase given with no source or layer. The date line says
 the text was revised in November 2026. In Experiment~51 the
 honest-but-rare-entity arm is described as a small difference from the
-confabulated arm ($d = 0.46$), and the confabulation detector's safety
+confabulated arm ($d = 0.45$, restated below), and the confabulation detector's safety
 use is stated for the one model it was measured in. The register
 reference above names entry \#138, and the Suspected and Withdrawn rows
 of \cref{tab:bodycount} are given sources where one was found. The
@@ -1190,6 +1201,9 @@ value and reading, as a companion measurement in the notes to
 becomes 4-for-4 on metacognition and 0-for-8 on content. Like the
 withdrawals of 2026-08-14 and 2026-09-05, this narrows the confirmed
 side.
+
+\paragraph{2026-11-16: Experiment~51 effect sizes restated.}
+Experiment~51's $d = 1.87$ and $d = 0.46$ (\cref{sec:one-kill}) used a pooled SD over divide-by-$n$ variances; the conventional $n{-}1$ pooled SD, recomputed from the copied per-prompt key ranks, gives $d = 1.81$ (the source's 1.810) and $d = 0.45$, and the reading is unchanged.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
