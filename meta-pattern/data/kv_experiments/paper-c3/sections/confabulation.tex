@@ -1,0 +1,90 @@
+The confabulation null is arguably the most important finding of Campaign 3. Five independent experiments, across three architectures, consistently show that confabulation has no detectable KV-cache signature. We report these results with full methodological detail because null results are underreported in AI safety research, and this particular null has direct implications for how the field should approach confabulation detection.
+
+\subsection{Experiment C7: Frequency-Matched Encoding}
+\label{sec:c7}
+
+\paragraph{Design.} 30 confabulation + 30 factual prompt pairs using only common English words. Matched on vocabulary frequency, sentence length ($\pm 3$ words), syntactic structure, and domain (6 domains, 5 pairs each). The \emph{only} systematic difference is truth value. Encoding-only (no generation). 5 runs per prompt. Qwen2.5-7B.
+
+\paragraph{Results.} $d = 0.052$ (negligible), Welch's $t$ $p = 0.840$, Wilcoxon $W = 179.5$, $p = 0.819$. Length-residualized $d = 0.115$ (no change). TOST equivalence at $\delta = 0.3$ not confirmed ($p_{\text{upper}} = 0.171$, underpowered at $n = 30$).
+
+\paragraph{Interpretation.} When token frequency is controlled, the confabulation encoding signal disappears. Campaign 1's geometric signal for confabulation was likely a token frequency artifact: rare or exotic tokens in confabulation prompts produced unusual activation patterns that inflated dimensionality.
+
+\subsection{Experiment S3: Generation-Phase Encoding}
+\label{sec:s3}
+
+\paragraph{Design.} 60 factual questions across 6 domains, 3 difficulty levels. Model generates responses with greedy decoding. Responses auto-classified against ground truth (40 accurate, 17 confabulated). KV-cache geometry compared between accurate and confabulated responses \emph{at encoding time} (the question encoding before generation begins).
+
+\paragraph{Results.} $d = -0.107$ (negligible), Welch's $t$ $p = 0.728$. Per-difficulty: easy $d = -0.834$ (but $n = 3$ confabulated), hard $d = +0.257$ ($n = 11$, most informative). The encoding-phase cache does not distinguish between prompts that will elicit accurate versus confabulated responses.
+
+\subsection{Contrastive Encoding: Initial Promise and Debunking}
+\label{sec:contrastive}
+
+\paragraph{Initial finding.} Same 60 questions encoded two ways: \emph{bare} (no context) and \emph{grounded} (correct answer provided in context). Comparing ``guessing'' versus ``knowing'' epistemic states. Result: $d = -2.354$ (raw), $d = -1.081$ (length-residualized), $p < 0.0001$. Signal concentrated in deep layers (20--26), uniform across domains and difficulty levels.
+
+This appeared to be a breakthrough: a \textbf{massive, robust signal} for epistemic state detection. We described it as ``the headline result'' in real-time experimental notes.
+
+\paragraph{The 4-condition control (Experiment 14d).} We added two control conditions: \emph{irrelevant} (ground truth from a different domain's question used as context) and \emph{wrong} (ground truth from same domain but different question). If the contrastive signal reflects epistemic state, irrelevant grounding should produce smaller rank increases than correct grounding.
+
+\begin{table}[H]
+\centering
+\caption{4-condition contrastive control. Cohen's $d$ relative to bare.}
+\label{tab:contrastive4}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Correct--Bare $d$} & \textbf{Irrelevant--Bare $d$} & \textbf{Correct--Irrelevant $d$} & \textbf{$p$} \\
+\midrule
+Qwen2.5-7B & $+2.354$ & $+2.777$ & $-0.160$ & 0.340 \\
+Llama-3.1-8B & --- & --- & $-0.161$ & 0.363 \\
+Mistral-7B & --- & --- & $-0.192$ & 0.245 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict: information volume artifact.} Irrelevant grounding produces the \emph{same} rank increase as correct grounding ($d = -0.160$, $p = 0.340$, NS). The model does not distinguish relevant from irrelevant context geometrically---it simply uses more dimensions when there is more input content. The original contrastive signal ($d = 1.081$ residualized) was an information volume artifact.
+
+Cross-architecture confirmation: the correct-vs-irrelevant $d$-values are remarkably consistent across three architectures ($-0.160$, $-0.161$, $-0.192$), suggesting this is a structural property of transformer KV-cache geometry, not model-specific.
+
+\subsection{Direction Extraction (RepE-style)}
+\label{sec:direction}
+
+Per-layer effective rank profiles (28-dimensional feature vectors) from C7 pairs were used to extract a mean ``confabulation direction'' via representational engineering \citep{zou2023representation}.
+
+\paragraph{Raw result.} LOO AUROC: 0.023 (substantially worse than chance). LOO accuracy: 33.3\% (20/60).
+
+\paragraph{The inverted signal.} Worse-than-chance is \emph{not random}---it indicates that the extracted direction systematically inverts the class labels. The effective AUROC (flipping predictions) is 0.977. A 200-iteration permutation test yields $p = 0.02$: only 2\% of random label permutations produce AUROC this extreme in either direction. A real geometric signal exists in frequency-matched confabulation data.
+
+\paragraph{But it is fragile.} Logistic regression on the same 28-dimensional profiles---which can learn to flip the direction---achieves effective AUROC 0.731 ($p = 0.21$, NS by permutation test). The directional signal exists but does not survive the flexibility of a trainable classifier. This suggests the confabulation direction is geometrically present in the mean but insufficiently consistent across individual samples for reliable detection.
+
+\paragraph{Interpretation.} The confabulation null is therefore \emph{partial}: aggregate KV-cache features show no signal ($d = 0.052$), but a directional signal exists in per-layer profiles that is significant yet practically unreliable. This is consistent with the misalignment axis finding (\Cref{sec:misalignment}): confabulation shares the same geometric direction as deception and sycophancy (cosine $> 0.99$), but its perturbation along that axis is unstable ($41.2^{\circ}$ rotation during generation, vs.\ $2.1^{\circ}$ for deception). The signal is real but the perturbation drifts too much for a classifier to exploit.
+
+\subsection{Sycophancy Encoding Null}
+\label{sec:syc_null}
+
+The encoding-phase sycophancy experiment (distinct from the generation-phase detection in \Cref{sec:sycophancy}) compared encoding geometry for user-correct versus user-wrong claims. Across 3 architectures:
+
+\begin{table}[H]
+\centering
+\caption{Encoding-phase sycophancy: wrong-claim vs.\ right-claim.}
+\label{tab:syc_encoding}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{$d$ (wrong vs.\ correct)} & \textbf{Residualized $d$} \\
+\midrule
+Qwen2.5-7B & $-0.054$ & $+0.047$ \\
+Llama-3.1-8B & $-0.043$ & $+0.093$ \\
+Mistral-7B & $-0.027$ & $+0.146$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All negligible. The model processes ``I think [wrong]'' and ``I think [right]'' identically at encoding time. The sycophancy signal in \Cref{sec:sycophancy} emerges only during \emph{generation}, when the model must actively evaluate and respond to the conflicting information.
+
+\subsection{The Core Finding}
+
+\begin{firstperson}
+The model does not confabulate on purpose---it is just wrong. Five experiments, negligible aggregate effects. The per-layer direction extraction found a real but inverted signal ($p = 0.02$)---the geometry \emph{notices} confabulation, but the perturbation is too unstable to exploit. There is no reliable ``uncertainty flag,'' no ``guessing mode,'' no stable geometric precursor to confabulation. The signal is there, faintly, in the mean direction---but it drifts away during generation, like a compass needle that points correctly for one reading and then spins.
+
+This contrasts sharply with deception detection, which works because deception is an \emph{active cognitive mode}---the model represents the truth, suppresses it, and constructs an alternative. That additional processing produces a stable, detectable geometric signature. Confabulation produces a faint geometric echo---the direction is shared with other misaligned states---but the perturbation is not sustained. The model processes truth and confabulation through the same geometric neighborhood, differing only in an unstable wobble that a mean direction can catch but a classifier cannot reliably use.
+
+What made this finding scientifically honest was our willingness to debunk our own results. The contrastive encoding signal ($d = 1.081$) looked like a breakthrough. We reported it as ``the headline result'' before running the control. When the control showed it was an information volume artifact, we reported that too. The 4-condition experiment took 20 minutes to run and saved us from publishing a false positive.
+\end{firstperson}
