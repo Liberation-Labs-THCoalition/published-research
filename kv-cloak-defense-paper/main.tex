@@ -694,35 +694,41 @@ detects: 0.715 to 0.717 on Qwen2.5-7B (adjusted $p < 0.001$) and 0.903 to
 per-head feature moved (Sections~\ref{sec:replication}
 and~\ref{sec:shift}).
 
+\textbf{Refuted:} version~1.0's finding~2, ``Obfuscation defeats
+transfer attacks'', with the sentence after it, ``A detector calibrated
+on uncloaked caches cannot operate on cloaked caches''. On the distilled
+27B, full-cache thresholds fitted without the cloak on the four features
+the rotation changes (spectral gap, signal rank, signal fraction and top
+singular-value excess) flag none of the 94 replies under the rotation;
+under the full transform, those on the spectral gap, signal fraction and
+top singular-value excess flag all 94, and signal rank's flags 6 of 7
+confabulations and 43 of 87 hedged replies. A detector calibrated on
+uncloaked caches and applied unchanged, which is version~1.0's own
+definition of a transfer attack, still works when it reads a feature the
+rotation does not change. Under the rotation, the largest relative change
+in norm per token over the last 80 tokens is $1.1 \times 10^{-5}$; its
+threshold flags 6 of 7 confabulations and 19 of 87 hedged replies
+without the cloak and 5 and 19 with it; and it detects at 0.800 both
+ways. In the replication, a classifier fitted on uncloaked caches scores
+0.994 on cloaked ones, an invariance check on prompt types
+(Sections~\ref{sec:replication} and~\ref{sec:shift}). The claim as stated
+is refuted.
+
 \textbf{Not supported:} that the full KV-Cloak transform confirms the
 defense (0.903 to 0.614). Seven confabulations cannot tell a removed
 signal from a surviving one: after removing reply length the best feature
 reaches 0.705, adjusted $p = 0.19$ (Section~\ref{sec:real}). With it go
 ``KV-Cloak alone prevents external adversaries from deploying malicious
 geometric steering'' and ``the architecture ensures that defenders retain
-capabilities that attackers lose''. Also not supported: ``A detector
-calibrated on uncloaked caches cannot operate on cloaked caches''. It
-holds only for a fixed threshold on a feature the rotation changes. Under
-the rotation the spectral gap keeps its direction and still ranks the
-classes at 0.787, norm per token in the last 80 tokens detects at 0.800
-with and without it, and in the replication a classifier fitted on
-uncloaked caches scores 0.994 on cloaked ones, an invariance check on
-prompt types (Sections~\ref{sec:replication} and~\ref{sec:shift}).
-
-\textbf{Corrected to the scope measured:} ``Obfuscation defeats transfer
-attacks'' holds only for a fixed spectral-gap threshold: the threshold
-that best separates the classes without the cloak flags none of the 94
-replies under the rotation and all 94 under the full transform
-(Section~\ref{sec:shift}). It does not cover an adversary who refits the
-threshold on cloaked caches, or one who uses a feature the rotation does
-not change, such as norm per token or per-head spectra.
+capabilities that attackers lose''.
 
 \textbf{Withdrawn}, because the measurement does not address the claim:
 $p = 5.5 \times 10^{-16}$ as evidence about detection (it tests how far
 the rotation shifts one feature's values); that the
 rotation result ``represents transfer-attack failure (domain shift under
 coordinate change), not signal degradation'', when it was measured with
-both classes under the same cloak; that this setting ``is relevant only to
+both classes under the same cloak, which makes the 0.787 above a
+detection result, not a transfer test; that this setting ``is relevant only to
 an adversary who controls the cloak key'', when it is the setting of an
 adversary with no key who fits a detector on cloaked caches; and that
 obfuscation renders ``vector injection incoherent to external
@@ -804,11 +810,11 @@ only the first 150 characters of each reply.
 transfer attacks.} [\ldots] A detector calibrated on uncloaked caches
 cannot operate on cloaked caches. This is a domain-shift effect: rotation
 preserves the underlying geometric structure but changes the coordinate
-system, preventing transfer from uncloaked calibration data.'' True only
-of a fixed threshold; the ranking survives the rotation, and in a
-per-head layout nothing moves (Sections~\ref{sec:replication}
-and~\ref{sec:shift}). Appendix~\ref{app:v11} restates the heading at the
-scope measured and marks the sentence after it not supported.
+system, preventing transfer from uncloaked calibration data.''
+Refuted (Appendix~\ref{app:v11}): a detector fitted without the cloak
+still works under the rotation on a feature the rotation does not
+change, and in a per-head layout nothing moves
+(Sections~\ref{sec:replication} and~\ref{sec:shift}).
 
 \item \textbf{Abstract, finding 3, and the academic limitation on the
 magnitude attack.} ``0--2 adverse events per model in 10 trials,
