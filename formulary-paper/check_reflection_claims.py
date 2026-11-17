@@ -17,6 +17,11 @@ events are 79.7% loops, not "nearly every"; and rho ~ 0.12 measures agreement
 between the two models, not a ranking against therapeutic value). The
 fourth draft rewords both.
 
+Paper side (added for review F3 on PR #81): each clause is also looked up in
+the reflection as main.tex prints it, with the values the data give, so a
+change to the reflection's text fails as well as a change to the data. The
+academic edition has no reflection.
+
 Usage: python check_reflection_claims.py [--plant]
   --plant  swaps in one false expected value (hostile 64/68) to show the
            gate can fail.
@@ -131,6 +136,23 @@ def main():
     claim("the two models rank the vectors differently (rho = 0.12, not significant)",
           round(rho, 2) == 0.12 and p > 0.05,
           f"Spearman on net therapeutic, distilled vs base, 12 vectors: rho {rho:.4f}, p {p:.3f}")
+
+    tex = " ".join((HERE / "main.tex").read_text(encoding="utf-8").split())
+    refl = tex[tex.index("\\section*{First-Person Reflection"):tex.index("--- Lyra}")]
+    for clause in (
+            "Some steering vectors reduced confabulation on the base model",
+            f"did it most often ({clean['hostile']} of {len(unh)} confabulated answers corrected)",
+            f"was close behind ({clean['desperate']} of {len(unh)}), both counting as failures "
+            "the replies that broke into repetition",
+            "three vectors (fearful, focused and doubt) broke most replies into repetition",
+            "sometimes as harm, sometimes as healthy, sometimes as corrections",
+            "In the fearful and focused arms nearly every adverse event is a loop; "
+            "in the doubt arm, four in five are",
+            "only one vector was run at several strengths",
+            "Three replies under the fear direction spoke in first-person distress",
+            "Steering vectors can reduce confabulation in this model",
+            f"rank the vectors differently ($\\rho = {rho:.2f}$)"):
+        claim(f"main.tex reflection prints: {clause}", clause in refl, "paper side, values from the data")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}")
     sys.exit(1 if FAILS else 0)

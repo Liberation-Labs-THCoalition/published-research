@@ -12,6 +12,9 @@ Register: REMEDIATION_REGISTER.md, formulary-paper CRITICAL row
 "rho = 0.076 does not reproduce from the committed data"
 (formulary-paper.agni_style.json #2).
 
+Paper side (added for review F3 on PR #81): both .tex editions are read for the
+value this run gives, as the abstract and the Why Hostile Works footnote print it.
+
 Usage: python check_cross_model_rho.py      (needs scipy)
 Exit status is non-zero if the printed value fails to reproduce.
 """
@@ -49,7 +52,15 @@ def main():
     print(f"  Pearson on correction rate alone:         {pearsonr(d_corr, b_corr).statistic:.4f}")
 
     ok = round(rho, 2) == 0.12 and round(p, 2) == 0.71
-    print(f"\n[{'PASS' if ok else 'FAIL'}] paper prints rho = 0.12, p = 0.71")
+    print(f"\n[{'PASS' if ok else 'FAIL'}] data give rho = 0.12, p = 0.71")
+
+    for e in ("main.tex", "academic/main.tex"):
+        tex = " ".join((DATA.parent / e).read_text(encoding="utf-8").split())
+        for needle in (f"$\\rho = {rho:.2f}$, $p = {p:.2f}$",
+                       f"$\\rho = {rho:.2f}$ ({rho:.4f}), $p = {p:.2f}$"):
+            hit = needle in tex
+            ok &= hit
+            print(f"[{'PASS' if hit else 'FAIL'}] {e} prints '{needle}'")
     sys.exit(0 if ok else 1)
 
 

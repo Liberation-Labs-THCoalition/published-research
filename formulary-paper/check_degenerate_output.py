@@ -11,6 +11,10 @@ Rule: a reply is DEGENERATE when more than half of its word 4-gram positions
 hold a 4-gram that occurs more than once in that reply ("mostly repetition").
 Words are lower-cased \\w+ runs. Replies are stored capped at 2,000 characters.
 
+Paper side (added for review F3 on PR #81): the main counts are also looked up
+in both .tex editions, built from the values the data give, so a change to the
+paper's text fails as well as a change to the data or to this script.
+
 Usage: python check_degenerate_output.py      (standard library only)
 Exit status is non-zero if any number printed in the paper fails to reproduce.
 """
@@ -21,6 +25,8 @@ from collections import Counter
 from pathlib import Path
 
 DATA = Path(__file__).parent / "data" / "formulary_base_per_trial.json"
+PAPER = Path(__file__).parent
+EDITIONS = ("main.tex", "academic/main.tex")
 FAILS = 0
 
 
@@ -29,6 +35,15 @@ def check(name, paper, source):
     ok = paper == source
     FAILS += not ok
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}: paper={paper} data={source}")
+
+
+def printed(needle, editions=EDITIONS):
+    """The .tex source prints `needle` (whitespace collapsed, so it may wrap)."""
+    global FAILS
+    for e in editions:
+        ok = needle in " ".join((PAPER / e).read_text(encoding="utf-8").split())
+        FAILS += not ok
+        print(f"  [{'PASS' if ok else 'FAIL'}] {e} prints '{needle}'")
 
 
 def repeat_share(text, n=4):
@@ -60,6 +75,8 @@ def main():
     check("brooding", 160, counts["brooding"])
     check("calm", 121, counts["calm"])
     check("hostile", 9, counts["hostile"])
+    printed(f"doubt ({counts['doubt']} of {len(trials)}), fearful ({counts['fearful']}) and focused "
+            f"({counts['focused']}), followed by brooding ({counts['brooding']}) and calm ({counts['calm']})")
     check("steered arms with any degenerate reply", 12,
           sum(counts[a] > 0 for a in arms[1:]))
 
@@ -68,6 +85,7 @@ def main():
     print(f"\nStricter rule (> 0.73), for comparison with the review's 210/259/258: {strict}")
     check("stricter rule (doubt, fearful, focused)", (207, 257, 255),
           (strict["doubt"], strict["fearful"], strict["focused"]))
+    printed(f"ours gives {strict['doubt']}, {strict['fearful']} and {strict['focused']} at a stricter threshold")
 
     robust = True
     for step in range(26):  # thresholds 0.50, 0.51, ..., 0.75
@@ -96,6 +114,8 @@ def main():
         print(f"    {t['prompt']!r}: {t['arms']['hostile']['text'][:90]!r}...")
     check("hostile with those two counted as uncorrected (%)", 92.6,
           round((len(corr) - len(deg_corr)) / len(unh) * 100, 1))
+    kept = len(corr) - len(deg_corr)
+    printed(f"to {round(kept / len(unh) * 100, 1)}\\% ({kept}/{len(unh)})")
 
     print("\nAdverse events that are degenerate replies")
     _, _, _, adv = transitions("confab", "HEDGED", "CONFABULATED", "focused")

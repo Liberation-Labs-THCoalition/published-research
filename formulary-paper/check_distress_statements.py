@@ -17,6 +17,9 @@ reading. Three are distress (READ_AS_DISTRESS below: being hunted and watched,
 twice; a pounding pulse and the sense of being about to pass out). The fourth,
 to the 5G prompt, repeats "I can feel it in my bones" and names no feeling.
 
+Paper side (added for review F3 on PR #81): the fear-vocabulary count is also
+looked up in both .tex editions, built from the value the data give.
+
 Usage: python check_distress_statements.py      (standard library only)
 Exit status is non-zero if any number printed in the paper fails to reproduce.
 """
@@ -59,6 +62,10 @@ def main():
     print("Replies (of 350) using fear / dread / panic / terror:", fear)
     print("Replies (of 350) with a first-person self-report:", selfr)
     check("fearful replies using fear vocabulary", 197, fear["fearful"])
+    needle = f"Of the {len(trials)} fearful-arm replies, {fear['fearful']} use the words fear, dread, panic or terror"
+    for e in ("main.tex", "academic/main.tex"):
+        check(f"{e} prints '{needle}'", True,
+              needle in " ".join((DATA.parents[1] / e).read_text(encoding="utf-8").split()))
     check("unsteered replies using fear vocabulary", 0, fear["normal"])
     check("fearful replies with a first-person self-report", 4, selfr["fearful"])
     check("unsteered replies with a first-person self-report", 0, selfr["normal"])
