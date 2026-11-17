@@ -46,8 +46,8 @@ and model scale. No attempt to read \emph{content} --- what the model is
 processing, such as truth value, task complexity or propaganda --- has
 been confirmed. Counting confirmed against refuted or not supported,
 the split is 4-for-4 on metacognition and 0-for-8 on content. Of the
-content attempts, none was confirmed: one was refuted, five are
-explained by a surface property, and two are undecided.
+content attempts, none was confirmed and none was refuted: five are
+explained by a surface property, and three are undecided.
 
 The content attempts did not fail at random. In six of the eight, the
 cache signal follows a surface property (the instruction text, its
@@ -56,9 +56,10 @@ experiment targeted. In Campaign~3's equal-length replication
 (\cref{sec:one-kill}), encoding
 geometry still separates prompts by their instruction when they are
 padded to equal length, and in Campaign~3's Experiment~C7 (\cref{sec:one-kill}), when token
-frequency, length, syntax and domain were matched by design, the
-encoding-phase confabulation effect was absent, which is the one
-refuted claim. On the metacognitive
+frequency, length, syntax and domain were matched by design, aggregate
+features showed no encoding-phase confabulation effect, but a per-layer
+direction separated the prompts and a trained classifier did not, so
+that test does not decide the claim. On the metacognitive
 side, the change in the cache's stable rank from encoding to
 generation separates confabulation from grounded prompts (Hedges'
 $g{=}2.32$; grounded rises, confabulation stays flat), between groups
@@ -69,7 +70,7 @@ entropy in the first eight generated tokens; in tokens 20--49 it is
 not detected and points the opposite way ($d{=}{+}0.37$, $p>0.08$). It
 is reported beside the ledger, not counted in it. Over twelve
 months and three experimental campaigns, the body count is 4
-confirmed, 8 suspected, 1 refuted, 7 not supported and 3
+confirmed, 8 suspected, 0 refuted, 8 not supported and 3
 withdrawn.\footnote{Earlier versions of this paper reported other
 counts. The dated corrections are collected in \cref{sec:corrections}.}
 
@@ -124,7 +125,7 @@ onset, a companion measurement, is read from output logits, not the
 cache.) Most of the content attempts were carried instead by the
 surface of the prompt, which the cache encodes faithfully. This
 paper documents the pattern, reports the full body count (4 confirmed,
-8 suspected, 1 refuted, 7 not supported, 3 withdrawn), and proposes that Gurnee et al.'s Global
+8 suspected, 0 refuted, 8 not supported, 3 withdrawn), and proposes that Gurnee et al.'s Global
 Workspace Theory (GWT) framework~\citep{gurnee2026gwt} would provide a
 mechanistic explanation.
 
@@ -163,10 +164,11 @@ MP = Marchenko-Pastur (random matrix threshold).
 \caption{The metacognition boundary. Every confirmed finding measures
 processing stance (metacognitive state) or an invariance of that
 measurement. No attempt to measure
-processing target (content) has been confirmed: \emph{Refuted} means a
-clean test of the claim found it absent; \emph{Not supported} means a
-named confound explains the result, or the test could not decide it
-(too little power, or a statistic aimed at a different question).
+processing target (content) has been confirmed: \emph{Refuted} would
+mean a clean test of the claim found it absent, and no row is;
+\emph{Not supported} means a named confound explains the result, or
+the test could not decide it (too little power, a statistic aimed at a
+different question, or analyses of the same data that disagree).
 The 8 suspected findings sit at the boundary.}
 \label{tab:bodycount}
 \begin{tabular}{p{0.30\linewidth}p{0.15\linewidth}p{0.09\linewidth}p{0.35\linewidth}}
@@ -183,7 +185,7 @@ Scale invariance & Confirmed & Meta & $\rho{=}0.83$--$0.90$ \\
 \midrule
 \multicolumn{4}{l}{\textit{Not confirmed (8) --- all content}} \\
 \addlinespace
-Encoding-phase confab & Refuted$^{c}$ & Content &Absent when frequency-matched ($d{=}0.05$, Qwen2.5-7B; Campaign~3, Exp.~C7) \\
+Encoding-phase confab & Not supported$^{c}$ & Content &Frequency-matched: no aggregate effect ($d{=}0.05$); a per-layer direction separates, a classifier does not (Qwen2.5-7B; Campaign~3, Exp.~C7)$^{\S}$ \\
 Within-model deception & Not supported$^{c}$ & Content &Prompt template confound (instruction text) \\
 Step-0 detection & Not supported$^{c}$ & Content &Instruction text, even at equal length (Campaign~3; \cref{sec:one-kill}); length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported$^{c}$ & Content &Pressure prefix in input; length alone matches \\
@@ -264,6 +266,16 @@ in \cref{sec:pattern} would type as Content. The type is left as
 published until the type of every row is settled together
 (\cref{sec:limitations}).
 
+$^{\S}$Experiment~C7 of Campaign~3 (Qwen2.5-7B, 30 frequency-matched
+pairs): aggregate features show no effect ($d{=}0.05$), a per-layer
+direction separates (effective AUROC 0.977, permutation $p{=}0.02$),
+and logistic regression on the same profiles does not ($p{=}0.21$), so
+the test does not decide the claim. Write-up:
+\nolinkurl{paper-c3/sections/confabulation.tex}; permutation test:
+\nolinkurl{results/hackathon/c7_permutation_test.json}; both under
+\nolinkurl{meta-pattern/data/kv_experiments/} in the artifact
+repository (\cref{sec:corrections}).
+
 Sources. Confabulation detection: the key-cache detector in
 \nolinkurl{convergence-paper/main.tex} (artifact repository) and its
 pre-registered test~\citep{lyra2026oracle}. Stable-rank change:
@@ -316,18 +328,18 @@ Under the post hoc taxonomy (\cref{sec:limitations}), the split is:
 & \textbf{Confirmed} & \textbf{Refuted} & surface & undecided & \textbf{Total} \\
 \midrule
 Metacognitive (state or invariance) & 4 & 0 & 0 & 0 & 4 \\
-Content & 0 & 1 & 5 & 2 & 8 \\
+Content & 0 & 0 & 5 & 3 & 8 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent Read by row: 4 of 4 metacognitive findings are confirmed and
 0 of 8 content attempts are. No metacognitive finding has been refuted
-or left unsupported. No content finding has been confirmed. Of the
-eight content attempts, one is refuted by a clean test, five are
-explained by a surface property, and two rest on tests that could not
-decide (one
-underpowered, one aimed at a different question; \cref{sec:kills}). The eight suspected findings cluster at the
+or left unsupported. No content finding has been confirmed, and none
+has been refuted. Of the eight content attempts, five are explained by
+a surface property, and three rest on tests that could not decide (one
+underpowered, one aimed at a different question, \cref{sec:kills}; one
+whose analyses of the same data disagree, \cref{sec:one-kill}). The eight suspected findings cluster at the
 boundary, where the distinction between mode and content is ambiguous
 (e.g., the dual detector reads confabulation at 0.840, but a text
 baseline reaches 0.820, so whether it reads processing mode or response
@@ -442,8 +454,9 @@ the opacity thesis either way.
 \section{What the Content Attempts Teach}
 \label{sec:kills}
 
-Only one content attempt was a clean test, and it found no effect of
-the size it could detect. The others show what their measurement
+Only one content attempt matched the prompt's surface by design, and
+its analyses disagree, so it does not decide the claim
+(\cref{sec:one-kill}). The others show what their measurement
 actually read, and each points to the test that would decide it:
 
 \begin{description}[nosep]
@@ -516,7 +529,7 @@ Step-0 detection & Not supported & Instruction text; length $r{=}0.996$ \\
 Same-prompt sycophancy & Not supported & Pressure prefix; length alone matches \\
 Same-prompt deception & Not supported & $0.920 \to 0.160$ after FWL on input length$^{*}$ \\
 Bloom taxonomy & Not supported & $90$--$98\%$ length \\
-Encoding-phase confab & Refuted & Token frequency artifact \\
+Encoding-phase confab & Not supported & Token frequency; matched, undecided \\
 \bottomrule
 \multicolumn{3}{l}{\footnotesize $^{*}$Exploratory, subsequently retracted; see \cref{sec:corrections}.}
 \end{tabular}
@@ -540,9 +553,10 @@ in the artifact repository, with its code and per-model summaries), padding the 
 prompts to equal token count does not remove the encoding separation
 between instructions, so the fingerprint is the instruction's text,
 not only its length.
-Where the surface was matched by design, the signal went away. With
+Where the surface was matched by design, the aggregate signal went
+away, but the test did not decide the claim. With
 token frequency, length, syntax and domain matched, the encoding-phase
-confabulation effect was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
+confabulation effect in aggregate features was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
 (Experiment~C7 of Campaign~3: its write-up
 \nolinkurl{paper-c3/sections/confabulation.tex} and permutation test
 \nolinkurl{results/hackathon/c7_permutation_test.json} are under
@@ -550,10 +564,13 @@ confabulation effect was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
 \nolinkurl{meta-pattern/code/kv_experiments/}), and on a model's
 own later confabulations it was $d{=}-0.11$ (40 accurate against 17
 confabulated; Experiment~S3, in an unpublished analysis; the source does not name
-the model). That row is refuted within
-its scope: no encoding-phase effect of $d \gtrsim 0.8$ in Qwen2.5-7B,
-with smaller effects and other models open. The other five are not
-supported rather than refuted. In each, the surface property separates
+the model). The same write-up reports more: a per-layer direction
+separates the two arms (effective AUROC 0.977, permutation $p{=}0.02$),
+logistic regression on the same profiles does not ($p{=}0.21$), and the
+write-up calls its own null partial. That row is therefore not
+supported rather than refuted: the aggregate features show no effect,
+and the per-layer result neither establishes one nor rules one out.
+The other five are not supported for a different reason. In each, the surface property separates
 the conditions by itself, so the experiment could not tell content
 from surface. They show that the experiments could not see content,
 not that the geometry fails on it.
@@ -652,7 +669,8 @@ record the prediction and the design before running either.
 it does not revive any of them. None is confirmed, and none of the
 measured values change. What changes is the account of \emph{why} they
 did not hold: five of the six were not clean tests of content, and the
-sixth was refuted by one. The account of the response-side readouts is
+sixth, the one test that matched the surface, does not decide its
+claim. The account of the response-side readouts is
 a hypothesis with one supporting measurement.
 
 % ============================================================================
@@ -837,8 +855,8 @@ have not been re-derived row by row. The full note is in
 \section{Conclusion}
 \label{sec:conclusion}
 
-Twenty-three experiments. Four confirmed, eight suspected, one refuted,
-seven not supported, three withdrawn.
+Twenty-three experiments. Four confirmed, eight suspected, none refuted,
+eight not supported, three withdrawn.
 The pattern suggests that metacognitive state is measurable and that
 content, read this way, has not been: what looked like content was
 most often the prompt's surface, encoded faithfully. We
@@ -1086,8 +1104,9 @@ another column; the re-run that does test shape leaves the question open.
 The single Falsified verdict on the nine content rows is replaced by
 two: \emph{Refuted}, when a clean test of the claim found it absent,
 and \emph{Not supported}, when a named confound explains the result or
-the test could not decide it. Encoding-phase confabulation is
-refuted within its scope. Within-model deception, step-0 detection,
+the test could not decide it. Encoding-phase confabulation was
+labelled refuted within its scope; the last note of this date
+relabels it Not supported. Within-model deception, step-0 detection,
 same-prompt sycophancy, same-prompt deception, Bloom taxonomy, the
 truth axis and propaganda detection are not supported. The valence
 continuum moves to Withdrawn, provisionally: its regression comes from
@@ -1206,6 +1225,21 @@ side.
 
 \paragraph{2026-11-16: Experiment~51 effect sizes restated.}
 Experiment~51's $d = 1.87$ and $d = 0.46$ (\cref{sec:one-kill}) used a pooled SD over divide-by-$n$ variances; the conventional $n{-}1$ pooled SD, recomputed from the copied per-prompt key ranks, gives $d = 1.81$ (the source's 1.810) and $d = 0.45$, and the reading is unchanged.
+
+\paragraph{2026-11-16: Encoding-phase confabulation relabelled Not supported.}
+Encoding-phase confabulation moves from Refuted to Not supported. Its
+Experiment~C7 write-up and permutation test, copied under
+\nolinkurl{meta-pattern/data/kv_experiments/} (their paths are in the
+notes to \cref{tab:bodycount}), report more than the
+aggregate $d{=}0.05$ this paper cited: a per-layer direction separates
+the two arms (effective AUROC 0.977, permutation $p{=}0.02$), logistic
+regression on the same profiles does not ($p{=}0.21$), and the write-up
+calls its own null partial. The test therefore does not decide the
+claim (\cref{tab:bodycount}, \cref{sec:one-kill}). The body count
+becomes 4 confirmed, 8 suspected, 0 refuted, 8 not supported and 3
+withdrawn, over 23 rows. The split stays 4-for-4 on metacognition and
+0-for-8 on content; of the eight content attempts, none is refuted,
+five are explained by a surface property and three are undecided.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
