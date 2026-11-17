@@ -331,15 +331,18 @@ maintained at Liberation Labs / Transparent Humboldt Coalition.
 %% ============================================================
 
 \begin{sloppypar}
-Result files and Agni audit reports for four of the five nulls are released with this paper, copied
-on 2026-11-16 from the Project-Oracle repository
-(\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}) at commit \texttt{5480499}:
-data in \path{data/project_oracle/} and one analysis script in \path{code/project_oracle/}, listed by
-section in Appendix~\ref{app:data}. Host names and home paths were replaced; each directory's README
-gives every file's source, size and SHA-256, and every substitution. The other experiment scripts,
-result files and audit reports, including the stored direction vectors, are held in the
-Project-Oracle repository, which is private pending staged release. The updated Lab SOP items
-motivated by these nulls are listed in Appendix~\ref{app:sop}.
+Aggregate records related to two of the five nulls are released with this paper, copied on
+2026-11-16 from the Project-Oracle repository
+(\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}) at commit \texttt{5480499}
+into \path{data/project_oracle/} and listed by section in Appendix~\ref{app:data}; its README gives
+every file's source, size and SHA-256. Project-Oracle's terms release only aggregate results and
+statistical analyses, so the files behind the numbers in Sections~\ref{sec:behaviordetect}
+and~\ref{sec:crossmodel} (per-trial results, held-out detection results and calibration
+statistics), the script behind the closure counts in Section~\ref{sec:cot} and the Agni audit of the
+v3 SAE layer sweep (Section~\ref{sec:iatrogenic}) are available on request (see Corrections and
+Version History, 2026-11-16). The stored direction vectors and the other experiment scripts, result
+files and audit reports are held in the Project-Oracle repository, which is private pending staged
+release. The updated Lab SOP items motivated by these nulls are listed in Appendix~\ref{app:sop}.
 \end{sloppypar}
 
 %% ============================================================
@@ -365,6 +368,13 @@ made on those dates.
   \item \textbf{2026-10-12} (abstract): the abstract gained a pointer to a later slope-interaction
     test in the companion decomposition paper~\cite{cc2026composites}; that sentence now sits in
     Section~\ref{sec:artifacts}.
+  \item \textbf{2026-11-16} (Data Availability, Appendix~\ref{app:data}): these said that no
+    supplementary directory accompanies this paper and that its scripts, result files and audit
+    reports are held in the private Project-Oracle repository. Aggregate records related to
+    Sections~\ref{sec:crossmodel} and~\ref{sec:cot} are now released in \path{data/project_oracle/},
+    and the files behind the numbers in Sections~\ref{sec:behaviordetect} and~\ref{sec:crossmodel},
+    the Section~\ref{sec:cot} closure-count script and the Section~\ref{sec:iatrogenic} v3 audit are
+    available on request.
 \end{itemize}
 
 %% ============================================================
@@ -408,24 +418,24 @@ Goldowsky-Dill, N., et al.\ (2025).
 \section{Where the Data for Each Null Result Are Held}\label{app:data}
 %% ============================================================
 
-The files released with this paper are in \path{data/project_oracle/} and
-\path{code/project_oracle/} (see Data Availability). By section:
+The files released with this paper are aggregate records, in \path{data/project_oracle/} (see Data
+Availability). By section:
 \begin{itemize}
-  \item Section~\ref{sec:behaviordetect}: \path{behavior-detection/} holds the run's per-trial results
-    (\path{behavioral_proof.json}), the held-out detection results (\path{heldout_detection.json}), the
-    run's README, and the calibration statistics with the direction vectors removed.
-  \item Section~\ref{sec:crossmodel}: the cosines and the distilled direction's Cohen's $d$ are in those
-    calibration statistics (\texttt{distilled\_comparison}), and the held-out $d$ values are in
-    \path{heldout_detection.json}. \path{cross-model/} adds related records: the withdrawal of the
-    base-versus-distilled claims of runs 18d and 18e, and the Agni audit of the LAT cross-scenario
-    transfer test.
+  \item Section~\ref{sec:crossmodel}: \path{cross-model/} holds related records, not the source of
+    this section's numbers: the withdrawal of the base-versus-distilled claims of runs 18d and 18e,
+    with the per-layer difference test it reports
+    (\path{cross-model/cross_model_leg_difference.json}), and the Agni audit of the LAT
+    cross-scenario transfer test.
   \item Section~\ref{sec:cot}: \path{think-block/think_closure.json}, the \texttt{</think>} closure
-    counts for runs 18c, 18e and 18g, and the script that computed them
-    (\path{code/project_oracle/think_close.py}).
-  \item Section~\ref{sec:iatrogenic}: \path{cot-perturbation/agni_v3_audit.md}, the Agni audit of the
-    v3 SAE layer sweep that proposed the L11 mechanism.
+    counts for runs 18c, 18e and 18g.
 \end{itemize}
-The rest (the stored direction vectors, the other scripts, the files for Section~\ref{sec:artifacts}, and
+Available on request, under Project-Oracle's terms: for Section~\ref{sec:behaviordetect}, the run's
+per-trial results, the held-out detection results, the run's README and the calibration statistics;
+for Section~\ref{sec:crossmodel}, the same calibration statistics (the cosines and the distilled
+direction's Cohen's $d$) and held-out detection results (the held-out $d$ values); for
+Section~\ref{sec:cot}, the script that computed the closure counts; and for
+Section~\ref{sec:iatrogenic}, the Agni audit of the v3 SAE layer sweep that proposed the L11
+mechanism. The rest (the stored direction vectors, the other scripts, the files for Section~\ref{sec:artifacts}, and
 the records behind the L55 and Phase~6 figures in Sections~\ref{sec:cot} and~\ref{sec:iatrogenic})
 is held in the private Project-Oracle repository pending staged release (see Data Availability).
 
