@@ -90,9 +90,8 @@ fingerprints.
 This paper asks whether KV-Cloak, a lightweight, reversible
 cache obfuscation scheme designed for privacy
 protection~\citep{luo2025shadow}, also mitigates these adversarial
-capabilities. In the forms
-we tested, it does not remove the signal. Under per-head rotation, the
-simulation used here, the feature that detects best without obfuscation
+capabilities. Under per-head rotation, the simulation used here, it does
+not remove the signal: the feature that detects best without obfuscation
 still detects on the two models whose feature is recorded, clearly on one
 and marginally on the other (Section~\ref{sec:shift}), and an adversary
 can compute per-head spectra, which the rotation cannot change
@@ -494,8 +493,9 @@ Appendix~\ref{sec:corrections}). A rotation-based cloak leaves per-head spectra 
 own layout it shifts and reorders the features but leaves a detectable
 signal on both models whose feature is recorded, clearly on Qwen2.5-7B;
 it stops only a detector whose threshold is never refitted. Our
-implementation of the full transform removed the best feature, but with
-seven confabulations we cannot tell whether it removed the signal.
+implementation of the full transform lowered the best feature to 0.614
+($p = 0.33$), but with seven confabulations we cannot tell whether it
+removed the signal.
 Nothing shown here mitigates the dual-use risk of publishing
 cache-geometry methods. A defense would have to be shown on its own
 terms: against adaptive adversaries who choose their features after
@@ -595,8 +595,8 @@ not remove the signal: on the two models whose feature is recorded, the
 feature that detected best without it still detects with it, clearly on
 Qwen2.5-7B and marginally on the distilled model, and an adversary who
 computes spectra per head sees no change at all. Our implementation of
-the full transform removed the best detection feature on the distilled
-model, and after removing reply length no other feature detects
+the full transform lowered the best detection feature on the distilled
+model to 0.614 ($p = 0.33$), and after removing reply length no other feature detects
 significantly; with seven confabulations we cannot say whether a
 detectable signal remains. Nothing here shows that attackers lose the
 signal, so the claim that KV-Cloak and the Oracle Loop are complementary,
@@ -667,7 +667,7 @@ detection from near-ceiling to near-chance ($p = 5.5 \times 10^{-16}$),
 while a real KV-Cloak implementation confirms the defense is conservative
 (detection AUROC drops from 0.903 to 0.614).'' Each part of that claim is
 named here after the test that bears on it. Its title asserted a working
-defense, so this version has a new one.
+defense.
 
 \textbf{Refuted:} that per-head rotation degrades detection to near
 chance. Under the rotation, the feature that detects best without it still
