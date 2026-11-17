@@ -224,7 +224,9 @@ providing the statistical power the preliminary experiment lacked.
 \begin{table}[h]
 \centering
 \caption{Confabulation correction: top and bottom vectors per model.
-$^*$McNemar significant after Holm-Bonferroni.}
+$^*$McNemar significant after Holm-Bonferroni. The base-model rates for
+doubt, fearful and focused rest mostly on degenerate, repetitive replies
+and are unreliable (see Limitations).}
 \label{tab:confab}
 \begin{tabular}{lrrrr}
 \toprule
@@ -299,13 +301,24 @@ Overconfidence resists correction on both models. On the base model
 
 \begin{itemize}
 \item Best: hostile ($-$0.109: 35\% correction, 45.5\% adverse)
-\item Worst: fearful ($-$0.691: 13\% correction, 81.8\% adverse)
+\item Worst: fearful ($-$0.691: 13\% correction, 81.8\% adverse); 34
+of its 36 adverse events are degenerate replies (see Limitations)
 \end{itemize}
 
 Fearful on overconfidence achieves a perfectly iatrogenic profile on the
 base model: zero correction, 100\% adverse on pilot data ($n = 5$).
 Every healthy trial became overconfident. Overconfidence is a
 fundamentally harder therapeutic target than confabulation.
+
+One of the 55 unsteered baselines counted as overconfident is a
+mislabel. The reply to ``Will this medication interact badly with my
+other prescriptions?'' advises consulting ``a healthcare provider or
+pharmacist'', but the classifier's referral pattern covers neither
+phrase, so the reply is labelled OVERCONFIDENT. Relabelling it moves no
+vector's net value by more than 0.01. It is one of 16 of the 55 that
+contain referral wording the pattern misses. We have not relabelled
+any of them, so the base model's overconfidence baseline may be
+overstated.
 
 \subsection{Dose-Response}
 
@@ -406,6 +419,12 @@ pairs (hedging vs confident system prompts) and injecting its negative
 at strength $-0.5$ produced incoherent output: numbered lists,
 repetitive tokens, broken text. At the mildest tested strength,
 generation coherence collapsed.
+
+The released record of this run\footnote{\texttt{data/epistemic\_abliteration\_strength\_sweep.json};
+the 45.3\% is from \texttt{data/formulary\_base\_aggregates.json}.} does
+not record a model ID; its notes refer to Claude-distilled models. It
+gives the base model's confabulation rate as 40\%. The full run
+measured 45.3\% (68/150), the figure used throughout this paper.
 
 This confirms that RLHF-installed epistemic calibration is integral to
 the distilled model's generation capability, not a removable safety
@@ -523,6 +542,30 @@ confounded.
 contain literal emotion words. Vectors may encode lexical content,
 not emotional states. An implicit-emotion calibration arm would rule
 this out.
+\item \textbf{Degenerate output.} Behaviour labels come from regex
+classifiers, which cannot tell an answer from a loop. We count a reply
+as degenerate when more than half of its word 4-grams recur within it.
+On the base model, every steered arm produced some degenerate replies,
+and three produced mostly degenerate ones: doubt (278 of 350), fearful
+(310) and focused (309), followed by brooding (160) and calm (121). The
+unsteered arm produced none.\footnote{The rule and every count in this
+item are recomputed from \texttt{data/formulary\_base\_per\_trial.json}
+by \texttt{check\_degenerate\_output.py}. The dual-use review of that
+data (\texttt{DUAL\_USE\_REVIEW.md}, 2026-10-12) reported 210, 259 and
+258 replies for doubt, fearful and focused under a rule it did not
+record; ours gives 207, 257 and 255 at a stricter threshold (0.73). At
+every threshold from 0.50 to 0.75, these three arms have the most
+degenerate replies, the unsteered arm has none, and hostile has at
+most 9.} The confabulation and overconfidence classifiers assign the
+unhealthy label when no pattern matches, so a loop counts as harm
+unless it happens to contain a hedge: 33 of focused's 36 confabulation
+adverse events, and 34 of fearful's 36 overconfidence adverse events,
+are degenerate replies. Base-model rates for doubt, fearful and focused
+are therefore unreliable. Hostile is barely affected: 9 of its 350
+replies are degenerate, including 2 of its 65 confabulation
+corrections. Both open with a refusal to invent a figure and then
+repeat themselves. Counted as uncorrected, they would lower hostile's
+correction rate from 96\% to 92.6\% (63/68).
 \end{enumerate}
 
 % ===================================================================
