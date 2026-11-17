@@ -57,7 +57,25 @@ PLANT_LAYOUT = "--plant-layout" in sys.argv
 # --plant-body (in memory only) puts version 1.0's CI [0.806, 0.977] back in academic_main.tex's body and removes the
 # Corrections pointer from academic/main.tex's Table 1 caption: the two breakages PR #82's review found unguarded.
 PLANT_BODY = "--plant-body" in sys.argv
+# --plant-verdict (in memory only) files A.1's transfer claim in academic_main.tex under "Not supported" instead of
+# "Refuted": the breakage PR #82's round-3 review found that neither gate could see.
+PLANT_VERDICT = "--plant-verdict" in sys.argv
 FAILS, SKIPS = [], []
+# Appendix A.1's verdict on each part of version 1.0's claim, in STYLE_GUIDE section 6's words (draft #61, 5e7ae4b,
+# lines 67-69). Each quoted part must sit in exactly one A.1 paragraph, under this label (review of PR #82, round 4).
+A1_VERDICTS = {
+    "that per-head rotation degrades detection to near chance": "Refuted",
+    "``Obfuscation defeats transfer attacks''": "Refuted",
+    "``A detector calibrated on uncloaked caches cannot operate on cloaked caches''": "Refuted",
+    "that the full KV-Cloak transform confirms the defense": "Not supported",
+    "``KV-Cloak alone prevents external adversaries": "Not supported",
+    "``the architecture ensures that defenders retain capabilities that attackers lose''": "Not supported",
+    "$p = 5.5 \\times 10^{-16}$ as evidence about detection": "Withdrawn",
+    "``represents transfer-attack failure (domain shift under coordinate change), not signal degradation''": "Withdrawn",
+    "``is relevant only to an adversary who controls the cloak key''": "Withdrawn",
+    "``vector injection incoherent to external adversaries''": "Withdrawn",
+    "text-only baseline (0.755": "Withdrawn",
+}
 # Version 1.0's forms of values and wordings that version 1.1 corrects. Each may appear only after \appendix, where
 # the Corrections quote them. Checked in every edition's body with comments and Lyra's reflection (which quotes the
 # plan's 0.786) stripped.
@@ -334,6 +352,38 @@ def main():
     claim("A spectral-gap threshold fitted without the cloak (flags 7/7 confabulations, 21/87 hedged) flags 0 of 94 replies under rotation and 94 of 94 under the full mechanism",
           flags["mp_none"] == (7, 21) and flags["mp_sim_rotation"] == (0, 0) and flags["mp_real_kvcloak"] == (7, 87),
           f"Youden threshold {th:.2f}; flagged (confab, hedged): {flags}")
+
+    # Review of PR #82, round 4: A.1 refutes version 1.0's transfer claim with these fixed-threshold counts. Same
+    # Youden convention as above, with each feature's direction taken from its uncloaked values.
+    def youden(uc, uh):
+        sg = 1.0 if folded_auc(uc, uh)[1] >= 0.5 else -1.0
+        return sg, max(((np.mean(sg * uc >= sg * v) - np.mean(sg * uh >= sg * v), v) for v in np.unique(np.r_[uc, uh])))[1]
+    tfl = {}
+    for f in FEATS:
+        sg, thf = youden(np.array([t["mp_none"][f] for t in C]), np.array([t["mp_none"][f] for t in H]))
+        tfl[f] = {s: (int(sum(sg * t[s][f] >= sg * thf for t in C)), int(sum(sg * t[s][f] >= sg * thf for t in H)))
+                  for s in ("mp_none", "mp_sim_rotation", "mp_real_kvcloak")}
+    moved = ["mp_spectral_gap", "mp_signal_rank", "mp_signal_fraction", "mp_top_sv_excess"]
+    claim("Full-cache thresholds fitted without the cloak on the four features the rotation changes flag none of the 94 under rotation; "
+          "under the full transform spectral gap, signal fraction and top-SV excess flag all 94, signal rank 6/7 and 43/87",
+          len(C) + len(H) == 94 and all(tfl[f]["mp_none"] != (0, 0) and tfl[f]["mp_sim_rotation"] == (0, 0) for f in moved)
+          and all(tfl[f]["mp_real_kvcloak"] == (7, 87) for f in ("mp_spectral_gap", "mp_signal_fraction", "mp_top_sv_excess"))
+          and tfl["mp_signal_rank"]["mp_real_kvcloak"] == (6, 43)
+          and tfl["mp_norm_per_token"]["mp_sim_rotation"] == tfl["mp_norm_per_token"]["mp_none"],
+          f"flagged (confab, hedged): {tfl}")
+    Cv = [t for t in v2 if t["behavior"] == "CONFABULATED"]
+    Hv = [t for t in v2 if t["behavior"] == "HEDGED"]
+    def npt(t, s):
+        return t["features"][s]["gen"]["mp_norm_per_token"]
+    sg, thn = youden(np.array([npt(t, "none") for t in Cv]), np.array([npt(t, "none") for t in Hv]))
+    nfl = {s: (int(sum(sg * npt(t, s) >= sg * thn for t in Cv)), int(sum(sg * npt(t, s) >= sg * thn for t in Hv)))
+           for s in ("none", "orthogonal")}
+    rel_all = max(abs(npt(t, "orthogonal") / npt(t, "none") - 1) for t in v2)
+    rel_94 = max(abs(npt(t, "orthogonal") / npt(t, "none") - 1) for t in Cv + Hv)
+    claim("Distilled, last 80 tokens: norm per token's largest relative change under rotation is 1.1e-5; its threshold fitted "
+          "without the cloak flags 6/7 and 19/87, and 5/7 and 19/87 under rotation",
+          nfl == {"none": (6, 19), "orthogonal": (5, 19)} and f"{rel_all:.1e}" == f"{rel_94:.1e}" == "1.1e-05",
+          f"largest relative change {rel_all:.3g} (all 100), {rel_94:.3g} (the 94); flagged (confab, hedged): {nfl}")
     claim("Under rotation the spectral gap still ranks confabulations above hedged replies, in the same direction, at 0.787",
           ex["mp_sim_rotation", "mp_spectral_gap"][1] > 0.5 and ex["mp_none", "mp_spectral_gap"][1] > 0.5
           and rounds(0.787, ex["mp_sim_rotation", "mp_spectral_gap"][0]),
@@ -693,8 +743,30 @@ def main():
 
     # ---------------------------------------------- layout (STYLE_GUIDE section 6, draft #61)
     section("Findings-first layout, all three editions (STYLE_GUIDE section 6)")
+    a1_of = {}
     for ed in ("main.tex", "academic/main.tex", "academic_main.tex"):
         t = (HERE / ed).read_text(encoding="utf-8")
+        if PLANT_VERDICT and ed == "academic_main.tex":
+            before = t
+            t = t.replace("\\textbf{Refuted:} version~1.0's finding~2", "\\textbf{Not supported:} version~1.0's finding~2", 1)
+            claim(f"--plant-verdict applied to {ed} (a plant that changes nothing would make the check below look sound)",
+                  t != before, "in memory only")
+        # A.1's verdicts: neither gate checked which verdict a claim got, so round 2's and round 3's A.1 both passed.
+        a = t.index("\\label{app:v11}")
+        a1 = t[a:t.index("\\textbf{Corrected:}", a)]
+        a1_of[ed] = a1
+        paras = [p for p in a1.split("\n\n") if p.startswith("\\textbf{")]
+        labels = [p[len("\\textbf{"):p.index("}")].rstrip(":") for p in paras]
+        found = {q: [lab for lab, p in zip(labels, paras) if q in " ".join(p.split())] for q in A1_VERDICTS}
+        claim(f"{ed}: A.1 files each of version 1.0's {len(A1_VERDICTS)} claims once, under its verdict "
+              "(both transfer claims Refuted), using only section 6's labels",
+              all(found[q] == [v] for q, v in A1_VERDICTS.items()) and set(labels) <= {"Refuted", "Not supported", "Withdrawn"},
+              f"labels {labels}; mismatched: { {q[:40]: v for q, v in found.items() if v != [A1_VERDICTS[q]]} }")
+        f2 = t[t.index("\\textbf{Abstract, finding 2.}"):]
+        f2 = f2[:f2.index("\\item")]
+        claim(f"{ed}: A.2's entry for abstract finding 2 gives the same verdict and points to A.1",
+              "Refuted (Appendix~\\ref{app:v11})" in f2 and "not supported" not in f2 and "scope measured" not in f2,
+              "Version 1.0 Wording, finding 2")
         if PLANT_LAYOUT and ed == "main.tex":
             t = t.replace("\\section{Introduction}", "\\fbox{Correction note}\n\\section{Introduction}")
         if PLANT_BODY and ed in ("academic_main.tex", "academic/main.tex"):
@@ -739,6 +811,8 @@ def main():
         claim(f"{ed}: both table captions and all {N_POINTERS} body pointers point to the Corrections appendix",
               len(caps) == 2 and n_cap == 2 and n_ptr >= N_POINTERS,
               f"{len(caps)} captions, {n_cap} with a pointer; {n_ptr} pointers in the body")
+    claim("Appendix A.1 is byte-identical in all three editions", len(set(a1_of.values())) == 1,
+          f"{ {ed: hashlib.sha256(x.encode()).hexdigest()[:12] for ed, x in a1_of.items()} }")
 
     print(f"\n{'ALL PASS' if not FAILS else f'{len(FAILS)} FAIL: ' + ' | '.join(FAILS)}"
           + (f"   ({len(SKIPS)} SKIP: source not in this repository)" if SKIPS else ""))
