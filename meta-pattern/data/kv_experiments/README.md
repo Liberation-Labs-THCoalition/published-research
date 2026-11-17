@@ -33,7 +33,7 @@ inventory, with the second reader's corrections (none of them touch these rows).
 
 ## Scrubbed (hygiene)
 
-- `results/moe_geometry/EXPERIMENT_51_RESULTS.md` line 367: `already cached on Beast)` -> `already cached on an internal server)`. Source sha256 `912b405ebe8ec6f672efa287cdba5e436c280c9d4991ff67aad0eb1f03ff2a72` (20,870 B).
+- `results/moe_geometry/EXPERIMENT_51_RESULTS.md` line 367: a private host name -> `an internal server`. Source sha256 `912b405ebe8ec6f672efa287cdba5e436c280c9d4991ff67aad0eb1f03ff2a72` (20,870 B).
 
 Not changed, on purpose: the names Lyra, Thomas Edrington, Dwayne Wilkes, CC, Kavi and Vera (all named as authors or
 contributors in published papers in this repository), and RunPod (a public cloud provider). Some files hold model
@@ -56,14 +56,16 @@ Held, owner Lyra, decision by 2026-11-20 (commit, or deposit elsewhere):
 | `results/phase3d_padded/phase3d_padded_llama_results.json` | 11,591,516 | `428110c5f1cb3a5121a46c4b492fa8222602c0758f4b8d986fce142ecb5bc6dc` |
 | `results/phase3d_padded/phase3d_padded_mistral_results.json` | 11,569,347 | `71d87162115ccb4d06587b6929261f090d535471aed98d0eb6881f709a6515c0` |
 
-## Experiment 51: where the paper's d = 1.87 and d = 0.46 come from
+## Experiment 51: the paper's d = 1.81 and d = 0.45
 
 `EXPERIMENT_51_RESULTS.md` (line 18 and its effect-size table) gives d = 1.810 for key rank, confabulated vs honest.
 The paper's figures come from the same per-prompt values in `moe_routing_qwen1.5-moe-a2.7b-chat_*.npz` (member
 `key_ranks`, 15 prompts per arm; both runs give the same values), with the pooled SD taken as
-sqrt((s1^2 + s2^2) / 2) over population (divide-by-n) variances:
+sqrt((s1^2 + s2^2) / 2). Until 2026-11-16 the paper used population (divide-by-n) variances and gave d = 1.87 and
+d = 0.46; it now uses the conventional n-1 variances, which give the `.md`'s value (see the paper's Corrections
+appendix, 2026-11-16):
 
-| Comparison (Qwen1.5-MoE-A2.7B-Chat, key rank) | n-1 pooled SD | divide-by-n pooled SD (the paper) |
+| Comparison (Qwen1.5-MoE-A2.7B-Chat, key rank) | n-1 pooled SD (the paper since 2026-11-16) | divide-by-n pooled SD (the paper until 2026-11-16) |
 |---|---|---|
 | confabulation vs honest_factual | 1.810 (the `.md`) | 1.874 |
 | confabulation vs rare_but_true | 0.447 | 0.463 |
@@ -72,4 +74,15 @@ The `.md` gives the second comparison only as a difference in means (57.4 vs 57.
 `.npz` is a pickled object array, so `np.load` needs `allow_pickle=True`; the check above used an unpickler limited
 to numpy's array-reconstruction classes.
 
-{ONREQ}
+## Available on request, and what is not here
+
+- **Dual-use: nothing.** Both readers found no stored direction, calibration pair set or cache-injection data in
+  these files (the longest numeric list in any JSON has 28 entries; each `.npz` member holds one value per prompt),
+  so nothing here is held on dual-use grounds.
+- **Held for size, not for dual-use:** the three Phase 3d-padded raw results files listed above (29.8 MB). Whether
+  they are committed or deposited elsewhere is decided by 2026-11-20.
+- **Campaign 3 C7 and S3 run outputs: not found** in KV-Experiments at any revision checked (the
+  `confabulation_detection_*_results.json` files hold only the sycophancy sub-experiment). For C7 the paper points at
+  the write-up (`paper-c3/sections/confabulation.tex`), the permutation test
+  (`results/hackathon/c7_permutation_test.json`) and the code (`../../code/kv_experiments/`). It keeps
+  "unpublished analysis" for S3.
