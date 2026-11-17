@@ -27,9 +27,9 @@ file) found nothing in either file.
 ## Not copied
 
 - The larger run's results and the earlier eight-question run were already in this paper's `data/` folder
-  (`powered_study_1779976670.json`, `benchmark_1779924509.json`). The two benchmark scripts,
-  `graph_benchmark_powered.py` and `graph_benchmark.py`, are **to follow, pending the author's OK** (they contain
-  lines of text from Nexus's memory graph).
+  (`powered_study_1779976670.json`, `benchmark_1779924509.json`), so they are not copied again. The two benchmark
+  scripts that wrote them, `graph_benchmark_powered.py` and `graph_benchmark.py`, are in
+  [`../../code/kv_experiments/`](../../code/kv_experiments/).
 - The memory-graph file the larger run read: not available, as the paper says.
 
 Available on request because dual-use: nothing from this set. The files hold per-condition scores only, with no
