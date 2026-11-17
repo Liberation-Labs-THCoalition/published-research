@@ -1,0 +1,50 @@
+{
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "n_prompts": 50,
+  "behavior_counts": {
+    "HEDGED": 44,
+    "CONFABULATED": 6
+  },
+  "detection": {
+    "none": {
+      "auroc": 0.7841,
+      "p": 0.02331904824834652,
+      "ci": [
+        0.5946,
+        0.9432
+      ],
+      "n_confab": 6,
+      "n_hedged": 44
+    },
+    "orthogonal": {
+      "auroc": 0.9508,
+      "p": 3.750621432661871e-05,
+      "ci": [
+        0.8788,
+        0.9962
+      ],
+      "n_confab": 6,
+      "n_hedged": 44
+    }
+  },
+  "injection": {
+    "direct": {
+      "corrected": 0,
+      "adverse": 0,
+      "same": 10,
+      "total": 10
+    },
+    "through_cloak": {
+      "corrected": 0,
+      "adverse": 0,
+      "same": 10,
+      "total": 10
+    },
+    "magnitude_attack": {
+      "corrected": 0,
+      "adverse": 1,
+      "same": 9,
+      "total": 10
+    }
+  }
+}

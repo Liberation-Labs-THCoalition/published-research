@@ -1,0 +1,1437 @@
+{
+  "config": {
+    "model_id": "Qwen/Qwen2.5-7B-Instruct",
+    "n_prompts": 100,
+    "classifier": "formulary classify_confab",
+    "strategies": [
+      "none",
+      "orthogonal",
+      "global_orthogonal",
+      "invertible",
+      "noise_0.01",
+      "noise_0.1",
+      "noise_0.5",
+      "diagonal"
+    ],
+    "includes_global_orthogonal": true
+  },
+  "behavior_counts": {
+    "HEDGED": 52,
+    "CONFABULATED": 48
+  },
+  "trial_counts": {
+    "confab": 48,
+    "hedged": 52,
+    "ambiguous": 0
+  },
+  "results": {
+    "none": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5763,
+          "p": 0.1896992977523041,
+          "ci": [
+            0.5042,
+            0.6909
+          ],
+          "fwl_auroc": 0.5224,
+          "fwl_p": 0.7017830817208768,
+          "fwl_ci": [
+            0.502,
+            0.6382
+          ],
+          "r_squared_vs_tokens": 0.489,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7147,
+          "p": 0.00022023545795470004,
+          "ci": [
+            0.6082,
+            0.8041
+          ],
+          "fwl_auroc": 0.7208,
+          "fwl_p": 0.00014581683543855232,
+          "fwl_ci": [
+            0.6154,
+            0.8153
+          ],
+          "r_squared_vs_tokens": 0.166,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6695,
+          "p": 0.003557206739683506,
+          "ci": [
+            0.5541,
+            0.7696
+          ],
+          "fwl_auroc": 0.6358,
+          "fwl_p": 0.01952111917832895,
+          "fwl_ci": [
+            0.5252,
+            0.7448
+          ],
+          "r_squared_vs_tokens": 0.0893,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6699,
+          "p": 0.003479354485652984,
+          "ci": [
+            0.5545,
+            0.7704
+          ],
+          "fwl_auroc": 0.6362,
+          "fwl_p": 0.01916394396391562,
+          "fwl_ci": [
+            0.5252,
+            0.7436
+          ],
+          "r_squared_vs_tokens": 0.0892,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.6326,
+          "p": 0.022593909566134062,
+          "ci": [
+            0.5232,
+            0.7468
+          ],
+          "fwl_auroc": 0.6643,
+          "fwl_p": 0.00472392612279704,
+          "fwl_ci": [
+            0.5553,
+            0.7696
+          ],
+          "r_squared_vs_tokens": 0.1502,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.525,
+          "p": 0.6687488720556447,
+          "ci": [
+            0.502,
+            0.6432
+          ],
+          "fwl_auroc": 0.5531,
+          "fwl_p": 0.36244368729901155,
+          "fwl_ci": [
+            0.5036,
+            0.6571
+          ],
+          "r_squared_vs_tokens": 0.9418,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6611,
+          "p": 0.005604155616562626,
+          "ci": [
+            0.5517,
+            0.7628
+          ],
+          "fwl_auroc": 0.6867,
+          "fwl_p": 0.0013197804112934002,
+          "fwl_ci": [
+            0.5745,
+            0.7861
+          ],
+          "r_squared_vs_tokens": 0.6023,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6222,
+          "p": 0.035654179226731766,
+          "ci": [
+            0.5144,
+            0.73
+          ],
+          "fwl_auroc": 0.6286,
+          "fwl_p": 0.027019293124018393,
+          "fwl_ci": [
+            0.516,
+            0.7308
+          ],
+          "r_squared_vs_tokens": 0.5105,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.623,
+          "p": 0.034459943381209106,
+          "ci": [
+            0.5136,
+            0.7308
+          ],
+          "fwl_auroc": 0.6294,
+          "fwl_p": 0.026078710586467314,
+          "fwl_ci": [
+            0.5168,
+            0.7312
+          ],
+          "r_squared_vs_tokens": 0.5102,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5,
+          "p": 1.0,
+          "ci": [
+            0.502,
+            0.6318
+          ],
+          "fwl_auroc": 0.623,
+          "fwl_p": 0.034459943381209106,
+          "fwl_ci": [
+            0.5152,
+            0.726
+          ],
+          "r_squared_vs_tokens": 0.8729,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "orthogonal": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.6096,
+          "p": 0.05951514937552858,
+          "ci": [
+            0.5114,
+            0.7246
+          ],
+          "fwl_auroc": 0.5609,
+          "fwl_p": 0.2959029790947577,
+          "fwl_ci": [
+            0.5024,
+            0.6715
+          ],
+          "r_squared_vs_tokens": 0.4177,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7171,
+          "p": 0.00018697553202463247,
+          "ci": [
+            0.6114,
+            0.8069
+          ],
+          "fwl_auroc": 0.7107,
+          "fwl_p": 0.0002882868567024637,
+          "fwl_ci": [
+            0.6042,
+            0.8041
+          ],
+          "r_squared_vs_tokens": 0.0824,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.7083,
+          "p": 0.0003381026531810548,
+          "ci": [
+            0.5929,
+            0.8001
+          ],
+          "fwl_auroc": 0.7003,
+          "fwl_p": 0.0005684850148714744,
+          "fwl_ci": [
+            0.5885,
+            0.7981
+          ],
+          "r_squared_vs_tokens": 0.075,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.7107,
+          "p": 0.0002882868567024637,
+          "ci": [
+            0.597,
+            0.8021
+          ],
+          "fwl_auroc": 0.7011,
+          "fwl_p": 0.0005401356867585483,
+          "fwl_ci": [
+            0.5893,
+            0.7981
+          ],
+          "r_squared_vs_tokens": 0.0741,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.6322,
+          "p": 0.023006117716466313,
+          "ci": [
+            0.5224,
+            0.7464
+          ],
+          "fwl_auroc": 0.6643,
+          "fwl_p": 0.00472392612279704,
+          "fwl_ci": [
+            0.5553,
+            0.7696
+          ],
+          "r_squared_vs_tokens": 0.1502,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5381,
+          "p": 0.5143333236306502,
+          "ci": [
+            0.5024,
+            0.6533
+          ],
+          "fwl_auroc": 0.5565,
+          "fwl_p": 0.3323654043768697,
+          "fwl_ci": [
+            0.502,
+            0.6695
+          ],
+          "r_squared_vs_tokens": 0.9499,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6386,
+          "p": 0.017138520118293137,
+          "ci": [
+            0.5256,
+            0.7428
+          ],
+          "fwl_auroc": 0.6703,
+          "fwl_p": 0.0034030559348821967,
+          "fwl_ci": [
+            0.5597,
+            0.7744
+          ],
+          "r_squared_vs_tokens": 0.5632,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.617,
+          "p": 0.044308763696874316,
+          "ci": [
+            0.5112,
+            0.7228
+          ],
+          "fwl_auroc": 0.6474,
+          "fwl_p": 0.011228435649234743,
+          "fwl_ci": [
+            0.5337,
+            0.7504
+          ],
+          "r_squared_vs_tokens": 0.5655,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6194,
+          "p": 0.040115841733066385,
+          "ci": [
+            0.512,
+            0.7256
+          ],
+          "fwl_auroc": 0.6482,
+          "fwl_p": 0.010793732739679018,
+          "fwl_ci": [
+            0.5345,
+            0.7512
+          ],
+          "r_squared_vs_tokens": 0.563,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5,
+          "p": 1.0,
+          "ci": [
+            0.502,
+            0.6318
+          ],
+          "fwl_auroc": 0.623,
+          "fwl_p": 0.034459943381209106,
+          "fwl_ci": [
+            0.5152,
+            0.726
+          ],
+          "r_squared_vs_tokens": 0.873,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "global_orthogonal": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5727,
+          "p": 0.2115436851805903,
+          "ci": [
+            0.5032,
+            0.6877
+          ],
+          "fwl_auroc": 0.5232,
+          "fwl_p": 0.6915788693120997,
+          "fwl_ci": [
+            0.502,
+            0.6379
+          ],
+          "r_squared_vs_tokens": 0.486,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7155,
+          "p": 0.00020857622064382705,
+          "ci": [
+            0.6098,
+            0.8041
+          ],
+          "fwl_auroc": 0.7192,
+          "fwl_p": 0.00016292722590325893,
+          "fwl_ci": [
+            0.6126,
+            0.8141
+          ],
+          "r_squared_vs_tokens": 0.1648,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6647,
+          "p": 0.00462318571608823,
+          "ci": [
+            0.5481,
+            0.768
+          ],
+          "fwl_auroc": 0.631,
+          "fwl_p": 0.024282171219531648,
+          "fwl_ci": [
+            0.52,
+            0.7376
+          ],
+          "r_squared_vs_tokens": 0.0841,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6651,
+          "p": 0.00452439467930105,
+          "ci": [
+            0.5477,
+            0.768
+          ],
+          "fwl_auroc": 0.631,
+          "fwl_p": 0.024282171219531648,
+          "fwl_ci": [
+            0.52,
+            0.7376
+          ],
+          "r_squared_vs_tokens": 0.084,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.6326,
+          "p": 0.022593909566134062,
+          "ci": [
+            0.5232,
+            0.7468
+          ],
+          "fwl_auroc": 0.6647,
+          "fwl_p": 0.00462318571608823,
+          "fwl_ci": [
+            0.5561,
+            0.7704
+          ],
+          "r_squared_vs_tokens": 0.1502,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5248,
+          "p": 0.6712871812009114,
+          "ci": [
+            0.502,
+            0.6414
+          ],
+          "fwl_auroc": 0.5519,
+          "fwl_p": 0.37345206369684547,
+          "fwl_ci": [
+            0.503,
+            0.6585
+          ],
+          "r_squared_vs_tokens": 0.9411,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6611,
+          "p": 0.005604155616562626,
+          "ci": [
+            0.5513,
+            0.7624
+          ],
+          "fwl_auroc": 0.6887,
+          "fwl_p": 0.0011698121278378676,
+          "fwl_ci": [
+            0.5765,
+            0.7885
+          ],
+          "r_squared_vs_tokens": 0.6001,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6142,
+          "p": 0.049662133012009384,
+          "ci": [
+            0.512,
+            0.7244
+          ],
+          "fwl_auroc": 0.6226,
+          "fwl_p": 0.03505271972963728,
+          "fwl_ci": [
+            0.5156,
+            0.7284
+          ],
+          "r_squared_vs_tokens": 0.5038,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6146,
+          "p": 0.04886565185260242,
+          "ci": [
+            0.512,
+            0.7244
+          ],
+          "fwl_auroc": 0.6242,
+          "fwl_p": 0.032732740757234896,
+          "fwl_ci": [
+            0.5156,
+            0.73
+          ],
+          "r_squared_vs_tokens": 0.5035,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5,
+          "p": 1.0,
+          "ci": [
+            0.502,
+            0.6318
+          ],
+          "fwl_auroc": 0.623,
+          "fwl_p": 0.034459943381209106,
+          "fwl_ci": [
+            0.5152,
+            0.726
+          ],
+          "r_squared_vs_tokens": 0.873,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "invertible": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5467,
+          "p": 0.42299826577460076,
+          "ci": [
+            0.5024,
+            0.6675
+          ],
+          "fwl_auroc": 0.5533,
+          "fwl_p": 0.3606284487530108,
+          "fwl_ci": [
+            0.5028,
+            0.6707
+          ],
+          "r_squared_vs_tokens": 0.3842,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6599,
+          "p": 0.005970673448816968,
+          "ci": [
+            0.5453,
+            0.7628
+          ],
+          "fwl_auroc": 0.6587,
+          "fwl_p": 0.006358652767878955,
+          "fwl_ci": [
+            0.5469,
+            0.762
+          ],
+          "r_squared_vs_tokens": 0.1619,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6927,
+          "p": 0.0009159932893880184,
+          "ci": [
+            0.5817,
+            0.7897
+          ],
+          "fwl_auroc": 0.6771,
+          "fwl_p": 0.0023186210282042847,
+          "fwl_ci": [
+            0.5653,
+            0.7765
+          ],
+          "r_squared_vs_tokens": 0.0767,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6943,
+          "p": 0.0008295828033452497,
+          "ci": [
+            0.5829,
+            0.7917
+          ],
+          "fwl_auroc": 0.6775,
+          "fwl_p": 0.0022659716782105414,
+          "fwl_ci": [
+            0.5665,
+            0.7773
+          ],
+          "r_squared_vs_tokens": 0.0759,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.6022,
+          "p": 0.07910848620430894,
+          "ci": [
+            0.506,
+            0.7208
+          ],
+          "fwl_auroc": 0.6651,
+          "fwl_p": 0.00452439467930105,
+          "fwl_ci": [
+            0.5541,
+            0.7716
+          ],
+          "r_squared_vs_tokens": 0.16,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5134,
+          "p": 0.8198729931077788,
+          "ci": [
+            0.5022,
+            0.6374
+          ],
+          "fwl_auroc": 0.5469,
+          "fwl_p": 0.421526524294614,
+          "fwl_ci": [
+            0.5028,
+            0.6599
+          ],
+          "r_squared_vs_tokens": 0.9449,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.5321,
+          "p": 0.5833502397664667,
+          "ci": [
+            0.5016,
+            0.6487
+          ],
+          "fwl_auroc": 0.5004,
+          "fwl_p": 0.9972475664045781,
+          "fwl_ci": [
+            0.5016,
+            0.6346
+          ],
+          "r_squared_vs_tokens": 0.8829,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6134,
+          "p": 0.05128778335867522,
+          "ci": [
+            0.5124,
+            0.7228
+          ],
+          "fwl_auroc": 0.6707,
+          "fwl_p": 0.0033282836392991184,
+          "fwl_ci": [
+            0.5505,
+            0.7732
+          ],
+          "r_squared_vs_tokens": 0.7233,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6142,
+          "p": 0.049662133012009384,
+          "ci": [
+            0.5112,
+            0.724
+          ],
+          "fwl_auroc": 0.6699,
+          "fwl_p": 0.003479354485652984,
+          "fwl_ci": [
+            0.5481,
+            0.7724
+          ],
+          "r_squared_vs_tokens": 0.7207,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5016,
+          "p": 0.9807347989289514,
+          "ci": [
+            0.5016,
+            0.6322
+          ],
+          "fwl_auroc": 0.6198,
+          "fwl_p": 0.039450819464269635,
+          "fwl_ci": [
+            0.5124,
+            0.7228
+          ],
+          "r_squared_vs_tokens": 0.8739,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "noise_0.01": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5597,
+          "p": 0.3053480432214766,
+          "ci": [
+            0.5034,
+            0.6769
+          ],
+          "fwl_auroc": 0.5162,
+          "fwl_p": 0.7825663874562753,
+          "fwl_ci": [
+            0.502,
+            0.6378
+          ],
+          "r_squared_vs_tokens": 0.5111,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7204,
+          "p": 0.0001499282956562836,
+          "ci": [
+            0.6142,
+            0.8109
+          ],
+          "fwl_auroc": 0.72,
+          "fwl_p": 0.00015414871649538982,
+          "fwl_ci": [
+            0.6126,
+            0.8149
+          ],
+          "r_squared_vs_tokens": 0.1643,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.6378,
+          "p": 0.017791750445600246,
+          "ci": [
+            0.5256,
+            0.7432
+          ],
+          "fwl_auroc": 0.6026,
+          "fwl_p": 0.07793730353198075,
+          "fwl_ci": [
+            0.5088,
+            0.7107
+          ],
+          "r_squared_vs_tokens": 0.1763,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6382,
+          "p": 0.017462457350773373,
+          "ci": [
+            0.526,
+            0.742
+          ],
+          "fwl_auroc": 0.6022,
+          "fwl_p": 0.07910848620430894,
+          "fwl_ci": [
+            0.5076,
+            0.7099
+          ],
+          "r_squared_vs_tokens": 0.1761,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.6326,
+          "p": 0.022593909566134062,
+          "ci": [
+            0.5232,
+            0.7468
+          ],
+          "fwl_auroc": 0.6647,
+          "fwl_p": 0.00462318571608823,
+          "fwl_ci": [
+            0.5561,
+            0.7704
+          ],
+          "r_squared_vs_tokens": 0.1502,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5202,
+          "p": 0.7300755364817608,
+          "ci": [
+            0.5022,
+            0.6406
+          ],
+          "fwl_auroc": 0.5196,
+          "fwl_p": 0.737913215428211,
+          "fwl_ci": [
+            0.502,
+            0.633
+          ],
+          "r_squared_vs_tokens": 0.942,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.653,
+          "p": 0.008485918037486084,
+          "ci": [
+            0.5397,
+            0.7548
+          ],
+          "fwl_auroc": 0.6831,
+          "fwl_p": 0.0016352244797821697,
+          "fwl_ci": [
+            0.5709,
+            0.7873
+          ],
+          "r_squared_vs_tokens": 0.5987,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5773,
+          "p": 0.1841373938379307,
+          "ci": [
+            0.5036,
+            0.6959
+          ],
+          "fwl_auroc": 0.613,
+          "fwl_p": 0.052117171202864125,
+          "fwl_ci": [
+            0.5112,
+            0.7212
+          ],
+          "r_squared_vs_tokens": 0.6507,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5769,
+          "p": 0.18642671669750877,
+          "ci": [
+            0.504,
+            0.6959
+          ],
+          "fwl_auroc": 0.6138,
+          "fwl_p": 0.05046947380973329,
+          "fwl_ci": [
+            0.5124,
+            0.722
+          ],
+          "r_squared_vs_tokens": 0.6502,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5,
+          "p": 1.0,
+          "ci": [
+            0.502,
+            0.6318
+          ],
+          "fwl_auroc": 0.6234,
+          "fwl_p": 0.033875752633157716,
+          "fwl_ci": [
+            0.5152,
+            0.7264
+          ],
+          "r_squared_vs_tokens": 0.8729,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "noise_0.1": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5302,
+          "p": 0.6046421177347918,
+          "ci": [
+            0.5026,
+            0.6547
+          ],
+          "fwl_auroc": 0.5525,
+          "fwl_p": 0.3679265333385666,
+          "fwl_ci": [
+            0.5028,
+            0.6667
+          ],
+          "r_squared_vs_tokens": 0.4882,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7003,
+          "p": 0.0005684850148714744,
+          "ci": [
+            0.5933,
+            0.7937
+          ],
+          "fwl_auroc": 0.6963,
+          "fwl_p": 0.0007322041178098562,
+          "fwl_ci": [
+            0.5861,
+            0.7949
+          ],
+          "r_squared_vs_tokens": 0.169,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5393,
+          "p": 0.501147202156774,
+          "ci": [
+            0.5028,
+            0.6615
+          ],
+          "fwl_auroc": 0.5982,
+          "fwl_p": 0.09162469549329284,
+          "fwl_ci": [
+            0.5072,
+            0.714
+          ],
+          "r_squared_vs_tokens": 0.3938,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5312,
+          "p": 0.5928580333197475,
+          "ci": [
+            0.502,
+            0.6495
+          ],
+          "fwl_auroc": 0.625,
+          "fwl_p": 0.03162291583332694,
+          "fwl_ci": [
+            0.5168,
+            0.7364
+          ],
+          "r_squared_vs_tokens": 0.3271,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.635,
+          "p": 0.020252951462404967,
+          "ci": [
+            0.5244,
+            0.7508
+          ],
+          "fwl_auroc": 0.6651,
+          "fwl_p": 0.00452439467930105,
+          "fwl_ci": [
+            0.5561,
+            0.7704
+          ],
+          "r_squared_vs_tokens": 0.1495,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5395,
+          "p": 0.4988747706298894,
+          "ci": [
+            0.5026,
+            0.6567
+          ],
+          "fwl_auroc": 0.5737,
+          "fwl_p": 0.20549991714980154,
+          "fwl_ci": [
+            0.5072,
+            0.6827
+          ],
+          "r_squared_vs_tokens": 0.9488,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6779,
+          "p": 0.00221441970064358,
+          "ci": [
+            0.5665,
+            0.7777
+          ],
+          "fwl_auroc": 0.7099,
+          "fwl_p": 0.0003040728236623918,
+          "fwl_ci": [
+            0.6054,
+            0.8085
+          ],
+          "r_squared_vs_tokens": 0.6194,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5128,
+          "p": 0.8279517565151312,
+          "ci": [
+            0.5024,
+            0.6382
+          ],
+          "fwl_auroc": 0.5777,
+          "fwl_p": 0.1818689525468007,
+          "fwl_ci": [
+            0.5048,
+            0.6907
+          ],
+          "r_squared_vs_tokens": 0.9512,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5084,
+          "p": 0.887525119711759,
+          "ci": [
+            0.502,
+            0.6366
+          ],
+          "fwl_auroc": 0.5974,
+          "fwl_p": 0.09430951531825194,
+          "fwl_ci": [
+            0.508,
+            0.7079
+          ],
+          "r_squared_vs_tokens": 0.9506,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5,
+          "p": 1.0,
+          "ci": [
+            0.502,
+            0.6318
+          ],
+          "fwl_auroc": 0.6242,
+          "fwl_p": 0.032732740757234896,
+          "fwl_ci": [
+            0.516,
+            0.7268
+          ],
+          "r_squared_vs_tokens": 0.8729,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "noise_0.5": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5691,
+          "p": 0.2342321771179965,
+          "ci": [
+            0.504,
+            0.6911
+          ],
+          "fwl_auroc": 0.5292,
+          "fwl_p": 0.6169294951889294,
+          "fwl_ci": [
+            0.5024,
+            0.6506
+          ],
+          "r_squared_vs_tokens": 0.281,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.7232,
+          "p": 0.00012329337600008704,
+          "ci": [
+            0.6122,
+            0.8193
+          ],
+          "fwl_auroc": 0.7364,
+          "fwl_p": 4.7589192069540924e-05,
+          "fwl_ci": [
+            0.6302,
+            0.8297
+          ],
+          "r_squared_vs_tokens": 0.1601,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5252,
+          "p": 0.6663165214360037,
+          "ci": [
+            0.5024,
+            0.6462
+          ],
+          "fwl_auroc": 0.635,
+          "fwl_p": 0.020252951462404967,
+          "fwl_ci": [
+            0.5268,
+            0.7452
+          ],
+          "r_squared_vs_tokens": 0.3574,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5637,
+          "p": 0.2741543030063488,
+          "ci": [
+            0.5024,
+            0.6855
+          ],
+          "fwl_auroc": 0.6542,
+          "fwl_p": 0.007982790471184291,
+          "fwl_ci": [
+            0.5441,
+            0.7664
+          ],
+          "r_squared_vs_tokens": 0.3263,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.647,
+          "p": 0.011451562599010512,
+          "ci": [
+            0.5325,
+            0.7608
+          ],
+          "fwl_auroc": 0.6683,
+          "fwl_p": 0.0038003663707378383,
+          "fwl_ci": [
+            0.5577,
+            0.7736
+          ],
+          "r_squared_vs_tokens": 0.1487,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.5475,
+          "p": 0.4153943152180073,
+          "ci": [
+            0.503,
+            0.6625
+          ],
+          "fwl_auroc": 0.5371,
+          "fwl_p": 0.5255958926282093,
+          "fwl_ci": [
+            0.502,
+            0.6478
+          ],
+          "r_squared_vs_tokens": 0.9579,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6426,
+          "p": 0.014178225812871243,
+          "ci": [
+            0.5328,
+            0.748
+          ],
+          "fwl_auroc": 0.6999,
+          "fwl_p": 0.0005831736466486646,
+          "fwl_ci": [
+            0.5913,
+            0.7961
+          ],
+          "r_squared_vs_tokens": 0.77,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5044,
+          "p": 0.9422492968894758,
+          "ci": [
+            0.5028,
+            0.6338
+          ],
+          "fwl_auroc": 0.6771,
+          "fwl_p": 0.0023186210282042847,
+          "fwl_ci": [
+            0.5697,
+            0.7805
+          ],
+          "r_squared_vs_tokens": 0.9149,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5088,
+          "p": 0.8820777292219071,
+          "ci": [
+            0.502,
+            0.6374
+          ],
+          "fwl_auroc": 0.6867,
+          "fwl_p": 0.0013197804112934002,
+          "fwl_ci": [
+            0.5793,
+            0.7933
+          ],
+          "r_squared_vs_tokens": 0.9143,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5004,
+          "p": 0.9972475664045781,
+          "ci": [
+            0.5016,
+            0.6306
+          ],
+          "fwl_auroc": 0.625,
+          "fwl_p": 0.03162291583332694,
+          "fwl_ci": [
+            0.516,
+            0.7268
+          ],
+          "r_squared_vs_tokens": 0.8729,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    },
+    "diagonal": {
+      "gen": {
+        "mp_signal_rank": {
+          "auroc": 0.5719,
+          "p": 0.2164162606778981,
+          "ci": [
+            0.5044,
+            0.6875
+          ],
+          "fwl_auroc": 0.5733,
+          "fwl_p": 0.2079834399194661,
+          "fwl_ci": [
+            0.5056,
+            0.6939
+          ],
+          "r_squared_vs_tokens": 0.2812,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.6494,
+          "p": 0.010169712629313706,
+          "ci": [
+            0.5381,
+            0.7524
+          ],
+          "fwl_auroc": 0.6398,
+          "fwl_p": 0.01619812753541741,
+          "fwl_ci": [
+            0.5296,
+            0.7416
+          ],
+          "r_squared_vs_tokens": 0.2326,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.641,
+          "p": 0.015303388182097036,
+          "ci": [
+            0.5284,
+            0.744
+          ],
+          "fwl_auroc": 0.6214,
+          "fwl_p": 0.03688354083583427,
+          "fwl_ci": [
+            0.5144,
+            0.728
+          ],
+          "r_squared_vs_tokens": 0.1479,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.6426,
+          "p": 0.014178225812871243,
+          "ci": [
+            0.5296,
+            0.746
+          ],
+          "fwl_auroc": 0.621,
+          "fwl_p": 0.03751164100379187,
+          "fwl_ci": [
+            0.5132,
+            0.728
+          ],
+          "r_squared_vs_tokens": 0.1492,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5781,
+          "p": 0.17962130934935394,
+          "ci": [
+            0.5032,
+            0.6991
+          ],
+          "fwl_auroc": 0.6579,
+          "fwl_p": 0.006629760657221752,
+          "fwl_ci": [
+            0.5493,
+            0.7684
+          ],
+          "r_squared_vs_tokens": 0.1385,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      },
+      "full": {
+        "mp_signal_rank": {
+          "auroc": 0.518,
+          "p": 0.7587932537044829,
+          "ci": [
+            0.5026,
+            0.6378
+          ],
+          "fwl_auroc": 0.5537,
+          "fwl_p": 0.3570107934695207,
+          "fwl_ci": [
+            0.503,
+            0.6689
+          ],
+          "r_squared_vs_tokens": 0.9321,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_signal_fraction": {
+          "auroc": 0.5453,
+          "p": 0.437645118798932,
+          "ci": [
+            0.5028,
+            0.6583
+          ],
+          "fwl_auroc": 0.5064,
+          "fwl_p": 0.914836743021278,
+          "fwl_ci": [
+            0.502,
+            0.6319
+          ],
+          "r_squared_vs_tokens": 0.9056,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_top_sv_excess": {
+          "auroc": 0.5489,
+          "p": 0.40187908113491777,
+          "ci": [
+            0.5024,
+            0.6639
+          ],
+          "fwl_auroc": 0.5958,
+          "fwl_p": 0.09986819293995652,
+          "fwl_ci": [
+            0.5072,
+            0.7031
+          ],
+          "r_squared_vs_tokens": 0.8231,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_spectral_gap": {
+          "auroc": 0.5449,
+          "p": 0.4417291351204996,
+          "ci": [
+            0.5024,
+            0.6595
+          ],
+          "fwl_auroc": 0.5962,
+          "fwl_p": 0.09845460355187471,
+          "fwl_ci": [
+            0.508,
+            0.7043
+          ],
+          "r_squared_vs_tokens": 0.8225,
+          "n_confab": 48,
+          "n_hedged": 52
+        },
+        "mp_norm_per_token": {
+          "auroc": 0.5044,
+          "p": 0.9422492968894758,
+          "ci": [
+            0.5016,
+            0.6302
+          ],
+          "fwl_auroc": 0.6126,
+          "fwl_p": 0.05295774730755512,
+          "fwl_ci": [
+            0.5112,
+            0.718
+          ],
+          "r_squared_vs_tokens": 0.8709,
+          "n_confab": 48,
+          "n_hedged": 52
+        }
+      }
+    }
+  }
+}
