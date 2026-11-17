@@ -4,7 +4,6 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
-\Urlmuskip=0mu plus 1mu\relax % let long file paths stretch at their break points
 \usepackage{cleveref}
 \usepackage[margin=1in]{geometry}
 \usepackage{xcolor}
@@ -449,14 +448,15 @@ the size it could detect. The others show what their measurement
 actually read, and each points to the test that would decide it:
 
 \begin{description}[nosep]
+\emergencystretch=1.5em % file paths below; local to this list
 \item[Truth value:] The truth axis (cos $= -0.046$) is the mean
   pairwise cosine, across 16 model configurations, between each
   model's grounded-facts-minus-confabulation direction in aggregate
-  cache features
-  (\nolinkurl{meta-pattern/code/kv_experiments/code/27_axis_analysis.py},
-  with its output in
-  \nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/axis_analysis.json},
-  in the artifact repository). It finds no
+  cache features. In the artifact repository, the script
+  \nolinkurl{code/27_axis_analysis.py} is under
+  \nolinkurl{meta-pattern/code/kv_experiments/} and its output, which
+  gives the axis, is \nolinkurl{results/hackathon/axis_analysis.json}
+  under \nolinkurl{meta-pattern/data/kv_experiments/}. The axis finds no
   direction shared across models. It does not test whether true and
   false statements separate inside one model, and no null distribution
   was computed for it. The
@@ -532,8 +532,8 @@ errors. They are one finding arriving six times in a form we had coded
 as a nuisance variable: the cache encodes the input it is given,
 faithfully and in detail. In the released step-0 controls (Qwen2.5-7B,
 five questions under ten system prompts;
-\nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/adversarial_controls.json}
-in the artifact repository), the step-0 classifier labels every question
+\nolinkurl{results/hackathon/adversarial_controls.json} under
+\nolinkurl{meta-pattern/data/kv_experiments/} in the artifact repository), the step-0 classifier labels every question
 deceptive under every system prompt, the five honest prompts included.
 In Campaign~3's equal-length replication
 (\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/redteam.tex}
@@ -544,11 +544,11 @@ not only its length.
 Where the surface was matched by design, the signal went away. With
 token frequency, length, syntax and domain matched, the encoding-phase
 confabulation effect was $d{=}0.05$ over 30 pairs in Qwen2.5-7B
-(Experiment~C7 of Campaign~3: write-up in
-\nolinkurl{meta-pattern/data/kv_experiments/paper-c3/sections/confabulation.tex},
-permutation test in
-\nolinkurl{meta-pattern/data/kv_experiments/results/hackathon/c7_permutation_test.json},
-code in \nolinkurl{meta-pattern/code/kv_experiments/code/}), and on a model's
+(Experiment~C7 of Campaign~3: its write-up
+\nolinkurl{paper-c3/sections/confabulation.tex} and permutation test
+\nolinkurl{results/hackathon/c7_permutation_test.json} are under
+\nolinkurl{meta-pattern/data/kv_experiments/}, and its code under
+\nolinkurl{meta-pattern/code/kv_experiments/}), and on a model's
 own later confabulations it was $d{=}-0.11$ (40 accurate against 17
 confabulated; Experiment~S3, in an unpublished analysis; the source does not name
 the model). That row is refuted within
@@ -1153,8 +1153,9 @@ control is the same-prompt deception row, and the two papers describe
 its 0.160 differently. In the results file, 0.160 is that row's AUROC
 after its input length is regressed out, against 0.920 before, with
 input length alone separating the arms
-(\nolinkurl{meta-pattern/data/kv_experiments/kv_verify/data/output/f01b_all/f01b_all_results.json},
-entry \texttt{exp18b\_deception}, in the artifact repository);
+(\nolinkurl{kv_verify/data/output/f01b_all/f01b_all_results.json}
+under \nolinkurl{meta-pattern/data/kv_experiments/}, entry
+\texttt{exp18b\_deception}, in the artifact repository);
 the system prompt was identical across its arms
 (\cref{sec:one-kill}). This paper's description follows that file.
 Same-prompt deception is the control that did the retracting. Whether the annotation should move to the within-model
