@@ -22,6 +22,6 @@ jobs:
       - name: Self-test (planted cases must behave)
         run: python tools/check_retracted_figures.py --self-test
       - name: Reject added unmarked retracted figures
-        run: python tools/check_retracted_figures.py --base "origin/${{ github.base_ref }}"
+        run: python tools/check_retracted_figures.py --base "origin/${{ github.base_ref }}" --no-agent-skip
       - name: TWIN_DESYNC report (flight vs academic; does not fail)
-        run: python tools/check_retracted_figures.py --twins
+        run: python tools/check_retracted_figures.py --twins --no-agent-skip

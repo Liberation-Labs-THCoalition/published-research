@@ -52,13 +52,30 @@ version: 1
 #   ...|(?<![-\w])correct(?:ed|ion|ions)\b'
 # A marker must also be attached to the claim (same clause, a back-pointing clause, or a
 # back-pointing next sentence) and is never taken from a heading: see the script's docstring.
-default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed\b|\bno longer claim\w*|\bdo(?:es)? not claim\b|\bsupersed\w*|\bfalsified\b|\bkilled\b|\b(?:does|do|did) not survive\b|(?-i:\bDead\b)|\b(?:was|were|is|are|been|being|since|later|subsequently|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b'
+#
+# Round 3 (post-data revision, 2026-11-20, from Lyra's PR #84 comment after the master run after #83): two negations
+# the corpus uses to report a claim it no longer makes were reported as live claims, lyra-technique-ii/main.tex:706
+# "We claim neither that denoising rescues..." and :1536 "We had also written that ... rescued by SVD denoising".
+# Added: "claim neither" and "had (also|previously|earlier) written that". Principle: a sentence that says the
+# authors do not claim it, or used to write it, is not asserting it. Cost: "we had written that X" also passes when
+# the next words reaffirm X. Round-2 value, kept for the record:
+#   '(?i)\bretract\w*|...|\b(?:was|were|...|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b'
+#   (identical to the line below up to and including \bcorrected\s+away\b)
+default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed\b|\bno longer claim\w*|\bdo(?:es)? not claim\b|\bsupersed\w*|\bfalsified\b|\bkilled\b|\b(?:does|do|did) not survive\b|(?-i:\bDead\b)|\b(?:was|were|is|are|been|being|since|later|subsequently|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b|\bclaim\s+neither\b|\bhad\s+(?:also\s+|previously\s+|earlier\s+)?written\s+that\b'
 #
 # NUMERIC PATTERNS (revised 2026-11-20 after PR #84 plants P1 "AUROC~1.00", P2 "d = +9.90", P4
 # "2.5--2.8 times"). The script canonicalises TeX before matching (braces, "$", "~" and "\," removed,
 # "\times" -> the x sign, "--" -> en dash, "\%" -> %), so patterns are written for plain text. Each
 # figure takes any number of trailing zeros ("9.9", "9.90", "9.900") and refuses a further nonzero
 # digit ("3.656" is not 3.6).
+
+# AGENT SKIP (added 2026-11-20, PR #84 round 3): paths that agents working on this repo are not to open. Every mode
+# skips them by default, so an agent that runs the gate cannot read them by accident; the round-3 agent did once,
+# running the tool with --self-test-force but without --self-test, which falls through to a whole-tree scan. CI
+# passes --no-agent-skip, so CI coverage of these files is unchanged. Every run prints how many files it skipped.
+agent_skip:
+  - '(?i)(?<![a-z])(pain(s|ful)?|humane|route[-_ ]?b|umv|label[-_ ]?validity|user[-_ ]?model[-_ ]?v2/label)(?![a-z])'
+  - '(?i)user[-_ ]?model[-_ ]?paper'
 
 # RECORDS are not scanned by default (--include-records scans them). They quote retracted text
 # verbatim as evidence (audits, patch logs, review notes, registers). A record that is served as
@@ -113,7 +130,12 @@ entries:
     claim: Within-model deception detection at AUROC 1.000 across seven models.
     # "1.00"/"1.000"/"1.0000" anywhere, "1.0" only right after AUROC: bare 1.0 hit "Version 1.0" and
     # "d = +0.2 to +1.0" on master (convergence-paper/main.tex:1071, waystations-paper/main.tex:336).
-    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?![\d.])'
+    # Round 3 (2026-11-20, Lyra's PR #84 fix list): also "AUROC of one", "AUROC = 1", "AUROC of 1", "AUROC \approx 1",
+    # "AUROC 1.0." ending a sentence, and "perfect(ly) AUROC/separation/discrimination/classification/detection".
+    # "one" followed by a noun is a determiner ("the AUROC of one model"), so it counts only before punctuation,
+    # the end, or a preposition/conjunction. Round-2 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?![\d.])'
+    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:|is|\\approx|≈|equals?|equal\s+to)?\s*(?:1\.0(?!\.?\d)|1(?!\.?\d|\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z]))|\bperfect(?:ly)?\s+(?:AUROC|separat\w*|discriminat\w*|classif\w*|detect\w*)'
     context: '(?i)decepti'
     markers:
       # the falsifying control stated beside the figure (RESEARCH_STATUS.md:165 "Same-prompt control -> 0.160")
@@ -201,7 +223,13 @@ entries:
     # Verb forms only ("the denoising amplifier was me mistaking selection noise for signal",
     # lyra-technique-ii/main.tex:287, is a retraction) and not after would/could/might/may ("under which
     # denoising would amplify weak signals", :171, states the hypothesis).
-    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified)\s+by\s+(?:SVD\s+)?denois'
+    # Round 3 (2026-11-20, Lyra's PR #84 fix list): also lifts/improves/boosts/raises, both orders. "lift" and "boost"
+    # are left out in the base form (nouns: "the denoising lift"), and "raises the question/possibility/concern/
+    # issue/doubt" is not the claim. Round-2 verb list, kept for the record:
+    #   rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|
+    #   unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying)   and, reversed: rescued|restored|revealed|recovered|transformed|
+    #   unmasked|amplified
+    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying)|lift(?:s|ed|ing)|boost(?:s|ed|ing)|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)(?!\s+(?:the\s+|a\s+|an\s+)?(?:question|possibilit|concern|issue|doubt)))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified|lifted|boosted|improved|raised)\s+by\s+(?:SVD\s+)?denois'
     context: '(?i)denois|\bSVD\b'
     context_scope: window
     markers:

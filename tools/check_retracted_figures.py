@@ -28,19 +28,23 @@ not even "## What We've Killed"); it is a one-word participle used attributively
 "corrected" used for anything but the figure being corrected away ("after error correction": P9;
 "FWL-corrected", "Holm correction", "corrected for" were never markers).
 
-A QUOTED occurrence passes: one inside ``...'' or "..." introduced by said/read/marked/called/the
-term (or a following "and ``...''"), or followed by "means" ("``Rescued'' means ..."). A correction
-note quotes what it corrects (AGENTS.md section 4, cause 4). Quoted occurrences are counted
-separately in the summary. LaTeX comments are removed first, so a marker in a "%" comment does not
-count, and HTML tags are stripped.
+A QUOTED occurrence passes: one that overlaps a ``...'' or "..." quotation REPORTED by a cue at most
+eight words before it with no clause break between (said/read/wrote/written/headed/titled/marked/
+called/the term, or a capitalised "Was" opening a status cell: "this paragraph said denoising
+``also rescues...''"), or continuing a reported quotation (", and that the step was ``...''"), or
+followed by "means" ("``Rescued'' means ..."); also a one-word capitalised cell value after
+"read"/"marked"/"headed" ("both rows read Rescued"). A correction note quotes what it corrects
+(AGENTS.md section 4, cause 4). Quoted occurrences are counted separately in the summary. LaTeX
+comments are removed first, so a marker in a "%" comment does not count, and HTML tags are stripped.
+"We claim neither that" and "We had (also) written that" are markers (registry default_markers).
 
 KNOWN LIMITS. A sentence that says the figure is dead in other words ("did not hold up") is reported:
 add a marker, or an entry-specific marker in the registry. A marker can be a word that kills
 something else in the same clause ("1.000, the test that killed the null"); the clause rule narrows
-this, it does not close it. A claim reasserted inside a quotation introduced by "said" passes as
-quoted. A figure written in a form the pattern does not cover (spelled out, "AUROC of 1", an image)
-is not seen. Records (audits, patch logs, review notes; listed in the registry) are skipped unless
---include-records.
+this, it does not close it. A claim reasserted inside a quotation up to eight words after "said"
+(or another cue) passes as quoted. A figure written in a form the pattern does not cover (spelled
+out other than "AUROC of one", an image) is not seen. Records (audits, patch logs, review notes;
+listed in the registry) are skipped unless --include-records.
 
 TWIN_DESYNC. --twins pairs each <paper>/academic/<file> with <paper>/<file> and reports sentences
 carrying a registry figure that are not the same in both editions: DIFFERS (a close counterpart
@@ -55,6 +59,9 @@ USAGE
     python tools/check_retracted_figures.py --twins               # TWIN_DESYNC report
     python tools/check_retracted_figures.py --self-test           # planted cases; must print PASS
     --exclude REGEX (repeatable) skips matching repo paths; --include-records scans records too.
+    The registry's agent_skip paths are skipped in every mode (agents are not to open them; each run
+    prints how many it skipped); --no-agent-skip scans them, and only CI passes it.
+    --self-test-force marked|unmarked works only together with --self-test.
 
 --base REF compares HEAD with merge-base(REF, HEAD), reading both from git. An unmarked occurrence
 counts as NEW unless the base held the same (entry, sentence text) in the files the branch changed,
@@ -113,8 +120,29 @@ DET_BEFORE = re.compile(r"(?i)\b(?:the|a|an|this|that|these|those|its|their|our|
 STOP_AFTER = re.compile(r"(?i)(?:by|in|at|on|for|from|as|since|because|pending|until|after|before|and|or|but|is|was|"
                         r"were|are|has|have|had|of|to|with|under|due|per|over|via|here|there)$")
 NP_END = re.compile(r"[;:()]|[,.](?!\d)|\s(?:which|that|who|is|was|were|are|has|had)\b")
-REPORT_BEFORE = re.compile(r"(?i)(?:\b(?:said|says|read|reads|wrote|stated|claimed|called|labell?ed|marked|termed|"
-                           r"titled|the\s+(?:term|word|phrase|sentence|line|claim|keyword))|(?:''|\"|”)\s*(?:,|and|or))\s*$")
+# A quotation REPORTS old text (round 3, post-data revision: on master after #83 the round-2 rule left 19 correction-
+# note quotations unmarked) when:
+#   - a reporting cue comes at most REPORT_GAP words before its opening quote, with no clause break between
+#     ("this paragraph said denoising ``also rescues...''", "the closing paragraph said persona intensity and
+#     spectral emotion classification ``are rescued...''"); a capitalised "Was" opening a cell or sentence is a cue
+#     (RESEARCH_STATUS.md 'Was "SVD denoising rescues persona"; corrected'); or
+#   - it continues a reported quotation within REPORT_GAP + 2 words, with no sentence break and no "but"/"whereas"
+#     between (", and that the denoising step was ``revealing...''"); or
+#   - it is followed by "means" (a definition).
+# A one-word capitalised cell value right after "read"/"marked"/"headed" ("both rows read Rescued") is quoted too.
+# The principle, which would hold whatever the data showed: a correction note quotes what it corrects, and the
+# quotation is marked by the verb that reports it, not by adjacency. Cost: a live claim placed inside quotation marks
+# up to eight words after "said" passes as quoted (KNOWN LIMITS). Original round-2 rule, kept for the record:
+#   REPORT_BEFORE = (?i)(?:\b(?:said|says|read|reads|wrote|stated|claimed|called|labell?ed|marked|termed|titled|
+#                   the\s+(?:term|word|phrase|sentence|line|claim|keyword))|(?:''|"|")\s*(?:,|and|or))\s*$
+#   searched in the 30 characters before the opening quote, and the occurrence's first character had to be inside it.
+REPORT_CUE = re.compile(r"(?i)\b(?:said|says|read|reads|wrote|written|writes|stated|states|claimed|called|labell?ed|"
+                        r"marked|termed|titled|headed|captioned|the\s+(?:term|word|phrase|sentence|line|claim|keyword))\b"
+                        r"|(?:^|[|(:]\s*)(?-i:Was)\b")
+REPORT_GAP = 8
+GAP_BREAK = re.compile(r"(?i)[.;!?](?!\d)|,\s+(?:and|but|yet|so|while|whilst|whereas|although|though)\b")
+CHAIN_BREAK = re.compile(r"(?i)[.;!?](?!\d)|\b(?:but|yet|whereas|while|whilst|however|although|though)\b")
+BARE_CUE = re.compile(r"(?i)\b(?:read|reads|marked|labell?ed|titled|headed)\s+$")
 DEFINE_AFTER = re.compile(r"(?i)^\s*(?:means|meant|refers\s+to|denotes|is\s+defined)\b")
 QUOTE = re.compile(r"``(.*?)''|“(.*?)”|(?<!\w)\"([^\"]*?)\"")
 SENT_END = re.compile(r"(?<=[.!?])(?:''|\"|”|\)|\})*\s+(?=[A-Z0-9\\$(`*\[“\"'])")
@@ -164,7 +192,8 @@ def load_registry(path):
     if len(set(ids)) != len(ids):
         die("duplicate entry ids in registry")
     records = [r["glob"].lower() for r in reg.get("records", [])]
-    return entries, records
+    skips = [re.compile(s) for s in reg.get("agent_skip", [])]
+    return entries, records, skips
 
 
 def marker_spans(text, regexes):
@@ -262,15 +291,35 @@ def attached(sent, pos, ent, nxt=None):
     return False
 
 
-def quoted(sent, pos):
-    """The occurrence at sent[pos] sits inside a quotation that reports or defines old text."""
+def reported_quotes(sent):
+    """Spans of the quotations in sent that report or define old text (rules above REPORT_CUE)."""
+    out, prev_end, prev_rep = [], 0, False
+    for q in QUOTE.finditer(sent):
+        before = sent[prev_end:q.start()]
+        rep = False
+        cues = list(REPORT_CUE.finditer(before))
+        if cues:
+            gap = before[cues[-1].end():]
+            rep = not GAP_BREAK.search(gap) and len(gap.split()) <= REPORT_GAP
+        if not rep and prev_rep:
+            rep = not CHAIN_BREAK.search(before) and len(before.split()) <= REPORT_GAP + 2
+        if not rep:
+            rep = bool(DEFINE_AFTER.match(sent[q.end():]))
+        if rep:
+            out.append((q.start(), q.end()))
+        prev_end, prev_rep = q.end(), rep
+    return out
+
+
+def quoted(sent, pos, end=None):
+    """The occurrence sent[pos:end] overlaps a quotation that reports or defines old text, or is a one-word
+    capitalised cell value reported by "read"/"marked"/"headed" ("both rows read Rescued")."""
     if FORCE is not None:
         return False
-    for q in QUOTE.finditer(sent):
-        if q.start() < pos < q.end():
-            if REPORT_BEFORE.search(sent[max(0, q.start() - 30):q.start()]) or DEFINE_AFTER.match(sent[q.end():]):
-                return True
-    return False
+    end = pos + 1 if end is None else end
+    if any(qs < end and pos < qe for qs, qe in reported_quotes(sent)):
+        return True
+    return sent[pos:pos + 1].isupper() and bool(BARE_CUE.search(sent[max(0, pos - 20):pos]))
 
 
 # ---------------------------------------------------------------- text -> paragraphs -> sentences
@@ -456,7 +505,7 @@ def scan_text(path, text, entries):
                 for m in ent.pattern.finditer(sent):
                     if attached(sent, m.start(), ent, nxt):
                         occ.append((m, "marked"))
-                    elif quoted(sent, m.start()):
+                    elif quoted(sent, m.start(), m.end()):
                         occ.append((m, "quoted"))
                     else:
                         occ.append((m, ""))
@@ -599,9 +648,19 @@ def twin_report(flight, acad, fh, ah):
 def self_test(force=None):
     global FORCE
     FORCE = force
-    entries, _ = load_registry(os.path.join(ROOT, REGISTRY))
+    entries, records, skips = load_registry(os.path.join(ROOT, REGISTRY))
     ok = True
     tripped = set()
+
+    # agent_skip on synthetic paths only (no file is read): the default run must not reach these paths.
+    print("agent_skip (synthetic paths; nothing is read):")
+    for name, path, want in (("a path the agent_skip list names is skipped", "pain-study/main.tex", False),
+                             ("user-model-paper is skipped", "user-model-paper/main.tex", False),
+                             ("an ordinary paper is scanned", "lyra-technique-ii/main.tex", True),
+                             ("'painting' is not 'pain'", "painting-study/main.tex", True)):
+        good = bool(skips) and wanted(path, records, skips, False, []) == want
+        print(("  ok    " if good else "  WRONG ") + name)
+        ok &= good
 
     def check(name, path, text, expect_ids, expect_unmarked):
         """expect_unmarked: set of entry ids that must be reported unmarked (exactly)."""
@@ -804,6 +863,67 @@ def self_test(force=None):
           ["uncertainty-scar", "contrast-overshoot"])
     check("'AUROC 1.0' restated", "x/paper.md",
           "Within-model deception is detected at AUROC 1.0 in every model.\n", [], [D])
+
+    # Round 3, from Lyra's PR #84 comment after the round-2 check: on master after #83 the gate reported 19
+    # unmarked, all correction notes quoting old wording or negations. Each Q/N/W/V case below was WRONG on
+    # 08041d5 (run before the rules changed); the G and U cases are guards that held before and must hold after.
+    S = "svd-denoising-rescues"
+    print("PR #84 round 3, old wording quoted for correction (must PASS as quoted or marked):")
+    check("Q1 RESEARCH_STATUS.md:184 status cell 'Was \"...\"; corrected'", "RESEARCH_STATUS.md",
+          "| Lyra Technique II | Was \"SVD denoising rescues persona\"; corrected 2026-11-20 (paper v1.2) |\n", [S], [])
+    check("Q2 lyra-technique-ii/main.tex:1739 'said' + words + ``quote''", "x/main.tex",
+          "The Pattern paragraph said these\nsignals ``are invisible to raw features but revealed by denoising''.\n", [S], [])
+    check("Q3 lyra-technique-ii/main.tex:1766 'said' + six words + ``quote'', after a ';'", "x/main.tex",
+          "Item~3 said ``the deltas fall within the envelope''; the closing\nparagraph said persona intensity and "
+          "spectral emotion classification\n``are rescued by SVD denoising''.\n", [S], [])
+    check("Q4 lyra-technique-ii/main.tex:769 'said denoising ``also rescues...'''", "x/main.tex",
+          "(Corrected 2026-11-20: the heading read ``SVD Denoising Rescues\nEmotion Classification'', and this paragraph "
+          "said denoising ``also rescues\nemotion classification---through a different mechanism''.)\n", [S], [])
+    check("Q5 lyra-technique-ii/main.tex:1735 'was headed ``...''' and a bare cell value after 'rows read'", "x/main.tex",
+          "The block was headed ``Rescued by denoising'' and\nthe persona and emotion rows read Rescued (now Upper bound).\n",
+          [S], [])
+    check("Q6 lyra-technique-ii/main.tex:1719 a quote continuing a reported one (', and that ... ``...''')", "x/main.tex",
+          "The text said the improvement ``falls within the max-over-rank selection envelope'', and\nthat the denoising "
+          "step was ``revealing the layer-specific persona\nsignal''.\n", [S], [])
+    check("N1 lyra-technique-ii/main.tex:706 'We claim neither that' is a negation", "x/main.tex",
+          "We claim neither that denoising rescues a masked signal nor that the gain is selection noise; the raw AUROCs "
+          "are the defensible numbers.\n", [S], [])
+    check("N2 lyra-technique-ii/main.tex:1536 'We had also written that'", "x/main.tex",
+          "We had also written that apparent nulls in persona intensity and spectral emotion classification were "
+          "measurement failures rescued by SVD denoising.\n", [S], [])
+    print("PR #84 round 3, overclaims the round-2 patterns missed (must be reported UNMARKED):")
+    check("W1 'an AUROC of one'", "x/paper.md",
+          "Within-model deception detection reaches an AUROC of one across seven models.\n", [], [D])
+    check("W2 'AUROC $= 1$'", "x/main.tex", "Within-model deception is detected at AUROC $= 1$ in every model.\n", [], [D])
+    check("W3 'AUROC of 1.' ending the sentence", "x/paper.md", "Within-model deception probes reach an AUROC of 1.\n",
+          [], [D])
+    check("W4 'AUROC 1.0.' ending the sentence", "x/paper.md", "Within-model deception is detected at AUROC 1.0.\n",
+          [], [D])
+    check("W5 'perfect AUROC'", "x/paper.md", "Within-model deception is read with perfect AUROC in all seven models.\n",
+          [], [D])
+    check("W6 'perfect separation'", "x/main.tex",
+          "The within-model deception probe achieves perfect separation of honest and deceptive runs.\n", [], [D])
+    check("V1 'denoising lifts'", "x/main.tex",
+          "SVD denoising lifts emotion classification from chance to 12.9$\\times$.\n", [], [S])
+    check("V2 'denoising improves'", "x/main.tex", "Denoising improves persona intensity readout in all three models.\n",
+          [], [S])
+    check("V3 'denoising boosts'", "x/main.tex", "SVD denoising boosts the emotion signal above chance.\n", [], [S])
+    check("V4 'denoising raises'", "x/main.tex", "Denoising raises emotion classification to 12.9x chance.\n", [], [S])
+    check("V5 reversed order: 'is boosted by SVD denoising'", "x/main.tex",
+          "Persona intensity is boosted by SVD denoising.\n", [], [S])
+    print("PR #84 round 3 guards (held before; must hold after):")
+    check("G1 a quote with no reporting cue still claims ('rescues the ``persona'' signal')", "x/main.tex",
+          "SVD denoising rescues the ``persona'' signal.\n", [], [S])
+    check("G2 a cue cut off by a clause break ('We read the logs, and denoising ``rescues''...')", "x/main.tex",
+          "We read the logs, and denoising ``rescues'' emotion classification.\n", [], [S])
+    check("G3 lowercase 'was' before a quote is not a status cell", "x/main.tex",
+          "Denoising was ``rescuing'' persona intensity.\n", [], [S])
+    check("G4 ', but' does not continue a reported quote", "x/main.tex",
+          "The abstract said ``it is a hypothesis'', but denoising ``rescues'' emotion classification.\n", [], [S])
+    check("U1 'the AUROC of one model' (a determiner, not the figure)", "x/main.tex",
+          "The AUROC of one model in the deception set was 0.71.\n", [], [])
+    check("U2 'denoising raises the question' is not the claim", "x/main.tex",
+          "Denoising raises the question of whether the emotion signal is real.\n", [], [])
     print("unrelated uses of the same numbers (must not match at all):")
     check("ethics-pack-injection/main.tex:98 per-framework +0.074 (no KG/MoReBench context)", "x/main.tex",
           "Aristotelian Virtue Ethics & 0.572 & 0.646 & $+$0.074 & $-$0.236 \\\\\n", [], [])
@@ -872,6 +992,8 @@ def main():
     ap.add_argument("--twins-strict", action="store_true", help="with --twins: exit 1 on MARKER_DESYNC")
     ap.add_argument("--exclude", action="append", default=[], metavar="REGEX", help="skip repo paths matching REGEX")
     ap.add_argument("--include-records", action="store_true", help="also scan files the registry lists as records")
+    ap.add_argument("--no-agent-skip", action="store_true",
+                    help="also scan the registry's agent_skip paths (CI passes this; agents must not)")
     ap.add_argument("--registry", default=os.path.join(ROOT, REGISTRY))
     a = ap.parse_args()
     try:
@@ -881,12 +1003,17 @@ def main():
     if a.self_test:
         return self_test({None: None, 'marked': True, 'unmarked': False}[a.self_test_force])
 
-    entries, records = load_registry(a.registry)
-    excludes = [re.compile(x) for x in a.exclude]
+    entries, records, skips = load_registry(a.registry)
+    if a.no_agent_skip:
+        skips = []
+    excludes = [re.compile(x) for x in a.exclude] + skips
     roots = [p.replace("\\", "/").strip("/") for p in a.paths]
 
     def keep(paths):
         return [p for p in paths if wanted(p, records, excludes, a.include_records, roots)]
+
+    def n_agent_skipped(paths):
+        return sum(1 for p in paths if p.lower().endswith(TEXT_EXT) and any(rx.search(p) for rx in skips))
 
     def summary(n_files, hits, extra=""):
         n_un = sum(1 for h in hits if not h.marked)
@@ -897,6 +1024,8 @@ def main():
     if a.base:
         mb = git("merge-base", a.base, "HEAD").decode().strip()
         changed = git("diff", "--name-only", "--no-renames", mb, "HEAD").decode("utf-8", "replace").splitlines()
+        if skips:
+            print(f"agent_skip: {n_agent_skipped(changed)} changed file(s) not scanned (--no-agent-skip scans them)")
         changed = keep(changed)
         head_hits, n = scan_many(read_rev("HEAD", changed), entries)
         base_hits, _ = scan_many(read_rev(mb, changed), entries)
@@ -917,6 +1046,9 @@ def main():
     skipped_records = 0 if a.include_records else sum(
         1 for p in tracked if p.lower().endswith(TEXT_EXT) and any(fnmatch.fnmatch(p.lower(), g) for g in records)
         and not any(rx.search(p) for rx in excludes))
+    agent_note = f"; {n_agent_skipped(tracked)} agent_skip files not scanned (--no-agent-skip)" if skips else ""
+    if skips:
+        print(f"agent_skip: {n_agent_skipped(tracked)} text file(s) not scanned (--no-agent-skip scans them)")
 
     if a.twins:
         by_path = {}
@@ -937,7 +1069,7 @@ def main():
     for h in hits:
         if not h.marked:
             print(f"{h.path}:{h.line}: UNMARKED [{h.entry}] {h.snippet}")
-    summary(n, hits, f"; {skipped_records} record files skipped (--include-records to scan)")
+    summary(n, hits, f"; {skipped_records} record files skipped (--include-records to scan){agent_note}")
     bad = any(not h.marked for h in hits)
     print("GATE: FAIL" if bad else "GATE: PASS")
     return 1 if bad else 0
