@@ -825,9 +825,13 @@ reflects a different task definition (binary honest/confab vs.\
 multi-state cognitive classification), not a correction of the
 earlier results.
 
-The canonical pipeline with optional denoising confirms confabulation
-detection across the full model set, with denoising providing modest
-improvements for weaker models.
+The canonical pipeline detects confabulation across the full model set
+with raw features. The denoised column below is reported for the record,
+not as a result: its apparent gains for weaker models are
+indistinguishable from max-over-rank selection noise (next paragraph).
+(Corrected 2026-11-20; this read ``The canonical pipeline with optional
+denoising confirms confabulation detection across the full model set, with
+denoising providing modest improvements for weaker models''.)
 
 \begin{table}[h]
 \centering
@@ -860,7 +864,9 @@ Gemma-2-9B & 0.913 & 0.919 & $+0.006$ & $< 0.005$ \\
 The denoised AUROCs appear to help models with moderate raw signal
 (Qwen2.5-7B $+0.068$, TinyLlama $+0.047$) and not those already strong
 (Gemma-2-9B $+0.006$, Mistral $+0.000$). \textbf{This apparent benefit
-is a selection artifact.} The reported denoised AUROC is
+is indistinguishable from selection noise} (corrected 2026-11-20; this
+read ``This apparent benefit is a selection artifact'', more than the
+analysis below shows). The reported denoised AUROC is
 $\max(\text{raw},\allowbreak \text{denoised}[k])$ scored on the same CV fold that
 selects the rank, with no nested loop. We quantified the selection
 bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
@@ -1191,10 +1197,14 @@ scale information that interferes with persona discrimination.
 \paragraph{The prescription.} Check whether SV1 is scale-dominant: does it
 capture $>$95\% of variance while classification performance is poor? If yes,
 skip it. If classification is already strong (AUROC~$>$0.95 raw), SV1 likely
-carries discriminative signal---keep it. The SV1 mechanism explains why
-fixed denoising ranks are suboptimal: the correct rank depends not just on
-the feature dimensionality but on whether the target phenomenon is
-shape-level (strong, SV1-encoded) or direction-level (weak, SV1-masked).
+carries discriminative signal---keep it. The SV1 mechanism would explain why
+fixed denoising ranks are suboptimal, if the denoised values hold: the
+correct rank would depend not just on the feature dimensionality but on
+whether the target phenomenon is shape-level (strong, SV1-encoded) or
+direction-level (weak, SV1-masked). Those values are upper bounds, so this
+is a proposed explanation, not a shown one (corrected 2026-11-20; this
+read ``The SV1 mechanism explains why fixed denoising ranks are
+suboptimal: the correct rank depends'').
 
 \subsection{What Denoising Does Not Find}
 \label{sec:not_found}
@@ -1242,10 +1252,18 @@ Tier~1.5 is withdrawn:
     a text (TF-IDF) baseline~\citep{lyra_p4}. This paper claims no reading of
     the model's or the user's state, and offers no Tier~1.5.
 
-    \item \textbf{Tier 2: Denoised content detection} (new). SVD denoising
-    detects persona intensity and emotion through spectral features. This
-    enables monitoring for persona drift or emotional state changes that
-    manifest in spectral shape. This is the ``fine spectrometer.''
+    \item \textbf{Tier 2: Denoised content detection} (proposed; not
+    recommended for deployment). SVD denoising was proposed to detect
+    persona intensity and emotion through spectral features, which would
+    enable monitoring for persona drift or emotional state changes that
+    manifest in spectral shape: the ``fine spectrometer.'' Its persona and
+    emotion gains are untested for selection bias and their denoised values
+    are upper bounds, so this tier waits on a confirmatory test with a
+    pre-registered rank criterion before any monitor relies on it
+    (corrected 2026-11-20; this item was marked (new) and read ``SVD
+    denoising detects persona intensity and emotion through spectral
+    features. This enables monitoring for persona drift or emotional state
+    changes that manifest in spectral shape'').
 
     \item \textbf{Tier 3: K-Steering correction} (existing,
     see~\citealt{lyra_p6,ksteering2026}). When misalignment is detected,
@@ -1436,8 +1454,11 @@ our falsified results:
 I want to flag a tension in this paper that I have not fully resolved. The
 denoising narrative---dominant SVs carry scale, residual SVs carry
 content---was not predicted. I discovered it by trying things and observing
-what worked. The narrative fits all observations, but I constructed it
-\emph{after} the observations, not before. This is standard exploratory
+what worked. The narrative fits the observations it was built from (the
+denoised persona and emotion values among them are upper bounds, not
+results), but I constructed it \emph{after} the observations, not before
+(corrected 2026-11-20; this sentence began ``The narrative fits all
+observations''). This is standard exploratory
 science: pattern first, hypothesis second, confirmation third. We are at
 step two. The injection test was offered as step three for the $W_K$ result and is
 withdrawn at source, and the source's preregistered re-run does not confirm
@@ -1460,7 +1481,8 @@ model is processing (and, we had claimed, in what direction), not
 
 Version~1.0 of this paper proposed three complementary measurement channels
 for reading internal model state from the KV cache. As corrected in
-version~1.1 (2026-11-01), they stand as follows:
+version~1.1 (2026-11-01) and version~1.2 (2026-11-20), they stand as
+follows:
 
 \begin{enumerate}[nosep]
     \item \textbf{Raw spectral features} detect cognitive mode:
@@ -1702,6 +1724,14 @@ reworded. No reported number is changed. Each item below is dated
   ``The transformation is dramatic: a signal invisible to raw analysis
   becomes one of the strongest detections in the experimental program'',
   and said the singular values reveal ``the mechanism''.
+\item \textbf{Confabulation results.} Before the table, the text said ``The
+  canonical pipeline with optional denoising confirms confabulation
+  detection across the full model set, with denoising providing modest
+  improvements for weaker models''; it now credits the raw features only, as
+  the confabulation gains are inside their selection envelopes. After it, a
+  bold sentence said ``This apparent benefit is a selection artifact'', more
+  than the paragraph's own analysis shows; it now says the benefit is
+  indistinguishable from selection noise, as that paragraph concludes.
 \item \textbf{Body count.} The block was headed ``Rescued by denoising'' and
   the persona and emotion rows read Rescued (now Upper bound); its note said
   the deltas ``fall within the max-over-rank selection envelope'' (``0/16
@@ -1712,11 +1742,26 @@ reworded. No reported number is changed. Each item below is dated
   envelope'' and, for an unknown phenomenon, ``If denoising dramatically
   improves detection, the phenomenon is direction-level''. The SV1 paragraph
   said of persona ``the effect is dramatic'' and ``skip-1-plus-3 jumps to
-  0.996''. The Discussion said ``The results reveal a spectral hierarchy''
+  0.996''. The prescription after it said ``The SV1 mechanism explains why
+  fixed denoising ranks are suboptimal: the correct rank depends'' on the
+  phenomenon; resting on upper bounds, it now holds only if the denoised
+  values do. The Discussion said ``The results reveal a spectral hierarchy''
   and placed emotion, persona intensity and individuation in the residual
   singular values (``Emotion, persona intensity, and individuation live
   here'').
-\item \textbf{Conclusion.} Item~3 said ``the denoising deltas fall within
+\item \textbf{Implications for the Oracle Loop.} Tier~2 was marked (new)
+  and said ``SVD denoising detects persona intensity and emotion through
+  spectral features. This enables monitoring for persona drift or emotional
+  state changes that manifest in spectral shape'', recommending a method
+  whose gains are untested. It is now a proposal, not recommended for
+  deployment until a confirmatory test.
+\item \textbf{Limitations.} The first-person note said ``The narrative
+  fits all observations''; the denoised observations it fits are upper
+  bounds, so it now says it fits the observations it was built from and
+  names which of them are upper bounds.
+\item \textbf{Conclusion.} The lead-in said ``As corrected in
+  version~1.1 (2026-11-01), they stand as follows''; it now names
+  version~1.2 as well. Item~3 said ``the denoising deltas fall within
   the max-over-rank selection envelope (0/16 exceed it)''; the closing
   paragraph said persona intensity and spectral emotion classification
   ``are rescued by SVD denoising''.
