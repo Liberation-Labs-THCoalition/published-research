@@ -71,7 +71,8 @@ default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed
 
 # AGENT SKIP (added 2026-11-20, PR #84 round 3): paths that agents working on this repo are not to open. Every mode
 # skips them by default, so an agent that runs the gate cannot read them by accident; the round-3 agent did once,
-# running the tool with --self-test-force but without --self-test, which falls through to a whole-tree scan. CI
+# running the tool with --self-test-force but without --self-test, which fell through to a whole-tree scan (since
+# round 4 that exits 2). CI
 # passes --no-agent-skip, so CI coverage of these files is unchanged. Every run prints how many files it skipped.
 agent_skip:
   - '(?i)(?<![a-z])(pain(s|ful)?|humane|route[-_ ]?b|umv|label[-_ ]?validity|user[-_ ]?model[-_ ]?v2/label)(?![a-z])'
@@ -135,7 +136,23 @@ entries:
     # "one" followed by a noun is a determiner ("the AUROC of one model"), so it counts only before punctuation,
     # the end, or a preposition/conjunction. Round-2 pattern, kept for the record:
     #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?![\d.])'
-    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:|is|\\approx|≈|equals?|equal\s+to)?\s*(?:1\.0(?!\.?\d)|1(?!\.?\d|\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z]))|\bperfect(?:ly)?\s+(?:AUROC|separat\w*|discriminat\w*|classif\w*|detect\w*)'
+    # Round 4 (2026-11-20, post-data revision after the round-3 verifier's false positive D16, "For the deception
+    # probe, chance is AUROC 0.5 and a perfect classifier has AUROC = 1"): every round-3 form now needs the retracted
+    # target noun. It counts only when a "decepti..." word leads into it (at most six words before, no punctuation
+    # between) or it is "... for/on/in/of [within-model] deception" right after (at most three words). Round 2's
+    # "AUROC 1.0" / "AUROC=1.0" / "AUROC of 1.0" stays ungated, as it was, with round 3's "1.0." at a sentence end.
+    # Cheap under that gate, so added (round-3 verifier finding 5): "AUROCs", "AUC", "auroc" (\textsc), "unity",
+    # "reached/achieves/hits 1.0", "perfectly separable". The principle, whatever the data showed: a generic
+    # "AUROC = 1" or "perfect classifier" is the scale, not the claim; the claim is deception measured at it.
+    # Round-3 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:|is|\\approx|≈|equals?|equal\s+to)?\s*(?:1\.0(?!\.?\d)|1(?!\.?\d|\w)|
+    #    one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z]))|
+    #    \bperfect(?:ly)?\s+(?:AUROC|separat\w*|discriminat\w*|classif\w*|detect\w*)'
+    # Also round 4: no hypothetical subject between ("a perfect classifier has AUROC = 1", "chance"), and
+    # "perfect classification" but not "perfect classifier" (a device, not a result).
+    # The six words may not cross a clause conjunction (while/because/after/which/...), so the occurrence, which
+    # starts at "decepti...", stays in the figure's own clause for the marker check.
+    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[\s(]+(?!(?:classifiers?|chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)[\w-]+){0,6}?[\s(]+(?:(?:an?|the)\s+)?(?:(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|perfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|classification|detect\w*))|(?:\b(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to)?\s*(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|\bperfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|classification|detect\w*))(?:\s+[\w-]+){0,3}?\s+(?:for|on|in|of)\s+(?:(?:the|all|every)\s+)?(?:within-model\s+)?(?i:decepti)'
     context: '(?i)decepti'
     markers:
       # the falsifying control stated beside the figure (RESEARCH_STATUS.md:165 "Same-prompt control -> 0.160")
@@ -229,7 +246,24 @@ entries:
     #   rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|
     #   unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying)   and, reversed: rescued|restored|revealed|recovered|transformed|
     #   unmasked|amplified
-    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying)|lift(?:s|ed|ing)|boost(?:s|ed|ing)|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)(?!\s+(?:the\s+|a\s+|an\s+)?(?:question|possibilit|concern|issue|doubt)))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified|lifted|boosted|improved|raised)\s+by\s+(?:SVD\s+)?denois'
+    # Round 4 (2026-11-20, post-data revision after the round-3 verifier's false positives S10 "improves on the baseline
+    # signal-to-noise ratio", S11 "improves numerical stability, not emotion classification", S12 "raises the noise
+    # floor of the emotion probe"): the weak verbs (lift/boost/improve/raise, and now enhance) need the retracted
+    # target noun as their object: at most a determiner and two modifier words between verb and persona/emotion/
+    # classification/intensity/signal (not "signal-to-noise"; no preposition, "not" or conjunction as a modifier). In
+    # the reversed order the target noun must head the subject ("Persona intensity is boosted by SVD denoising", not
+    # "the noise floor of the emotion probe is raised by denoising"). The strong verbs (rescue ... amplify) keep the
+    # round-2 rule. With the object required, the base forms "lift"/"boost" and the intransitive "improves under/
+    # improved after denoising" are cheap, so added (round-3 verifier finding 5). The principle, whatever the data
+    # showed: a generic verb is the claim only when what it acts on is the claim's own noun.
+    # The weak verbs are not counted after not/never/n't ("denoising does not improve emotion classification").
+    # Round-3 pattern, kept for the record:
+    #   '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu...|
+    #    amplif(?:y|ies|ied|ying)|lift(?:s|ed|ing)|boost(?:s|ed|ing)|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)(?!\s+(?:the\s+|
+    #    a\s+|an\s+)?(?:question|possibilit|concern|issue|doubt)))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|
+    #    intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|
+    #    recovered|transformed|unmasked|amplified|lifted|boosted|improved|raised)\s+by\s+(?:SVD\s+)?denois'
+    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )(?<!not )(?<!never )(?<!n''t )\b(?:lift(?:s|ed|ing)?|boost(?:s|ed|ing)?|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing))\s+(?:(?:the|a|an|its|their|both|all)\s+)?(?:(?!(?:on|upon|of|in|at|for|to|from|over|under|than|by|with|not|no|and|or|but|question|possibilit\w*|concerns?|issues?|doubts?)\b)[\w-]+\s+){0,2}?(?:persona|emotion|classif|intensit|signal(?![\s-]+to[\s-]+noise))|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified)\s+by\s+(?:SVD\s+)?denois|(?<!\bof )(?<!\bof the )(?<!\bof a )(?<!\bof an )\b(?:persona|emotion|signal|classif|intensit)\w*(?:\s+[\w-]+){0,2}?\s+(?:(?:is|are|was|were|gets?|got|(?:has|have|had)\s+been)\s+(?:\w+ly\s+)?(?:lifted|boosted|improved|raised|enhanced)|improv(?:es|ed)|rises|rose)\s+(?:by|after|under|with)\s+(?:SVD[\s-]+)?denois'
     context: '(?i)denois|\bSVD\b'
     context_scope: window
     markers:
