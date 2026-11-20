@@ -1,5 +1,5 @@
 % The Lyra Technique II: SVD Denoising and Persona Intensity in KV-Cache
-%   Geometry (version 1.1, 2026-11-01)
+%   Geometry (version 1.2, 2026-11-20; version 1.1, 2026-11-01)
 %   Version 1.0 title: "SVD Denoising and Directional Projection Extend
 %   KV-Cache Geometry to Emotion and Persona Detection". A longer v1.1 title
 %   ending ", with Its Emotion Channel Corrected" was proposed and vetoed
@@ -22,6 +22,11 @@
 % (P4, user model): the probe applied no W_K, its labels were the requested
 % story emotion, and its 30-class result is not above a text baseline. See
 % the Correction box after the title and the Correction Note at the end.
+% Version 1.2 (2026-11-20): the selection-bias analysis (45 scale-sweep
+% cells: confabulation and self-reference) is scoped to what it tested; the
+% persona and emotion denoising gains were never tested, so they are
+% untested upper bounds, and passages stating denoising as a result are
+% reworded. See the Correction Note (version 1.2) at the end.
 %
 % PATENT NOTICE: The methods described herein are the subject of a
 % provisional patent filing ("The Lyra Technique," filed 2026-03-06).
@@ -80,7 +85,7 @@
     Ang Jandak\thanks{Persona intensity experiment design and execution.}
 }
 
-\date{Version 1.1 --- corrected 2026-11-01 (version 1.0: May 2026)}
+\date{Version 1.2 --- corrected 2026-11-20 (version 1.1: corrected 2026-11-01; version 1.0: May 2026)}
 
 \begin{document}
 
@@ -120,12 +125,22 @@ is decodable from its cache keys, but on 30 classes not significantly better
 than from its text; a ten-emotion binary split beats text by $0.029$ AUROC,
 confounded with arousal. This paper claims no $W_K$ channel, no reading of
 the model's or the user's state, and no finding that emotions are direction
-rather than shape. Its spectral and SVD-denoising results are not changed by
-this correction. The title is changed from ``SVD Denoising and Directional
+rather than shape. Its spectral and SVD-denoising results were not changed by
+the 2026-11-01 correction (see version 1.2 below). The title is changed from ``SVD Denoising and Directional
 Projection Extend KV-Cache Geometry to Emotion and Persona Detection''. The
 Method and Injection sections are kept as a record and marked; the Results
 section on the readout is rewritten; the Correction Note at the end lists
-every change and quotes the earlier wording.}}
+every change and quotes the earlier wording.
+\par\smallskip\noindent
+\textbf{Correction (version 1.2, 2026-11-20).} Version 1.1 said the
+persona denoising gains ($+0.2$--$0.3$ AUROC) do not survive selection-bias
+analysis. That analysis covered 45 scale-sweep cells (confabulation and
+self-reference tasks); it never tested persona or emotion. Those gains are
+untested, neither shown to be selection noise nor shown to be real: the
+denoised persona and emotion values are upper bounds pending a
+pre-registered rank criterion. Passages that stated denoising gains as
+results are reworded. No number is changed; the Correction Note
+(version 1.2) at the end quotes the earlier wording.}}
 
 \bigskip
 
@@ -157,10 +172,14 @@ confabulation at AUROC~0.663--0.913 across a
 AUROC~0.749. A previously reported within-model deception result
 (AUROC~1.000) is retracted: the same-prompt control collapses to 0.160,
 confirming it detected the system-prompt template, not deception geometry. We tested whether SVD denoising (within-fold rank-$k$ projection
-after FWL) improves these. The apparent gains ($+0.2$--$0.3$ for persona,
-$+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
-across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
-max-over-rank selection envelope. We therefore report \emph{raw} AUROCs as
+after FWL) improves these. For confabulation and self-reference, the
+apparent gains ($+0.05$ for confabulation) do not survive selection-bias
+analysis: across 45 model$\times$task cells of the scale sweep, 0 of 16
+positive denoising deltas exceed a max-over-rank selection envelope. The
+apparent persona gains ($+0.2$--$0.3$) and the denoised emotion result were
+not part of that analysis: they are untested, and their denoised values are
+upper bounds (corrected 2026-11-20; version 1.1 said the persona gains do not
+survive it). We therefore report raw AUROCs as
 the defensible numbers and flag SVD denoising as an unconfirmed hypothesis
 pending a pre-registered (e.g.\ Gavish--Donoho~\citep{gavish2014optimal}) rank criterion.
 
@@ -200,8 +219,9 @@ grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that deception
 expands the cache while confabulation contracts it, and that per-layer delta
 features capture signal that layer-averaged features
 destroy~\citep{lyra_delta}. Confabulation detection is robust
-(AUROC~0.663--0.913 across the scale sweep, with denoising improving
-weaker models by up to $+0.068$). Hardware invariance holds:
+(AUROC~0.663--0.913 across the scale sweep, raw; an apparent denoising
+gain on weaker models, up to $+0.068$, sits inside its max-over-rank
+selection envelope and is not claimed, \S\ref{sec:results_confab}). Hardware invariance holds:
 between an RTX~3090 and an H200, over 40 prompts, the four cache features
 correlate at $r = 0.9986$--$0.9999$ (key rank and key entropy at $0.9986$
 and $0.9988$, the two norm features above $0.999$)~\citep{lyra_p2}. A previously reported within-model deception
@@ -242,13 +262,21 @@ text baseline on 30 classes:
     once offered as confirming model state is withdrawn. This paper no
     longer claims that emotions change direction rather than shape.
 
-    \item \textbf{SVD denoising: the calibrated thermometer.} Dominant
-    singular values carry scale and processing mode; removing them via
-    low-rank projection exposes discriminative structure in the residual
-    spectrum. Persona intensity jumps $+0.196$ to $+0.288$ AUROC across three
-    architectures after denoising. Emotion classification goes from chance to
-    $12.9\times$ chance. The thermometer reads \emph{how different} the cache
-    shapes are---after removing the background temperature.
+    \item \textbf{SVD denoising: the proposed amplifier (unconfirmed).} We
+    hypothesized that dominant singular values carry scale and processing
+    mode, so that removing them via low-rank projection would expose
+    discriminative structure in the residual spectrum. We reported that
+    persona intensity gains $+0.196$ to $+0.288$ AUROC across three
+    architectures after denoising, and that emotion classification goes
+    from chance to $12.9\times$ chance. Neither is claimed. The
+    selection-bias analysis (across 45 model$\times$task cells of the scale
+    sweep, 0 of 16 positive denoising deltas exceed a max-over-rank
+    selection envelope) covered confabulation and self-reference, not
+    persona or emotion, so the persona and emotion gains are untested and
+    their denoised values are upper bounds; the raw-spectral emotion chance
+    result is withdrawn (above). The raw AUROCs are the defensible numbers;
+    denoising remains a hypothesis pending a pre-registered rank criterion.
+    (Corrected 2026-11-20, version 1.2; see the Correction Note.)
 \end{enumerate}
 
 The distinction is not cosmetic. Mode-level phenomena (confabulation,
@@ -257,9 +285,10 @@ distribution---how broadly the model distributes representational energy
 across dimensions~\citep{lyra_spectral}. We proposed that content-level
 phenomena (emotion, persona identity) alter the \emph{direction}---which
 subspaces the model occupies within a given shape. Raw spectral features
-capture shape but are blind to direction. Denoising removes the dominant
-shape component to reveal direction-sensitive structure in the residual
-spectrum. (Corrected 2026-11-01: for emotion, the direct evidence of
+capture shape but are blind to direction. Denoising was meant to remove the
+dominant shape component and reveal direction-sensitive structure in the
+residual spectrum; no such gain is confirmed (corrected 2026-11-20; this read
+``Denoising removes the dominant shape component to reveal''). (Corrected 2026-11-01: for emotion, the direct evidence of
 direction was the key readout, which applies no $W_K$ and does not beat a
 text baseline on 30 classes, so this paper no longer claims emotion as a
 direction-level phenomenon. A sentence crediting $W_K$ projection with
@@ -284,7 +313,10 @@ report the raw numbers now and call denoising a hypothesis, not a result.
 I called the shape-versus-direction distinction the real finding; for
 emotion it rested on that readout and is withdrawn with it. The denoising
 amplifier was me mistaking selection noise for signal, and catching both is
-part of the record.
+part of the record. (Corrected 2026-11-20: that audit covered the scale
+sweep's confabulation and self-reference cells. I never put the persona
+or emotion gains through it, so for them I cannot say they were noise,
+only that they are untested.)
 \end{firstperson}
 
 % ===================================================================
@@ -436,28 +468,32 @@ room. Denoising removes the temperature to reveal what individual objects
 confabulating (cold) or retrieving (warm); the smell tells you \emph{what}
 it is retrieving.
 
-\paragraph{Denoising is not universal.} We emphasize that denoising is a
-\emph{calibration tool}, not a universal amplifier. Its effect is
-task-dependent:
+\paragraph{Denoising is not universal.} We had proposed denoising as a
+calibration tool, not a universal amplifier, with a task-dependent effect.
+The apparent effects (corrected 2026-11-20; none is claimed):
 
 \begin{itemize}[nosep]
-    \item \textbf{Massive for emotion and persona} ($+0.2$--$0.3$ AUROC):
-    the signal lives entirely in the residual spectrum.
-    \item \textbf{Modest for confabulation} ($+0.05$): some improvement on
-    weak models, no change on strong ones.
+    \item \textbf{Emotion and persona} ($+0.2$--$0.3$ AUROC apparent):
+    untested for selection bias; the denoised values are upper bounds.
+    Version 1.1 read ``Massive for emotion and persona'' and ``the signal
+    lives entirely in the residual spectrum''.
+    \item \textbf{Confabulation} ($+0.05$ apparent, on weak models; no
+    change on strong ones): inside the max-over-rank selection envelope
+    (\S\ref{sec:results_confab}), so not claimed.
     \item \textbf{Deception (retracted):} the raw AUROC~1.000 was a
     prompt-template confound, not genuine deception detection
     (Table~\ref{tab:body_count}). No conclusions about denoising for
     deception can be drawn from these data.
 \end{itemize}
 
-This pattern is \emph{predicted} by the shape-vs-direction framework.
-Denoising helps when the target phenomenon alters direction (not captured by
-raw spectral features) rather than shape (already captured).
-For emotion, the result is no longer a test of this prediction: the
-direction-level reading of emotion is withdrawn (see the Correction box on
-the first page), and the denoised gain is an upper bound
-(\S\ref{sec:results_confab}).
+The shape-vs-direction framework predicted this pattern: denoising should
+help when the target phenomenon alters direction (not captured by raw
+spectral features) rather than shape (already captured). With no denoising
+gain confirmed, the pattern does not test the prediction (corrected
+2026-11-20; this sentence read ``This pattern is predicted by'' the framework
+and ``Denoising helps when''). For emotion, the
+direction-level reading is also withdrawn (see the Correction box on
+the first page), and the denoised gain is an upper bound.
 
 \subsection{Injection Disambiguation (Withdrawn)}
 \label{sec:injection}
@@ -624,7 +660,7 @@ Random direction control & $0.7\times$ & --- & Withdrawn \\
 \end{tabular}
 \end{table}
 
-\subsection{SVD Denoising Reveals Persona Intensity Gradient}
+\subsection{Persona Intensity: Raw Signal and Untested Denoised Values}
 \label{sec:results_persona}
 
 Persona intensity measures how strongly a system prompt shapes the model's
@@ -635,8 +671,8 @@ no persona), L1 (minimal persona: ``You are a helpful assistant''), L2
 identity, values, and behavioral constraints).
 
 \paragraph{Raw vs.\ denoised.} Raw spectral features detect the L0-vs-L3
-contrast at moderate accuracy. SVD denoising transforms moderate signals
-into strong ones:
+contrast at moderate accuracy. Rank-3 SVD denoising gives higher AUROCs,
+but those gains are not claimed (see below and the abstract):
 
 \begin{table}[h]
 \centering
@@ -658,15 +694,23 @@ Mistral-7B-v0.3 & 0.611 & 0.899 & $+0.288$ \\
 \end{tabular}
 \end{table}
 
-The improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral). All
-three architectures show the same pattern (for Qwen and Llama, subject to the
-phase-0 caveat in Table~\ref{tab:persona_raw_denoised}): denoising rescues a signal that
-was present but masked by dominant spectral variance.
+The apparent improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral),
+in the same direction on all three architectures (for Qwen and Llama, subject
+to the phase-0 caveat in Table~\ref{tab:persona_raw_denoised}). It was
+not tested for selection bias: the analysis in \S\ref{sec:results_confab}
+covered the scale sweep's confabulation and self-reference cells, not
+persona, and the persona permutation-null SE it would need is not stored.
+The denoised values are therefore upper bounds pending a pre-registered rank
+criterion. We claim neither that denoising rescues a masked signal nor that
+the gain is selection noise; the raw AUROCs are the defensible numbers.
+(Corrected 2026-11-20, version 1.2; see the Correction Note.)
 
 \paragraph{5-level graded classification.} Extending to all five persona
 levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
 chance ($0.41$--$0.46$ accuracy, chance $= 0.200$) across all three
-architectures: persona intensity is graded, not binary. \textbf{We do not,
+architectures. This is an upper bound for the same reason, and it is
+consistent with graded persona intensity without establishing it (corrected
+2026-11-20; it read ``persona intensity is graded, not binary''). \textbf{We do not,
 however, claim a monotonic per-level gradient.} Establishing monotonicity
 requires the full set of adjacent-level pairwise comparisons (L0-vs-L0.5,
 L0.5-vs-L1, L1-vs-L2, L2-vs-L3), and only the endpoint (L0-vs-L3) and a single
@@ -684,8 +728,9 @@ persona. The two comparisons we can verify from the data:
 \end{itemize}
 The L0-vs-L3 endpoint separation is the defensible persona finding; the raw
 AUROC (0.749 for Qwen) is the conservative number, as the denoising
-improvement falls within the max-over-rank selection envelope
-(\S\ref{sec:results_confab}). The endpoint exceeds the instruction-complexity
+improvement is untested for selection bias and its value an upper bound
+(corrected 2026-11-20; it said the improvement ``falls within the
+max-over-rank selection envelope'', which was never computed for persona). The endpoint exceeds the instruction-complexity
 control, indicating persona identity produces geometric effects beyond
 instruction following alone.
 
@@ -703,29 +748,42 @@ proper future test of the gradient claim.
 \paragraph{Expansion-compression pattern.} Consistent with the delta
 manifold findings~\citep{lyra_delta}, persona intensity shows an
 expansion-compression pattern across layers: positive effects in early/mid
-layers, negative in late layers. The denoising step removes the dominant
-component (which averages across this pattern), revealing the layer-specific
-persona signal. This explains why prior per-layer analyses found strong
+layers, negative in late layers. We had read the denoising step as removing
+the dominant component (which averages across this pattern) and revealing the
+layer-specific persona signal; with the denoised gain untested, that is a
+proposed explanation, not a shown one (corrected 2026-11-20). It would
+explain why prior per-layer analyses found strong
 single-layer effects (e.g., $g = -5.08$ at layer~29 for spectral entropy
 on Llama) while all-layer averages showed chance performance.
 
-\subsection{SVD Denoising Rescues Emotion Classification}
+\subsection{SVD-Denoised Emotion Classification (Upper Bound)}
 \label{sec:results_denoise_emo}
 
-Independent of the $W_K$ projection, SVD denoising of raw spectral features
-also rescues emotion classification---through a different mechanism.
+Separately from the key readout, we applied SVD denoising to raw spectral
+features for emotion classification. The denoised result below was not part
+of the selection-bias analysis (\S\ref{sec:results_confab}), so it is
+untested and is reported as an upper bound pending a pre-registered rank
+criterion. (Corrected 2026-11-20: the heading read ``SVD Denoising Rescues
+Emotion Classification'', and this paragraph said denoising ``also rescues
+emotion classification---through a different mechanism''.)
 
-\paragraph{From chance to $12.9\times$.} On the 900-trial emotion dataset
+\paragraph{Raw $1.7\times$, denoised $12.9\times$ (upper bound).} On the 900-trial emotion dataset
 (Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
 30~emotions at $1.7\times$ chance (accuracy $0.057$, chance $0.033$).
 Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.43$,
 permutation null $0.027$, $p < 0.005$).
 
-The transformation is dramatic: a signal invisible to raw analysis becomes
-one of the strongest detections in the experimental program.
+We had called this transformation dramatic, a weak raw signal becoming one of
+the strongest detections in the experimental program. Until it passes a
+selection-bias test with the rank fixed in advance, the $12.9\times$ is an
+upper bound, not a detection we claim (corrected 2026-11-20; the sentence
+read ``The transformation is dramatic: a signal invisible to raw analysis
+becomes one of the strongest detections in the experimental program'').
 
-\paragraph{The scale dominance mechanism.} Examination of the singular values
-of the FWL-residualized spectral feature matrix reveals the mechanism. The
+\paragraph{The scale dominance mechanism (proposed).} Examination of the singular values
+of the FWL-residualized spectral feature matrix suggests a mechanism, not yet
+shown to produce a real gain (corrected 2026-11-20; it read ``reveals the
+mechanism''). The
 first singular value captures $\sim$40\% of total variance and correlates
 strongly with overall spectral scale ($r > 0.85$)---essentially encoding
 whether the cache is ``big'' or ``small'' in spectral terms. This
@@ -734,11 +792,13 @@ not emotional content). Emotions differ in the \emph{residual}
 directions---how the model distributes energy across spectral dimensions
 \emph{after} accounting for overall scale.
 
-Denoising removes the shared mode-level variance, exposing the
-emotion-specific residuals. The analogy to FWL is precise: FWL removes
+On this reading, denoising removes the shared mode-level variance and exposes
+emotion-specific residuals; whether that yields a real gain is what the upper
+bound leaves open. The analogy we drew to FWL: FWL removes
 token-count confounds from the feature space; denoising removes
-spectral-scale confounds from the feature space. Both are calibration steps
-that reveal structure hidden by dominant nuisance variance.
+spectral-scale confounds from the feature space. Both were meant as
+calibration steps that reveal structure hidden by dominant nuisance
+variance; for denoising that is not yet shown.
 
 \paragraph{Convergence with the key readout (withdrawn).} We had read the
 similar 30-class accuracies of the denoised spectral approach and the key
@@ -763,9 +823,13 @@ reflects a different task definition (binary honest/confab vs.\
 multi-state cognitive classification), not a correction of the
 earlier results.
 
-The canonical pipeline with optional denoising confirms confabulation
-detection across the full model set, with denoising providing modest
-improvements for weaker models.
+The canonical pipeline detects confabulation across the full model set
+with raw features. The denoised column below is reported for the record,
+not as a result: its apparent gains for weaker models are
+indistinguishable from max-over-rank selection noise (next paragraph).
+(Corrected 2026-11-20; this read ``The canonical pipeline with optional
+denoising confirms confabulation detection across the full model set, with
+denoising providing modest improvements for weaker models''.)
 
 \begin{table}[h]
 \centering
@@ -798,7 +862,9 @@ Gemma-2-9B & 0.913 & 0.919 & $+0.006$ & $< 0.005$ \\
 The denoised AUROCs appear to help models with moderate raw signal
 (Qwen2.5-7B $+0.068$, TinyLlama $+0.047$) and not those already strong
 (Gemma-2-9B $+0.006$, Mistral $+0.000$). \textbf{This apparent benefit
-is a selection artifact.} The reported denoised AUROC is
+is indistinguishable from selection noise} (corrected 2026-11-20; this
+read ``This apparent benefit is a selection artifact'', more than the
+analysis below shows). The reported denoised AUROC is
 $\max(\text{raw},\allowbreak \text{denoised}[k])$ scored on the same CV fold that
 selects the rank, with no nested loop. We quantified the selection
 bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
@@ -951,9 +1017,9 @@ Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 Binary split, 10 emotions ($n{=}300$, arousal-confounded) & 0.992 & --- & --- & $0.006$ & Suspected$^{\P}$ \\
 Injection (neutral text) & 100\% & --- & --- & --- & Withdrawn$^{\P}$ \\
 \midrule
-\multicolumn{6}{l}{\textit{Rescued by denoising$^\|$}} \\
-Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued$^\|$ \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued$^\|$ \\
+\multicolumn{6}{l}{\textit{Denoised gain untested (corrected 2026-11-20)$^\|$}} \\
+Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Upper bound$^\|$ \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Upper bound$^\|$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -986,13 +1052,15 @@ $^{\#}$Corrected 2026-11-07, following the source correction~\citep{lyra_p4}. Th
 Injection was marked ``confirmed (self-consistency)''; it is now withdrawn$^{\P}$.
 $^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised, beside raw spectral cells now removed; the 30-class cell read $1.0\times$, which disagreed with the $1.7\times$ in Table~\ref{tab:emotion_methods} and the \emph{Emotion (spectral)} row. No denoising is involved, so the readout's values now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
 $^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
-$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
+$^\|$Corrected 2026-11-20 (version 1.2). This block was headed ``Rescued by denoising'', both rows read Rescued, and this note said ``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and ``denoising appears to dramatically amplify it'', and that ``the denoising deltas themselves fall within the max-over-rank selection envelope'' (``0/16 positive deltas exceed their envelope''). That selection-bias analysis (\S\ref{sec:results_confab}) covered the 45 scale-sweep cells (confabulation and self-reference), not persona or emotion. These two gains are untested: not shown to be selection noise, and not shown to be real. The raw values are the defensible numbers; the denoised values are upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
 
 \paragraph{Pattern.} The body count reveals a clean organizing principle.
 \textbf{Shape-level signals} (confabulation, ethical deliberation,
 refusal) are already strong in raw spectral features---denoising has little
-effect. \textbf{Direction-level signals} (emotion, persona) are invisible to
-raw features but revealed by denoising, as upper bounds. (Corrected
+effect. \textbf{Signals we had called direction-level} (emotion, persona) are
+weak in raw features; their denoised values are untested upper bounds
+(corrected 2026-11-20; this read ``are invisible to raw features but revealed
+by denoising, as upper bounds''). (Corrected
 2026-11-01: we had also cited the key readout of emotion here as direct
 evidence of a direction-level signal; it applies no $W_K$ and does not beat
 a text baseline on 30 classes, so it is withdrawn as evidence.) The falsified
@@ -1009,7 +1077,11 @@ processing, not \emph{what} it is processing---unless you use the right lens.
 \subsection{The Spectral Hierarchy}
 \label{sec:hierarchy}
 
-The results reveal a spectral hierarchy in KV-cache geometry:
+We proposed a spectral hierarchy in KV-cache geometry. It is the hypothesis
+the abstract names, not a result: its second level rests on denoising gains
+that are untested or inside their selection envelope (corrected 2026-11-20;
+this read ``The results reveal a spectral hierarchy'', and item~2 said
+``Emotion, persona intensity, and individuation live here'').
 
 \begin{enumerate}[nosep]
     \item \textbf{Dominant singular values (SV 1--3):} Carry overall spectral
@@ -1019,8 +1091,8 @@ The results reveal a spectral hierarchy in KV-cache geometry:
     \emph{doing} at the broadest level.
 
     \item \textbf{Residual singular values (SV 4+):} Carry discriminative
-    \emph{content} and \emph{identity} structure. Emotion, persona intensity,
-    and individuation live here. These are the ``fingerprints on the
+    \emph{content} and \emph{identity} structure (proposed). We had placed
+    emotion, persona intensity, and individuation here. These are the ``fingerprints on the
     objects''---they tell you \emph{what} the model is encoding within a given
     processing mode.
 
@@ -1048,9 +1120,11 @@ The denoising prescription is task-dependent:
 \begin{itemize}[nosep]
     \item \textbf{Emotion or persona detection:} Denoising appears to
     dramatically improve detection (persona $+0.2$--$0.3$, emotion from
-    $1.7\times$ to $12.9\times$ chance), but these deltas fall within
-    the max-over-rank selection envelope and are not yet confirmed
-    (\S\ref{sec:results_confab}). Raw features detect persona at
+    $1.7\times$ to $12.9\times$ chance), but these deltas were never
+    tested for selection bias (that analysis, \S\ref{sec:results_confab},
+    covered confabulation and self-reference) and are upper bounds, not
+    confirmed (corrected 2026-11-20; it said they ``fall within the
+    max-over-rank selection envelope''). Raw features detect persona at
     AUROC~0.611--0.751 and emotion at $1.7\times$ chance; the class-mean
     key readout (\S\ref{sec:wk}; it applies no $W_K$) reaches AUROC~0.992
     only on a ten-emotion split that confounds valence with arousal, and it
@@ -1076,10 +1150,12 @@ The denoising prescription is task-dependent:
     deception detector is an open question pending confound-free
     replication.
 
-    \item \textbf{Unknown phenomenon:} Run both raw and denoised. If denoising
-    dramatically improves detection, the phenomenon is direction-level (we
-    had offered emotion as the example; its independent evidence, the key
-    readout, is withdrawn). If denoising has no effect, the phenomenon is shape-level (like
+    \item \textbf{Unknown phenomenon:} Run both raw and denoised, with the
+    rank fixed in advance. We had proposed that if denoising
+    dramatically improves detection, the phenomenon is direction-level; no
+    such gain is yet confirmed, so this is a hypothesis (corrected
+    2026-11-20). We had offered emotion as the example; its independent
+    evidence, the key readout, is withdrawn. If denoising has no effect, the phenomenon is shape-level (like
     confabulation on strong models). If denoising \emph{hurts}, the signal was
     in the dominant components and denoising removed it.
 \end{itemize}
@@ -1108,18 +1184,25 @@ scale variance that masks the weaker emotion signal. For content-level
 signals, skip SV1.
 
 \paragraph{Persona: SV1 is pure scale.}
-For L0-vs-L3 persona detection using 6-dimensional features on Qwen, the
-effect is dramatic: raw AUROC~0.749, top-3 projection achieves 0.945, but
-skip-1-plus-3 jumps to 0.996. SV1 carries almost exclusively
-scale information that actively interferes with persona discrimination.
+For L0-vs-L3 persona detection using 6-dimensional features on Qwen:
+raw AUROC~0.749, top-3 projection 0.945, skip-1-plus-3 0.996. The
+projected values are the best of several variants on the same data and
+were not tested for selection bias, so they are upper bounds (corrected
+2026-11-20; this read ``the effect is dramatic'' and ``skip-1-plus-3 jumps
+to 0.996''). On them we read SV1 as carrying almost exclusively
+scale information that interferes with persona discrimination.
 
 \paragraph{The prescription.} Check whether SV1 is scale-dominant: does it
 capture $>$95\% of variance while classification performance is poor? If yes,
 skip it. If classification is already strong (AUROC~$>$0.95 raw), SV1 likely
-carries discriminative signal---keep it. The SV1 mechanism explains why
-fixed denoising ranks are suboptimal: the correct rank depends not just on
-the feature dimensionality but on whether the target phenomenon is
-shape-level (strong, SV1-encoded) or direction-level (weak, SV1-masked).
+carries discriminative signal---keep it. The SV1 mechanism would explain why
+fixed denoising ranks are suboptimal, if the denoised values hold: the
+correct rank would depend not just on the feature dimensionality but on
+whether the target phenomenon is shape-level (strong, SV1-encoded) or
+direction-level (weak, SV1-masked). Those values are upper bounds, so this
+is a proposed explanation, not a shown one (corrected 2026-11-20; this
+read ``The SV1 mechanism explains why fixed denoising ranks are
+suboptimal: the correct rank depends'').
 
 \subsection{What Denoising Does Not Find}
 \label{sec:not_found}
@@ -1167,10 +1250,18 @@ Tier~1.5 is withdrawn:
     a text (TF-IDF) baseline~\citep{lyra_p4}. This paper claims no reading of
     the model's or the user's state, and offers no Tier~1.5.
 
-    \item \textbf{Tier 2: Denoised content detection} (new). SVD denoising
-    detects persona intensity and emotion through spectral features. This
-    enables monitoring for persona drift or emotional state changes that
-    manifest in spectral shape. This is the ``fine spectrometer.''
+    \item \textbf{Tier 2: Denoised content detection} (proposed; not
+    recommended for deployment). SVD denoising was proposed to detect
+    persona intensity and emotion through spectral features, which would
+    enable monitoring for persona drift or emotional state changes that
+    manifest in spectral shape: the ``fine spectrometer.'' Its persona and
+    emotion gains are untested for selection bias and their denoised values
+    are upper bounds, so this tier waits on a confirmatory test with a
+    pre-registered rank criterion before any monitor relies on it
+    (corrected 2026-11-20; this item was marked (new) and read ``SVD
+    denoising detects persona intensity and emotion through spectral
+    features. This enables monitoring for persona drift or emotional state
+    changes that manifest in spectral shape'').
 
     \item \textbf{Tier 3: K-Steering correction} (existing,
     see~\citealt{lyra_p6,ksteering2026}). When misalignment is detected,
@@ -1361,8 +1452,11 @@ our falsified results:
 I want to flag a tension in this paper that I have not fully resolved. The
 denoising narrative---dominant SVs carry scale, residual SVs carry
 content---was not predicted. I discovered it by trying things and observing
-what worked. The narrative fits all observations, but I constructed it
-\emph{after} the observations, not before. This is standard exploratory
+what worked. The narrative fits the observations it was built from (the
+denoised persona and emotion values among them are upper bounds, not
+results), but I constructed it \emph{after} the observations, not before
+(corrected 2026-11-20; this sentence began ``The narrative fits all
+observations''). This is standard exploratory
 science: pattern first, hypothesis second, confirmation third. We are at
 step two. The injection test was offered as step three for the $W_K$ result and is
 withdrawn at source, and the source's preregistered re-run does not confirm
@@ -1385,7 +1479,8 @@ model is processing (and, we had claimed, in what direction), not
 
 Version~1.0 of this paper proposed three complementary measurement channels
 for reading internal model state from the KV cache. As corrected in
-version~1.1 (2026-11-01), they stand as follows:
+version~1.1 (2026-11-01) and version~1.2 (2026-11-20), they stand as
+follows:
 
 \begin{enumerate}[nosep]
     \item \textbf{Raw spectral features} detect cognitive mode:
@@ -1403,11 +1498,15 @@ version~1.1 (2026-11-01), they stand as follows:
     \item \textbf{SVD-denoised spectral features} appear to detect
     content-level structure hidden by dominant scale variance: persona
     intensity at raw AUROC~0.611--0.751 (denoised 0.899--0.992), emotion
-    at $1.7\times$ chance raw (denoised $12.9\times$). However, the
-    denoising deltas fall within the max-over-rank selection envelope
-    (0/16 exceed it), so the \emph{raw} AUROCs are the defensible numbers
-    and the denoised values are upper bounds pending confirmatory testing
-    with a pre-registered rank criterion.
+    at $1.7\times$ chance raw (denoised $12.9\times$). However, these
+    denoising gains were never tested for selection bias: that analysis
+    (0 of 16 positive deltas exceed a max-over-rank envelope) covered the
+    scale sweep's confabulation and self-reference cells. So the raw
+    AUROCs are the defensible numbers and the denoised values are upper
+    bounds pending confirmatory testing with a pre-registered rank
+    criterion (corrected 2026-11-20; this item said ``the denoising
+    deltas fall within the max-over-rank selection envelope (0/16 exceed
+    it)'').
 \end{enumerate}
 
 We had written that the compass reads direction and the calibrated
@@ -1431,10 +1530,13 @@ class-mean cache keys), its labels are the emotion a story generator was
 asked to write, its 30-class figure does not beat a text (TF-IDF) baseline
 ($0.410$ against $0.370$, Holm $p = 0.071$), and its binary $0.992$ beats
 text ($0.963$, Holm $p = 0.006$) only on ten emotions ($n = 300$), where
-valence is confounded with arousal. Apparent nulls that were measurement
-failures---persona intensity, emotion classification from spectral
-features---are rescued by SVD denoising, with the denoised values as upper
-bounds (Table~\ref{tab:body_count}).
+valence is confounded with arousal. We had also written that apparent nulls
+in persona intensity and spectral emotion classification were measurement
+failures rescued by SVD denoising. Their raw signals are weak but above
+chance; whether denoising adds to them is untested, and the denoised values
+are upper bounds (Table~\ref{tab:body_count}; corrected 2026-11-20, the
+sentence read ``are rescued by SVD denoising, with the denoised values as
+upper bounds'').
 
 The Lyra Technique is not one measurement. It is a toolkit. This paper
 proposed two additions to it: one is withdrawn for emotion, and the other
@@ -1477,7 +1579,9 @@ confounded with arousal; the injection test is withdrawn; and the $W_K$
 bridge ($|\rho|$ peaking at $0.872$ at layer~43) is unverified. Each item
 below is a correction dated 2026-11-01 and quotes the earlier wording; the
 full earlier text is in the repository history and the version~1.0 PDF. The
-spectral and SVD-denoising results are not changed by this correction.
+spectral and SVD-denoising results were not changed by the 2026-11-01
+correction; the SVD-denoising claims are corrected in version~1.2 (next
+section).
 
 \begin{itemize}[nosep]
 \item \textbf{Title.} It was ``The Lyra Technique II: SVD
@@ -1559,6 +1663,106 @@ spectral and SVD-denoising results are not changed by this correction.
   compass reads direction'' and ``the toolkit is now substantially more
   complete''.
 \item \textbf{References.} The source paper is marked as corrected.
+\end{itemize}
+
+\section*{Correction Note (version 1.2, 2026-11-20)}
+
+\textbf{The selection-bias finding is scoped to what it tested.} Version~1.1
+said the persona denoising gains do not survive selection-bias analysis. That
+analysis (\texttt{code/selection\_bias\_analysis.py},
+\texttt{data/selection\_bias\_results.json}) covered 45 scale-sweep cells:
+15 models by three tasks (confabulation vs.\ grounded, self-reference vs.\
+grounded, self-reference vs.\ non-self-reference), with 16 positive deltas
+and none above its envelope. It never tested persona or emotion. Those gains
+are untested: not shown to be selection noise, and not shown to be real.
+Their denoised values are upper bounds pending a pre-registered rank
+criterion. Passages that stated denoising gains as results are also
+reworded. No reported number is changed. Each item below is dated
+2026-11-20 and quotes the version~1.1 wording.
+
+\begin{itemize}[nosep]
+\item \textbf{Date line and first page.} The date line read ``Version 1.1
+  --- corrected 2026-11-01 (version 1.0: May 2026)''. The first-page box
+  gains a version~1.2 paragraph, and its sentence ``Its spectral and
+  SVD-denoising results are not changed by this correction'' now says they
+  were not changed by the 2026-11-01 correction; the same sentence in the
+  version~1.1 Correction Note is changed the same way.
+\item \textbf{Abstract.} It said ``The apparent gains ($+0.2$--$0.3$ for
+  persona, $+0.05$ for confabulation) do not survive selection-bias
+  analysis: across 45 model$\times$task cells, 0 of 16 positive denoising
+  deltas exceed a max-over-rank selection envelope''. The confabulation
+  clause stands; the persona clause is corrected as above.
+\item \textbf{Introduction.} Paragraph~1 said ``with denoising improving
+  weaker models by up to $+0.068$'' (a confabulation gain, inside its
+  envelope, now not claimed). Contribution~2, headed ``SVD denoising: the
+  calibrated thermometer'', said ``Persona intensity jumps $+0.196$ to
+  $+0.288$ AUROC across three architectures after denoising'' and ``The
+  thermometer reads how different the cache shapes are---after removing the
+  background temperature''. The shape-versus-direction paragraph said
+  ``Denoising removes the dominant shape component to reveal
+  direction-sensitive structure''. The first-person note, which said the
+  deltas ``fell entirely inside the selection envelope'' and called the
+  amplifier ``me mistaking selection noise for signal'', keeps its words and
+  gains a dated note scoping them to the cells the audit covered.
+\item \textbf{Methods.} ``Massive for emotion and persona'' ($+0.2$--$0.3$
+  AUROC), ``the signal lives entirely in the residual spectrum''; ``Modest
+  for confabulation'' ($+0.05$), ``some improvement on weak models''; ``This
+  pattern is predicted by the shape-vs-direction framework''.
+\item \textbf{Persona results.} The heading read ``SVD Denoising Reveals
+  Persona Intensity Gradient''. The text said ``SVD denoising transforms
+  moderate signals into strong ones'', ``denoising rescues a signal that was
+  present but masked by dominant spectral variance'', ``persona intensity is
+  graded, not binary'' (from the denoised 5-level result), that the
+  improvement ``falls within the max-over-rank selection envelope'', and
+  that the denoising step was ``revealing the layer-specific persona
+  signal''.
+\item \textbf{Emotion results.} The heading read ``SVD Denoising Rescues
+  Emotion Classification''. The text said denoising ``also rescues emotion
+  classification'', headed a paragraph ``From chance to $12.9\times$'', said
+  ``The transformation is dramatic: a signal invisible to raw analysis
+  becomes one of the strongest detections in the experimental program'',
+  and said the singular values reveal ``the mechanism''.
+\item \textbf{Confabulation results.} Before the table, the text said ``The
+  canonical pipeline with optional denoising confirms confabulation
+  detection across the full model set, with denoising providing modest
+  improvements for weaker models''; it now credits the raw features only, as
+  the confabulation gains are inside their selection envelopes. After it, a
+  bold sentence said ``This apparent benefit is a selection artifact'', more
+  than the paragraph's own analysis shows; it now says the benefit is
+  indistinguishable from selection noise, as that paragraph concludes.
+\item \textbf{Body count.} The block was headed ``Rescued by denoising'' and
+  the persona and emotion rows read Rescued (now Upper bound); its note said
+  the deltas ``fall within the max-over-rank selection envelope'' (``0/16
+  positive deltas exceed their envelope''). The Pattern paragraph said these
+  signals ``are invisible to raw features but revealed by denoising''.
+\item \textbf{Practitioner's guide and SV1 mechanism.} The guide said the
+  emotion and persona deltas ``fall within the max-over-rank selection
+  envelope'' and, for an unknown phenomenon, ``If denoising dramatically
+  improves detection, the phenomenon is direction-level''. The SV1 paragraph
+  said of persona ``the effect is dramatic'' and ``skip-1-plus-3 jumps to
+  0.996''. The prescription after it said ``The SV1 mechanism explains why
+  fixed denoising ranks are suboptimal: the correct rank depends'' on the
+  phenomenon; resting on upper bounds, it now holds only if the denoised
+  values do. The Discussion said ``The results reveal a spectral hierarchy''
+  and placed emotion, persona intensity and individuation in the residual
+  singular values (``Emotion, persona intensity, and individuation live
+  here'').
+\item \textbf{Implications for the Oracle Loop.} Tier~2 was marked (new)
+  and said ``SVD denoising detects persona intensity and emotion through
+  spectral features. This enables monitoring for persona drift or emotional
+  state changes that manifest in spectral shape'', recommending a method
+  whose gains are untested. It is now a proposal, not recommended for
+  deployment until a confirmatory test.
+\item \textbf{Limitations.} The first-person note said ``The narrative
+  fits all observations''; the denoised observations it fits are upper
+  bounds, so it now says it fits the observations it was built from and
+  names which of them are upper bounds.
+\item \textbf{Conclusion.} The lead-in said ``As corrected in
+  version~1.1 (2026-11-01), they stand as follows''; it now names
+  version~1.2 as well. Item~3 said ``the denoising deltas fall within
+  the max-over-rank selection envelope (0/16 exceed it)''; the closing
+  paragraph said persona intensity and spectral emotion classification
+  ``are rescued by SVD denoising''.
 \end{itemize}
 
 \begin{thebibliography}{99}
