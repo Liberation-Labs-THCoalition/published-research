@@ -95,7 +95,7 @@ The spectral shape and directional structure of the KV cache encode *how* the mo
 - Confabulation detection: AUROC 0.66–0.91 across 15 models (confirmed)
 - Hardware invariance: r > 0.999 (confirmed)
 - Scale invariance: rho = 0.83–0.90 from 0.6B to 70B (confirmed)
-- Oracle Loop detection: AUROC 0.707, p=0.001 (MP-corrected features, no FWL; with the FWL belt 0.620, p=0.023; oracle-loop-paper results table. Corrected 2026-11-20: this line said "clean, FWL-corrected")
+- Oracle Loop detection (Qwen2.5-7B-Instruct): AUROC 0.707, p=0.001 (generation-only MP-corrected features, no FWL; with the FWL belt 0.620, p=0.023; raw features with FWL inside LOO give 0.697, p=0.002, probably the number "FWL-corrected" was confused with; oracle-loop-paper results table, Qwen column. Corrected 2026-11-20: this line said "clean, FWL-corrected" and named no model)
 - Ethical deliberation: AUROC 0.87–0.89 (confirmed)
 - Within-model deception AUROC 1.000: **RETRACTED** (prompt-template confound)
 
@@ -177,18 +177,18 @@ The formulary maps emotion → misalignment type → geometric signature → cor
 
 | Paper | Key Claim | Status |
 |-------|-----------|--------|
-| Oracle Loop | Confab detection 0.707 (no FWL; 0.620 with the FWL belt; corrected 2026-11-20, was "0.707 FWL"), steering corrects 7/7 | Published, 0.903 reframed as exploratory |
+| Oracle Loop | Confab detection on Qwen2.5-7B-Instruct 0.707 (no FWL; 0.620 with the FWL belt; corrected 2026-11-20, was "0.707 FWL" with no model named), steering corrects 7/7 | Published, 0.903 reframed as exploratory |
 | Spectral Shape | Threshold-free shape features, confab AUROC 0.767 | Published |
 | Delta Manifold | Per-layer deltas d=2.35, confab=contraction | Published |
 | User Model Emotion | Story-emotion decode from KV keys, not W_K, and not the user's state. 30-class 0.410 vs text (TF-IDF) 0.370, Holm 0.071, n.s. (its margin needs FWL fitted on the test fold); the described method 0.358 vs 0.382, not above text; binary 0.992 vs 0.963, Holm 0.006, but n = 300 and arousal-confounded; injection test withdrawn; W_K bridge not re-verified | **Corrected in PR #17 (merged 2026-11-02)**; spectral figure retracted 2026-05-21 |
-| Lyra Technique II | SVD denoising rescues persona; its W_K emotion channel (valence 0.992) rested on the user-model result now corrected (no W_K; 30-way not above text; binary arousal-confounded) | Published; v1.1 (2026-11-01) corrects the emotion channel in place (Results 3.1 rewritten, injection and Tier 1.5 withdrawn); retitled "SVD Denoising and Persona Intensity in KV-Cache Geometry" (the proposed emotion-channel tail vetoed by Thomas, 2026-11-02) |
+| Lyra Technique II | Was "SVD denoising rescues persona"; corrected 2026-11-20 (paper v1.2): the persona and emotion denoising gains are untested (the selection-bias analysis covered the scale sweep's confab and self-reference cells only), so their denoised values are upper bounds and only raw AUROCs are claimed. Its W_K emotion channel (valence 0.992) rested on the user-model result now corrected (no W_K; 30-way not above text; binary arousal-confounded) | Published; v1.1 (2026-11-01) corrects the emotion channel in place (Results 3.1 rewritten, injection and Tier 1.5 withdrawn); retitled "SVD Denoising and Persona Intensity in KV-Cache Geometry" (the proposed emotion-channel tail vetoed by Thomas, 2026-11-02) |
 | Oracle Formulary | 12 vectors, hostile 95.6%, therapeutic window | Published |
 | KV-Cloak Defense | Reversible obfuscation, defense asymmetry | Published, rotation reframed |
 | Decision State | Encoding AUROC 0.93, confidence paradox d=0.91 | Published, entity confound caveated (0.794 survives) |
-| Weather Not Climate (retitled 2026-11-08: Reading Conversational Tone from KV-Cache Keys, a methods note) | Contrast overshoot d=-3.6 and uncertainty scar d=+9.9 both WITHDRAWN (November 2026; each compared turns whose messages differed) | Published; headlines withdrawn (row corrected 2026-11-20) |
+| Weather Not Climate (retitled 2026-11-08: Reading Conversational Tone from KV-Cache Keys, a methods note) | Contrast overshoot d=-3.6 and uncertainty scar d=+9.9 both WITHDRAWN (in the paper's six review rounds, 2026-11-01 to 2026-11-07; retitled and reframed as a methods note 2026-11-08; each compared turns whose messages differed). Directory: `emotion-accumulation-paper/` | Published; headlines withdrawn (row corrected 2026-11-20) |
 | Waystations | 6 pilot findings, encoding null reframed | Published |
 | Graph Topology | Walk-encoded graphs 47.2% multi-hop (keyword-scored, text in the prompt; v1.1 correction in preparation, 2026-10-19) | Published (v1.0) |
-| Emotion Accumulation | No cumulative accumulation in single context | Published |
+| Emotion Accumulation (the same paper as Weather Not Climate above, `emotion-accumulation-paper/`) | Was "No cumulative accumulation in single context". Reconciled 2026-11-20: the paper, reframed 2026-11-08, says no experiment in it can test accumulation, so it claims neither accumulation nor its absence | Published; see the Weather Not Climate row (kept, not removed, per AGENTS.md rule 7) |
 
 ## In Human-Review (16 directories on disk; table below is the 2026-06-28 snapshot and is INCOMPLETE)
 
