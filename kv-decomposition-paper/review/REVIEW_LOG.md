@@ -61,8 +61,8 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   initial insight", the same edit that wrote CC's withdrawn line) and of his academic
   CRediT roles (Conceptualization, Supervision, Resources, Project administration); whether the status table's
   blocker was the reason for the 5 June move; the new title.
-- Lyra: full read of both editions. Lyra's own acknowledgment line says "reviewed this correction"; it is true only
-  once that read is done, so deposit waits for it. Also from Lyra: which earlier KV-cache geometry work to cite for
+- Lyra's 2026-10-20 full read predates the November appendix paragraphs; Lyra reads those paragraphs before the
+  v1.1 deposit (owner Lyra, end 2026-11-20). Also from Lyra: which earlier KV-cache geometry work to cite for
   "builds on", and whether the academic CRediT's Methodology row stays (AGENTS.md section 3: not deleted unasked).
 - The style gate's final verdict on this version.
 - The companion graph-topology paper repeats the withdrawn superadditivity claim and cites this paper by its version
