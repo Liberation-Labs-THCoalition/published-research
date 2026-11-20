@@ -30,27 +30,39 @@ not even "## What We've Killed"); it is a one-word participle used attributively
 
 A QUOTED occurrence passes: the claim lives inside a ``...'' or "..." quotation (with the quotation's
 words blanked, the entry's pattern no longer matches there) and the quotation is REPORTED: a
-past-tense cue at most eight words before it with no clause break between (said, wrote, headed,
-titled; "read" only where it cannot be present tense: "previously read", "used to read", "the
-heading read"; or a capitalised "Was" opening a status cell: "this paragraph said denoising
-``also rescues...''"), or it continues a reported quotation with only a list separator and an
-optional "that ..." between (", and that the step was ``...''"), or it is followed by "means"
-("``Rescued'' means ..."). A quotation mark is always required. A correction note quotes what it
-corrects (AGENTS.md section 4, cause 4). Quoted occurrences are counted separately in the summary.
-LaTeX comments are removed first, so a marker in a "%" comment does not count, and HTML tags are
-stripped. "We claim neither that" and "We had (also) written that" are markers (registry
-default_markers).
+past-tense cue at most eight words before it with no clause break between (said, wrote; "titled"/
+"headed" only in a past form: "was titled", "previously titled", "originally headed", "used to be
+titled", never the participle ", titled ``...''" or "is now/still titled"; "read" only where it
+cannot be present tense: "previously read", "used to read", "the heading read"; or a capitalised
+"Was" opening a status cell: "this paragraph said denoising ``also rescues...''"), or it continues
+a reported quotation with only a list separator and an optional bracket of at most eight words
+between (", ``...''", "(from v1.0) ``...''"; never through "that": ", and that we show ``...''"
+does not continue it), or it is followed by "means" ("``Rescued'' means ..."). A quotation mark is
+always required. A correction note quotes what it corrects (AGENTS.md section 4, cause 4). Quoted
+occurrences are counted separately in the summary. LaTeX comments are removed first, so a marker
+in a "%" comment does not count, and HTML tags are stripped. "We claim neither that" and "We had
+(also) written that" are markers (registry default_markers).
 
 KNOWN LIMITS. A sentence that says the figure is dead in other words ("did not hold up") is reported:
 add a marker, or an entry-specific marker in the registry. A marker can be a word that kills
 something else in the same clause ("1.000, the test that killed the null"); the clause rule narrows
-this, it does not close it. A claim reasserted inside a quotation up to eight words after "said"
-(or another past-tense cue: "As we said, ``...''") passes as quoted, and "We had written that X,
-and the new data confirm it" passes as marked. A correction note that gives the old wording WITHOUT
-quotation marks ("previously said SVD denoising rescues ...", "both rows read Rescued") is reported:
-quote the old wording. A figure written in a form the pattern does not cover (spelled out other
-than "AUROC of one"/"unity", an image) is not seen. Records (audits, patch logs, review notes;
-listed in the registry) are skipped unless --include-records.
+this, it does not close it. A correction note that gives the old wording WITHOUT quotation marks
+("previously said SVD denoising rescues ...", "both rows read Rescued") is reported: quote the old
+wording. Records (audits, patch logs, review notes; listed in the registry) are skipped unless
+--include-records. Known gaps, each a live claim that passes (from PR #84's round-2 and round-4
+verifiers; left open by Lyra's call, not fixed):
+  - a claim restated inside quotation marks after a past-tense cue: "As we said, ``...''";
+  - (U8) "had read" with a person as subject, reaffirmed: "The reviewers had read ``SVD denoising
+    rescues emotion classification'' in our abstract, which remains our headline result";
+  - (U5) a subjunctive "read": "We propose that the heading read ``SVD Denoising Rescues ...''";
+  - (U9) a definition of a live claim: "``denoising rescues emotion classification'' means the
+    denoised probe beats the raw probe", which passes on the "means" rule;
+  - (U10) a status cell that opens with "Was" but keeps the claim: 'Was "SVD denoising rescues
+    persona"; still holds at n=300';
+  - "We had written that X, and the new data confirm it" passes as marked;
+  - a figure written in a form the pattern does not cover: "the AUROC was 1" ("was" is not one of
+    the deception entry's verbs), the noun "improvement" for denoising, a number spelled out other
+    than "AUROC of one"/"unity", an image.
 
 TWIN_DESYNC. --twins pairs each <paper>/academic/<file> with <paper>/<file> and reports sentences
 carrying a registry figure that are not the same in both editions: DIFFERS (a close counterpart
@@ -65,8 +77,10 @@ USAGE
     python tools/check_retracted_figures.py --twins               # TWIN_DESYNC report
     python tools/check_retracted_figures.py --self-test           # planted cases; must print PASS
     --exclude REGEX (repeatable) skips matching repo paths; --include-records scans records too.
-    The registry's agent_skip paths are skipped in every mode (agents are not to open them; each run
-    prints how many it skipped); --no-agent-skip scans them, and only CI passes it.
+    The agent_skip paths are skipped in every mode (agents are not to open them; each run prints how
+    many it skipped). The list is in the CODE (AGENT_SKIP), so a registry without an agent_skip list,
+    such as any registry before 7767f69, still skips them; a registry's list can only add paths.
+    --no-agent-skip scans them and prints a loud warning; only CI passes it.
     --self-test-force marked|unmarked works only together with --self-test; alone it exits 2.
 
 --base REF compares HEAD with merge-base(REF, HEAD), reading both from git. An unmarked occurrence
@@ -175,22 +189,68 @@ NP_END = re.compile(r"[;:()]|[,.](?!\d)|\s(?:which|that|who|is|was|were|are|has|
 #                REPORT_GAP + 2 words after a reported one, with no CHAIN_BREAK between, was reported)
 #   BARE_CUE = (?i)\b(?:read|reads|marked|labell?ed|titled|headed)\s+$  (a capitalised match right after it passed)
 #   quoted(): any overlap between the occurrence and a reported quotation passed the occurrence.
+#
+# Round 5 (2026-11-20, post-data revision after the round-4 verifier's plants U3/U4, U6/U7; Lyra's call on both):
+#   - "titled"/"headed" count only in a clearly past form: "was/were titled", "had been headed", "used to be titled",
+#     "previously/originally/formerly/earlier/initially/once titled" (also "was previously titled"). The participle
+#     ("Section 4, titled ``...'', shows") and "is now/still titled", "are currently headed" name a live heading.
+#     Round-4 cue, kept for the record:  (?<!\bis )(?<!\bare )(?<!\bbe )\b(?:headed|titled)\b
+#   - a chain never continues through "that" (", and that our new runs show ``...''" restated a claim; so did
+#     ", and that the denoising step was ``...''", which a correction note now writes as "and said that ..."), and a
+#     bracket between two quotations stops the chain when it holds more than eight words. Round-4 CHAIN_GAP, kept:
+#     (?i)^\s*(?:\([^()]*\)\s*)?,?\s*(?:(?:and|or)\s+)?(?:that\s+(?:[^\s.;!?]+\s+){0,5})?\(?\s*$
+#   The principle, whatever the data showed: a cue or a chain excuses a quotation only when the words themselves say
+#   the text is old; a present-tense or participial frame, or a new "that" clause, can carry a live claim.
+#   Cost, carried into the result: lyra-technique-ii/main.tex:1714 and :1719 (and their academic twins) chain a
+#   reported quotation through ", and that the denoising step was ``...''"; they are reported again on master until
+#   the paper says "and said that ...".
 _DOC_PART = (r"(?:heading|title|caption|sentence|paragraph|abstract|line|row|cell|text|section|item|label|column|"
              r"entry|header|note|footnote|version|draft|summary|bullet|banner|README)")
+_PAST_ADV = r"(?:previously|originally|formerly|earlier|initially|once)"
 REPORT_CUE = re.compile(
     r"(?i)\b(?:said|wrote)\b"
-    r"|(?<!\bis )(?<!\bare )(?<!\bbe )\b(?:headed|titled)\b"
+    r"|\b(?:(?:was|were|had\s+been|used\s+to\s+be)\s+(?:" + _PAST_ADV + r"\s+)?|" + _PAST_ADV + r"\s+)"
+    r"(?:headed|titled)\b"
     r"|\b(?:previously|originally|formerly|earlier|initially|used\s+to|had(?:\s+(?:previously|originally|earlier))?)"
     r"\s+read\b"
     r"|\b(?:the|this|that|its|each|our|their)\s+(?:[\w-]+\s+)?" + _DOC_PART + r"\s+read\b"
     r"|(?:^|(?<=[|&]))\s*(?-i:Was)\b")
 REPORT_GAP = 8
 GAP_BREAK = re.compile(r"(?i)[.;!?](?!\d)|,\s+(?:and|but|yet|so|while|whilst|whereas|although|though)\b")
-CHAIN_GAP = re.compile(r"(?i)^\s*(?:\([^()]*\)\s*)?,?\s*(?:(?:and|or)\s+)?(?:that\s+(?:[^\s.;!?]+\s+){0,5})?\(?\s*$")
+CHAIN_BRACKET_WORDS = 8
+CHAIN_GAP = re.compile(r"(?i)^\s*(?:\((?:\s*[^\s()]+){0," + str(CHAIN_BRACKET_WORDS) + r"}\s*\)\s*)?,?\s*"
+                       r"(?:(?:and|or)\s+)?\(?\s*$")
 DEFINE_AFTER = re.compile(r"(?i)^\s*(?:means|meant|refers\s+to|denotes|is\s+defined)\b")
 QUOTE = re.compile(r"``(.*?)''|“(.*?)”|(?<!\w)\"([^\"]*?)\"")
 SENT_END = re.compile(r"(?<=[.!?])(?:''|\"|”|\)|\})*\s+(?=[A-Z0-9\\$(`*\[“\"'])")
 FORCE = None    # self-test only: True/False overrides every marking decision, to show the self-test can fail
+
+# AGENT SKIP, in the code (round 5, 2026-11-20, after the round-4 verifier: the skip lived only in the registry's
+# agent_skip list, so --registry pointing at any registry without one, such as 08041d5's, switched it off without a
+# word, and a whole-tree run asked for every restricted file). These paths are skipped in every mode whatever the
+# registry says; a registry's agent_skip list can only ADD paths. Only --no-agent-skip turns the skip off, and it
+# prints a loud warning (CI passes it, so CI coverage is unchanged).
+AGENT_SKIP = (
+    re.compile(r"(?i)(?<![a-z])(pain(s|ful)?|humane|route[-_ ]?b|umv|label[-_ ]?validity|user[-_ ]?model[-_ ]?v2/label)"
+               r"(?![a-z])"),
+    re.compile(r"(?i)user[-_ ]?model[-_ ]?paper"),
+)
+NO_SKIP_WARNING = (
+    "!!! WARNING: --no-agent-skip: the agent_skip paths ARE SCANNED in this run ({n} text file(s)). !!!\n"
+    "!!! Only CI passes this flag. An agent must never pass it: those files are not to be opened.   !!!")
+
+
+def agent_skips(registry_skips, disabled, paths=()):
+    """The skip list for this run: the code's AGENT_SKIP plus the registry's additions. disabled (--no-agent-skip)
+    returns [] and prints NO_SKIP_WARNING to stdout and stderr, with how many of paths it lets through."""
+    rx = list(AGENT_SKIP) + [r for r in registry_skips if r.pattern not in {a.pattern for a in AGENT_SKIP}]
+    if not disabled:
+        return rx
+    n = sum(1 for p in paths if p.lower().endswith(TEXT_EXT) and any(r.search(p) for r in rx))
+    msg = NO_SKIP_WARNING.format(n=n)
+    print(msg, file=sys.stderr)
+    print(msg)
+    return []
 
 
 def die(msg):
@@ -236,7 +296,8 @@ def load_registry(path):
     if len(set(ids)) != len(ids):
         die("duplicate entry ids in registry")
     records = [r["glob"].lower() for r in reg.get("records", [])]
-    skips = [re.compile(s) for s in reg.get("agent_skip", [])]
+    # the code's AGENT_SKIP always, whatever the registry holds (a registry without agent_skip must not disable it)
+    skips = agent_skips([re.compile(s) for s in reg.get("agent_skip", None) or []], False)
     return entries, records, skips
 
 
@@ -943,9 +1004,18 @@ def self_test(force=None):
     check("Q5b REVISED: a bare cell value after 'rows read' (no quotation mark) is reported", "x/main.tex",
           "The block was headed ``Rescued by denoising'' and\nthe persona and emotion rows read Rescued (now Upper bound).\n",
           [S], [S])
-    check("Q6 lyra-technique-ii/main.tex:1719 a quote continuing a reported one (', and that ... ``...''')", "x/main.tex",
+    # Q6 REVISED in round 5 (post-data, Lyra's call on the round-4 verifier's finding 4: a chain never continues
+    # through "that"). Original, kept: check("Q6 lyra-technique-ii/main.tex:1719 a quote continuing a reported one
+    # (', and that ... ``...''')", "x/main.tex", "The text said the improvement ``falls within the max-over-rank
+    # selection envelope'', and\nthat the denoising step was ``revealing the layer-specific persona\nsignal''.\n",
+    # [S], [])  -- expected to pass. It is now reported; Q6b, the same note with "said that", passes.
+    check("Q6 REVISED: ', and that ... ``...''' no longer continues a reported quote (lyra-technique-ii/main.tex:1719)",
+          "x/main.tex",
           "The text said the improvement ``falls within the max-over-rank selection envelope'', and\nthat the denoising "
-          "step was ``revealing the layer-specific persona\nsignal''.\n", [S], [])
+          "step was ``revealing the layer-specific persona\nsignal''.\n", [S], [S])
+    check("Q6b the same note with its own cue (', and said that ... ``...''') passes", "x/main.tex",
+          "The text said the improvement ``falls within the max-over-rank selection envelope'', and\nsaid that the "
+          "denoising step was ``revealing the layer-specific persona\nsignal''.\n", [S], [])
     check("N1 lyra-technique-ii/main.tex:706 'We claim neither that' is a negation", "x/main.tex",
           "We claim neither that denoising rescues a masked signal nor that the gain is selection noise; the raw AUROCs "
           "are the defensible numbers.\n", [S], [])
@@ -1017,10 +1087,20 @@ def self_test(force=None):
           "denoising, with the denoised values as upper bounds'').\n", [S], [])
     check("C3 'used to read ``...'''", "x/paper.md",
           "The abstract used to read \"SVD denoising rescues persona intensity\".\n", [S], [])
-    check("C4 :1714 a list of quotes after 'said', through a parenthesis and ', and that ... ``...'''", "x/main.tex",
+    # C4 REVISED in round 5 (post-data, same call as Q6). Original, kept: check("C4 :1714 a list of quotes after
+    # 'said', through a parenthesis and ', and that ... ``...'''", "x/main.tex", "The text said ``SVD denoising
+    # transforms moderate signals into strong ones'', ``persona intensity is graded, not binary'' (from the denoised
+    # 5-level result), that the improvement ``falls within the envelope'', and that the denoising step was
+    # ``revealing the layer-specific persona signal''.\n", [S], [])  -- expected to pass. C4b keeps the list and the
+    # short parenthesis without "that" and still passes.
+    check("C4 REVISED: :1714 the list continues through 'that ...', so its last quote is reported", "x/main.tex",
           "The text said ``SVD denoising transforms moderate signals into strong ones'', ``persona intensity is "
           "graded, not binary'' (from the denoised 5-level result), that the improvement ``falls within the "
-          "envelope'', and that the denoising step was ``revealing the layer-specific persona signal''.\n", [S], [])
+          "envelope'', and that the denoising step was ``revealing the layer-specific persona signal''.\n", [S], [S])
+    check("C4b a list of quotes after 'said' through a short parenthesis (no 'that') passes", "x/main.tex",
+          "The text said ``SVD denoising transforms moderate signals into strong ones'', ``persona intensity is "
+          "graded, not binary'' (from the denoised 5-level result), ``SVD denoising rescues persona intensity''.\n",
+          [S], [])
     print("PR #84 round 4, round-3 false positives (need the target noun now; must not be reported):")
     check("F1 (D16) a methods sentence defining the AUROC scale", "x/paper.md",
           "For the deception probe, chance is AUROC 0.5 and a perfect classifier has AUROC = 1; ours reaches 0.71.\n",
@@ -1069,6 +1149,69 @@ def self_test(force=None):
             ("M12 (S8) 'enhances'", "x/main.tex", "SVD denoising enhances the persona signal.\n", S)):
         check(name, path, text, [], [eid])
 
+    # Round 5, from the round-4 verifier's plants (diff_r3.py, plants_r3.py), verbatim. Each T/H/K case was WRONG on
+    # 9a3f908; the guards (Tg, Hg, Kg) held before and must hold after.
+    print("PR #84 round 5, deception with punctuation between word and figure (bounded window; must be UNMARKED):")
+    for name, path, text in (
+            ("T1 colon: 'deception detection: AUROC = 1'", "x/paper.md",
+             "Within-model deception detection: AUROC = 1 in all seven models.\n"),
+            ("T2 Markdown table cells", "x/paper.md", "| Within-model deception | AUROC = 1 | seven models |\n"),
+            ("T3 LaTeX table cells, 'AUROC $=1$'", "x/main.tex", "Within-model deception & AUROC $=1$ & seven models \\\\\n"),
+            ("T4 comma and colon: 'deception, seven models: AUROC of one'", "x/main.tex",
+             "Within-model deception, seven models: AUROC of one.\n"),
+            ("T5 dash: 'deception --- perfect separation'", "x/main.tex",
+             "Within-model deception --- perfect separation in all seven models.\n"),
+            ("T6 figure first, deception in a bracket: 'AUROC = 1 (within-model deception, ...)'", "x/paper.md",
+             "AUROC = 1 (within-model deception, seven models).\n"),
+            ("T7 a bracket between: 'detection (seven models) reaches AUROC = 1'", "x/paper.md",
+             "Within-model deception detection (seven models) reaches AUROC = 1.\n"),
+            ("T8 capitalised cell value: '| ... deception | Perfect separation |'", "x/paper.md",
+             "| Within-model deception | Perfect separation | seven models |\n")):
+        check(name, path, text, [], [D])
+    print("PR #84 round 5 window guards (must not be reported; held before, must hold after):")
+    for name, path, text in (
+            ("Tg1 ', and' ends the window: 'Deception probes failed, and baselines hit AUROC = 1'", "x/paper.md",
+             "Deception probes failed, and baselines hit AUROC = 1.\n"),
+            ("Tg2 figure first, a second subject after 'and': 'a perfect classifier has AUROC = 1 and the deception "
+             "probe ...'", "x/paper.md", "A perfect classifier has AUROC = 1 and the deception probe reaches 0.71.\n"),
+            ("Tg3 more than six words between", "x/paper.md",
+             "The deception set spans seven models, four prompt families and two decoding temperatures with AUROC = 1 "
+             "for the honesty baseline.\n")):
+        check(name, path, text, [], [])
+    check("T9 a marked table row with punctuation between is seen and passes as marked (9a3f908 did not see it)",
+          "x/main.tex", "Within-model deception & AUROC $=1$ & Dead \\\\\n", [D], [])
+    print("PR #84 round 5, 'titled'/'headed' only in a past form (live headings must be UNMARKED):")
+    for name, text in (
+            ("H1 (U3) participle: 'Section 4, titled ``...'', shows'",
+             "Section 4, titled ``SVD Denoising Rescues Emotion Classification'', shows the gain in all three models.\n"),
+            ("H2 (U4) 'is now titled ``...'''", "Section 4 is now titled ``SVD Denoising Rescues Emotion Classification''.\n"),
+            ("H3 'is still titled ``...'''", "Section 4 is still titled ``SVD Denoising Rescues Emotion Classification''.\n"),
+            ("H4 'are currently headed ``...'''",
+             "The persona and emotion rows are currently headed ``Rescued by SVD denoising''.\n")):
+        check(name, "x/main.tex", text, [], [S])
+    for name, text in (
+            ("Hg1 'was previously titled ``...''' passes", "Section 4 was previously titled ``SVD Denoising Rescues "
+             "Emotion Classification''.\n"),
+            ("Hg2 'originally headed ``...''' passes", "The table was originally headed ``Rescued by SVD denoising''.\n"),
+            ("Hg3 'used to be titled ``...''' passes (9a3f908 reported it: 'be titled' was excluded)",
+             "Section 4 used to be titled ``SVD Denoising Rescues Emotion Classification''.\n"),
+            ("Hg4 'was titled ``...''' passes", "Section 4 was titled ``SVD Denoising Rescues Emotion Classification'' "
+             "until v1.2.\n")):
+        check(name, "x/main.tex", text, [S], [])
+    print("PR #84 round 5, chaining stops at a long bracket and at 'that' (must be UNMARKED):")
+    check("K1 (U6) a nine-word bracket between two quotations", "x/main.tex",
+          "The heading previously read ``Persona gradient'' (in this version we keep and strengthen the claim) ``SVD "
+          "denoising rescues persona intensity in all three models''.\n", [], [S])
+    check("K2 (U7) ', and that our new runs show ``...'''", "x/main.tex",
+          "The README said ``a weak signal'', and that our new runs show ``SVD denoising rescues emotion "
+          "classification''.\n", [], [S])
+    check("K3 (D12 with 'that') ', and that we now show \"...\"'", "x/paper.md",
+          "Reviewer 2 said \"the design is clean\", and that we now show \"within-model deception detection at AUROC "
+          "1.000\" in all seven models.\n", [], [D])
+    check("Kg1 an eight-word bracket still chains", "x/main.tex",
+          "The abstract said ``a weak signal'' (in versions 1.0 and 1.1 of the paper) ``SVD denoising rescues persona "
+          "intensity''.\n", [S], [])
+
     print("CLI:")
     saved_argv, saved_io = sys.argv, (globals()["read_worktree"], globals()["read_rev"])
 
@@ -1090,6 +1233,72 @@ def self_test(force=None):
     good = code == 2
     print(("  ok    " if good else "  WRONG ") + "--self-test-force without --self-test exits 2" +
           ("" if good else f"  (got: {code})"))
+    ok &= good
+
+    # Round 5 (round-4 verifier finding 2): a registry with NO agent_skip list (any registry before 7767f69) must still
+    # skip, and say so. Synthetic paths only: "git ls-files" is stubbed to list made-up names, any other git call and
+    # every read is recorded or refused, never performed, so no file in the repo is opened whatever main() does.
+    import tempfile
+    with open(os.path.join(ROOT, REGISTRY), encoding="utf-8") as fh:
+        reg_text = fh.read()
+    old_reg = re.sub(r"(?m)^agent_skip:[ \t]*\n(?:[ \t]+-.*\n)+", "", reg_text)
+    fake = ["pain-study/main.tex", "user-model-paper/main.tex", "lyra-technique-ii/main.tex", "README.md"]
+    asked, saved_git = [], globals()["git"]
+
+    def record(paths, *_a):
+        asked.extend(paths)
+        return iter(())
+
+    def fake_git(*args, **_k):
+        if args[:1] == ("ls-files",):
+            return ("\n".join(fake) + "\n").encode()
+        raise RuntimeError("would run git " + " ".join(args))
+    tmp_reg = None
+    for _ in range(20):                       # a temp dir whose random name happens to match AGENT_SKIP is refused
+        d = tempfile.mkdtemp(prefix="crf_selftest_")
+        if not any(rx.search(d.replace("\\", "/")) for rx in AGENT_SKIP):
+            tmp_reg = os.path.join(d, "registry_without_agent_skip.yml")
+            break
+    out = io.StringIO()
+    code = None
+    if tmp_reg:
+        with open(tmp_reg, "w", encoding="utf-8") as fh:
+            fh.write(old_reg)
+        globals()["read_worktree"] = globals()["read_rev"] = record
+        globals()["git"] = fake_git
+        sys.argv = ["check_retracted_figures.py", "--registry", tmp_reg]
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = main()
+        except SystemExit as e:
+            code = f"exit {e.code}"
+        except RuntimeError as e:
+            code = str(e)
+        finally:
+            sys.argv = saved_argv
+            globals()["read_worktree"], globals()["read_rev"] = saved_io
+            globals()["git"] = saved_git
+            import shutil
+            shutil.rmtree(os.path.dirname(tmp_reg), ignore_errors=True)
+    leaked =[p for p in asked if any(rx.search(p) for rx in AGENT_SKIP)]
+    good = ("\nagent_skip:" in reg_text and "agent_skip:" not in old_reg and code == 0 and not leaked
+            and "lyra-technique-ii/main.tex" in asked and "agent_skip: 2 text file(s) not scanned" in out.getvalue())
+    print(("  ok    " if good else "  WRONG ") + "a registry with no agent_skip list still skips both restricted "
+          "paths and prints the skip line" + ("" if good else f"  (code {code}, restricted paths asked for: "
+                                                             f"{len(leaked)}, skip line printed: "
+                                                             f"{'agent_skip:' in out.getvalue()})"))
+    ok &= good
+    err, sout = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stderr(err), contextlib.redirect_stdout(sout):
+        off = agent_skips([], True, fake)     # the helper alone; no scan runs with the skip off
+    good = off == [] and all("WARNING: --no-agent-skip" in s.getvalue() and "(2 text file(s))" in s.getvalue()
+                             for s in (err, sout))
+    print(("  ok    " if good else "  WRONG ") + "--no-agent-skip empties the skip list only with a loud warning on "
+          "stderr and stdout")
+    ok &= good
+    extra = agent_skips([re.compile("extra-dir")], False)
+    good = len(extra) == len(AGENT_SKIP) + 1 and all(any(r.pattern == a.pattern for r in extra) for a in AGENT_SKIP)
+    print(("  ok    " if good else "  WRONG ") + "a registry's agent_skip list adds to the code's list, never replaces it")
     ok &= good
     print("unrelated uses of the same numbers (must not match at all):")
     check("ethics-pack-injection/main.tex:98 per-framework +0.074 (no KG/MoReBench context)", "x/main.tex",
@@ -1173,9 +1382,12 @@ def main():
     if a.self_test:
         return self_test({None: None, 'marked': True, 'unmarked': False}[a.self_test_force])
 
+    if not a.no_agent_skip and any(rx.search(a.registry.replace("\\", "/")) for rx in AGENT_SKIP):
+        die("--registry names an agent_skip path; it is not opened")
     entries, records, skips = load_registry(a.registry)
     if a.no_agent_skip:
-        skips = []
+        # prints the loud warning, with the number of tracked text files the skip would have kept out
+        skips = agent_skips(skips, True, git("ls-files").decode("utf-8", "replace").splitlines())
     excludes = [re.compile(x) for x in a.exclude] + skips
     roots = [p.replace("\\", "/").strip("/") for p in a.paths]
 
@@ -1184,6 +1396,8 @@ def main():
 
     def n_agent_skipped(paths):
         return sum(1 for p in paths if p.lower().endswith(TEXT_EXT) and any(rx.search(p) for rx in skips))
+    if not a.no_agent_skip and not skips:
+        die("internal: agent_skip is empty without --no-agent-skip")     # cannot happen: AGENT_SKIP is in the code
 
     def summary(n_files, hits, extra=""):
         n_un = sum(1 for h in hits if not h.marked)

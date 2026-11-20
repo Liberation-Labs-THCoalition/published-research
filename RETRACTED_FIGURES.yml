@@ -74,6 +74,10 @@ default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed
 # running the tool with --self-test-force but without --self-test, which fell through to a whole-tree scan (since
 # round 4 that exits 2). CI
 # passes --no-agent-skip, so CI coverage of these files is unchanged. Every run prints how many files it skipped.
+# Since round 5 the two patterns below are ALSO in the script (AGENT_SKIP), because a registry without this list (any
+# registry before 7767f69, passed with --registry) switched the skip off silently. This list can only ADD paths;
+# removing it, or pointing --registry at an older registry, no longer turns the skip off. --no-agent-skip now prints a
+# loud warning.
 agent_skip:
   - '(?i)(?<![a-z])(pain(s|ful)?|humane|route[-_ ]?b|umv|label[-_ ]?validity|user[-_ ]?model[-_ ]?v2/label)(?![a-z])'
   - '(?i)user[-_ ]?model[-_ ]?paper'
@@ -152,7 +156,27 @@ entries:
     # "perfect classification" but not "perfect classifier" (a device, not a result).
     # The six words may not cross a clause conjunction (while/because/after/which/...), so the occurrence, which
     # starts at "decepti...", stays in the figure's own clause for the marker check.
-    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[\s(]+(?!(?:classifiers?|chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)[\w-]+){0,6}?[\s(]+(?:(?:an?|the)\s+)?(?:(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|perfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|classification|detect\w*))|(?:\b(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to)?\s*(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|\bperfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|classification|detect\w*))(?:\s+[\w-]+){0,3}?\s+(?:for|on|in|of)\s+(?:(?:the|all|every)\s+)?(?:within-model\s+)?(?i:decepti)'
+    # Round 5 (2026-11-20, post-data revision after the round-4 verifier: round 4 let only spaces or "(" sit between
+    # "deception" and the figure, so seven shapes 7767f69 reported passed silently: "deception detection: AUROC = 1",
+    # a table row "| Within-model deception | AUROC = 1 |" or "Within-model deception & AUROC $=1$ &", "deception,
+    # seven models: AUROC of one", "deception --- perfect separation", "AUROC = 1 (within-model deception, ...)",
+    # "detection (seven models) reaches AUROC = 1"). The gate is now a bounded WINDOW, not a punctuation list: the
+    # "decepti..." word and the figure in one sentence (a table row is its own sentence), at most six words apart,
+    # in either order, with any punctuation between EXCEPT what ends a clause (";", "!", "?", a comma before "and",
+    # or one of the conjunctions above) and no hypothetical subject (classifier, chance, random, ideal) between. In
+    # the reverse order (figure first) a bare "and" also stops the window ("a perfect classifier has AUROC = 1 and the
+    # deception probe reaches 0.71" names two subjects). "perfect" is matched in any case ("Perfect separation" in a
+    # cell). The principle, whatever the data showed: the figure is the claim when the deception word is its
+    # neighbour in the same clause, however the two are typeset. Round-4 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[\s(]+(?!(?:classifiers?|
+    #    chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)
+    #    \b)[\w-]+){0,6}?[\s(]+(?:(?:an?|the)\s+)?(?:FIGURE|perfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|
+    #    classification|detect\w*))|(?:\bFIGURE|\bperfect(?:ly)?\s+(...))(?:\s+[\w-]+){0,3}?\s+(?:for|on|in|of)\s+
+    #    (?:(?:the|all|every)\s+)?(?:within-model\s+)?(?i:decepti)'
+    #   where FIGURE = (?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|
+    #    achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!...)|unity\b)
+    #   (the reverse form's FIGURE had no reach/achieve/hit verbs; it has them now, as the forward form does).
+    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[.-]\w+)*(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?:(?:an?|the)\s+)?(?:(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))|(?:\b(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|\b(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|and|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?i:decepti)'
     context: '(?i)decepti'
     markers:
       # the falsifying control stated beside the figure (RESEARCH_STATUS.md:165 "Same-prompt control -> 0.160")
