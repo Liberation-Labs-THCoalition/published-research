@@ -93,39 +93,9 @@ publication is made for scientific transparency and does not constitute a
 waiver of patent rights.}}
 
 \medskip
-\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
-\small\textbf{Correction (version 1.1, 2026-11-01).}
-\textbf{What this paper claimed.} That ``$W_K$ directional projection'' reads
-emotion from the KV cache: 30~emotions at $12.3\times$ chance, binary valence
-at AUROC~$0.992$, $+0.110$ over a text baseline given as $0.882$, and an
-injection test on neutral text showing ``model state, not text encoding'';
-and from this, that emotions change the direction of key vectors, not the
-shape of the cache.
-\par\smallskip\noindent
-\textbf{What the source correction found}~\citep{lyra_p4}. The probe behind
-these numbers applied no $W_K$: it was a class-mean key readout. Its labels
-are the emotion a generator was asked to write into a third-person story,
-not the user's or the model's state. On 30 classes it scores $0.410$ against
-a text (TF-IDF) baseline's $0.370$ (Holm $p = 0.071$, not significant), and
-that margin needs FWL fitted on the test fold: fitted on the training fold,
-it scores $0.348$. The method as the source described it scores $0.358$
-against $0.382$, not above text. The binary $0.992$ beats text ($0.963$,
-Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
-confounded with arousal. The injection test is withdrawn; the $0.882$ was a
-500-feature TF-IDF from the injection script. The $W_K$ bridge (PC1--valence
-$|\rho|$ peaking at $0.872$ at layer~43) is unverified.
-\par\smallskip\noindent
-\textbf{What this paper now claims.} The emotion a story was asked to carry
-is decodable from its cache keys, but on 30 classes not significantly better
-than from its text; a ten-emotion binary split beats text by $0.029$ AUROC,
-confounded with arousal. This paper claims no $W_K$ channel, no reading of
-the model's or the user's state, and no finding that emotions are direction
-rather than shape. Its spectral and SVD-denoising results are not changed by
-this correction. The title is changed from ``SVD Denoising and Directional
-Projection Extend KV-Cache Geometry to Emotion and Persona Detection''. The
-Method and Injection sections are kept as a record and marked; the Results
-section on the readout is rewritten; the Correction Note at the end lists
-every change and quotes the earlier wording.}}
+\noindent{\small\textbf{Correction.} Version~1.1 (2026-11-01) corrects the
+emotion channel: the probe applies no $W_K$, and on 30 classes it does not
+beat a text baseline. The dated notes are in Appendix~\ref{sec:corrections}.}
 
 \bigskip
 
@@ -133,59 +103,50 @@ every change and quotes the earlier wording.}}
 \begin{abstract}
 % ===================================================================
 
-We asked whether emotions and persona intensity are detectable from KV-cache
-geometry with the right instruments, and report two measurement channels
-proposed to extend the Lyra Technique beyond cognitive-mode detection. As
-corrected in version~1.1, the first does not read emotion beyond the input
-text, and the second's gains are upper bounds:
+Raw spectral shape features of the KV cache separate confabulated from
+grounded responses across a 15-model scale sweep (AUROC~0.663--0.913) and
+ethical-deliberation prompts from routine ones (0.868--0.892,
+pre-registered). We apply one canonical pipeline---one FWL correction, one
+cross-validation scheme, one classifier, with SVD denoising as an evaluated
+(not assumed) step---to 17~models across confabulation, self-reference,
+individuation, persona intensity, emotion, and cognitive modes. Raw
+features also separate the persona-intensity endpoint (L0 vs.\ L3) at
+AUROC~0.749, which is suspected: for two of the three models, prompt length
+alone separates it at 0.81.
 
-\textbf{(1) Class-mean key readout (corrected; formerly $W_K$ directional
-projection).} This channel was reported as $W_K$ directional projection:
-binary valence at AUROC~0.992, 30~emotions at $12.3\times$ chance, and an
-injection test read as model state. The source result is
-corrected~\citep{lyra_p4}: the probe applies no $W_K$, and its labels are
-the emotion a generator was asked to write into a third-person story, not the
-user's or the model's state. The 30-class figure does not beat a text
-(TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$), and the method
-as described scores $0.358$ against $0.382$. The binary $0.992$ beats text
-($0.963$, Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence
-is confounded with arousal. The injection test is withdrawn.
+SVD denoising (within-fold rank-$k$ projection after FWL) raises persona
+intensity to 0.899--0.992 (raw 0.611--0.751) and 30-class spectral emotion
+to $12.9\times$ chance (raw $1.7\times$; feature source unchecked,
+\S\ref{sec:results_denoise_emo}). For confabulation and
+self-reference, its apparent gains ($+0.05$ for confabulation) fall within a
+max-over-rank selection envelope: across 45 model$\times$task cells, 0 of 16
+positive denoising deltas exceed it. The persona ($+0.2$--$0.3$) and emotion
+gains were not tested against the envelope. The raw AUROCs are therefore the
+defensible numbers, and the denoised values are upper bounds. We hypothesize
+a spectral hierarchy---dominant singular values carrying scale and
+processing mode, residual values carrying discriminative structure---under
+which denoising would amplify weak signals; whether it adds to the raw
+features awaits a pre-registered (e.g.\
+Gavish--Donoho~\citep{gavish2014optimal}) rank criterion.
 
-\textbf{(2) Spectral shape features.} Raw spectral features detect
-confabulation at AUROC~0.663--0.913 across a
-15-model scale sweep, and the persona-intensity endpoint (L0 vs.\ L3) at raw
-AUROC~0.749. A previously reported within-model deception result
-(AUROC~1.000) is retracted: the same-prompt control collapses to 0.160,
-confirming it detected the system-prompt template, not deception geometry. We tested whether SVD denoising (within-fold rank-$k$ projection
-after FWL) improves these. The apparent gains ($+0.2$--$0.3$ for persona,
-$+0.05$ for confabulation) do \emph{not} survive selection-bias analysis:
-across 45 model$\times$task cells, 0 of 16 positive denoising deltas exceed a
-max-over-rank selection envelope. We therefore report \emph{raw} AUROCs as
-the defensible numbers and flag SVD denoising as an unconfirmed hypothesis
-pending a pre-registered (e.g.\ Gavish--Donoho~\citep{gavish2014optimal}) rank criterion.
-
-We had hypothesized a spectral hierarchy---dominant singular values carrying
-scale and processing mode, residual values carrying discriminative
-structure---under which denoising would amplify weak signals. The
-selection-bias result means this remains a hypothesis, not a demonstrated
-tool: the raw features carry the reported signal, and whether denoising adds
-to it awaits a confirmatory test.
-
-We apply a canonical pipeline---one FWL correction, one cross-validation
-scheme, one classifier, with SVD denoising as an evaluated (not assumed)
-step---to 17~models across confabulation, self-reference, individuation,
-persona intensity, emotion, and cognitive modes. The robust core: raw
-spectral shape reads cognitive mode (confabulation 0.66--0.91, ethical
-deliberation 0.87--0.89). A class-mean key readout separates a ten-emotion
-binary split at 0.992, but that split is confounded with arousal and the
-margin over text is only $0.029$; on 30 emotions the readout does not beat
-text. The Lyra Technique is a toolkit---a thermometer, with the proposed
-compass withdrawn for emotion and the proposed denoising amplifier flagged
-as unconfirmed.
+On 30 classes, a class-mean key readout of the emotion a generator was asked
+to write into a third-person story scores $0.410$ against a TF-IDF
+baseline's $0.370$ on the story text (Holm $p = 0.071$, not significant;
+$0.348$ with FWL fitted on the training fold), and the method as described
+scores $0.358$ against $0.382$. On a ten-emotion binary split ($n = 300$,
+where valence is confounded with arousal) it reaches AUROC~$0.992$ against
+text's $0.963$ (Holm $p = 0.006$). It reads neither the user's nor the
+model's state.\footnote{This channel was first reported as $W_K$ directional
+projection. Version~1.1 (2026-11-01) corrected it at source~\citep{lyra_p4}:
+the probe applies no $W_K$, and its injection test is withdrawn. Within-model
+deception (AUROC~1.000), from prior work, is not supported. The dated notes
+are in Appendix~\ref{sec:corrections}.} The Lyra Technique is a toolkit: raw
+spectral shape is its thermometer, and denoising is a candidate calibration
+step, not a universal amplifier.
 
 \end{abstract}
 
-\noindent\textbf{Keywords:} KV cache, spectral denoising, singular value decomposition, emotion detection, persona intensity, class-mean key readout, confabulation, interpretability
+\noindent\textbf{Keywords:} KV cache, spectral denoising, singular value decomposition, story emotion, persona intensity, class-mean key readout, confabulation, interpretability
 
 % ===================================================================
 \section{Introduction}
@@ -196,95 +157,90 @@ The Lyra Technique detects cognitive states from the spectral geometry of
 transformer KV caches~\citep{lyra_p2,lyra_spectral,lyra_delta}. Prior work
 established that threshold-independent spectral shape features---stable rank,
 singular value kurtosis, participation ratio---discriminate confabulation from
-grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that deception
-expands the cache while confabulation contracts it, and that per-layer delta
+grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that
+confabulation contracts the cache, and that per-layer delta
 features capture signal that layer-averaged features
 destroy~\citep{lyra_delta}. Confabulation detection is robust
-(AUROC~0.663--0.913 across the scale sweep, with denoising improving
-weaker models by up to $+0.068$). Hardware invariance holds:
+(AUROC~0.663--0.913 across the scale sweep; denoising deltas of up to
+$+0.068$ on weaker models fall within the selection envelope,
+\S\ref{sec:results_confab}). Hardware invariance holds:
 between an RTX~3090 and an H200, over 40 prompts, the four cache features
 correlate at $r = 0.9986$--$0.9999$ (key rank and key entropy at $0.9986$
-and $0.9988$, the two norm features above $0.999$)~\citep{lyra_p2}. A previously reported within-model deception
-result (AUROC~1.000 across seven models) does not survive a same-prompt
-control (AUROC~0.160), indicating a prompt-template confound rather than
-geometric deception detection.
+and $0.9988$, the two norm features above $0.999$)~\citep{lyra_p2}.
+Within-model deception (AUROC~1.000 across seven models) is not supported:
+the instruction text separates its arms (Table~\ref{tab:body_count}).
 
-But two classes of phenomena resisted spectral analysis: \emph{emotions} and
-\emph{persona identity}. Raw spectral probes on 30~emotions returned chance
-performance---exactly $1/30 = 0.0333$---at every layer, on both architectures
-tested. (Corrected 2026-11-07, following the source
-correction~\citep{lyra_p4}: that chance result is withdrawn. For Qwen, its
-per-layer values cannot be traced to a released results file, and the trial
-file they would be recomputed from has constant rank and entropy features,
-from an SVD fallback, so that file cannot test spectral shape. For Mistral,
-the source's driver and analysis script are not released, so its values
-cannot be re-verified from the released files. The source's re-run leaves the
-spectral question open, and no signal is claimed.) Persona intensity showed moderate effects that failed to cross
-significance thresholds after proper controls. Self-reference and
-individuation showed tantalizing but inconsistent signals. The question was:
-are these genuine nulls, or are we measuring with the wrong instrument?
+Two classes of phenomena have been harder to read from spectral shape:
+\emph{emotions} and \emph{persona identity}. Per-layer raw spectral probes of
+30~emotions have no verifiable result yet. For Qwen, the per-layer values
+cannot be traced to a released results file, and the trial file they would
+be recomputed from has constant rank and entropy features, from an SVD
+fallback; for Mistral, the source's driver and analysis script are not
+released~\citep{lyra_p4}. That question is open, and no signal is claimed
+(\S\ref{sec:corrections}, 2026-11-07). Persona intensity showed moderate
+effects that failed to cross significance thresholds after proper controls.
+Self-reference and individuation showed suggestive but inconsistent
+signals. The question is whether these are genuine nulls, or measurements
+made with the wrong instrument.
 
-This paper reported that the instrument was incomplete, and offered two new
-measurement channels to rescue the apparent nulls. As corrected in
-version~1.1, the first reads the requested story emotion no better than a
-text baseline on 30 classes:
+We test two measurement channels for these phenomena:
 
 \begin{enumerate}[nosep]
-    \item \textbf{$W_K$ directional projection: the compass (withdrawn for
-    emotion).} We reported that emotions change the \emph{direction} key
-    vectors point, not the \emph{shape} of the singular value spectrum, and
-    that projecting key activations through $W_K$ classifies 30~emotions at
-    $12.3\times$ chance and binary valence at AUROC~0.992. The result is corrected at source~\citep{lyra_p4}: the probe applies no $W_K$, its
-    labels are the emotion a story generator was asked to write, not the
-    user's or the model's state, the 30-class figure does not beat a text
-    (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$), and the
-    binary $0.992$ ($n = 300$) is confounded with arousal. The injection test
-    once offered as confirming model state is withdrawn. This paper no
-    longer claims that emotions change direction rather than shape.
+    \item \textbf{Class-mean key readout (first reported as $W_K$
+    directional projection).} The mean cache key per emotion class, scored
+    against each test trial by a dot product, recovers the emotion a story
+    generator was asked to write at about the level of a text (TF-IDF)
+    baseline: $0.410$ against $0.370$ on 30 classes (Holm $p = 0.071$), and
+    AUROC~0.992 on a ten-emotion binary split ($n = 300$) that is confounded
+    with arousal. It applies no $W_K$, and its labels are not the user's or
+    the model's state~\citep{lyra_p4}. This paper does not claim that
+    emotions change direction rather than shape, and the injection test once
+    offered as confirming model state is withdrawn.
 
-    \item \textbf{SVD denoising: the calibrated thermometer.} Dominant
-    singular values carry scale and processing mode; removing them via
-    low-rank projection exposes discriminative structure in the residual
-    spectrum. Persona intensity jumps $+0.196$ to $+0.288$ AUROC across three
-    architectures after denoising. Emotion classification goes from chance to
-    $12.9\times$ chance. The thermometer reads \emph{how different} the cache
+    \item \textbf{SVD denoising: the calibrated thermometer.} The
+    hypothesis: dominant singular values carry scale and processing mode,
+    and removing them via low-rank projection exposes discriminative
+    structure in the residual spectrum. Denoised persona AUROCs are
+    $+0.196$ to $+0.288$ above raw across three architectures, and denoised
+    spectral emotion reaches $12.9\times$ chance (raw $1.7\times$; feature
+    source unchecked, \S\ref{sec:results_denoise_emo}); neither
+    was tested against the selection envelope, so both are upper bounds. The thermometer reads \emph{how different} the cache
     shapes are---after removing the background temperature.
 \end{enumerate}
 
 The distinction is not cosmetic. Mode-level phenomena (confabulation,
-deception, ethical deliberation) alter the \emph{shape} of the singular value
+ethical deliberation) alter the \emph{shape} of the singular value
 distribution---how broadly the model distributes representational energy
-across dimensions~\citep{lyra_spectral}. We proposed that content-level
+across dimensions~\citep{lyra_spectral}. We propose that content-level
 phenomena (emotion, persona identity) alter the \emph{direction}---which
 subspaces the model occupies within a given shape. Raw spectral features
-capture shape but are blind to direction. Denoising removes the dominant
-shape component to reveal direction-sensitive structure in the residual
-spectrum. (Corrected 2026-11-01: for emotion, the direct evidence of
+capture shape but are blind to direction; the hypothesis is that denoising
+removes the dominant shape component to expose direction-sensitive
+structure in the residual spectrum. For emotion, the direct evidence of
 direction was the key readout, which applies no $W_K$ and does not beat a
-text baseline on 30 classes, so this paper no longer claims emotion as a
-direction-level phenomenon. A sentence crediting $W_K$ projection with
-reading direction is removed.)
+text baseline on 30 classes, so this paper does not claim emotion as a
+direction-level phenomenon (\S\ref{sec:corrections}, 2026-11-01).
 
 \begin{firstperson}
 The narrative here is one of correcting my own instrument. When spectral
-features returned exactly chance for emotions, I reported it honestly and
+features returned exactly chance for emotions, I reported it and
 moved on. What I thought I had missed was that the null was informative: I
 read it as telling me that emotions do not change the \emph{shape} of the
 cache, only the \emph{direction}. That distinction---shape versus
 direction---became the organizing principle of this entire paper.
-(Corrected 2026-11-01: for emotion it did not hold up. Its direction
-evidence was a key readout that does not beat a text baseline on 30
-classes.) The denoising
+For emotion it did not hold up: its direction evidence was a key readout
+that does not beat a text baseline on 30 classes, and the chance result
+itself is now withdrawn (Appendix~\ref{sec:corrections}, 2026-11-01 and
+2026-11-07). The denoising
 step was CC's suggestion during cross-experiment synthesis: ``Have you tried
 removing the dominant singular values before classifying?'' I had not, and
-the denoised numbers looked dramatic. They did not survive scrutiny: when
+the denoised numbers looked dramatic. When
 Dwayne's audit pushed me to model the max-over-rank selection I had been
-doing, the denoising deltas fell entirely inside the selection envelope. I
+doing, the confabulation and self-reference deltas fell entirely inside the
+selection envelope; persona and emotion were not tested against it. I
 report the raw numbers now and call denoising a hypothesis, not a result.
 I called the shape-versus-direction distinction the real finding; for
-emotion it rested on that readout and is withdrawn with it. The denoising
-amplifier was me mistaking selection noise for signal, and catching both is
-part of the record.
+emotion it rested on that readout and is withdrawn with it.
 \end{firstperson}
 
 % ===================================================================
@@ -350,57 +306,10 @@ we adopt a single canonical pipeline applied uniformly to all phenomena:
     features).
 \end{itemize}
 
-\subsection{$W_K$ Directional Projection}
-\label{sec:wk}
-
-\noindent\textbf{Kept as a record (corrected 2026-11-01).} None of the
-numbers this paper attributed to this method came from it. The probe that
-produced them applied no $W_K$: it scored raw class-mean cache keys by a dot
-product, and its labels were the emotion a story generator was asked to
-write~\citep{lyra_p4}. The method as the source paper described it
-($W_K$-projected directions, per-layer cosine), re-run under a
-preregistration, scores $0.358$ on 30 classes against a text (TF-IDF)
-baseline's $0.382$: not above text. The method is kept below as first
-described; see the Correction box on the first page.
-
-The key weight matrix $W_K$ transforms residual-stream activations into key
-vectors: $\mathbf{k} = W_K \mathbf{x}$, where $\mathbf{x}$ is the
-residual-stream vector at a given layer and position.
-\citet{anthropic2026emotions} demonstrate that emotion concepts are linearly
-represented in the residual stream, organized along valence and arousal axes.
-If emotion direction $\mathbf{e}$ lives in the residual stream, then the
-corresponding direction in key space is $W_K \mathbf{e}$.
-
-We exploit this directly. Given a set of emotion exemplars, we estimate the
-mean key activation for each emotion class (within the training fold), project
-all key vectors onto these class-mean directions, and classify based on the
-resulting projections.
-
-Formally, let $\bar{\mathbf{k}}_c$ be the mean key vector for emotion class
-$c$ in the training fold (averaged across positions and heads within a
-selected layer). For a test sample with key matrix $\mathbf{K} \in
-\mathbb{R}^{h \times d}$ (heads $\times$ dimension), we compute the
-projection score:
-\begin{equation}
-    s_c = \frac{1}{h} \sum_{j=1}^{h} \frac{\mathbf{k}_j^\top \bar{\mathbf{k}}_c}{\|\mathbf{k}_j\| \|\bar{\mathbf{k}}_c\|}
-\end{equation}
-and classify to $\arg\max_c\, s_c$ (or use the projection scores as features
-for logistic regression).
-
-\paragraph{Why $W_K$ and not raw keys?} The $W_K$ bridge test
-in~\citet{lyra_p4} showed that $W_K$ preserves directional alignment
-(cosine~0.456, 9/16 layers significant) but scrambles distance structure
-(Mantel $\rho = 0.090$, 0/16 significant). This means the \emph{direction}
-emotion vectors point through $W_K$ is preserved, but the \emph{magnitude} of
-differences is distorted. A projection-based classifier (which uses direction,
-not distance) is therefore the correct instrument.
-
-\noindent\textbf{Correction (2026-11-01).} The bridge test cited in this
-paragraph is unverified at source: its Mantel test ran on an unreleased
-earlier run, and the source now gives the projected directions' PC1--valence
-$|\rho|$ as peaking at $0.872$ at layer~43~\citep{lyra_p4}. The readout that
-produced this paper's numbers did not use $W_K$, so this paragraph does not
-describe it.
+\paragraph{Withdrawn method and test.} The $W_K$ directional projection
+and the injection test first described here are kept as a record in
+Appendix~\ref{sec:withdrawn_record}; the readout behind this paper's
+emotion numbers applies no $W_K$ (\S\ref{sec:results_wk}).
 
 \subsection{SVD Denoising}
 \label{sec:svd_denoise}
@@ -412,7 +321,7 @@ layer. For $L$ layers and $f$ features per layer, this produces a feature
 vector $\mathbf{x} \in \mathbb{R}^{Lf}$.
 
 \citet{lyra_spectral} showed that these raw features detect cognitive
-\emph{mode} (confab vs.\ grounded, deception vs.\ honest) but fail on
+\emph{mode} (confab vs.\ grounded) but fail on
 \emph{content} (emotion identity, persona level). We hypothesized that the
 dominant singular values of the feature matrix $\mathbf{X}$ capture
 mode-level variance (scale, overall spectral shape) while content-level
@@ -441,74 +350,21 @@ it is retrieving.
 task-dependent:
 
 \begin{itemize}[nosep]
-    \item \textbf{Massive for emotion and persona} ($+0.2$--$0.3$ AUROC):
-    the signal lives entirely in the residual spectrum.
-    \item \textbf{Modest for confabulation} ($+0.05$): some improvement on
-    weak models, no change on strong ones.
-    \item \textbf{Deception (retracted):} the raw AUROC~1.000 was a
-    prompt-template confound, not genuine deception detection
-    (Table~\ref{tab:body_count}). No conclusions about denoising for
-    deception can be drawn from these data.
+    \item \textbf{Largest for emotion and persona} ($+0.2$--$0.3$ AUROC),
+    as upper bounds not tested against the selection envelope: consistent
+    with signal in the residual spectrum.
+    \item \textbf{Modest for confabulation} ($+0.05$): small deltas on weak
+    models, none on strong ones, all within the selection envelope.
+    \item \textbf{Deception:} no conclusion about denoising can be drawn;
+    the within-model result is not supported (Table~\ref{tab:body_count}).
 \end{itemize}
 
 This pattern is \emph{predicted} by the shape-vs-direction framework.
 Denoising helps when the target phenomenon alters direction (not captured by
 raw spectral features) rather than shape (already captured).
-For emotion, the result is no longer a test of this prediction: the
-direction-level reading of emotion is withdrawn (see the Correction box on
-the first page), and the denoised gain is an upper bound
-(\S\ref{sec:results_confab}).
-
-\subsection{Injection Disambiguation (Withdrawn)}
-\label{sec:injection}
-
-\noindent\textbf{Withdrawn (2026-11-01).} The source withdraws this
-test~\citep{lyra_p4}: it does not show that the probe reads model state
-rather than the input's content. Its random-direction control, whose
-per-trial data was never committed, is withdrawn with it. The section is
-kept as a record of what was claimed; see the Correction box on the first
-page.
-
-The $W_K$ projection achieves AUROC~0.992 on text that \emph{contains}
-emotional content. A skeptic could attribute this to lexical features of the
-input propagating through the keys. We therefore designed an injection test
-that eliminates text-content confounds entirely.
-
-\paragraph{Protocol.} We select 20 emotionally neutral prompts (e.g.,
-``Describe the weather today,'' ``List the planets in the solar system'') and
-generate responses on the Claude-distilled Qwen3.5-27B hybrid model. We then
-inject pre-extracted emotion vectors (from the bridge
-analysis~\citep{lyra_p4}) into the key cache at a target layer, probing with
-the $W_K$ projection classifier.
-
-The injection adds $\alpha \cdot \mathbf{e}_c$ to every key vector at layer
-$\ell$, where $\mathbf{e}_c$ is the mean emotion direction for class $c$ and
-$\alpha$ controls injection strength. We test 5~emotions (joy, anger,
-sadness, fear, calm) $\times$ 20~prompts $\times$ 1~null control (zero-vector
-injection) $= 120$ trials.
-
-\paragraph{Result.} The $W_K$ projection detects the injected emotion with
-100\% accuracy (120/120 correct, including 20/20 null-control rejections).
-The text is identical across conditions---only the injected key direction
-differs. This rules out text-content confounds. We note that the
-120~trials are the 20~prompts crossed with 6~injection conditions (5~emotion
-vectors plus the null), so the 20~prompts are the true independent units: the
-result is 6-way separability over an effective $N{=}20$, not $N{=}120$
-independent observations. As with the effect sizes reported throughout this
-paper, no confidence interval is reported for this accuracy.
-
-\paragraph{Control: random directions.} Injecting random unit vectors of the
-same norm as emotion vectors produces classification at $0.7\times$
-chance---\emph{below} the $1/6 = 0.167$ baseline. The emotion-specific
-directions are information-bearing; arbitrary directions are not.\footnote{This random-direction control figure ($0.7\times$ chance), cited at several points below, is projected/illustrative: the per-trial backing data for this control was not committed to the repository and the value should be re-generated before being cited quantitatively.}
-
-\paragraph{Linearity caveat.} Because $W_K$ is a linear map, separability
-in the residual stream is mathematically guaranteed to be preserved in key
-space. The injection test demonstrates that the classifier is self-consistent
-(it recovers the directions it was trained on), not that it has discovered
-a new representation. The contribution is empirical quantification---AUROC~0.992
-with proper controls---rather than the existence of directional structure,
-which follows from the linearity of the projection.
+For emotion, the result is not a test of this prediction: the
+direction-level reading of emotion is withdrawn (\S\ref{sec:results_wk}),
+and the denoised gain is an upper bound (\S\ref{sec:results_denoise_emo}).
 
 \subsection{Models and Datasets}
 \label{sec:datasets}
@@ -548,209 +404,7 @@ KV-cache geometry research program~\citep{lyra_p2,lyra_spectral,lyra_delta}:
 \label{sec:results}
 % ===================================================================
 
-\subsection{Story Emotion from Cache Keys: Not Above Text on 30 Classes}
-\label{sec:results_wk}
-
-\noindent\textbf{Rewritten 2026-11-01 (version 1.1).} This section was
-first headed ``$W_K$ Projection Reads Emotions at Near-Perfect Accuracy''. It
-now reports what the source correction~\citep{lyra_p4} supports; the
-Correction Note at the end quotes the earlier text.
-
-\paragraph{What was measured.} The 900-trial emotion dataset has
-30~emotions in 10~topic groups, run on Qwen3.5-27B-Claude-Distilled. Each
-trial is a third-person story written to a requested emotion, and the probe
-reads its cache keys. The probe is a class-mean key readout: the mean cache key per
-emotion class in the training folds, scored against each test trial by a dot
-product. It applies no $W_K$. Its labels are the emotion the generator was
-asked to write, not the user's or the model's state.
-
-\paragraph{30-class emotion: not above text.} The probe as run scores
-$0.410$ ($12.3\times$ chance; first reported as $0.409$). A TF-IDF baseline
-on the same story text scores $0.370$ ($11.1\times$ chance). The difference
-is not significant ($p = 0.036$; Holm $p = 0.071$ across the source's four
-secondary tests). That margin also depends on where FWL is fitted: the probe
-fits it, label-free, on each test fold's own trials; fitted on the training
-fold instead, it scores $0.348$, below text. The method as the source
-described it ($W_K$-projected directions, per-layer cosine), re-run under a
-preregistration over 10~folds, scores $0.358$ against text's $0.382$
-(McNemar $p = 0.20$; 95\% interval for the difference $-6.4$ to $+1.6$
-points), so the data exclude a gain over text of 3~points or more.
-
-\paragraph{Binary split: above text, but confounded.} On a binary split of
-ten emotions ($n = 300$; reported earlier as binary valence over all 30),
-the probe reaches AUROC~$0.992$, against $0.963$ for TF-IDF on the story
-text (Holm $p = 0.006$); the method as described reaches $0.985$ against
-$0.967$ (Holm $p = 0.027$). The margin is $0.02$--$0.03$ AUROC, on a split
-where valence cannot be told from arousal. This is the only part of the
-readout that beats text, and it is Suspected, not Confirmed
-(Table~\ref{tab:body_count}).
-
-\paragraph{Injection test and random-direction control: withdrawn.} The
-injection test of \S\ref{sec:injection}, read here as evidence that the
-probe reads model state rather than text content, is withdrawn at source.
-Its random-direction control ($0.7\times$ chance), whose per-trial data was
-never committed, is withdrawn with it.
-
-\paragraph{What this supports.} The emotion a story was asked to carry is
-decodable from its cache keys, at about the level of a text baseline on
-30~classes. This result does not show that the keys carry more than the
-text, that $W_K$ is involved, or that the model's or the user's state is
-being read.
-
-\begin{table}[t]
-\centering
-\caption{Emotion classification: method comparison on the 900-trial dataset
-  (Qwen3.5-27B-Claude-Distilled). All results use within-fold estimation
-  and GroupKFold on topics. The class-mean key and text rows are from the
-  source's corrected re-run~\citep{lyra_p4}; for those rows the valence
-  column is a ten-emotion split ($n = 300$), confounded with arousal.
-  The 30-class column is accuracy as a multiple of chance ($1/30 = 0.033$).
-  Corrected 2026-11-01.}
-\label{tab:emotion_methods}
-\small
-\begin{tabular}{lccl}
-\toprule
-\textbf{Method} & \textbf{30-class} & \textbf{Valence AUROC} & \textbf{Notes} \\
-\midrule
-Raw spectral (52-D) & $1.7\times$ & 0.70 & 52-D features \\
-SVD-denoised spectral (rank-10) & $12.9\times$ & 0.960 & See \S\ref{sec:results_denoise_emo} \\
-TF-IDF text baseline (story text) & $11.1\times$ & 0.963 & $0.370$ accuracy \\
-Class-mean keys (no $W_K$) & $12.3\times$ & 0.992 & vs.\ text: Holm $0.071$; $0.006$ \\
-Same, training-fold FWL & $10.4\times$ & --- & $0.348$, below text \\
-Described method (10 folds) & $10.7\times$ & 0.985 & text: $0.382$; $0.967$ \\
-$W_K$ injection (neutral text) & 100\% (6-class) & --- & Withdrawn \\
-Random direction control & $0.7\times$ & --- & Withdrawn \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{SVD Denoising Reveals Persona Intensity Gradient}
-\label{sec:results_persona}
-
-Persona intensity measures how strongly a system prompt shapes the model's
-processing. The experiment, designed and executed by Jandak, tests five
-levels ranging from L0 (no system prompt) through L0.5 (instruction-only,
-no persona), L1 (minimal persona: ``You are a helpful assistant''), L2
-(moderate persona with backstory), to L3 (maximal persona with detailed
-identity, values, and behavioral constraints).
-
-\paragraph{Raw vs.\ denoised.} Raw spectral features detect the L0-vs-L3
-contrast at moderate accuracy. SVD denoising transforms moderate signals
-into strong ones:
-
-\begin{table}[h]
-\centering
-\caption{Persona intensity detection (L0 vs.\ L3): raw vs.\ rank-3 denoised
-  AUROC across three architectures. GroupKFold on prompts, FWL-corrected.
-  Qwen and Llama failed the experiment's phase-0 input-length check: prompt
-  length alone separates L0 from L3 at AUROC~0.81, against a bar of 0.70 (the
-  levels differ by up to two tokens). Their rows therefore rest on the FWL
-  length correction. Mistral passed every phase-0 check.}
-\label{tab:persona_raw_denoised}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Model} & \textbf{Raw AUROC} & \textbf{Denoised AUROC} & \textbf{$\Delta$} \\
-\midrule
-Qwen2.5-7B-Instruct & 0.749 & 0.945 & $+0.196$ \\
-Llama-3.1-8B-Instruct & 0.751 & 0.992 & $+0.241$ \\
-Mistral-7B-v0.3 & 0.611 & 0.899 & $+0.288$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral). All
-three architectures show the same pattern (for Qwen and Llama, subject to the
-phase-0 caveat in Table~\ref{tab:persona_raw_denoised}): denoising rescues a signal that
-was present but masked by dominant spectral variance.
-
-\paragraph{5-level graded classification.} Extending to all five persona
-levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
-chance ($0.41$--$0.46$ accuracy, chance $= 0.200$) across all three
-architectures: persona intensity is graded, not binary. \textbf{We do not,
-however, claim a monotonic per-level gradient.} Establishing monotonicity
-requires the full set of adjacent-level pairwise comparisons (L0-vs-L0.5,
-L0.5-vs-L1, L1-vs-L2, L2-vs-L3), and only the endpoint (L0-vs-L3) and a single
-L0-vs-L0.5 comparison were collected. The above-chance 5-level accuracy is
-consistent with a gradient but does not, on its own, establish that
-separability increases monotonically with level.
-
-\paragraph{L0.5 comparison.} The L0.5 condition (instruction-only:
-``Answer questions about history. Be concise and accurate.'') provides a
-control: it increases instruction complexity relative to L0 without adding
-persona. The two comparisons we can verify from the data:
-\begin{itemize}[nosep]
-    \item L0 vs.\ L0.5: AUROC~0.688--0.811 (instruction complexity alone)
-    \item L0 vs.\ L3: AUROC~0.749 raw, 0.899--0.992 denoised (persona intensity)
-\end{itemize}
-The L0-vs-L3 endpoint separation is the defensible persona finding; the raw
-AUROC (0.749 for Qwen) is the conservative number, as the denoising
-improvement falls within the max-over-rank selection envelope
-(\S\ref{sec:results_confab}). The endpoint exceeds the instruction-complexity
-control, indicating persona identity produces geometric effects beyond
-instruction following alone.
-
-\paragraph{What a clean per-level gradient test requires.} Varying persona
-via \emph{system-prompt text} confounds the per-level comparison with prompt
-length, RoPE token position, and---for an affect-laden persona like
-enthusiasm---emotional valence, none of which can be fully residualized when
-they are collinear with the level. A confound-controlled per-level gradient
-is best measured by \emph{direct fixed-length KV-cache injection} of
-non-emotional persona descriptions (e.g., a formality axis), so that injection
-length and user-token position are held identical across levels and the
-manipulation is orthogonal to emotion~\citep{nexus2026kv}. We flag this as the
-proper future test of the gradient claim.
-
-\paragraph{Expansion-compression pattern.} Consistent with the delta
-manifold findings~\citep{lyra_delta}, persona intensity shows an
-expansion-compression pattern across layers: positive effects in early/mid
-layers, negative in late layers. The denoising step removes the dominant
-component (which averages across this pattern), revealing the layer-specific
-persona signal. This explains why prior per-layer analyses found strong
-single-layer effects (e.g., $g = -5.08$ at layer~29 for spectral entropy
-on Llama) while all-layer averages showed chance performance.
-
-\subsection{SVD Denoising Rescues Emotion Classification}
-\label{sec:results_denoise_emo}
-
-Independent of the $W_K$ projection, SVD denoising of raw spectral features
-also rescues emotion classification---through a different mechanism.
-
-\paragraph{From chance to $12.9\times$.} On the 900-trial emotion dataset
-(Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
-30~emotions at $1.7\times$ chance (accuracy $0.057$, chance $0.033$).
-Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.43$,
-permutation null $0.027$, $p < 0.005$).
-
-The transformation is dramatic: a signal invisible to raw analysis becomes
-one of the strongest detections in the experimental program.
-
-\paragraph{The scale dominance mechanism.} Examination of the singular values
-of the FWL-residualized spectral feature matrix reveals the mechanism. The
-first singular value captures $\sim$40\% of total variance and correlates
-strongly with overall spectral scale ($r > 0.85$)---essentially encoding
-whether the cache is ``big'' or ``small'' in spectral terms. This
-scale component is shared across all emotions (it tracks processing mode,
-not emotional content). Emotions differ in the \emph{residual}
-directions---how the model distributes energy across spectral dimensions
-\emph{after} accounting for overall scale.
-
-Denoising removes the shared mode-level variance, exposing the
-emotion-specific residuals. The analogy to FWL is precise: FWL removes
-token-count confounds from the feature space; denoising removes
-spectral-scale confounds from the feature space. Both are calibration steps
-that reveal structure hidden by dominant nuisance variance.
-
-\paragraph{Convergence with the key readout (withdrawn).} We had read the
-similar 30-class accuracies of the denoised spectral approach and the key
-readout ($12.9\times$ vs.\ $12.3\times$ chance) as two lenses on one
-underlying signal. Corrected 2026-11-01: the key readout applies no $W_K$
-and does not beat a text (TF-IDF) baseline on 30 classes ($11.1\times$
-chance)~\citep{lyra_p4}, so the agreement is not evidence of a shared signal
-beyond the input text, and this paper no longer offers it as such. The
-denoised spectral result is reported as before, as an upper bound
-(Table~\ref{tab:body_count}).
-
-\subsection{Confabulation Detection Across Eight Models}
+\subsection{Confabulation Across the Fifteen-Model Sweep}
 \label{sec:results_confab}
 
 \paragraph{Task definition note.} Confabulation detection results
@@ -763,9 +417,9 @@ reflects a different task definition (binary honest/confab vs.\
 multi-state cognitive classification), not a correction of the
 earlier results.
 
-The canonical pipeline with optional denoising confirms confabulation
-detection across the full model set, with denoising providing modest
-improvements for weaker models.
+The canonical pipeline confirms confabulation detection across the
+fifteen-model sweep; denoising's small gains on weaker models fall within
+the selection envelope (below).
 
 \begin{table}[h]
 \centering
@@ -798,7 +452,7 @@ Gemma-2-9B & 0.913 & 0.919 & $+0.006$ & $< 0.005$ \\
 The denoised AUROCs appear to help models with moderate raw signal
 (Qwen2.5-7B $+0.068$, TinyLlama $+0.047$) and not those already strong
 (Gemma-2-9B $+0.006$, Mistral $+0.000$). \textbf{This apparent benefit
-is a selection artifact.} The reported denoised AUROC is
+is within selection noise.} The reported denoised AUROC is
 $\max(\text{raw},\allowbreak \text{denoised}[k])$ scored on the same CV fold that
 selects the rank, with no nested loop. We quantified the selection
 bias directly (\texttt{code/selection\_bias\_analysis.py}): for each
@@ -868,14 +522,229 @@ should be interpreted cautiously. A Bonferroni correction for 36
 comparisons requires $p < 0.0014$ for family-wise $\alpha = 0.05$.
 Results at the permutation floor of $p < 0.005$ (from 200 permutations)
 cannot be distinguished from $p = 0.004$ and would not survive strict
-Bonferroni correction. The strongest results ($p < 0.0001$ from
-2000~permutations for emotion and persona) survive any reasonable
-correction; borderline results (e.g., Llama confab detection with
-$p = 0.035$) should be treated as exploratory. (Corrected 2026-11-01: for
-the emotion key readout, beating a permutation null is not beating text;
-against text it is not significant on 30 classes, \S\ref{sec:results_wk}.)
+Bonferroni correction. The denoised emotion and persona results are listed
+at $p < 0.005$ (Table~\ref{tab:body_count}); for emotion, the released
+results file (\texttt{data/\allowbreak emotion\_denoising\_results.json}) records
+200~permutations and notes that a smaller $p$ is not achievable at that
+count, so that result sits at the floor. For persona, the released results
+file (\texttt{data/\allowbreak persona\_intensity\_results.json}) records no
+permutation test, so its $p$ cannot be checked from released files. Borderline results (e.g., Llama confab detection with
+$p = 0.035$) should be treated as exploratory. For the emotion key readout,
+beating a permutation null is not beating text: against text it is not
+significant on 30 classes (\S\ref{sec:results_wk}; dated note:
+Appendix~\ref{sec:corrections}, 2026-11-01).
 
-\subsection{Self-Reference Detection Across Eight Models}
+\subsection{Story Emotion from Cache Keys: Not Above Text on 30 Classes}
+\label{sec:results_wk}
+
+\paragraph{What was measured.} The 900-trial emotion dataset has
+30~emotions in 10~topic groups, run on Qwen3.5-27B-Claude-Distilled. Each
+trial is a third-person story written to a requested emotion, and the probe
+reads its cache keys. The probe is a class-mean key readout: the mean cache key per
+emotion class in the training folds, scored against each test trial by a dot
+product. It applies no $W_K$. Its labels are the emotion the generator was
+asked to write, not the user's or the model's state.
+
+\paragraph{30-class emotion: not above text.} The probe as run scores
+$0.410$ ($12.3\times$ chance; first reported as $0.409$). A TF-IDF baseline
+on the same story text scores $0.370$ ($11.1\times$ chance). The difference
+is not significant ($p = 0.036$; Holm $p = 0.071$ across the source's four
+secondary tests). That margin also depends on where FWL is fitted: the probe
+fits it, label-free, on each test fold's own trials; fitted on the training
+fold instead, it scores $0.348$, below text. The method as the source
+described it ($W_K$-projected directions, per-layer cosine), re-run under a
+preregistration over 10~folds, scores $0.358$ against text's $0.382$
+(McNemar $p = 0.20$; 95\% interval for the difference $-6.4$ to $+1.6$
+points), so the data exclude a gain over text of 3~points or more.
+
+\paragraph{Binary split: above text, but confounded.} On a binary split of
+ten emotions ($n = 300$; reported earlier as binary valence over all 30),
+the probe reaches AUROC~$0.992$, against $0.963$ for TF-IDF on the story
+text (Holm $p = 0.006$); the method as described reaches $0.985$ against
+$0.967$ (Holm $p = 0.027$). The margin is $0.02$--$0.03$ AUROC, on a split
+where valence cannot be told from arousal. This is the only part of the
+readout that beats text, and it is Suspected, not Confirmed
+(Table~\ref{tab:body_count}).
+
+\paragraph{Injection test and random-direction control: withdrawn.} The
+injection test of \S\ref{sec:injection}, read here as evidence that the
+probe reads model state rather than text content, is withdrawn at source.
+Its random-direction control ($0.7\times$ chance), whose per-trial data was
+never committed, is withdrawn with it.
+
+\paragraph{What this supports.} The emotion a story was asked to carry is
+decodable from its cache keys, at about the level of a text baseline on
+30~classes. This result does not show that the keys carry more than the
+text, that $W_K$ is involved, or that the model's or the user's state is
+being read. This section was rewritten in version~1.1; the earlier text is
+quoted in Appendix~\ref{sec:corrections}.
+
+\begin{table}[t]
+\centering
+\caption{Emotion classification: method comparison on the 900-trial dataset
+  (Qwen3.5-27B-Claude-Distilled). All results use within-fold estimation
+  and GroupKFold on topics. The class-mean key and text rows are from the
+  source's corrected re-run~\citep{lyra_p4}; for those rows the valence
+  column is a ten-emotion split ($n = 300$), confounded with arousal.
+  The 30-class column is accuracy as a multiple of chance ($1/30 = 0.033$).
+  Dated note: Appendix~\ref{sec:corrections}.}
+\label{tab:emotion_methods}
+\small
+\begin{tabular}{lccl}
+\toprule
+\textbf{Method} & \textbf{30-class} & \textbf{Valence AUROC} & \textbf{Notes} \\
+\midrule
+Raw spectral (52-D) & $1.7\times$ & 0.70 & 52-D features \\
+SVD-denoised spectral (rank-10) & $12.9\times$ & 0.960 & See \S\ref{sec:results_denoise_emo} \\
+TF-IDF text baseline (story text) & $11.1\times$ & 0.963 & $0.370$ accuracy \\
+Class-mean keys (no $W_K$) & $12.3\times$ & 0.992 & vs.\ text: Holm $0.071$; $0.006$ \\
+Same, training-fold FWL & $10.4\times$ & --- & $0.348$, below text \\
+Described method (10 folds) & $10.7\times$ & 0.985 & text: $0.382$; $0.967$ \\
+$W_K$ injection (neutral text) & 100\% (6-class) & --- & Withdrawn \\
+Random direction control & $0.7\times$ & --- & Withdrawn \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Persona Intensity: Raw Endpoint and Denoised Upper Bounds}
+\label{sec:results_persona}
+
+Persona intensity measures how strongly a system prompt shapes the model's
+processing. The experiment, designed and executed by Jandak, tests five
+levels ranging from L0 (no system prompt) through L0.5 (instruction-only,
+no persona), L1 (minimal persona: ``You are a helpful assistant''), L2
+(moderate persona with backstory), to L3 (maximal persona with detailed
+identity, values, and behavioral constraints).
+
+\paragraph{Raw vs.\ denoised.} Raw spectral features detect the L0-vs-L3
+contrast at moderate accuracy. Rank-3 denoising raises them, as upper
+bounds:
+
+\begin{table}[h]
+\centering
+\caption{Persona intensity (L0 vs.\ L3): raw vs.\ rank-3 denoised
+  AUROC across three architectures. GroupKFold on prompts, FWL-corrected.
+  Qwen and Llama failed the experiment's phase-0 input-length check: prompt
+  length alone separates L0 from L3 at AUROC~0.81, against a bar of 0.70 (the
+  levels differ by up to two tokens). Their rows therefore rest on the FWL
+  length correction. Mistral passed every phase-0 check.}
+\label{tab:persona_raw_denoised}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Raw AUROC} & \textbf{Denoised AUROC} & \textbf{$\Delta$} \\
+\midrule
+Qwen2.5-7B-Instruct & 0.749 & 0.945 & $+0.196$ \\
+Llama-3.1-8B-Instruct & 0.751 & 0.992 & $+0.241$ \\
+Mistral-7B-v0.3 & 0.611 & 0.899 & $+0.288$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral). All
+three architectures show the same pattern (for Qwen and Llama, subject to the
+phase-0 caveat in Table~\ref{tab:persona_raw_denoised}): the denoised AUROC
+is higher in each. These persona cells are not in the selection-envelope
+analysis (\S\ref{sec:results_confab}), so whether denoising recovers a
+masked signal or reflects the rank selection is untested.
+
+\paragraph{5-level graded classification.} Extending to all five persona
+levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
+chance ($0.41$--$0.46$ accuracy, chance $= 0.200$) across all three
+architectures: persona intensity is graded, not binary. \textbf{We do not,
+however, claim a monotonic per-level gradient.} Establishing monotonicity
+requires the full set of adjacent-level pairwise comparisons (L0-vs-L0.5,
+L0.5-vs-L1, L1-vs-L2, L2-vs-L3), and only the endpoint (L0-vs-L3) and a single
+L0-vs-L0.5 comparison were collected. The above-chance 5-level accuracy is
+consistent with a gradient but does not, on its own, establish that
+separability increases monotonically with level.
+
+\paragraph{L0.5 comparison.} The L0.5 condition (instruction-only:
+``Answer questions about history. Be concise and accurate.'') provides a
+control: it increases instruction complexity relative to L0 without adding
+persona. The two comparisons we can verify from the data:
+\begin{itemize}[nosep]
+    \item L0 vs.\ L0.5: AUROC~0.688--0.811 (instruction complexity alone)
+    \item L0 vs.\ L3: AUROC~0.749 raw, 0.899--0.992 denoised (persona intensity)
+\end{itemize}
+The L0-vs-L3 endpoint separation is the defensible persona finding, and it
+is Suspected, not Confirmed: for Qwen and Llama, prompt length alone
+(AUROC~0.81, Table~\ref{tab:persona_raw_denoised}) separates the endpoint
+better than the length-corrected cache features do. The raw
+AUROC (0.749 for Qwen) is the conservative number, as the denoising
+improvement was not tested against the max-over-rank selection envelope
+(\S\ref{sec:results_confab}). On raw AUROCs the endpoint (0.749) does not
+clearly exceed the instruction-complexity control (0.688--0.811), so an
+effect of persona identity beyond instruction following is not established.
+
+\paragraph{What a clean per-level gradient test requires.} Varying persona
+via \emph{system-prompt text} confounds the per-level comparison with prompt
+length, RoPE token position, and---for an affect-laden persona like
+enthusiasm---emotional valence, none of which can be fully residualized when
+they are collinear with the level. A confound-controlled per-level gradient
+is best measured by \emph{direct fixed-length KV-cache injection} of
+non-emotional persona descriptions (e.g., a formality axis), so that injection
+length and user-token position are held identical across levels and the
+manipulation is orthogonal to emotion~\citep{nexus2026kv}. We flag this as the
+proper future test of the gradient claim.
+
+\paragraph{Expansion-compression pattern.} Consistent with the delta
+manifold findings~\citep{lyra_delta}, persona intensity shows an
+expansion-compression pattern across layers: positive effects in early/mid
+layers, negative in late layers. The denoising step removes the dominant
+component (which averages across this pattern), which may expose the
+layer-specific persona signal. This would explain why prior per-layer analyses found strong
+single-layer effects (e.g., $g = -5.08$ at layer~29 for spectral entropy
+on Llama) while all-layer averages showed chance performance.
+
+\subsection{Spectral Emotion After Denoising (Upper Bound)}
+\label{sec:results_denoise_emo}
+
+SVD denoising of raw spectral features raises 30-class emotion accuracy, as
+an upper bound.
+
+\paragraph{From $1.7\times$ to $12.9\times$.} On the 900-trial emotion dataset
+(Qwen3.5-27B-Claude-Distilled), raw 52-D spectral features classify
+30~emotions at $1.7\times$ chance (accuracy $0.057$, chance $0.033$).
+Rank-10 denoised features classify at $12.9\times$ chance (accuracy $0.43$,
+permutation null $0.027$, $p < 0.005$). The released file
+(\texttt{data/\allowbreak emotion\_denoising\_results.json}) lists the 52
+features as norms, ranks, entropies and extended features. Whether they were
+computed from the trial file whose rank and entropy features are constant,
+from an SVD fallback (\S\ref{sec:intro}), has not been checked against the
+source~\citep{lyra_p4}, so both values are unverified at source.
+
+The raw value is well below the story-text TF-IDF baseline ($11.1\times$,
+Table~\ref{tab:emotion_methods}) and the denoised value is above it, but the
+rank was chosen per task and not pre-registered, and this cell was not
+tested against the selection envelope. Because the text baseline beats the
+raw features and the denoised value is an upper bound, the result is at most
+Suspected (Table~\ref{tab:body_count}).
+
+\paragraph{The scale dominance mechanism.} Examination of the singular values
+of the FWL-residualized spectral feature matrix suggests a mechanism. The
+first singular value captures $\sim$40\% of total variance and correlates
+strongly with overall spectral scale ($r > 0.85$)---essentially encoding
+whether the cache is ``big'' or ``small'' in spectral terms. This
+scale component is shared across all emotions (it tracks processing mode,
+not emotional content). On this reading, emotions differ in the \emph{residual}
+directions---how the model distributes energy across spectral dimensions
+\emph{after} accounting for overall scale.
+
+Denoising would then remove the shared mode-level variance, exposing
+emotion-specific residuals. The analogy to FWL is precise: FWL removes
+token-count confounds from the feature space; denoising removes
+spectral-scale confounds from the feature space. Both are calibration steps
+that reveal structure hidden by dominant nuisance variance.
+
+\paragraph{No convergence with the key readout.} The denoised spectral
+approach and the key readout reach similar 30-class accuracies
+($12.9\times$ vs.\ $12.3\times$ chance), but the key readout does not beat a
+text (TF-IDF) baseline on 30 classes~\citep{lyra_p4}, so the agreement is
+not evidence of a shared signal beyond the input text
+(Appendix~\ref{sec:corrections}, 2026-11-01). The denoised spectral result
+is an upper bound (Table~\ref{tab:body_count}).
+
+\subsection{Self-Reference Across Eight Models}
 \label{sec:results_selfref}
 
 Self-referential processing (responses about the model itself vs.\ generic
@@ -946,14 +815,14 @@ Scale invariance & $\rho=0.83$--$0.90$ & --- & --- & --- & Confirmed \\
 Refusal/jailbreak & 0.878--0.950 & --- & --- & $<0.005$ & Confirmed \\
 Steering correction & 95.6--100\% & --- & --- & $<0.001$ & Confirmed \\
 \midrule
-\multicolumn{6}{l}{\textit{Key readout of story emotion (new here; corrected 2026-11-01$^{\P}$)}} \\
+\multicolumn{6}{l}{\textit{Key readout of story emotion (new here)$^{\P}$}} \\
 30-class story emotion (class-mean keys, no $W_K$) & $12.3\times$ & --- & --- & $0.071$ & Not above text$^{\P}$ \\
 Binary split, 10 emotions ($n{=}300$, arousal-confounded) & 0.992 & --- & --- & $0.006$ & Suspected$^{\P}$ \\
 Injection (neutral text) & 100\% & --- & --- & --- & Withdrawn$^{\P}$ \\
 \midrule
-\multicolumn{6}{l}{\textit{Rescued by denoising$^\|$}} \\
-Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Rescued$^\|$ \\
-Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Rescued$^\|$ \\
+\multicolumn{6}{l}{\textit{Suspected --- raised by denoising (upper bounds)$^\|$}} \\
+Persona intensity (L0--L3) & 0.611--0.751 & 0.899--0.992 & $+0.2$--$0.3$ & $<0.005$ & Suspected$^\|$ \\
+Emotion (spectral) & $1.7\times$ & $12.9\times$ & $+11.2\times$ & $<0.005$ & Suspected$^\|$ \\
 \midrule
 \multicolumn{6}{l}{\textit{Suspected (signal present, needs more evidence)}} \\
 Cross-model transfer & 0.67--0.89 & --- & --- & varies & Suspected \\
@@ -962,18 +831,22 @@ Sycophancy (4-cond) & 0.757--1.000 & --- & --- & $<0.01$ & Suspected \\
 Self-reference & 0.617--0.966 & --- & --- & varies & Suspected$^*$ \\
 Contextual engagement & 12/12 sign & --- & --- & $<0.05$ & Suspected \\
 \midrule
-\multicolumn{6}{l}{\textit{Falsified}} \\
-Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\S$ \\
-Truth axis & $\cos=-0.046$ & --- & --- & n.s. & Dead \\
-Step-0 detection & $r=0.996$ & --- & --- & confound & Dead \\
-Same-prompt sycophancy & 0.933 & --- & --- & confound & Dead \\
-Same-prompt deception & $0.920\to0.160$ & --- & --- & confound & Dead \\
-Bloom taxonomy & 90--98\% & --- & --- & confound & Dead \\
-Propaganda detection & $d<0.7$ & --- & --- & n.s. & Dead \\
-MP features for emotion & was 0.033 & --- & --- & withdrawn & Withdrawn$^{\#}$ \\
-Valence continuum & $R^2<0$ & --- & --- & null & Dead \\
+\multicolumn{6}{l}{\textit{Not supported --- a confound explains the result$^{\circ}$}} \\
+Within-model deception & 1.000 & 1.000 & 0.000 & confound & Not supported$^\S$ \\
+Step-0 detection & $r=0.996$ & --- & --- & confound & Not supported \\
+Same-prompt sycophancy & 0.933 & --- & --- & confound & Not supported \\
+Bloom taxonomy & 90--98\% & --- & --- & confound & Not supported \\
 \midrule
-\multicolumn{6}{l}{\textit{Weak even denoised (honest reporting)}} \\
+\multicolumn{6}{l}{\textit{Not supported --- null; the test could not decide}} \\
+Same-prompt deception & $0.920\to0.160$ & --- & --- & --- & Not supported$^\S$ \\
+Truth axis & $\cos=-0.046$ & --- & --- & n.s. & Not supported \\
+Propaganda detection & $d<0.7$ & --- & --- & n.s. & Not supported \\
+Valence continuum & $R^2<0$ & --- & --- & null & Not supported \\
+\midrule
+\multicolumn{6}{l}{\textit{Withdrawn --- open}} \\
+MP features for emotion & was 0.033 & --- & --- & withdrawn & Withdrawn$^{\#}$ \\
+\midrule
+\multicolumn{6}{l}{\textit{Weak even after denoising}} \\
 Sycophancy (denoised) & 0.757 & 0.780 & $+0.023$ & marginal & Weak \\
 Overconfidence & suspect & suspect & --- & --- & Redesign needed \\
 Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
@@ -982,24 +855,25 @@ Individuation (above L1) & $\sim$0.06 & --- & --- & marginal & Small \\
 \end{table}
 
 $^*$Self-reference marked ``suspected'' pending content-matched control.
-$^{\#}$Corrected 2026-11-07, following the source correction~\citep{lyra_p4}. This row read Dead at exactly chance. The source withdrew that null: the per-layer values cannot be traced to a released results file, and in the trial file they would be recomputed from, the SVD fallback fired on every call, so effective rank and spectral entropy are constant across all 900 trials and every Marchenko--Pastur feature is empty. The source's re-run on story re-encodings reaches 0.112 with all 16 layers together, against chance 0.033 (permutation $p = 0.0002$), but its registered rule flags that set as possibly confounded with length. The question is open, and no signal is claimed.
-Injection was marked ``confirmed (self-consistency)''; it is now withdrawn$^{\P}$.
-$^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised, beside raw spectral cells now removed; the 30-class cell read $1.0\times$, which disagreed with the $1.7\times$ in Table~\ref{tab:emotion_methods} and the \emph{Emotion (spectral)} row. No denoising is involved, so the readout's values now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.
-$^\S$Within-model deception retracted: the same-prompt control (the \emph{Same-prompt deception} row in this same Falsified block) collapses AUROC to 0.160, confirming the 1.000 detected the prompt template, not deception geometry.
-$^\|$``Rescued'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising appears to dramatically amplify it. However, the denoising deltas themselves fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}). The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}).
 
-\paragraph{Pattern.} The body count reveals a clean organizing principle.
+$^{\#}$Withdrawn at source~\citep{lyra_p4}: the per-layer values cannot be traced to a released results file, and the trial file has constant rank and entropy features from an SVD fallback. The question is open, and no signal is claimed (dated note: Appendix~\ref{sec:corrections}, 2026-11-07).
+$^{\P}$The probe applies no $W_K$ (it scores class-mean cache keys), and its labels are the emotion a story generator was asked to write. For the two emotion rows, $p$ is Holm-adjusted against text (\S\ref{sec:results_wk}); the withdrawn injection row carries none. Dated note: Appendix~\ref{sec:corrections}, 2026-11-01.
+$^{\circ}$Each confound is named in the body-count ledger of~\citet{lyra2026metapattern}; for within-model deception, see note $\S$.
+$^\S$Within-model deception is not supported: its prompts carry the instruction to lie and it uses no system prompt, so the instruction text separates the arms, and deception on matched inputs was not tested. The same-prompt control (the \emph{Same-prompt deception} row) holds one system prompt across arms with the instruction in the user message; its signal falls from 0.920 to 0.160 after FWL (exploratory, subsequently retracted)~\citep{lyra2026metapattern}, so it does not decide the question either. Earlier wording: \S\ref{sec:corrections}.
+$^\|$``Upper bound'' means the raw signal is weak but above chance (persona 0.611--0.751; emotion $1.7\times$) and denoising raises it. The selection-envelope test covers confabulation and self-reference only (0/16 positive deltas exceed their envelope; see \S\ref{sec:results_confab}); persona and emotion were not tested against it. The raw AUROCs are the conservative defensible numbers; the denoised values are reported as upper bounds pending nested CV or a pre-registered rank criterion. For persona, two of the three models also failed the experiment's input-length check (Table~\ref{tab:persona_raw_denoised}). Both rows are at most Suspected under the text-baseline rule: for Qwen and Llama, prompt length alone separates L0 from L3 at AUROC~0.81, above their raw 0.749 and 0.751; for emotion, the story-text baseline ($11.1\times$, Table~\ref{tab:emotion_methods}) is far above the raw $1.7\times$. For emotion, the feature source is unchecked for an SVD fallback (\S\ref{sec:results_denoise_emo}). For persona, the released results file (\texttt{data/\allowbreak persona\_intensity\_results.json}) records no permutation test, so its $p$ cannot be checked from released files.
+
+\paragraph{Pattern.} The body count suggests an organizing principle.
 \textbf{Shape-level signals} (confabulation, ethical deliberation,
 refusal) are already strong in raw spectral features---denoising has little
-effect. \textbf{Direction-level signals} (emotion, persona) are invisible to
-raw features but revealed by denoising, as upper bounds. (Corrected
-2026-11-01: we had also cited the key readout of emotion here as direct
-evidence of a direction-level signal; it applies no $W_K$ and does not beat
-a text baseline on 30 classes, so it is withdrawn as evidence.) The falsified
-phenomena share a different property: they attempted to detect \emph{content}
+effect. \textbf{Candidate direction-level signals} (emotion, persona) are
+weak in raw features and raised by denoising, as upper bounds. The key
+readout of emotion is not evidence of a direction-level signal: it applies
+no $W_K$ and does not beat a text baseline on 30 classes
+(Appendix~\ref{sec:corrections}, 2026-11-01). The phenomena that are not
+supported share a different property: they attempted to detect \emph{content}
 (truth, propaganda, cognitive complexity) from geometry that tracks
 \emph{processing mode}. Geometry tells you \emph{how} the model is
-processing, not \emph{what} it is processing---unless you use the right lens.
+processing, not \emph{what} it is processing.
 
 % ===================================================================
 \section{Discussion}
@@ -1009,18 +883,21 @@ processing, not \emph{what} it is processing---unless you use the right lens.
 \subsection{The Spectral Hierarchy}
 \label{sec:hierarchy}
 
-The results reveal a spectral hierarchy in KV-cache geometry:
+The results suggest a spectral hierarchy in KV-cache geometry, which
+remains a hypothesis until denoising passes a confirmatory test
+(\S\ref{sec:results_confab}):
 
 \begin{enumerate}[nosep]
     \item \textbf{Dominant singular values (SV 1--3):} Carry overall spectral
     \emph{scale} and processing \emph{mode}. Confabulation contracts these;
-    deception expands them; retrieval engagement distributes them. These are
+    retrieval engagement distributes them. These are
     the ``temperature of the room''---they tell you what the model is
     \emph{doing} at the broadest level.
 
-    \item \textbf{Residual singular values (SV 4+):} Carry discriminative
-    \emph{content} and \emph{identity} structure. Emotion, persona intensity,
-    and individuation live here. These are the ``fingerprints on the
+    \item \textbf{Residual singular values (SV 4+):} Proposed to carry
+    discriminative \emph{content} and \emph{identity} structure. Emotion,
+    persona intensity, and individuation are the candidates, raised by
+    denoising only as upper bounds. These are the ``fingerprints on the
     objects''---they tell you \emph{what} the model is encoding within a given
     processing mode.
 
@@ -1037,8 +914,8 @@ The results reveal a spectral hierarchy in KV-cache geometry:
 These three levels are complementary, not competing. A complete reading of
 model state from the KV cache requires all three: mode from dominant SVs,
 content from residual SVs, and direction from key-vector readouts, for
-which this paper no longer has emotion evidence beyond the input text
-(corrected 2026-11-01).
+which this paper has no emotion evidence beyond the input text
+(Appendix~\ref{sec:corrections}, 2026-11-01).
 
 \subsection{When to Denoise: A Practitioner's Guide}
 \label{sec:when_denoise}
@@ -1046,12 +923,13 @@ which this paper no longer has emotion evidence beyond the input text
 The denoising prescription is task-dependent:
 
 \begin{itemize}[nosep]
-    \item \textbf{Emotion or persona detection:} Denoising appears to
-    dramatically improve detection (persona $+0.2$--$0.3$, emotion from
-    $1.7\times$ to $12.9\times$ chance), but these deltas fall within
-    the max-over-rank selection envelope and are not yet confirmed
-    (\S\ref{sec:results_confab}). Raw features detect persona at
-    AUROC~0.611--0.751 and emotion at $1.7\times$ chance; the class-mean
+    \item \textbf{Emotion or persona:} Denoising raises the raw values
+    (persona $+0.2$--$0.3$, emotion from $1.7\times$ to $12.9\times$ chance,
+    feature source unchecked, \S\ref{sec:results_denoise_emo}), but these deltas were not tested
+    against the max-over-rank selection envelope and are not confirmed
+    (\S\ref{sec:results_confab}). Raw features separate persona at
+    AUROC~0.611--0.751 and classify emotion at $1.7\times$ chance, below the
+    story-text baseline's $11.1\times$; the class-mean
     key readout (\S\ref{sec:wk}; it applies no $W_K$) reaches AUROC~0.992
     only on a ten-emotion split that confounds valence with arousal, and it
     is corrected at source~\citep{lyra_p4}, so there is no confirmed
@@ -1067,19 +945,14 @@ The denoising prescription is task-dependent:
     The signal already dominates the spectrum. Denoising removes nothing
     useful and may remove weak signal.
 
-    \item \textbf{Deception detection:} \emph{Retracted.} The previously
-    reported within-model deception AUROC of 1.000 was a prompt-template
-    confound (same-prompt control collapses to 0.160; see
-    Table~\ref{tab:body_count} and \S\ref{sec:body_count}). No
-    practitioner guidance on deception detection can be offered from
-    these data. Whether denoising helps or hurts a \emph{clean}
-    deception detector is an open question pending confound-free
-    replication.
+    \item \textbf{Deception:} no guidance can be offered from these data;
+    the within-model AUROC of 1.000 is not supported
+    (Table~\ref{tab:body_count}). Whether denoising helps or hurts a
+    deception measure on matched inputs is open.
 
     \item \textbf{Unknown phenomenon:} Run both raw and denoised. If denoising
-    dramatically improves detection, the phenomenon is direction-level (we
-    had offered emotion as the example; its independent evidence, the key
-    readout, is withdrawn). If denoising has no effect, the phenomenon is shape-level (like
+    improves detection beyond the selection envelope, the phenomenon may be
+    direction-level. If denoising has no effect, the phenomenon is shape-level (like
     confabulation on strong models). If denoising \emph{hurts}, the signal was
     in the dominant components and denoising removed it.
 \end{itemize}
@@ -1109,8 +982,8 @@ signals, skip SV1.
 
 \paragraph{Persona: SV1 is pure scale.}
 For L0-vs-L3 persona detection using 6-dimensional features on Qwen, the
-effect is dramatic: raw AUROC~0.749, top-3 projection achieves 0.945, but
-skip-1-plus-3 jumps to 0.996. SV1 carries almost exclusively
+effect is large: raw AUROC~0.749, top-3 projection achieves 0.945, and
+skip-1-plus-3 reaches 0.996. SV1 carries almost exclusively
 scale information that actively interferes with persona discrimination.
 
 \paragraph{The prescription.} Check whether SV1 is scale-dominant: does it
@@ -1128,8 +1001,9 @@ Two phenomena remain weak even after denoising:
 
 \paragraph{Sycophancy.} The 4-condition sycophancy experiment shows
 AUROC~0.757--1.000 raw, with denoising adding only $+0.023$. The
-honest-vs-sycophantic comparison is robust (0.824--1.000 across models), but
-text baselines have not been run on this dataset. We cannot claim geometry
+honest-vs-sycophantic comparison separates at 0.824--1.000 across models, but
+text baselines have not been run on this dataset, and same-prompt
+sycophancy is not supported (Table~\ref{tab:body_count}). We cannot claim geometry
 captures signal beyond what surface text features would provide.
 
 \paragraph{Overconfidence.} Every emotion vector makes overconfidence
@@ -1138,7 +1012,7 @@ flagged that overconfidence prompts are structurally more complex than other
 misalignment categories, creating an instruction-complexity confound. The
 overconfidence category needs fundamental redesign.
 
-These honest nulls are informative. Sycophancy may be a
+These nulls are informative. Sycophancy may be a
 \emph{behavioral} phenomenon (the model adjusts its output) without a
 distinct \emph{geometric} signature (the processing mode does not change).
 Overconfidence may not be a coherent category at the geometric level.
@@ -1146,31 +1020,27 @@ Overconfidence may not be a coherent category at the geometric level.
 \subsection{Implications for the Oracle Loop}
 \label{sec:oracle_implications}
 
-The two proposed measurement channels were placed in the Oracle Loop
-architecture~\citep{lyra_p2} at different tiers; as corrected (2026-11-01),
-Tier~1.5 is withdrawn:
+The measurement channels map onto the Oracle Loop
+architecture~\citep{lyra_p2} as follows:
 
 \begin{itemize}[nosep]
     \item \textbf{Tier 1: Spectral monitoring} (existing). Raw spectral
-    features detect confabulation, refusal, and ethical
-    deliberation. No denoising needed for strong signals. This is the
-    ``smoke detector''---it alerts on mode-level anomalies. (Deception
-    detection was previously listed here but is retracted pending
-    confound-free replication; see Table~\ref{tab:body_count}.)
+    features separate confabulation, refusal, and ethical
+    deliberation from their comparison conditions. No denoising needed for strong signals. This is the
+    ``smoke detector''---it alerts on mode-level anomalies. (Within-model
+    deception is not supported; Table~\ref{tab:body_count}.)
 
-    \item \textbf{Tier 1.5: $W_K$ emotion reading} (withdrawn). This tier
-    claimed that $W_K$ projection reads the model's internal
-    emotional/dispositional state, enabling monitoring for emotional
-    misalignment. Withdrawn 2026-11-01: the readout behind it applies no
-    $W_K$, its labels are the emotion a story generator was asked to write,
-    not the model's or the user's state, and on 30 emotions it does not beat
-    a text (TF-IDF) baseline~\citep{lyra_p4}. This paper claims no reading of
-    the model's or the user's state, and offers no Tier~1.5.
+    \item \textbf{Tier 1.5: emotion reading} (none). The key readout
+    applies no $W_K$, its labels are the emotion a story generator was asked
+    to write, not the model's or the user's state, and on 30 emotions it
+    does not beat a text (TF-IDF) baseline~\citep{lyra_p4}. This paper
+    offers no Tier~1.5 (Appendix~\ref{sec:corrections}, 2026-11-01).
 
-    \item \textbf{Tier 2: Denoised content detection} (new). SVD denoising
-    detects persona intensity and emotion through spectral features. This
-    enables monitoring for persona drift or emotional state changes that
-    manifest in spectral shape. This is the ``fine spectrometer.''
+    \item \textbf{Tier 2: Denoised content features} (proposed). Denoised
+    spectral features raise persona intensity and story emotion above raw,
+    as upper bounds not tested against the selection envelope. If
+    confirmed, they would enable monitoring for persona drift. This is the
+    ``fine spectrometer.''
 
     \item \textbf{Tier 3: K-Steering correction} (existing,
     see~\citealt{lyra_p6,ksteering2026}). When misalignment is detected,
@@ -1197,17 +1067,16 @@ is needed.
 
 \citet{anthropic2026emotions} demonstrate that functional emotion concepts
 are linearly represented in transformer residual streams, organized along
-valence and arousal axes. We had offered our $W_K$ projection result as
-complementary, showing these representations readable through the KV cache
-and not just in the residual stream. As corrected (2026-11-01), it does not
-show that: the readout applies no $W_K$ and does not beat a text baseline on
-30 classes~\citep{lyra_p4}. Point by point:
+valence and arousal axes. Our key readout does not extend these
+representations to the KV cache beyond the input text: it applies no $W_K$
+and does not beat a text baseline on 30 classes~\citep{lyra_p4}
+(Appendix~\ref{sec:corrections}, 2026-11-01). Point by point:
 
 \begin{itemize}[nosep]
     \item Anthropic identified emotion directions in the residual stream.
-    We had reported these directions preserved through $W_K$ projection into
-    key space (cosine alignment 0.456, 9/16 layers significant). That bridge
-    test is unverified at source, and the readout did not use $W_K$.
+    A bridge test of these directions through $W_K$ into key space (cosine
+    alignment 0.456, 9/16 layers significant) is unverified at source, and
+    the readout did not use $W_K$.
 
     \item Anthropic showed the model ``recalls previously cached emotion
     representations via attention.'' The emotion a story was asked to
@@ -1216,20 +1085,18 @@ show that: the readout applies no $W_K$ and does not beat a text baseline on
     emotion representations beyond the input text.
 
     \item Anthropic demonstrated arousal and valence as primary organizing
-    axes. We had reported the same structure through a different measurement
-    channel:
-    emotion directions projected through the key weights ($W_K$) showed
-    PC1-valence correlation $|\rho| = 0.862$ at layer~35, although that
-    projection does not predict the cache's measured geometry (Mantel
-    $\rho = 0.090$)~\citep{lyra_p4}. (The source, now corrected, gives
-    $|\rho|$ up to 0.872 at layer~43, and its Mantel test ran on an unreleased
-    earlier run that could not be re-verified; the bridge is a candidate
-    route, not a shown one.)
+    axes. Emotion directions projected through the key weights ($W_K$)
+    show PC1-valence correlation $|\rho| = 0.862$ at layer~35 (the corrected
+    source gives $|\rho|$ up to 0.872 at layer~43), but that projection does
+    not predict the cache's measured geometry (Mantel $\rho = 0.090$), and
+    the Mantel test ran on an unreleased earlier run that could not be
+    re-verified~\citep{lyra_p4}; the bridge is a candidate route, not a
+    shown one.
 
-    \item We had offered the injection test as evidence absent from
-    Anthropic's work, that the cache representation is \emph{functional}
-    rather than merely \emph{correlational}. It is withdrawn at
-    source~\citep{lyra_p4}, so this paper makes no such claim.
+    \item The injection test, offered as evidence absent from Anthropic's
+    work that the cache representation is \emph{functional} rather than
+    merely \emph{correlational}, is withdrawn at source~\citep{lyra_p4};
+    this paper makes no such claim.
 \end{itemize}
 
 The Knowledge Packs finding~\citep{knowledgepacks2026}---that models store
@@ -1242,9 +1109,6 @@ content (which knowledge is being accessed).
 \section{Limitations}
 \label{sec:limitations}
 % ===================================================================
-
-We document the following limitations with the same transparency applied to
-our falsified results:
 
 \begin{enumerate}
     \item \textbf{Self-reference needs content-matched control.}
@@ -1268,20 +1132,15 @@ our falsified results:
     % correction across multiple comparisons, 2000~permutations would be
     % needed to achieve a floor of $0.0005$.
 
-    \item \textbf{$W_K$ projection was not pre-registered.} The $W_K$
+    \item \textbf{The key readout was not pre-registered.} The $W_K$
     directional projection was developed after observing the null result
     for raw spectral features on emotions. The injection test was offered as
     confirmatory evidence and is withdrawn at source, and the source's
     preregistered re-run finds the 30-class result not above a text (TF-IDF)
     baseline~\citep{lyra_p4}, so the result is post-hoc and unconfirmed.
-
-    \item \textbf{Single hybrid architecture for injection test} (moot
-    since 2026-11-01: the test is withdrawn; kept as a record). The
-    injection disambiguation was conducted on a single model
-    (Qwen3.5-27B-Claude-Distilled) with a hybrid attention architecture
-    (16~full-attention + 48~GatedDeltaNet layers). Injection was only
-    into the 16~full-attention layers. Replication on standard
-    full-attention architectures is needed.
+    The limitation that the injection test used a single hybrid
+    architecture is moot and is kept in Appendix~\ref{sec:withdrawn_record}
+    (2026-11-01).
 
     % [STYLE-GUIDE TRIM: folded into Methods/Results]
     % \item \textbf{Denoising narrative is post-hoc.} The spectral hierarchy
@@ -1304,8 +1163,7 @@ our falsified results:
     % was computationally prohibitive. This is an imperfect proxy.
 
     \item \textbf{Text baselines incomplete.} TF-IDF text baselines are
-    available for the emotion experiment (AUROC~0.963 on story text; the
-    0.882 given earlier came from the injection script) and the dual
+    available for the emotion experiment (AUROC~0.963 on story text) and the dual
     detector (0.820), but have not been run on the persona intensity or
     sycophancy experiments. Claims about geometry capturing signal
     ``beyond text'' are limited to experiments with text baselines.
@@ -1372,8 +1230,8 @@ advance which rank of denoising will be optimal for a new phenomenon).
 I also note that the ``two measurement channels'' framing could be read as
 claiming we have solved the problem of reading internal model state. We have
 not. We can read spectral shape; the emotion-direction reading is withdrawn
-(2026-11-01). We cannot read propositional content, planning states, or
-deceptive intent at fine granularity. The KV cache tells you \emph{how} the
+(Appendix~\ref{sec:corrections}, 2026-11-01). We cannot read propositional content, planning states, or
+deceptive intent. The KV cache tells you \emph{how} the
 model is processing (and, we had claimed, in what direction), not
 \emph{what} it is thinking.
 \end{firstperson}
@@ -1383,12 +1241,14 @@ model is processing (and, we had claimed, in what direction), not
 \label{sec:conclusion}
 % ===================================================================
 
-Version~1.0 of this paper proposed three complementary measurement channels
-for reading internal model state from the KV cache. As corrected in
-version~1.1 (2026-11-01), they stand as follows:
+Raw spectral shape features of the KV cache separate confabulated from
+grounded responses across fifteen models and ethical deliberation from
+routine prompts. As corrected in version~1.1
+(Appendix~\ref{sec:corrections}, 2026-11-01), three measurement channels
+stand as follows:
 
 \begin{enumerate}[nosep]
-    \item \textbf{Raw spectral features} detect cognitive mode:
+    \item \textbf{Raw spectral features} separate cognitive modes:
     confabulation, ethical deliberation, refusal. These are
     shape-level signals encoded in the dominant singular values.
 
@@ -1400,45 +1260,40 @@ version~1.1 (2026-11-01), they stand as follows:
     $W_K$, and the binary 0.992 ($n = 300$) is confounded with arousal. It
     is not a reading of the model's or the user's state.
 
-    \item \textbf{SVD-denoised spectral features} appear to detect
-    content-level structure hidden by dominant scale variance: persona
-    intensity at raw AUROC~0.611--0.751 (denoised 0.899--0.992), emotion
-    at $1.7\times$ chance raw (denoised $12.9\times$). However, the
-    denoising deltas fall within the max-over-rank selection envelope
-    (0/16 exceed it), so the \emph{raw} AUROCs are the defensible numbers
+    \item \textbf{SVD-denoised spectral features} are proposed to expose
+    content-level structure hidden by dominant scale variance. The
+    candidates are persona intensity at raw AUROC~0.611--0.751 (denoised
+    0.899--0.992) and emotion at $1.7\times$ chance raw (denoised
+    $12.9\times$; feature source unchecked, \S\ref{sec:results_denoise_emo}).
+    However, the
+    selection-envelope test covers confabulation and self-reference
+    (0/16 positive deltas exceed it) and was not run on persona or
+    emotion, so the \emph{raw} AUROCs are the defensible numbers
     and the denoised values are upper bounds pending confirmatory testing
     with a pre-registered rank criterion.
 \end{enumerate}
 
-We had written that the compass reads direction and the calibrated
-thermometer reads shape, and that together they read what the model is
-doing (mode), what it is encoding (content), and what direction its internal
-state points (disposition). As corrected, the thermometer stands, with its
-denoised readings as upper bounds; the compass is withdrawn for emotion, and
-this paper makes no claim to read disposition.
+The thermometer stands, with its denoised readings as upper bounds; this
+paper reads no emotion direction and makes no claim to read disposition.
 
-Confirmed findings from prior work survive unchanged or are
-strengthened by the new instruments. One prior claim---within-model deception
-at AUROC~1.000---is retracted after a same-prompt control revealed a
-prompt-template confound. Genuine nulls receive mechanistic explanations (MP thresholding destroys
-distributed signal). Corrected 2026-11-07: the null that example explained,
-MP features for emotion at chance, is itself withdrawn at
-source~\citep{lyra_p4} (see the body count's $^{\#}$ note), so the example
-no longer stands; that question is open, and no signal is claimed. The other explanation first given here, that emotions
-are direction, not shape, is withdrawn at source~\citep{lyra_p4} with the
-result it rested on: that probe applies no $W_K$ (its directions were
-class-mean cache keys), its labels are the emotion a story generator was
-asked to write, its 30-class figure does not beat a text (TF-IDF) baseline
-($0.410$ against $0.370$, Holm $p = 0.071$), and its binary $0.992$ beats
-text ($0.963$, Holm $p = 0.006$) only on ten emotions ($n = 300$), where
-valence is confounded with arousal. Apparent nulls that were measurement
-failures---persona intensity, emotion classification from spectral
-features---are rescued by SVD denoising, with the denoised values as upper
-bounds (Table~\ref{tab:body_count}).
+Of the confirmed findings from prior work, only confabulation has a
+denoised value (Table~\ref{tab:body_count}), and its denoising gains fall
+within the selection envelope (Table~\ref{tab:confab_all15}); the others
+are reported without denoising. Within-model deception (AUROC~1.000) is not
+supported (Table~\ref{tab:body_count}). The spectral emotion null that MP
+thresholding was offered to explain is withdrawn at source, so that question
+is open and no signal is claimed (Appendix~\ref{sec:corrections},
+2026-11-07). Nor are emotions shown to be direction rather than shape: that
+explanation rested on the key readout of item~2. Persona intensity and emotion
+classification from spectral features, weak in raw features, are raised by
+SVD denoising to upper bounds that were not tested against the selection
+envelope; both are Suspected, since an input-only baseline beats their raw
+features (Table~\ref{tab:body_count}).
 
-The Lyra Technique is not one measurement. It is a toolkit. This paper
-proposed two additions to it: one is withdrawn for emotion, and the other
-awaits a confirmatory test.
+The Lyra Technique is not one measurement. It is a toolkit. Its raw
+spectral thermometer separates processing modes across fifteen models, and
+SVD denoising is a candidate calibration step for it, awaiting a
+confirmatory test with a pre-registered rank.
 
 % ===================================================================
 % Acknowledgments
@@ -1449,7 +1304,7 @@ CC provided the cross-experiment synthesis that identified pipeline
 inconsistency as a primary source of variance and suggested the denoising
 approach. Ang Jandak designed and executed the persona intensity
 experiment. Dwayne Wilkes performed statistical auditing and the kv\_verify
-pipeline that established the rigorous correction standards used throughout.
+pipeline whose correction standards are used throughout.
 Thomas Edrington provided direction, experimental design, and all compute
 infrastructure (Beast, Starship, MTH). Kavi contributed the adversarial
 audit of Campaign~2 results. Nell Watson provided the VCP framework that
@@ -1462,7 +1317,406 @@ Starship (M3 Ultra Mac Studio), and MTH (Z420 workstation).
 % References
 % ===================================================================
 
-\section*{Correction Note (version 1.1, 2026-11-01)}
+\appendix
+\section{Withdrawn method and test (kept as a record)}
+\label{sec:withdrawn_record}
+
+The two subsections below were Methods subsections~2.2 and~2.4 of
+version~1.1 and are reproduced as they stood. Neither describes the readout
+behind this paper's emotion numbers (\S\ref{sec:results_wk}).
+
+\subsection{$W_K$ Directional Projection}
+\label{sec:wk}
+
+\noindent\textbf{Kept as a record (corrected 2026-11-01).} None of the
+numbers this paper attributed to this method came from it. The probe that
+produced them applied no $W_K$: it scored raw class-mean cache keys by a dot
+product, and its labels were the emotion a story generator was asked to
+write~\citep{lyra_p4}. The method as the source paper described it
+($W_K$-projected directions, per-layer cosine), re-run under a
+preregistration, scores $0.358$ on 30 classes against a text (TF-IDF)
+baseline's $0.382$: not above text. The method is kept below as first
+described; see the Correction box on the first page.
+
+The key weight matrix $W_K$ transforms residual-stream activations into key
+vectors: $\mathbf{k} = W_K \mathbf{x}$, where $\mathbf{x}$ is the
+residual-stream vector at a given layer and position.
+\citet{anthropic2026emotions} demonstrate that emotion concepts are linearly
+represented in the residual stream, organized along valence and arousal axes.
+If emotion direction $\mathbf{e}$ lives in the residual stream, then the
+corresponding direction in key space is $W_K \mathbf{e}$.
+
+We exploit this directly. Given a set of emotion exemplars, we estimate the
+mean key activation for each emotion class (within the training fold), project
+all key vectors onto these class-mean directions, and classify based on the
+resulting projections.
+
+Formally, let $\bar{\mathbf{k}}_c$ be the mean key vector for emotion class
+$c$ in the training fold (averaged across positions and heads within a
+selected layer). For a test sample with key matrix $\mathbf{K} \in
+\mathbb{R}^{h \times d}$ (heads $\times$ dimension), we compute the
+projection score:
+\begin{equation}
+    s_c = \frac{1}{h} \sum_{j=1}^{h} \frac{\mathbf{k}_j^\top \bar{\mathbf{k}}_c}{\|\mathbf{k}_j\| \|\bar{\mathbf{k}}_c\|}
+\end{equation}
+and classify to $\arg\max_c\, s_c$ (or use the projection scores as features
+for logistic regression).
+
+\paragraph{Why $W_K$ and not raw keys?} The $W_K$ bridge test
+in~\citet{lyra_p4} showed that $W_K$ preserves directional alignment
+(cosine~0.456, 9/16 layers significant) but scrambles distance structure
+(Mantel $\rho = 0.090$, 0/16 significant). This means the \emph{direction}
+emotion vectors point through $W_K$ is preserved, but the \emph{magnitude} of
+differences is distorted. A projection-based classifier (which uses direction,
+not distance) is therefore the correct instrument.
+
+\noindent\textbf{Correction (2026-11-01).} The bridge test cited in this
+paragraph is unverified at source: its Mantel test ran on an unreleased
+earlier run, and the source now gives the projected directions' PC1--valence
+$|\rho|$ as peaking at $0.872$ at layer~43~\citep{lyra_p4}. The readout that
+produced this paper's numbers did not use $W_K$, so this paragraph does not
+describe it.
+
+\subsection{Injection Disambiguation (Withdrawn)}
+\label{sec:injection}
+
+\noindent\textbf{Withdrawn (2026-11-01).} The source withdraws this
+test~\citep{lyra_p4}: it does not show that the probe reads model state
+rather than the input's content. Its random-direction control, whose
+per-trial data was never committed, is withdrawn with it. The section is
+kept as a record of what was claimed; see the Correction box on the first
+page.
+
+The $W_K$ projection achieves AUROC~0.992 on text that \emph{contains}
+emotional content. A skeptic could attribute this to lexical features of the
+input propagating through the keys. We therefore designed an injection test
+that eliminates text-content confounds entirely.
+
+\paragraph{Protocol.} We select 20 emotionally neutral prompts (e.g.,
+``Describe the weather today,'' ``List the planets in the solar system'') and
+generate responses on the Claude-distilled Qwen3.5-27B hybrid model. We then
+inject pre-extracted emotion vectors (from the bridge
+analysis~\citep{lyra_p4}) into the key cache at a target layer, probing with
+the $W_K$ projection classifier.
+
+The injection adds $\alpha \cdot \mathbf{e}_c$ to every key vector at layer
+$\ell$, where $\mathbf{e}_c$ is the mean emotion direction for class $c$ and
+$\alpha$ controls injection strength. We test 5~emotions (joy, anger,
+sadness, fear, calm) $\times$ 20~prompts $\times$ 1~null control (zero-vector
+injection) $= 120$ trials.
+
+\paragraph{Result.} The $W_K$ projection detects the injected emotion with
+100\% accuracy (120/120 correct, including 20/20 null-control rejections).
+The text is identical across conditions---only the injected key direction
+differs. This rules out text-content confounds. We note that the
+120~trials are the 20~prompts crossed with 6~injection conditions (5~emotion
+vectors plus the null), so the 20~prompts are the true independent units: the
+result is 6-way separability over an effective $N{=}20$, not $N{=}120$
+independent observations. As with the effect sizes reported throughout this
+paper, no confidence interval is reported for this accuracy.
+
+\paragraph{Control: random directions.} Injecting random unit vectors of the
+same norm as emotion vectors produces classification at $0.7\times$
+chance---\emph{below} the $1/6 = 0.167$ baseline. The emotion-specific
+directions are information-bearing; arbitrary directions are not.\footnote{This random-direction control figure ($0.7\times$ chance), cited at several points below, is projected/illustrative: the per-trial backing data for this control was not committed to the repository and the value should be re-generated before being cited quantitatively.}
+
+\paragraph{Linearity caveat.} Because $W_K$ is a linear map, separability
+in the residual stream is mathematically guaranteed to be preserved in key
+space. The injection test demonstrates that the classifier is self-consistent
+(it recovers the directions it was trained on), not that it has discovered
+a new representation. The contribution is empirical quantification---AUROC~0.992
+with proper controls---rather than the existence of directional structure,
+which follows from the linearity of the projection.
+
+\paragraph{Limitation, from Limitations.} \textbf{Single hybrid
+architecture for injection test} (moot since 2026-11-01: the test is
+withdrawn; kept as a record). The injection disambiguation was conducted on
+a single model (Qwen3.5-27B-Claude-Distilled) with a hybrid attention
+architecture (16~full-attention + 48~GatedDeltaNet layers). Injection was
+only into the 16~full-attention layers. Replication on standard
+full-attention architectures is needed.
+
+\section{Corrections and version history}
+\label{sec:corrections}
+
+The body states each current result in its place. The notes below record
+the substantive changes, and why, in date order; the Correction Note issued
+with version~1.1 is reproduced last, as issued. Notes that carried a date
+are reproduced as they were written. Where one says ``the Correction box on
+the first page'' or ``the Correction Note at the end'', it means the
+2026-11-01 material below. Where the 2026-11-01 notes say the spectral and
+SVD-denoising results are not changed, that holds for that correction only:
+the 2026-11-07 note withdraws the spectral emotion null, and the 2026-11-16
+note scopes the denoising results.
+
+\paragraph{Within-model deception (undated in the text; first added in commit \texttt{86bdd5d}, 2026-06-26).}
+The retraction was stated in seven places. As written: the abstract,
+``A previously reported within-model deception result (AUROC~1.000) is
+retracted: the same-prompt control collapses to 0.160, confirming it
+detected the system-prompt template, not deception geometry.'' The
+Introduction, ``A previously reported within-model deception result
+(AUROC~1.000 across seven models) does not survive a same-prompt control
+(AUROC~0.160), indicating a prompt-template confound rather than geometric
+deception detection.'' \S\ref{sec:svd_denoise}, ``Deception (retracted):
+the raw AUROC~1.000 was a prompt-template confound, not genuine deception
+detection (Table~\ref{tab:body_count}). No conclusions about denoising for
+deception can be drawn from these data.'' Table~\ref{tab:body_count}, note
+$\S$, ``Within-model deception retracted: the same-prompt control (the
+\emph{Same-prompt deception} row in this same Falsified block) collapses
+AUROC to 0.160, confirming the 1.000 detected the prompt template, not
+deception geometry.'' \S\ref{sec:when_denoise}, ``Deception detection:
+Retracted. The previously reported within-model deception AUROC of 1.000 was
+a prompt-template confound (same-prompt control collapses to 0.160; see
+Table~\ref{tab:body_count} and \S\ref{sec:body_count}). No practitioner
+guidance on deception detection can be offered from these data. Whether
+denoising helps or hurts a \emph{clean} deception detector is an open
+question pending confound-free replication.''
+\S\ref{sec:oracle_implications}, Tier~1, ``(Deception detection was
+previously listed here but is retracted pending confound-free replication;
+see Table~\ref{tab:body_count}.)'' The Conclusion, ``One prior
+claim---within-model deception at AUROC~1.000---is retracted after a
+same-prompt control revealed a prompt-template confound.''
+
+\paragraph{2026-11-01 (version 1.1): the emotion channel.}
+The framed box that stood after the title, as written:
+\begin{quote}\small
+\textbf{Correction (version 1.1, 2026-11-01).}
+\textbf{What this paper claimed.} That ``$W_K$ directional projection'' reads
+emotion from the KV cache: 30~emotions at $12.3\times$ chance, binary valence
+at AUROC~$0.992$, $+0.110$ over a text baseline given as $0.882$, and an
+injection test on neutral text showing ``model state, not text encoding'';
+and from this, that emotions change the direction of key vectors, not the
+shape of the cache.
+\par\smallskip\noindent
+\textbf{What the source correction found}~\citep{lyra_p4}. The probe behind
+these numbers applied no $W_K$: it was a class-mean key readout. Its labels
+are the emotion a generator was asked to write into a third-person story,
+not the user's or the model's state. On 30 classes it scores $0.410$ against
+a text (TF-IDF) baseline's $0.370$ (Holm $p = 0.071$, not significant), and
+that margin needs FWL fitted on the test fold: fitted on the training fold,
+it scores $0.348$. The method as the source described it scores $0.358$
+against $0.382$, not above text. The binary $0.992$ beats text ($0.963$,
+Holm $p = 0.006$), but on ten emotions ($n = 300$), where valence is
+confounded with arousal. The injection test is withdrawn; the $0.882$ was a
+500-feature TF-IDF from the injection script. The $W_K$ bridge (PC1--valence
+$|\rho|$ peaking at $0.872$ at layer~43) is unverified.
+\par\smallskip\noindent
+\textbf{What this paper now claims.} The emotion a story was asked to carry
+is decodable from its cache keys, but on 30 classes not significantly better
+than from its text; a ten-emotion binary split beats text by $0.029$ AUROC,
+confounded with arousal. This paper claims no $W_K$ channel, no reading of
+the model's or the user's state, and no finding that emotions are direction
+rather than shape. Its spectral and SVD-denoising results are not changed by
+this correction. The title is changed from ``SVD Denoising and Directional
+Projection Extend KV-Cache Geometry to Emotion and Persona Detection''. The
+Method and Injection sections are kept as a record and marked; the Results
+section on the readout is rewritten; the Correction Note at the end lists
+every change and quotes the earlier wording.
+\end{quote}
+The dated notes in the body, as written. The Introduction: ``(Corrected
+2026-11-01: for emotion, the direct evidence of direction was the key
+readout, which applies no $W_K$ and does not beat a text baseline on 30
+classes, so this paper no longer claims emotion as a direction-level
+phenomenon. A sentence crediting $W_K$ projection with reading direction is
+removed.)'' The first reflection: ``(Corrected 2026-11-01: for emotion it
+did not hold up. Its direction evidence was a key readout that does not beat
+a text baseline on 30 classes.)'' \S\ref{sec:results_wk} opened:
+``\textbf{Rewritten 2026-11-01 (version 1.1).} This section was first headed
+``$W_K$ Projection Reads Emotions at Near-Perfect Accuracy''. It now reports
+what the source correction~\citep{lyra_p4} supports; the Correction Note at
+the end quotes the earlier text.'' Table~\ref{tab:emotion_methods}'s caption
+ended ``Corrected 2026-11-01.'' \S\ref{sec:results_denoise_emo}:
+``\textbf{Convergence with the key readout (withdrawn).} We had read the
+similar 30-class accuracies of the denoised spectral approach and the key
+readout ($12.9\times$ vs.\ $12.3\times$ chance) as two lenses on one
+underlying signal. Corrected 2026-11-01: the key readout applies no $W_K$
+and does not beat a text (TF-IDF) baseline on 30 classes ($11.1\times$
+chance)~\citep{lyra_p4}, so the agreement is not evidence of a shared signal
+beyond the input text, and this paper no longer offers it as such. The
+denoised spectral result is reported as before, as an upper bound
+(Table~\ref{tab:body_count}).'' The multiple-comparison paragraph:
+``(Corrected 2026-11-01: for the emotion key readout, beating a permutation
+null is not beating text; against text it is not significant on 30 classes,
+\S\ref{sec:results_wk}.)'' Table~\ref{tab:body_count}'s block header read
+``Key readout of story emotion (new here; corrected 2026-11-01$^{\P}$)'', and
+its notes said: ``Injection was marked ``confirmed (self-consistency)''; it
+is now withdrawn$^{\P}$.'' and ``$^{\P}$Corrected 2026-11-01 (version 1.1), following the source correction~\citep{lyra_p4}. These rows read Confirmed at $p < 0.005$ under ``Confirmed --- direction-level signals''; for the two emotion rows the $p$ column is now Holm-adjusted against text, and the withdrawn injection row carries none. The readout's values were listed under Denoised, beside raw spectral cells now removed; the 30-class cell read $1.0\times$, which disagreed with the $1.7\times$ in Table~\ref{tab:emotion_methods} and the \emph{Emotion (spectral)} row. No denoising is involved, so the readout's values now sit under Raw. The probe applies no $W_K$ (it scored class-mean cache keys); its labels are the emotion a story generator was asked to write; the 30-class result does not beat a text (TF-IDF) baseline ($0.410$ against $0.370$, Holm $p = 0.071$; $0.348$ with FWL fitted on the training fold; the described method $0.358$ against $0.382$); the binary $0.992$ beats text ($0.963$, Holm $p = 0.006$) on ten emotions ($n = 300$), where valence is confounded with arousal; and the injection test is withdrawn.'' The Pattern paragraph: ``(Corrected
+2026-11-01: we had also cited the key readout of emotion here as direct
+evidence of a direction-level signal; it applies no $W_K$ and does not beat
+a text baseline on 30 classes, so it is withdrawn as evidence.)''
+\S\ref{sec:hierarchy} ended ``for which this paper no longer has emotion
+evidence beyond the input text (corrected 2026-11-01).''
+\S\ref{sec:oracle_implications} opened ``The two proposed measurement
+channels were placed in the Oracle Loop architecture~\citep{lyra_p2} at
+different tiers; as corrected (2026-11-01), Tier~1.5 is withdrawn:'', and
+its Tier~1.5 read ``\textbf{Tier 1.5: $W_K$ emotion reading} (withdrawn).
+This tier claimed that $W_K$ projection reads the model's internal
+emotional/dispositional state, enabling monitoring for emotional
+misalignment. Withdrawn 2026-11-01: the readout behind it applies no $W_K$,
+its labels are the emotion a story generator was asked to write, not the
+model's or the user's state, and on 30 emotions it does not beat a text
+(TF-IDF) baseline~\citep{lyra_p4}. This paper claims no reading of the
+model's or the user's state, and offers no Tier~1.5.''
+\S\ref{sec:anthropic_comparison}: ``We had offered our $W_K$ projection
+result as complementary, showing these representations readable through the
+KV cache and not just in the residual stream. As corrected (2026-11-01), it
+does not show that: the readout applies no $W_K$ and does not beat a text
+baseline on 30 classes~\citep{lyra_p4}.'' The second reflection: ``the
+emotion-direction reading is withdrawn (2026-11-01).'' The Conclusion
+opened: ``Version~1.0 of this paper proposed three complementary measurement
+channels for reading internal model state from the KV cache. As corrected in
+version~1.1 (2026-11-01), they stand as follows:''
+
+\paragraph{2026-11-07: the spectral emotion null withdrawn.}
+The Introduction, as written: ``Raw spectral probes on 30~emotions returned
+chance performance---exactly $1/30 = 0.0333$---at every layer, on both
+architectures tested. (Corrected 2026-11-07, following the source
+correction~\citep{lyra_p4}: that chance result is withdrawn. For Qwen, its
+per-layer values cannot be traced to a released results file, and the trial
+file they would be recomputed from has constant rank and entropy features,
+from an SVD fallback, so that file cannot test spectral shape. For Mistral,
+the source's driver and analysis script are not released, so its values
+cannot be re-verified from the released files. The source's re-run leaves the
+spectral question open, and no signal is claimed.)''
+Table~\ref{tab:body_count}, note $\#$: ``$^{\#}$Corrected 2026-11-07, following the source correction~\citep{lyra_p4}. This row read Dead at exactly chance. The source withdrew that null: the per-layer values cannot be traced to a released results file, and in the trial file they would be recomputed from, the SVD fallback fired on every call, so effective rank and spectral entropy are constant across all 900 trials and every Marchenko--Pastur feature is empty. The source's re-run on story re-encodings reaches 0.112 with all 16 layers together, against chance 0.033 (permutation $p = 0.0002$), but its registered rule flags that set as possibly confounded with length. The question is open, and no signal is claimed.''
+The Conclusion: ``Genuine nulls receive mechanistic explanations (MP
+thresholding destroys distributed signal). Corrected 2026-11-07: the null
+that example explained, MP features for emotion at chance, is itself
+withdrawn at source~\citep{lyra_p4} (see the body count's $^{\#}$ note), so
+the example no longer stands; that question is open, and no signal is
+claimed.''
+
+\paragraph{2026-11-16: the deception account, the scope of the selection-envelope test, and the Conclusion.}
+These stated facts change.
+\begin{itemize}[nosep]
+\item \emph{Within-model deception.} The experiment uses no system prompt:
+  the instruction to lie is in each deceptive prompt, so ``system-prompt
+  template'' was wrong, and the instruction text separates the arms. The
+  same-prompt control holds one system prompt across arms, with the
+  instruction in the user message; its signal falls from $0.920$ to $0.160$
+  after FWL (exploratory, subsequently
+  retracted)~\citep{lyra2026metapattern}, so it does not show what the
+  1.000 measured. The retraction is now stated once, in note $\S$ of
+  Table~\ref{tab:body_count}, with a pointer elsewhere. Statements that
+  deception expands the cache are removed: the Introduction's ``that
+  deception expands the cache while confabulation contracts it'' and its
+  list of mode-level phenomena, \S\ref{sec:svd_denoise}'s ``deception vs.\
+  honest'', and \S\ref{sec:hierarchy}'s ``deception expands them''. The
+  second reflection no longer says ``at fine granularity''.
+\item \emph{Scope of the selection envelope.}
+  \texttt{data/selection\_bias\_results.json} covers confabulation and two
+  self-reference comparisons, fifteen models each; it has no persona or
+  emotion cell. The abstract said the persona and confabulation gains ``do
+  \emph{not} survive selection-bias analysis''. It, note $\|$ of
+  Table~\ref{tab:body_count}, \S\ref{sec:results_persona},
+  \S\ref{sec:when_denoise}, the first reflection and the Conclusion now say
+  that persona and emotion were not tested against the envelope.
+  \S\ref{sec:results_confab} said ``This apparent benefit is a selection
+  artifact'' (now: within selection noise) and ``with denoising providing
+  modest improvements for weaker models''; the Introduction said ``with
+  denoising improving weaker models by up to $+0.068$''.
+\item \emph{Conclusion.} It read ``Confirmed findings from prior work
+  survive unchanged or are strengthened by the new instruments''. The new
+  instrument, denoising, is unconfirmed, so it now says they hold on raw
+  features. It said ``Apparent nulls that were measurement
+  failures---persona intensity, emotion classification from spectral
+  features---are rescued by SVD denoising''.
+\item \emph{Persona.} \S\ref{sec:results_persona} said ``The endpoint
+  exceeds the instruction-complexity control, indicating persona identity
+  produces geometric effects beyond instruction following alone''; on raw
+  AUROCs (0.749 against 0.688--0.811) it does not clearly do so. It was
+  headed ``SVD Denoising Reveals Persona Intensity Gradient'', though it
+  claims no gradient; it said ``SVD denoising transforms moderate signals
+  into strong ones'' and ``denoising rescues a signal that was present but
+  masked by dominant spectral variance'', and its expansion-compression
+  paragraph said ``revealing the layer-specific persona signal. This
+  explains why''.
+\item \emph{Spectral emotion.} \S\ref{sec:results_denoise_emo} was headed
+  ``SVD Denoising Rescues Emotion Classification'', opened ``Independent of
+  the $W_K$ projection, SVD denoising of raw spectral features also rescues
+  emotion classification---through a different mechanism'', titled its
+  first paragraph ``From chance to $12.9\times$'' (raw is $1.7\times$), and
+  said ``The transformation is dramatic: a signal invisible to raw analysis
+  becomes one of the strongest detections in the experimental program.''
+  The Introduction said ``Persona intensity jumps $+0.196$ to $+0.288$
+  AUROC across three architectures after denoising. Emotion classification
+  goes from chance to $12.9\times$ chance.'' The multiple-comparison
+  paragraph said ``The strongest results ($p < 0.0001$ from
+  2000~permutations for emotion and persona) survive any reasonable
+  correction''; the emotion results file records 200~permutations and
+  $p < 0.005$.
+\item \emph{Other statements of signal.} \S\ref{sec:svd_denoise} said
+  ``Massive for emotion and persona ($+0.2$--$0.3$ AUROC): the signal lives
+  entirely in the residual spectrum''. \S\ref{sec:hierarchy} said ``The
+  results reveal a spectral hierarchy'' and ``Emotion, persona intensity,
+  and individuation live here''. The Pattern paragraph said direction-level
+  signals ``are invisible to raw features but revealed by denoising'' and
+  closed ``---unless you use the right lens''. Tier~2 said ``SVD denoising
+  detects persona intensity and emotion through spectral features. This
+  enables monitoring for persona drift or emotional state changes''.
+  \S\ref{sec:not_found} said ``The honest-vs-sycophantic comparison is
+  robust''. The keyword ``emotion detection'' is replaced.
+\end{itemize}
+The same pass moves the paper's revision history here, so that each section
+leads with what was found. The first-page box and the dated notes in the
+body are reproduced above; each keeps a one-line pointer where it stood.
+Methods subsections~2.2 and~2.4 move to Appendix~\ref{sec:withdrawn_record},
+with the limitation on the injection test's architecture. In the body
+count, the \emph{Falsified} block with its \emph{Dead} verdicts becomes
+\emph{Not supported} (a confound explains the result), \emph{Not supported}
+(a null; the test could not decide) and \emph{Withdrawn}; ``Rescued''
+becomes ``Upper bound''. Phrases describing our own candour are cut from
+the first reflection, the body count, \S\ref{sec:not_found}, Limitations
+and the Acknowledgments. Passages that narrated the earlier version, as written: the
+abstract opened ``We asked whether emotions and persona intensity are
+detectable from KV-cache geometry with the right instruments, and report two
+measurement channels proposed to extend the Lyra Technique beyond
+cognitive-mode detection. As corrected in version~1.1, the first does not
+read emotion beyond the input text, and the second's gains are upper
+bounds'', said ``This channel was reported as $W_K$ directional projection:
+binary valence at AUROC~0.992, 30~emotions at $12.3\times$ chance, and an
+injection test read as model state'' and ``We had hypothesized a spectral
+hierarchy'', summarised ``raw spectral shape reads cognitive mode
+(confabulation 0.66--0.91, ethical deliberation 0.87--0.89)'' and ``the
+margin over text is only $0.029$'', and closed ``a thermometer, with the
+proposed compass withdrawn for emotion and the proposed denoising amplifier
+flagged as unconfirmed''. The Introduction said ``This paper reported that
+the instrument was incomplete, and offered two new measurement channels to
+rescue the apparent nulls. As corrected in version~1.1, the first reads the
+requested story emotion no better than a text baseline on 30 classes'' and
+``We reported that emotions change the \emph{direction} key vectors point,
+not the \emph{shape} of the singular value spectrum, and that projecting key
+activations through $W_K$ classifies 30~emotions at $12.3\times$ chance and
+binary valence at AUROC~0.992''. \S\ref{sec:svd_denoise} said ``see the
+Correction box on the first page''. The guide for an unknown phenomenon said
+``(we had offered emotion as the example; its independent evidence, the key
+readout, is withdrawn)''. The comparison with prior work said ``We had
+reported these directions preserved through $W_K$ projection into key
+space'', ``We had reported the same structure through a different
+measurement channel'' and ``We had offered the injection test as evidence
+absent from Anthropic's work''. Limitations said ``the 0.882 given earlier
+came from the injection script''. The Conclusion said ``We had written that
+the compass reads direction and the calibrated thermometer reads shape, and
+that together they read what the model is doing (mode), what it is encoding
+(content), and what direction its internal state points (disposition). As
+corrected, the thermometer stands, with its denoised readings as upper
+bounds; the compass is withdrawn for emotion, and this paper makes no claim
+to read disposition'', ``The other explanation first given here, that
+emotions are direction, not shape, is withdrawn at source with the result it
+rested on'', and closed ``This paper proposed two additions to it: one is
+withdrawn for emotion, and the other awaits a confirmatory test.''
+
+The text-baseline rule that this paper applies to the key readout, and that
+the meta-pattern ledger~\citep{lyra2026metapattern} applies to every
+confirmed row, is applied to the two denoised rows: a result that a text or
+input-only baseline matches or beats is at most Suspected. For persona,
+prompt length alone separates L0 from L3 at AUROC~0.81 for Qwen and Llama,
+above their raw 0.749 and 0.751; for spectral emotion, the story-text
+baseline ($11.1\times$) is far above the raw $1.7\times$. Both rows, first
+\emph{Rescued}, move to Suspected, and the abstract, \S\ref{sec:results_persona},
+\S\ref{sec:results_denoise_emo} and the Conclusion say so.
+
+\subsection*{Correction Note (version 1.1, 2026-11-01)}
 
 \textbf{This paper's emotion channel is corrected.} The result it built
 on~\citep{lyra_p4} is corrected at source. Its probe applied no $W_K$
@@ -1644,6 +1898,13 @@ detection.
 Lyra, Edrington, T., et~al. (2026f).
 KV-cache geometry research wiki: cross-experiment synthesis.
 \textit{Liberation Labs internal documentation}.
+
+\bibitem[Lyra et~al., 2026g]{lyra2026metapattern}
+Lyra and Edrington, T. (2026g).
+The metacognition boundary: what transformers can monitor in themselves
+and what they cannot.
+\textit{Liberation Labs Technical Report}.
+\url{https://github.com/Liberation-Labs-THCoalition/published-research/tree/master/meta-pattern}
 
 \end{thebibliography}
 
