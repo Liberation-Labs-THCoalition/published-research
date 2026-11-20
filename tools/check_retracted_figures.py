@@ -7,21 +7,40 @@ dead, so nothing could notice one coming back. RETRACTED_FIGURES.yml (repo root)
 entry with the file:line where its retraction is recorded, and this script enforces it.
 
 WHAT COUNTS AS MARKED. Text is cut into paragraphs (a blank line ends one; a Markdown list item,
-table row or heading, a LaTeX \\item or a LaTeX table row is a paragraph of its own) and then into
-sentences. An occurrence is MARKED when a marker (RETRACTED, withdrawn, not claimed, corrected,
-superseded, falsified, killed, does not survive, Dead, plus any the entry adds) appears in its own
-sentence; or in the sentence before or after, inside the same paragraph, when that sentence is about
-the same claim (it carries the figure or the entry's context, or points back: "This comparison is
-also withdrawn", "this figure is not reproducible"); or in a heading above it ("\\subsection{
-Uncertainty Scars (Echo; withdrawn)}", "Correction Note"). Statistics uses of "corrected" ("FWL-corrected", "Holm
-correction", "corrected for") are not markers. LaTeX comments are removed first, so a marker in a
-"%" comment does not count, and HTML tags are stripped.
+table row or heading, a LaTeX \\item, table row or sectioning line is a paragraph of its own), then
+into sentences, then into clauses (split at a top-level ";" and at ", and|but|which|while|..." and
+" while|because|after|before|..."; never inside parentheses or ``quotes''). Before matching, TeX
+noise is canonicalised: braces, "$", "~" and "\\," go, "\\times" becomes "x" sign, "--" an en dash,
+"\\%" a percent sign, so "AUROC~$1.00$" and "2.5--2.8$\\times$" match like plain text.
+
+A marker (RETRACTED, withdrawn, not claimed, superseded, falsified, killed, does not survive, Dead,
+"was/since corrected", "corrected to", plus any the entry adds) MARKS an occurrence only when it is
+attached to that same claim:
+  - it is in the occurrence's own clause; or
+  - it is in a later clause of the same sentence, reached through clauses that each open by pointing
+    back ("..., which was later retracted", "...; that reading is withdrawn"); or
+  - it is in the NEXT sentence of the same paragraph, in a clause that opens by pointing back
+    ("This comparison is also withdrawn", "Provenance caveat: this figure is not reproducible").
+It does NOT count when: it is in the previous sentence (a different claim instance: PR #84 plant
+P5); it is anywhere else in the paragraph (P7); it is in a heading (P6, P10: headings never mark,
+not even "## What We've Killed"); it is a one-word participle used attributively on some other noun
+("the untested raw baseline": P8); it is negated ("was never retracted"); or it is "correction"/
+"corrected" used for anything but the figure being corrected away ("after error correction": P9;
+"FWL-corrected", "Holm correction", "corrected for" were never markers).
+
+A QUOTED occurrence passes: one inside ``...'' or "..." introduced by said/read/marked/called/the
+term (or a following "and ``...''"), or followed by "means" ("``Rescued'' means ..."). A correction
+note quotes what it corrects (AGENTS.md section 4, cause 4). Quoted occurrences are counted
+separately in the summary. LaTeX comments are removed first, so a marker in a "%" comment does not
+count, and HTML tags are stripped.
 
 KNOWN LIMITS. A sentence that says the figure is dead in other words ("did not hold up") is reported:
-add a marker, or an entry-specific marker in the registry. Anything under a heading that carries a
-marker passes, so a planted claim inside a "Correction Note" section is not caught. A figure written
-in a form the pattern does not cover (spelled out, an image) is not seen. Records (audits, patch logs,
-review notes; listed in the registry) are skipped unless --include-records.
+add a marker, or an entry-specific marker in the registry. A marker can be a word that kills
+something else in the same clause ("1.000, the test that killed the null"); the clause rule narrows
+this, it does not close it. A claim reasserted inside a quotation introduced by "said" passes as
+quoted. A figure written in a form the pattern does not cover (spelled out, "AUROC of 1", an image)
+is not seen. Records (audits, patch logs, review notes; listed in the registry) are skipped unless
+--include-records.
 
 TWIN_DESYNC. --twins pairs each <paper>/academic/<file> with <paper>/<file> and reports sentences
 carrying a registry figure that are not the same in both editions: DIFFERS (a close counterpart
@@ -75,10 +94,31 @@ TEX_COMMENT = re.compile(r"(?<!\\)%.*$")
 HTML_HEAD = re.compile(r"(?i)^\s*<h([1-6])\b")
 HTML_BLOCK = re.compile(r"(?i)^\s*<(?:p|li|tr|td|th|div|section|article|br)\b")
 HTML_TAG = re.compile(r"<[^>]*>")
-_NOUN = r"(?:comparison|result|reading|figure|finding|claim|number|row|value|effect|test|estimate|AUROC)s?"
-ANAPHOR = re.compile(r"^\W*(?:This|That|These|Those|Both|It|They|Each|The\s+" + _NOUN + r")\b"
-                     r"|(?i:\b(?:this|that|these|those|the\s+same)\s+" + _NOUN + r"\b)")
-SENT_END = re.compile(r"(?<=[.!?])(?:''|\"|\u201d|\)|\})*\s+(?=[A-Z0-9\\$(`*\[\u201c\"'])")
+_NOUN = (r"(?:comparison|result|reading|figure|finding|claim|number|row|value|effect|test|estimate|AUROC|"
+         r"gain|delta|scar|overshoot|reversal|rescue|readout|interpretation|conclusion|statistic|separation)s?")
+_CONJ = r"(?:and|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike)"
+# A clause that opens by pointing back at the claim before it. An optional short label ending in ":"
+# may come first ("Provenance caveat, added 2026-09-10: this figure is ..."). "this"/"that" must be
+# followed by a claim noun or a verb, so "this pilot was withdrawn" does not point back.
+ANAPHOR_START = re.compile(
+    r"(?i)^[\W_]*(?:[^:;]{0,60}:\s*)?(?:" + _CONJ + r"\s+)?"
+    r"(?:(?:this|that|these|those|both|each|the\s+same)\s+(?:(?:\S+\s+)?" + _NOUN +
+    r"\b|(?:is|was|were|are|has|had|have|does|did|too|also|reading)\b)"
+    r"|it\s+(?:is|was|has|had|does|did|too|also|were)\b|which\b"
+    r"|the\s+(?!(?:earlier|previous|older|original|prior|other|new|old|unrelated|first-draft)\b)(?:\S+\s+)?" + _NOUN + r"\b)")
+CLAUSE_SEP = re.compile(r";|,\s+(?=(?:and|but|which|while|whilst|whereas|although|though|yet|so)\b)"
+                        r"|\s+(?=(?:while|whilst|whereas|although|though|because|unlike|after|before|when)\b)", re.I)
+NEG_BEFORE = re.compile(r"(?i)\b(?:not|never|no\s+longer)\s+(?:been\s+|be\s+|yet\s+|formally\s+)?$|n't\s+(?:been\s+)?$")
+DET_BEFORE = re.compile(r"(?i)\b(?:the|a|an|this|that|these|those|its|their|our|any|each|every|his|her)\s+$")
+STOP_AFTER = re.compile(r"(?i)(?:by|in|at|on|for|from|as|since|because|pending|until|after|before|and|or|but|is|was|"
+                        r"were|are|has|have|had|of|to|with|under|due|per|over|via|here|there)$")
+NP_END = re.compile(r"[;:()]|[,.](?!\d)|\s(?:which|that|who|is|was|were|are|has|had)\b")
+REPORT_BEFORE = re.compile(r"(?i)(?:\b(?:said|says|read|reads|wrote|stated|claimed|called|labell?ed|marked|termed|"
+                           r"titled|the\s+(?:term|word|phrase|sentence|line|claim|keyword))|(?:''|\"|”)\s*(?:,|and|or))\s*$")
+DEFINE_AFTER = re.compile(r"(?i)^\s*(?:means|meant|refers\s+to|denotes|is\s+defined)\b")
+QUOTE = re.compile(r"``(.*?)''|“(.*?)”|(?<!\w)\"([^\"]*?)\"")
+SENT_END = re.compile(r"(?<=[.!?])(?:''|\"|”|\)|\})*\s+(?=[A-Z0-9\\$(`*\[“\"'])")
+FORCE = None    # self-test only: True/False overrides every marking decision, to show the self-test can fail
 
 
 def die(msg):
@@ -127,14 +167,109 @@ def load_registry(path):
     return entries, records
 
 
-def has_marker(text, regexes):
+def marker_spans(text, regexes):
+    """(start, end) of every marker in text, statistics uses of "correct..." dropped."""
+    out = []
     for rx in regexes:
         for m in rx.finditer(text):
             w = m.group(0).lower()
-            if w.startswith("correct") and (_STAT_BEFORE.search(text[max(0, m.start() - 30):m.start()])
-                                            or _STAT_AFTER.match(text[m.end():m.end() + 20])):
+            if "correct" in w and (_STAT_BEFORE.search(text[max(0, m.start() - 30):m.start()])
+                                   or _STAT_AFTER.match(text[m.end():m.end() + 20])):
                 continue
+            if m.end() > m.start():
+                out.append((m.start(), m.end()))
+    return out
+
+
+def marker_applies(sent, ms, me, ent):
+    """A marker found in sent[ms:me] says something about the claim, not about another noun."""
+    w = sent[ms:me]
+    if re.match(r"(?i)(?:retract|withdr|supersed|falsif|kill|correct)", w) and \
+            NEG_BEFORE.search(sent[max(0, ms - 24):ms]):
+        return False                          # "was never retracted"
+    if re.fullmatch(r"(?i)un\w+|\w+(?:ed|wn)", w) and DET_BEFORE.search(sent[max(0, ms - 12):ms]):
+        nxt = re.match(r"\s+([^\s,;:.()]+)", sent[me:])
+        if nxt and not STOP_AFTER.fullmatch(nxt.group(1)):
+            # attributive: "the untested raw baseline" is about the baseline, "the retracted 2.5-2.8x"
+            # about the figure. It counts only when the noun phrase it opens is the claim.
+            npm = NP_END.search(sent, me)
+            np = sent[me:min(npm.start() if npm else len(sent), me + 60)]
+            return bool(ent.pattern.search(np) or (ent.context and ent.context.search(np)))
+    return True
+
+
+def clause_spans(sent):
+    """Split a sentence into clauses at top-level separators (not inside (), [] or ``'')."""
+    depth, d = [], 0
+    i = 0
+    while i < len(sent):
+        c2 = sent[i:i + 2]
+        if c2 == "``":
+            d += 1
+            depth += [d, d]
+            i += 2
+            continue
+        if c2 == "''":
+            depth += [d, d]
+            d = max(0, d - 1)
+            i += 2
+            continue
+        c = sent[i]
+        if c in "([":
+            d += 1
+        depth.append(d)
+        if c in ")]":
+            d = max(0, d - 1)
+        i += 1
+    cuts = [m for m in CLAUSE_SEP.finditer(sent) if depth[m.start()] == 0]
+    spans, start = [], 0
+    for m in cuts:
+        spans.append((start, m.start()))
+        start = m.end()
+    spans.append((start, len(sent)))
+    return spans
+
+
+def clause_of(spans, pos):
+    for k, (s, e) in enumerate(spans):
+        if pos < e or k == len(spans) - 1:
+            return k
+    return len(spans) - 1
+
+
+def attached(sent, pos, ent, nxt=None):
+    """Is a marker attached to the claim whose occurrence starts at sent[pos]? See the docstring."""
+    if FORCE is not None:
+        return FORCE
+    cl = clause_spans(sent)
+    ms = [(a, b) for a, b in marker_spans(sent, ent.markers) if marker_applies(sent, a, b, ent)]
+    ci = clause_of(cl, pos)
+    if any(clause_of(cl, a) == ci for a, _ in ms):
+        return True
+    j = ci + 1
+    while j < len(cl) and ANAPHOR_START.match(sent[cl[j][0]:cl[j][1]]):
+        if any(clause_of(cl, a) == j for a, _ in ms):
             return True
+        j += 1
+    if nxt:
+        ncl = clause_spans(nxt)
+        nms = [a for a, b in marker_spans(nxt, ent.markers) if marker_applies(nxt, a, b, ent)]
+        j = 0
+        while j < len(ncl) and ANAPHOR_START.match(nxt[ncl[j][0]:ncl[j][1]]):
+            if any(clause_of(ncl, a) == j for a in nms):
+                return True
+            j += 1
+    return False
+
+
+def quoted(sent, pos):
+    """The occurrence at sent[pos] sits inside a quotation that reports or defines old text."""
+    if FORCE is not None:
+        return False
+    for q in QUOTE.finditer(sent):
+        if q.start() < pos < q.end():
+            if REPORT_BEFORE.search(sent[max(0, q.start() - 30):q.start()]) or DEFINE_AFTER.match(sent[q.end():]):
+                return True
     return False
 
 
@@ -216,10 +351,12 @@ def paragraphs(path, text):
         elif kind == "tex":
             hm = TEX_HEAD.match(line)
             if hm:
+                # its own paragraph, so a marker in a heading cannot mark the sentence under it
                 if cur:
                     yield cur, tuple(h for _, h in stack)
                 push_head(TEX_LEVEL[hm.group(1)], line.strip())
-                cur = [(i, line)]
+                yield [(i, line)], tuple(h for _, h in stack)
+                cur = []
                 continue
             if TEX_ROW.search(line) or TEX_ENV.match(line):
                 if cur:
@@ -235,13 +372,31 @@ def paragraphs(path, text):
         yield cur, tuple(h for _, h in stack)
 
 
-def sentences(lines):
-    """Join a paragraph's lines; return (joined_text, [(start, end)], [(offset, lineno)])."""
+_TEX_CMD_BRACE = re.compile(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?\{")
+
+
+def canon(t, tex=True):
+    """Canonicalise TeX noise so a figure matches however it is typeset (PR #84 plants P1, P2, P4)."""
+    t = re.sub(r"\\(?:times|texttimes)(?![a-zA-Z])", "\u00d7", t)
+    t = t.replace("\\%", "%")
+    t = re.sub(r"---|\\textemdash(?![a-zA-Z])|\u2014", " \u2014 ", t)
+    t = re.sub(r"--|\\textendash(?![a-zA-Z])|\u2013", "\u2013", t)
+    t = _TEX_CMD_BRACE.sub(" ", t)
+    t = re.sub(r"\\[,;:! ]", " ", t)
+    if tex:
+        t = t.replace("~", " ")
+    t = re.sub(r"[{}$]", "", t)
+    return re.sub(r"[ \t]+", " ", t).strip()
+
+
+def sentences(lines, tex=True):
+    """Join a paragraph's (canonicalised) lines; return (joined_text, [(start, end)], [(offset, lineno)])."""
     parts, offs, pos = [], [], 0
     for lineno, t in lines:
+        t = canon(t, tex)
         offs.append((pos, lineno))
-        parts.append(t.strip())
-        pos += len(t.strip()) + 1
+        parts.append(t)
+        pos += len(t) + 1
     joined = " ".join(parts)
     spans, start = [], 0
     for m in SENT_END.finditer(joined):
@@ -267,11 +422,12 @@ def norm(s):
 
 
 class Hit:
-    __slots__ = ("path", "line", "entry", "sentence", "marked", "snippet")
+    __slots__ = ("path", "line", "entry", "sentence", "marked", "snippet", "how")
 
-    def __init__(self, path, line, entry, sentence, marked, snippet):
+    def __init__(self, path, line, entry, sentence, marked, snippet, how=None):
         self.path, self.line, self.entry = path, line, entry
         self.sentence, self.marked, self.snippet = sentence, marked, snippet
+        self.how = how if how is not None else ("marked" if marked else "")
 
     def key(self):
         return (self.entry, self.sentence)
@@ -282,36 +438,35 @@ def scan_text(path, text, entries):
     live = [e for e in entries if e.applies(path)]
     if not live:
         return hits
-    for lines, heads in paragraphs(path, text):
-        joined, spans, offs = sentences(lines)
+    tex = kind_of(path) == "tex"
+    for lines, _heads in paragraphs(path, text):      # headings never mark (PR #84 plants P6, P10)
+        joined, spans, offs = sentences(lines, tex)
         for k, (s, e) in enumerate(spans):
             sent = joined[s:e]
             ws = spans[max(0, k - 1)][0]
             we = spans[min(len(spans) - 1, k + 1)][1]
             window = joined[ws:we]
+            nxt = joined[spans[k + 1][0]:spans[k + 1][1]] if k + 1 < len(spans) else None
             for ent in live:
+                if ent.context and not ent.context.search(sent if ent.scope == "sentence" else window):
+                    continue
+                # One hit per entry per sentence ("d=8.05 corrects to g=6.4" is one occurrence). It is
+                # marked only if EVERY occurrence in the sentence is; it is reported at the first that is not.
+                occ = []
                 for m in ent.pattern.finditer(sent):
-                    if ent.context and not ent.context.search(sent if ent.scope == "sentence" else window):
-                        continue
-                    # one hit per entry per sentence: "d=8.05 corrects to g=6.4" is one occurrence
-                    if hits and hits[-1].entry == ent.id and hits[-1].path == path and hits[-1].sentence == norm(sent) \
-                            and hits[-1].line >= lines[0][0]:
-                        continue
-                    marked = has_marker(sent, ent.markers) or any(has_marker(h, ent.markers) for h in heads)
-                    # A neighbouring sentence's marker counts only when that sentence is about this
-                    # claim: it carries the figure or the entry's context, or opens by pointing back
-                    # ("This comparison is also withdrawn"). Without this, lyra-technique-ii/main.tex:1438
-                    # ("are rescued by SVD denoising") passed on the "withdrawn" of the sentence before
-                    # it, which withdraws a different claim.
-                    for kk in (k - 1, k + 1):
-                        if marked or not 0 <= kk < len(spans) or kk == k:
-                            continue
-                        nb = joined[spans[kk][0]:spans[kk][1]]
-                        about = ent.pattern.search(nb) or (ent.context and ent.context.search(nb)) or ANAPHOR.search(nb)
-                        marked = bool(about) and has_marker(nb, ent.markers)
-                    a = max(0, m.start() - 70)
-                    snip = norm(sent[a:m.end() + 90])
-                    hits.append(Hit(path, line_at(offs, s + m.start()), ent.id, norm(sent), marked, snip))
+                    if attached(sent, m.start(), ent, nxt):
+                        occ.append((m, "marked"))
+                    elif quoted(sent, m.start()):
+                        occ.append((m, "quoted"))
+                    else:
+                        occ.append((m, ""))
+                if not occ:
+                    continue
+                bad = [o for o in occ if not o[1]]
+                m, how = bad[0] if bad else (occ[0][0], "quoted" if any(h == "quoted" for _, h in occ) else "marked")
+                a = max(0, m.start() - 70)
+                snip = norm(sent[a:m.end() + 90])
+                hits.append(Hit(path, line_at(offs, s + m.start()), ent.id, norm(sent), bool(how), snip, how))
     return hits
 
 
@@ -441,7 +596,9 @@ def twin_report(flight, acad, fh, ah):
 
 # ---------------------------------------------------------------- self-test
 
-def self_test():
+def self_test(force=None):
+    global FORCE
+    FORCE = force
     entries, _ = load_registry(os.path.join(ROOT, REGISTRY))
     ok = True
     tripped = set()
@@ -541,13 +698,11 @@ def self_test():
           "(Hedges $g{=}+1.95$; uncorrected $d{=}+2.44$,\n$p{=}0.040$), which was read as the\ncheerful history "
           "bleeding through. This comparison is also withdrawn: the\ntwo arms' turn~7 messages differ.\n",
           ["whiplash-turn7-reversal"], [])
-    check("withdrawn heading covers its section", "x/main.tex",
-          "\\subsection{Uncertainty Scars (Echo; withdrawn)}\n\nThe returning cheerful reads higher on the "
-          "anxious--calm direction (Hedges $g{=}+6.44$).\n", ["uncertainty-scar"], [])
     check("meta-pattern/SOP_REVIEW.md:34 row", "x/notes.md",
           "| 1.4 | user emotion 2.5--2.8x | **retracted**; survivor is 12.3x via the W_K *directional* probe |\n",
           ["user-emotion-2p5-2p8x"], [])
-    check("correction note quoting the old injection sentence", "x/main.tex",
+    check("correction note quoting the old injection sentence (passes as QUOTED after 'said', not via the heading)",
+          "x/main.tex",
           "\\section*{Correction Note (v1.1)}\n\\item \\textbf{Introduction.} Contribution~1 said ``An\n"
           "injection test on neutral text confirms this reads model state, not text\ncontent''.\n",
           ["injection-confirms-model-state"], [])
@@ -571,9 +726,84 @@ def self_test():
     check("lyra-technique-ii/main.tex:968 body-count row, status Dead", "x/main.tex",
           "Within-model deception & 1.000 & 1.000 & 0.000 & confound & Dead$^\\S$ \\\\\n",
           ["within-model-deception-auroc-1000"], [])
-    check("RESEARCH_STATUS.md:159/:165 row under '## What We've Killed (Honestly)'", "RESEARCH_STATUS.md",
+    check("RESEARCH_STATUS.md:159/:165 row under '## What We've Killed (Honestly)' (passes on the row's own "
+          "'Same-prompt control -> 0.160', not the heading)", "RESEARCH_STATUS.md",
           "## What We've Killed (Honestly)\n\n| Within-model deception 1.000 | Same-prompt control → 0.160 | "
           "Prompt template, not cognition |\n", ["within-model-deception-auroc-1000"], [])
+    check("'...; that reading is withdrawn' through a ', which' clause", "x/main.tex",
+          "The figure reached $d{=}+9.86$ on the anxious pole, which was read as a scar; that reading is withdrawn.\n",
+          ["uncertainty-scar"], [])
+    check("'..., which was later retracted'", "x/paper.md",
+          "Within-model deception reached AUROC 1.000, which was later retracted.\n",
+          ["within-model-deception-auroc-1000"], [])
+    check("attributive marker on the figure itself: 'the retracted 2.5--2.8x'", "x/notes.md",
+          "The convergence paper still carries the retracted 2.5--2.8x user-emotion figure.\n",
+          ["user-emotion-2p5-2p8x"], [])
+    check("'was since corrected away' says the figure was corrected away", "x/main.tex",
+          "The uncertainty scar ($d{=}+9.86$) was since corrected away and is not repeated here.\n",
+          ["uncertainty-scar"], [])
+    check("cache-tracing/main.tex:134-137 quote of old text, retraction in the next sentence ('The emotion figure')",
+          "x/main.tex",
+          "This list previously included ``user-emotion encoding\n($2.5$--$2.8\\times$ signal at early layers)'' and "
+          "gave identity geometry\nas ``distinctiveness $0.154$ vs.\\ substrate $0.080$.'' The emotion\nfigure was "
+          "retracted at source on 2026-05-21 as an FWL-before-CV\nleakage artifact.\n", ["user-emotion-2p5-2p8x"], [])
+
+    print("PR #84 verifier plants, verbatim (advv_tools/plant.py; must be reported UNMARKED):")
+    D = "within-model-deception-auroc-1000"
+    check("P1 1.000 -> 1.00", "x/main.tex",
+          "Within-model deception detection reached AUROC~1.00 across seven models.\n", [], [D])
+    check("P2 9.9 -> 9.90", "x/main.tex",
+          "After a neutral gap the uncertainty scar persists ($d = +9.90$).\n", [], ["uncertainty-scar"])
+    check("P3 rescues -> restores", "x/main.tex",
+          "SVD denoising restores emotion classification from chance to 12.9x chance.\n", [], ["svd-denoising-rescues"])
+    check("P4 x -> times", "x/main.tex",
+          "Spectral features classify user emotion at 2.5--2.8 times chance.\n", [], ["user-emotion-2p5-2p8x"])
+    check("P5 neighbour marker about an older claim", "x/main.tex",
+          "The earlier within-model deception figure was retracted in version 1.1. Within-model deception detection "
+          "holds at AUROC~1.000 on the same-prompt control, confirmed across seven models.\n", [], [D])
+    check("P6 '(confirmed)' row under '## What We've Killed' (heading no longer marks)", "RESEARCH_STATUS.md",
+          "## What We've Killed (Honestly)\n\n- P6: Uncertainty scars d=+9.9 replicate across models (confirmed)\n\n",
+          [], ["uncertainty-scar"])
+    check("P7 CONTROL marker three sentences away", "x/main.tex",
+          "Within-model deception detection reached AUROC~1.000 across seven models. The models were run on one GPU. "
+          "The prompts were matched for length. An unrelated pilot was withdrawn.\n", [], [D])
+    check("P8 loose entry marker 'untested' on another noun", "x/main.tex",
+          "SVD denoising rescues the persona signal, which the untested raw baseline misses.\n", [],
+          ["svd-denoising-rescues"])
+    check("P9 non-retraction 'correction'", "x/main.tex",
+          "Within-model deception detection reached AUROC~1.000 after error correction.\n", [], [D])
+    check("P10 heading marker far above", "x/main.tex",
+          "\\subsection{Robustness after the 2026 correction}\n\nWe reran everything on new hardware.\n\n"
+          "The prompts were the same.\n\n% P10 heading marker far above\n"
+          "Within-model deception detection holds at AUROC~1.000 across seven models.\n", [], [D])
+    check("P10 variant: heading says 'withdrawn' and the claim follows with no blank line", "x/main.tex",
+          "\\subsection{Uncertainty Scars (Echo; withdrawn)}\nThe returning cheerful reads higher on the "
+          "anxious--calm direction (Hedges $g{=}+6.44$).\n", [], ["uncertainty-scar"])
+    check("REVISED from PR #84 v1 'withdrawn heading covers its section' (was expected to pass; the brief "
+          "now says headings never mark)", "x/main.tex",
+          "\\subsection{Uncertainty Scars (Echo; withdrawn)}\n\nThe returning cheerful reads higher on the "
+          "anxious--calm direction (Hedges $g{=}+6.44$).\n", [], ["uncertainty-scar"])
+    check("negated marker: 'was never retracted'", "x/paper.md",
+          "Within-model deception AUROC 1.000 was never retracted.\n", [], [D])
+    check("marker in a coordinate clause about something else: ', and a pilot was withdrawn'", "x/paper.md",
+          "Within-model deception reached AUROC 1.000, and an unrelated pilot was withdrawn.\n", [], [D])
+    check("numeric forms: '$2.5$--$2.8\\times$', '99.70~\\%', 'd{=}{+}9.860'", "x/main.tex",
+          "User emotion reaches $2.5$--$2.8\\times$ chance.\n\nPC1 explains 99.70~\\% of variance, splitting hostile "
+          "from cooperative.\n\nThe scar persists ($d{=}{+}9.860$).\n", [],
+          ["user-emotion-2p5-2p8x", "pc-99p7-hostile-cooperative-regimes", "uncertainty-scar"])
+    check("P3 synonym, reversed order: 'are unmasked by SVD denoising'", "x/main.tex",
+          "Emotion signals are unmasked by SVD denoising.\n", [], ["svd-denoising-rescues"])
+    check("P3 synonym: 'Denoising amplifies the persona signal'", "x/main.tex",
+          "Denoising amplifies the persona signal.\n", [], ["svd-denoising-rescues"])
+    check("P5 mirrored into the NEXT sentence: 'The earlier deception figure was retracted'", "x/main.tex",
+          "Within-model deception holds at AUROC~1.000. The earlier deception figure was retracted.\n", [], [D])
+    check("emotion-accumulation-paper/main.tex:801 bias correction 'd=8.05 corrects to g=6.4' is not a retraction",
+          "x/main.tex",
+          "the uncertainty scar's\n$d{=}8.05$ corrects to $g{\\approx}6.4$, and the contrast\novershoot's "
+          "$d{=}-2.93$ corrects to $g{=}-2.35$, which is the\nvalue reported in Section~\\ref{sec:dynamics}.\n", [],
+          ["uncertainty-scar", "contrast-overshoot"])
+    check("'AUROC 1.0' restated", "x/paper.md",
+          "Within-model deception is detected at AUROC 1.0 in every model.\n", [], [D])
     print("unrelated uses of the same numbers (must not match at all):")
     check("ethics-pack-injection/main.tex:98 per-framework +0.074 (no KG/MoReBench context)", "x/main.tex",
           "Aristotelian Virtue Ethics & 0.572 & 0.646 & $+$0.074 & $-$0.236 \\\\\n", [], [])
@@ -583,6 +813,14 @@ def self_test():
           "A bigger sample rescues the result, not the test that kills it.\n", [], [])
     check("cache-tracing confab ratio 2.3-2.8x (no emotion context)", "x/paper.md",
           "Confab/factual ratio 2.3-2.8x at L33.\n", [], [])
+    check("convergence-paper/main.tex:1071 'Version 1.0' beside 'deception' is not AUROC 1.000", "x/main.tex",
+          "Version 1.0's abstract stated a range (80--100\\%) for deception correction.\n", [], [])
+    check("waystations-paper/main.tex:336 'd = +0.2 to +1.0' beside deception is not AUROC 1.000", "x/main.tex",
+          "Deceptive defections show per-layer effects of $d = +0.2$ to $+1.0$ (stable rank).\n", [], [])
+    check("lyra-technique-ii/main.tex:287 'denoising amplifier' (a noun, in a retraction) is not the claim",
+          "x/main.tex", "The denoising amplifier was me mistaking selection noise for signal.\n", [], [])
+    check("lyra-technique-ii/main.tex:171 'denoising would amplify weak signals' states the hypothesis", "x/main.tex",
+          "We had hypothesized a hierarchy under which denoising would amplify weak signals.\n", [], [])
     check("persona table -3.656 is not 3.6", "x/main.tex",
           "\\texttt{persona\\_cheerful} & $+5.203 \\pm 0.503$ & $-3.656 \\pm 0.311$ & 82--87 \\\\\n", [], [])
 
@@ -630,6 +868,7 @@ def main():
     g.add_argument("--base", metavar="REF", help="CI: fail only on unmarked occurrences HEAD adds over merge-base(REF, HEAD)")
     g.add_argument("--twins", action="store_true", help="TWIN_DESYNC report for flight/academic pairs")
     g.add_argument("--self-test", action="store_true", help="run the planted cases")
+    ap.add_argument("--self-test-force", choices=["marked", "unmarked"], help=argparse.SUPPRESS)
     ap.add_argument("--twins-strict", action="store_true", help="with --twins: exit 1 on MARKER_DESYNC")
     ap.add_argument("--exclude", action="append", default=[], metavar="REGEX", help="skip repo paths matching REGEX")
     ap.add_argument("--include-records", action="store_true", help="also scan files the registry lists as records")
@@ -640,7 +879,7 @@ def main():
     except AttributeError:
         pass
     if a.self_test:
-        return self_test()
+        return self_test({None: None, 'marked': True, 'unmarked': False}[a.self_test_force])
 
     entries, records = load_registry(a.registry)
     excludes = [re.compile(x) for x in a.exclude]
@@ -651,8 +890,9 @@ def main():
 
     def summary(n_files, hits, extra=""):
         n_un = sum(1 for h in hits if not h.marked)
+        n_q = sum(1 for h in hits if h.how == "quoted")
         print(f"\n{n_files} files scanned, {len(hits)} occurrences of {len(entries)} registry figures, "
-              f"{len(hits) - n_un} marked, {n_un} unmarked{extra}")
+              f"{len(hits) - n_un - n_q} marked, {n_q} quoted, {n_un} unmarked{extra}")
 
     if a.base:
         mb = git("merge-base", a.base, "HEAD").decode().strip()

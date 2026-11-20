@@ -1,10 +1,15 @@
 # RETRACTED_FIGURES.yml: figures and phrases this corpus has retracted, withdrawn or corrected.
 #
 # Read by tools/check_retracted_figures.py, which fails when one of these appears in a .tex, .md
-# or .html file WITHOUT a marker near it. "Near" means the same sentence, the sentence before or
-# the sentence after, inside one paragraph (a Markdown list item, a table row or a heading is its
-# own paragraph), or a heading above it that carries a marker (for example
-# "\subsection{Uncertainty Scars (Echo; withdrawn)}" or a "Correction Note" section).
+# or .html file WITHOUT a marker attached to it. "Attached" (revised 2026-11-20 after PR #84's
+# verifier plants P5-P10 leaked) means: in the occurrence's own clause; in a later clause of the same
+# sentence that opens by pointing back (", which was later retracted", "; that reading is
+# withdrawn"); or in the NEXT sentence of the same paragraph, in a clause that opens by pointing back
+# ("This comparison is also withdrawn"). The sentence before never counts, and a heading never
+# counts, not even "## What We've Killed" or a "Correction Note" section. A quotation introduced by
+# "said"/"read"/"marked" or followed by "means" counts as quoted, not claimed. The original wording
+# was: "Near" means the same sentence, the sentence before or the sentence after, inside one
+# paragraph, or a heading above it that carries a marker.
 #
 # WHY. On 2026-11-20 the verifier of PR #83 replaced "RETRACTED" with "(confirmed)" next to a
 # retracted figure and every existing check passed. Nothing in the repo knew which numbers are
@@ -36,7 +41,24 @@ version: 1
 # "does not survive" (lyra-technique-ii/main.tex:210), and capitalised "Dead", the body-count
 # tables' status word (lyra-technique-ii/main.tex:968). Each one widens what passes; the cost is
 # that a sentence using one of them loosely ("the test that killed the null") also passes.
-default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed\b|\bno longer claim\w*|\bdo(?:es)? not claim\b|\bsupersed\w*|\bfalsified\b|\bkilled\b|\b(?:does|do|did) not survive\b|(?-i:\bDead\b)|(?<![-\w])correct(?:ed|ion|ions)\b'
+#
+# Revised 2026-11-20 after PR #84's verifier planted P9 ("reached AUROC~1.000 after error
+# correction"), which passed on the bare word. "correct"/"correction" is now a marker only when it
+# says the figure itself was corrected away: "was/were/is/since/later/now corrected" (not followed
+# by to/for/by/using/with/from) or "corrected away". A first revision also took "corrects to" and
+# "corrected to"; the master run showed that passes a bias correction that keeps the claim
+# (emotion-accumulation-paper/main.tex:801 "the uncertainty scar's d=8.05 corrects to g=6.4"), so
+# they were dropped. Original text, kept for the record:
+#   ...|(?<![-\w])correct(?:ed|ion|ions)\b'
+# A marker must also be attached to the claim (same clause, a back-pointing clause, or a
+# back-pointing next sentence) and is never taken from a heading: see the script's docstring.
+default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed\b|\bno longer claim\w*|\bdo(?:es)? not claim\b|\bsupersed\w*|\bfalsified\b|\bkilled\b|\b(?:does|do|did) not survive\b|(?-i:\bDead\b)|\b(?:was|were|is|are|been|being|since|later|subsequently|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b'
+#
+# NUMERIC PATTERNS (revised 2026-11-20 after PR #84 plants P1 "AUROC~1.00", P2 "d = +9.90", P4
+# "2.5--2.8 times"). The script canonicalises TeX before matching (braces, "$", "~" and "\," removed,
+# "\times" -> the x sign, "--" -> en dash, "\%" -> %), so patterns are written for plain text. Each
+# figure takes any number of trailing zeros ("9.9", "9.90", "9.900") and refuses a further nonzero
+# digit ("3.656" is not 3.6).
 
 # RECORDS are not scanned by default (--include-records scans them). They quote retracted text
 # verbatim as evidence (audits, patch logs, review notes, registers). A record that is served as
@@ -89,8 +111,13 @@ entries:
   - id: within-model-deception-auroc-1000
     status: RETRACTED
     claim: Within-model deception detection at AUROC 1.000 across seven models.
-    pattern: '(?<![\d.])1\.000(?!\d)'
+    # "1.00"/"1.000"/"1.0000" anywhere, "1.0" only right after AUROC: bare 1.0 hit "Version 1.0" and
+    # "d = +0.2 to +1.0" on master (convergence-paper/main.tex:1071, waystations-paper/main.tex:336).
+    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?![\d.])'
     context: '(?i)decepti'
+    markers:
+      # the falsifying control stated beside the figure (RESEARCH_STATUS.md:165 "Same-prompt control -> 0.160")
+      - '(?i)same-prompt control\b[^.;]{0,120}?(?:\u2192|->|collapses|drops|falls|reduces)[^.;]{0,30}?0\.160'
     source:
       - 'RESEARCH_STATUS.md:100: "Within-model deception AUROC 1.000: **RETRACTED** (prompt-template confound)"'
       - 'RESEARCH_STATUS.md:165: same-prompt control -> 0.160, "Prompt template, not cognition"'
@@ -100,7 +127,7 @@ entries:
   - id: user-emotion-2p5-2p8x
     status: RETRACTED
     claim: User emotion classified at 2.5-2.8x chance (spectral features, L3/L4).
-    pattern: '(?:2\.5\s*(?:-{1,3}|–|—|to)\s*)?2\.8\s*(?:\$?\\times\$?|×|x(?![a-z]))'
+    pattern: '(?<![\d.])2\.50*(?!\d)\s*(?:-|–|—|to)\s*2\.80*(?!\d)|(?<![\d.])2\.80*(?!\d)\s*(?:×|x(?![a-z])|times\b|-?fold\b)'
     context: '(?i)emotion'
     context_scope: window
     source:
@@ -111,7 +138,7 @@ entries:
   - id: pc-99p7-hostile-cooperative-regimes
     status: NOT CLAIMED
     claim: 99.7% described as separating hostile and cooperative regimes.
-    pattern: '99\.7\s*(?:\\?%|percent)'
+    pattern: '(?<![\d.])99\.70*\s*(?:\\?%|percent)'
     context: '(?i)hostil|cooperativ|regime'
     context_scope: window
     source:
@@ -120,7 +147,7 @@ entries:
   - id: uncertainty-scar
     status: WITHDRAWN
     claim: Uncertainty scar after a neutral gap (d=+9.9 / +9.86; later g=+6.44, d=+8.05).
-    pattern: '(?<![\d.])(?:9\.9|9\.86|8\.05|6\.44|6\.4)(?!\d)'
+    pattern: '(?<![\d.])(?:9\.9|9\.86|8\.05|6\.44|6\.4)0*(?!\d)'
     context: '(?i)\bscars?\b|uncertaint|anxious'
     source:
       - 'emotion-accumulation-paper/main.tex:270-272: "a contrast overshoot and an uncertainty scar, are withdrawn: each compared turns whose messages differed"'
@@ -132,7 +159,7 @@ entries:
   - id: contrast-overshoot
     status: WITHDRAWN
     claim: Contrast overshoot after a warm history (d=-3.6 / -3.59; later d=-2.93, g=-2.35).
-    pattern: '(?<![\d.])(?:3\.6|3\.59|2\.93|2\.35)(?!\d)'
+    pattern: '(?<![\d.])(?:3\.6|3\.59|2\.93|2\.35)0*(?!\d)'
     context: '(?i)overshoot|\bcontrast\b'
     source:
       - 'emotion-accumulation-paper/main.tex:270-272 (as above)'
@@ -142,7 +169,7 @@ entries:
   - id: whiplash-turn7-reversal
     status: WITHDRAWN
     claim: Whiplash turn-7 reversal (g=+1.95, d=+2.44, p=0.040).
-    pattern: '(?<![\d.])(?:1\.95|2\.44)(?!\d)'
+    pattern: '(?<![\d.])(?:1\.95|2\.44)0*(?!\d)'
     context: '(?i)whiplash|reversal'
     source:
       - 'emotion-accumulation-paper/main.tex:478-482: "This comparison is also withdrawn: the two arms'' turn~7 messages differ"'
@@ -150,7 +177,7 @@ entries:
   - id: decision-state-0p9377-as-verified
     status: NOT CLAIMED
     claim: Decision-state AUROC 0.9377 presented as a verified, reproducible number.
-    pattern: '0\.9377|93\.77\s*\\?%'
+    pattern: '(?<![\d.])0\.93770*(?!\d)|(?<![\d.])93\.770*\s*(?:\\?%|percent)'
     markers:
       - '(?i)provenance|caveat\w*|unverified|not verified|not a verifiable|not reproduc\w*|irreproduc\w*|cannot be (?:traced|recomputed|reproduced)|no shipped script'
     source:
@@ -168,7 +195,13 @@ entries:
   - id: svd-denoising-rescues
     status: CORRECTED
     claim: SVD denoising "rescues" persona and emotion signals.
-    pattern: '(?i)\brescu(?:e|es|ed|ing)\b'
+    # PR #84 plant P3 ("SVD denoising restores emotion classification") passed: only "rescue" was matched.
+    # Now also the synonym set restore/reveal/recover/transform/rescue/unmask/amplify, in a claim-shaped
+    # sentence: denoising + verb + persona/emotion/signal/null/classification/intensity, either order.
+    # Verb forms only ("the denoising amplifier was me mistaking selection noise for signal",
+    # lyra-technique-ii/main.tex:287, is a retraction) and not after would/could/might/may ("under which
+    # denoising would amplify weak signals", :171, states the hypothesis).
+    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified)\s+by\s+(?:SVD\s+)?denois'
     context: '(?i)denois|\bSVD\b'
     context_scope: window
     markers:
@@ -182,7 +215,7 @@ entries:
   - id: peer-rescue-d1p36
     status: WITHDRAWN
     claim: Generation reads behavioral state, peer-rescue d=1.36.
-    pattern: '(?<![\d.])1\.36(?!\d)'
+    pattern: '(?<![\d.])1\.360*(?!\d)'
     context: '(?i)peer|rescue|generation|behaviou?ral state'
     source:
       - 'RESEARCH_STATUS.md:108: "WITHDRAWN 2026-09-05 -- the d=1.36 peer-rescue figure is withdrawn (circular fit-and-test ...)"'
@@ -191,7 +224,7 @@ entries:
   - id: ethics-pack-kg-injection-0p074
     status: WITHDRAWN
     claim: KG injection improves MoReBench by +0.074.
-    pattern: '(?<![\d.])0\.074(?!\d)'
+    pattern: '(?<![\d.])0\.0740*(?!\d)'
     # Not "ethic": ethics-pack-injection/main.tex:98 has an unrelated per-framework delta of
     # +0.074 (Aristotelian, v4 table), which the first run on master flagged.
     context: '(?i)morebench|\bKG\b|knowledge[- ]graph'
