@@ -202,8 +202,9 @@ grounded responses (AUROC~0.767 on Qwen2.5-7B-Instruct), that deception
 expands the cache while confabulation contracts it, and that per-layer delta
 features capture signal that layer-averaged features
 destroy~\citep{lyra_delta}. Confabulation detection is robust
-(AUROC~0.663--0.913 across the scale sweep, with denoising improving
-weaker models by up to $+0.068$). Hardware invariance holds:
+(AUROC~0.663--0.913 across the scale sweep, raw; an apparent denoising
+gain on weaker models, up to $+0.068$, sits inside its max-over-rank
+selection envelope and is not claimed, \S\ref{sec:results_confab}). Hardware invariance holds:
 between an RTX~3090 and an H200, over 40 prompts, the four cache features
 correlate at $r = 0.9986$--$0.9999$ (key rank and key entropy at $0.9986$
 and $0.9988$, the two norm features above $0.999$)~\citep{lyra_p2}. A previously reported within-model deception
@@ -244,13 +245,19 @@ text baseline on 30 classes:
     once offered as confirming model state is withdrawn. This paper no
     longer claims that emotions change direction rather than shape.
 
-    \item \textbf{SVD denoising: the calibrated thermometer.} Dominant
-    singular values carry scale and processing mode; removing them via
-    low-rank projection exposes discriminative structure in the residual
-    spectrum. Persona intensity jumps $+0.196$ to $+0.288$ AUROC across three
-    architectures after denoising. Emotion classification goes from chance to
-    $12.9\times$ chance. The thermometer reads \emph{how different} the cache
-    shapes are---after removing the background temperature.
+    \item \textbf{SVD denoising: the proposed amplifier (unconfirmed).} We
+    hypothesized that dominant singular values carry scale and processing
+    mode, so that removing them via low-rank projection would expose
+    discriminative structure in the residual spectrum. We reported that
+    persona intensity gains $+0.196$ to $+0.288$ AUROC across three
+    architectures after denoising, and that emotion classification goes
+    from chance to $12.9\times$ chance. As the abstract says, the denoising
+    gains do not survive selection-bias analysis (across 45 model$\times$task
+    cells, 0 of 16 positive denoising deltas exceed a max-over-rank
+    selection envelope), and the raw-spectral emotion chance result is
+    withdrawn (above). The raw AUROCs are the defensible numbers; denoising
+    remains a hypothesis pending a pre-registered rank criterion. (Corrected
+    2026-11-20; see the Correction Note.)
 \end{enumerate}
 
 The distinction is not cosmetic. Mode-level phenomena (confabulation,
@@ -637,8 +644,8 @@ no persona), L1 (minimal persona: ``You are a helpful assistant''), L2
 identity, values, and behavioral constraints).
 
 \paragraph{Raw vs.\ denoised.} Raw spectral features detect the L0-vs-L3
-contrast at moderate accuracy. SVD denoising transforms moderate signals
-into strong ones:
+contrast at moderate accuracy. Rank-3 SVD denoising gives higher AUROCs,
+but those gains are not claimed (see below and the abstract):
 
 \begin{table}[h]
 \centering
@@ -660,10 +667,14 @@ Mistral-7B-v0.3 & 0.611 & 0.899 & $+0.288$ \\
 \end{tabular}
 \end{table}
 
-The improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral). All
-three architectures show the same pattern (for Qwen and Llama, subject to the
-phase-0 caveat in Table~\ref{tab:persona_raw_denoised}): denoising rescues a signal that
-was present but masked by dominant spectral variance.
+The apparent improvement ranges from $+0.196$ (Qwen) to $+0.288$ (Mistral),
+in the same direction on all three architectures (for Qwen and Llama, subject
+to the phase-0 caveat in Table~\ref{tab:persona_raw_denoised}). It does not
+survive selection-bias analysis: across 45 model$\times$task cells, 0 of 16
+positive denoising deltas exceed a max-over-rank selection envelope
+(\S\ref{sec:results_confab}). We therefore do not claim that denoising rescues
+a masked signal; the raw AUROCs are the defensible numbers. (Corrected
+2026-11-20; see the Correction Note.)
 
 \paragraph{5-level graded classification.} Extending to all five persona
 levels (L0/L0.5/L1/L2/L3), the denoised pipeline achieves $2.1$--$2.3\times$
@@ -1560,6 +1571,18 @@ spectral and SVD-denoising results are not changed by this correction.
   was ``rescued by the appropriate instrument'', and closed with ``The
   compass reads direction'' and ``the toolkit is now substantially more
   complete''.
+\item \textbf{Denoising gains (corrected 2026-11-20).} Three passages still
+  stated the SVD-denoising gains as results, against the abstract's
+  selection-bias finding. The Introduction said ``with denoising improving
+  weaker models by up to $+0.068$''; its contribution~2, headed ``SVD
+  denoising: the calibrated thermometer'', said ``Persona intensity jumps
+  $+0.196$ to $+0.288$ AUROC across three architectures after denoising''
+  and ``The thermometer reads how different the cache shapes are---after
+  removing the background temperature''; and \S\ref{sec:results_persona}
+  said ``SVD denoising transforms moderate signals into strong ones'' and
+  ``denoising rescues a signal that was present but masked by dominant
+  spectral variance''. Each now says what the abstract says. No number is
+  changed.
 \item \textbf{References.} The source paper is marked as corrected.
 \end{itemize}
 
