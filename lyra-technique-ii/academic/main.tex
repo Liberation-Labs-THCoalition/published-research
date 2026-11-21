@@ -192,7 +192,8 @@ to it awaits a confirmatory test.
 
 We apply a canonical pipeline---one FWL correction, one cross-validation
 scheme, one classifier, with SVD denoising as an evaluated (not assumed)
-step---to 17~models across confabulation, self-reference, individuation,
+step---to 17~models (not all on every phenomenon) across confabulation,
+self-reference, individuation,
 persona intensity, emotion, and cognitive modes. The robust core: raw
 spectral shape reads cognitive mode (confabulation 0.66--0.91, ethical
 deliberation 0.87--0.89). A class-mean key readout separates a ten-emotion
@@ -462,8 +463,9 @@ dominated by overall spectral scale, token count residuals, and processing
 mode---leaving the directions along which content-specific differences
 manifest.
 
-The analogy: dominant singular values are the \emph{temperature} of the
-room. Denoising removes the temperature to reveal what individual objects
+The analogy behind the method, a hypothesis and not a result: dominant
+singular values are the \emph{temperature} of the room. Denoising is meant to
+remove the temperature and reveal what individual objects
 \emph{smell} like. The temperature tells you whether the model is
 confabulating (cold) or retrieving (warm); the smell tells you \emph{what}
 it is retrieving.
@@ -552,7 +554,9 @@ which follows from the linearity of the projection.
 We apply the canonical pipeline to data from Campaigns~2 and~3 of the
 KV-cache geometry research program~\citep{lyra_p2,lyra_spectral,lyra_delta}:
 
-\paragraph{Models.} 17~models spanning 6~architectures:
+\paragraph{Models.} 17~models spanning 6~architectures, not all on every
+phenomenon (the largest per-model table, Table~\ref{tab:confab_all15}, lists
+fifteen):
 \begin{itemize}[nosep]
     \item Qwen family: 0.6B, 7B, 32B (Instruct), 3.5-27B-Claude-Distilled
     \item Llama family: TinyLlama-1.1B, 3.1-8B-Instruct
@@ -1274,7 +1278,7 @@ Tier~1.5 is withdrawn:
 
 Preliminary results on a single abliterated model (refusal direction removed
 via rank-1 projection from the residual stream) show geometric compression:
-spectral features occupy a narrower range, and denoising reveals less
+spectral features occupy a narrower range, and denoising leaves less
 residual structure. This is consistent with abliteration removing a dimension
 of representational variation---the model has fewer ``directions'' to vary
 along after the refusal direction is removed.
@@ -1496,7 +1500,7 @@ follows:
     is not a reading of the model's or the user's state.
 
     \item \textbf{SVD-denoised spectral features} appear to detect
-    content-level structure hidden by dominant scale variance: persona
+    content-level structure that dominant scale variance may hide: persona
     intensity at raw AUROC~0.611--0.751 (denoised 0.899--0.992), emotion
     at $1.7\times$ chance raw (denoised $12.9\times$). However, these
     denoising gains were never tested for selection bias: that analysis
