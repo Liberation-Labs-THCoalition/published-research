@@ -1,0 +1,27 @@
+name: retracted-figures
+
+# Rejects pull requests that ADD an unmarked occurrence of a retracted or withdrawn figure listed in
+# RETRACTED_FIGURES.yml (for example "RETRACTED" turned back into "(confirmed)"). Occurrences that
+# were already on the base branch are listed in the log but do not fail the job; the whole-tree
+# count is in scripts/build_and_verify.sh. See tools/check_retracted_figures.py.
+on:
+  pull_request:
+
+jobs:
+  retracted-figures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: python -m pip install --quiet pyyaml==6.0.2
+      - name: Self-test (planted cases must behave)
+        run: python tools/check_retracted_figures.py --self-test
+      - name: Reject added unmarked retracted figures
+        run: python tools/check_retracted_figures.py --base "origin/${{ github.base_ref }}" --no-agent-skip
+      - name: TWIN_DESYNC report (flight vs academic; does not fail)
+        run: python tools/check_retracted_figures.py --twins --no-agent-skip

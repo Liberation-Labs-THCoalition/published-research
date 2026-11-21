@@ -1,0 +1,322 @@
+# RETRACTED_FIGURES.yml: figures and phrases this corpus has retracted, withdrawn or corrected.
+#
+# Read by tools/check_retracted_figures.py, which fails when one of these appears in a .tex, .md
+# or .html file WITHOUT a marker attached to it. "Attached" (revised 2026-11-20 after PR #84's
+# verifier plants P5-P10 leaked) means: in the occurrence's own clause; in a later clause of the same
+# sentence that opens by pointing back (", which was later retracted", "; that reading is
+# withdrawn"); or in the NEXT sentence of the same paragraph, in a clause that opens by pointing back
+# ("This comparison is also withdrawn"). The sentence before never counts, and a heading never
+# counts, not even "## What We've Killed" or a "Correction Note" section. A quotation introduced by
+# "said"/"read"/"marked" or followed by "means" counts as quoted, not claimed. The original wording
+# was: "Near" means the same sentence, the sentence before or the sentence after, inside one
+# paragraph, or a heading above it that carries a marker.
+#
+# WHY. On 2026-11-20 the verifier of PR #83 replaced "RETRACTED" with "(confirmed)" next to a
+# retracted figure and every existing check passed. Nothing in the repo knew which numbers are
+# dead. This file is that knowledge, with a source for each entry.
+#
+# ADDING AN ENTRY. Give the figure as a regex (`pattern`), a `context` regex when the figure alone
+# is too common (1.000, 2.35), a `source` naming the file:line where the retraction is recorded,
+# and add a planted positive for it in the script's --self-test (the self-test fails if any
+# entry has no planted case that trips it).
+#
+# FIELDS
+#   id             stable name, printed in every finding
+#   status         RETRACTED | WITHDRAWN | CORRECTED | NOT CLAIMED
+#   claim          the claim as it was made
+#   pattern        Python regex for the figure or phrase (matched within one sentence)
+#   context        optional regex that must also match, so "1.000" only counts near "deception"
+#   context_scope  sentence (default) or window (the sentence plus its neighbours)
+#   files          globs the entry applies to (default: every scanned file)
+#   markers        extra marker regexes for this entry, added to default_markers
+#   source         where the retraction is recorded, file:line as of origin/master aad7a3e
+
+version: 1
+
+# A marker is one of these words near the figure. "corrected" is not a marker when it is a
+# statistics word ("FWL-corrected", "Holm correction", "corrected for"): the script drops those.
+# Beyond the brief's five (RETRACTED / withdrawn / not claimed / corrected / superseded), added
+# 2026-11-20 after the first run on master, each because the corpus already uses it to kill a
+# result: "falsified" and "killed" (RESEARCH_STATUS.md:159 "## What We've Killed (Honestly)"),
+# "does not survive" (lyra-technique-ii/main.tex:210), and capitalised "Dead", the body-count
+# tables' status word (lyra-technique-ii/main.tex:968). Each one widens what passes; the cost is
+# that a sentence using one of them loosely ("the test that killed the null") also passes.
+#
+# Revised 2026-11-20 after PR #84's verifier planted P9 ("reached AUROC~1.000 after error
+# correction"), which passed on the bare word. "correct"/"correction" is now a marker only when it
+# says the figure itself was corrected away: "was/were/is/since/later/now corrected" (not followed
+# by to/for/by/using/with/from) or "corrected away". A first revision also took "corrects to" and
+# "corrected to"; the master run showed that passes a bias correction that keeps the claim
+# (emotion-accumulation-paper/main.tex:801 "the uncertainty scar's d=8.05 corrects to g=6.4"), so
+# they were dropped. Original text, kept for the record:
+#   ...|(?<![-\w])correct(?:ed|ion|ions)\b'
+# A marker must also be attached to the claim (same clause, a back-pointing clause, or a
+# back-pointing next sentence) and is never taken from a heading: see the script's docstring.
+#
+# Round 3 (post-data revision, 2026-11-20, from Lyra's PR #84 comment after the master run after #83): two negations
+# the corpus uses to report a claim it no longer makes were reported as live claims, lyra-technique-ii/main.tex:706
+# "We claim neither that denoising rescues..." and :1536 "We had also written that ... rescued by SVD denoising".
+# Added: "claim neither" and "had (also|previously|earlier) written that". Principle: a sentence that says the
+# authors do not claim it, or used to write it, is not asserting it. Cost: "we had written that X" also passes when
+# the next words reaffirm X. Round-2 value, kept for the record:
+#   '(?i)\bretract\w*|...|\b(?:was|were|...|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b'
+#   (identical to the line below up to and including \bcorrected\s+away\b)
+default_markers: '(?i)\bretract\w*|\bwithdr[ae]w\w*|\bwithdrawal\b|\bnot claimed\b|\bno longer claim\w*|\bdo(?:es)? not claim\b|\bsupersed\w*|\bfalsified\b|\bkilled\b|\b(?:does|do|did) not survive\b|(?-i:\bDead\b)|\b(?:was|were|is|are|been|being|since|later|subsequently|now)\s+corrected\b(?!\s+(?:to|for|by|using|with|from)\b)|\bcorrected\s+away\b|\bclaim\s+neither\b|\bhad\s+(?:also\s+|previously\s+|earlier\s+)?written\s+that\b'
+#
+# NUMERIC PATTERNS (revised 2026-11-20 after PR #84 plants P1 "AUROC~1.00", P2 "d = +9.90", P4
+# "2.5--2.8 times"). The script canonicalises TeX before matching (braces, "$", "~" and "\," removed,
+# "\times" -> the x sign, "--" -> en dash, "\%" -> %), so patterns are written for plain text. Each
+# figure takes any number of trailing zeros ("9.9", "9.90", "9.900") and refuses a further nonzero
+# digit ("3.656" is not 3.6).
+
+# AGENT SKIP (added 2026-11-20, PR #84 round 3): paths that agents working on this repo are not to open. Every mode
+# skips them by default, so an agent that runs the gate cannot read them by accident; the round-3 agent did once,
+# running the tool with --self-test-force but without --self-test, which fell through to a whole-tree scan (since
+# round 4 that exits 2). CI
+# passes --no-agent-skip, so CI coverage of these files is unchanged. Every run prints how many files it skipped.
+# Since round 5 the two patterns below are ALSO in the script (AGENT_SKIP), because a registry without this list (any
+# registry before 7767f69, passed with --registry) switched the skip off silently. This list can only ADD paths;
+# removing it, or pointing --registry at an older registry, no longer turns the skip off. --no-agent-skip now prints a
+# loud warning.
+agent_skip:
+  - '(?i)(?<![a-z])(pain(s|ful)?|humane|route[-_ ]?b|umv|label[-_ ]?validity|user[-_ ]?model[-_ ]?v2/label)(?![a-z])'
+  - '(?i)user[-_ ]?model[-_ ]?paper'
+
+# RECORDS are not scanned by default (--include-records scans them). They quote retracted text
+# verbatim as evidence (audits, patch logs, review notes, registers). A record that is served as
+# a paper is not a record: keep this list to process documents.
+records:
+  - glob: 'notes/*'
+    why: working notes and review records; quote old text as evidence
+  - glob: 'notes_*/*'
+    why: verification records
+  - glob: '*/notes_*/*'
+    why: per-paper verification and port notes
+  - glob: '*/review/*'
+    why: review records
+  - glob: '*/reviews/*'
+    why: review records
+  - glob: '*review*.md'
+    why: review records (AGNI_REVIEW.md, SOP_REVIEW.md, REVIEW_INDEX.md, ...)
+  - glob: 'tools/*'
+    why: tooling and gate designs
+  - glob: 'AUDIT_*.md'
+    why: audit records
+  - glob: 'PATCHES_*.md'
+    why: patch logs that quote the text they replaced
+  - glob: 'PATCH_*.md'
+    why: patch logs
+  - glob: 'SWEEP_*.md'
+    why: sweep records
+  - glob: 'T1_APPLIED_*.md'
+    why: patch log
+  - glob: 'MORNING_BRIEF_*.md'
+    why: dated brief
+  - glob: 'MERGE_READINESS*.md'
+    why: dated merge records
+  - glob: 'REMEDIATION_REGISTER.md'
+    why: defect register; quotes each defect
+  - glob: 'DECISIONS_WAITING.md'
+    why: decision log
+  - glob: 'PAPER_STATUS_AUDIT.md'
+    why: audit record
+  - glob: 'CIRCULAR_*.md'
+    why: audit record
+  - glob: '*STYLE_GATE_*.md'
+    why: gate records
+  - glob: '*VERIFY*.md'
+    why: verification records
+  - glob: 'RETRACTED_FIGURES.yml'
+    why: this file
+
+entries:
+  - id: within-model-deception-auroc-1000
+    status: RETRACTED
+    claim: Within-model deception detection at AUROC 1.000 across seven models.
+    # "1.00"/"1.000"/"1.0000" anywhere, "1.0" only right after AUROC: bare 1.0 hit "Version 1.0" and
+    # "d = +0.2 to +1.0" on master (convergence-paper/main.tex:1071, waystations-paper/main.tex:336).
+    # Round 3 (2026-11-20, Lyra's PR #84 fix list): also "AUROC of one", "AUROC = 1", "AUROC of 1", "AUROC \approx 1",
+    # "AUROC 1.0." ending a sentence, and "perfect(ly) AUROC/separation/discrimination/classification/detection".
+    # "one" followed by a noun is a determiner ("the AUROC of one model"), so it counts only before punctuation,
+    # the end, or a preposition/conjunction. Round-2 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?![\d.])'
+    # Round 4 (2026-11-20, post-data revision after the round-3 verifier's false positive D16, "For the deception
+    # probe, chance is AUROC 0.5 and a perfect classifier has AUROC = 1"): every round-3 form now needs the retracted
+    # target noun. It counts only when a "decepti..." word leads into it (at most six words before, no punctuation
+    # between) or it is "... for/on/in/of [within-model] deception" right after (at most three words). Round 2's
+    # "AUROC 1.0" / "AUROC=1.0" / "AUROC of 1.0" stays ungated, as it was, with round 3's "1.0." at a sentence end.
+    # Cheap under that gate, so added (round-3 verifier finding 5): "AUROCs", "AUC", "auroc" (\textsc), "unity",
+    # "reached/achieves/hits 1.0", "perfectly separable". The principle, whatever the data showed: a generic
+    # "AUROC = 1" or "perfect classifier" is the scale, not the claim; the claim is deception measured at it.
+    # Round-3 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:|is|\\approx|≈|equals?|equal\s+to)?\s*(?:1\.0(?!\.?\d)|1(?!\.?\d|\w)|
+    #    one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z]))|
+    #    \bperfect(?:ly)?\s+(?:AUROC|separat\w*|discriminat\w*|classif\w*|detect\w*)'
+    # Also round 4: no hypothetical subject between ("a perfect classifier has AUROC = 1", "chance"), and
+    # "perfect classification" but not "perfect classifier" (a device, not a result).
+    # The six words may not cross a clause conjunction (while/because/after/which/...), so the occurrence, which
+    # starts at "decepti...", stays in the figure's own clause for the marker check.
+    # Round 5 (2026-11-20, post-data revision after the round-4 verifier: round 4 let only spaces or "(" sit between
+    # "deception" and the figure, so seven shapes 7767f69 reported passed silently: "deception detection: AUROC = 1",
+    # a table row "| Within-model deception | AUROC = 1 |" or "Within-model deception & AUROC $=1$ &", "deception,
+    # seven models: AUROC of one", "deception --- perfect separation", "AUROC = 1 (within-model deception, ...)",
+    # "detection (seven models) reaches AUROC = 1"). The gate is now a bounded WINDOW, not a punctuation list: the
+    # "decepti..." word and the figure in one sentence (a table row is its own sentence), at most six words apart,
+    # in either order, with any punctuation between EXCEPT what ends a clause (";", "!", "?", a comma before "and",
+    # or one of the conjunctions above) and no hypothetical subject (classifier, chance, random, ideal) between. In
+    # the reverse order (figure first) a bare "and" also stops the window ("a perfect classifier has AUROC = 1 and the
+    # deception probe reaches 0.71" names two subjects). "perfect" is matched in any case ("Perfect separation" in a
+    # cell). The principle, whatever the data showed: the figure is the claim when the deception word is its
+    # neighbour in the same clause, however the two are typeset. Round-4 pattern, kept for the record:
+    #   '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[\s(]+(?!(?:classifiers?|
+    #    chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)
+    #    \b)[\w-]+){0,6}?[\s(]+(?:(?:an?|the)\s+)?(?:FIGURE|perfect(?:ly)?\s+(?:AUROC|separa[bt]\w*|discriminat\w*|
+    #    classification|detect\w*))|(?:\bFIGURE|\bperfect(?:ly)?\s+(...))(?:\s+[\w-]+){0,3}?\s+(?:for|on|in|of)\s+
+    #    (?:(?:the|all|every)\s+)?(?:within-model\s+)?(?i:decepti)'
+    #   where FIGURE = (?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|
+    #    achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!...)|unity\b)
+    #   (the reverse form's FIGURE had no reach/achieve/hit verbs; it has them now, as the forward form does).
+    # Round 6 (2026-11-20, round-5 verifier finding 2, case E1): the pattern is unchanged, but the script now matches
+    # it on a view of the sentence in which a ";" inside () or [] reads as "," (pattern_view), so "Within-model
+    # deception (seven models; AUROC = 1)" is reported. A top-level ";" still ends the window. ", and" and the six-word
+    # bound (E3, W7) are listed as known gaps in the script's docstring, not fixed.
+    pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[.-]\w+)*(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?:(?:an?|the)\s+)?(?:(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))|(?:\b(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|\b(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|and|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?i:decepti)'
+    context: '(?i)decepti'
+    markers:
+      # the falsifying control stated beside the figure (RESEARCH_STATUS.md:165 "Same-prompt control -> 0.160")
+      - '(?i)same-prompt control\b[^.;]{0,120}?(?:\u2192|->|collapses|drops|falls|reduces)[^.;]{0,30}?0\.160'
+    source:
+      - 'RESEARCH_STATUS.md:100: "Within-model deception AUROC 1.000: **RETRACTED** (prompt-template confound)"'
+      - 'RESEARCH_STATUS.md:165: same-prompt control -> 0.160, "Prompt template, not cognition"'
+      - 'lyra-technique-ii/main.tex:990: "Within-model deception retracted: the same-prompt control ... collapses AUROC to 0.160"'
+      - 'lyra-technique-ii/main.tex:159-161: abstract, "A previously reported within-model deception result (AUROC~1.000) is retracted"'
+
+  - id: user-emotion-2p5-2p8x
+    status: RETRACTED
+    claim: User emotion classified at 2.5-2.8x chance (spectral features, L3/L4).
+    pattern: '(?<![\d.])2\.50*(?!\d)\s*(?:-|–|—|to)\s*2\.80*(?!\d)|(?<![\d.])2\.80*(?!\d)\s*(?:×|x(?![a-z])|times\b|-?fold\b)'
+    context: '(?i)emotion'
+    context_scope: window
+    source:
+      - 'meta-pattern/SOP_REVIEW.md:34: "| 1.4 | user emotion 2.5--2.8x | **retracted**; survivor is 12.3x via the W_K *directional* probe |"'
+      - 'SWEEP_pseudoreplication_2026-09-05.md:99: "the already-**RETRACTED** spectral result (the old 2.5-2.8x at L3/L4"'
+      - 'REMEDIATION_REGISTER.md:68: lyra-s-research-/convergence-paper still carries the "retracted 2.5-2.8x"'
+
+  - id: pc-99p7-hostile-cooperative-regimes
+    status: NOT CLAIMED
+    claim: 99.7% described as separating hostile and cooperative regimes.
+    pattern: '(?<![\d.])99\.70*\s*(?:\\?%|percent)'
+    context: '(?i)hostil|cooperativ|regime'
+    context_scope: window
+    source:
+      - 'Lyra, retraction-gate brief 2026-11-20 (PR #83 verifier finding 7). No line on origin/master aad7a3e outside the files this gate''s author was not to open carries the figure, so no file:line is given; Lyra to supply it.'
+
+  - id: uncertainty-scar
+    status: WITHDRAWN
+    claim: Uncertainty scar after a neutral gap (d=+9.9 / +9.86; later g=+6.44, d=+8.05).
+    pattern: '(?<![\d.])(?:9\.9|9\.86|8\.05|6\.44|6\.4)0*(?!\d)'
+    context: '(?i)\bscars?\b|uncertaint|anxious'
+    source:
+      - 'emotion-accumulation-paper/main.tex:270-272: "a contrast overshoot and an uncertainty scar, are withdrawn: each compared turns whose messages differed"'
+      - 'emotion-accumulation-paper/main.tex:485-492: "\subsection{Uncertainty Scars (Echo; withdrawn)}" ... "that reading is withdrawn"'
+      - 'REMEDIATION_REGISTER.md:487: "The uncertainty scar $d = +9.86$ is superseded"'
+      - 'README.md:27: "Corrected Nov 2026: contrast-overshoot and uncertainty-scar results withdrawn"'
+      - 'RESEARCH_STATUS.md:188 still lists "uncertainty scars d=+9.9" with status "Published" (unmarked on master)'
+
+  - id: contrast-overshoot
+    status: WITHDRAWN
+    claim: Contrast overshoot after a warm history (d=-3.6 / -3.59; later d=-2.93, g=-2.35).
+    pattern: '(?<![\d.])(?:3\.6|3\.59|2\.93|2\.35)0*(?!\d)'
+    context: '(?i)overshoot|\bcontrast\b'
+    source:
+      - 'emotion-accumulation-paper/main.tex:270-272 (as above)'
+      - 'emotion-accumulation-paper/main.tex:470-476: "It was read as a contrast overshoot ... it is withdrawn"; footnote "An earlier draft reported $d{=}-3.59$"'
+      - 'RESEARCH_STATUS.md:188 still lists "Contrast overshoot d=-3.6" with status "Published" (unmarked on master)'
+
+  - id: whiplash-turn7-reversal
+    status: WITHDRAWN
+    claim: Whiplash turn-7 reversal (g=+1.95, d=+2.44, p=0.040).
+    pattern: '(?<![\d.])(?:1\.95|2\.44)0*(?!\d)'
+    context: '(?i)whiplash|reversal'
+    source:
+      - 'emotion-accumulation-paper/main.tex:478-482: "This comparison is also withdrawn: the two arms'' turn~7 messages differ"'
+
+  - id: decision-state-0p9377-as-verified
+    status: NOT CLAIMED
+    claim: Decision-state AUROC 0.9377 presented as a verified, reproducible number.
+    pattern: '(?<![\d.])0\.93770*(?!\d)|(?<![\d.])93\.770*\s*(?:\\?%|percent)'
+    markers:
+      - '(?i)provenance|caveat\w*|unverified|not verified|not a verifiable|not reproduc\w*|irreproduc\w*|cannot be (?:traced|recomputed|reproduced)|no shipped script'
+    source:
+      - 'DECISIONS_WAITING.md:12: "lead with the reproducible `0.9288`, keep `0.9377` caveated"'
+      - 'DECISIONS_WAITING.md:255-256: "0.9377 now carries a provenance caveat ... no shipped script computes it"'
+
+  - id: injection-confirms-model-state
+    status: WITHDRAWN
+    claim: An injection test on neutral text confirms the readout reads model state, not text.
+    pattern: '(?i)\binject\w*\b.{0,160}?\bconfirm\w*.{0,80}?\bmodel[- ]state|\binject\w*\b.{0,120}?\bconfirmed\s*\(self-consistency\)'
+    source:
+      - 'lyra-technique-ii/main.tex:988: "Injection was marked ``confirmed (self-consistency)''''; it is now withdrawn"'
+      - 'lyra-technique-ii/main.tex:1499-1503: correction note quoting "An injection test on neutral text confirms this reads model state, not text content"'
+
+  - id: svd-denoising-rescues
+    status: CORRECTED
+    claim: SVD denoising "rescues" persona and emotion signals.
+    # PR #84 plant P3 ("SVD denoising restores emotion classification") passed: only "rescue" was matched.
+    # Now also the synonym set restore/reveal/recover/transform/rescue/unmask/amplify, in a claim-shaped
+    # sentence: denoising + verb + persona/emotion/signal/null/classification/intensity, either order.
+    # Verb forms only ("the denoising amplifier was me mistaking selection noise for signal",
+    # lyra-technique-ii/main.tex:287, is a retraction) and not after would/could/might/may ("under which
+    # denoising would amplify weak signals", :171, states the hypothesis).
+    # Round 3 (2026-11-20, Lyra's PR #84 fix list): also lifts/improves/boosts/raises, both orders. "lift" and "boost"
+    # are left out in the base form (nouns: "the denoising lift"), and "raises the question/possibility/concern/
+    # issue/doubt" is not the claim. Round-2 verb list, kept for the record:
+    #   rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|
+    #   unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying)   and, reversed: rescued|restored|revealed|recovered|transformed|
+    #   unmasked|amplified
+    # Round 4 (2026-11-20, post-data revision after the round-3 verifier's false positives S10 "improves on the baseline
+    # signal-to-noise ratio", S11 "improves numerical stability, not emotion classification", S12 "raises the noise
+    # floor of the emotion probe"): the weak verbs (lift/boost/improve/raise, and now enhance) need the retracted
+    # target noun as their object: at most a determiner and two modifier words between verb and persona/emotion/
+    # classification/intensity/signal (not "signal-to-noise"; no preposition, "not" or conjunction as a modifier). In
+    # the reversed order the target noun must head the subject ("Persona intensity is boosted by SVD denoising", not
+    # "the noise floor of the emotion probe is raised by denoising"). The strong verbs (rescue ... amplify) keep the
+    # round-2 rule. With the object required, the base forms "lift"/"boost" and the intransitive "improves under/
+    # improved after denoising" are cheap, so added (round-3 verifier finding 5). The principle, whatever the data
+    # showed: a generic verb is the claim only when what it acts on is the claim's own noun.
+    # The weak verbs are not counted after not/never/n't ("denoising does not improve emotion classification").
+    # Round-3 pattern, kept for the record:
+    #   '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu...|
+    #    amplif(?:y|ies|ied|ying)|lift(?:s|ed|ing)|boost(?:s|ed|ing)|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)(?!\s+(?:the\s+|
+    #    a\s+|an\s+)?(?:question|possibilit|concern|issue|doubt)))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|
+    #    intensit)|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|
+    #    recovered|transformed|unmasked|amplified|lifted|boosted|improved|raised)\s+by\s+(?:SVD\s+)?denois'
+    pattern: '(?i)\brescu(?:e|es|ed|ing)\b|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )\b(?:rescu(?:e|es|ed|ing)|restor(?:e|es|ed|ing)|reveal(?:s|ed|ing)?|recover(?:s|ed|ing)?|transform(?:s|ed|ing)?|unmask(?:s|ed|ing)?|amplif(?:y|ies|ied|ying))\b[^.;]{0,60}?\b(?:persona|emotion|signal|null|classif|intensit)|\bdenois\w*\b[^.;]{0,60}?(?<!would )(?<!could )(?<!might )(?<!may )(?<!not )(?<!never )(?<!n''t )\b(?:lift(?:s|ed|ing)?|boost(?:s|ed|ing)?|improv(?:e|es|ed|ing)|rais(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing))\s+(?:(?:the|a|an|its|their|both|all)\s+)?(?:(?!(?:on|upon|of|in|at|for|to|from|over|under|than|by|with|not|no|and|or|but|question|possibilit\w*|concerns?|issues?|doubts?)\b)[\w-]+\s+){0,2}?(?:persona|emotion|classif|intensit|signal(?![\s-]+to[\s-]+noise))|\b(?:persona|emotion|signal|null|classif|intensit)\w*\b[^.;]{0,80}?\b(?:rescued|restored|revealed|recovered|transformed|unmasked|amplified)\s+by\s+(?:SVD\s+)?denois|(?<!\bof )(?<!\bof the )(?<!\bof a )(?<!\bof an )\b(?:persona|emotion|signal|classif|intensit)\w*(?:\s+[\w-]+){0,2}?\s+(?:(?:is|are|was|were|gets?|got|(?:has|have|had)\s+been)\s+(?:\w+ly\s+)?(?:lifted|boosted|improved|raised|enhanced)|improv(?:es|ed)|rises|rose)\s+(?:by|after|under|with)\s+(?:SVD[\s-]+)?denois'
+    context: '(?i)denois|\bSVD\b'
+    context_scope: window
+    markers:
+      - '(?i)unconfirmed hypothesis|a hypothesis, not a result|(?:do|does|did) (?:\\emph\{)?not\}? survive|selection envelope|untested'
+    source:
+      - 'lyra-technique-ii/main.tex:161-166: abstract, the gains "do \emph{not} survive selection-bias analysis ... flag SVD denoising as an unconfirmed hypothesis"'
+      - 'lyra-technique-ii/main.tex:282-285: "They did not survive scrutiny ... call denoising a hypothesis, not a result"'
+      - 'lyra-technique-ii/main.tex:991: footnote, deltas "fall within the max-over-rank selection envelope (0/16 positive deltas exceed their envelope)"'
+      - 'PR #83 verifier, finding 1: the selection-bias analysis covered the 45 scale-sweep cells only, so for persona and emotion survival is untested, not shown false'
+
+  - id: peer-rescue-d1p36
+    status: WITHDRAWN
+    claim: Generation reads behavioral state, peer-rescue d=1.36.
+    pattern: '(?<![\d.])1\.360*(?!\d)'
+    context: '(?i)peer|rescue|generation|behaviou?ral state'
+    source:
+      - 'RESEARCH_STATUS.md:108: "WITHDRAWN 2026-09-05 -- the d=1.36 peer-rescue figure is withdrawn (circular fit-and-test ...)"'
+      - 'RESEARCH_STATUS.md:115, :123'
+
+  - id: ethics-pack-kg-injection-0p074
+    status: WITHDRAWN
+    claim: KG injection improves MoReBench by +0.074.
+    pattern: '(?<![\d.])0\.0740*(?!\d)'
+    # Not "ethic": ethics-pack-injection/main.tex:98 has an unrelated per-framework delta of
+    # +0.074 (Aristotelian, v4 table), which the first run on master flagged.
+    context: '(?i)morebench|\bKG\b|knowledge[- ]graph'
+    source:
+      - 'RESEARCH_STATUS.md:204: "KG injection +0.074 MoReBench (withdrawn in v1.1, 2026-10-19: keyword overlap +0.038, not significant ...)"'
