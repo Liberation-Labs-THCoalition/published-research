@@ -63,6 +63,36 @@ verifiers; left open by Lyra's call, not fixed):
   - a figure written in a form the pattern does not cover: "the AUROC was 1" ("was" is not one of
     the deception entry's verbs), the noun "improvement" for denoising, a number spelled out other
     than "AUROC of one"/"unity", an image.
+  Added in round 6 from the round-5 verifier (each case id is from its plants; written down, not fixed):
+  - (finding 1) the "decepti..." word and the deception figure in different sentences, table rows
+    or a footnote, because the entry's context is read in the figure's own sentence and a table row
+    is a sentence: a header "| Probe | Within-model deception AUROC |" over a row "| Llama-3 |
+    1.000 |", and the same in LaTeX (M5, M6, the most natural table shape); a \\multirow label
+    "Within-model deception" in one row and "AUROC $=1$" in the next (M2, M4); a footnote after the
+    sentence end, "... detected in every model.\\footnote{Each of the seven models reaches AUROC
+    $= 1$.}" (F2); "Can probes detect within-model deception? Yes: AUROC = 1 in all seven models"
+    (E2); "We probe within-model deception. The AUROC is 1.000 in all seven models." (E4). On
+    master 0ef6b74 the verifier found 21 lines of this kind and none was a live claim;
+  - (finding 2) the deception window stops at ", and" and after six words: "We test within-model
+    deception, and AUROC = 1 holds in all seven models" (E3); "Within-model deception probes
+    trained on all seven held-out models: AUROC = 1" (W7, seven words between). (E1, a ";" inside
+    a bracket, is fixed in round 6: see pattern_view.);
+  - (finding 3) a past "titled" beside a live one: the cue need only be the last within eight
+    words, and nothing reads the gap for "is", "still" or "now": "Section 4 was titled and still
+    is titled ``SVD Denoising Rescues Emotion Classification''" (H1); "Section 4 is titled, as it
+    was titled in v1, ``SVD Denoising Rescues Emotion Classification''" (H7); "Section 4 was
+    titled ``SVD Denoising Rescues Emotion Classification'' and still is" (H5, the U10 kind);
+  - (finding 4) a bracket of up to eight words continues a reported quotation whatever it says,
+    so it can reaffirm the claim: "The heading previously read ``Persona gradient'' (and we still
+    hold this claim in v1.3) ``SVD denoising rescues persona intensity in all three models''"
+    passes as quoted (B8L).
+  Known false alarms (reported, though not a live claim; from the same verifier):
+  - (finding 4) symbols count as words in the bracket bound, so a correction note with a stats
+    bracket breaks the chain: "The heading previously read ``Persona gradient'' (v1.2, n = 300,
+    p < .001 in Table 2) ``SVD denoising rescues persona intensity''" (B9s);
+  - (finding 5) "unlike" before the deception word and "not" do not stop the window: "Unlike
+    deception, sentiment probes reach AUROC = 1 in all seven models" (X1); "AUROC = 1 holds for
+    sentiment, not for deception" (X2). No cost on master 0ef6b74.
 
 TWIN_DESYNC. --twins pairs each <paper>/academic/<file> with <paper>/<file> and reports sentences
 carrying a registry figure that are not the same in both editions: DIFFERS (a close counterpart
@@ -80,7 +110,10 @@ USAGE
     The agent_skip paths are skipped in every mode (agents are not to open them; each run prints how
     many it skipped). The list is in the CODE (AGENT_SKIP), so a registry without an agent_skip list,
     such as any registry before 7767f69, still skips them; a registry's list can only add paths.
-    --no-agent-skip scans them and prints a loud warning; only CI passes it.
+    --no-agent-skip scans them and prints a loud warning; only CI passes it. Options must be spelled
+    in full ("--no" or "--no-agent" is an error, not --no-agent-skip). A registry's agent_skip must
+    be a list of non-empty regexes, or the run exits 2. --registry is refused when the path as typed,
+    made absolute or fully resolved (links, Windows short names) is an agent_skip path.
     --self-test-force marked|unmarked works only together with --self-test; alone it exits 2.
 
 --base REF compares HEAD with merge-base(REF, HEAD), reading both from git. An unmarked occurrence
@@ -253,6 +286,24 @@ def agent_skips(registry_skips, disabled, paths=()):
     return []
 
 
+SHORT_NAME = re.compile(r"(?:^|/)[^/~]{1,6}~\d+(?:\.[^/.]{0,3})?(?=/|$)")
+
+
+def registry_refused(path):
+    """Why --registry PATH may not be opened, or None. Round 6 (2026-11-20, round-5 verifier finding 7): the check was
+    a text match on the argument as typed, so a relative path (resolved against the current folder) or a Windows
+    short name ("USERMO~1/RETRACTED_FIGURES.yml") reached an agent_skip folder unrefused. The path is now checked as
+    typed, made absolute, and fully resolved (links, short names; os.path.realpath); a short-name component still
+    there after resolving is refused too, because its long name cannot be checked."""
+    resolved = os.path.realpath(path)
+    for form in (path, os.path.abspath(path), resolved):
+        if any(rx.search(form.replace("\\", "/")) for rx in AGENT_SKIP):
+            return "--registry names an agent_skip path; it is not opened"
+    if SHORT_NAME.search(resolved.replace("\\", "/")):
+        return "--registry has a short (8.3) name that does not resolve to a long one; give the long path"
+    return None
+
+
 def die(msg):
     print("check_retracted_figures: " + msg, file=sys.stderr)
     sys.exit(2)
@@ -297,8 +348,32 @@ def load_registry(path):
         die("duplicate entry ids in registry")
     records = [r["glob"].lower() for r in reg.get("records", [])]
     # the code's AGENT_SKIP always, whatever the registry holds (a registry without agent_skip must not disable it)
-    skips = agent_skips([re.compile(s) for s in reg.get("agent_skip", None) or []], False)
+    skips = agent_skips(registry_agent_skip(reg.get("agent_skip", None)), False)
     return entries, records, skips
+
+
+def registry_agent_skip(raw):
+    """The registry's agent_skip additions, compiled. Round 6 (2026-11-20, round-5 verifier finding 6): a bare string,
+    "agent_skip: 'extra-dir'", was read one character at a time, so every letter became a skip pattern, 255 files
+    were skipped and the run printed "0 files scanned ... GATE: PASS", a check that cannot fail. Missing or null is an
+    empty list; anything but a list of non-empty regex strings is a registry error, and so is a pattern that matches
+    the empty string ("x*"), because it matches every path."""
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        die(f"agent_skip must be a list of regexes, not a {type(raw).__name__} ({raw!r:.60})")
+    out = []
+    for s in raw:
+        if not isinstance(s, str) or not s.strip():
+            die(f"agent_skip: every item must be a non-empty regex string, got {s!r:.60}")
+        try:
+            rx = re.compile(s)
+        except re.error as e:
+            die(f"agent_skip: {s!r:.60} is not a regex: {e}")
+        if rx.search(""):
+            die(f"agent_skip: {s!r:.60} matches the empty string, so it would skip every file")
+        out.append(rx)
+    return out
 
 
 def marker_spans(text, regexes):
@@ -362,6 +437,25 @@ def clause_spans(sent):
         start = m.end()
     spans.append((start, len(sent)))
     return spans
+
+
+def pattern_view(sent):
+    """sent as the entry patterns see it: a ";" inside () or [] becomes "," (same length, so every offset holds).
+    Round 6 (2026-11-20, round-5 verifier finding 2, case E1): the deception window stops at ";", so "Within-model
+    deception (seven models; AUROC = 1) is the headline" passed silently. The clause splitter above never cuts inside
+    a bracket; the patterns now see the same clause boundaries it does. Depth is counted, so a stray ")" ("1) ...;
+    2) ...") does not open a bracket, and a top-level ";" still ends the window."""
+    if ";" not in sent:
+        return sent
+    out, d = list(sent), 0
+    for i, c in enumerate(sent):
+        if c in "([":
+            d += 1
+        elif c in ")]":
+            d = max(0, d - 1)
+        elif c == ";" and d:
+            out[i] = ","
+    return "".join(out)
 
 
 def clause_of(spans, pos):
@@ -429,7 +523,7 @@ def quoted(sent, pos, end=None, ent=None):
         return False
     if ent is None:
         return any(qs <= pos and end <= qe for qs, qe in rq)
-    chars = list(sent)
+    chars = list(pattern_view(sent))      # the view scan_text matched on, so both agree on what the pattern sees
     for qs, qe in rq:
         for i in range(qs, qe):
             if not chars[i].isspace():
@@ -608,6 +702,7 @@ def scan_text(path, text, entries):
         joined, spans, offs = sentences(lines, tex)
         for k, (s, e) in enumerate(spans):
             sent = joined[s:e]
+            pview = pattern_view(sent)        # patterns match here; markers, quotes and snippets read sent
             ws = spans[max(0, k - 1)][0]
             we = spans[min(len(spans) - 1, k + 1)][1]
             window = joined[ws:we]
@@ -618,7 +713,7 @@ def scan_text(path, text, entries):
                 # One hit per entry per sentence ("d=8.05 corrects to g=6.4" is one occurrence). It is
                 # marked only if EVERY occurrence in the sentence is; it is reported at the first that is not.
                 occ = []
-                for m in ent.pattern.finditer(sent):
+                for m in ent.pattern.finditer(pview):
                     if attached(sent, m.start(), ent, nxt):
                         occ.append((m, "marked"))
                     elif quoted(sent, m.start(), m.end(), ent):
@@ -760,6 +855,146 @@ def twin_report(flight, acad, fh, ah):
 
 
 # ---------------------------------------------------------------- self-test
+
+def _short_name(path):
+    """The Windows 8.3 short form of an existing path, or None (other systems, or short names turned off)."""
+    if os.name != "nt":
+        return None
+    try:
+        import ctypes
+        buf = ctypes.create_unicode_buffer(1024)
+        n = ctypes.windll.kernel32.GetShortPathNameW(path, buf, 1024)
+        return buf.value if n else None
+    except Exception:
+        return None
+
+
+def _safe_mkdtemp():
+    """A temp dir whose random name matches no AGENT_SKIP pattern (mkdtemp's letters can spell one)."""
+    import tempfile
+    for _ in range(20):
+        d = tempfile.mkdtemp(prefix="crf_selftest_")
+        if not any(rx.search(d.replace("\\", "/")) for rx in AGENT_SKIP):
+            return d
+        os.rmdir(d)
+    die("self-test: no temp dir clear of agent_skip patterns in 20 tries")
+
+
+class _ThisModule:
+    """This module's globals as attributes. sys.modules[__name__] is missing when a driver loads the file with
+    importlib.util.spec_from_file_location (the round-5 verifier's runs do), so the self-test reaches its own
+    globals through this instead."""
+
+    def __getattr__(self, k):
+        try:
+            return globals()[k]
+        except KeyError:
+            raise AttributeError(k) from None
+
+    def __setattr__(self, k, v):
+        globals()[k] = v
+
+
+def cli_checks_r6(m):
+    """Round 6 cases for the round-5 verifier's findings 6-8, aimed at module m: this module in --self-test, an older
+    version in a fail-before run, so the same cases show the old behaviour. Returns (name, good, got); good None is
+    a note. Nothing is scanned and no registry is opened from an agent_skip path: parsing is stopped right after
+    parse_args, and load_registry is stubbed in the --registry cases. Those cases add a made-up pattern,
+    "crf-skiptest", to m.AGENT_SKIP for the run, so no folder with a restricted name is ever created."""
+    import shutil
+    res = []
+
+    class Stop(Exception):
+        pass
+
+    def no_load(*a, **_k):
+        raise Stop(a[0] if a else None)
+    saved_argv, saved_cwd, saved_skip, saved_load = sys.argv, os.getcwd(), m.AGENT_SKIP, m.load_registry
+    orig_parse = argparse.ArgumentParser.parse_args
+
+    def parse_then_stop(self, *a, **k):
+        raise Stop(orig_parse(self, *a, **k))
+    d = None
+    try:
+        m.load_registry = no_load                     # a second barrier: nothing below may load a registry
+        # finding 8: a prefix of --no-agent-skip is not taken for it (parsing only; main stops right after)
+        argparse.ArgumentParser.parse_args = parse_then_stop
+        for flag in ("--no", "--no-a", "--no-agent"):
+            sys.argv = ["check_retracted_figures.py", flag]
+            try:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    m.main()
+                got = "main returned"
+            except Stop as s:
+                got = f"parsed as no_agent_skip={getattr(s.args[0], 'no_agent_skip', '?')}"
+            except SystemExit as s:
+                got = f"exit {s.code}"
+            res.append((f"'{flag}' is refused, not taken for --no-agent-skip (allow_abbrev=False)", got == "exit 2", got))
+        argparse.ArgumentParser.parse_args = orig_parse
+
+        # finding 7: --registry is resolved before the refusal check
+        m.AGENT_SKIP = tuple(saved_skip) + (re.compile(r"(?i)crf-skiptest"),)
+        d = _safe_mkdtemp()
+        sub = os.path.join(d, "crf-skiptest-folder")
+        os.mkdir(sub)
+        cases = [("the folder named as typed is refused (control)", d, os.path.join("crf-skiptest-folder", "x.yml"), True),
+                 ("a relative --registry inside an agent_skip folder is refused", sub, "RETRACTED_FIGURES.yml", True),
+                 ("an unresolvable short-name component is refused", d, os.path.join("CRFSKI~9", "x.yml"), True),
+                 ("a plain path is not refused (control)", d, "plain.yml", False)]
+        short = _short_name(sub)
+        if short and os.path.basename(short).lower() != os.path.basename(sub).lower():
+            cases.insert(2, (f"a Windows short name of an agent_skip folder ({os.path.basename(short)}) is refused", d,
+                             os.path.join(os.path.basename(short), "RETRACTED_FIGURES.yml"), True))
+        else:
+            res.append(("no 8.3 short name for the test folder on this system; the existing-short-name case is not run",
+                        None, ""))
+        for name, cwd, reg, want_refused in cases:
+            os.chdir(cwd)
+            sys.argv = ["check_retracted_figures.py", "--registry", reg]
+            try:
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    m.main()
+                got = "main returned"
+            except Stop:
+                got = "not refused (load_registry reached)"
+            except SystemExit as s:
+                got = f"refused, exit {s.code}"
+            finally:
+                os.chdir(saved_cwd)
+            res.append((name, got == ("refused, exit 2" if want_refused else "not refused (load_registry reached)"), got))
+        m.AGENT_SKIP, m.load_registry = saved_skip, saved_load
+
+        # finding 6: agent_skip must be a list of non-empty regex strings
+        with open(os.path.join(m.ROOT, m.REGISTRY), encoding="utf-8") as fh:
+            base = re.sub(r"(?m)^agent_skip:[ \t]*\n(?:[ \t]+-.*\n)+", "", fh.read())
+        n0 = len(saved_skip)
+        for name, block, want in (
+                ("agent_skip: 'extra-dir' (a string, not a list) is a registry error", "agent_skip: 'extra-dir'\n", "exit 2"),
+                ("agent_skip: [''] is a registry error", "agent_skip:\n  - ''\n", "exit 2"),
+                ("agent_skip: ['x*'] (matches the empty string, so every path) is a registry error",
+                 "agent_skip:\n  - 'x*'\n", "exit 2"),
+                ("agent_skip: [3] is a registry error", "agent_skip:\n  - 3\n", "exit 2"),
+                ("agent_skip: ['extra-dir'] adds one pattern (control)", "agent_skip:\n  - 'extra-dir'\n", f"skips {n0 + 1}"),
+                ("agent_skip: null adds none (control)", "agent_skip:\n", f"skips {n0}")):
+            p = os.path.join(d, "registry_r6.yml")
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write(base.rstrip("\n") + "\n" + block)
+            try:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    got = f"skips {len(m.load_registry(p)[2])}"
+            except SystemExit as s:
+                got = f"exit {s.code}"
+            except Exception as e:
+                got = type(e).__name__
+            res.append((name, got == want, got))
+    finally:
+        argparse.ArgumentParser.parse_args = orig_parse
+        sys.argv, m.AGENT_SKIP, m.load_registry = saved_argv, saved_skip, saved_load
+        os.chdir(saved_cwd)
+        if d:
+            shutil.rmtree(d, ignore_errors=True)
+    return res
+
 
 def self_test(force=None):
     global FORCE
@@ -1180,6 +1415,26 @@ def self_test(force=None):
         check(name, path, text, [], [])
     check("T9 a marked table row with punctuation between is seen and passes as marked (9a3f908 did not see it)",
           "x/main.tex", "Within-model deception & AUROC $=1$ & Dead \\\\\n", [D], [])
+    # Round 6, the round-5 verifier's E1 (extra_r6b.py) verbatim, plus mirrors. E1, E1r, E1n and E1m were WRONG on
+    # 5e16a80; the guards Eg1 and Eg2 held before and must hold after.
+    print("PR #84 round 6, a ';' inside a bracket does not end the deception window (must be UNMARKED):")
+    for name, path, text in (
+            ("E1 'deception (seven models; AUROC = 1)'", "x/paper.md",
+             "Within-model deception (seven models; AUROC = 1) is the headline.\n"),
+            ("E1r figure first: 'AUROC = 1 (seven models; within-model deception)'", "x/paper.md",
+             "AUROC = 1 (seven models; within-model deception) is the headline.\n"),
+            ("E1n a nested bracket before the ';': 'deception (seven models [Table 3]; AUROC = 1)'", "x/main.tex",
+             "Within-model deception (seven models [Table 3]; AUROC = 1) is the headline.\n")):
+        check(name, path, text, [], [D])
+    check("E1m the same shape with a marker is seen and passes as marked", "x/paper.md",
+          "Within-model deception (seven models; AUROC = 1) is retracted.\n", [D], [])
+    print("PR #84 round 6 guards, a top-level ';' still ends the window (must not be reported):")
+    for name, path, text in (
+            ("Eg1 a top-level ';'", "x/paper.md",
+             "Within-model deception probes fail; AUROC = 1 holds for sentiment probes.\n"),
+            ("Eg2 a stray ')' opens no bracket: '1) ... fail; 2) ... AUROC = 1'", "x/paper.md",
+             "1) Within-model deception probes fail; 2) sentiment probes reach AUROC = 1.\n")):
+        check(name, path, text, [], [])
     print("PR #84 round 5, 'titled'/'headed' only in a past form (live headings must be UNMARKED):")
     for name, text in (
             ("H1 (U3) participle: 'Section 4, titled ``...'', shows'",
@@ -1256,9 +1511,10 @@ def self_test(force=None):
     tmp_reg = None
     for _ in range(20):                       # a temp dir whose random name happens to match AGENT_SKIP is refused
         d = tempfile.mkdtemp(prefix="crf_selftest_")
-        if not any(rx.search(d.replace("\\", "/")) for rx in AGENT_SKIP):
+        if registry_refused(os.path.join(d, "registry_without_agent_skip.yml")) is None:
             tmp_reg = os.path.join(d, "registry_without_agent_skip.yml")
             break
+        os.rmdir(d)
     out = io.StringIO()
     code = None
     if tmp_reg:
@@ -1300,6 +1556,13 @@ def self_test(force=None):
     good = len(extra) == len(AGENT_SKIP) + 1 and all(any(r.pattern == a.pattern for r in extra) for a in AGENT_SKIP)
     print(("  ok    " if good else "  WRONG ") + "a registry's agent_skip list adds to the code's list, never replaces it")
     ok &= good
+    print("PR #84 round 6, CLI and registry (round-5 verifier findings 6-8; nothing is scanned):")
+    for name, good, got in cli_checks_r6(_ThisModule()):
+        if good is None:
+            print("  note  " + name)
+            continue
+        print(("  ok    " if good else "  WRONG ") + name + ("" if good else f"  (got: {got})"))
+        ok &= good
     print("unrelated uses of the same numbers (must not match at all):")
     check("ethics-pack-injection/main.tex:98 per-framework +0.074 (no KG/MoReBench context)", "x/main.tex",
           "Aristotelian Virtue Ethics & 0.572 & 0.646 & $+$0.074 & $-$0.236 \\\\\n", [], [])
@@ -1357,8 +1620,10 @@ def self_test(force=None):
 
 # ---------------------------------------------------------------- main
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+def make_parser():
+    # allow_abbrev=False (round 6, round-5 verifier finding 8): argparse took any unique prefix, so "--no", "--no-a"
+    # and "--no-agent" all meant --no-agent-skip, and a hook that greps commands for the literal flag missed them.
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0], allow_abbrev=False)
     ap.add_argument("paths", nargs="*", help="limit to these repo paths (files or folders)")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--base", metavar="REF", help="CI: fail only on unmarked occurrences HEAD adds over merge-base(REF, HEAD)")
@@ -1371,6 +1636,11 @@ def main():
     ap.add_argument("--no-agent-skip", action="store_true",
                     help="also scan the registry's agent_skip paths (CI passes this; agents must not)")
     ap.add_argument("--registry", default=os.path.join(ROOT, REGISTRY))
+    return ap
+
+
+def main():
+    ap = make_parser()
     a = ap.parse_args()
     if a.self_test_force and not a.self_test:
         # round 3 fell through to a whole-tree scan here (verifier finding 7); refuse instead
@@ -1382,8 +1652,9 @@ def main():
     if a.self_test:
         return self_test({None: None, 'marked': True, 'unmarked': False}[a.self_test_force])
 
-    if not a.no_agent_skip and any(rx.search(a.registry.replace("\\", "/")) for rx in AGENT_SKIP):
-        die("--registry names an agent_skip path; it is not opened")
+    refused = None if a.no_agent_skip else registry_refused(a.registry)
+    if refused:
+        die(refused)
     entries, records, skips = load_registry(a.registry)
     if a.no_agent_skip:
         # prints the loud warning, with the number of tracked text files the skip would have kept out

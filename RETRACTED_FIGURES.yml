@@ -176,6 +176,10 @@ entries:
     #   where FIGURE = (?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|
     #    achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!...)|unity\b)
     #   (the reverse form's FIGURE had no reach/achieve/hit verbs; it has them now, as the forward form does).
+    # Round 6 (2026-11-20, round-5 verifier finding 2, case E1): the pattern is unchanged, but the script now matches
+    # it on a view of the sentence in which a ";" inside () or [] reads as "," (pattern_view), so "Within-model
+    # deception (seven models; AUROC = 1)" is reported. A top-level ";" still ends the window. ", and" and the six-word
+    # bound (E3, W7) are listed as known gaps in the script's docstring, not fixed.
     pattern: '(?<![\d.])1\.00+(?!\d)|\bAUROC\s*(?:=|of|:)?\s*1\.0(?!\.?\d)|\b(?i:decepti)\w*(?:[.-]\w+)*(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?:(?:an?|the)\s+)?(?:(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))|(?:\b(?i:aurocs?|aucs?)\s*(?:=|of|:|is|are|\\approx|≈|equals?|equal\s+to|reach(?:es|ed)?|achiev(?:es|ed)|hits?)?\s*(?:an?\s+)?(?:1(?:\.0+)?(?!\.?\d)(?!\w)|one\b(?!\s+(?!(?:across|in|on|for|at|with|from|over|and|or|under|between|throughout)\b)[a-z])|unity\b)|\b(?i:perfect(?:ly)?\s+(?:auroc|separa[bt]\w*|discriminat\w*|classification|detect\w*)))(?:(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?!(?:classifiers?|chance|random|ideal|and|but|yet|so|though|although|while|whilst|whereas|because|after|before|when|unlike|which)\b)\w+(?:[.-]\w+)*){0,6}?(?:(?!,\s*and\b)(?:[^\w;!?.-]|(?<!\w)[.-]|[.-](?!\w)))+(?i:decepti)'
     context: '(?i)decepti'
     markers:
