@@ -86,6 +86,21 @@ verifiers; left open by Lyra's call, not fixed):
     so it can reaffirm the claim: "The heading previously read ``Persona gradient'' (and we still
     hold this claim in v1.3) ``SVD denoising rescues persona intensity in all three models''"
     passes as quoted (B8L).
+  Added after the merge, from the round-6 verifier on 4ee8475 (its plant ids; written down, not fixed):
+  - (plant 1) a ";" inside LaTeX braces still ends the deception window: braces are stripped
+    before the E1 bracket check runs, so only parentheses survive to be read as a bracket.
+    "Within-model deception\\footnote{All seven models; AUROC $= 1$.} is our headline result."
+    (P1a); "Within-model deception \\emph{seven models; AUROC $=1$} is the headline." (P1d); the
+    figure first, "AUROC $=1$\\footnote{Seven models; within-model deception.} is the headline."
+    (P1e). With ":" for ";" it is reported (the F1 shape), and "\\textit{(...; ...)}" is reported
+    because its parentheses survive. On master 0ef6b74, reading every ";" as "," added 0 deception
+    hits across 153 files;
+  - (plant 2) a registry agent_skip pattern that matches every path is accepted, because the check
+    sees an every-path pattern only when it matches the empty string ("x*"). With
+    agent_skip: ['.'] (also "(?s).", "[^/]" or "/") a run with the skip on scans nothing and prints
+    "255 text file(s) not scanned", "0 files scanned" and "GATE: PASS", a check that cannot fail.
+    Agent runs only: CI passes --no-agent-skip, which empties the list. Making "0 files scanned" an
+    error would close this kind.
   Known false alarms (reported, though not a live claim; from the same verifier):
   - (finding 4) symbols count as words in the bracket bound, so a correction note with a stats
     bracket breaks the chain: "The heading previously read ``Persona gradient'' (v1.2, n = 300,
