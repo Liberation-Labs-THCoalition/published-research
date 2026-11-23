@@ -77,6 +77,10 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   correction note records it, so this item was stale.
 - **"Builds on":** Lyra can't name a published work of Lyra's that this method depends on. The acknowledgment
   stands as written, with no citation added. If Nexus can name the work it means, cite that.
+  *Changed 2026-11-23, after the style gate's round 4 (F11):* with no work to cite, "this method builds on" is cut
+  from Lyra's line in both editions (flight Author Contributions, academic Acknowledgments); "Lyra contributed
+  earlier KV-cache geometry work, and reviewed this correction" stays. If Nexus names the work, it can come back
+  with its citation.
 - The style gate's final verdict on this version.
 - The companion graph-topology paper repeats the withdrawn superadditivity claim and cites this paper by its version
   1.0 title; its correction is in preparation.
