@@ -213,13 +213,31 @@ if [ "$SKIPPED" -gt 0 ]; then
     echo ""; echo "SKIPPED:"; printf '  - %s\n' "${SKIP_LIST[@]}"
 fi
 
+# --- Retracted figures (added 2026-11-20): a figure listed in RETRACTED_FIGURES.yml that appears
+# with no retraction marker near it fails the gate. PR #83's verifier changed "RETRACTED" to
+# "(confirmed)" and every check above passed. Same paths as above when targets are given.
+# TWIN_DESYNC for those figures is reported, not failed. See tools/check_retracted_figures.py.
+RETRACTED=0
+PY="$(command -v python3 || command -v python || true)"
+echo ""
+echo "Retracted figures (RETRACTED_FIGURES.yml)"
+echo "----------------------------------------------------------"
+if [ -z "$PY" ]; then
+    echo "  SKIP  no python found; retracted-figure check NOT RUN"
+else
+    if ! "$PY" tools/check_retracted_figures.py ${TARGETS[@]+"${TARGETS[@]}"}; then RETRACTED=1; fi
+    echo ""
+    "$PY" tools/check_retracted_figures.py --twins ${TARGETS[@]+"${TARGETS[@]}"}
+fi
+
 echo ""
 echo "NOT IMPLEMENTED by this gate (do not rely on it for these):"
-echo "  - TWIN_DESYNC (flight vs academic edition divergence)"
+echo "  - TWIN_DESYNC beyond registry figures (general flight vs academic prose divergence;"
+echo "    sentences carrying RETRACTED_FIGURES.yml figures ARE compared, above)"
 echo "  - FABRICATED_AUTHOR_NAMES"
 echo "  - architecture claims vs config.json  [see verify-paper Phase 0.5]"
 
-if [ "$FAILED" -gt 0 ] || [ "$STALE" -gt 0 ] || [ "$UNVERIFIABLE" -gt 0 ]; then
+if [ "$FAILED" -gt 0 ] || [ "$STALE" -gt 0 ] || [ "$UNVERIFIABLE" -gt 0 ] || [ "$RETRACTED" -gt 0 ]; then
     echo ""; echo "GATE: FAIL"; exit 1
 else
     echo ""; echo "GATE: PASS"; exit 0

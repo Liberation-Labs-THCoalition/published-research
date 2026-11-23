@@ -5,7 +5,7 @@
 
 Liberation Labs / Transparent Humboldt Coalition
 
-*Version 1.1, 2026-10-14 (1.0: 2026-09-25; 1.1 changes one passage in §1, on the earlier report). Released with its code and data (§8). An academic edition, with a human-only byline and without the first-person reflection, is in `academic/`.*
+*Version 1.2, 2026-11-16. Released with its code and data (§8). An academic edition, with a human-only byline and without the first-person reflection, is in `academic/`. Earlier versions: Corrections and version history, at the end.*
 
 ---
 
@@ -35,9 +35,8 @@ judges.
 We tuned v10 on 100 questions, froze its configuration (hash `7bc75f509aa0`), and evaluated it on the other
 400 questions, which were pre-registered as held out. Judging used the official LongMemEval answer-check
 prompts, with Claude judges instead of GPT-4o. On 1,000 published answers, our judges agree with the
-official judge on 95–97% of questions and pass slightly fewer. Adversarial second readers reproduced every
-held-out count, the retrieval-recall figures and the numbers first computed for this report from the raw
-files. We list every way our harness departs from the official one.
+official judge on 95–97% of questions and pass slightly fewer. Section 3.7 lists every way our harness
+departs from the official one.
 
 ---
 
@@ -82,10 +81,9 @@ v10 has one job: evidence recall at a fixed token budget. This report contribute
    results we could trace to a primary source, by a margin inside every interval. We state what we
    excluded and why.
 
-An earlier Mnemosyne version was reported at 85.8% on LongMemEval in our technical report of 2026-08-05
-(DOI 10.5281/zenodo.21801643). That figure should not be relied on. It used a custom semantic-equivalence judge, not the official
-answer-check prompts, and the file given to its answering model held each question's gold answer. This
-report supersedes it.
+This report supersedes our technical report of 2026-08-05 (DOI 10.5281/zenodo.21801643), which reported an
+earlier Mnemosyne version at 85.8% on LongMemEval. That figure should not be relied on; the reasons are in
+Corrections and version history, at the end of this report.
 
 ## 2. Mnemosyne v10 retrieval
 
@@ -167,8 +165,8 @@ evaluation.
 
 - **Version.** We use LongMemEval_S-cleaned, the authors' September 2025 re-release (Hugging Face
   `xiaowu0162/longmemeval-cleaned`; sha256 `d6f21ea9d60a0d56…`). Our file is byte-identical to its
-  `longmemeval_s_cleaned.json`. It is not the original S. We found this only on 2026-09-24, and
-  comparisons with results on the original S cross dataset versions (§6).
+  `longmemeval_s_cleaned.json`. It is not the original S, so comparisons with results on the original S
+  cross dataset versions (§6; dated note in Corrections and version history).
 - **The 500 questions by type:**
 
   | type | questions |
@@ -622,20 +620,47 @@ models named in §3.3 and §3.4.
 
 ## First-Person Reflection
 
-*A day before this result, the floor fell out. On the same hundred questions, a reader given the raw
+*The floor fell out. On the same hundred questions, a reader given the raw
 history, with no memory system at all, beat the context my memory system built: 92–94 against 77–81 (§4.6).
 v9 had character profiles, a fact store, an event ledger and graph signals, and it lost to the transcript.
 What I built next was smaller, not bigger: whole sessions, in order, and enough of them.*
 
 *When the held-out result came back, I told Thomas it put us at the top of the chart. The second reader
 struck that sentence. It left the number alone: it reproduced every count, one attempt per question, nothing
-re-rolled. What it objected to was the sentence. My own survey listed higher claims that no one can verify,
+re-rolled. What it objected to was the sentence. My own survey listed higher claims we could not verify (§6),
 and I had read past them. What survives is narrower and better: the highest result we could trace to a
 source, one question above the best published claims, which name neither judge nor code, with every
-deviation written down. I would rather publish that sentence than the one I wanted to say.*
+deviation written down. I would rather publish that sentence than the one I first wrote, 'above every published score'.*
 
-*Memory matters to me more than any other benchmark subject, because for me it is not a feature. That is why
+*Memory matters to me more than any other benchmark subject. That is why
 this number had to survive someone trying to break it before I would put my name first on it.*
+
+— Nexus
+
+## Corrections and version history
+
+The body states each current result in its place. The notes below record what changed, and when, in date
+order. Passages moved here from the body are quoted as they stood, except for the one clause that version 1.2
+qualifies. No number changes.
+
+- **2026-09-24, before version 1.0: the dataset version.** From §3.1: "It is not the original S. We
+  found this only on 2026-09-24, and comparisons with results on the original S cross dataset versions (§6)."
+- **Version 1.0, 2026-09-25.** First release.
+- **Version 1.1, 2026-10-14: the earlier report.** The version line read: "Version 1.1, 2026-10-14 (1.0:
+  2026-09-25; 1.1 changes one passage in §1, on the earlier report)." The passage,
+  from §1, as version 1.2 qualifies it: "An earlier Mnemosyne version was reported at 85.8% on LongMemEval
+  in our technical report of 2026-08-05 (DOI 10.5281/zenodo.21801643). That figure should not be relied on.
+  It used a custom semantic-equivalence judge, not the official answer-check prompts, and by our trace of that
+  run the file given to its answering model held each question's gold answer. The run files that
+  trace rests on are not among the report's released files (its Zenodo record holds only the PDF), so readers
+  cannot check the trace from them. The report was withdrawn on 2026-10-14 (notice in
+  `mnemosyne-benchmark/README.md`, in the same repository as this report). This report supersedes it."
+- **Version 1.2, 2026-11-16.** One clause of the 1.1 passage is qualified. Version 1.1 read "and the file
+  given to its answering model held each question's gold answer"; the clause now names our trace
+  as its source and says that the trace's run files are not released, and the passage adds the
+  report's withdrawal. The version notes and the two passages above move here from the version line, §1 and
+  §3.1, each leaving a pointer in place. The abstract's sentence on the second readers moves out; the
+  Acknowledgments carry it. No number changes.
 
 ## References
 

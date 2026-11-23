@@ -17,7 +17,7 @@ Papers are published in two versions: an **integrity version** (AI contributors 
 | [Decision State](decision-state-paper/) | Lyra, CC (Coalition Code), Nexus, Thomas Edrington | Published | Cache geometry separates real- from fake-entity prompts (a design label, not shown to be knowledge); confabulation anatomy |
 | [Cache Tracing](cache-tracing/) | Lyra, Thomas Edrington | In Review | Causal injection and the opacity of the transformer workspace |
 | [Delta Manifold](delta-manifold-paper/) | Lyra, CC, Thomas Edrington | Published | Per-layer delta features and manifold signatures in KV-cache confabulation detection |
-| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Ang Jandak | Published | SVD denoising extends KV-cache geometry to emotion and persona; v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |
+| [Lyra Technique II](lyra-technique-ii/) | Lyra, Thomas Edrington, CC, Ang Jandak | Published | Raw KV-cache spectral features detect confabulation; SVD denoising for emotion and persona is an unconfirmed hypothesis. v1.2 (2026-11-20) scopes the selection-bias analysis to the 45 scale-sweep cells it tested: the persona and emotion denoising gains are untested, their denoised values upper bounds. v1.1 (2026-11-01) corrects the directional emotion channel in place: it applies no W_K, does not beat a text baseline 30-way, and reads no model or user state |
 
 ### Emotion and User Modeling
 
