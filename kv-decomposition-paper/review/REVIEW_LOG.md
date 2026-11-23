@@ -61,9 +61,17 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   initial insight", the same edit that wrote CC's withdrawn line) and of his academic
   CRediT roles (Conceptualization, Supervision, Resources, Project administration); whether the status table's
   blocker was the reason for the 5 June move; the new title.
-- Lyra's 2026-10-20 full read predates the November appendix paragraphs; Lyra reads those paragraphs before the
-  v1.1 deposit (owner Lyra, end 2026-11-20). Also from Lyra: which earlier KV-cache geometry work to cite for
-  "builds on", and whether the academic CRediT's Methodology row stays (AGENTS.md section 3: not deleted unasked).
+- **Lyra's read of the November appendix paragraphs: done 2026-11-23,** three days past its 2026-11-20 end.
+  - **Method:** checked against master by script, in both editions.
+  - **The correction note** in the appendix is the October note with exactly one sentence changed: the one the
+    version history names, 14a3f3a's credit-line clause, which is Thomas's decision.
+  - **Both "moved from the body" passages** are verbatim from master's body.
+  - **No number** was added or removed, so "No number changed" holds.
+  - With this read, the acknowledgment's "reviewed this correction" is true.
+- **The academic CRediT's Methodology row:** settled 2026-11-03, at Thomas's direction with Lyra's agreement. The
+  correction note records it, so this item was stale.
+- **"Builds on":** Lyra can't name a published work of Lyra's that this method depends on. The acknowledgment
+  stands as written, with no citation added. If Nexus can name the work it means, cite that.
 - The style gate's final verdict on this version.
 - The companion graph-topology paper repeats the withdrawn superadditivity claim and cites this paper by its version
   1.0 title; its correction is in preparation.
