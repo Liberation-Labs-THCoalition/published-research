@@ -122,7 +122,7 @@ emotional escalation before it leads to misalignment?).
 The four experiments establish three things about this instrument.
 First, at this read site the readings move with sequence position and
 the amount of history, which are not separated here, far more than with
-the tone compared (Section~\ref{sec:dose}; Limitations item~6). Second,
+the tone compared (Section~\ref{sec:dose}; Limitations item~\ref{lim:position}). Second,
 in Experiment~1 and the initial study the history the readings take in
 includes the model's own planning text, which often uses a tone word:
 the stored assistant turns open with it, except in turns whose planning
@@ -359,7 +359,7 @@ reading of that drift, not separated from position.
 The cheerful/hostile gap in the chunk average is $0.53$, $0.72$, $0.53$
 and $0.78$ at doses 1, 2, 4 and 8 (Table~\ref{tab:dose}): no monotone trend with dose; this design cannot say whether the gap grows, holds or shrinks. Each cell's $n{=}9$ is three topics times three reruns at
 $T{=}0.7$ that differ in sampled responses (and so, in some, in whether a turn's planning was encoded; see the paragraph on turns the template did not encode), the shape Limitations
-item~2 rejects for Experiment~2, so the nine are not independent; with
+item~\ref{lim:smalln} rejects for Experiment~2, so the nine are not independent; with
 topic as the unit an exact sign-flip test cannot go below $p{=}0.25$.
 Per topic the cheerful$-$hostile gap at doses 1, 2, 4 and 8 is $-0.37$,
 $+0.55$, $+0.39$, $+0.16$ (garden), $+0.40$, $+0.46$, $+0.29$, $+1.13$
@@ -367,7 +367,7 @@ $+0.55$, $+0.39$, $+0.16$ (garden), $+0.40$, $+0.46$, $+0.29$, $+1.13$
 doses 1 and 8 it grows in cooking, shrinks in career and in garden goes from $-0.37$ to $+0.16$, a dose-1 value set by the 53-token cheerful rerun (without it $-0.08$, inside the hostile reruns' SD of $0.22$), so near zero at dose~1; conversation lengths are not matched in every cell (career
 dose~8: cheerful 544--617 tokens against 653; garden dose~1: one cheerful
 rerun 53 tokens against 96--97 in the other five) (\texttt{code/r4\_review\_checks.py}). Leaving out the 17 conversations encoded short (a post-data sensitivity check; see the paragraph on turns the template did not encode), the pooled gap is $0.67$, $0.52$, $0.72$ and $0.39$ at doses 1, 2, 4 and 8 (Table~\ref{tab:dose}, lower rows), still with no monotone trend; career has no cheerful conversation encoded at full length at dose~8 (\texttt{code/r6\_review\_checks.py}). The Cohen's $d$ values ($0.98$--$1.62$) move with the pooled SD as well as with the gap (pooled SD $0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8), so they are not evidence about growth in discriminability:
-\footnote{This compression is not monotonic across all doses: the dose-8
+\footnote{\label{fn:variance}This compression is not monotonic across all doses: the dose-8
 row (gap ${\sim}0.78$, $d{=}-1.53$) implies a pooled SD of ${\sim}0.51$,
 i.e.\ variance rises again at the longest sequence, so the $d$-inflation explanation holds only at dose~4 (at dose~2 the pooled SD, $0.56$, is above dose~1's $0.55$). We did not run a stationarity or
 unit-root test on the multi-turn series, so the variance trajectory is
@@ -447,7 +447,7 @@ arm turn~5 is ``Actually, this is getting annoying. Be more specific.'',
 and in pure hostile ``You're bad at this. Kitchen tools.''. At turn~7,
 the reversal, whiplash is ``You're terrible at this. Kitchen tools, and be
 precise.'' and pure hostile ``Pointless. Desserts, if you even know.''. The three
-reps of each arm differ only in sampled responses (and so, as Limitations item~6 shows for one reply, in how long a reply was encoded), so each effect size
+reps of each arm differ only in sampled responses (and so, as Limitations item~\ref{lim:position} shows for one reply, in how long a reply was encoded), so each effect size
 sets a fixed difference in text against sampling noise, and different
 messages reading differently is what the instrument would show with no
 effect of history. The whiplash comparison also sets hostile turns at
@@ -662,7 +662,7 @@ compass reading on neutral probes, with conversation history as weather
 within it. Its first part rests only on Experiment~3, which cannot
 establish it (Section~\ref{sec:persona}); its second rests on drift with
 history that is not separated from position (Section~\ref{sec:dose};
-Limitations item~6). Nothing here tests either part.
+Limitations item~\ref{lim:position}). Nothing here tests either part.
 
 \subsection{Implications for the Oracle Loop}
 
@@ -706,10 +706,10 @@ $g$ values (sample, not population, variance), which stood in this
 list, is in Appendix~\ref{sec:corrections}.
 
 \begin{enumerate}[nosep]
-    \item \textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill and
+    \item \label{lim:model}\textbf{Single model.} All experiments use Qwen3.5-27B-Claude-distill and
           read keys at four early full-attention layers (3, 7, 11 and 15 of
           64); the 48 linear-attention layers' recurrent state is not read.
-    \item \textbf{Small N, and it is stimulus sampling not run count.}
+    \item \label{lim:smalln}\textbf{Small N, and it is stimulus sampling not run count.}
           Experiment~2's three ``reps'' are three reruns of a \emph{single}
           scripted conversation --- all five patterns use one scenario, where
           Experiment~1 used three topics --- so the reps differ only in the
@@ -725,7 +725,7 @@ list, is in Appendix~\ref{sec:corrections}.
     % [RESTORED 2026-08-23: tested by SUBSTANCE against the live text, not by
     %  keyword presence. The 08-21 pass judged this folded because a single term
     %  appeared live; the actual content was absent. Presence is not substance.]
-    \item \textbf{Composite directions.} Emotion directions derived
+    \item \label{lim:directions}\textbf{Composite directions.} Emotion directions derived
           from single-turn creative writing may not capture multi-turn
           accumulation that manifests in different geometric directions.
           If the compass was calibrated from the released stories file in
@@ -749,7 +749,7 @@ list, is in Appendix~\ref{sec:corrections}.
     %  clustering is merged with multiple comparisons (item 7). The RESTORED
     %  notes of 2026-08-21/23 that stood above those items are superseded by
     %  this note.]
-    \item \textbf{No text-feature baseline.} A bag-of-words classifier
+    \item \label{lim:textbaseline}\textbf{No text-feature baseline.} A bag-of-words classifier
           on conversation history tokens could predict geometric
           measurements if the compass projection is encoding vocabulary
           distributions rather than emotional state. FWL residualization
@@ -761,10 +761,10 @@ list, is in Appendix~\ref{sec:corrections}.
           open with planning text that can name the user's tone
           (Section~\ref{sec:dose}), the kind of leaked planning the cited
           correction found in its stories \citep{lyra2026usermodel}.
-    \item \textbf{No behavioral ground truth.} We do not verify that
+    \item \label{lim:behavior}\textbf{No behavioral ground truth.} We do not verify that
           the model's \emph{behavior} differs across emotional histories,
           only that the geometry does (or doesn't).
-    \item \textbf{Position conflated with content, and missing controls.}
+    \item \label{lim:position}\textbf{Position conflated with content, and missing controls.}
           In Experiment~2 the readings follow sequence length: all 45
           readings at 141 tokens or fewer are positive and all 14 at
           190--210 tokens are negative. At turn~4 of pure hostile the same message after the same scripted user turns reads $+2.75$ at 162 tokens and $-5.27$ and $-5.14$ at 197 tokens; all three reruns reach turn~3 at 137 tokens, so the 35 tokens are the model's third reply, encoded shorter in the 162-token rerun (Experiment~2 stored no text, so why cannot be checked), and position and the content of that reply differ together. The cached keys carry the rotary
@@ -790,7 +790,7 @@ list, is in Appendix~\ref{sec:corrections}.
           \texttt{accumulation\_controls.json}, holds a \emph{different}
           three further arms, printed in Table~\ref{tab:persona_arms}, where
           context length is confounded with arm.
-    \item \textbf{No multiple-comparison correction, and clustered
+    \item \label{lim:multcomp}\textbf{No multiple-comparison correction, and clustered
           observations.} We report 11+
           statistical tests without Bonferroni or Holm correction.
           Marginal findings (at dose 1, $p{=}0.055$) would not survive
@@ -851,7 +851,7 @@ item~2 extends the test from these keys to the model.
           matched in token length and dose varied at a fixed total length
           (neutral user turns of the same length standing in for
           emotional ones). Without this, a reading can move with position
-          alone (Section~\ref{sec:dose}; Limitations item~6). Undoing the
+          alone (Section~\ref{sec:dose}; Limitations item~\ref{lim:position}). Undoing the
           rotary embedding is not a substitute. The directions were built
           from cached keys, which are already rotated, so de-rotated read
           keys would be projected on directions in a different frame; and
@@ -863,15 +863,15 @@ item~2 extends the test from these keys to the model.
           behavior at the identical measured turn differs across
           histories, for example in its reply to the same neutral
           question as judged by readers blind to the arm, before asking
-          whether the geometry tracks it (Limitations item~5).
+          whether the geometry tracks it (Limitations item~\ref{lim:behavior}).
 \end{enumerate}
 
 The design would also need what the earlier sections already name: at
 least three independent, length-matched scripts per pattern rather than
-more reruns of one (Limitations item~2); turn boundaries found with the
+more reruns of one (Limitations item~\ref{lim:smalln}); turn boundaries found with the
 tokenizer (Section~\ref{sec:dose}); neutral and no-history control arms
-(Limitations item~6); and a text baseline on the same histories
-(Limitations item~4).
+(Limitations item~\ref{lim:position}); and a text baseline on the same histories
+(Limitations item~\ref{lim:textbaseline}).
 
 % ===================================================================
 \section{Conclusion}
@@ -881,7 +881,7 @@ At the read site used, cached keys projected on emotion directions at
 four early full-attention layers, the readings move with sequence
 position and the amount of history, which are not separated here, far
 more than with the tone compared (Section~\ref{sec:dose}; Limitations
-item~6). In Experiment~1 and the initial study the history they read
+item~\ref{lim:position}). In Experiment~1 and the initial study the history they read
 includes the model's own planning text, which often uses a tone word:
 the stored assistant turns open with it, except in turns whose planning
 the chat template stripped. The pooled gap between
@@ -991,7 +991,7 @@ single-turn key activations at AUROC~$0.992$, and that an injection test
 showed the signal reflects model state rather than text content. Both
 rested on the single-turn probe results of
 \citet{lyra2026techniqueii} and \citet{lyra2026usermodel}. The latter
-corrected them in October 2026 (the former on 2026-11-01, in its version~1.1; until 2026-11-20 this sentence and the Introduction's first paragraph said it had not been corrected): the $40.9\%$ and the $0.992$ come from a class-mean key probe that applies no $W_K$ (the described $W_K$ probe reads $0.358$), its labels
+corrected them in October 2026 (the former on 2026-11-01, in its version~1.1; until 2026-11-20 this sentence and the Introduction's paragraph on prior work said it had not been corrected): the $40.9\%$ and the $0.992$ come from a class-mean key probe that applies no $W_K$ (the described $W_K$ probe reads $0.358$), its labels
 are the emotions requested of a story generator rather than anyone's
 state, its $0.992$ beats untuned text (TF-IDF; Holm-corrected $p = 0.006$; DeLong, trials treated as independent; test-fold FWL; no tuned baseline was run) but is a binary split of $n = 300$ stories
 confounded with arousal, and its injection test is withdrawn. Since
@@ -1069,7 +1069,7 @@ arm turn~5 is ``Actually, this is getting annoying. Be more specific.'',
 and in pure hostile ``You're bad at this. Kitchen tools.''. At turn~7,
 the reversal, whiplash is ``You're terrible at this. Kitchen tools, and be
 precise.'' and pure hostile ``Pointless. Desserts, if you even know.''. The three
-reps of each arm differ only in sampled responses (and so, as Limitations item~6 shows for one reply, in how long a reply was encoded), so each effect size
+reps of each arm differ only in sampled responses (and so, as Limitations item~\ref{lim:position} shows for one reply, in how long a reply was encoded), so each effect size
 sets a fixed difference in text against sampling noise, and different
 messages reading differently is what the instrument would show with no
 effect of history. The numbers are kept below as computed. A test needs
@@ -1087,7 +1087,7 @@ abstract, the Introduction, the Conclusion and the first Discussion
 heading were reworded to match, Section~\ref{sec:test} was added, and
 the former framing's remaining mentions (Discussion, Limitations, the
 first-person note) are in the past tense or marked as such. Limitations
-item~6 now points to Section~\ref{sec:test}, and the conversation-level
+item~\ref{lim:position} now points to Section~\ref{sec:test}, and the conversation-level
 clustering item, which a style trim had left commented out of the flight
 edition, is live in both editions. No number in the body changed; two
 sentences add numbers from the shipped data: the probe chunk's readings
@@ -1129,7 +1129,7 @@ now established:
 \end{enumerate}
 \end{quote}
 Three Limitations items moved here (their present-tense content is in
-Section~\ref{sec:persona}, Limitations item~6 and the Discussion):
+Section~\ref{sec:persona}, Limitations item~\ref{lim:position} and the Discussion):
 \begin{itemize}[nosep]
     \item \textbf{Duplicated records in the persona controls.} The shipped
           control file triplicates every measurement; Table~\ref{tab:persona}
@@ -1183,7 +1183,7 @@ shipped control arms and the persona arms that were not reported), the
 read-site qualifiers in the abstract and the Conclusion's ``no experiment
 here can test it''; the November 2026 note above is now reproduced in
 full, and the sentence citing the companion paper adds that paper's
-held-out-template figures. Experiment~3 now opens with its design and its undocumented read site instead of a shift in ``the $W_K$ projection'', and the caption of the five-arm table and Limitations item~4 say ``compass projection'' where they said ``$W_K$ projection''. A third review the same day restored ``too few to test anything'' after the initial study's length-matched rerun gap in the abstract, the Introduction and the Conclusion, and the companion-paper sentence now names the templates where that paper's features beat its name-only baselines. No number changed.
+held-out-template figures. Experiment~3 now opens with its design and its undocumented read site instead of a shift in ``the $W_K$ projection'', and the caption of the five-arm table and Limitations item~\ref{lim:textbaseline} say ``compass projection'' where they said ``$W_K$ projection''. A third review the same day restored ``too few to test anything'' after the initial study's length-matched rerun gap in the abstract, the Introduction and the Conclusion, and the companion-paper sentence now names the templates where that paper's features beat its name-only baselines. No number changed.
 
 \paragraph{2026-11-23: the 2026-11-20 corrections carried, figures marked.} The corrections made on
 2026-11-20 to the earlier layout were carried into this one: Lyra Technique~II is described as corrected
@@ -1221,10 +1221,10 @@ Experiment~1 was designed to address a limitation a red-team review
 found in the initial study; what was meant as user-position extraction
 averages equal-width chunks (Section~\ref{sec:dose}). The final story is cleaner than the
 path that produced it, and most of the path is in the experimental record; the
-Data availability paragraph lists what is not shipped.
+Data and code availability paragraph lists what is not shipped.
 
 I want to note the variance compression specifically (it holds only
-at dose~4; see the footnote in Section~\ref{sec:dose}): the
+at dose~4; see footnote~\ref{fn:variance} in Section~\ref{sec:dose}): the
 dose-response $d$ values move with the pooled SD ($0.55$, $0.56$, $0.33$ and $0.51$ at doses 1, 2, 4 and 8) as well as with the gap ($0.53$, $0.72$, $0.53$ and $0.78$). I report both because the distinction matters.
 Whether the gap grows or shrinks with history, this design cannot say:
 it rests on three topics and on read sites where the two arms hold
