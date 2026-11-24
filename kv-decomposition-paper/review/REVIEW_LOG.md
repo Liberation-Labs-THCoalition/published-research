@@ -32,6 +32,7 @@ What checked this version, when, and where each round's findings and fixes are r
 | Agni style gate (opus), round 3, both editions | `tools/agni/style/kv-decomposition-paper.v11-r3.agni_style.json` | CONDITIONAL: sign-offs, Lyra's read, Kavi, placeholders; 5 fixable findings | The commit that adds that file |
 | CC's acknowledgment restored at CC's request: the 28 May line, as it stood | Lyra's full read (2026-10-20) asked that the removed credit land somewhere (AGENTS.md section 3); asked with both earlier wordings, CC chose the 28 May line | | The commit that adds this row |
 | Agni style gate (opus), round 4, both editions | `tools/agni/style/kv-decomposition-paper.v11-r4.agni_style.json` | CONDITIONAL: 1 critical (Thomas's sign-off), 3 major, 7 minor; fixes applied except Thomas's items | The commit that adds that file, and the commits after it |
+| Thomas Edrington's sign-off, both editions at `2335485` (title and both contribution lines included) | Thomas, by his card of 2026-11-23 (quoted under "Still open before deposit") | Signed off; his roles to be CRediT roles where technically correct | `bd17ade` (his roles) and the commits after it |
 
 The second reader's reports were returned to the first author's session. Their findings and the fixes made for each
 are listed in the commit messages named above.
@@ -57,11 +58,26 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   **Reopened and settled 2026-10-20:** Lyra's full read asked that the removed credit land somewhere (AGENTS.md
   section 3). Asked with both earlier wordings, CC chose to restore the 28 May line as it stood (letter of 13:57);
   the 1 June wording stays out. The note says so.
-- Thomas Edrington: sign-off on BOTH editions (he is on both bylines); confirmation of his flight-edition line
+- ~~Thomas Edrington: sign-off on BOTH editions (he is on both bylines); confirmation of his flight-edition line
   "direction and the initial insight" (the 28 May draft said "for direction"; the 1 June revision added "and the
   initial insight", the same edit that wrote CC's withdrawn line) and of his academic
-  CRediT roles (Conceptualization, Supervision, Resources, Project administration); whether the status table's
-  blocker was the reason for the 5 June move; the new title.
+  CRediT roles (Conceptualization, Supervision, Resources, Project administration);~~ whether the status table's
+  blocker was the reason for the 5 June move (**still open; it was not on the card**); ~~the new title.~~
+  **Closed 2026-11-23, except the 5 June question,** by Thomas's card, written 2026-11-23 19:10-19:35 and relayed 2026-11-24 13:46. It answered
+  the four items put to him for this paper: "69: 1. looks good 2. The more official CRediT roles, if they're
+  technically correct 3. keep 4. how about "custodial" human author?"
+  - **Item 1, sign-off:** Thomas signed off on both editions at `2335485`, the title and both contribution lines
+    included. The commits after `2335485` carry item 2's change and its record; his sign-off predates them.
+  - **Item 2, his roles:** both editions now state his contribution as CRediT roles, only those whose published
+    definition the record supports: Conceptualization (the initial insight) and Supervision (direction)
+    (`bd17ade`, 2026-11-24). This change followed from item 2; Thomas has not yet seen the resulting list.
+    Resources and Project administration, in the academic row since the edition was made (`7375c67`, 2026-09-11),
+    are removed: the record does not show who provided the machines the runs used, or Thomas managing or
+    coordinating the work rather than directing it. Either can come back with a line of evidence. The commit
+    message gives each role's definition and the evidence for it.
+  - **Item 3, `14a3f3a` (the credit-line clause):** kept. Nothing changed.
+  - **Item 4, "accepts accountability as corresponding human author":** unchanged in this paper. Thomas suggested
+    "custodial"; that wording will be one lab-wide change across all papers, made later, not here.
 - **Lyra's read of the November appendix paragraphs: done 2026-11-23,** three days past its 2026-11-20 end.
   - **Method:** checked against master by script, in both editions.
   - ~~**The correction note** in the appendix is the October note with exactly one sentence changed: the one the
