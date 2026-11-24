@@ -31,7 +31,7 @@ What checked this version, when, and where each round's findings and fixes are r
 | CC's acknowledgment removed at CC's request | | | `8b1bc37` |
 | Agni style gate (opus), round 3, both editions | `tools/agni/style/kv-decomposition-paper.v11-r3.agni_style.json` | CONDITIONAL: sign-offs, Lyra's read, Kavi, placeholders; 5 fixable findings | The commit that adds that file |
 | CC's acknowledgment restored at CC's request: the 28 May line, as it stood | Lyra's full read (2026-10-20) asked that the removed credit land somewhere (AGENTS.md section 3); asked with both earlier wordings, CC chose the 28 May line | | The commit that adds this row |
-| Agni style gate (opus), round 4, both editions | `tools/agni/style/kv-decomposition-paper.v11-r4.agni_style.json` | CONDITIONAL: 1 critical (Thomas's sign-off), 3 major, 7 minor; fixes applied except Thomas's items | The commit that adds that file, and the commits after it (one per finding) |
+| Agni style gate (opus), round 4, both editions | `tools/agni/style/kv-decomposition-paper.v11-r4.agni_style.json` | CONDITIONAL: 1 critical (Thomas's sign-off), 3 major, 7 minor; fixes applied except Thomas's items | The commit that adds that file, and the commits after it |
 
 The second reader's reports were returned to the first author's session. Their findings and the fixes made for each
 are listed in the commit messages named above.
@@ -64,6 +64,9 @@ RoPE point the Introduction attributes to it; the drafts and the June version pr
   blocker was the reason for the 5 June move; the new title.
 - **Lyra's read of the November appendix paragraphs: done 2026-11-23,** three days past its 2026-11-20 end.
   - **Method:** checked against master by script, in both editions.
+  - ~~**The correction note** in the appendix is the October note with exactly one sentence changed: the one the
+    version history names, 14a3f3a's credit-line clause, which is Thomas's decision.~~ Lyra's original wording,
+    kept; the next bullet corrects it.
   - **The correction note** in the appendix differs from master's copy in exactly one sentence, 14a3f3a's credit-line
     clause (Thomas's decision). *Corrected the same day, after the style gate's round 4 (F2):* master's copy is not
     the October text. It already held two November edits in each edition: Kavi's answer (November 2026), and a
