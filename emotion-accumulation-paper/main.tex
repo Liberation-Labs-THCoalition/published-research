@@ -435,7 +435,7 @@ Experiment~1 does not test accumulation, and neither the raw mean gaps
 ($0.5$--$0.8$), which are more direct than effect sizes, nor the $d$
 values can show whether discrimination grows, holds or shrinks. Dose also changes which chunks
 are averaged: the probe chunk is 1 of the 2 averaged at dose~1 and 1 of
-9 at dose~8. Chunk~0 holds the first user message and, in all but the 53-token rerun, the start of the model's first turn (at dose~1, its first 11--13 tokens in the 17 conversations encoded at full length), and no earlier turn precedes it, yet it carries a gap of $+1.07$ at
+9 at dose~8. Chunk~0 holds the first user message and, in all but the 53-token rerun, the start of the model's first turn (at dose~1, its first 11--13 tokens in the other 17 dose-1 conversations), and no earlier turn precedes it, yet it carries a gap of $+1.07$ at
 dose~1, against $-0.04$ in the probe chunk
 (\texttt{code/r5\_review\_checks.py}).
 
@@ -469,7 +469,7 @@ effect of history. The whiplash comparison also sets hostile turns at
 the same ordinal position but at different sequence lengths, because
 response lengths varied. Most $d$ values in this paper are uncorrected
 Cohen's $d$ without confidence intervals; at $n{=}3$ per group the
-small-sample bias factor is ${\sim}0.80$, a ${\sim}20\%$ inflation, so
+small-sample bias factor is ${\sim}0.80$, so $d$ overstates $g$ by ${\sim}25\%$, and
 Hedges' $g$ is given beside them. Applied to the two withdrawn
 findings (withdrawn in November 2026,
 Appendix~\ref{sec:corrections}; marked here 2026-11-20), the
@@ -527,6 +527,13 @@ does not track intensity: its mean over the three reruns swings across
 turns 1--8 ($+5.8$, $+4.4$, $+6.5$, $-6.5$, $-5.5$, $-2.2$, $+1.4$,
 $-4.1$). These data show no tracking of
 \emph{intensity} (mild vs.\ extreme) through these composite directions.
+Intensity and sequence position move together here, so this null is
+evidence neither way: intensity rises with turn, and turn with sequence
+position (20 tokens at turn~1 and 458 at turn~8 in every rerun;
+\texttt{data/\allowbreak emotional\_\allowbreak dynamics\_\allowbreak results.json}),
+and the sign flip between turns~3 and~4 ($+6.5$ at 141 tokens, $-6.5$ at
+204) matches the split by sequence length in Limitations
+item~\ref{lim:position}.
 Whether the compass reads emotional \emph{category} is not shown either,
 because its readings have no meaningful zero (Section~\ref{sec:dose}).
 
@@ -571,7 +578,7 @@ Excited--gloomy & $-0.023$ & $-0.48$ & $0.658$ & $0.625$ & 3/5 \\
 
 The direction is consistent --- every one of the five probes moves the same way
 on both the anxious--calm direction and valence, with a standard deviation of
-differences of only $0.05$. These are probably one finding, not two: the
+differences of only $0.05$--$0.06$. These are probably one finding, not two: the
 two directions are built from overlapping emotions, and their arm means in
 Table~\ref{tab:persona_arms} fall in exactly inverse rank order. If the
 effect holds, emotional context could be \emph{stated} rather than
