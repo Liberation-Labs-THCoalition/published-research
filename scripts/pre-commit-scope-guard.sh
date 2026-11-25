@@ -12,8 +12,9 @@
 # AGENTS.md rule 1 says "run `git diff --cached --stat` and read it". Writing that down did not
 # work. The rule needed teeth, so this is the teeth.
 #
-# INSTALL:  ln -sf ../../scripts/pre-commit-scope-guard.sh .git/hooks/pre-commit
-#           (or: cp scripts/pre-commit-scope-guard.sh .git/hooks/pre-commit && chmod +x it)
+# INSTALL:  ln -sf ../../scripts/pre-commit.sh .git/hooks/pre-commit
+#           scripts/pre-commit.sh runs the home-path check, then this guard. Installing this file
+#           alone in that slot would drop the home-path check (2026-11-24).
 #
 # OVERRIDE: BIG=1 git commit ...      — deliberate, and it says so in your shell history.
 
