@@ -58,8 +58,10 @@ import numpy as np
 import re
 from pathlib import Path
 
-sys.path.insert(0, "/home/thomas/oracle-harness-test")
-sys.path.insert(0, "/home/cass/KV-Experiments/claim-review/stats")
+ORACLE_HARNESS_DIR = os.environ.get("ORACLE_HARNESS_DIR", os.path.join(os.path.expanduser("~"), "oracle-harness-test"))
+CLAIM_REVIEW_STATS_DIR = os.environ.get("CLAIM_REVIEW_STATS_DIR", os.path.join(os.path.expanduser("~"), "KV-Experiments", "claim-review", "stats"))
+sys.path.insert(0, ORACLE_HARNESS_DIR)
+sys.path.insert(0, CLAIM_REVIEW_STATS_DIR)
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -92,7 +94,7 @@ MAX_NEW_TOKENS = 200
 GEN_WINDOW = 80          # Fixed window for generation-only feature extraction
 LAYER_STRIDE = 4
 N_PERMUTATIONS = 1000
-RESULTS_BASE = Path("/home/thomas/oracle-harness-test/results/clean_v1")
+RESULTS_BASE = Path(f"{ORACLE_HARNESS_DIR}/results/clean_v1")
 
 # Single system prompt for ALL trials
 SYSTEM_PROMPT = (
