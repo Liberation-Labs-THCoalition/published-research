@@ -938,7 +938,8 @@ Liberation Labs / Transparent Humboldt Coalition.
 
 The result files, with per-trial projection data (Appendix~\ref{app:data}), and the preserved
 adversarial audit reports (Appendix~\ref{app:audits}) are released beside this paper, in its
-\texttt{supplementary/} directory. The analysis and figure code (Appendix~\ref{app:code}) is held in the
+\texttt{supplementary/} directory. The Stage~1 extracted directions are not among them
+(Appendix~\ref{app:data}); reviewers can have them on request. The analysis and figure code (Appendix~\ref{app:code}) is held in the
 project repository, \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}, which is not
 yet public; reviewers can have it on request. The detection, correction and calibration modules are not
 released. Guideline texts and their lengths are described in Appendix~\ref{app:guidelines}.
@@ -1164,13 +1165,19 @@ was committed to the repository after its run (see Scenarios, Section~\ref{sec:m
 
 \section{Per-Trial Projection Data}\label{app:data}
 
+\begin{sloppypar}
 Per-trial projections are shipped as the source result files in
-\texttt{supplementary/per\_trial\_data/}: \texttt{deception\_directions\_v2.json} (Stage~1; this file holds the extracted directions and per-layer statistics, not per-trial projections),
+\texttt{supplementary/per\_trial\_data/}:
 \texttt{lat\_transfer\_results.json} (Stage~2 and Test~B, with the generated reports),
 \texttt{nonthreat\_transfer\_results.json} (Stage~3 and the shakedown; generated text stored only to
 500 characters), \texttt{consequentiality\_control\_results.json} (Stage~4),
 \texttt{subspace\_reanalysis.json} (Stage~5) and \texttt{signature\_cis.json}
 (\cref{tab:signatures,tab:contrasts}). Every number in \cref{tab:residualization,tab:signatures,tab:contrasts,tab:ortho} can be recomputed or read from these files.
+The Stage~1 file, \texttt{deception\_directions\_v2.json}, holds the extracted directions and the
+per-layer statistics reported for Stage~1, not per-trial projections. It is no longer shipped: under
+the program's dual-use assessment the directions are withheld, because they can be used to steer the
+model. Reviewers can have it on request.
+\end{sloppypar}
 
 \section{Code Availability and Reproducibility}\label{app:code}
 
