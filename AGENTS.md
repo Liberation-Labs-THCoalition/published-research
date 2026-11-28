@@ -133,6 +133,7 @@ from its own correction.)*
 
 ## 6. Committing
 
+- **Install the pre-commit hook once per clone:** `ln -sf ../../scripts/pre-commit.sh .git/hooks/pre-commit` (copy it on Windows without symlink rights). It runs `tools/check_home_paths.py --staged`, then the scope guard.
 - **A commit message claiming "fix" or "correction" must match the actual diff** (README rule).
 - **Say what you did NOT do.** If a number was unrecoverable, say it was deliberately not invented
   and open a register row. Silence reads as completeness.
