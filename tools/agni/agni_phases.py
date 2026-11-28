@@ -60,10 +60,15 @@ reviewer's own tool calls that was refused (permission denied, or a path outside
 folders), with its path and reason, read from the reviewer's stream-json (its tool results, and the
 result event's permission_denials), never from its prose. It does not change the verdict or the exit.
 
-AN --out INSIDE A GRANTED FOLDER IS REFUSED (v1.2.0): the CLI reviewer can read every folder it is
-granted, so a record written there is part of what it reviews, the INVALID placeholder included. An
---out inside the primary's, secondary's or tertiary's folder, an --add-dir, or the repository root
-granted automatically is INVALID, exit 2, before any reviewer call.
+AN --out INSIDE A FOLDER THE REVIEWER CAN READ IS REFUSED (v1.2.0): the CLI reviewer can read every
+folder it is granted, and the folder it runs in, so a record written there is part of what it
+reviews, the INVALID placeholder included. An --out inside the primary's, secondary's or tertiary's
+folder, an --add-dir, the repository root granted automatically, or the folder agni_phases.py runs in
+is refused before any reviewer call, exit 2. The last is there because infer_cli gives the CLI no
+cwd=, so the CLI runs in this process's folder and can read it with no --add-dir. A relative --out
+is always inside that folder, so it is always refused. Nothing is written at a refused --out, not
+even INVALID. On Windows an --out given as a \\\\?\\ or UNC path (\\\\server\\share, \\\\localhost\\C$)
+is refused too: the check cannot compare those reliably, so it fails closed.
 
 Usage
   python3 agni_phases.py design    <script.py> <prereg.json>
@@ -73,8 +78,11 @@ Usage
   python3 agni_phases.py style     <paper.md|tex> [twin.md|tex]
 
   --model MODEL   override (default: session default in llm.py)
-  --out PATH      where to write the JSON record; with the CLI backend it must lie outside every
-                  folder the reviewer is granted, or the run is INVALID, exit 2 (v1.2.0)
+  --out PATH      where to write the JSON record. With the CLI backend it must lie outside every
+                  folder the reviewer is granted and outside the folder this runs in, which the
+                  CLI runs in and can read, so a relative --out is refused. A refused --out exits
+                  2 and nothing is written at it (v1.2.0). On Windows a \\\\?\\ or UNC --out is
+                  refused too.
   --accept-incomplete-input
                   exit 0 on APPROVED/CONDITIONAL although input_complete is false (binaries in a
                   data folder, undecodable bytes); the record is stamped
@@ -981,7 +989,10 @@ def _refuse(args, out, inputs, sizes, reasons, advice, write=True):
     else:
         print("       Record: none written. Nothing is written at %s, not even INVALID: a reviewer could read "
               "it there." % out, file=sys.stderr)
-        if os.path.lexists(out):
+        if _unc_out(out):     # never opened (round 3), so whether anything is there is not known
+            print("       Anything already at that path is STALE (it was not looked at). Do not read it as this "
+                  "run's result.", file=sys.stderr)
+        elif os.path.lexists(out):
             print("       Anything already at that path is STALE. Do not read it as this run's result.",
                   file=sys.stderr)
     return 2
@@ -1013,6 +1024,17 @@ def _cli_cwd():
     directory, which the CLI can read with no --add-dir. For the --out guard it is a folder the reviewer can read,
     like a granted one (1.2.0, round 2: the verifier's R1)."""
     return os.getcwd()
+
+
+def _unc_out(out):
+    r"""Whether --out is a path the guard cannot compare (1.2.0, round 3: the re-verifier's R3), on Windows only: a
+    \\?\ or \\.\ path (\\?\C:\tree\rec.json) or a UNC path (\\server\share, \\localhost\C$\tree\rec.json), that is,
+    any path that starts with two slashes or backslashes. ntpath gives each a "drive" of its own ("\\?\C:",
+    "\\localhost\C$"), so os.path.commonpath never puts it inside C:\tree, though it can name a file there. Such an
+    --out is refused, not compared: the check fails closed, and the path is never opened. Elsewhere a path that starts
+    with two slashes is an ordinary path, and the guard compares it as before."""
+    s = os.fspath(out)
+    return sys.platform == "win32" and len(s) >= 2 and s[0] in "\\/" and s[1] in "\\/"
 
 
 # File systems that ignore case by default: NTFS on Windows, APFS and HFS+ on macOS. ntpath.normcase lower-cases and
@@ -1526,7 +1548,12 @@ def main():
         problems.append("the folders the reviewer would be granted could not be worked out: %s: %s"
                         % (e.__class__.__name__, e))
         advice.append("Run from a place where every folder above the primary can be read.")
-    if guarded and grants_known:
+    out_unc = guarded and _unc_out(out)
+    if out_unc:     # round 3: refused before the guard, which would open the path to compare it
+        problems.append("--out %s is a \\\\?\\ or UNC path (\\\\server\\share): the check cannot compare it reliably "
+                        "with the folders the reviewer can read, so it is refused" % out)
+        advice.append("Give --out as a path on a local drive (C:\\...), outside every folder the reviewer can read.")
+    if guarded and grants_known and not out_unc:
         try:
             cli_cwd = _cli_cwd()
             out_inside = _out_in_granted(out, grant_dirs, cwd=cli_cwd)

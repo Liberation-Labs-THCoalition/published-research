@@ -37,11 +37,14 @@ recorded the cut.
   Each path is compared as given and with links resolved. That catches a link from outside into a granted folder,
   and a link inside one that points out of it, which the reviewer could read the record through. Case is ignored
   on Windows and macOS (`casefold()`), whose file systems ignore it, and kept elsewhere. A folder holds itself.
+  On Windows an `--out` given as a `\\?\` or UNC path (`\\server\share`, `\\localhost\C$`), that is, any path
+  that starts with two slashes or backslashes, is refused without being compared or opened: Windows path handling
+  gives each its own drive, so the comparison cannot see that it names a file inside a granted folder (round 3).
   **Nothing is written at a refused `--out`**, not even `INVALID` over an old record, since a reviewer could read
   it (Lyra's call, round 2). The same holds when the check could not run. The refusal is on stderr and says that
   anything already at the path is stale. `run_style_survey.py` wrote its records into `tools/agni/style/`, inside
   this repository, so it now writes each to a folder of its own outside it and moves it there when the run ends.
-- Tests: `ReadsRefused` (13) and `OutInsideAGrantedFolder` (17) in `test_no_silent_cuts.py`, driven through
+- Tests: `ReadsRefused` (13) and `OutInsideAGrantedFolder` (19) in `test_no_silent_cuts.py`, driven through
   `subprocess.run` with a fake stream; no live call. Four fixtures changed with the interface:
   - the harness's fake CLI prints a stream;
   - `Base` writes its record outside the folder under review, and runs `main()` from a folder of its own, so the

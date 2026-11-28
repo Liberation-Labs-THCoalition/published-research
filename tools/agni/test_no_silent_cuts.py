@@ -2225,6 +2225,79 @@ class OutInsideAGrantedFolder(Base):
         self.assertEqual(self.out.read_bytes(), before, "written at an --out the guard could not check")
         self.assertIn("STALE", res.stderr)
 
+    def test_an_out_the_guard_could_not_check_for_a_missing_cli_folder_gets_nothing_written_there(self):
+        # Round 3 (the re-verifier's N2): when the folder this process runs in is gone (POSIX can delete a process's
+        # working directory; Windows cannot), _cli_cwd() raises and the guard cannot run. Nothing is written at the
+        # --out it could not check, an old record there is left as it was and called stale, and the exit is 2.
+        p = self.put("paper.md", "x")
+        gone = FileNotFoundError(2, "No such file or directory")
+        for old in (True, False):
+            with self.subTest(old_record=old):
+                if old:
+                    self.stale()
+                    before = self.out.read_bytes()
+                elif self.out.exists():
+                    self.out.unlink()
+                with mock.patch.object(PHASES, "_cli_cwd", side_effect=gone):
+                    res = self.run_main(["style", p])
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+                self.assertNotEqual(res.code, 0)
+                self.assertIsNone(res.crash)
+                self.assertIn("could not be worked out", res.stderr)
+                self.assertIn("Run from a folder that exists.", res.stderr)
+                self.assertIn("none written", res.stderr)
+                if old:
+                    self.assertEqual(self.out.read_bytes(), before, "written at an --out the guard could not check")
+                    self.assertIn("STALE", res.stderr)
+                else:
+                    self.assertFalse(self.out.exists(), "a record was made at an --out the guard could not check")
+
+    def test_a_unc_or_device_out_is_refused_on_windows(self):
+        # Round 3 (the re-verifier's R3): ntpath gives a \\?\ path and a UNC share each a drive of its own, so
+        # commonpath never puts \\?\C:\tree\rec.json or \\localhost\C$\tree\rec.json inside C:\tree, though each names
+        # a file there. On Windows such an --out is refused before the guard runs, and is never opened. Tested with
+        # path strings: no share is reached.
+        unc = (r"\\?\C:\agni_nsc\tree\rec.json", r"\\?\UNC\server\share\rec.json", r"\\server\share\rec.json",
+               r"\\localhost\C$\agni_nsc\tree\rec.json", "//server/share/rec.json", r"\\.\C:\agni_nsc\rec.json",
+               "\\/server/share/rec.json")
+        plain = (r"C:\agni_nsc\tree\rec.json", "C:/agni_nsc/rec.json", r"\agni_nsc\rec.json", "rec.json",
+                 r"sub\rec.json", "/srv/agni_nsc/rec.json")
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            for s in unc:
+                with self.subTest(win32=s):
+                    self.assertTrue(PHASES._unc_out(s))
+                    self.assertTrue(PHASES._unc_out(Path(s)) or os.name != "nt", "lost by Path() on Windows")
+            for s in plain:
+                with self.subTest(win32_plain=s):
+                    self.assertFalse(PHASES._unc_out(s))
+        with mock.patch.object(PHASES.sys, "platform", "linux"):     # elsewhere //x is an ordinary path
+            for s in unc + plain:
+                with self.subTest(linux=s):
+                    self.assertFalse(PHASES._unc_out(s))
+        # Through main(): refused with exit 2, no reviewer call, nothing written, and the guard never runs, so no path
+        # is opened. The \\?\ form of a real local folder outside the tree shows that nothing lands there either.
+        # --out goes in argv with use_out=False, so the harness does not look for a record at the path either.
+        p = self.put("paper.md", "x")
+        local = self.records / "via_prefix" / "rec.json"
+        local.parent.mkdir()
+        for out in ("\\\\?\\" + str(local), r"\\localhost\C$\agni_nsc_nowhere\rec.json",
+                    r"\\agni-nsc-no-such-host\share\rec.json"):
+            with self.subTest(main=out):
+                with mock.patch.object(PHASES.sys, "platform", "win32"), \
+                        mock.patch.object(PHASES, "_out_in_granted",
+                                          side_effect=AssertionError("the guard ran on a \\\\?\\ or UNC --out")):
+                    res = self.run_main(["style", p, "--out", out], use_out=False)
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), "crash=%r %s" % (res.crash, res.stderr[-400:]))
+                self.assertIn("UNC path", res.stderr)
+                self.assertIn("cannot compare it reliably", res.stderr)
+                self.assertIn("Give --out as a path on a local drive", res.stderr)
+                self.assertIn("none written", res.stderr)
+                self.assertIn("it was not looked at", res.stderr)
+                self.assertFalse(local.exists(), "a record was written through the \\\\?\\ prefix")
+        # Control: the same folder, given plainly, is outside the tree and runs.
+        res = self.run_with_out(["style", p], local)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
     def test_through_a_link_into_a_granted_folder(self):
         p = self.put("paper.md", "x")
         link = self.records / "into_tree"
