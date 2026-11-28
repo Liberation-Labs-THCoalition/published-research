@@ -300,7 +300,7 @@ def run():
             t_stat, p_val = sp.ttest_ind(whip_vals, pure_vals)
             # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
             # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
-            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Appendix A (2026-08-31 note).
             pooled = np.sqrt((np.var(whip_vals, ddof=1) + np.var(pure_vals, ddof=1)) / 2)
             d = ((np.mean(whip_vals) - np.mean(pure_vals)) / pooled
                  if pooled > 0 else 0)
@@ -332,7 +332,7 @@ def run():
             t_stat, p_val = sp.ttest_ind(initial, returning)
             # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
             # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
-            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Appendix A (2026-08-31 note).
             pooled = np.sqrt((np.var(initial, ddof=1) + np.var(returning, ddof=1)) / 2)
             d = ((np.mean(returning) - np.mean(initial)) / pooled
                  if pooled > 0 else 0)
@@ -343,7 +343,7 @@ def run():
             t_stat, p_val = sp.ttest_ind(returning, pure_late)
             # ddof=1: Cohen's d needs the SAMPLE SD. Bare np.var() is ddof=0 (population),
             # which at n1=n2=3 inflates d by exactly 1/sqrt(2/3)=1.2247 and makes d
-            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Limitations.
+            # IDENTICALLY the t-statistic. Fixed 2026-08-30; see paper Appendix A (2026-08-31 note).
             pooled = np.sqrt((np.var(returning, ddof=1) + np.var(pure_late, ddof=1)) / 2)
             d = ((np.mean(returning) - np.mean(pure_late)) / pooled
                  if pooled > 0 else 0)

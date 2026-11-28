@@ -1076,6 +1076,26 @@ def self_test(force=None):
     check("whiplash reversal restated", "x/main.tex",
           "By turn~7 the whiplash trial reverses ($g{=}+1.95$), the history bleeding through.\n",
           [], ["whiplash-turn7-reversal"])
+    check("echo valence as master 226bb35 printed it (emotion-accumulation-paper/main.tex:488-490), no marker",
+          "x/main.tex",
+          "The returning cheerful does not differ\nsignificantly from pure cheerful in \\emph{valence} (Hedges "
+          "$g{=}-1.29$; uncorrected $d{=}-1.61$,\n$p{=}0.12$).\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated with 'echo' and no 'valence' in the sentence", "x/paper.md",
+          "In the echo pattern the two arms do not differ (Hedges g = -1.29).\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated by its arms, no 'valence' or 'echo' (PR #77 verifier plant A1, 2026-11-28)",
+          "x/paper.md", "The returning cheerful arm matched pure cheerful (Hedges g = -1.29; d = -1.61, p = 0.12).\n",
+          [], ["echo-valence-between-arms"])
+    check("echo valence restated with 'arms' as the only context word", "x/main.tex",
+          "Between arms, $g{=}-1.29$ and $d{=}-1.61$.\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated with plural 'valences'", "x/paper.md",
+          "Their valences do not differ (d = -1.61).\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated with the paper's underscore data keys (re-verifier plant N1, 2026-11-28)",
+          "x/paper.md",
+          "At the return probe, `cheerful_valence` minus `pure_cheerful_valence` gives Hedges g = -1.29 (d = -1.61).\n",
+          [], ["echo-valence-between-arms"])
+    check("echo valence restated with 'echoed' (re-verifier plant N2, 2026-11-28)", "x/paper.md",
+          "When the cheer was echoed after the neutral turns, the two conditions did not differ (Hedges g = -1.29).\n",
+          [], ["echo-valence-between-arms"])
     check("user emotion 2.5--2.8x", "x/main.tex",
           "User emotion is classified at 2.5--2.8$\\times$ chance from spectral features at L3/L4.\n",
           [], ["user-emotion-2p5-2p8x"])
@@ -1123,6 +1143,11 @@ def self_test(force=None):
           "(Hedges $g{=}+1.95$; uncorrected $d{=}+2.44$,\n$p{=}0.040$), which was read as the\ncheerful history "
           "bleeding through. This comparison is also withdrawn: the\ntwo arms' turn~7 messages differ.\n",
           ["whiplash-turn7-reversal"], [])
+    check("emotion-accumulation-paper/main.tex:508-510 echo valence ('a comparison withdrawn' in its own clause)",
+          "x/main.tex",
+          "In \\emph{valence} the two arms do not differ\n(Hedges $g{=}-1.29$; uncorrected $d{=}-1.61$, $p{=}0.12$), "
+          "a comparison\nwithdrawn in November 2026: their messages at turns~7 and~8 differ.\n",
+          ["echo-valence-between-arms"], [])
     check("meta-pattern/SOP_REVIEW.md:34 row", "x/notes.md",
           "| 1.4 | user emotion 2.5--2.8x | **retracted**; survivor is 12.3x via the W_K *directional* probe |\n",
           ["user-emotion-2p5-2p8x"], [])
@@ -1597,6 +1622,10 @@ def self_test(force=None):
           "We had hypothesized a hierarchy under which denoising would amplify weak signals.\n", [], [])
     check("persona table -3.656 is not 3.6", "x/main.tex",
           "\\texttt{persona\\_cheerful} & $+5.203 \\pm 0.503$ & $-3.656 \\pm 0.311$ & 82--87 \\\\\n", [], [])
+    check("'equivalence' beside 1.29 is not 'valence' (PR #77 verifier plant A7, 2026-11-28)", "x/paper.md",
+          "The two estimators reach equivalence at a ratio of 1.29.\n", [], [])
+    check("'ambivalence' beside 1.61 is not 'valence'", "x/main.tex",
+          "Ambivalence ratings rose to 1.61 by turn~8.\n", [], [])
 
     print("--base classification:")
     E = "within-model-deception-auroc-1000"

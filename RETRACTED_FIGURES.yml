@@ -241,6 +241,50 @@ entries:
     source:
       - 'emotion-accumulation-paper/main.tex:478-482: "This comparison is also withdrawn: the two arms'' turn~7 messages differ"'
 
+  - id: echo-valence-between-arms
+    status: WITHDRAWN
+    claim: Echo pattern, returning cheerful vs pure cheerful, does not differ in valence (g=-1.29, d=-1.61, p=0.12).
+    # Added 2026-11-28 (PR #77). The paper withdrew this comparison on 2026-11-23 but the registry had no entry, so an
+    # unmarked restatement would have passed. As for the whiplash entry, the pattern is the two effect sizes, either
+    # sign, and not the p-value ("0.12" is also an SD in this paper, emotion-accumulation-paper/main.tex:87, :142).
+    # The context must match in the figure's own sentence. On 7262045 the entry finds only this paper's two editions
+    # (2 occurrences, both marked); 1.29 also appears in convergence-paper's stable-rank intervals and
+    # substrate_independence_section.tex:148, which name none of the context words.
+    # Revised 2026-11-28 (post-data revision, from the PR #77 verifier's plants A1 and A7). Principle: a restatement
+    # names the comparison by its dimension (valence), its pattern (echo) or its arms (returning cheerful, pure
+    # cheerful, the cheerful arm, between arms), so the context takes all three, each as a whole word. A1, "The
+    # returning cheerful arm matched pure cheerful (Hedges g = -1.29; d = -1.61, p = 0.12).", passed the first
+    # version, and master 226bb35's own sentence opens "The returning cheerful ...". A7, "equivalence at a ratio of
+    # 1.29", was a false alarm, because "valence" had no word boundary ("ambivalence" too). Cost: any 1.29 or 1.61
+    # in a sentence that names cheerful, returning or an arm is read as this claim. None does on 5fbd2fe's tree: over
+    # the 238 text files a scan with --include-records reads (agent_skip paths not read), the entry still finds the
+    # same 2 occurrences, and with no context at all it finds 7, the other 5 naming none of these words. Original
+    # value, kept for the record:
+    #   context: '(?i)valence|\becho\b'
+    # Known gaps, each a restatement that passes (probed 2026-11-28, written down, not fixed):
+    #   - a rounded figure, "g = -1.3" or "d = -1.6": the pattern takes 1.29 and 1.61 only (verifier plant A6);
+    #   - a table with "Valence" only in its header row, over a data row that names no arm and no echo
+    #     ("Exp.~2 & $-1.29$ & $0.12$"), because a table row is its own sentence (the deception entry's "finding 1"
+    #     class). A data row that names the arms ("Returning vs pure cheerful & $-1.29$", plant A5) is caught;
+    #   - p = 0.12 given alone: the p-value is left out of the pattern because 0.12 is also an SD in this paper
+    #     (emotion-accumulation-paper/main.tex:87, :142);
+    #   - a sentence that names none of the context words ("In Experiment 2 the comparison gave Hedges g = -1.29.").
+    # Revised again 2026-11-28 (post-data revision, from the re-verifier's plants N1, N1b and N2). Principle: the
+    # boundary is a LETTER boundary, not a word boundary, because "_" is a word character and this paper's own data
+    # keys are underscore identifiers (cheerful_valence, pure_cheerful, valence_proj in data/*.json). With \b, a
+    # Markdown line "`cheerful_valence` minus `pure_cheerful_valence` gives Hedges g = -1.29" passed, though the
+    # first version's bare "valence" caught it. Inflections of echo (echoed, echoes, echoing) are taken too.
+    # Cost: none on today's tree (whole-tree and --twins output unchanged, the same 2 occurrences). Previous value:
+    #   context: '(?i)\bvalences?\b|\becho\b|\breturning\b|\bcheerful\b|\barms?\b'
+    pattern: '(?<![\d.])(?:1\.29|1\.61)0*(?!\d)'
+    context: '(?i)(?<![a-z])(?:valences?|echo(?:e[sd]|ing)?|returning|cheerful|arms?)(?![a-z])'
+    source:
+      - 'emotion-accumulation-paper/main.tex:1092-1095 (Appendix A, as of 7262045): "Every comparison between arms below is withdrawn: ... (and, named here on 2026-11-23, the echo valence comparison)"'
+      - 'emotion-accumulation-paper/main.tex:447-450: "the comparisons between arms below, ... and the echo valence comparison, ... all four are withdrawn"'
+      - 'emotion-accumulation-paper/main.tex:508-510: "(Hedges $g{=}-1.29$; uncorrected $d{=}-1.61$, $p{=}0.12$), a comparison withdrawn in November 2026"'
+      - 'emotion-accumulation-paper/academic/main.tex:1063-1066, :431-434, :492-494: the same three passages in the academic edition'
+      - 'origin/master 226bb35 emotion-accumulation-paper/main.tex:488-490 and academic/main.tex:473-475 still print the figures unmarked ("does not differ significantly from pure cheerful in \emph{valence}")'
+
   - id: decision-state-0p9377-as-verified
     status: NOT CLAIMED
     claim: Decision-state AUROC 0.9377 presented as a verified, reproducible number.
