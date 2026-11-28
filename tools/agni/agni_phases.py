@@ -54,6 +54,22 @@ its input. No input is sliced. The whole prompt is checked once against a budget
 means INVALID before any reviewer call. The record's input_coverage says what the reviewer got.
 See README.md.
 
+READS REFUSED (v1.2.0): input_complete says what the reviewer was GIVEN. What it could not OPEN is
+a different fact, and the record keeps it beside input_coverage: reads_refused lists each of the CLI
+reviewer's own tool calls that was refused (permission denied, or a path outside the granted
+folders), with its path and reason, read from the reviewer's stream-json (its tool results, and the
+result event's permission_denials), never from its prose. It does not change the verdict or the exit.
+
+AN --out INSIDE A FOLDER THE REVIEWER CAN READ IS REFUSED (v1.2.0): the CLI reviewer can read every
+folder it is granted, and the folder it runs in, so a record written there is part of what it
+reviews, the INVALID placeholder included. An --out inside the primary's, secondary's or tertiary's
+folder, an --add-dir, the repository root granted automatically, or the folder agni_phases.py runs in
+is refused before any reviewer call, exit 2. The last is there because infer_cli gives the CLI no
+cwd=, so the CLI runs in this process's folder and can read it with no --add-dir. A relative --out
+is always inside that folder, so it is always refused. Nothing is written at a refused --out, not
+even INVALID. On Windows an --out given as a \\\\?\\ or UNC path (\\\\server\\share, \\\\localhost\\C$)
+is refused too: the check cannot compare those reliably, so it fails closed.
+
 Usage
   python3 agni_phases.py design    <script.py> <prereg.json>
   python3 agni_phases.py preflight <script.py> <prereg.json>
@@ -62,7 +78,11 @@ Usage
   python3 agni_phases.py style     <paper.md|tex> [twin.md|tex]
 
   --model MODEL   override (default: session default in llm.py)
-  --out PATH      where to write the JSON record
+  --out PATH      where to write the JSON record. With the CLI backend it must lie outside every
+                  folder the reviewer is granted and outside the folder this runs in, which the
+                  CLI runs in and can read, so a relative --out is refused. A refused --out exits
+                  2 and nothing is written at it (v1.2.0). On Windows a \\\\?\\ or UNC --out is
+                  refused too.
   --accept-incomplete-input
                   exit 0 on APPROVED/CONDITIONAL although input_complete is false (binaries in a
                   data folder, undecodable bytes); the record is stamped
@@ -96,8 +116,13 @@ import llm  # noqa: E402
 # Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
 from claude_isolation import isolated_claude_cmd  # noqa: E402
 
-AGNI_PHASES_VERSION = "1.1.3"
+AGNI_PHASES_VERSION = "1.2.0"
 REVIEWER_TOOLS = "Read,Grep,Glob"   # the CLI reviewer's only tools (1.1.3)
+# 1.2.0: the reviewer's own stream, one JSON event a line, so its refused reads can be taken from its tool
+# results (read_cli_stream). The CLI needs --verbose for stream-json in print mode.
+CLI_STREAM_FLAGS = ["--output-format", "stream-json", "--verbose"]
+# A reason longer than this is cut in the record, and the record says how much was left out.
+REFUSAL_REASON_CHARS = 500
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
 # Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. It counts
@@ -391,7 +416,9 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     # instructions but not their permissions. A planted instruction in a reviewed paper could use whatever the account
     # allows. Read, Grep and Glob are all a review needs. One token, comma-separated: the prompt is on stdin, so no
     # positional argument follows this variadic flag.
-    cmd = [CLAUDE_BIN, "-p", "--tools", REVIEWER_TOOLS]
+    # 1.2.0: stream-json, so the reviewer's refused reads come from its own tool results (read_cli_stream). The
+    # review is the stream's result event's "result", the same text the plain output printed.
+    cmd = [CLAUDE_BIN, "-p"] + CLI_STREAM_FLAGS + ["--tools", REVIEWER_TOOLS]
     # Forward the model. Ollama tags ("qwen3.8:27b-mxfp8") carry a colon and
     # are meaningless to the CLI, so they are never passed through.
     if model and ":" not in model:
@@ -409,16 +436,158 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     # episodic memory. The helper adds what its docstring lists (no-capture env,
     # CLAUDE.md excludes, strict empty MCP, no auto-memory, no skills); nothing
     # else changes. Tested by test_isolation.py.
+    #
+    # No cwd= (unchanged in 1.2.0): the CLI runs in this process's working directory, and it can read that folder
+    # with no --add-dir. So main()'s --out guard counts it as a folder the reviewer can read (_cli_cwd). Running the
+    # CLI in an empty folder of its own instead is a recorded follow-up (README, "Not covered").
     cmd, env = isolated_claude_cmd(cmd)
     r = subprocess.run(cmd, input=full, capture_output=True,
                        text=True, encoding="utf-8", errors="replace",
                        timeout=timeout, env=env)
     if r.returncode != 0:
         # The CLI prints an API error (a refusal, say) on stdout, and stderr can be empty: a real
-        # refusal came back as "claude CLI exit 1: " with no cause (2026-11-07). Report both.
-        raise RuntimeError("claude CLI exit %d: stderr: %s | stdout: %s" % (
-            r.returncode, (r.stderr or "").strip()[:300] or "(empty)", (r.stdout or "").strip()[:300] or "(empty)"))
-    return r.stdout.strip()
+        # refusal came back as "claude CLI exit 1: " with no cause (2026-11-07). Report both. In a
+        # stream the cause is in the result event, after the init event, so that is reported when there.
+        said = _stream_result_text(r.stdout)
+        raise RuntimeError("claude CLI exit %d: stderr: %s | %s" % (
+            r.returncode, (r.stderr or "").strip()[:300] or "(empty)",
+            ("result: %s" % said[:300]) if said else
+            "stdout: %s" % ((r.stdout or "").strip()[:300] or "(empty)")))
+    review, refused = read_cli_stream(r.stdout)
+    review = CliReview(review.strip())
+    review.reads_refused = refused
+    return review
+
+
+class CliReview(str):
+    """The review infer_cli returns: its text, and beside it (1.2.0) the reads the reviewer was refused, as
+    read_cli_stream took them from its stream. A str, so every caller that takes the review as text is unchanged;
+    a review that did not come through infer_cli has no reads_refused of its own (None: not known)."""
+    reads_refused = None
+
+
+def _stream_events(stdout):
+    """The stream's JSON objects, one per line. Lines end at LF only: a JSON line holds no raw LF, but the CLI's
+    JSON can hold a raw U+2028, which str.splitlines would split on. Returns (events, lines that are not JSON)."""
+    events, bad = [], 0
+    for line in (stdout or "").split("\n"):
+        if not line.strip():
+            continue
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            bad += 1
+            continue
+        if isinstance(ev, dict):
+            events.append(ev)
+        else:
+            bad += 1
+    return events, bad
+
+
+def _stream_result_text(stdout):
+    """The result event's text, if the stream has one: where a failed call says why."""
+    results = [e for e in _stream_events(stdout)[0] if e.get("type") == "result"]
+    said = results[-1].get("result") if results else None
+    return " ".join(said.split()) if isinstance(said, str) else ""
+
+
+# A tool result that says the call was refused: the CLI's own words (CLI 2.1.332: "Claude requested permissions
+# to read from <path>, but you haven't granted it yet", "Permission to read <path> has been denied", "... has
+# been denied by permission rule ...", "<path> names a path outside the working directories ..."), and the
+# operating system's (a closed home folder: EACCES, EPERM, "Access is denied"). Only an error result is read,
+# so a file that merely says "permission denied" in its text, read whole, is not a refusal.
+_REFUSAL = re.compile(r"haven.t granted it yet|has been denied|denied by (?:\w+ )?(?:permission )?rule"
+                      r"|permission denied|access is denied|operation not permitted|\bEACCES\b|\bEPERM\b"
+                      r"|outside\b[^.\n]{0,40}\bdirector(?:y|ies)\b", re.I)
+
+
+def _block_text(content):
+    """A tool result's content as text: a string, or the text of each text block in a list."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(b.get("text") for b in content if isinstance(b, dict) and isinstance(b.get("text"), str))
+    return ""
+
+
+def _tool_path(name, tool_input):
+    """The path a refused call asked for: Read's file_path, Grep's or Glob's path, or a Glob's pattern when it
+    names no path. None when the call named none (Grep then searches the folder the CLI runs in)."""
+    if not isinstance(tool_input, dict):
+        return None
+    for key in ("file_path", "path", "notebook_path"):
+        if isinstance(tool_input.get(key), str):
+            return tool_input[key]
+    if name == "Glob" and isinstance(tool_input.get("pattern"), str):
+        return tool_input["pattern"]
+    return None
+
+
+def _reason(text):
+    text = " ".join(text.split())
+    if len(text) > REFUSAL_REASON_CHARS:
+        return "%s [... %d more chars not shown]" % (text[:REFUSAL_REASON_CHARS], len(text) - REFUSAL_REASON_CHARS)
+    return text
+
+
+def _reads_refused(events, result):
+    """Each refused tool call, in the order the stream shows it, as {tool, path, reason, seen_in}. Two sources,
+    both the CLI's own record, joined on the call's id: a tool result marked is_error whose text says the call was
+    refused (_REFUSAL), and the result event's permission_denials (tool_name, tool_use_id, tool_input), which the
+    CLI keeps for calls its permission check refused. A refusal in either counts. The path is read from the call
+    itself (its tool_use block, or the denial's tool_input), never from what the reviewer wrote about it."""
+    calls, refused = {}, {}
+    for ev in events:
+        message = ev.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "tool_use":
+                calls[block.get("id")] = (block.get("name"), block.get("input"))
+            elif block.get("type") == "tool_result" and block.get("is_error") is True:
+                text = _block_text(block.get("content"))
+                if _REFUSAL.search(text):
+                    key = block.get("tool_use_id") or ("no id", len(refused))
+                    refused.setdefault(key, {"reason": text, "seen_in": []})["seen_in"].append("tool_result")
+    denials = result.get("permission_denials")
+    for d in denials if isinstance(denials, list) else []:
+        if not isinstance(d, dict):
+            continue
+        key = d.get("tool_use_id") or ("no id", len(refused))
+        entry = refused.setdefault(key, {"reason": "the CLI's permission check refused the call "
+                                                    "(permission_denials)", "seen_in": []})
+        entry["seen_in"].append("permission_denials")
+        if key not in calls:
+            calls[key] = (d.get("tool_name"), d.get("tool_input"))
+    out = []
+    for key, entry in refused.items():
+        name, tool_input = calls.get(key, (None, None))
+        out.append({"tool": name, "path": _tool_path(name, tool_input), "reason": _reason(entry["reason"]),
+                    "seen_in": entry["seen_in"]})
+    return out
+
+
+def read_cli_stream(stdout):
+    """(review, reads_refused) from `claude -p --output-format stream-json --verbose` (1.2.0).
+
+    The review is the one result event's "result": what the plain output printed before 1.2.0. A stream without
+    exactly one result event, or whose result does not say the call succeeded (subtype "success", is_error
+    false), raises, as a failed call does, so it is never read as a review. reads_refused is _reads_refused's
+    list, empty when nothing was refused: it is read from the stream, so an empty list means the stream shows no
+    refusal, not that nobody looked."""
+    events, bad = _stream_events(stdout)
+    results = [e for e in events if e.get("type") == "result"]
+    if len(results) != 1:
+        raise RuntimeError("the CLI's stream-json has %d result events, not one (%d lines not JSON objects); "
+                           "its first 300 chars: %r" % (len(results), bad, (stdout or "")[:300]))
+    result = results[0]
+    if result.get("subtype") != "success" or result.get("is_error") is not False:
+        raise RuntimeError("the CLI's result event does not say the call succeeded (subtype=%r, is_error=%r): %s"
+                           % (result.get("subtype"), result.get("is_error"), str(result.get("result"))[:300]))
+    review = result.get("result")
+    return (review if isinstance(review, str) else ""), _reads_refused(events, result)
 
 
 def cli_stdin(prompt, system):
@@ -764,6 +933,10 @@ def _record(args, model, verdict, review, inputs, **extra):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "known_kills_checked": 0 if verdict == "INVALID" else len(PHASE_KILLS[args.phase]),
         "input_coverage": {"inputs": items, "input_complete": all(i["complete"] for i in items)},
+        # 1.2.0, beside input_coverage: what the reviewer could not open, from its own stream. None is "not
+        # known", and reads_refused_from says why; main() fills both once a review comes back.
+        "reads_refused": None,
+        "reads_refused_from": "no review ran",
         "review": review,
     }
     record.update(extra)
@@ -785,10 +958,18 @@ def _say_record_unwritten(out, err):
           file=sys.stderr)
 
 
-def _refuse(args, out, inputs, sizes, reasons, advice):
+def _refuse(args, out, inputs, sizes, reasons, advice, write=True):
     """No reviewer call happens after this. Writes INVALID over whatever is at the output path, so a
-    stale APPROVED cannot survive, and exits 2 even if that write fails."""
-    err = _write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
+    stale APPROVED cannot survive, and exits 2 even if that write fails.
+
+    write=False (1.2.0; an --out inside a folder the reviewer can read, or one the guard could not check): nothing
+    is written at the path, not even INVALID over an old record, since a reviewer could read whatever goes there
+    (CC's Q16 incident: a reviewer found its own INVALID placeholder in the folder under review). The refusal goes
+    to stderr, it says that anything already at the path is stale, and the exit is 2 (Lyra's call on Q5, round 2:
+    write nothing at a refused --out)."""
+    written = write
+    err = (_write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
+           if written else None)
     print("ERROR: REFUSED -- verdict INVALID, exit 2. No reviewer saw this input.", file=sys.stderr)
     print("       This is NOT a pass. The phase is UNGATED.", file=sys.stderr)
     for reason in reasons:
@@ -803,9 +984,95 @@ def _refuse(args, out, inputs, sizes, reasons, advice):
     print("       What to do: %s" % " ".join(advice), file=sys.stderr)
     if err:
         _say_record_unwritten(out, err)
-    else:
+    elif written:
         print("       Record: %s" % out, file=sys.stderr)
+    else:
+        print("       Record: none written. Nothing is written at %s, not even INVALID: a reviewer could read "
+              "it there." % out, file=sys.stderr)
+        if _unc_out(out):     # never opened (round 3), so whether anything is there is not known
+            print("       Anything already at that path is STALE (it was not looked at). Do not read it as this "
+                  "run's result.", file=sys.stderr)
+        elif os.path.lexists(out):
+            print("       Anything already at that path is STALE. Do not read it as this run's result.",
+                  file=sys.stderr)
     return 2
+
+
+def _granted_dirs(args):
+    """The folders the CLI reviewer is granted with --add-dir, sorted, each once: every --add-dir as given, the
+    repository root that holds the primary (its own folder outside a repository), and the folder of a named
+    secondary or tertiary that exists (the input itself when it is a folder). Unchanged from 1.1.3; 1.2.0 works
+    it out before any record is written, so main() can refuse an --out inside one (_out_in_granted)."""
+    grant_dirs = list(args.add_dir or [])
+    anchor = Path(args.primary).resolve()
+    d = anchor if anchor.is_dir() else anchor.parent
+    for parent in [d] + list(d.parents):
+        if (parent / ".git").exists():
+            grant_dirs.append(str(parent))
+            break
+    else:
+        grant_dirs.append(str(d))
+    for extra in (args.secondary, args.tertiary):
+        if extra and Path(extra).exists():
+            p = Path(extra).resolve()
+            grant_dirs.append(str(p if p.is_dir() else p.parent))
+    return sorted(set(grant_dirs))
+
+
+def _cli_cwd():
+    """The folder the CLI reviewer runs in: infer_cli gives subprocess.run no cwd=, so it is this process's working
+    directory, which the CLI can read with no --add-dir. For the --out guard it is a folder the reviewer can read,
+    like a granted one (1.2.0, round 2: the verifier's R1)."""
+    return os.getcwd()
+
+
+def _unc_out(out):
+    r"""Whether --out is a path the guard cannot compare (1.2.0, round 3: the re-verifier's R3), on Windows only: a
+    \\?\ or \\.\ path (\\?\C:\tree\rec.json) or a UNC path (\\server\share, \\localhost\C$\tree\rec.json), that is,
+    any path that starts with two slashes or backslashes. ntpath gives each a "drive" of its own ("\\?\C:",
+    "\\localhost\C$"), so os.path.commonpath never puts it inside C:\tree, though it can name a file there. Such an
+    --out is refused, not compared: the check fails closed, and the path is never opened. Elsewhere a path that starts
+    with two slashes is an ordinary path, and the guard compares it as before."""
+    s = os.fspath(out)
+    return sys.platform == "win32" and len(s) >= 2 and s[0] in "\\/" and s[1] in "\\/"
+
+
+# File systems that ignore case by default: NTFS on Windows, APFS and HFS+ on macOS. ntpath.normcase lower-cases and
+# realpath gives an existing path its on-disk case, but on Windows only: posixpath.normcase changes nothing, and macOS's
+# realpath keeps the case it is given. So on macOS a differently-cased --out ("TREE/rec.json" for a granted "Tree")
+# named the granted folder and still compared unequal to it. Both sides are casefold()ed on these two platforms (round
+# 2). Elsewhere case is kept, since there "Tree" and "TREE" are two folders.
+_CASE_BLIND_PLATFORMS = ("darwin", "win32")
+
+
+def _path_key(path):
+    """A path as the --out guard compares it: os.path.normcase, then casefold() on _CASE_BLIND_PLATFORMS."""
+    key = os.path.normcase(path)
+    return key.casefold() if sys.platform in _CASE_BLIND_PLATFORMS else key
+
+
+def _path_forms(path):
+    """A path in the two forms the --out guard compares: as given (made absolute) and with its links resolved."""
+    return {_path_key(os.path.abspath(path)), _path_key(os.path.realpath(path))}
+
+
+def _out_in_granted(out, grant_dirs, cwd=None):
+    """The folders the CLI reviewer can read that hold the record path (1.2.0): each granted folder, and the folder
+    the CLI runs in (cwd; _cli_cwd() when not given), which the reviewer reads with no grant. The folder the CLI runs
+    in comes last, and a folder is named once.
+
+    Each path is compared in both forms (_path_forms), and a folder holds the record when any form of the folder
+    holds any form of the record. The resolved form catches a link from outside into a granted folder. The as-given
+    form catches a link inside a granted folder that points out of it: the record lands outside, but the reviewer can
+    read it through the link. Case is ignored on Windows and macOS, whose file systems ignore it, and kept elsewhere
+    (_path_key). Unicode normalisation, which macOS also ignores, is not folded. A folder holds itself: an --out that
+    names a granted folder is inside it."""
+    forms = _path_forms(out)
+    hits = []
+    for g in list(grant_dirs) + [_cli_cwd() if cwd is None else cwd]:
+        if g not in hits and any(_inside(root, f) for root in _path_forms(g) for f in forms):
+            hits.append(g)
+    return hits
 
 
 def _env_budget(name, default):
@@ -851,6 +1118,41 @@ def _llm_review(backend, **kw):
         return answer, ({"thinking": thinking} if thinking.strip() else {}, None)
     return ("[recovered from thinking field]\n\n" + thinking.strip(),
             ({"recovered_from_thinking": True}, "only from the model's thinking, not from an answer"))
+
+
+def _reads_note(backend, review, fell_back):
+    """The record's reads_refused and reads_refused_from (1.2.0). A list only when it was read from the CLI
+    reviewer's stream (infer_cli's CliReview); otherwise None, with the reason it is not known or cannot apply."""
+    if fell_back:
+        return {"reads_refused": None,
+                "reads_refused_from": "the local fallback reviewer is given no tools, so it opens nothing"}
+    if backend != "cli":
+        return {"reads_refused": None,
+                "reads_refused_from": "the http backend gives the reviewer no tools, so it opens nothing"}
+    refused = getattr(review, "reads_refused", None)
+    if refused is None:
+        return {"reads_refused": None,
+                "reads_refused_from": "not known: the review came back without the reviewer's stream"}
+    return {"reads_refused": [dict(r) for r in refused],
+            "reads_refused_from": "the reviewer's stream-json: its tool results and the result event's "
+                                  "permission_denials"}
+
+
+def _say_reads_refused(notes, verdict):
+    """The refused reads on the console, after the verdict, and a warning on stderr when a pass rests on a review
+    that was refused reads. Neither changes the verdict or the exit (1.2.0)."""
+    refused = notes.get("reads_refused")
+    if refused is None:
+        print("Reads refused: not known (%s)" % notes.get("reads_refused_from"))
+        return
+    print("Reads refused: %d" % len(refused))
+    for r in refused:
+        print("  refused: %s %s: %s" % (r.get("tool") or "(tool not named)", r.get("path") or "(no path named)",
+                                       r.get("reason")))
+    if refused and verdict in ("APPROVED", "CONDITIONAL"):
+        print("WARNING: %s from a reviewer that was refused %d read(s). input_complete says what it was given, "
+              "not what it could open: a finding that rests on a refused read may be UNVERIFIED. See "
+              "reads_refused in the record." % (verdict, len(refused)), file=sys.stderr)
 
 
 # ---------------------------------------------------------------- the verdict
@@ -1226,6 +1528,49 @@ def main():
             prompt_chars, local_budget))
         advice.append("Pass narrower files, use a frontier backend, or raise AGNI_LOCAL_CHAR_BUDGET "
                       "and LLM_NUM_CTX together, deliberately.")
+    # 1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer can read puts the record in what it
+    # reviews. A reviewer found its own INVALID placeholder in the folder under review (it rightly ignored it).
+    # Refused like an over-budget prompt. The folders it can read are the granted ones and, since infer_cli gives
+    # the CLI no cwd=, the folder this process runs in (round 2). Only the CLI reviewer reads folders: the http
+    # backend and the local fallback read nothing, so for them an --out anywhere is as before. The default path,
+    # beside the primary, is not checked: refusing it would refuse every run that names no --out (see the README,
+    # "Not covered").
+    # An explicit --out for the CLI reviewer is written to only once the guard has shown it lies outside every
+    # folder the reviewer can read. Refused, or not checked because the guard could not run, nothing is written
+    # there, not even INVALID (Lyra's call on Q5, round 2).
+    guarded = bool(args.out) and args.backend == "cli"
+    out_inside, out_clear = [], not guarded
+    grants_known = True
+    try:
+        grant_dirs = _granted_dirs(args)
+    except OSError as e:     # a folder above the primary that cannot be looked into (a closed home folder)
+        grant_dirs, grants_known = [], False
+        problems.append("the folders the reviewer would be granted could not be worked out: %s: %s"
+                        % (e.__class__.__name__, e))
+        advice.append("Run from a place where every folder above the primary can be read.")
+    out_unc = guarded and _unc_out(out)
+    if out_unc:     # round 3: refused before the guard, which would open the path to compare it
+        problems.append("--out %s is a \\\\?\\ or UNC path (\\\\server\\share): the check cannot compare it reliably "
+                        "with the folders the reviewer can read, so it is refused" % out)
+        advice.append("Give --out as a path on a local drive (C:\\...), outside every folder the reviewer can read.")
+    if guarded and grants_known and not out_unc:
+        try:
+            cli_cwd = _cli_cwd()
+            out_inside = _out_in_granted(out, grant_dirs, cwd=cli_cwd)
+        except OSError as e:     # the folder this process runs in is gone
+            problems.append("whether --out %s is inside a folder the reviewer can read could not be worked out: "
+                            "%s: %s" % (out, e.__class__.__name__, e))
+            advice.append("Run from a folder that exists.")
+        else:
+            out_clear = not out_inside
+        if out_inside:
+            named = ["%s (the folder the CLI reviewer runs in, which it can read)" % d if d == cli_cwd else d
+                     for d in out_inside]
+            problems.append("--out %s is inside %s, which the reviewer can read: it would read the record, and the "
+                            "INVALID placeholder written there while it runs, as part of what it reviews"
+                            % (out, ", ".join(named)))
+            advice.append("Write the record outside every folder the reviewer can read: point --out outside %s."
+                          % ", ".join(out_inside))
     if problems:
         for item in inputs:
             item["complete"] = False
@@ -1244,7 +1589,7 @@ def main():
     print()
 
     if problems:
-        return _refuse(args, out, inputs, sizes, problems, advice)
+        return _refuse(args, out, inputs, sizes, problems, advice, write=out_clear)
     if ollama_bound:
         _warn_if_foreign_llm()
 
@@ -1268,20 +1613,7 @@ def main():
     # Without this the CLI agent is sandboxed to its cwd; on 2026-08-14 that made it
     # unable to read the implementation under review, so it reasoned from a stale
     # secondary review and filed a fixed bug as CRITICAL. Give it the primary, always.
-    grant_dirs = list(args.add_dir or [])
-    anchor = Path(args.primary).resolve()
-    d = anchor if anchor.is_dir() else anchor.parent
-    for parent in [d] + list(d.parents):
-        if (parent / ".git").exists():
-            grant_dirs.append(str(parent))
-            break
-    else:
-        grant_dirs.append(str(d))
-    for extra in (args.secondary, args.tertiary):
-        if extra and Path(extra).exists():
-            p = Path(extra).resolve()
-            grant_dirs.append(str(p if p.is_dir() else p.parent))
-    grant_dirs = sorted(set(grant_dirs))
+    # 1.2.0: grant_dirs was worked out above (_granted_dirs), before any record was written.
     if args.backend == "cli":
         print("  Read access : %s" % ", ".join(grant_dirs))
 
@@ -1332,7 +1664,7 @@ def main():
                 print("  succeeded after %d retries" % i)
             break
 
-    backend_used = args.model
+    backend_used, fell_back = args.model, False
     if (not review or not review.strip()) and args.allow_local_fallback:
         if prompt_chars > local_budget:
             # Ollama would trim it with no signal, so this never sends. Same message as any refusal.
@@ -1344,6 +1676,7 @@ def main():
                             "AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX together, deliberately."])
         print("  falling back to LOCAL model -- review will be marked DEGRADED")
         _warn_if_foreign_llm()
+        fell_back = True
         try:
             review, reply = _llm_review(
                 "ollama", prompt=prompt,
@@ -1370,6 +1703,7 @@ def main():
 
     verdict = parse_verdict(review)
     notes, unsure = reply
+    notes = dict(notes, **_reads_note(args.backend, review, fell_back))
     if unsure and verdict in ("APPROVED", "CONDITIONAL"):
         # Round 6, as the design harness's round 4: a rejection read there is kept, since it cannot pass.
         print("WARNING: %s was read %s. Recorded UNPARSED: NOT a pass." % (verdict, unsure), file=sys.stderr)
@@ -1402,6 +1736,7 @@ def main():
     print(review)
     print("=" * 70)
     print("VERDICT: %s" % verdict)
+    _say_reads_refused(notes, verdict)
 
     if err:
         # The placeholder or an older record is what is on disk, not this verdict.

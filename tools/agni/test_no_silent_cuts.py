@@ -69,6 +69,29 @@ sys.modules["llm"] = sut("llm.py", "llm")
 PHASES = load_by_path(SUT_PHASES, "agni_phases_under_test")
 
 
+def cli_stream(result, before=(), denials=(), subtype="success", is_error=False):
+    """What `claude -p --output-format stream-json --verbose` prints (1.2.0): one JSON object a line, an init
+    event, then `before` (the reviewer's own assistant and user events: tool calls and their results), then the
+    result event carrying the reply and the CLI's permission_denials. ensure_ascii=False, as the CLI writes it: a
+    U+2028 in the reply stays a raw character on its line."""
+    events = ([{"type": "system", "subtype": "init"}] + list(before) +
+              [{"type": "result", "subtype": subtype, "is_error": is_error, "result": result,
+                "permission_denials": list(denials)}])
+    return "\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n"
+
+
+def tool_call(call_id, name, **tool_input):
+    """The reviewer asking for a tool, as its assistant event shows it."""
+    return {"type": "assistant", "message": {"content": [
+        {"type": "tool_use", "id": call_id, "name": name, "input": tool_input}]}}
+
+
+def tool_answer(call_id, content, is_error=True):
+    """A tool's answer to the reviewer, as the user event after the call shows it."""
+    return {"type": "user", "message": {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": call_id, "content": content, "is_error": is_error}]}}
+
+
 def fill(n, canary):
     """Exactly n chars of text ending in the canary."""
     body = "a line of filler for the no silent cuts test\n"
@@ -80,7 +103,16 @@ class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="agni_nsc_"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
-        self.out = self.tmp / "record.json"
+        # 1.2.0: the record goes in a folder of its own. The inputs live in self.tmp, which the reviewer is granted,
+        # and an --out inside a granted folder is refused (OutInsideAGrantedFolder).
+        self.records = Path(tempfile.mkdtemp(prefix="agni_nsc_records_"))
+        self.addCleanup(shutil.rmtree, self.records, ignore_errors=True)
+        self.out = self.records / "record.json"
+        # 1.2.0, round 2: main() runs from a folder of its own. The CLI reviewer runs in main()'s working directory and
+        # can read it, so an --out there is refused (OutInsideAGrantedFolder). Run from the folder the test was
+        # started in, every record would be refused whenever that folder holds the temp folder (a home folder).
+        self.cwd = Path(tempfile.mkdtemp(prefix="agni_nsc_cwd_"))
+        self.addCleanup(shutil.rmtree, self.cwd, ignore_errors=True)
 
     def put(self, rel, content):
         """Write bytes exactly, so nothing on the way adds a CR the test did not plant."""
@@ -105,7 +137,7 @@ class Base(unittest.TestCase):
         posts). Returns what a caller could see."""
         mod = PHASES
         res = SimpleNamespace(code=None, prompts=[], timeouts=[], local_prompts=[], stdout="",
-                              stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[])
+                              stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[], cli_cwds=[])
         replies = list(reply) if isinstance(reply, list) else [reply]
 
         def next_reply():
@@ -130,7 +162,9 @@ class Base(unittest.TestCase):
             res.prompts.append(kw.get("input"))
             res.cli_cmds.append(list(cmd))
             res.cli_envs.append(kw.get("env"))
-            return cli_result or SimpleNamespace(returncode=0, stdout=reply, stderr="")
+            res.cli_cwds.append(kw.get("cwd") or os.getcwd())     # the folder the CLI would run in
+            # 1.2.0: the CLI is asked for stream-json, so a success prints the reply as the result event's text.
+            return cli_result or SimpleNamespace(returncode=0, stdout=cli_stream(reply), stderr="")
 
         clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
         clean.update(env or {})
@@ -140,20 +174,26 @@ class Base(unittest.TestCase):
         cli_patch = (mock.patch.object(mod.subprocess, "run", fake_run) if real_cli
                      else mock.patch.object(mod, "infer_cli", fake_cli))
         stdout, stderr = io.StringIO(), io.StringIO()
-        with mock.patch.dict(os.environ, clean, clear=True), mock.patch.object(sys, "argv", args), \
-                cli_patch, mock.patch.object(mod, "CLAUDE_BIN", "claude-under-test"), \
-                (contextlib.nullcontext() if real_llm else mock.patch.object(mod.llm, "infer", fake_llm)), \
-                mock.patch.object(mod.time, "sleep", lambda s: None), \
-                contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            try:
-                res.code = mod.main()
-            except SystemExit as e:
-                res.code = 1 if isinstance(e.code, str) else e.code
-            except Exception as e:  # a traceback exits 1, which by the contract reads as REJECTED
-                res.crash, res.code = e, 1
+        started_in = os.getcwd()
+        os.chdir(self.cwd)
+        try:
+            with mock.patch.dict(os.environ, clean, clear=True), mock.patch.object(sys, "argv", args), \
+                    cli_patch, mock.patch.object(mod, "CLAUDE_BIN", "claude-under-test"), \
+                    (contextlib.nullcontext() if real_llm else mock.patch.object(mod.llm, "infer", fake_llm)), \
+                    mock.patch.object(mod.time, "sleep", lambda s: None), \
+                    contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                try:
+                    res.code = mod.main()
+                except SystemExit as e:
+                    res.code = 1 if isinstance(e.code, str) else e.code
+                except Exception as e:  # a traceback exits 1, which by the contract reads as REJECTED
+                    res.crash, res.code = e, 1
+        finally:
+            os.chdir(started_in)
         res.stdout, res.stderr = stdout.getvalue(), stderr.getvalue()
-        if use_out and self.out.is_file():
-            res.record = json.loads(self.out.read_text(encoding="utf-8"))
+        record = self.out if self.out.is_absolute() else self.cwd / self.out    # a relative --out is main()'s cwd's
+        if use_out and record.is_file():
+            res.record = json.loads(record.read_text(encoding="utf-8"))
         return res
 
     def assertDelivered(self, res, *canaries):
@@ -672,7 +712,7 @@ class Coverage(Base):
                 self.assertIn(key, it)
             self.assertIs(it["complete"], True)
         self.assertIs(self.coverage(res)["input_complete"], True)
-        self.assertEqual(res.record.get("version"), "1.1.3")
+        self.assertEqual(res.record.get("version"), "1.2.0")
 
     def test_prompt_has_a_coverage_block_and_the_header_a_summary(self):
         a = self.put("a.md", fill(1234, "CANARY_A"))
@@ -1938,6 +1978,466 @@ class PinnedMutants(Base):
             mod.main()
         row = [l for l in stream.getvalue().splitlines() if l.startswith("p1")][0]
         self.assertIn("INPUT NOT COMPLETE, NOT A PASS", row)
+
+
+class ReadsRefused(Base):
+    """1.2.0 (CC, 2026-11-23): what the reviewer could not open is in the record, read from its own stream.
+
+    Every review CC ran that day reported "permission denied" on the trees under review, in prose, while the record
+    said input_complete true. These drive main() down to subprocess.run with a fake stream: no live call."""
+
+    REFUSED_READ = "Claude requested permissions to read from /outside/secret.py, but you haven't granted it yet."
+
+    def stream(self, review, before=(), denials=(), **kw):
+        return SimpleNamespace(returncode=0, stderr="", stdout=cli_stream(review, before, denials, **kw))
+
+    def review_with(self, before=(), denials=(), review=APPROVED, **kw):
+        return self.run_main(["style", self.put("paper.md", "the paper")], real_cli=True,
+                             cli_result=self.stream(review, before, denials, **kw))
+
+    def test_refused_reads_reach_the_record_and_others_do_not(self):
+        res = self.review_with(before=[
+            tool_call("t1", "Read", file_path="/outside/secret.py"),
+            tool_answer("t1", self.REFUSED_READ),
+            tool_call("t2", "Grep", pattern="seed", path="/other/tree"),
+            tool_answer("t2", [{"type": "text", "text": "Permission to use Grep has been denied."}]),
+            # Not refusals: a file that says "permission denied" read whole, and a file that is not there.
+            tool_call("t3", "Read", file_path="/granted/notes.md"),
+            tool_answer("t3", "line 1: the log says permission denied", is_error=False),
+            tool_call("t4", "Read", file_path="/granted/gone.md"),
+            tool_answer("t4", "File does not exist."),
+        ])
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        refused = res.record["reads_refused"]
+        self.assertEqual([(r["tool"], r["path"]) for r in refused],
+                         [("Read", "/outside/secret.py"), ("Grep", "/other/tree")])
+        self.assertEqual(refused[0]["reason"], self.REFUSED_READ)
+        self.assertEqual(refused[1]["reason"], "Permission to use Grep has been denied.")
+        self.assertEqual(refused[0]["seen_in"], ["tool_result"])
+        self.assertIn("stream", res.record["reads_refused_from"])
+        # input_complete stays about what was given; the list sits beside input_coverage.
+        self.assertIs(self.coverage(res)["input_complete"], True)
+        keys = list(res.record)
+        self.assertEqual(keys.index("reads_refused"), keys.index("input_coverage") + 1)
+        self.assertIn("refused 2 read(s)", res.stderr)
+        self.assertIn("/outside/secret.py", res.stdout)
+
+    def test_permission_denials_count_alone_and_join_a_tool_result(self):
+        res = self.review_with(
+            before=[tool_call("t1", "Read", file_path="/outside/a.py"), tool_answer("t1", self.REFUSED_READ)],
+            denials=[{"tool_name": "Read", "tool_use_id": "t1", "tool_input": {"file_path": "/outside/a.py"}},
+                     {"tool_name": "Glob", "tool_use_id": "t9", "tool_input": {"pattern": "/srv/data/**/*.py"}}])
+        refused = res.record["reads_refused"]
+        self.assertEqual([(r["tool"], r["path"], r["seen_in"]) for r in refused],
+                         [("Read", "/outside/a.py", ["tool_result", "permission_denials"]),
+                          ("Glob", "/srv/data/**/*.py", ["permission_denials"])])
+        self.assertIn("permission_denials", refused[1]["reason"])
+
+    def test_the_reviewers_prose_neither_adds_nor_hides_one(self):
+        said = signed("VERDICT: CONDITIONAL\n\nI could not read /outside/x.py (permission denied).", "CONDITIONAL")
+        res = self.review_with(review=said)
+        self.assertEqual((res.code, res.record["reads_refused"]), (0, []))
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/outside/secret.py"),
+                                       tool_answer("t1", self.REFUSED_READ)])
+        self.assertEqual(len(res.record["reads_refused"]), 1, "the review's prose never mentions it")
+
+    def test_operating_system_refusals_count(self):
+        for text in ("EACCES: permission denied, open '/srv/closed/x.py'", "Access is denied.",
+                     "/srv/x names a path outside the working directories, which the read block does not allow"):
+            with self.subTest(text=text):
+                res = self.review_with(before=[tool_call("t1", "Read", file_path="/srv/x"), tool_answer("t1", text)])
+                self.assertEqual([r["path"] for r in res.record["reads_refused"]], ["/srv/x"])
+
+    def test_a_long_reason_says_it_was_cut(self):
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/x"),
+                                       tool_answer("t1", self.REFUSED_READ + " " + "x" * 900)])
+        reason = res.record["reads_refused"][0]["reason"]
+        self.assertIn("more chars not shown]", reason)
+        self.assertTrue(reason.startswith(self.REFUSED_READ))
+
+    def test_refused_reads_change_neither_verdict_nor_exit(self):
+        refusal = [tool_call("t1", "Read", file_path="/outside/secret.py"), tool_answer("t1", self.REFUSED_READ)]
+        for word in WORDS:
+            with self.subTest(word=word):
+                res = self.review_with(before=refusal, review=signed("VERDICT: %s" % word, word))
+                self.assertEqual((res.code, res.record["verdict"]), (EXIT_FOR[word], word))
+                self.assertEqual(len(res.record["reads_refused"]), 1)
+
+    def test_an_unparsed_record_carries_them_too(self):
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/o"), tool_answer("t1", self.REFUSED_READ)],
+                               review="no verdict here")
+        self.assertEqual((res.code, res.record["verdict"]), (2, "UNPARSED"))
+        self.assertEqual(len(res.record["reads_refused"]), 1)
+
+    def test_a_raw_line_separator_in_the_reply_does_not_split_its_line(self):
+        res = self.review_with(review=signed("VERDICT: APPROVED\n\nA finding CANARY_LSEP", "APPROVED"))
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        self.assertIn(" CANARY_LSEP", res.record["review"])
+
+    def test_a_stream_with_no_result_event_is_not_a_review(self):
+        no_result = SimpleNamespace(returncode=0, stderr="", stdout=json.dumps({"type": "system"}) + "\n" + APPROVED)
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=no_result)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"))
+        self.assertIn("result events", res.stdout)
+
+    def test_a_result_that_says_it_failed_is_not_a_review(self):
+        res = self.review_with(subtype="error_during_execution", is_error=True)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"))
+        self.assertIn("does not say the call succeeded", res.stdout)
+
+    def test_a_success_marked_is_error_is_not_a_review(self):
+        # Round 2 (the verifier's X7): the subtype check alone let this through. A CLI API error can come back as
+        # subtype "success" with is_error true, its text in "result"; read as a review it would be this text.
+        said = "API Error: 400 prompt is too long CANARY_IS_ERROR"
+        res = self.review_with(review=said, subtype="success", is_error=True)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"), res.stderr[-400:])
+        self.assertEqual(res.record["review"], "", "the error text was recorded as the review")
+        self.assertIn("is_error=True", res.stdout)
+        # And a result event that does not say is_error at all (a plant of round 2: a truthiness check let it
+        # through). Only is_error false says the call succeeded; a well-formed APPROVED in it is still not a review.
+        silent = {"type": "result", "subtype": "success", "result": APPROVED, "permission_denials": []}
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=SimpleNamespace(
+            returncode=0, stderr="", stdout=json.dumps({"type": "system", "subtype": "init"}) + "\n" +
+            json.dumps(silent) + "\n"))
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"), res.stderr[-400:])
+        self.assertIn("is_error=None", res.stdout)
+
+    def test_a_failed_call_reports_the_result_events_cause(self):
+        fail = SimpleNamespace(returncode=1, stderr="", stdout=cli_stream("API Error: CANARY_STREAM_CAUSE",
+                                                                         subtype="error_during_execution",
+                                                                         is_error=True))
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=fail)
+        self.assertEqual(res.code, 2)
+        self.assertIn("CANARY_STREAM_CAUSE", res.stdout)
+
+    def test_not_known_is_null_and_says_why(self):
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p])        # a reply with no stream (infer_cli patched)
+        self.assertIsNone(res.record["reads_refused"])
+        self.assertIn("not known", res.record["reads_refused_from"])
+        res = self.run_main(["style", p, "--backend", "http"], local=APPROVED)
+        self.assertEqual(res.code, 0, res.stderr[-400:])
+        self.assertIsNone(res.record["reads_refused"])
+        self.assertIn("http backend", res.record["reads_refused_from"])
+        res = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "10"})    # refused: no review ran
+        self.assertEqual((res.record["verdict"], res.record["reads_refused"]), ("INVALID", None))
+        self.assertEqual(res.record["reads_refused_from"], "no review ran")
+
+
+class OutInsideAGrantedFolder(Base):
+    """1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer can read is refused before any call.
+
+    CC wrote --out inside the folder under review, and the reviewer found its own INVALID placeholder there. Round 2:
+    the folder the CLI runs in counts too, links are compared both ways, case is ignored on Windows and macOS, and a
+    refused --out gets nothing written at it."""
+
+    def assertRefusedForOut(self, res, folder):
+        """assertRefused, but with no record made: nothing is written at a refused --out, not even INVALID
+        (test_a_refused_out_gets_nothing_written_there)."""
+        total = len(res.prompts) + len(res.local_prompts)
+        self.assertEqual(total, 0, "a refused run must make no reviewer call; it made %d" % total)
+        self.assertEqual(res.code, 2, "exit code; crash=%r" % res.crash)
+        self.assertIsNone(res.record, "no record may be made inside a granted folder")
+        self.assertIn("NOT a pass", res.stderr)
+        self.assertIn("UNGATED", res.stderr)
+        self.assertIn("is inside", res.stderr)
+        self.assertIn(str(folder), res.stderr)
+        self.assertIn("point --out outside", res.stderr)
+
+    def run_with_out(self, argv, out, **kw):
+        self.out = Path(out)
+        return self.run_main(argv, **kw)
+
+    def link_folder(self, link, target):
+        """A folder link at link pointing to target: a symlink, or a junction on Windows without the symlink
+        privilege (a junction needs none)."""
+        try:
+            os.symlink(target, link, target_is_directory=True)
+        except (OSError, NotImplementedError) as e:
+            try:
+                import _winapi
+                _winapi.CreateJunction(str(target), str(link))
+            except (ImportError, AttributeError, OSError):
+                self.skipTest("cannot make a folder link here: %s" % e)
+
+    def test_inside_the_primarys_folder(self):
+        p = self.put("paper.md", "x")
+        res = self.run_with_out(["style", p], self.tmp / "rec.json")
+        self.assertRefusedForOut(res, self.tmp)
+
+    def test_inside_the_repository_root_granted_automatically(self):
+        (self.tmp / "repo" / ".git").mkdir(parents=True)
+        p = self.put("repo/papers/p/main.md", "x")
+        res = self.run_with_out(["style", p], self.tmp / "repo" / "tools" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "repo")
+
+    def test_inside_the_secondarys_and_the_tertiarys_folder(self):
+        art = self.put("a/art.md", "the artifact")
+        self.put("data/d.txt", "data")
+        self.put("code/c.py", "code")
+        res = self.run_with_out(["results", art, self.tmp / "data"], self.tmp / "data" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "data")
+        res = self.run_with_out(["paper", art, self.tmp / "data", self.tmp / "code"], self.tmp / "code" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "code")
+
+    def test_inside_an_add_dir(self):
+        p = self.put("a/paper.md", "x")
+        extra = Path(tempfile.mkdtemp(prefix="agni_nsc_extra_"))
+        self.addCleanup(shutil.rmtree, extra, ignore_errors=True)
+        res = self.run_with_out(["style", p, "--add-dir", extra], extra / "sub" / "rec.json")
+        self.assertRefusedForOut(res, extra)
+
+    def test_an_out_that_is_the_granted_folder_itself(self):
+        p = self.put("paper.md", "x")
+        self.assertRefusedForOut(self.run_with_out(["style", p], self.tmp), self.tmp)
+
+    def test_a_refused_out_gets_nothing_written_there(self):
+        # Round 2 (Lyra's call on Q5): no INVALID goes inside a folder the reviewer can read, not even over an old
+        # record, since a reviewer could read it (CC's Q16 incident). The refusal is on stderr, with exit 2, and it
+        # says that what is already there is stale.
+        p = self.put("paper.md", "x")
+        inside = self.tmp / "rec.json"
+        for env in (None, {"AGNI_PROMPT_CHAR_BUDGET": "1"}):     # refused for --out alone, and with another reason
+            with self.subTest(env=env):
+                self.stale(inside)
+                before = inside.read_bytes()
+                res = self.run_with_out(["style", p], inside, env=env)
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+                self.assertEqual(inside.read_bytes(), before, "something was written at the refused --out")
+                self.assertIn("none written", res.stderr)
+                self.assertIn("STALE", res.stderr)
+                self.assertIn("NOT a pass", res.stderr)
+        inside.unlink()
+        res = self.run_with_out(["style", p], inside)
+        self.assertEqual((res.code, len(res.prompts)), (2, 0))
+        self.assertFalse(inside.exists(), "no file is made inside a folder under review")
+        self.assertIn("none written", res.stderr)
+        self.assertNotIn("STALE", res.stderr, "nothing was there to be stale")
+
+    def test_an_out_the_guard_could_not_check_gets_nothing_written_there(self):
+        p = self.put("paper.md", "x")
+        self.stale()
+        before = self.out.read_bytes()
+        with mock.patch.object(PHASES, "_granted_dirs", side_effect=PermissionError(13, "closed folder")):
+            res = self.run_main(["style", p])
+        self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+        self.assertIn("could not be worked out", res.stderr)
+        self.assertEqual(self.out.read_bytes(), before, "written at an --out the guard could not check")
+        self.assertIn("STALE", res.stderr)
+
+    def test_an_out_the_guard_could_not_check_for_a_missing_cli_folder_gets_nothing_written_there(self):
+        # Round 3 (the re-verifier's N2): when the folder this process runs in is gone (POSIX can delete a process's
+        # working directory; Windows cannot), _cli_cwd() raises and the guard cannot run. Nothing is written at the
+        # --out it could not check, an old record there is left as it was and called stale, and the exit is 2.
+        p = self.put("paper.md", "x")
+        gone = FileNotFoundError(2, "No such file or directory")
+        for old in (True, False):
+            with self.subTest(old_record=old):
+                if old:
+                    self.stale()
+                    before = self.out.read_bytes()
+                elif self.out.exists():
+                    self.out.unlink()
+                with mock.patch.object(PHASES, "_cli_cwd", side_effect=gone):
+                    res = self.run_main(["style", p])
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+                self.assertNotEqual(res.code, 0)
+                self.assertIsNone(res.crash)
+                self.assertIn("could not be worked out", res.stderr)
+                self.assertIn("Run from a folder that exists.", res.stderr)
+                self.assertIn("none written", res.stderr)
+                if old:
+                    self.assertEqual(self.out.read_bytes(), before, "written at an --out the guard could not check")
+                    self.assertIn("STALE", res.stderr)
+                else:
+                    self.assertFalse(self.out.exists(), "a record was made at an --out the guard could not check")
+
+    def test_a_unc_or_device_out_is_refused_on_windows(self):
+        # Round 3 (the re-verifier's R3): ntpath gives a \\?\ path and a UNC share each a drive of its own, so
+        # commonpath never puts \\?\C:\tree\rec.json or \\localhost\C$\tree\rec.json inside C:\tree, though each names
+        # a file there. On Windows such an --out is refused before the guard runs, and is never opened. Tested with
+        # path strings: no share is reached.
+        unc = (r"\\?\C:\agni_nsc\tree\rec.json", r"\\?\UNC\server\share\rec.json", r"\\server\share\rec.json",
+               r"\\localhost\C$\agni_nsc\tree\rec.json", "//server/share/rec.json", r"\\.\C:\agni_nsc\rec.json",
+               "\\/server/share/rec.json")
+        plain = (r"C:\agni_nsc\tree\rec.json", "C:/agni_nsc/rec.json", r"\agni_nsc\rec.json", "rec.json",
+                 r"sub\rec.json", "/srv/agni_nsc/rec.json")
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            for s in unc:
+                with self.subTest(win32=s):
+                    self.assertTrue(PHASES._unc_out(s))
+                    self.assertTrue(PHASES._unc_out(Path(s)) or os.name != "nt", "lost by Path() on Windows")
+            for s in plain:
+                with self.subTest(win32_plain=s):
+                    self.assertFalse(PHASES._unc_out(s))
+        with mock.patch.object(PHASES.sys, "platform", "linux"):     # elsewhere //x is an ordinary path
+            for s in unc + plain:
+                with self.subTest(linux=s):
+                    self.assertFalse(PHASES._unc_out(s))
+        # Through main(): refused with exit 2, no reviewer call, nothing written, and the guard never runs, so no path
+        # is opened. The \\?\ form of a real local folder outside the tree shows that nothing lands there either.
+        # --out goes in argv with use_out=False, so the harness does not look for a record at the path either.
+        p = self.put("paper.md", "x")
+        local = self.records / "via_prefix" / "rec.json"
+        local.parent.mkdir()
+        for out in ("\\\\?\\" + str(local), r"\\localhost\C$\agni_nsc_nowhere\rec.json",
+                    r"\\agni-nsc-no-such-host\share\rec.json"):
+            with self.subTest(main=out):
+                with mock.patch.object(PHASES.sys, "platform", "win32"), \
+                        mock.patch.object(PHASES, "_out_in_granted",
+                                          side_effect=AssertionError("the guard ran on a \\\\?\\ or UNC --out")):
+                    res = self.run_main(["style", p, "--out", out], use_out=False)
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), "crash=%r %s" % (res.crash, res.stderr[-400:]))
+                self.assertIn("UNC path", res.stderr)
+                self.assertIn("cannot compare it reliably", res.stderr)
+                self.assertIn("Give --out as a path on a local drive", res.stderr)
+                self.assertIn("none written", res.stderr)
+                self.assertIn("it was not looked at", res.stderr)
+                self.assertFalse(local.exists(), "a record was written through the \\\\?\\ prefix")
+        # Control: the same folder, given plainly, is outside the tree and runs.
+        res = self.run_with_out(["style", p], local)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
+    def test_the_unc_refusal_is_for_the_cli_backend_only(self):
+        # Round 4 (the re-verifier's Q1): the http backend grants the reviewer no folder, so its --out is not checked
+        # (test_the_http_backend_grants_no_folder_so_its_out_is_not_checked), and the \\?\ and UNC refusal, which
+        # exists only because the guard cannot compare such a path, is not applied to it either. Refusing it there
+        # would cost a run and protect nothing. On Windows the \\?\ form names the local file; elsewhere a path that
+        # starts with exactly two slashes does, and _unc_out sees both once sys.platform says win32.
+        # Round 5: the POSIX branch first ran on Linux (MTH) and failed. str(local) starts with a slash already, so
+        # "//" + str(local) began with three, and POSIX pathlib reads three or more leading slashes as one: main()'s
+        # Path(args.out) was a plain /tmp path, the CLI control was not refused, and the string check below passed
+        # all the same. The prefix is now exactly two slashes, and the check reads the path as main() does.
+        p = self.put("paper.md", "x")
+        local = self.records / "http_unc" / "rec.json"
+        local.parent.mkdir()
+        out = "\\\\?\\" + str(local) if os.name == "nt" else "//" + str(local).lstrip("/")
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            self.assertTrue(PHASES._unc_out(out), "the --out must be one the CLI backend refuses, or this tests nothing")
+            self.assertTrue(PHASES._unc_out(Path(out)), "main() reads --out through Path(), which must keep the prefix")
+            res = self.run_main(["style", p, "--backend", "http", "--out", out], use_out=False, local=APPROVED)
+        self.assertEqual(res.code, 0, "crash=%r %s" % (res.crash, res.stderr[-400:]))
+        self.assertEqual((len(res.local_prompts), len(res.prompts)), (1, 0))
+        self.assertNotIn("UNC path", res.stderr)
+        self.assertNotIn("cannot compare it reliably", res.stderr)
+        self.assertEqual(json.loads(local.read_text(encoding="utf-8"))["verdict"], "APPROVED")
+        # Control: the same --out on the CLI backend is refused before any call, and nothing is written there.
+        local.unlink()
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            res = self.run_main(["style", p, "--out", out], use_out=False)
+        self.assertEqual((res.code, len(res.prompts)), (2, 0), "crash=%r %s" % (res.crash, res.stderr[-400:]))
+        self.assertIn("UNC path", res.stderr)
+        self.assertFalse(local.exists(), "a record was written at a refused --out")
+
+    def test_through_a_link_into_a_granted_folder(self):
+        p = self.put("paper.md", "x")
+        link = self.records / "into_tree"
+        self.link_folder(link, self.tmp)
+        self.assertRefusedForOut(self.run_with_out(["style", p], link / "rec.json"), self.tmp)
+
+    def test_through_a_link_inside_a_granted_folder_that_points_out_of_it(self):
+        # Round 2 (the verifier's X4): the record would land outside, but the reviewer could read it through the
+        # link. Only the path as given shows that, so a guard that compared resolved paths alone let it through.
+        p = self.put("paper.md", "x")
+        elsewhere = self.records / "elsewhere"
+        elsewhere.mkdir()
+        link = self.tmp / "out_link"
+        self.link_folder(link, elsewhere)
+        res = self.run_with_out(["style", p], link / "rec.json")
+        self.assertRefusedForOut(res, self.tmp)
+        self.assertFalse((elsewhere / "rec.json").exists(), "a record was written through the link")
+
+    def test_inside_the_folder_the_cli_runs_in(self):
+        # Round 2 (the verifier's R1): infer_cli gives subprocess.run no cwd=, so the CLI runs in main()'s working
+        # directory, which it can read with no --add-dir. An --out there is refused, given whole or relative.
+        p = self.put("paper.md", "x")
+        for out in (self.cwd / "rec.json", Path("rec.json"), Path("sub") / "rec.json"):
+            with self.subTest(out=str(out)):
+                res = self.run_with_out(["style", p], out)
+                self.assertRefusedForOut(res, self.cwd)
+                self.assertIn("the folder the CLI reviewer runs in", res.stderr)
+                self.assertFalse((self.cwd / out).exists())
+
+    def test_the_folder_the_guard_counts_is_the_one_the_cli_gets(self):
+        # Ties the guard to the call: should infer_cli ever give the CLI a cwd= of its own, this fails until the
+        # guard follows it.
+        p = self.put("paper.md", "x")
+        counted, real = [], PHASES._cli_cwd
+
+        def spy():
+            counted.append(real())
+            return counted[-1]
+
+        with mock.patch.object(PHASES, "_cli_cwd", spy):
+            res = self.run_main(["style", p], real_cli=True)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        self.assertEqual(counted, res.cli_cwds)
+        self.assertEqual(os.path.normcase(counted[0]), os.path.normcase(str(self.cwd)))
+
+    def test_case_is_ignored_on_macos_as_on_windows(self):
+        # Round 2 (the verifier's X3 note): APFS and HFS+ ignore case, as NTFS does, but on macOS posixpath.normcase
+        # keeps it and realpath keeps the case it is given, so only casefold() makes TREE and Tree one folder there.
+        # Simulated with posixpath and paths that do not exist, which realpath leaves as they are. Linux keeps case
+        # (two folders): the control that shows the simulated comparison does not fold case by itself.
+        import posixpath
+        grant, out, cwd = "/agni_nsc_nowhere/Tree", "/agni_nsc_nowhere/TREE/papers/rec.json", "/agni_nsc_elsewhere"
+        for platform, want in (("darwin", [grant]), ("linux", [])):
+            with self.subTest(platform=platform):
+                with mock.patch.object(PHASES.os, "path", posixpath), mock.patch.object(PHASES.sys, "platform", platform):
+                    got = PHASES._out_in_granted(out, [grant], cwd=cwd)
+                self.assertEqual(got, want)
+        # And on this machine, whatever it is: a differently-cased --out into a real granted folder is refused where
+        # the platform ignores case.
+        if sys.platform in ("darwin", "win32"):
+            p = self.put("Tree/paper.md", "x")
+            res = self.run_with_out(["style", p], Path(str(self.tmp / "TREE")) / "rec.json")
+            self.assertRefusedForOut(res, self.tmp / "Tree")
+
+    def test_outside_every_granted_folder_runs(self):
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p, "--add-dir", self.tmp / "a"])
+        self.assertEqual((res.code, res.record["verdict"], len(res.prompts)), (0, "APPROVED", 1))
+
+    def test_a_sibling_whose_name_starts_the_same_is_not_inside(self):
+        p = self.put("tree/paper.md", "x")
+        (self.tmp / "tree_records").mkdir()
+        res = self.run_with_out(["style", p], self.tmp / "tree_records" / "rec.json")
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
+    def test_the_http_backend_grants_no_folder_so_its_out_is_not_checked(self):
+        p = self.put("paper.md", "x")
+        res = self.run_with_out(["style", p, "--backend", "http"], self.tmp / "rec.json", local=APPROVED)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
+    def test_the_default_path_beside_the_primary_is_not_refused(self):
+        # Not checked on purpose (README, "Not covered"): refusing it would refuse every run without --out.
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p], use_out=False)
+        self.assertEqual(res.code, 0, res.stderr[-400:])
+
+    def test_the_style_survey_stages_its_record_outside_the_repository(self):
+        mod = sut("run_style_survey.py", "survey_under_test")
+        self.put("papers/p1/main.tex", "flight")
+        self.put("papers/p1/academic/main.tex", "twin")
+        outdir = self.tmp / "papers" / "tools" / "style"     # OUT sits inside the repository, as it does for real
+        outdir.mkdir(parents=True)
+        seen = {}
+
+        def fake_run(cmd, **kw):
+            seen["out"] = Path(cmd[cmd.index("--out") + 1])
+            seen["cwd"] = kw.get("cwd") or os.getcwd()      # where agni_phases, and so its CLI reviewer, runs
+            seen["out"].write_text(json.dumps({"verdict": "APPROVED", "review": "text", "input_coverage": {
+                "inputs": [], "input_complete": True}}), encoding="utf-8")
+            return SimpleNamespace(returncode=0, stderr="", stdout="")
+
+        with mock.patch.object(mod, "PR", self.tmp / "papers"), mock.patch.object(mod, "OUT", outdir), \
+                mock.patch.object(mod.subprocess, "run", fake_run):
+            rec = mod.run_one("p1")
+        self.assertFalse(PHASES._out_in_granted(seen["out"], [str(self.tmp / "papers")], cwd=seen["cwd"]),
+                         "the survey's --out %s is inside the repository or %s" % (seen["out"], seen["cwd"]))
+        self.assertEqual(rec["status"], "OK", rec)
+        self.assertTrue((outdir / "p1.agni_style.json").is_file(), "the record is moved to OUT after the run")
+        self.assertFalse(seen["out"].parent.exists(), "the staging folder is removed")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,10 @@ Failures are recorded as failures -- a missing output never counts as a pass.
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -41,11 +43,16 @@ def run_one(name):
         return rec
     env = dict(os.environ)
     env.setdefault("AGNI_CLI_TIMEOUT", "1500")
+    # agni_phases 1.2.0 refuses an --out inside a folder the reviewer is granted, and OUT is inside this
+    # repository, which it is granted. So the record is written in a folder of its own outside it while the
+    # review runs, and moved to OUT when the run ends, however it ends.
+    stage = Path(tempfile.mkdtemp(prefix="agni_style_"))
+    staged = stage / out.name
     t0 = time.time()
     try:
         r = subprocess.run(
             [sys.executable, str(HERE / "agni_phases.py"), "style",
-             str(flight), str(twin), "--out", str(out)],
+             str(flight), str(twin), "--out", str(staged)],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             timeout=2400, cwd=str(HERE), env=env)
         rec["exit"] = r.returncode
@@ -54,6 +61,11 @@ def run_one(name):
         rec.update(status="FAIL", reason="driver timeout 2400s",
                    elapsed=round(time.time() - t0, 1))
         return rec
+    finally:
+        # A run that wrote nothing leaves OUT as it was, and the checks below read it as before.
+        if staged.is_file():
+            shutil.move(str(staged), str(out))
+        shutil.rmtree(stage, ignore_errors=True)
     rec["elapsed"] = round(time.time() - t0, 1)
     # A gate that returns nothing has not passed.
     if not out.exists():

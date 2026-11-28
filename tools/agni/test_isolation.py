@@ -66,6 +66,17 @@ WANT_EXCLUDES = {HOME + "/.claude/CLAUDE.md", HOME + "/.claude/**"}
 FAKE_BIN = "claude-under-test"
 STRICT = "--strict-mcp-config"
 ADDED_ENV = (NO_CAPTURE_ENV, NO_AUTO_MEMORY_ENV)
+STREAM = ["--output-format", "stream-json", "--verbose"]   # 1.2.0: infer_cli reads the reviewer's stream
+
+
+def stream_of(result):
+    """What `claude -p --output-format stream-json --verbose` prints, cut to the events infer_cli reads (1.2.0):
+    one JSON object a line, the reply in the result event's "result"."""
+    events = [{"type": "system", "subtype": "init"},
+              {"type": "assistant", "message": {"content": [{"type": "text", "text": result}]}},
+              {"type": "result", "subtype": "success", "is_error": False, "result": result,
+               "permission_denials": []}]
+    return "\n".join(json.dumps(e) for e in events) + "\n"
 
 
 def load_agni_phases():
@@ -163,7 +174,7 @@ class InferCliIsIsolated(unittest.TestCase):
 
         def fake_run(cmd, **kwargs):
             seen["cmd"], seen["kw"] = list(cmd), kwargs
-            return SimpleNamespace(returncode=0, stdout=" ok \n", stderr="")
+            return SimpleNamespace(returncode=0, stdout=stream_of(" ok \n"), stderr="")
 
         with mock.patch.object(self.mod, "CLAUDE_BIN", FAKE_BIN), \
                 mock.patch.object(self.mod.subprocess, "run", fake_run):
@@ -221,15 +232,15 @@ class InferCliIsIsolated(unittest.TestCase):
     def test_everything_else_unchanged(self):
         cmd, kw = self.call(model="haiku", add_dirs=["dir_a", "dir_b"])
         self.assertEqual(strip_isolation(cmd),
-                         [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob", "--model", "haiku", "--add-dir", "dir_a",
-                          "--add-dir", "dir_b"])
+                         [FAKE_BIN, "-p"] + STREAM + ["--tools", "Read,Grep,Glob", "--model", "haiku", "--add-dir",
+                                                      "dir_a", "--add-dir", "dir_b"])
         self.assertIn("THE SYSTEM", kw["input"])
         self.assertTrue(kw["input"].endswith("THE PROMPT"))
         for k, v in (("capture_output", True), ("text", True), ("encoding", "utf-8"),
                      ("errors", "replace"), ("timeout", 7)):
             self.assertEqual(kw.get(k), v, k)
         cmd2, _ = self.call(model="qwen3.8:27b-mxfp8")   # ollama tags are never forwarded
-        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p", "--tools", "Read,Grep,Glob"])
+        self.assertEqual(strip_isolation(cmd2), [FAKE_BIN, "-p"] + STREAM + ["--tools", "Read,Grep,Glob"])
 
     def test_the_reviewer_gets_read_only_tools(self):
         # 1.1.3: Read, Grep and Glob only, as one token (no Bash, no Edit, no Write, no web)
@@ -438,10 +449,26 @@ def _one_line(s, n=60):
     return s if len(s) <= n else s[:n] + "..."
 
 
+def _stream_answer(stdout):
+    """The result event's text from a stream-json stdout, or a marker that it has none. infer_cli's command asks
+    for stream-json since 1.2.0, so a control built from it does too, and its raw stdout is never "" or NONE: read
+    whole, it would pass every control check below without the answer in it."""
+    for line in stdout.split("\n"):
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(ev, dict) and ev.get("type") == "result":
+            return ev["result"].strip() if isinstance(ev.get("result"), str) else "<control: result not text>"
+    return "<control: no result event>"
+
+
 def _ask(cmd, env, prompt, cwd=None):
     r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, encoding="utf-8",
                        errors="replace", timeout=240, env=env, cwd=cwd)
-    return r.returncode, (r.stdout.strip() if r.returncode == 0 else "<control exit %d>" % r.returncode)
+    if r.returncode != 0:
+        return r.returncode, "<control exit %d>" % r.returncode
+    return r.returncode, (_stream_answer(r.stdout) if "stream-json" in cmd else r.stdout.strip())
 
 
 def _infer_cli_command(mod):
@@ -450,7 +477,7 @@ def _infer_cli_command(mod):
 
     def fake_run(cmd, **kwargs):
         seen["cmd"], seen["env"] = list(cmd), kwargs.get("env")
-        return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return SimpleNamespace(returncode=0, stdout=stream_of("x"), stderr="")
 
     with mock.patch.object(mod.subprocess, "run", fake_run):
         mod.infer_cli("x", None, 240, model="haiku")
@@ -458,8 +485,9 @@ def _infer_cli_command(mod):
 
 
 def _init_event(cmd, env, cwd=None):
-    """The CLI's own record of what it loaded: the system/init event of a stream-json run."""
-    r = subprocess.run(cmd + ["--output-format", "stream-json", "--verbose"], input="Reply with OK.",
+    """The CLI's own record of what it loaded: the system/init event of a stream-json run. infer_cli's command
+    already asks for one (1.2.0); the flags are added only to a command that does not."""
+    r = subprocess.run(cmd + ([] if "stream-json" in cmd else STREAM), input="Reply with OK.",
                        capture_output=True, text=True, encoding="utf-8", errors="replace",
                        timeout=240, env=env, cwd=cwd)
     for line in r.stdout.splitlines():
