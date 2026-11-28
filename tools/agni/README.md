@@ -27,18 +27,30 @@ recorded the cut.
   the exit code do not change. The review is the stream's one result event's `result`, the text the plain output
   printed. A stream without exactly one result event, or whose result does not say it succeeded, is a failed call
   (retried, then `INVALID`), never a review. The stream is split at LF only: the CLI's JSON can hold a raw U+2028.
-- **An `--out` inside a granted folder is refused.** CC wrote `--out` inside the folder under review, and the
-  reviewer found its own `INVALID` placeholder there. With the CLI backend, an `--out` inside the primary's,
-  secondary's or tertiary's folder, an `--add-dir`, or the repository root granted automatically (compared as
-  given and with links resolved; a folder holds itself) is `INVALID`, exit 2, before any reviewer call, as an
-  over-budget prompt is. An old record at that path is overwritten with `INVALID`, so a stale `APPROVED` cannot
-  stand, but no new file is made there. `run_style_survey.py` wrote its records into `tools/agni/style/`, inside this
-  repository, so it now writes each to a folder of its own outside it and moves it there when the run ends.
-- Tests: `ReadsRefused` (12) and `OutInsideAGrantedFolder` (12) in `test_no_silent_cuts.py`, driven through
-  `subprocess.run` with a fake stream; no live call. Three fixtures changed with the interface: the harness's fake
-  CLI prints a stream, `Base` writes its record outside the folder under review, and `test_isolation.py` pins the
-  new flags and reads a control's answer from its stream (read raw, a stream is never `NONE`, so the live controls
-  would have passed with no answer in them). Ten planted breakages, one at a time, each failed at least one test.
+- **An `--out` inside a folder the reviewer can read is refused.** CC wrote `--out` inside the folder under
+  review, and the reviewer found its own `INVALID` placeholder there. With the CLI backend, an `--out` is refused
+  before any reviewer call, as an over-budget prompt is (exit 2), when it lies inside any of these:
+  - the primary's, secondary's or tertiary's folder, an `--add-dir`, or the repository root granted automatically;
+  - the folder `agni_phases.py` runs in. `infer_cli` gives the CLI no `cwd=`, so the CLI runs there and can read it
+    with no `--add-dir`. A relative `--out` is always inside it.
+
+  Each path is compared as given and with links resolved. That catches a link from outside into a granted folder,
+  and a link inside one that points out of it, which the reviewer could read the record through. Case is ignored
+  on Windows and macOS (`casefold()`), whose file systems ignore it, and kept elsewhere. A folder holds itself.
+  **Nothing is written at a refused `--out`**, not even `INVALID` over an old record, since a reviewer could read
+  it (Lyra's call, round 2). The same holds when the check could not run. The refusal is on stderr and says that
+  anything already at the path is stale. `run_style_survey.py` wrote its records into `tools/agni/style/`, inside
+  this repository, so it now writes each to a folder of its own outside it and moves it there when the run ends.
+- Tests: `ReadsRefused` (13) and `OutInsideAGrantedFolder` (17) in `test_no_silent_cuts.py`, driven through
+  `subprocess.run` with a fake stream; no live call. Four fixtures changed with the interface:
+  - the harness's fake CLI prints a stream;
+  - `Base` writes its record outside the folder under review, and runs `main()` from a folder of its own, so the
+    suite no longer depends on the folder it was started from;
+  - `test_isolation.py` pins the new flags;
+  - `test_isolation.py` reads a control's answer from its stream. Read raw, a stream is never `NONE`, so the live
+    controls would have passed with no answer in them.
+
+  Each planted breakage, applied one at a time, failed at least one test.
 
 **1.1.3 (2026-11-08):** the reviewer's environment is an allowlist (Lyra): only what the CLI needs to start and reach the API (PATH, home and temp folders, the Windows system set, locale, TERM, proxies and CA files, `CLAUDE_CONFIG_DIR`) and our own switches; every other variable, keys and tokens included, is dropped whatever it is named. A machine whose CLI logs in through the environment (`ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN`, Bedrock's variables) names them in `keep_env`. Checked live on the lab server (CLI 2.1.309, login from stored credentials): the reviewer process held 10 variables and answered; the 1.1.2 behaviour passed 62, a planted canary key among them. Also, the CLI reviewer gets read-only tools, `--tools Read,Grep,Glob`. It still reads the repository, by design, and can do nothing else. In print mode the CLI approves read-only Bash on its own, and the isolation helper keeps out the account owner's memory and instructions but not their permission grants, so a planted instruction in a reviewed paper could have used whatever the account allows (Lyra agreed, 11-08).
 
@@ -181,6 +193,12 @@ read; weigh them accordingly.
   still read that placeholder. Records committed in a granted folder by earlier runs (`tools/agni/style/`) are
   still there for a reviewer to read. The http backend and the local fallback are granted nothing, so their
   `--out` is not checked.
+- The CLI reviewer still runs in the caller's working directory, and can read all of it. The `--out` check counts
+  that folder, but nothing stops the reviewer reading the rest of it. Run from a home folder, that is the whole home
+  folder. A follow-up: run the CLI in an empty folder of its own, which would also let `--out` sit under the
+  caller's folder again. Not done in 1.2.0.
+- On macOS the `--out` check folds case but not Unicode normalisation, which APFS also ignores. An `--out` spelled
+  with decomposed accents can name a granted folder spelled with composed ones and not be refused.
 - `sys.path` puts agni-open's `llm.py` first on machines that have it. That copy is not edited here
   and may not set `num_ctx`. An Ollama-bound call prints a warning when `llm.py` is not the copy beside
   `agni_phases.py`, but it does not stop the call. A pass through such a copy over Ollama is `UNPARSED`,

@@ -108,6 +108,11 @@ class Base(unittest.TestCase):
         self.records = Path(tempfile.mkdtemp(prefix="agni_nsc_records_"))
         self.addCleanup(shutil.rmtree, self.records, ignore_errors=True)
         self.out = self.records / "record.json"
+        # 1.2.0, round 2: main() runs from a folder of its own. The CLI reviewer runs in main()'s working directory and
+        # can read it, so an --out there is refused (OutInsideAGrantedFolder). Run from the folder the test was
+        # started in, every record would be refused whenever that folder holds the temp folder (a home folder).
+        self.cwd = Path(tempfile.mkdtemp(prefix="agni_nsc_cwd_"))
+        self.addCleanup(shutil.rmtree, self.cwd, ignore_errors=True)
 
     def put(self, rel, content):
         """Write bytes exactly, so nothing on the way adds a CR the test did not plant."""
@@ -132,7 +137,7 @@ class Base(unittest.TestCase):
         posts). Returns what a caller could see."""
         mod = PHASES
         res = SimpleNamespace(code=None, prompts=[], timeouts=[], local_prompts=[], stdout="",
-                              stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[])
+                              stderr="", crash=None, record=None, cli_cmds=[], cli_envs=[], cli_cwds=[])
         replies = list(reply) if isinstance(reply, list) else [reply]
 
         def next_reply():
@@ -157,6 +162,7 @@ class Base(unittest.TestCase):
             res.prompts.append(kw.get("input"))
             res.cli_cmds.append(list(cmd))
             res.cli_envs.append(kw.get("env"))
+            res.cli_cwds.append(kw.get("cwd") or os.getcwd())     # the folder the CLI would run in
             # 1.2.0: the CLI is asked for stream-json, so a success prints the reply as the result event's text.
             return cli_result or SimpleNamespace(returncode=0, stdout=cli_stream(reply), stderr="")
 
@@ -168,20 +174,26 @@ class Base(unittest.TestCase):
         cli_patch = (mock.patch.object(mod.subprocess, "run", fake_run) if real_cli
                      else mock.patch.object(mod, "infer_cli", fake_cli))
         stdout, stderr = io.StringIO(), io.StringIO()
-        with mock.patch.dict(os.environ, clean, clear=True), mock.patch.object(sys, "argv", args), \
-                cli_patch, mock.patch.object(mod, "CLAUDE_BIN", "claude-under-test"), \
-                (contextlib.nullcontext() if real_llm else mock.patch.object(mod.llm, "infer", fake_llm)), \
-                mock.patch.object(mod.time, "sleep", lambda s: None), \
-                contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            try:
-                res.code = mod.main()
-            except SystemExit as e:
-                res.code = 1 if isinstance(e.code, str) else e.code
-            except Exception as e:  # a traceback exits 1, which by the contract reads as REJECTED
-                res.crash, res.code = e, 1
+        started_in = os.getcwd()
+        os.chdir(self.cwd)
+        try:
+            with mock.patch.dict(os.environ, clean, clear=True), mock.patch.object(sys, "argv", args), \
+                    cli_patch, mock.patch.object(mod, "CLAUDE_BIN", "claude-under-test"), \
+                    (contextlib.nullcontext() if real_llm else mock.patch.object(mod.llm, "infer", fake_llm)), \
+                    mock.patch.object(mod.time, "sleep", lambda s: None), \
+                    contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                try:
+                    res.code = mod.main()
+                except SystemExit as e:
+                    res.code = 1 if isinstance(e.code, str) else e.code
+                except Exception as e:  # a traceback exits 1, which by the contract reads as REJECTED
+                    res.crash, res.code = e, 1
+        finally:
+            os.chdir(started_in)
         res.stdout, res.stderr = stdout.getvalue(), stderr.getvalue()
-        if use_out and self.out.is_file():
-            res.record = json.loads(self.out.read_text(encoding="utf-8"))
+        record = self.out if self.out.is_absolute() else self.cwd / self.out    # a relative --out is main()'s cwd's
+        if use_out and record.is_file():
+            res.record = json.loads(record.read_text(encoding="utf-8"))
         return res
 
     def assertDelivered(self, res, *canaries):
@@ -2073,6 +2085,15 @@ class ReadsRefused(Base):
         self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"))
         self.assertIn("does not say the call succeeded", res.stdout)
 
+    def test_a_success_marked_is_error_is_not_a_review(self):
+        # Round 2 (the verifier's X7): the subtype check alone let this through. A CLI API error can come back as
+        # subtype "success" with is_error true, its text in "result"; read as a review it would be this text.
+        said = "API Error: 400 prompt is too long CANARY_IS_ERROR"
+        res = self.review_with(review=said, subtype="success", is_error=True)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"), res.stderr[-400:])
+        self.assertEqual(res.record["review"], "", "the error text was recorded as the review")
+        self.assertIn("is_error=True", res.stdout)
+
     def test_a_failed_call_reports_the_result_events_cause(self):
         fail = SimpleNamespace(returncode=1, stderr="", stdout=cli_stream("API Error: CANARY_STREAM_CAUSE",
                                                                          subtype="error_during_execution",
@@ -2096,13 +2117,15 @@ class ReadsRefused(Base):
 
 
 class OutInsideAGrantedFolder(Base):
-    """1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer is granted is refused before any call.
+    """1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer can read is refused before any call.
 
-    CC wrote --out inside the folder under review, and the reviewer found its own INVALID placeholder there."""
+    CC wrote --out inside the folder under review, and the reviewer found its own INVALID placeholder there. Round 2:
+    the folder the CLI runs in counts too, links are compared both ways, case is ignored on Windows and macOS, and a
+    refused --out gets nothing written at it."""
 
     def assertRefusedForOut(self, res, folder):
-        """assertRefused, but with no record made: nothing was at the path, and none is made inside a granted
-        folder (an old record there is overwritten instead: test_a_stale_record_there_...)."""
+        """assertRefused, but with no record made: nothing is written at a refused --out, not even INVALID
+        (test_a_refused_out_gets_nothing_written_there)."""
         total = len(res.prompts) + len(res.local_prompts)
         self.assertEqual(total, 0, "a refused run must make no reviewer call; it made %d" % total)
         self.assertEqual(res.code, 2, "exit code; crash=%r" % res.crash)
@@ -2116,6 +2139,18 @@ class OutInsideAGrantedFolder(Base):
     def run_with_out(self, argv, out, **kw):
         self.out = Path(out)
         return self.run_main(argv, **kw)
+
+    def link_folder(self, link, target):
+        """A folder link at link pointing to target: a symlink, or a junction on Windows without the symlink
+        privilege (a junction needs none)."""
+        try:
+            os.symlink(target, link, target_is_directory=True)
+        except (OSError, NotImplementedError) as e:
+            try:
+                import _winapi
+                _winapi.CreateJunction(str(target), str(link))
+            except (ImportError, AttributeError, OSError):
+                self.skipTest("cannot make a folder link here: %s" % e)
 
     def test_inside_the_primarys_folder(self):
         p = self.put("paper.md", "x")
@@ -2148,30 +2183,103 @@ class OutInsideAGrantedFolder(Base):
         p = self.put("paper.md", "x")
         self.assertRefusedForOut(self.run_with_out(["style", p], self.tmp), self.tmp)
 
-    def test_a_stale_record_there_becomes_invalid_and_no_new_file_is_made(self):
+    def test_a_refused_out_gets_nothing_written_there(self):
+        # Round 2 (Lyra's call on Q5): no INVALID goes inside a folder the reviewer can read, not even over an old
+        # record, since a reviewer could read it (CC's Q16 incident). The refusal is on stderr, with exit 2, and it
+        # says that what is already there is stale.
         p = self.put("paper.md", "x")
         inside = self.tmp / "rec.json"
-        self.stale(inside)
-        res = self.run_with_out(["style", p], inside)
-        self.assertEqual(res.record["verdict"], "INVALID", "an old APPROVED must not stand")
+        for env in (None, {"AGNI_PROMPT_CHAR_BUDGET": "1"}):     # refused for --out alone, and with another reason
+            with self.subTest(env=env):
+                self.stale(inside)
+                before = inside.read_bytes()
+                res = self.run_with_out(["style", p], inside, env=env)
+                self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+                self.assertEqual(inside.read_bytes(), before, "something was written at the refused --out")
+                self.assertIn("none written", res.stderr)
+                self.assertIn("STALE", res.stderr)
+                self.assertIn("NOT a pass", res.stderr)
         inside.unlink()
         res = self.run_with_out(["style", p], inside)
         self.assertEqual((res.code, len(res.prompts)), (2, 0))
         self.assertFalse(inside.exists(), "no file is made inside a folder under review")
         self.assertIn("none written", res.stderr)
+        self.assertNotIn("STALE", res.stderr, "nothing was there to be stale")
+
+    def test_an_out_the_guard_could_not_check_gets_nothing_written_there(self):
+        p = self.put("paper.md", "x")
+        self.stale()
+        before = self.out.read_bytes()
+        with mock.patch.object(PHASES, "_granted_dirs", side_effect=PermissionError(13, "closed folder")):
+            res = self.run_main(["style", p])
+        self.assertEqual((res.code, len(res.prompts)), (2, 0), res.stderr[-400:])
+        self.assertIn("could not be worked out", res.stderr)
+        self.assertEqual(self.out.read_bytes(), before, "written at an --out the guard could not check")
+        self.assertIn("STALE", res.stderr)
 
     def test_through_a_link_into_a_granted_folder(self):
         p = self.put("paper.md", "x")
         link = self.records / "into_tree"
-        try:
-            os.symlink(self.tmp, link, target_is_directory=True)
-        except (OSError, NotImplementedError) as e:
-            try:    # Windows without the symlink privilege: a junction needs none
-                import _winapi
-                _winapi.CreateJunction(str(self.tmp), str(link))
-            except (ImportError, AttributeError, OSError):
-                self.skipTest("cannot make a folder link here: %s" % e)
+        self.link_folder(link, self.tmp)
         self.assertRefusedForOut(self.run_with_out(["style", p], link / "rec.json"), self.tmp)
+
+    def test_through_a_link_inside_a_granted_folder_that_points_out_of_it(self):
+        # Round 2 (the verifier's X4): the record would land outside, but the reviewer could read it through the
+        # link. Only the path as given shows that, so a guard that compared resolved paths alone let it through.
+        p = self.put("paper.md", "x")
+        elsewhere = self.records / "elsewhere"
+        elsewhere.mkdir()
+        link = self.tmp / "out_link"
+        self.link_folder(link, elsewhere)
+        res = self.run_with_out(["style", p], link / "rec.json")
+        self.assertRefusedForOut(res, self.tmp)
+        self.assertFalse((elsewhere / "rec.json").exists(), "a record was written through the link")
+
+    def test_inside_the_folder_the_cli_runs_in(self):
+        # Round 2 (the verifier's R1): infer_cli gives subprocess.run no cwd=, so the CLI runs in main()'s working
+        # directory, which it can read with no --add-dir. An --out there is refused, given whole or relative.
+        p = self.put("paper.md", "x")
+        for out in (self.cwd / "rec.json", Path("rec.json"), Path("sub") / "rec.json"):
+            with self.subTest(out=str(out)):
+                res = self.run_with_out(["style", p], out)
+                self.assertRefusedForOut(res, self.cwd)
+                self.assertIn("the folder the CLI reviewer runs in", res.stderr)
+                self.assertFalse((self.cwd / out).exists())
+
+    def test_the_folder_the_guard_counts_is_the_one_the_cli_gets(self):
+        # Ties the guard to the call: should infer_cli ever give the CLI a cwd= of its own, this fails until the
+        # guard follows it.
+        p = self.put("paper.md", "x")
+        counted, real = [], PHASES._cli_cwd
+
+        def spy():
+            counted.append(real())
+            return counted[-1]
+
+        with mock.patch.object(PHASES, "_cli_cwd", spy):
+            res = self.run_main(["style", p], real_cli=True)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        self.assertEqual(counted, res.cli_cwds)
+        self.assertEqual(os.path.normcase(counted[0]), os.path.normcase(str(self.cwd)))
+
+    def test_case_is_ignored_on_macos_as_on_windows(self):
+        # Round 2 (the verifier's X3 note): APFS and HFS+ ignore case, as NTFS does, but on macOS posixpath.normcase
+        # keeps it and realpath keeps the case it is given, so only casefold() makes TREE and Tree one folder there.
+        # Simulated with posixpath and paths that do not exist, which realpath leaves as they are. Linux keeps case
+        # (two folders): the control that shows the simulated comparison does not fold case by itself.
+        import posixpath
+        grant, out, cwd = "/agni_nsc_nowhere/Tree", "/agni_nsc_nowhere/TREE/papers/rec.json", "/agni_nsc_elsewhere"
+        for platform, want in (("darwin", [grant]), ("linux", [])):
+            with self.subTest(platform=platform):
+                with mock.patch.object(PHASES.os, "path", posixpath), mock.patch.object(PHASES.sys, "platform", platform):
+                    got = PHASES._out_in_granted(out, [grant], cwd=cwd)
+                self.assertEqual(got, want)
+        # And on this machine, whatever it is: a differently-cased --out into a real granted folder is refused where
+        # the platform ignores case.
+        if sys.platform in ("darwin", "win32"):
+            p = self.put("Tree/paper.md", "x")
+            res = self.run_with_out(["style", p], Path(str(self.tmp / "TREE")) / "rec.json")
+            self.assertRefusedForOut(res, self.tmp / "Tree")
 
     def test_outside_every_granted_folder_runs(self):
         p = self.put("paper.md", "x")
@@ -2205,6 +2313,7 @@ class OutInsideAGrantedFolder(Base):
 
         def fake_run(cmd, **kw):
             seen["out"] = Path(cmd[cmd.index("--out") + 1])
+            seen["cwd"] = kw.get("cwd") or os.getcwd()      # where agni_phases, and so its CLI reviewer, runs
             seen["out"].write_text(json.dumps({"verdict": "APPROVED", "review": "text", "input_coverage": {
                 "inputs": [], "input_complete": True}}), encoding="utf-8")
             return SimpleNamespace(returncode=0, stderr="", stdout="")
@@ -2212,8 +2321,8 @@ class OutInsideAGrantedFolder(Base):
         with mock.patch.object(mod, "PR", self.tmp / "papers"), mock.patch.object(mod, "OUT", outdir), \
                 mock.patch.object(mod.subprocess, "run", fake_run):
             rec = mod.run_one("p1")
-        self.assertFalse(PHASES._out_in_granted(seen["out"], [str(self.tmp / "papers")]),
-                         "the survey's --out %s is inside the repository" % seen["out"])
+        self.assertFalse(PHASES._out_in_granted(seen["out"], [str(self.tmp / "papers")], cwd=seen["cwd"]),
+                         "the survey's --out %s is inside the repository or %s" % (seen["out"], seen["cwd"]))
         self.assertEqual(rec["status"], "OK", rec)
         self.assertTrue((outdir / "p1.agni_style.json").is_file(), "the record is moved to OUT after the run")
         self.assertFalse(seen["out"].parent.exists(), "the staging folder is removed")

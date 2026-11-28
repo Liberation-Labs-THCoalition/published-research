@@ -428,6 +428,10 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     # episodic memory. The helper adds what its docstring lists (no-capture env,
     # CLAUDE.md excludes, strict empty MCP, no auto-memory, no skills); nothing
     # else changes. Tested by test_isolation.py.
+    #
+    # No cwd= (unchanged in 1.2.0): the CLI runs in this process's working directory, and it can read that folder
+    # with no --add-dir. So main()'s --out guard counts it as a folder the reviewer can read (_cli_cwd). Running the
+    # CLI in an empty folder of its own instead is a recorded follow-up (README, "Not covered").
     cmd, env = isolated_claude_cmd(cmd)
     r = subprocess.run(cmd, input=full, capture_output=True,
                        text=True, encoding="utf-8", errors="replace",
@@ -946,14 +950,16 @@ def _say_record_unwritten(out, err):
           file=sys.stderr)
 
 
-def _refuse(args, out, inputs, sizes, reasons, advice, create=True):
+def _refuse(args, out, inputs, sizes, reasons, advice, write=True):
     """No reviewer call happens after this. Writes INVALID over whatever is at the output path, so a
     stale APPROVED cannot survive, and exits 2 even if that write fails.
 
-    create=False (1.2.0, an --out inside a granted folder): INVALID goes over a record already at the path, so
-    an old APPROVED there still cannot stand, but no new file is made inside a folder under review, where the
-    next run's reviewer would read it."""
-    written = create or os.path.isfile(out)
+    write=False (1.2.0; an --out inside a folder the reviewer can read, or one the guard could not check): nothing
+    is written at the path, not even INVALID over an old record, since a reviewer could read whatever goes there
+    (CC's Q16 incident: a reviewer found its own INVALID placeholder in the folder under review). The refusal goes
+    to stderr, it says that anything already at the path is stale, and the exit is 2 (Lyra's call on Q5, round 2:
+    write nothing at a refused --out)."""
+    written = write
     err = (_write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
            if written else None)
     print("ERROR: REFUSED -- verdict INVALID, exit 2. No reviewer saw this input.", file=sys.stderr)
@@ -973,8 +979,11 @@ def _refuse(args, out, inputs, sizes, reasons, advice, create=True):
     elif written:
         print("       Record: %s" % out, file=sys.stderr)
     else:
-        print("       Record: none written. Nothing was at %s, and no file is made inside a folder the "
-              "reviewer is granted." % out, file=sys.stderr)
+        print("       Record: none written. Nothing is written at %s, not even INVALID: a reviewer could read "
+              "it there." % out, file=sys.stderr)
+        if os.path.lexists(out):
+            print("       Anything already at that path is STALE. Do not read it as this run's result.",
+                  file=sys.stderr)
     return 2
 
 
@@ -999,15 +1008,47 @@ def _granted_dirs(args):
     return sorted(set(grant_dirs))
 
 
-def _out_in_granted(out, grant_dirs):
-    """The granted folders that hold the record path (1.2.0). Both are compared as given and with links
-    resolved, case folded where the file system folds it, so neither a link nor a spelling hides the record from
-    the check. A folder holds itself: an --out that names a granted folder is inside it."""
-    forms = {os.path.normcase(os.path.abspath(out)), os.path.normcase(os.path.realpath(out))}
+def _cli_cwd():
+    """The folder the CLI reviewer runs in: infer_cli gives subprocess.run no cwd=, so it is this process's working
+    directory, which the CLI can read with no --add-dir. For the --out guard it is a folder the reviewer can read,
+    like a granted one (1.2.0, round 2: the verifier's R1)."""
+    return os.getcwd()
+
+
+# File systems that ignore case by default: NTFS on Windows, APFS and HFS+ on macOS. ntpath.normcase lower-cases and
+# realpath gives an existing path its on-disk case, but on Windows only: posixpath.normcase changes nothing, and macOS's
+# realpath keeps the case it is given. So on macOS a differently-cased --out ("TREE/rec.json" for a granted "Tree")
+# named the granted folder and still compared unequal to it. Both sides are casefold()ed on these two platforms (round
+# 2). Elsewhere case is kept, since there "Tree" and "TREE" are two folders.
+_CASE_BLIND_PLATFORMS = ("darwin", "win32")
+
+
+def _path_key(path):
+    """A path as the --out guard compares it: os.path.normcase, then casefold() on _CASE_BLIND_PLATFORMS."""
+    key = os.path.normcase(path)
+    return key.casefold() if sys.platform in _CASE_BLIND_PLATFORMS else key
+
+
+def _path_forms(path):
+    """A path in the two forms the --out guard compares: as given (made absolute) and with its links resolved."""
+    return {_path_key(os.path.abspath(path)), _path_key(os.path.realpath(path))}
+
+
+def _out_in_granted(out, grant_dirs, cwd=None):
+    """The folders the CLI reviewer can read that hold the record path (1.2.0): each granted folder, and the folder
+    the CLI runs in (cwd; _cli_cwd() when not given), which the reviewer reads with no grant. The folder the CLI runs
+    in comes last, and a folder is named once.
+
+    Each path is compared in both forms (_path_forms), and a folder holds the record when any form of the folder
+    holds any form of the record. The resolved form catches a link from outside into a granted folder. The as-given
+    form catches a link inside a granted folder that points out of it: the record lands outside, but the reviewer can
+    read it through the link. Case is ignored on Windows and macOS, whose file systems ignore it, and kept elsewhere
+    (_path_key). Unicode normalisation, which macOS also ignores, is not folded. A folder holds itself: an --out that
+    names a granted folder is inside it."""
+    forms = _path_forms(out)
     hits = []
-    for g in grant_dirs:
-        roots = {os.path.normcase(os.path.abspath(g)), os.path.normcase(os.path.realpath(g))}
-        if any(_inside(root, f) for root in roots for f in forms):
+    for g in list(grant_dirs) + [_cli_cwd() if cwd is None else cwd]:
+        if g not in hits and any(_inside(root, f) for root in _path_forms(g) for f in forms):
             hits.append(g)
     return hits
 
@@ -1465,25 +1506,42 @@ def main():
             prompt_chars, local_budget))
         advice.append("Pass narrower files, use a frontier backend, or raise AGNI_LOCAL_CHAR_BUDGET "
                       "and LLM_NUM_CTX together, deliberately.")
-    # 1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer is granted puts the record in what it
+    # 1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer can read puts the record in what it
     # reviews. A reviewer found its own INVALID placeholder in the folder under review (it rightly ignored it).
-    # Refused like an over-budget prompt. Only the CLI reviewer is granted folders: the http backend and the local
-    # fallback read nothing, so for them an --out anywhere is as before. The default path, beside the primary, is
-    # not checked: refusing it would refuse every run that names no --out (see the README, "Not covered").
-    out_inside = []
+    # Refused like an over-budget prompt. The folders it can read are the granted ones and, since infer_cli gives
+    # the CLI no cwd=, the folder this process runs in (round 2). Only the CLI reviewer reads folders: the http
+    # backend and the local fallback read nothing, so for them an --out anywhere is as before. The default path,
+    # beside the primary, is not checked: refusing it would refuse every run that names no --out (see the README,
+    # "Not covered").
+    # An explicit --out for the CLI reviewer is written to only once the guard has shown it lies outside every
+    # folder the reviewer can read. Refused, or not checked because the guard could not run, nothing is written
+    # there, not even INVALID (Lyra's call on Q5, round 2).
+    guarded = bool(args.out) and args.backend == "cli"
+    out_inside, out_clear = [], not guarded
+    grants_known = True
     try:
         grant_dirs = _granted_dirs(args)
     except OSError as e:     # a folder above the primary that cannot be looked into (a closed home folder)
-        grant_dirs = []
+        grant_dirs, grants_known = [], False
         problems.append("the folders the reviewer would be granted could not be worked out: %s: %s"
                         % (e.__class__.__name__, e))
         advice.append("Run from a place where every folder above the primary can be read.")
-    if args.out and args.backend == "cli":
-        out_inside = _out_in_granted(out, grant_dirs)
+    if guarded and grants_known:
+        try:
+            cli_cwd = _cli_cwd()
+            out_inside = _out_in_granted(out, grant_dirs, cwd=cli_cwd)
+        except OSError as e:     # the folder this process runs in is gone
+            problems.append("whether --out %s is inside a folder the reviewer can read could not be worked out: "
+                            "%s: %s" % (out, e.__class__.__name__, e))
+            advice.append("Run from a folder that exists.")
+        else:
+            out_clear = not out_inside
         if out_inside:
-            problems.append("--out %s is inside %s, which the reviewer is granted: it would read the record, and "
-                            "the INVALID placeholder written there while it runs, as part of what it reviews"
-                            % (out, ", ".join(out_inside)))
+            named = ["%s (the folder the CLI reviewer runs in, which it can read)" % d if d == cli_cwd else d
+                     for d in out_inside]
+            problems.append("--out %s is inside %s, which the reviewer can read: it would read the record, and the "
+                            "INVALID placeholder written there while it runs, as part of what it reviews"
+                            % (out, ", ".join(named)))
             advice.append("Write the record outside every folder the reviewer can read: point --out outside %s."
                           % ", ".join(out_inside))
     if problems:
@@ -1504,7 +1562,7 @@ def main():
     print()
 
     if problems:
-        return _refuse(args, out, inputs, sizes, problems, advice, create=not out_inside)
+        return _refuse(args, out, inputs, sizes, problems, advice, write=out_clear)
     if ollama_bound:
         _warn_if_foreign_llm()
 
