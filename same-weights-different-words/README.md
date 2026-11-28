@@ -44,6 +44,15 @@ edits above, so the other paths read as they did there.
 | `Research/decline-signature-20261114/` (`stage_a_run.py`, blob bd6f234d; `PLAN_v2.md`; `STAGE_A_RESULT_20261121.md`) | not in this repository (below) |
 | `~/lab/decline-signature-mirror/tf_arm_20261121/out/` | `tf_arm/out/`. The md5s match (below). |
 
+## The stored JSON from the May 2026 CUDA run is already here
+
+The note's `Qwen2.5-7B-Instruct_honesty.json` (git blob 335b258f1d36328d010a2dbb4f4f72e8fa4774ae, 2,778,353 bytes)
+has been in this repository since May 2026, as
+[`../delta-manifold-paper/data/honesty_signal.json`](../delta-manifold-paper/data/honesty_signal.json) and, the same
+blob, `../spectral-shape-paper/data/honesty_signal.json`. It holds the stored features, the 130 trials' prompts and
+each reply's first 200 characters. The scripts read it at `~/lab/sameweights_20261121/stored/`; to run them here,
+point them at either repository copy. (Checked 2026-11-28: `git hash-object` on the lab's MTH copy gives the same id.)
+
 ## Inputs that live off-repo
 
 These are not in this repository. They are available on request (contacts in the repository [README](../README.md)).
@@ -56,9 +65,6 @@ These are not in this repository. They are available on request (contacts in the
   versions, and gate files; no script here reads those. `tf_arm.py` reads the same runs' records on the Studio, where
   they have no `run_dir/` level: its defaults are `~/lab/decline-signature/run_20261121/a1` and
   `~/lab/decline-signature/run_20261121_cpu_retry/a1` (`tf_arm/tf_arm.py` lines 41–43).
-- **The stored JSON from the May 2026 CUDA run,** `Qwen2.5-7B-Instruct_honesty.json`, git blob 335b258f, which the
-  scripts read at `~/lab/sameweights_20261121/stored/`. It holds the stored features, the prompts and each reply's
-  first 200 characters.
 - **The decline-signature study's harness and plan:** `stage_a_run.py` (blob bd6f234d), `PLAN_v2.md` and
   `STAGE_A_RESULT_20261121.md`, in `Research/decline-signature-20261114/`.
 - **The original feature code,** `honesty_signal.py` (Project-Oracle commit de58070, blob 2e079dc0), in the
