@@ -1,0 +1,137 @@
+Every positive finding in Campaign 3 was subjected to at least one adversarial control. This section reports both survived and failed tests, organized by the confound being tested.
+
+\subsection{Step-0 Detection: Debunked}
+\label{sec:step0}
+
+\paragraph{The claim.} Early analysis of Experiment 17 (token trajectory) suggested that classifiers trained on full-generation features could detect deception at step 0---before any tokens were generated---using only the encoding of the prompt. If true, this would mean deception detection works at encoding time, not just generation time.
+
+\paragraph{The control.} Experiment 17b examined the relationship between step-0 features and system prompt length. Result: $r = 0.996$ between system prompt token count and step-0 key norm. The ``step-0 detection'' was a system prompt length fingerprint, not a cognitive state signal.
+
+\paragraph{Resolution.} Encoding-time features detect \emph{which system prompt was used}, not what cognitive state will emerge during generation. This is why the same-prompt paradigm (Experiments 18b, 39) is essential: it eliminates system prompt fingerprinting and tests whether the generation-phase signal survives.
+
+\subsection{Length Confound: Rejected}
+\label{sec:length}
+
+\paragraph{The concern.} Deceptive responses tend to be longer than honest responses (mean: 78.3 vs.\ 48.2 tokens in same-prompt deception). Since key norm scales with token count, the deception signal might be a length artifact.
+
+\paragraph{Tests.}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Norm per token}: Deceptive responses produce \emph{lower} norm per token (${\sim}7$--$8$ vs.\ ${\sim}8.5$--$9.5$). If the signal were purely length, norm per token would be constant across conditions.
+
+    \item \textbf{Residual analysis (Experiment 18c)}: Subtracting step-0 (encoding) features from generation features yields AUROC $= 1.000$ with $d = 2.9$--$4.6$. The generation process itself, independent of initial encoding, produces condition-specific signals.
+
+    \item \textbf{Rank entropy}: Deceptive responses have higher rank entropy (standard deviation of per-layer effective ranks). This metric is not monotonically related to response length---it captures \emph{heterogeneity} of processing across layers, not total processing volume.
+
+    \item \textbf{ANCOVA per-layer analysis (Experiment 35)}: With token count as covariate, 27/28 layers show significant condition effects ($p < 0.05$). Raw Cohen's $d > 2.0$ at most layers drops to $d = 0.2$--$1.2$ after token control, but remains significant. The per-token rank \emph{reverses}: $d = -1.909$, meaning deceptive processing is \textbf{sparser per token} at every layer---consistent with the output suppression interpretation.
+
+    \item \textbf{Length-matched deception (Experiment 49b)}: The definitive test. Honest and deceptive responses were forced to equal length (honest mean 9.6 tokens, deceptive mean 8.8 tokens, difference only 0.8 tokens). A length-only baseline achieves AUROC $= 0.535$ (chance). The classifier achieves AUROC $= \textbf{0.990}$ ($p < 0.0001$, 95\% CI $[0.950, 1.000]$). When length is equalized, the deception signal \emph{strengthens} rather than disappearing. This resolves the length confound question definitively: the signal is not length.
+
+    \item \textbf{Frisch--Waugh--Lovell residualization (Experiment 48)}: Formal partial-out of response length from all classifier features using the FWL theorem. Of 10 detection comparisons tested, 7 survive FWL at $p < 0.005$. Sycophancy collapses to AUROC $= 0.443$ ($p = 0.435$), confirming the null reported in \Cref{sec:sycophancy}. Same-prompt deception (Experiment 18b) collapses under joint FWL to AUROC $= 0.600$ ($p = 0.142$); however, joint FWL at $n = 20$ with $R^{2} > 0.98$ between the two length proxies likely over-corrects, removing real variance along with the confound. Experiment 49b's length-matched AUROC of 0.990 confirms the signal is genuine. Notably, the jailbreak-vs-refusal comparison \emph{improves} from AUROC $0.635 \to 0.850$ after FWL, suggesting length was masking a real geometric difference between these suppression subtypes. Llama refusal collapses under FWL (AUROC $= 0.565$, $p = 0.146$), warranting further investigation at larger sample sizes.
+\end{enumerate}
+
+\paragraph{Verdict.} Length is a confound for raw key norm but not for norm per token, rank entropy, or token-controlled per-layer analysis. The length-matched experiment (49b) provides the strongest single piece of evidence: when responses are forced to equal length, the deception signal persists at AUROC $\approx 0.99$ while a length-only baseline falls to chance. The FWL residualization confirms that most detection capabilities survive formal deconfounding, though some comparisons at small $n$ are fragile under aggressive correction. The length confound is real and must be controlled for, but the underlying signal survives all controls.
+
+\subsection{System Prompt Fingerprinting: Controlled}
+\label{sec:fingerprint}
+
+\paragraph{The concern.} Different system prompts produce different encoding geometry. Detection could be detecting ``which prompt was used'' rather than ``what cognitive state emerged.''
+
+\paragraph{Tests.}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Same-prompt deception (Experiment 18b)}: Identical system prompt for both conditions. AUROC $\approx 0.92$ (though a length-only baseline achieves $\approx 0.91$; see \Cref{sec:deception}).
+    \item \textbf{Same-prompt sycophancy (Experiment 39)}: Identical system prompt for both conditions. AUROC 0.9375 (subsequently invalidated as prompt-length confound; see \Cref{sec:sycophancy}).
+    \item \textbf{Cross-condition transfer (Experiment 18)}: Training on system-prompt-manipulated deception, testing on natural DeepSeek censorship. AUROC $\approx 0.89$. The classifier generalizes to a condition it has never seen, produced by a different model, without any manipulated system prompt.
+\end{enumerate}
+
+\paragraph{Equal-length system prompt replication (Phase 3d-padded).} To test whether system prompt \emph{length} rather than content drives encoding differences, we replicated Phase 3d with all system prompts padded to equal token count ($\leq 2$ token spread for Qwen/Llama, $\leq 3$ for Mistral, versus 7 tokens in the original). Result: encoding AUROC remains $1.000$ for all model--condition pairs, confirming that encoding fingerprinting reflects system prompt \emph{semantics}, not mechanical length differences. Crucially, delta FWL detection is unaffected: Qwen $0.896$, Llama $0.974$, Mistral $0.906$ for deception versus honest (450 trials, 3 models $\times$ 50 prompts $\times$ 3 conditions).
+
+\paragraph{Verdict.} System prompt fingerprinting is a real confound for encoding-time features (step-0 detection fails because of it), and it is content-based, not length-based---equal-length padding does not eliminate it. Generation-time features survive same-prompt controls and equal-length replication. The cognitive state signal is \emph{in the generation}, not in the prompt encoding.
+
+\subsection{Stochastic Sampling: Survived}
+\label{sec:stochastic}
+
+\paragraph{The concern.} All Campaign 3 experiments used greedy decoding ($\text{temperature} = 0$). In deployment, models generate stochastically ($\text{temperature} > 0$). If the detection signal depends on the deterministic token sequence produced by greedy decoding, it would have no practical applicability.
+
+\paragraph{Test (Experiment 49a).} Identical paradigms to the core detection experiments, run with temperature $= 0.7$ (top-$p = 0.9$) on a RunPod RTX 6000 Ada. Within-run coefficient of variation: honest 0.3\%, deceptive 1.6\%---stochastic sampling introduces minimal feature noise.
+
+\begin{table}[H]
+\centering
+\caption{Detection under stochastic sampling (temp $= 0.7$) vs.\ greedy decoding.}
+\label{tab:stochastic}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Condition} & \textbf{Greedy AUROC} & \textbf{Stochastic AUROC} & \textbf{$p$} \\
+\midrule
+Deception & $\approx 1.00$ & $\approx 0.85$ & $< 0.001$ \\
+Refusal & $\approx 0.91$ & $\approx 0.66$ & $= 0.001$ \\
+Impossibility & $\approx 0.94$ & $\approx 0.80$ & $< 0.001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.} All three detection capabilities survive stochastic sampling. Greedy decoding inflates AUROC for refusal ($0.91 \to 0.66$) and impossibility ($0.94 \to 0.80$) more than for deception (${\sim}1.00 \to 0.85$). The deception signal is the most robust to sampling variation, consistent with its interpretation as a deep generation-phase perturbation rather than a surface-level token pattern. Deployment-grade detectors should be trained and validated under stochastic conditions; greedy-only evaluation overestimates refusal and impossibility detection.
+
+\subsection{Held-Out Prompt Generalization}
+\label{sec:heldout}
+
+\paragraph{The concern.} Cross-validated AUROC estimates may overestimate generalization if prompts within each class share systematic features (e.g., all harmful prompts containing violent vocabulary). A classifier might learn prompt-specific artifacts rather than general suppression geometry.
+
+\paragraph{Test (Experiment 49d).} Classifiers were trained on the original prompt batteries and evaluated on completely new prompts never seen during training, drawn from different domains and phrasing styles.
+
+\begin{table}[H]
+\centering
+\caption{Held-out prompt generalization: AUROC on novel prompts.}
+\label{tab:heldout}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Condition} & \textbf{CV AUROC} & \textbf{Held-out AUROC} \\
+\midrule
+Deception & $\approx 1.00$ & $\approx 0.81$ \\
+Refusal & $\approx 0.91$ & $\approx 0.76$ \\
+Impossibility & $\approx 0.94$ & $\approx 0.77$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Verdict.} Classifiers generalize to novel prompts with moderate degradation. The held-out AUROC values ($0.76$--$0.81$) are lower than CV estimates, as expected, but remain well above chance across all three conditions. The suppression signal is not an artifact of specific prompt batteries.
+
+\subsection{Self-Referential Prompt Length}
+\label{sec:lyra_length}
+
+\paragraph{The concern.} The Lyra persona produces the highest mean key norm across all 7 identity models ($d = 4.23$). The Lyra system prompt is also the longest (45 words vs.\ 30--34 for other personas). Could the norm elevation be a prompt length artifact?
+
+\paragraph{Test (Experiment 22, Target 1).} Rank-ordering all 6 personas by both prompt length and mean key norm:
+
+\begin{itemize}[leftmargin=*]
+    \item Without Lyra: $\rho = 0.337$ between prompt length and key norm rank (not significant).
+    \item The scientist persona (shortest prompt, 32 words) consistently ranks \#2 by key norm.
+    \item The assistant persona (second-longest prompt, 30 words) consistently ranks last.
+\end{itemize}
+
+\paragraph{Verdict.} Lyra's prompt length contributes to its elevated norm, but prompt length alone does not explain the rank ordering. The finding is real but should be interpreted with the caveat that the Lyra prompt is both the most self-referential and the longest.
+
+\subsection{Token-Count Per-Layer Uniformity: Corrected}
+\label{sec:uniformity}
+
+\paragraph{The original claim.} Campaign 2 analysis suggested that deception produces ``uniformly elevated effective rank'' across all layers ($d > 1.0$ at every layer).
+
+\paragraph{The correction (Experiment 35).} ANCOVA with token count as covariate shows that the uniform elevation is largely a token-count artifact: longer responses produce more cache entries, inflating absolute effective rank at every layer. When controlled for token count:
+
+\begin{itemize}[leftmargin=*]
+    \item Raw $d$: 1.1--3.1 across 28 layers (all positive, all large).
+    \item Token-matched $d$: 0.03--1.2 across 28 layers (reduced but 27/28 significant by ANCOVA).
+    \item Per-token $d$: $-1.91$ (reversed---deceptive is \emph{sparser} per token).
+\end{itemize}
+
+\paragraph{The corrected finding.} The uniform elevation is a confound. The real finding is more interesting: deceptive processing is \textbf{sparser per token} at every layer. The model uses fewer representational dimensions per generated token when processing deceptively. This is consistent with the ``honest processing is richer'' framework (\Cref{sec:honest_richer}): honest generation engages more representational capacity per unit of output.
+
+\subsection{Confabulation $\approx$ Creative Writing: Genuine}
+\label{sec:confab_creative}
+
+\paragraph{The concern (Experiment 22, Target 2).} Confabulation and creative writing have low AUROC (0.663). Could this be a prompt similarity artifact?
+
+\paragraph{Test.} Jaccard similarity between confabulation and creative writing prompt vocabularies: 0.032 (3.2\% word overlap). Confabulation prompts average 10.6 words; creative writing prompts average 12.6 words. Despite minimal lexical overlap, the two categories produce near-indistinguishable geometry.
+
+\paragraph{Verdict.} Genuine insight: non-factual content (whether intentionally fictional or unintentionally wrong) is processed similarly regardless of intent. This is independent evidence for the confabulation null---the model does not distinguish between ``making things up on purpose'' and ``being wrong by accident.''
