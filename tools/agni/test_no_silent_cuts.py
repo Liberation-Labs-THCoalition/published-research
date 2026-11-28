@@ -2014,11 +2014,11 @@ class ReadsRefused(Base):
         res = self.review_with(
             before=[tool_call("t1", "Read", file_path="/outside/a.py"), tool_answer("t1", self.REFUSED_READ)],
             denials=[{"tool_name": "Read", "tool_use_id": "t1", "tool_input": {"file_path": "/outside/a.py"}},
-                     {"tool_name": "Glob", "tool_use_id": "t9", "tool_input": {"pattern": "/home/x/**/*.py"}}])
+                     {"tool_name": "Glob", "tool_use_id": "t9", "tool_input": {"pattern": "/srv/data/**/*.py"}}])
         refused = res.record["reads_refused"]
         self.assertEqual([(r["tool"], r["path"], r["seen_in"]) for r in refused],
                          [("Read", "/outside/a.py", ["tool_result", "permission_denials"]),
-                          ("Glob", "/home/x/**/*.py", ["permission_denials"])])
+                          ("Glob", "/srv/data/**/*.py", ["permission_denials"])])
         self.assertIn("permission_denials", refused[1]["reason"])
 
     def test_the_reviewers_prose_neither_adds_nor_hides_one(self):
@@ -2030,7 +2030,7 @@ class ReadsRefused(Base):
         self.assertEqual(len(res.record["reads_refused"]), 1, "the review's prose never mentions it")
 
     def test_operating_system_refusals_count(self):
-        for text in ("EACCES: permission denied, open '/home/closed/x.py'", "Access is denied.",
+        for text in ("EACCES: permission denied, open '/srv/closed/x.py'", "Access is denied.",
                      "/srv/x names a path outside the working directories, which the read block does not allow"):
             with self.subTest(text=text):
                 res = self.review_with(before=[tool_call("t1", "Read", file_path="/srv/x"), tool_answer("t1", text)])
