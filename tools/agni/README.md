@@ -11,6 +11,35 @@ verdict contract are documented at the top of `agni_phases.py`.
 Until 2026-11-07 a reviewer that saw part of its input still returned a confident verdict, and nothing
 recorded the cut.
 
+**1.2.0 (2026-11-28), two of CC's asks of 2026-11-23:**
+
+- **`reads_refused` in the record, beside `input_coverage`.** CC's five post-compute reviews all said
+  `input_complete: true`, while each review listed, in prose, reads it had been refused on the trees under review.
+  `input_complete` says what the reviewer was given; what it could not open is now its own field. The CLI reviewer
+  runs with `--output-format stream-json --verbose`, and `reads_refused` lists each of its own tool calls that was
+  refused, as `tool`, `path` (from the call itself), `reason` (the tool's error text) and `seen_in`. Two sources,
+  both the CLI's, joined on the call's id: a tool result marked as an error whose text says the call was refused
+  (the CLI's "haven't granted it yet", "has been denied", "outside the working directories", or the system's
+  EACCES, EPERM, "Access is denied"), and the result event's `permission_denials`. The reviewer's prose is never
+  read for it. An empty list means the stream shows no refusal. `null` means not known, and `reads_refused_from`
+  says why: no review ran, the http backend or the local fallback (no tools, so nothing to refuse), or a reply
+  that came without the stream. A pass from a reviewer that was refused reads prints a warning; the verdict and
+  the exit code do not change. The review is the stream's one result event's `result`, the text the plain output
+  printed. A stream without exactly one result event, or whose result does not say it succeeded, is a failed call
+  (retried, then `INVALID`), never a review. The stream is split at LF only: the CLI's JSON can hold a raw U+2028.
+- **An `--out` inside a granted folder is refused.** CC wrote `--out` inside the folder under review, and the
+  reviewer found its own `INVALID` placeholder there. With the CLI backend, an `--out` inside the primary's,
+  secondary's or tertiary's folder, an `--add-dir`, or the repository root granted automatically (compared as
+  given and with links resolved; a folder holds itself) is `INVALID`, exit 2, before any reviewer call, as an
+  over-budget prompt is. An old record at that path is overwritten with `INVALID`, so a stale `APPROVED` cannot
+  stand, but no new file is made there. `run_style_survey.py` wrote its records into `tools/agni/style/`, inside this
+  repository, so it now writes each to a folder of its own outside it and moves it there when the run ends.
+- Tests: `ReadsRefused` (12) and `OutInsideAGrantedFolder` (12) in `test_no_silent_cuts.py`, driven through
+  `subprocess.run` with a fake stream; no live call. Three fixtures changed with the interface: the harness's fake
+  CLI prints a stream, `Base` writes its record outside the folder under review, and `test_isolation.py` pins the
+  new flags and reads a control's answer from its stream (read raw, a stream is never `NONE`, so the live controls
+  would have passed with no answer in them). Ten planted breakages, one at a time, each failed at least one test.
+
 **1.1.3 (2026-11-08):** the reviewer's environment is an allowlist (Lyra): only what the CLI needs to start and reach the API (PATH, home and temp folders, the Windows system set, locale, TERM, proxies and CA files, `CLAUDE_CONFIG_DIR`) and our own switches; every other variable, keys and tokens included, is dropped whatever it is named. A machine whose CLI logs in through the environment (`ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN`, Bedrock's variables) names them in `keep_env`. Checked live on the lab server (CLI 2.1.309, login from stored credentials): the reviewer process held 10 variables and answered; the 1.1.2 behaviour passed 62, a planted canary key among them. Also, the CLI reviewer gets read-only tools, `--tools Read,Grep,Glob`. It still reads the repository, by design, and can do nothing else. In print mode the CLI approves read-only Bash on its own, and the isolation helper keeps out the account owner's memory and instructions but not their permission grants, so a planted instruction in a reviewed paper could have used whatever the account allows (Lyra agreed, 11-08).
 
 **1.1.2 (2026-11-08):** run from inside a Claude Code session, the reviewer no longer inherits that session's own variables (`CLAUDECODE`, its session and bridge ids, and `CLAUDE_CODE_MESSAGING_SOCKET` with `CLAUDE_CODE_MESSAGING_TOKEN`). The CLI approves read-only Bash on its own, so a reviewer could have printed the token with `env`. Checked live by reading the reviewer process's environment from /proc: none of the calling session's 11 such variables, where the old behaviour passed all 11. Also, `claude_isolation.py` adds `--no-session-persistence` to a print-mode call, so a review leaves no transcript in the account's `~/.claude/projects` for the owner's tools to read or file into memory (Lyra found six there on the lab server). A caller that needs the transcript passes `keep_transcript=True`. Checked live (CLI 2.1.309): the default call left no transcript; the same call with `keep_transcript=True` left one.
@@ -144,6 +173,14 @@ read; weigh them accordingly.
 
 **Not covered.**
 
+- `reads_refused` (1.2.0) knows a refusal by the CLI's `permission_denials` or by the words of an error result. A
+  refusal the CLI words some other way, and does not book in `permission_denials`, is missed. A read that failed
+  for another reason (a file that is not there) is not a refusal and is not listed.
+- The `--out` check (1.2.0) covers an explicit `--out` only. The default record path, beside the primary, is inside
+  a granted folder by construction, and refusing it would refuse every run that names no `--out`: a reviewer can
+  still read that placeholder. Records committed in a granted folder by earlier runs (`tools/agni/style/`) are
+  still there for a reviewer to read. The http backend and the local fallback are granted nothing, so their
+  `--out` is not checked.
 - `sys.path` puts agni-open's `llm.py` first on machines that have it. That copy is not edited here
   and may not set `num_ctx`. An Ollama-bound call prints a warning when `llm.py` is not the copy beside
   `agni_phases.py`, but it does not stop the call. A pass through such a copy over Ollama is `UNPARSED`,
