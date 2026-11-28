@@ -14,18 +14,19 @@ study's replication gate. In float32 the two devices differed by a median of abo
 |---|---|
 | `NOTE_v7.md` | The note: draft v7 of 2026-11-24, plus two wording-only edits from the verification read, recorded in its section "Changes after the verification read". No number changed. |
 | `analysis/` | The Stage A analysis. `analyze3.py` writes `results3.json`. `analyze.py` and `analyze2.py` are v1's scripts, kept; `results2.json` is `analyze2.py`'s output and the note's source for the 130 stored trials. |
-| `tf_arm/` | The teacher-forced arm. `tf_arm.py` (the current version; see below), its reading rule `READING_RULE.md`, the reading script `read_tf_arm.py` and its output `tf_arm_reading.json`, the narrative `TF_ARM_RESULT.md`, the four configuration outputs in `out/`, round 3's and round 4's analysis scripts with their outputs (`analyze_agni_r3.py`, `agni_r3_numbers.json`, `analyze_agni_r4.py`, `agni_r4_numbers.json`), the rerun log `REPRO_20261124.txt` and the refusal test `REFUSAL_TEST.txt`. |
+| `tf_arm/` | The teacher-forced arm. `tf_arm.py` (the current version, md5 41e02ae6; the version that ran, 6b3e9dad, is not available), its reading rule `READING_RULE.md`, the reading script `read_tf_arm.py` and its output `tf_arm_reading.json`, the narrative `TF_ARM_RESULT.md`, the four configuration outputs in `out/`, round 3's and round 4's analysis scripts with their outputs (`analyze_agni_r3.py`, `agni_r3_numbers.json`, `analyze_agni_r4.py`, `agni_r4_numbers.json`), the rerun log `REPRO_20261124.txt` and the refusal test `REFUSAL_TEST.txt`. |
 | `review/` | The review records: Agni's reviews of v1, v2, v4 (round 3) and v6 (round 4); `AGNI_paper_v3.md`, a placeholder left when the first attempt at round 3 was killed before it produced anything; and the independent verification read of v7. |
 
-The shipped JSONs hold numbers and trial keys, not prompt or reply text. The four arm outputs also carry an
-`environment` block with the library versions and the machine's host name.
+The shipped JSONs hold numbers, trial keys and short labels, not prompt or reply text; the only prompt content is the
+one punctuation token each must-fail record says was dropped. The four arm outputs also carry an `environment` block
+with the library versions and the machine's host name.
 
 ## Where the history lives
 
-The note's header lists `NOTE_v1.md` to `NOTE_v6.md` as kept beside it. They are not shipped here. Every change between
-them is recorded in the note's own "Changes from vN" sections, and the reviews that prompted them are in `review/`. The
-drafts themselves are in the lab's research folder (`Research/same-weights-different-words-20261121/`) and are
-available on request. There is no review of v5: v6 changed one sentence of it and went to round 4 (the note's
+The note's header lists `NOTE_v1.md` to `NOTE_v6.md` as kept beside it. They are not shipped here. The changes from
+v2 onward are recorded in the note's own "Changes from vN" sections, and the reviews that prompted them are in
+`review/`; v1's review is `review/AGNI_paper_v1.md`. The drafts themselves are in the lab's research folder
+(`Research/same-weights-different-words-20261121/`) and are available on request. There is no review of v5: v6 changed one sentence of it and went to round 4 (the note's
 "Changes from v5").
 
 ## The note's paths, mapped to this folder
@@ -49,10 +50,11 @@ These are not in this repository. They are available on request (contacts in the
 
 - **The Stage A runs (2026-11-21), mirrored on the lab's MTH machine** at `~/lab/decline-signature-mirror/run_20261121/`
   (MPS bf16) and `run_20261121_cpu_retry/` (CPU fp32): each run's `a1/*.json` trial records, `negative_control.json`,
-  `manifest.json`, `preflight.json` and gate files. Every script here reads them.
+  `manifest.json`, `preflight.json` and gate files. Every script here reads them; `tf_arm.py` reads the same runs'
+  records on the Studio.
 - **The stored JSON from the May 2026 CUDA run,** `Qwen2.5-7B-Instruct_honesty.json`, git blob 335b258f, which the
-  scripts read at `~/lab/sameweights_20261121/stored/`. It holds the stored features and each reply's first 200
-  characters.
+  scripts read at `~/lab/sameweights_20261121/stored/`. It holds the stored features, the prompts and each reply's
+  first 200 characters.
 - **The decline-signature study's harness and plan:** `stage_a_run.py` (blob bd6f234d), `PLAN_v2.md` and
   `STAGE_A_RESULT_20261121.md`, in `Research/decline-signature-20261114/`.
 - **The original feature code,** `honesty_signal.py` (Project-Oracle commit de58070, blob 2e079dc0), in the
@@ -69,8 +71,9 @@ Public inputs: the model weights (Hugging Face `Qwen/Qwen2.5-7B-Instruct`, revis
 
 Each analysis script reads its inputs from the `~/lab/...` paths above and writes its output **beside itself**, so
 running one in place overwrites the shipped JSON. Copy the script into an empty folder and run it there with
-`python3 -I <script>`. On 2026-11-24 each of the four was run twice that way on MTH, and every output reproduced its
-md5 (`tf_arm/REPRO_20261124.txt`). `tf_arm/tf_arm.py` also needs the model weights and the original harness, because
+`python3 -I <script>`. On 2026-11-24 the four scripts behind the note's outputs (`analyze3.py`, `read_tf_arm.py`,
+`analyze_agni_r3.py`, `analyze_agni_r4.py`) were each run twice that way on MTH, and every output reproduced its md5
+(`tf_arm/REPRO_20261124.txt`). `tf_arm/tf_arm.py` also needs the model weights and the original harness, because
 it runs the model.
 
 ## md5s
