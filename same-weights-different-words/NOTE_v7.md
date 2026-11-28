@@ -424,7 +424,7 @@ The exceptions, and where each comes from:
   negative-control block; blob bd6f234d, the blob both runs' manifests record) and `PLAN_v2.md`.
 - **The stored script's requested dtype and single-GPU placement:** `honesty_signal.py` lines 403–404 (blob 2e079dc0).
 - **How $X$ is built:** `honesty_signal.py` lines 198–199 and 229.
-- **The published g of 2.32:** the delta-manifold paper's `main.tex`, lines 359 and 368.
+- **The published g of 2.32:** the delta-manifold paper's `academic/main.tex`, lines 359 and 368, and its flight `main.tex`, lines 361 and 370.
 - **The svdvals fallback:** the arm's MPS bf16 console log on MTH (`tf_arm_20261121.mps_bfloat16.console.log`).
 - **The matrix sizes (28 layers, 4 KV heads, head dimension 128):** the model's `config.json` on the Studio, not re-read
   for v7. The arm outputs carry 28 per-layer values.
@@ -460,6 +460,11 @@ edits (md5 ff03cc9b).
 
 Its third observation, that the header doesn't list `AGNI_paper_v3.md`, is left as is: "Changes from v3" explains that
 file.
+
+**A citation correction, also 2026-11-28; no number changed.** "Reproducing this note" cited the delta-manifold paper's
+`main.tex`, lines 359 and 368, for g = 2.32. Those are the line numbers in that paper's `academic/main.tex`. Its flight
+`main.tex` has the same two lines at 361 and 370 (both checked in this repository at commit 226bb35). The citation
+now names both. The same pair under "Changes from v6" records the v7 check as it was written, and is left as is.
 
 ## Changes from v6 (Agni round 4, AGNI_paper_v6.md: CONDITIONAL)
 

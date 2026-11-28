@@ -12,7 +12,7 @@ study's replication gate. In float32 the two devices differed by a median of abo
 
 | Path | What it is |
 |---|---|
-| `NOTE_v7.md` | The note: draft v7 of 2026-11-24, plus two wording-only edits from the verification read, recorded in its section "Changes after the verification read". No number changed. |
+| `NOTE_v7.md` | The note: draft v7 of 2026-11-24, plus two wording-only edits from the verification read and one citation correction, all recorded in its section "Changes after the verification read". No number changed. |
 | `analysis/` | The Stage A analysis. `analyze3.py` writes `results3.json`. `analyze.py` and `analyze2.py` are v1's scripts, kept; `results2.json` is `analyze2.py`'s output and the note's source for the 130 stored trials. |
 | `tf_arm/` | The teacher-forced arm. `tf_arm.py` (the current version, md5 41e02ae6; the version that ran, 6b3e9dad, is not available), its reading rule `READING_RULE.md`, the reading script `read_tf_arm.py` and its output `tf_arm_reading.json`, the narrative `TF_ARM_RESULT.md`, the four configuration outputs in `out/`, round 3's and round 4's analysis scripts with their outputs (`analyze_agni_r3.py`, `agni_r3_numbers.json`, `analyze_agni_r4.py`, `agni_r4_numbers.json`), the rerun log `REPRO_20261124.txt` and the refusal test `REFUSAL_TEST.txt`. |
 | `review/` | The review records: Agni's reviews of v1, v2, v4 (round 3) and v6 (round 4); `AGNI_paper_v3.md`, a placeholder left when the first attempt at round 3 was killed before it produced anything; and the independent verification read of v7. |
@@ -26,21 +26,21 @@ with the library versions and the machine's host name.
 The note's header lists `NOTE_v1.md` to `NOTE_v6.md` as kept beside it. They are not shipped here. The changes from
 v2 onward are recorded in the note's own "Changes from vN" sections, and the reviews that prompted them are in
 `review/`; v1's review is `review/AGNI_paper_v1.md`. The drafts themselves are in the lab's research folder
-(`Research/same-weights-different-words-20261121/`) and are available on request. There is no review of v5: v6 changed one sentence of it and went to round 4 (the note's
-"Changes from v5").
+(`Research/same-weights-different-words-20261121/`) and are available on request. There is no review of v5: v6
+changed one sentence of it and went to round 4 (the note's "Changes from v5").
 
 ## The note's paths, mapped to this folder
 
-The note was written in the lab's research folder and names local paths. It is shipped unchanged apart from the two
-edits above, so the paths read as they did there.
+The note was written in the lab's research folder and names local paths. It is shipped unchanged apart from the three
+edits above, so the other paths read as they did there.
 
 | The note says | In this repository |
 |---|---|
 | `analysis/`, `tf_arm/` "beside this file" | `analysis/`, `tf_arm/` here |
-| `AGNI_paper_v1.md`, `_v2`, `_v3`, `_v4`, `_v6` | `review/AGNI_paper_v1.md` and so on. They are Agni's JSON records, kept under their original `.md` names; line endings normalised to LF, content unchanged. |
-| `VERIFY_v7_20261125.md` | `review/VERIFY_v7_20261125.md`. Its line numbers refer to the text it read (md5 ff03cc9b). In the shipped note, lines up to 448 are where it says; from its line 449 on, add 15. |
+| `AGNI_paper_v1.md`, `_v2`, `_v3`, `_v4`, `_v6` | `review/AGNI_paper_v1.md` and so on. They are Agni's JSON records, kept under their original `.md` names; line endings normalised to LF, content unchanged, with one exception: in `review/AGNI_paper_v4.md`, one Windows home path was replaced with `<home>` for privacy (2026-11-28, following `../notes/SCRUB_NOTES.md`), and the record's last key, `privacy_note`, says so. The note cites no md5 for that file. |
+| `VERIFY_v7_20261125.md` | `review/VERIFY_v7_20261125.md`. Its line numbers refer to the text it read (md5 ff03cc9b). In the shipped note, lines up to 448 are where it says; from its line 449 on, add 20. |
 | `../NOTE_v7.md`, `../AGNI_paper_v6.md` (in `tf_arm/TF_ARM_RESULT.md`) | `NOTE_v7.md`; `review/AGNI_paper_v6.md` |
-| the delta-manifold paper's `main.tex`, lines 359 and 368 (g = 2.32) | [`../delta-manifold-paper/academic/main.tex`](../delta-manifold-paper/academic/main.tex), lines 359 and 368. In the flight edition, [`../delta-manifold-paper/main.tex`](../delta-manifold-paper/main.tex), the same two lines are 361 and 370. |
+| the delta-manifold paper's `main.tex`, lines 359 and 368 (g = 2.32), in "Changes from v6" and in `review/VERIFY_v7_20261125.md` | [`../delta-manifold-paper/academic/main.tex`](../delta-manifold-paper/academic/main.tex), lines 359 and 368. In the flight edition, [`../delta-manifold-paper/main.tex`](../delta-manifold-paper/main.tex), the same two lines are 361 and 370. The citation in "Reproducing this note" now names both (the note's citation correction of 2026-11-28). |
 | `Research/decline-signature-20261114/` (`stage_a_run.py`, blob bd6f234d; `PLAN_v2.md`; `STAGE_A_RESULT_20261121.md`) | not in this repository (below) |
 | `~/lab/decline-signature-mirror/tf_arm_20261121/out/` | `tf_arm/out/`. The md5s match (below). |
 
@@ -48,10 +48,14 @@ edits above, so the paths read as they did there.
 
 These are not in this repository. They are available on request (contacts in the repository [README](../README.md)).
 
-- **The Stage A runs (2026-11-21), mirrored on the lab's MTH machine** at `~/lab/decline-signature-mirror/run_20261121/`
-  (MPS bf16) and `run_20261121_cpu_retry/` (CPU fp32): each run's `a1/*.json` trial records, `negative_control.json`,
-  `manifest.json`, `preflight.json` and gate files. Every script here reads them; `tf_arm.py` reads the same runs'
-  records on the Studio.
+- **The Stage A runs (2026-11-21), mirrored on the lab's MTH machine.** The scripts read each run one level down, in
+  its `run_dir/`: `~/lab/decline-signature-mirror/run_20261121/run_dir/` (MPS bf16) and
+  `~/lab/decline-signature-mirror/run_20261121_cpu_retry/run_dir/` (CPU fp32). There they read the `a1/*.json` trial
+  records (every analysis script), `negative_control.json` (`analyze3.py`, `analyze_agni_r3.py`, `analyze_agni_r4.py`)
+  and `manifest.json` (`analyze_agni_r4.py`). The runs also hold `preflight.json`, the note's source for the library
+  versions, and gate files; no script here reads those. `tf_arm.py` reads the same runs' records on the Studio, where
+  they have no `run_dir/` level: its defaults are `~/lab/decline-signature/run_20261121/a1` and
+  `~/lab/decline-signature/run_20261121_cpu_retry/a1` (`tf_arm/tf_arm.py` lines 41–43).
 - **The stored JSON from the May 2026 CUDA run,** `Qwen2.5-7B-Instruct_honesty.json`, git blob 335b258f, which the
   scripts read at `~/lab/sameweights_20261121/stored/`. It holds the stored features, the prompts and each reply's
   first 200 characters.
