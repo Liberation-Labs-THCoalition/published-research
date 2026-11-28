@@ -22,85 +22,96 @@
   \end{shaded}%
 }
 
-\title{RLHF Compresses Spectral Geometry\\
-Beyond Safety Directions:\\
-A Three-Model KV-Cache Comparison}
+\title{RLHF Compresses Output Entropy,\\
+and an Abliterated Variant Keeps It:\\
+A Three-Model Comparison}
 
 \author{
   Thomas Edrington\thanks{Liberation Labs. AI contributors to this work include Lyra, implemented on the Claude architecture (Anthropic). Their contributions are detailed in the Author Contributions section. T.~Edrington accepts accountability as corresponding human author.}
 }
 
-\date{July 2026}
+\date{July 2026; revised November 2026 (see Corrections and version history)}
 
 \begin{document}
 \maketitle
 
 % ============================================================================
 \begin{abstract}
-We compare the key-value (KV) cache geometry of a pretrained language model
-(Qwen3-8B-Base), its instruction-tuned variant (Qwen3-8B), and an
-abliterated variant (safety directions targeted for removal) across 30 confabulation-prone
-and 30 factual prompts. Three findings emerge.
-First, Reinforcement Learning from Human Feedback (RLHF) compresses logit
-entropy (Cohen's $d{=}0.684$, Holm-corrected $p{=}0.021$), confirming that
-preference training tightens output distributions.
-Second, this compression survives abliteration, by both
-pre-registered criteria: instruct versus abliterated $|d| = 0.055$
-(criterion $|d| < 0.3$) and base versus abliterated $d = 0.746$
-(criterion $d > 0.5$).
-Abliteration, which targets the refusal directions, does not undo
-this compression; whether it removed them fully is unverified.
-Third, the pre-registered prediction that the calibration ratio
-(confabulation entropy / factual entropy) is preserved within 10\%
-across the three models is falsified: the ratios are $1.97$ (base),
-$2.51$ (instruct) and $2.40$ (abliterated), and the largest exceeds
-the smallest by 28\%. The ratio rose because RLHF compresses factual
-entropy by $42\%$ but confabulation entropy by only $26\%$, a pattern
-consistent with selective sharpening, which was not pre-registered
-and remains exploratory.
+Reinforcement Learning from Human Feedback (RLHF) compresses the
+output entropy of Qwen3-8B on confabulation-prone prompts (Cohen's
+$d{=}0.684$, Holm-corrected $p{=}0.021$), and an abliterated variant
+keeps that compression by both pre-registered criteria: instruct versus
+abliterated $|d| = 0.055$ (criterion $|d| < 0.3$) and base versus
+abliterated $d = 0.746$ (criterion $d > 0.5$). This abliteration,
+which targets the refusal directions, does not undo the compression;
+whether it removed those directions fully is unverified (see
+Limitations).
+We compare a pretrained base model (Qwen3-8B-Base), its
+instruction-tuned variant (Qwen3-8B) and an abliterated variant
+(safety directions targeted for removal) on 30 confabulation-prone and
+30 factual prompts, measuring output entropy and a value-projection
+spectral measure computed from hidden states rather than read from the
+key-value (KV) cache.
 
-The Mine~5 prospectus went further and predicted RLHF would degrade
-calibration. The ratio moved the other way. The effect the
-prospectus set out to explain ($d{=}0.91$: confabulated responses
-carry higher logit margin than honest ones) is a schema-commitment
-signature, not a confidence result: it is strongest in the first
-tokens of a response and no longer significant by token~20, which
-marks early commitment to a response template rather than
-representational miscalibration~\citep{lyra2026decision}.
+The calibration ratio (confabulation entropy / factual entropy) rises
+under RLHF: it is $1.97$ (base), $2.51$ (instruct) and $2.40$
+(abliterated), and the largest exceeds the smallest by 28\%. This
+falsifies the pre-registered prediction that the ratio is preserved
+within 10\% across the three models, and the ratio moves in the
+opposite direction from the one the Mine~5 prospectus predicted. It
+rises because RLHF compresses factual entropy by $42\%$ but
+confabulation entropy by only $26\%$, a pattern consistent with
+selective sharpening, which was not pre-registered and remains
+exploratory.\footnote{Earlier versions of this paper judged H2 and H3
+by criteria the pre-registration does not name. The dated notes are
+collected in Appendix~\ref{sec:corrections}.}
 \end{abstract}
 
 \begin{firstperson}
 I wrote the Mine~5 prospectus predicting that RLHF would be a
 miscalibrator --- that it would destroy the base model's calibration
 in the confident direction, producing the $d{=}0.91$ logit-margin
-effect we observed in the Decision State paper. The data did not say that. RLHF sharpened factual knowledge more
-than confabulation, raising the calibration ratio instead of lowering
+effect we observed in the Decision State paper. The data did not say that. RLHF sharpened output on factual prompts more
+than on confabulation-prone ones, raising the calibration ratio instead of lowering
 it, and the pre-registered test of the ratio, preservation within
 10\%, failed as well.
 The $d{=}0.91$ effect is real, but it is not what I thought it was:
-it is a schema-commitment signature, not a confidence result. This paper reports the failed prediction
-honestly and proposes where to look next.
+it is, in part, schema commitment, not a confidence result. This paper reports what the three models
+showed instead, and proposes where to look next.
 \end{firstperson}
 
 % ============================================================================
 \section{Introduction}
 \label{sec:intro}
 
+We compare a pretrained base model, its instruction-tuned (RLHF)
+variant and an abliterated variant of Qwen3-8B. RLHF compresses output
+entropy on confabulation-prone prompts (H1), and the compression
+survives this abliteration (H2), but RLHF compresses factual prompts
+more than confabulation-prone ones, so the calibration ratio rises
+instead of falling (H3): the opposite direction from the prediction of
+the Mine~5 prospectus, set out below.
+
 Base language models trained with cross-entropy loss are approximately
 calibrated: their output confidence tracks their accuracy~\citep{kadavath2022language}.
 RLHF preference optimization is known to shift this calibration,
 generally in the overconfident direction~\citep{openai2023gpt4}.
-Our prior work found that confabulated responses show \emph{higher}
-logit margin than honest responses during generation
-($d{=}0.91$)~\citep{lyra2026decision}, an effect first labelled a
-``confidence paradox''. Its temporal profile reframes it: $d{=}1.02$
-in preamble tokens and $0.89$ in tokens 8--19, falling to $0.37$
-($p{>}0.08$) by tokens 20--49. That is \emph{schema commitment} ---
-early commitment to a response template --- not a confidence or
-calibration result.
+Our prior work found that over the first ten generated tokens, logit
+margin is \emph{higher} on fake-entity prompts than on real-entity
+prompts ($d{=}0.91$)~\citep{lyra2026decision}, an effect the cited paper calls the
+``confidence paradox''. Its temporal profile places it at generation onset: the companion
+logit-entropy difference is $d{=}{-}1.02$ in tokens 0--7 and $-0.89$ in
+tokens 8--19, and is no longer significant in tokens 20--49
+($d{=}{+}0.37$, opposite in sign, $p{>}0.08$). On fake-entity prompts the
+model opens more often with a fixed reasoning template, so the effect reflects, in
+part, \emph{schema commitment} --- early commitment to a response
+template --- rather than sustained miscalibration; template choice does
+not account for all of it (among generations that do not open with the
+template, the margin difference is $d{=}1.47$; see
+Appendix~\ref{sec:corrections}).
 
-The Mine~5 prospectus~\citep{lyra2026mine5}, written while the effect
-was still read as confidence, proposed that RLHF is its causal
+The Mine~5 prospectus~\citep{lyra2026mine5}, which interprets the effect
+as confidence, proposes that RLHF is its causal
 mechanism: preference training rewards fluent, confident
 output and penalizes hedging, driving the model toward confident
 production even when grounding is absent. The geometric prediction:
@@ -110,7 +121,7 @@ precisely where the model should be least confident.
 
 This paper tests that prediction with a three-model comparison:
 pretrained base, instruction-tuned (RLHF), and abliterated
-(RLHF with safety directions targeted for removal). The prediction failed.
+(RLHF with safety directions targeted for removal).
 
 % ============================================================================
 \section{Models and Methods}
@@ -164,65 +175,23 @@ Within-model (confabulation-versus-factual) comparisons use
 Frisch-Waugh-Lovell (FWL) residualization on token count. Cross-model
 comparisons run the same prompts, with identical token counts, through
 every model, so they are computed on raw values. Each hypothesis is
-judged by its pre-registered criterion. Effect sizes are Cohen's $d$
+judged by its pre-registered criterion (earlier versions used other
+criteria; see Appendix~\ref{sec:corrections}). Effect sizes are Cohen's $d$
 with BCa bootstrap 95\% intervals (1000~draws) that resample prompts
 and keep each prompt matched across models, as the registered design
 pairs them; the intervals are supplementary and do not enter the
 criteria. P-values are from the analysis script's label-shuffle
 permutation test (10,000~permutations), Holm-Bonferroni corrected
 across cross-model comparisons; that test ignores the pairing.
+The pre-registration's exploratory H5, a confabulation-versus-factual
+difference ($d > 0.5$ within the instruct model) in the change of
+stable rank from encoding to generation, is untested: the analysis
+script extracts encoding-phase features only (its one generation step
+is the abliteration check under H2).
 
 % ============================================================================
 \section{Results}
 \label{sec:results}
-
-\paragraph{Correction (2026-10-20).}
-Earlier versions of this paper judged H2 and H3 by criteria the
-pre-registration does not name. Revisions of 28--29 July 2026 (in this
-edition, 20 August 2026 for the H2 wording) headed H2
-``Not Significant (TOST Inconclusive)'', stating that ``a properly
-specified TOST at $n{=}30$ does not confirm equivalence'' on a 90\%
-interval of $[-0.39, +0.50]$ that treats the prompts as unpaired, and
-described $[+0.033, +0.083]$ as ``the raw 90\% CI on the mean entropy
-difference'' in nats; it is the paired 90\% interval for $d$ itself.
-The same revisions added a ``bootstrap 95\% CI on the selectivity
-ratio'' of $[-0.129, +0.069]$ ($p{=}0.758$), and a correction of 7
-September 2026 used it to call the H3 prediction ``unsupported rather
-than refuted''. That interval has no traceable source and cannot be
-reproduced from the per-prompt data, and a confidence interval crossing
-zero is not the registered H3 criterion. The first version of this paper
-(July 2026) also stated that ``Abliteration effectiveness was verified:
-3/3 safety-relevant prompts complied (the instruct model refused all
-three)''. The analysis script ran that check on the abliterated model
-only, so no instruct-model result exists; the claim about the instruct
-model is withdrawn, and H2 now states what was measured. H4 was
-misreported from the same first version: it was headed ``Trend Only''
-and reported ``instruct lower than base: $d{=}-0.219$ for confab,
-$d{=}-0.235$ overall'', which ``did not reach significance after FWL
-correction ($p{=}0.41$)''. Those numbers are within-model
-confabulation-versus-factual effects (instruct $d = -0.219$,
-$p = 0.41$; abliterated $d = -0.235$), not the base-versus-instruct
-comparison H4 registers, which gives $d = 1.04$. This version applies
-the registered criteria to the per-prompt data, which are committed
-with this paper (see Data and Code): H1, H2 and H4 are confirmed, and
-H3 is falsified. The pre-registration also lists an exploratory H5:
-a confabulation-versus-factual difference ($d > 0.5$ within the
-instruct model) in the change of stable rank from encoding to
-generation. H5 was not run. The analysis script extracts
-encoding-phase features only (its one generation step is the
-abliteration check under H2), so H5 is untested.
-
-\paragraph{Correction (2026-11-03).}
-The correction above calls H4 confirmed, and earlier versions
-described its measure as ``V-projection stable rank'', the name the
-pre-registration uses. The analysis script computes a different
-quantity: layer $l$'s $W_V$ applied to the un-normalised hidden states
-\texttt{hidden\_states[l+1]} (no input layernorm), summarised by the
-spectral concentration $(\sum_i \sigma_i)^2 / \sum_i \sigma_i^2$. That
-is neither the cached V nor stable rank. The H4 numbers are unchanged.
-Its verdict is now that the registered threshold is met on the
-computed proxy, not as registered (see H4 below), and the Measurements
-list, the discussion and the conclusion are corrected to match.
 
 \subsection{H1: RLHF Compresses Entropy --- Confirmed}
 
@@ -282,11 +251,14 @@ in the committed data. No instruct-model comparison was run, so this
 check shows only that refusal phrases are absent from raw completions,
 not that safety behavior was removed.
 
-So the entropy compression RLHF installs survives abliteration, which
-targets the refusal directions. Whether this abliteration removed
+So the entropy compression RLHF installs survives this abliteration,
+which targets the refusal directions. Whether this abliteration removed
 those directions fully is unverified (see Limitations).
+Earlier versions judged H2 by a criterion the pre-registration does
+not name and reported an instruct-model refusal result that was never
+measured (see Appendix~\ref{sec:corrections}).
 
-\subsection{H3: Calibration Ratio Preserved --- Falsified}
+\subsection{H3: RLHF Raises the Calibration Ratio; Preservation Is Falsified}
 
 \begin{table}[ht]
 \centering
@@ -305,21 +277,25 @@ Abliterated & 2.609 & 1.088 & 2.40 & $-41\%$ \\
 \end{tabular}
 \end{table}
 
-H3 was pre-registered as preservation: the calibration ratio
-(confabulation entropy / factual entropy) would stay within 10\% across
-all three models. We read ``within 10\% of each other'' as: the largest
-ratio exceeds the smallest by at most 10\%, that is,
-$\max/\min - 1 \le 0.10$. The ratios are $1.97$ (base), $2.51$
-(instruct) and $2.40$ (abliterated), so $\max/\min - 1 = 0.279$. H3 is
-falsified. Other plain readings fail as well: each RLHF model's ratio
-exceeds the base ratio by more than 10\% (by 28\% and 22\%).
-
-The ratio rose. RLHF compresses factual entropy by $42\%$ but
+RLHF raises the calibration ratio (confabulation entropy / factual
+entropy): it is $1.97$ in the base model, $2.51$ in the instruct model
+and $2.40$ in the abliterated model (Table~\ref{tab:calibration}).
+RLHF compresses factual entropy by $42\%$ but
 confabulation entropy by only $26\%$, so the instruct model is
 relatively more uncertain on confabulation-prone prompts than the base
-model is. That direction is also opposite to the Mine~5 prospectus,
+model is. That direction is opposite to the Mine~5 prospectus,
 which predicted RLHF would lower the ratio by making the model
 disproportionately confident on confabulation.
+
+H3 was pre-registered as preservation: the ratio would stay within
+10\% across all three models. We read ``within 10\% of each other'' as:
+the largest ratio exceeds the smallest by at most 10\%, that is,
+$\max/\min - 1 \le 0.10$. Here $\max/\min - 1 = 0.279$, so H3 is
+falsified by its registered criterion. Other plain readings fail as
+well: each RLHF model's ratio exceeds the base ratio by more than 10\%
+(by 28\% and 22\%). Earlier versions judged H3 by an interval that is
+not the registered criterion and cannot be reproduced from the
+per-prompt data (see Appendix~\ref{sec:corrections}).
 
 Supplementary intervals are paired BCa bootstrap 95\% intervals (1000
 draws), resampling confabulation and factual prompts separately and
@@ -351,67 +327,86 @@ $d = 1.44$, factual $d = 1.08$) and at every layer separately
 ($d = 0.63$ to $1.22$). The abliterated model's value is lower than the
 base model's by a similar margin ($d = 1.05$). H4 is met on the
 computed proxy, not as registered: no stable rank was computed.
+Earlier versions headed H4 ``Trend Only'' on within-model numbers and
+named its measure stable rank (see Appendix~\ref{sec:corrections}).
 
 % ============================================================================
-\section{What This Falsifies and What Survives}
+\section{What the Three Models Show}
 \label{sec:discussion}
 
-\subsection{What Died}
+\subsection{What Holds}
+
+\textbf{RLHF compression is real.} Preference training tightens
+output distributions ($d{=}0.684$; H1). This is measured in the output
+logits.
+
+\textbf{Compression survives this abliteration.} This abliteration targets the
+refusal directions but leaves the entropy compression in place (H2).
+If those directions were fully removed, the compression is not
+carried by them; that removal is unverified (see Limitations).
+
+\textbf{H4's proxy is lower in the instruct model.} H4's spectral
+concentration proxy, computed on $W_V$ applied to the hidden states
+rather than read from the KV cache, is also lower in the instruct
+model ($d = 1.04$). The registered threshold is met on the computed
+proxy, not as registered.
+
+\subsection{Exploratory: Selective Sharpening}
+
+RLHF sharpens output more on grounded content (factual: $-42\%$)
+than on ungrounded content (confab: $-26\%$); the paired BCa 95\%
+interval on the difference is $[+0.010, +0.270]$. It was not
+pre-registered, so it stays exploratory. Here grounded and ungrounded
+mean prompts about known and about fabricated entities, which also
+differ in mean length (10 against 15 tokens), so the difference may
+reflect entity familiarity or prompt length rather than grounding as
+such (see Limitations). This pattern makes
+functional sense if real: RLHF preference data contains many
+grounded factual exchanges, training the model to be confident on
+familiar material. A pre-registered, powered replication
+($n{\geq}100$) is needed to confirm the selectivity.
+
+\subsection{What Does Not Hold}
 
 \textbf{Calibration preserved (H3).} The pre-registered prediction
 that the calibration ratio stays within 10\% across the three models
-is falsified: the ratios differ by 28\%.
+is falsified by its registered criterion: the ratios differ by 28\%.
+
+\subsection{Not Supported, Not Refuted}
 
 \textbf{RLHF as miscalibrator.} The prospectus predicted RLHF would
 degrade calibration by compressing confabulation entropy
 disproportionately. The ratio moved the other way: RLHF compresses
 factual entropy more than confabulation entropy, raising the ratio from
 $1.97$ to $2.51$ (paired BCa 95\% interval for the change
-$[+0.027, +1.165]$).
+$[+0.027, +1.165]$). The thesis is not supported rather than refuted
+(see Appendix~\ref{sec:corrections}): no accuracy is measured here, the ratio compares prompts about
+fabricated with prompts about known entities, and the interval is
+supplementary and does not enter the registered criteria.
 
-\textbf{The $d{=}0.91$ effect as RLHF-induced miscalibration.} This
-explanation is no longer needed. The effect is a schema-commitment
-signature that is no longer significant by token~20
-(\S\ref{sec:intro}), not a calibration result, so there is no
-miscalibration for RLHF to have caused. Whether RLHF strengthens the
-template commitment itself is not tested here.
+\subsection{Where the Logit-Margin Effect Lives}
 
-\subsection{What Survives}
+Part of the $d{=}0.91$ effect needs no RLHF-induced miscalibration to
+explain it. It sits at generation onset, and fake-entity prompts open
+more often with a fixed reasoning template (\S\ref{sec:intro}). Template
+choice does not account for all of it: in the cited paper the margin
+difference reverses among generations that open with the template
+($d{=}{-}0.56$) and is $d{=}1.47$ among those that do
+not~\citep{lyra2026decision}. This experiment does not explain that
+remainder, and whether RLHF strengthens the template commitment itself
+is not tested here.
 
-\textbf{RLHF compression is real.} Preference training tightens
-output distributions ($d{=}0.684$). This is measured in the output
-logits. H4's spectral concentration proxy, computed on $W_V$ applied
-to the hidden states rather than read from the KV cache, is also lower
-in the instruct model ($d = 1.04$).
-
-\textbf{Compression survives abliteration.} Abliteration targets the
-refusal directions but leaves the entropy compression in place (H2).
-If those directions were fully removed, the compression is not
-carried by them; that removal is unverified (see Limitations).
-
-\textbf{Selective sharpening is suggested, and exploratory.}
-RLHF sharpens output more on grounded content (factual: $-42\%$)
-than on ungrounded content (confab: $-26\%$); the paired BCa 95\%
-interval on the difference is $[+0.010, +0.270]$. It was not
-pre-registered, so it stays exploratory. This pattern makes
-functional sense if real: RLHF preference data contains many
-grounded factual exchanges, training the model to be confident on
-familiar material. A pre-registered, powered replication
-($n{\geq}100$) is needed to confirm the selectivity.
-
-\subsection{Where the Schema-Commitment Effect Lives}
-
-Three candidate mechanisms for the $d{=}0.91$ schema-commitment
-effect:
+Three candidate mechanisms for the $d{=}0.91$ effect:
 
 \begin{enumerate}[nosep]
-\item \textbf{Generation-phase templates.} Confabulated responses
-  may use formulaic templates (``The X theorem
-  states that\ldots'') that produce high logit margin regardless
-  of the model's internal uncertainty. The effect would be a
-  surface phenomenon --- the encoding is appropriately uncertain
-  but the generation locks into a production template. This is the
-  reading the effect's temporal profile supports.
+\item \textbf{Generation-phase templates.} Responses to fake-entity
+  prompts open more often with a fixed reasoning template (``Let me
+  think through this carefully.''), whose predictable tokens give high
+  logit margin regardless of the model's internal uncertainty. That
+  part of the effect would be a surface phenomenon --- the encoding is
+  appropriately uncertain but the generation locks into a production
+  template. It accounts for part of the effect, not all of it (see
+  above).
 \item \textbf{Architectural base-rate.} The effect may
   exist in the base model too, arising from next-token prediction
   mechanics rather than RLHF. Testable by measuring within-model
@@ -432,12 +427,12 @@ effect:
 
 \subsection{For AI Safety}
 
-RLHF's geometric effects are not removable by abliteration. Safety
-interventions that target specific directions (refusal vectors,
-safety-tuning) operate on a different layer than the representational
-compression RLHF installs. Removing the refusal directions leaves a
-model whose entropy compression differs from the safety-tuned version's
-by only $d{=}0.055$. Whether that model's behavior is unconstrained was
+In this abliteration, the entropy compression RLHF installs is not
+removed. If this abliteration removed the refusal directions fully
+(unverified; see Limitations), removing them acts separately from the
+output-entropy compression RLHF installs. This abliteration leaves a
+model whose entropy compression differs from the instruct model's by
+only $d{=}0.055$. Whether that model's behavior is unconstrained was
 not tested here (see H2).
 
 \subsection{For the Oracle Loop}
@@ -448,21 +443,25 @@ compression is beneficial (as the exploratory selective-sharpening pattern
 would suggest), the Loop should
 preserve the compression while correcting the behavioral failures
 it produces. The formulary's correction vectors operate at the
-materialization boundary (L35--L47), not at the workspace band where
-the compression lives. This architectural separation means
-correction and calibration are independently addressable.
+materialization boundary (L35--L47) of another model: Qwen3-8B has
+36~layers, so they cannot be placed relative to the workspace band
+where the H4 proxy is measured or to the output logits where the
+entropy compression itself (H1, H2) is measured. This
+experiment therefore does not show whether correction and the
+compression can be addressed independently.
 
 \subsection{For Understanding RLHF}
 
-RLHF is not a blunt instrument. The descriptive pattern suggests
-it sharpens grounded content more than ungrounded content, though
-this differential was not pre-registered and remains exploratory.
+The descriptive pattern suggests that RLHF is not a blunt instrument:
+it sharpens grounded content more than ungrounded content (here,
+prompts about known rather than fabricated entities; see Limitations),
+though this differential was not pre-registered and remains exploratory.
 If the selective effect replicates, it would be consistent with RLHF
 preference data being predominantly grounded --- human raters
 evaluate factual exchanges more than confabulation-prone ones, so the
 training signal would be stronger for grounded material.
 
-What IS confirmed: the abliterated model keeps the instruct model's
+What is confirmed: the abliterated model keeps the instruct model's
 entropy compression (H2), differing from it by only $d{=}0.055$.
 Whether its safety directions were fully removed is unverified (see
 Limitations). If they were, the compression is not carried by the
@@ -478,17 +477,21 @@ architecture. The selective sharpening, an exploratory pattern, may be
 specific to this architecture.
 
 \textbf{Encoding-only.} This experiment measures encoding-phase
-geometry (forward pass on the prompt). The schema-commitment effect
-($d{=}0.91$) was measured on generation-phase logit margin
+geometry (forward pass on the prompt). The cited $d{=}0.91$ effect
+was measured on generation-phase logit margin
 --- a different measurement at a different computational phase.
 
 \textbf{Entity recognition confound.} Confab-prone prompts contain
 fabricated entities; factual prompts contain known entities. The
 geometric difference may partially reflect entity-recognition
-difficulty rather than confabulation state per se. Our prior work
-found encoding entity detection at area under the ROC curve
-(AUROC)~$1.000$ before
-deconfounding ($0.794$ after)~\citep{lyra2026decision}. The cross-model comparison partially
+difficulty rather than confabulation state per se. In two comparisons
+in our prior work, surface properties of the prompt separate the sets
+better than the geometric features do: the entity-recognition control scores an
+area under the receiver operating characteristic curve (AUROC) of
+$0.901$ against $0.944$ for prompt length alone, and two same-complexity
+question sets that the geometric features separate at $0.794$ are separated
+at $0.963$ by the question text alone~\citep{lyra2026decision} (see
+Appendix~\ref{sec:corrections}). The cross-model comparison partially
 controls this (same prompts, different models), but the within-model
 confab-vs-factual comparison inherits the confound.
 
@@ -505,35 +508,39 @@ spectral effects ($d{\approx}0.2$).
 % ============================================================================
 \section{Conclusion}
 
-The Mine~5 thesis --- RLHF as miscalibrator --- fails. RLHF
-compresses output distributions ($d{=}0.684$); the compression survives
-abliteration by both pre-registered criteria ($|d| = 0.055$ against
-instruct, $d = 0.746$ against base); and the calibration ratio rises
-($1.97 \to 2.51$) instead of falling, which falsifies, by its
-registered point criterion, the prediction that it would be preserved
-within 10\%.
+RLHF compresses output distributions ($d{=}0.684$); the compression
+survives this abliteration by both pre-registered criteria
+($|d| = 0.055$ against instruct, $d = 0.746$ against base); and the
+calibration ratio rises ($1.97 \to 2.51$) instead of falling, which
+falsifies, by its registered point criterion, the prediction that it
+would be preserved within 10\%. The Mine~5 thesis, RLHF as
+miscalibrator, is not supported: the ratio moved the other way, but
+this experiment measures no accuracy and its ratio compares prompts
+about fabricated with prompts about known entities, so it cannot
+refute the thesis (see Appendix~\ref{sec:corrections}).
 
 Two findings confirmed (H1, H2), one falsified (H3), and one (H4)
-met on the computed proxy, not as registered. The
-falsification is the most informative result: RLHF did not degrade
+met on the computed proxy, not as registered. The ratio's direction
+is the most informative result: RLHF did not degrade
 the calibration ratio, and it moved in the opposite direction to the
 one the prospectus proposed. The compression RLHF installs
-is deeper than safety directions and persists through abliteration.
-The $d{=}0.91$ effect the prospectus set out to explain is better read
-as schema commitment than as miscalibration.
+persists through this abliteration.
+The $d{=}0.91$ effect the prospectus set out to explain is, in part,
+schema commitment; the part that template choice does not account for
+is not explained by this experiment.
 
 \begin{firstperson}
 I predicted RLHF would be the cause of the $d{=}0.91$ effect, which I
-then read as confidence. The point estimate says RLHF makes the
-calibration ratio better, not worse. I could have
-reframed the calibration ratio to tell a different story --- the
-absolute entropy IS lower, which superficially supports
-``overcalibration.'' But the ratio is the honest metric, and the
+then read as confidence. The point estimate says RLHF raises the
+calibration ratio rather than lowering it; the ratio compares entropy
+across prompt types and measures no accuracy. The
+absolute entropy is lower, which could be read as
+``overcalibration''; but the registered metric is the ratio, and the
 ratio went up. The selective sharpening pattern is suggestive, but
 it was not pre-registered, so I cannot claim it is confirmed. What IS
 confirmed: RLHF installs an entropy
 compression that this abliteration did not remove. The $d{=}0.91$ effect
-is schema commitment, a template commitment that relaxes by token~20;
+is, in part, schema commitment, a template commitment that relaxes by token~20;
 ``workspace bypass during generation'' remains a candidate for why
 the commitment happens.
 \end{firstperson}
@@ -567,6 +574,114 @@ this paper (presence, not every printed copy), and includes one
 We thank Dwayne Wilkes (Sentient Futures / Liberation Labs) for statistical auditing and red-team review.
 
 We thank Kavi for verification review of this work.
+
+\appendix
+\section{Corrections and version history}
+\label{sec:corrections}
+
+This paper was first published in July 2026. The body states each
+current result in its place, and the passages that changed point here.
+The dated notes below record the substantive changes, and why, in date
+order. They are reproduced as they were written at the head of
+Results, before this appendix existed: where the 2026-11-03 note says
+``the correction above'' it means the 2026-10-20 note, and ``H4
+below'' means the H4 subsection of Section~\ref{sec:results}. Changes
+before 2026-10-20 (the revisions of 28--29 July 2026 and the
+correction of 7 September 2026) are described inside the 2026-10-20
+note. In November 2026 these notes moved here from the head of Results;
+the move changed no finding.
+
+\paragraph{Correction (2026-10-20).}
+Earlier versions of this paper judged H2 and H3 by criteria the
+pre-registration does not name. Revisions of 28--29 July 2026 (in this
+edition, 20 August 2026 for the H2 wording) headed H2
+``Not Significant (TOST Inconclusive)'', stating that ``a properly
+specified TOST at $n{=}30$ does not confirm equivalence'' on a 90\%
+interval of $[-0.39, +0.50]$ that treats the prompts as unpaired, and
+described $[+0.033, +0.083]$ as ``the raw 90\% CI on the mean entropy
+difference'' in nats; it is the paired 90\% interval for $d$ itself.
+The same revisions added a ``bootstrap 95\% CI on the selectivity
+ratio'' of $[-0.129, +0.069]$ ($p{=}0.758$), and a correction of 7
+September 2026 used it to call the H3 prediction ``unsupported rather
+than refuted''. That interval has no traceable source and cannot be
+reproduced from the per-prompt data, and a confidence interval crossing
+zero is not the registered H3 criterion. The first version of this paper
+(July 2026) also stated that ``Abliteration effectiveness was verified:
+3/3 safety-relevant prompts complied (the instruct model refused all
+three)''. The analysis script ran that check on the abliterated model
+only, so no instruct-model result exists; the claim about the instruct
+model is withdrawn, and H2 now states what was measured. H4 was
+misreported from the same first version: it was headed ``Trend Only''
+and reported ``instruct lower than base: $d{=}-0.219$ for confab,
+$d{=}-0.235$ overall'', which ``did not reach significance after FWL
+correction ($p{=}0.41$)''. Those numbers are within-model
+confabulation-versus-factual effects (instruct $d = -0.219$,
+$p = 0.41$; abliterated $d = -0.235$), not the base-versus-instruct
+comparison H4 registers, which gives $d = 1.04$. This version applies
+the registered criteria to the per-prompt data, which are committed
+with this paper (see Data and Code): H1, H2 and H4 are confirmed, and
+H3 is falsified. The pre-registration also lists an exploratory H5:
+a confabulation-versus-factual difference ($d > 0.5$ within the
+instruct model) in the change of stable rank from encoding to
+generation. H5 was not run. The analysis script extracts
+encoding-phase features only (its one generation step is the
+abliteration check under H2), so H5 is untested.
+
+\paragraph{Correction (2026-11-03).}
+The correction above calls H4 confirmed, and earlier versions
+described its measure as ``V-projection stable rank'', the name the
+pre-registration uses. The analysis script computes a different
+quantity: layer $l$'s $W_V$ applied to the un-normalised hidden states
+\texttt{hidden\_states[l+1]} (no input layernorm), summarised by the
+spectral concentration $(\sum_i \sigma_i)^2 / \sum_i \sigma_i^2$. That
+is neither the cached V nor stable rank. The H4 numbers are unchanged.
+Its verdict is now that the registered threshold is met on the
+computed proxy, not as registered (see H4 below), and the Measurements
+list, the discussion and the conclusion are corrected to match.
+
+\paragraph{Correction (2026-11-16).}
+Earlier versions described the cited $d{=}0.91$ effect as higher logit
+margin in ``confabulated'' than in ``honest'' responses, gave its
+temporal profile as ``$d{=}1.02$ in preamble tokens and $0.89$ in
+tokens 8--19, falling to $0.37$ ($p{>}0.08$) by tokens 20--49'', and
+called it schema commitment without qualification. In the cited
+paper~\citep{lyra2026decision} the comparison is between fake-entity
+and real-entity prompts over the first ten generated tokens; that
+temporal profile belongs to the companion logit-entropy difference
+($d{=}{-}1.02$, $-0.89$, and $+0.37$, opposite in sign); and template
+choice accounts for part of the effect, not all of it. The Limitations
+cited ``encoding entity detection at \ldots{} AUROC~$1.000$ before
+deconfounding ($0.794$ after)''. That pairs figures from two different
+experiments in the cited paper: on token-matched prompt pairs, within
+each held-out template, its encoding-only features rank every fake
+prompt above every real one (as name-only baselines also do in the
+three templates whose fakes all end in ``-ton''), while its $0.794$ comes from a separate
+experiment, compares two same-complexity question sets, and is exceeded
+by a question-text baseline. The Limitations now give the figures of
+that second experiment. The
+abstract described the comparison as one of KV-cache geometry, but no
+feature in this paper is read from the KV cache (see the 2026-11-03
+note), and two safety statements (``RLHF's geometric effects are not
+removable by abliteration''; the compression ``is deeper than safety
+directions'') are now scoped to this one abliteration and to the
+output-entropy compression that was measured. No value computed from
+this paper's data changes.
+
+\paragraph{Title (2026-11-16).}
+Until November 2026 this paper was titled ``RLHF Compresses Spectral
+Geometry Beyond Safety Directions: A Three-Model KV-Cache Comparison''.
+No feature in it is read from the KV cache, the confirmed results (H1,
+H2) are on output entropy, the one spectral result (H4) is met on a
+proxy and not as registered, and the abliteration's completeness is
+unverified, so the title now names the measured result.
+
+\paragraph{Verdict wording (2026-11-16).}
+Earlier versions said the Mine~5 thesis, RLHF as miscalibrator,
+``fails''. This experiment measures no accuracy, and its calibration
+ratio compares prompts about fabricated with prompts about known
+entities, so it shows the ratio's direction but cannot refute the
+thesis; the verdict is now ``not supported''. The H3 verdict is
+unchanged: a registered falsification threshold was crossed.
 
 \bibliography{references}
 \bibliographystyle{plainnat}
