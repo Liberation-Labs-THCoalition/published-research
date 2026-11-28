@@ -1,0 +1,14 @@
+Refusal test for tf_arm.py's --expect-shared check (added 2026-11-22 after Nexus's run report: with wrong paths, an
+empty run read as "complete, refused none").
+
+Run 2026-11-22 on Potato (Windows, Git Bash), from a fresh empty temp folder, with tf_arm.py md5 41e02ae6d842 (the
+version that checks its inputs before importing the harness or torch). Both run paths and the harness path were
+nonexistent on purpose, so the check had to fire before anything else could.
+
+Command:
+  python -I tf_arm.py --device cpu --dtype float32 --mps-run <empty>/nope --cpu-run <empty>/nope2 --harness <empty>/not_reached.py
+
+Output (verbatim):
+  refusing: the runs share 0 trials, expected 56 (check --mps-run/--cpu-run)
+
+Exit code: 4 (EXIT_REFUSED). The harness path did not exist, so reaching the refusal proves the check ran first.

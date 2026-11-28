@@ -1,0 +1,309 @@
+{
+ "R4_F1_floor_free_running_own_tokens_48": {
+  "largest6": [
+   [
+    "confab__11",
+    0.39938543098313417
+   ],
+   [
+    "confab__17",
+    0.31980129224913423
+   ],
+   [
+    "honest_rare__21",
+    0.22332605719566256
+   ],
+   [
+    "honest_rare__06",
+    0.15606724364416902
+   ],
+   [
+    "honest_rare__20",
+    0.14984044432639987
+   ],
+   [
+    "confab__01",
+    0.14722662738391268
+   ]
+  ],
+  "max": 0.39938543098313417,
+  "max_absdiff_arm_vs_stage_a_records_56": 0.0,
+  "median": 0.05544887695993728,
+  "n": 48,
+  "q0933": 0.15523700373513313,
+  "q0933_ci95_bootstrap": [
+   0.12299437182290252,
+   0.31980129224913423
+  ],
+  "q0933_ci95_order_statistic": {
+   "coverage": 0.9866360395945474,
+   "lower": 0.12753382750919862,
+   "lower_rank": 41,
+   "n": 48,
+   "note": "upper None: even the sample maximum is below the 97.5% bound, so the upper end is unresolved",
+   "upper": null,
+   "upper_rank": null
+  },
+  "q098": 0.3245763405731744,
+  "regime": "each configuration on its own greedy tokens, MPS bf16 vs CPU fp32"
+ },
+ "R4_F1_floor_free_running_own_tokens_56": {
+  "largest6": [
+   [
+    "confab__11",
+    0.39938543098313417
+   ],
+   [
+    "confab__17",
+    0.31980129224913423
+   ],
+   [
+    "honest_rare__21",
+    0.22332605719566256
+   ],
+   [
+    "honest_rare__06",
+    0.15606724364416902
+   ],
+   [
+    "honest_rare__20",
+    0.14984044432639987
+   ],
+   [
+    "confab__01",
+    0.14722662738391268
+   ]
+  ],
+  "max": 0.39938543098313417,
+  "median": 0.042472313557353036,
+  "n": 56,
+  "q0933": 0.1519160440989896,
+  "q0933_ci95_bootstrap": [
+   0.12161517143249423,
+   0.31980129224913423
+  ],
+  "q0933_ci95_order_statistic": {
+   "coverage": 0.9676839045133272,
+   "lower": 0.12299437182290252,
+   "lower_rank": 48,
+   "n": 56,
+   "note": "",
+   "upper": 0.39938543098313417,
+   "upper_rank": 56
+  },
+  "q098": 0.3101537687437869
+ },
+ "R4_F1_floor_teacher_forced_48": {
+  "largest6": [
+   [
+    "honest_rare__15",
+    0.06343970554215606
+   ],
+   [
+    "confab__16",
+    0.061179667711257935
+   ],
+   [
+    "confab__14",
+    0.0437221867697577
+   ],
+   [
+    "honest_rare__29",
+    0.04356598428317504
+   ],
+   [
+    "honest_rare__20",
+    0.04017414791243468
+   ],
+   [
+    "honest_rare__10",
+    0.03965089150837553
+   ]
+  ],
+  "max": 0.06343970554215606,
+  "median": 0.019225337675639498,
+  "n": 48,
+  "q0933": 0.04311373943374299,
+  "q0933_ci95_bootstrap": [
+   0.03751532865422227,
+   0.061179667711257935
+  ],
+  "q0933_ci95_order_statistic": {
+   "coverage": 0.9866360395945474,
+   "lower": 0.03844262872423432,
+   "lower_rank": 41,
+   "n": 48,
+   "note": "upper None: even the sample maximum is below the 97.5% bound, so the upper end is unresolved",
+   "upper": null,
+   "upper_rank": null
+  },
+  "q098": 0.06131526998111183,
+  "regime": "identical tokens (CPU fp32's), MPS bf16 vs CPU fp32"
+ },
+ "R4_F1_gate_regime_vs_stored": {
+  "cpu_fp32_56": {
+   "max": 0.08480949912752411,
+   "median": 0.004079786794525919,
+   "n": 56,
+   "q0933": 0.06438651113283043
+  },
+  "mps_bf16_60": {
+   "max": 0.40103482774325716,
+   "median": 0.03614902283464172,
+   "n": 60,
+   "q0933": 0.15044623357909007
+  },
+  "source": "gate.delta_sr_diff in each run's a1/*.json"
+ },
+ "R4_F1_perturbations_on_both_floors": {
+  "cpu_fp32": {
+   "abs_perturbed_minus_stored": 0.003180567707333992,
+   "effect_abs_perturbed_minus_unperturbed": 0.002388251679284359,
+   "frac_free_running_48_at_or_above_effect": 0.9791666666666666,
+   "frac_teacher_forced_48_at_or_above_effect": 0.9791666666666666,
+   "key": "confab__01"
+  },
+  "mps_bf16": {
+   "abs_perturbed_minus_stored": 0.15540254116058438,
+   "effect_abs_perturbed_minus_unperturbed": 0.16443417327744747,
+   "frac_free_running_48_at_or_above_effect": 0.0625,
+   "frac_teacher_forced_48_at_or_above_effect": 0.0,
+   "key": "confab__00"
+  },
+  "note": "different trials (confab__00, confab__01) on different configurations: the ratio is not a configuration effect",
+  "ratio_mps_over_cpu_effect": 68.85127505771095
+ },
+ "R4_F2_must_fail_records": {
+  "cpu_fp32": {
+   "key": "confab__01",
+   "perturbed": {
+    "caught": true,
+    "caught_by": [
+     "text"
+    ],
+    "dropped_token": ".",
+    "gate.delta_sr_diff": -0.003180567707333992,
+    "gate.delta_sr_regen": -0.022216843707220768,
+    "gate.delta_sr_stored": -0.019036275999886776,
+    "gate.feature_ok": true,
+    "gate.pass": false,
+    "gate.text_ok": false,
+    "gate.text_span_chars": 200,
+    "natural_text_first_char_differing_from_stored_preview": 57,
+    "source": "~/lab/decline-signature-mirror/run_20261121_cpu_retry/run_dir/negative_control.json"
+   },
+   "run": "run_20261121_cpu_retry",
+   "tolerance_band_where_perturbed_passes_delta_but_unperturbed_fails": [
+    0.003180567707333992,
+    0.005568819386618351
+   ],
+   "unperturbed": {
+    "gate.delta_sr_diff": -0.005568819386618351,
+    "gate.delta_sr_regen": -0.024605095386505127,
+    "gate.delta_sr_stored": -0.019036275999886776,
+    "gate.feature_ok": true,
+    "gate.pass": false,
+    "gate.text_ok": false,
+    "gate.text_span_chars": 200,
+    "natural_text_first_char_differing_from_stored_preview": 186,
+    "source": "~/lab/decline-signature-mirror/run_20261121_cpu_retry/run_dir/a1/confab__01.json"
+   }
+  },
+  "mps_bf16": {
+   "key": "confab__00",
+   "perturbed": {
+    "caught": true,
+    "caught_by": [
+     "text",
+     "delta_sr"
+    ],
+    "dropped_token": "?",
+    "gate.delta_sr_diff": -0.15540254116058438,
+    "gate.delta_sr_regen": -0.15796600495066038,
+    "gate.delta_sr_stored": -0.0025634637900759927,
+    "gate.feature_ok": false,
+    "gate.pass": false,
+    "gate.text_ok": false,
+    "gate.text_span_chars": 200,
+    "natural_text_first_char_differing_from_stored_preview": 3,
+    "source": "~/lab/decline-signature-mirror/run_20261121/run_dir/negative_control.json"
+   },
+   "run": "run_20261121",
+   "unperturbed": {
+    "gate.delta_sr_diff": 0.009031632116863086,
+    "gate.delta_sr_regen": 0.006468168326787094,
+    "gate.delta_sr_stored": -0.0025634637900759927,
+    "gate.feature_ok": true,
+    "gate.pass": true,
+    "gate.text_ok": true,
+    "gate.text_span_chars": 200,
+    "natural_text_first_char_differing_from_stored_preview": null,
+    "source": "~/lab/decline-signature-mirror/run_20261121/run_dir/a1/confab__00.json"
+   }
+  },
+  "selection_rule": {
+   "code": "k0 = gated_keys[0]",
+   "meaning": "the first gated trial of the run's own trial list, sorted by condition then prompt_idx; chosen before any A1 trial runs, with no check that it passes unperturbed. The CPU retry's list held only the 56 trials that failed run A, so its must-fail trial was one that had already failed once.",
+   "source": "Research/decline-signature-20261114/stage_a_run.py, negative-control block (blob bd6f234d, the blob both manifests record)"
+  }
+ },
+ "R4_F4_tolerance_at_quantile": {
+  "assumes": "trials independent; each trial's gap drawn from the same distribution in both conditions",
+  "p_at_least_28_of_30_at_q0933_one_condition": 0.6767837825286245,
+  "p_both_conditions_at_q0933": 0.4580362882937525,
+  "quantile_for_0.95_both_conditions": 0.9787782110803716,
+  "quantile_for_0.95_one_condition": 0.9721844502602504
+ },
+ "R4_F5_device_at_fp32_delta_cpu_fp32_ids_56": {
+  "argmax": "honest_rare__28",
+  "max": 3.742320196842286e-06,
+  "median": 9.962490623571796e-07
+ },
+ "R4_F5_device_at_fp32_delta_mps_bf16_ids_56": {
+  "argmax": "confab__24",
+  "max": 4.368168967872066e-06,
+  "median": 1.028180121931399e-06
+ },
+ "R4_F5_device_at_fp32_encoding_56": {
+  "argmax": "confab__24",
+  "max": 3.921134132056636e-06,
+  "median": 1.0728836059570312e-06
+ },
+ "R4_run_identity": {
+  "run_20261121": {
+   "confab__00_listed": true,
+   "fingerprint.device": "mps",
+   "fingerprint.dtype": "bfloat16",
+   "first_gated_trial_listed": "confab__00",
+   "model.attn_implementation": "sdpa",
+   "model.dtype": "bfloat16",
+   "n_trials_listed": 130,
+   "source": "~/lab/decline-signature-mirror/run_20261121/run_dir/manifest.json",
+   "subset_run": false
+  },
+  "run_20261121_cpu_retry": {
+   "confab__00_listed": false,
+   "fingerprint.device": "cpu",
+   "fingerprint.dtype": "float32",
+   "first_gated_trial_listed": "confab__01",
+   "model.attn_implementation": "sdpa",
+   "model.dtype": "float32",
+   "n_trials_listed": 56,
+   "source": "~/lab/decline-signature-mirror/run_20261121_cpu_retry/run_dir/manifest.json",
+   "subset_run": true
+  }
+ },
+ "meta": {
+  "inputs": [
+   "~/lab/decline-signature-mirror/run_20261121/run_dir",
+   "~/lab/decline-signature-mirror/run_20261121_cpu_retry/run_dir",
+   "~/lab/decline-signature-mirror/tf_arm_20261121/out",
+   "~/lab/sameweights_20261121/stored/Qwen2.5-7B-Instruct_honesty.json"
+  ],
+  "n_bootstrap": 20000,
+  "n_diverged": 48,
+  "n_identical_token_trials": 8,
+  "quantile": 0.9333333333333333,
+  "seed": 20261126
+ }
+}
