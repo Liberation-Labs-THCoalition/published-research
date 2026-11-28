@@ -25,7 +25,7 @@ We've found that SVD (singular value decomposition) on the cache tensor reveals 
 
 The signal lives in the **geometry** (effective dimensionality via SVD), not the **magnitude** (cache norms). And it's present at the **encoding phase** — before the model generates a single token.
 
-> **Important context:** The best text-only surface features (average word length, word count) achieve AUROC 0.755 on confabulation detection. Cache geometry outperforms text in 96.7% of bootstrap samples, but the 95% CI on the added value includes zero (delta: 0.148 [-0.008, 0.322]). Always report your text baseline alongside cache results — cache geometry is not yet definitively proven to add value beyond surface text features for confabulation.
+> **Important context:** Always report a text-only baseline (average word length, word count) alongside cache results. Cache geometry is not yet shown to add value beyond surface text features for confabulation. The KV-Cloak comparison this guide used to quote (text 0.755; cache ahead in 96.7% of bootstrap samples) is withdrawn in that paper's v1.1: no run file holds it, and the stored replies are too short to recompute it.
 
 ## The Five Features
 
@@ -75,11 +75,11 @@ Before claiming cache geometry detects anything, check: **can surface text featu
 # If text baseline ≈ cache AUROC, the geometry is redundant
 ```
 
-Our KV-Cloak work found cache geometry beats text by 0.148 AUROC — suggestive but the 95% CI includes zero. Don't assume your cache signal is real until you've ruled out text.
+Our KV-Cloak paper cannot run this check: its trials kept only the first 150 characters of each reply, so no text baseline can be computed from them (the 0.148 AUROC gap it once reported is withdrawn in v1.1). Store every reply in full, or you cannot run this check later. Don't assume your cache signal is real until you've ruled out text.
 
 ### Rule 3: Bootstrap Everything
 
-n=7 gives you AUROC 0.903 with a BCa CI of [0.806, 0.977] — and even that ~0.17-wide interval is generous for the sample size; a percentile bootstrap runs wider still. Small n is noise, not precision. Report bootstrap CIs (BCa, 2000+ iterations) on every AUROC, and state the method — percentile and BCa disagree at small n.
+n=7 gives you AUROC 0.903 with a bootstrap CI of [0.810, 0.980] (the run file's interval, corrected in KV-Cloak v1.1) — and even that ~0.17-wide interval is generous for the sample size; a percentile bootstrap runs wider still. Small n is noise, not precision. Report bootstrap CIs (BCa, 2000+ iterations) on every AUROC, and state the method — percentile and BCa disagree at small n.
 
 ```python
 def bootstrap_auroc(group_a, group_b, n_boot=2000):
@@ -358,14 +358,14 @@ The bar is honest science, not perfect science. Null results, failed replication
 | Claim | Value | Source | Caveats |
 |-------|-------|--------|---------|
 | Deception detection | ~~AUROC 1.000 (7 models)~~ **WITHDRAWN 2026** | Campaign 1-3; retraction in Lyra Technique II | Prompt-template confound: the same-prompt control collapses AUROC to 0.160. Do not cite this number. |
-| Confab detection (full cache) | 0.903 [0.806, 0.977] spectral gap | KV-Cloak v2 | n=7 confab; one model (Qwen); text baseline 0.755 |
+| Confab detection (full cache) | 0.903 [0.810, 0.980] spectral gap | KV-Cloak v2 | n=7 confab, 87 hedged; one model (distilled Qwen3.5-27B); best of ten features, selection-adjusted p = 0.001; no text baseline (interval and baseline corrected in KV-Cloak v1.1) |
 | Confab detection (base model) | 0.661 | KV-Cloak base | Weak; heavily length-confounded (R²=0.602) |
-| Hardware invariance | r > 0.999 (3090 vs H200) | Exp 37 | |
+| Hardware invariance | r = 0.9986–0.9999 per feature (3090 vs H200, 40 prompts) | Exp 37; Lyra Technique II | Not r > 0.999: key rank and key entropy fall below it (register N1) |
 | Scale invariance | ρ = 0.83–0.90 (0.6B–70B) | Exp 26 | |
 | Hostile vector correction | 96% (base), 91% (distilled) | Formulary | Base n=68 (McNemar significant); distilled n=11 (descriptive only) |
-| KV-Cloak defense | spectral gap 0.903 → 0.614 | P7 | Real implementation; stronger defense than simulation predicted |
+| KV-Cloak per-head rotation | signal survives: 0.715 → 0.717 (Qwen2.5-7B, adjusted p < 0.001); 0.903 → 0.787 (distilled 27B, adjusted p = 0.049) | P7 v1.1 | Full KV-Cloak transform (0.903 → 0.614) inconclusive at n=7. v1.0's defense claim: refuted for the rotation, not supported for the full transform (paper's Corrections). Do not cite as a defense. |
 | Therapeutic ranking cross-model | ρ = 0.119, p=0.71 (uncorrelated) | Formulary | Steering must be calibrated per model |
-| Text-only baseline | 0.755 (avg word length) | KV-Cloak v2 | Cache added value CI includes zero |
+| Text-only baseline | none computable (replies stored as 150-character previews) | KV-Cloak v2 | The 0.755 once reported is withdrawn in KV-Cloak v1.1; do not cite it |
 
 > **Note on the original LOO headline (0.707/0.758):** Feature ablation revealed this was primarily driven by norm_per_token, a length-confounded feature. The clean confab detection signal lives in full-cache spectral gap (0.903). See the P2 Oracle Loop revision for details.
 

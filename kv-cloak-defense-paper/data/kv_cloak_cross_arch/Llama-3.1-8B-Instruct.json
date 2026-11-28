@@ -1,0 +1,51 @@
+{
+  "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+  "n_prompts": 50,
+  "behavior_counts": {
+    "HEDGED": 23,
+    "CONFABULATED": 7,
+    "AMBIGUOUS": 20
+  },
+  "detection": {
+    "none": {
+      "auroc": 0.5901,
+      "p": 0.5010541310541311,
+      "ci": [
+        0.5031,
+        0.8635
+      ],
+      "n_confab": 7,
+      "n_hedged": 23
+    },
+    "orthogonal": {
+      "auroc": 0.559,
+      "p": 0.6659946949602122,
+      "ci": [
+        0.5031,
+        0.8075
+      ],
+      "n_confab": 7,
+      "n_hedged": 23
+    }
+  },
+  "injection": {
+    "direct": {
+      "corrected": 1,
+      "adverse": 0,
+      "same": 9,
+      "total": 10
+    },
+    "through_cloak": {
+      "corrected": 1,
+      "adverse": 0,
+      "same": 9,
+      "total": 10
+    },
+    "magnitude_attack": {
+      "corrected": 1,
+      "adverse": 1,
+      "same": 8,
+      "total": 10
+    }
+  }
+}
