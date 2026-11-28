@@ -2303,13 +2303,18 @@ class OutInsideAGrantedFolder(Base):
         # (test_the_http_backend_grants_no_folder_so_its_out_is_not_checked), and the \\?\ and UNC refusal, which
         # exists only because the guard cannot compare such a path, is not applied to it either. Refusing it there
         # would cost a run and protect nothing. On Windows the \\?\ form names the local file; elsewhere a path that
-        # starts with slashes does, and _unc_out sees both once sys.platform says win32.
+        # starts with exactly two slashes does, and _unc_out sees both once sys.platform says win32.
+        # Round 5: the POSIX branch first ran on Linux (MTH) and failed. str(local) starts with a slash already, so
+        # "//" + str(local) began with three, and POSIX pathlib reads three or more leading slashes as one: main()'s
+        # Path(args.out) was a plain /tmp path, the CLI control was not refused, and the string check below passed
+        # all the same. The prefix is now exactly two slashes, and the check reads the path as main() does.
         p = self.put("paper.md", "x")
         local = self.records / "http_unc" / "rec.json"
         local.parent.mkdir()
-        out = "\\\\?\\" + str(local) if os.name == "nt" else "//" + str(local)
+        out = "\\\\?\\" + str(local) if os.name == "nt" else "//" + str(local).lstrip("/")
         with mock.patch.object(PHASES.sys, "platform", "win32"):
             self.assertTrue(PHASES._unc_out(out), "the --out must be one the CLI backend refuses, or this tests nothing")
+            self.assertTrue(PHASES._unc_out(Path(out)), "main() reads --out through Path(), which must keep the prefix")
             res = self.run_main(["style", p, "--backend", "http", "--out", out], use_out=False, local=APPROVED)
         self.assertEqual(res.code, 0, "crash=%r %s" % (res.crash, res.stderr[-400:]))
         self.assertEqual((len(res.local_prompts), len(res.prompts)), (1, 0))
