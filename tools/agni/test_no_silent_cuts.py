@@ -2298,6 +2298,32 @@ class OutInsideAGrantedFolder(Base):
         res = self.run_with_out(["style", p], local)
         self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
 
+    def test_the_unc_refusal_is_for_the_cli_backend_only(self):
+        # Round 4 (the re-verifier's Q1): the http backend grants the reviewer no folder, so its --out is not checked
+        # (test_the_http_backend_grants_no_folder_so_its_out_is_not_checked), and the \\?\ and UNC refusal, which
+        # exists only because the guard cannot compare such a path, is not applied to it either. Refusing it there
+        # would cost a run and protect nothing. On Windows the \\?\ form names the local file; elsewhere a path that
+        # starts with slashes does, and _unc_out sees both once sys.platform says win32.
+        p = self.put("paper.md", "x")
+        local = self.records / "http_unc" / "rec.json"
+        local.parent.mkdir()
+        out = "\\\\?\\" + str(local) if os.name == "nt" else "//" + str(local)
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            self.assertTrue(PHASES._unc_out(out), "the --out must be one the CLI backend refuses, or this tests nothing")
+            res = self.run_main(["style", p, "--backend", "http", "--out", out], use_out=False, local=APPROVED)
+        self.assertEqual(res.code, 0, "crash=%r %s" % (res.crash, res.stderr[-400:]))
+        self.assertEqual((len(res.local_prompts), len(res.prompts)), (1, 0))
+        self.assertNotIn("UNC path", res.stderr)
+        self.assertNotIn("cannot compare it reliably", res.stderr)
+        self.assertEqual(json.loads(local.read_text(encoding="utf-8"))["verdict"], "APPROVED")
+        # Control: the same --out on the CLI backend is refused before any call, and nothing is written there.
+        local.unlink()
+        with mock.patch.object(PHASES.sys, "platform", "win32"):
+            res = self.run_main(["style", p, "--out", out], use_out=False)
+        self.assertEqual((res.code, len(res.prompts)), (2, 0), "crash=%r %s" % (res.crash, res.stderr[-400:]))
+        self.assertIn("UNC path", res.stderr)
+        self.assertFalse(local.exists(), "a record was written at a refused --out")
+
     def test_through_a_link_into_a_granted_folder(self):
         p = self.put("paper.md", "x")
         link = self.records / "into_tree"
