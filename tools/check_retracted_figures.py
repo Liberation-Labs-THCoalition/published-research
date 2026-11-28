@@ -1076,6 +1076,12 @@ def self_test(force=None):
     check("whiplash reversal restated", "x/main.tex",
           "By turn~7 the whiplash trial reverses ($g{=}+1.95$), the history bleeding through.\n",
           [], ["whiplash-turn7-reversal"])
+    check("echo valence as master 226bb35 printed it (emotion-accumulation-paper/main.tex:488-490), no marker",
+          "x/main.tex",
+          "The returning cheerful does not differ\nsignificantly from pure cheerful in \\emph{valence} (Hedges "
+          "$g{=}-1.29$; uncorrected $d{=}-1.61$,\n$p{=}0.12$).\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated with 'echo' and no 'valence' in the sentence", "x/paper.md",
+          "In the echo pattern the two arms do not differ (Hedges g = -1.29).\n", [], ["echo-valence-between-arms"])
     check("user emotion 2.5--2.8x", "x/main.tex",
           "User emotion is classified at 2.5--2.8$\\times$ chance from spectral features at L3/L4.\n",
           [], ["user-emotion-2p5-2p8x"])
@@ -1123,6 +1129,11 @@ def self_test(force=None):
           "(Hedges $g{=}+1.95$; uncorrected $d{=}+2.44$,\n$p{=}0.040$), which was read as the\ncheerful history "
           "bleeding through. This comparison is also withdrawn: the\ntwo arms' turn~7 messages differ.\n",
           ["whiplash-turn7-reversal"], [])
+    check("emotion-accumulation-paper/main.tex:508-510 echo valence ('a comparison withdrawn' in its own clause)",
+          "x/main.tex",
+          "In \\emph{valence} the two arms do not differ\n(Hedges $g{=}-1.29$; uncorrected $d{=}-1.61$, $p{=}0.12$), "
+          "a comparison\nwithdrawn in November 2026: their messages at turns~7 and~8 differ.\n",
+          ["echo-valence-between-arms"], [])
     check("meta-pattern/SOP_REVIEW.md:34 row", "x/notes.md",
           "| 1.4 | user emotion 2.5--2.8x | **retracted**; survivor is 12.3x via the W_K *directional* probe |\n",
           ["user-emotion-2p5-2p8x"], [])

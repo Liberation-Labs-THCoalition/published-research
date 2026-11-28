@@ -241,6 +241,24 @@ entries:
     source:
       - 'emotion-accumulation-paper/main.tex:478-482: "This comparison is also withdrawn: the two arms'' turn~7 messages differ"'
 
+  - id: echo-valence-between-arms
+    status: WITHDRAWN
+    claim: Echo pattern, returning cheerful vs pure cheerful, does not differ in valence (g=-1.29, d=-1.61, p=0.12).
+    # Added 2026-11-28 (PR #77). The paper withdrew this comparison on 2026-11-23 but the registry had no entry, so an
+    # unmarked restatement would have passed. As for the whiplash entry, the pattern is the two effect sizes, either
+    # sign, and not the p-value ("0.12" is also an SD in this paper, emotion-accumulation-paper/main.tex:87, :142).
+    # "valence" or "echo" must be in the figure's own sentence; the paper's sentence names valence, not echo. On
+    # 7262045 the entry finds only this paper's two editions (2 occurrences, both marked); 1.29 also appears in
+    # convergence-paper's stable-rank intervals and substrate_independence_section.tex:148, with neither word.
+    pattern: '(?<![\d.])(?:1\.29|1\.61)0*(?!\d)'
+    context: '(?i)valence|\becho\b'
+    source:
+      - 'emotion-accumulation-paper/main.tex:1092-1095 (Appendix A, as of 7262045): "Every comparison between arms below is withdrawn: ... (and, named here on 2026-11-23, the echo valence comparison)"'
+      - 'emotion-accumulation-paper/main.tex:447-450: "the comparisons between arms below, ... and the echo valence comparison, ... all four are withdrawn"'
+      - 'emotion-accumulation-paper/main.tex:508-510: "(Hedges $g{=}-1.29$; uncorrected $d{=}-1.61$, $p{=}0.12$), a comparison withdrawn in November 2026"'
+      - 'emotion-accumulation-paper/academic/main.tex:1063-1066, :431-434, :492-494: the same three passages in the academic edition'
+      - 'origin/master 226bb35 emotion-accumulation-paper/main.tex:488-490 and academic/main.tex:473-475 still print the figures unmarked ("does not differ significantly from pure cheerful in \emph{valence}")'
+
   - id: decision-state-0p9377-as-verified
     status: NOT CLAIMED
     claim: Decision-state AUROC 0.9377 presented as a verified, reproducible number.
