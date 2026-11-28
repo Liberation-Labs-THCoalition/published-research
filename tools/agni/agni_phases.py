@@ -54,6 +54,12 @@ its input. No input is sliced. The whole prompt is checked once against a budget
 means INVALID before any reviewer call. The record's input_coverage says what the reviewer got.
 See README.md.
 
+READS REFUSED (v1.2.0): input_complete says what the reviewer was GIVEN. What it could not OPEN is
+a different fact, and the record keeps it beside input_coverage: reads_refused lists each of the CLI
+reviewer's own tool calls that was refused (permission denied, or a path outside the granted
+folders), with its path and reason, read from the reviewer's stream-json (its tool results, and the
+result event's permission_denials), never from its prose. It does not change the verdict or the exit.
+
 Usage
   python3 agni_phases.py design    <script.py> <prereg.json>
   python3 agni_phases.py preflight <script.py> <prereg.json>
@@ -96,8 +102,13 @@ import llm  # noqa: E402
 # Every CLI reviewer call goes through this; see claude_isolation.py and README.md.
 from claude_isolation import isolated_claude_cmd  # noqa: E402
 
-AGNI_PHASES_VERSION = "1.1.3"
+AGNI_PHASES_VERSION = "1.2.0"
 REVIEWER_TOOLS = "Read,Grep,Glob"   # the CLI reviewer's only tools (1.1.3)
+# 1.2.0: the reviewer's own stream, one JSON event a line, so its refused reads can be taken from its tool
+# results (read_cli_stream). The CLI needs --verbose for stream-json in print mode.
+CLI_STREAM_FLAGS = ["--output-format", "stream-json", "--verbose"]
+# A reason longer than this is cut in the record, and the record says how much was left out.
+REFUSAL_REASON_CHARS = 500
 DEFAULT_MODEL = "opus"  # CLI alias -> claude-opus-5 (verified 2026-08-30).
 # Was "claude-opus-4-6", a stale literal the CLI would now reject outright.
 # Whole-prompt budget (2026-11-07), replacing the per-input caps that cut silently. It counts
@@ -391,7 +402,9 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
     # instructions but not their permissions. A planted instruction in a reviewed paper could use whatever the account
     # allows. Read, Grep and Glob are all a review needs. One token, comma-separated: the prompt is on stdin, so no
     # positional argument follows this variadic flag.
-    cmd = [CLAUDE_BIN, "-p", "--tools", REVIEWER_TOOLS]
+    # 1.2.0: stream-json, so the reviewer's refused reads come from its own tool results (read_cli_stream). The
+    # review is the stream's result event's "result", the same text the plain output printed.
+    cmd = [CLAUDE_BIN, "-p"] + CLI_STREAM_FLAGS + ["--tools", REVIEWER_TOOLS]
     # Forward the model. Ollama tags ("qwen3.8:27b-mxfp8") carry a colon and
     # are meaningless to the CLI, so they are never passed through.
     if model and ":" not in model:
@@ -415,10 +428,148 @@ def infer_cli(prompt, system, timeout, add_dirs=None, model=None):
                        timeout=timeout, env=env)
     if r.returncode != 0:
         # The CLI prints an API error (a refusal, say) on stdout, and stderr can be empty: a real
-        # refusal came back as "claude CLI exit 1: " with no cause (2026-11-07). Report both.
-        raise RuntimeError("claude CLI exit %d: stderr: %s | stdout: %s" % (
-            r.returncode, (r.stderr or "").strip()[:300] or "(empty)", (r.stdout or "").strip()[:300] or "(empty)"))
-    return r.stdout.strip()
+        # refusal came back as "claude CLI exit 1: " with no cause (2026-11-07). Report both. In a
+        # stream the cause is in the result event, after the init event, so that is reported when there.
+        said = _stream_result_text(r.stdout)
+        raise RuntimeError("claude CLI exit %d: stderr: %s | %s" % (
+            r.returncode, (r.stderr or "").strip()[:300] or "(empty)",
+            ("result: %s" % said[:300]) if said else
+            "stdout: %s" % ((r.stdout or "").strip()[:300] or "(empty)")))
+    review, refused = read_cli_stream(r.stdout)
+    review = CliReview(review.strip())
+    review.reads_refused = refused
+    return review
+
+
+class CliReview(str):
+    """The review infer_cli returns: its text, and beside it (1.2.0) the reads the reviewer was refused, as
+    read_cli_stream took them from its stream. A str, so every caller that takes the review as text is unchanged;
+    a review that did not come through infer_cli has no reads_refused of its own (None: not known)."""
+    reads_refused = None
+
+
+def _stream_events(stdout):
+    """The stream's JSON objects, one per line. Lines end at LF only: a JSON line holds no raw LF, but the CLI's
+    JSON can hold a raw U+2028, which str.splitlines would split on. Returns (events, lines that are not JSON)."""
+    events, bad = [], 0
+    for line in (stdout or "").split("\n"):
+        if not line.strip():
+            continue
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            bad += 1
+            continue
+        if isinstance(ev, dict):
+            events.append(ev)
+        else:
+            bad += 1
+    return events, bad
+
+
+def _stream_result_text(stdout):
+    """The result event's text, if the stream has one: where a failed call says why."""
+    results = [e for e in _stream_events(stdout)[0] if e.get("type") == "result"]
+    said = results[-1].get("result") if results else None
+    return " ".join(said.split()) if isinstance(said, str) else ""
+
+
+# A tool result that says the call was refused: the CLI's own words (CLI 2.1.332: "Claude requested permissions
+# to read from <path>, but you haven't granted it yet", "Permission to read <path> has been denied", "... has
+# been denied by permission rule ...", "<path> names a path outside the working directories ..."), and the
+# operating system's (a closed home folder: EACCES, EPERM, "Access is denied"). Only an error result is read,
+# so a file that merely says "permission denied" in its text, read whole, is not a refusal.
+_REFUSAL = re.compile(r"haven.t granted it yet|has been denied|denied by (?:\w+ )?(?:permission )?rule"
+                      r"|permission denied|access is denied|operation not permitted|\bEACCES\b|\bEPERM\b"
+                      r"|outside\b[^.\n]{0,40}\bdirector(?:y|ies)\b", re.I)
+
+
+def _block_text(content):
+    """A tool result's content as text: a string, or the text of each text block in a list."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(b.get("text") for b in content if isinstance(b, dict) and isinstance(b.get("text"), str))
+    return ""
+
+
+def _tool_path(name, tool_input):
+    """The path a refused call asked for: Read's file_path, Grep's or Glob's path, or a Glob's pattern when it
+    names no path. None when the call named none (Grep then searches the folder the CLI runs in)."""
+    if not isinstance(tool_input, dict):
+        return None
+    for key in ("file_path", "path", "notebook_path"):
+        if isinstance(tool_input.get(key), str):
+            return tool_input[key]
+    if name == "Glob" and isinstance(tool_input.get("pattern"), str):
+        return tool_input["pattern"]
+    return None
+
+
+def _reason(text):
+    text = " ".join(text.split())
+    if len(text) > REFUSAL_REASON_CHARS:
+        return "%s [... %d more chars not shown]" % (text[:REFUSAL_REASON_CHARS], len(text) - REFUSAL_REASON_CHARS)
+    return text
+
+
+def _reads_refused(events, result):
+    """Each refused tool call, in the order the stream shows it, as {tool, path, reason, seen_in}. Two sources,
+    both the CLI's own record, joined on the call's id: a tool result marked is_error whose text says the call was
+    refused (_REFUSAL), and the result event's permission_denials (tool_name, tool_use_id, tool_input), which the
+    CLI keeps for calls its permission check refused. A refusal in either counts. The path is read from the call
+    itself (its tool_use block, or the denial's tool_input), never from what the reviewer wrote about it."""
+    calls, refused = {}, {}
+    for ev in events:
+        message = ev.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "tool_use":
+                calls[block.get("id")] = (block.get("name"), block.get("input"))
+            elif block.get("type") == "tool_result" and block.get("is_error") is True:
+                text = _block_text(block.get("content"))
+                if _REFUSAL.search(text):
+                    key = block.get("tool_use_id") or ("no id", len(refused))
+                    refused.setdefault(key, {"reason": text, "seen_in": []})["seen_in"].append("tool_result")
+    denials = result.get("permission_denials")
+    for d in denials if isinstance(denials, list) else []:
+        if not isinstance(d, dict):
+            continue
+        key = d.get("tool_use_id") or ("no id", len(refused))
+        entry = refused.setdefault(key, {"reason": "the CLI's permission check refused the call "
+                                                    "(permission_denials)", "seen_in": []})
+        entry["seen_in"].append("permission_denials")
+        if key not in calls:
+            calls[key] = (d.get("tool_name"), d.get("tool_input"))
+    out = []
+    for key, entry in refused.items():
+        name, tool_input = calls.get(key, (None, None))
+        out.append({"tool": name, "path": _tool_path(name, tool_input), "reason": _reason(entry["reason"]),
+                    "seen_in": entry["seen_in"]})
+    return out
+
+
+def read_cli_stream(stdout):
+    """(review, reads_refused) from `claude -p --output-format stream-json --verbose` (1.2.0).
+
+    The review is the one result event's "result": what the plain output printed before 1.2.0. A stream without
+    exactly one result event, or whose result does not say the call succeeded (subtype "success", is_error
+    false), raises, as a failed call does, so it is never read as a review. reads_refused is _reads_refused's
+    list, empty when nothing was refused: it is read from the stream, so an empty list means the stream shows no
+    refusal, not that nobody looked."""
+    events, bad = _stream_events(stdout)
+    results = [e for e in events if e.get("type") == "result"]
+    if len(results) != 1:
+        raise RuntimeError("the CLI's stream-json has %d result events, not one (%d lines not JSON objects); "
+                           "its first 300 chars: %r" % (len(results), bad, (stdout or "")[:300]))
+    result = results[0]
+    if result.get("subtype") != "success" or result.get("is_error") is not False:
+        raise RuntimeError("the CLI's result event does not say the call succeeded (subtype=%r, is_error=%r): %s"
+                           % (result.get("subtype"), result.get("is_error"), str(result.get("result"))[:300]))
+    review = result.get("result")
+    return (review if isinstance(review, str) else ""), _reads_refused(events, result)
 
 
 def cli_stdin(prompt, system):
@@ -764,6 +915,10 @@ def _record(args, model, verdict, review, inputs, **extra):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "known_kills_checked": 0 if verdict == "INVALID" else len(PHASE_KILLS[args.phase]),
         "input_coverage": {"inputs": items, "input_complete": all(i["complete"] for i in items)},
+        # 1.2.0, beside input_coverage: what the reviewer could not open, from its own stream. None is "not
+        # known", and reads_refused_from says why; main() fills both once a review comes back.
+        "reads_refused": None,
+        "reads_refused_from": "no review ran",
         "review": review,
     }
     record.update(extra)
@@ -806,7 +961,6 @@ def _refuse(args, out, inputs, sizes, reasons, advice):
     else:
         print("       Record: %s" % out, file=sys.stderr)
     return 2
-
 
 def _env_budget(name, default):
     raw = os.environ.get(name)
@@ -851,6 +1005,41 @@ def _llm_review(backend, **kw):
         return answer, ({"thinking": thinking} if thinking.strip() else {}, None)
     return ("[recovered from thinking field]\n\n" + thinking.strip(),
             ({"recovered_from_thinking": True}, "only from the model's thinking, not from an answer"))
+
+
+def _reads_note(backend, review, fell_back):
+    """The record's reads_refused and reads_refused_from (1.2.0). A list only when it was read from the CLI
+    reviewer's stream (infer_cli's CliReview); otherwise None, with the reason it is not known or cannot apply."""
+    if fell_back:
+        return {"reads_refused": None,
+                "reads_refused_from": "the local fallback reviewer is given no tools, so it opens nothing"}
+    if backend != "cli":
+        return {"reads_refused": None,
+                "reads_refused_from": "the http backend gives the reviewer no tools, so it opens nothing"}
+    refused = getattr(review, "reads_refused", None)
+    if refused is None:
+        return {"reads_refused": None,
+                "reads_refused_from": "not known: the review came back without the reviewer's stream"}
+    return {"reads_refused": [dict(r) for r in refused],
+            "reads_refused_from": "the reviewer's stream-json: its tool results and the result event's "
+                                  "permission_denials"}
+
+
+def _say_reads_refused(notes, verdict):
+    """The refused reads on the console, after the verdict, and a warning on stderr when a pass rests on a review
+    that was refused reads. Neither changes the verdict or the exit (1.2.0)."""
+    refused = notes.get("reads_refused")
+    if refused is None:
+        print("Reads refused: not known (%s)" % notes.get("reads_refused_from"))
+        return
+    print("Reads refused: %d" % len(refused))
+    for r in refused:
+        print("  refused: %s %s: %s" % (r.get("tool") or "(tool not named)", r.get("path") or "(no path named)",
+                                       r.get("reason")))
+    if refused and verdict in ("APPROVED", "CONDITIONAL"):
+        print("WARNING: %s from a reviewer that was refused %d read(s). input_complete says what it was given, "
+              "not what it could open: a finding that rests on a refused read may be UNVERIFIED. See "
+              "reads_refused in the record." % (verdict, len(refused)), file=sys.stderr)
 
 
 # ---------------------------------------------------------------- the verdict
@@ -1332,7 +1521,7 @@ def main():
                 print("  succeeded after %d retries" % i)
             break
 
-    backend_used = args.model
+    backend_used, fell_back = args.model, False
     if (not review or not review.strip()) and args.allow_local_fallback:
         if prompt_chars > local_budget:
             # Ollama would trim it with no signal, so this never sends. Same message as any refusal.
@@ -1344,6 +1533,7 @@ def main():
                             "AGNI_LOCAL_CHAR_BUDGET and LLM_NUM_CTX together, deliberately."])
         print("  falling back to LOCAL model -- review will be marked DEGRADED")
         _warn_if_foreign_llm()
+        fell_back = True
         try:
             review, reply = _llm_review(
                 "ollama", prompt=prompt,
@@ -1370,6 +1560,7 @@ def main():
 
     verdict = parse_verdict(review)
     notes, unsure = reply
+    notes = dict(notes, **_reads_note(args.backend, review, fell_back))
     if unsure and verdict in ("APPROVED", "CONDITIONAL"):
         # Round 6, as the design harness's round 4: a rejection read there is kept, since it cannot pass.
         print("WARNING: %s was read %s. Recorded UNPARSED: NOT a pass." % (verdict, unsure), file=sys.stderr)
@@ -1402,6 +1593,7 @@ def main():
     print(review)
     print("=" * 70)
     print("VERDICT: %s" % verdict)
+    _say_reads_refused(notes, verdict)
 
     if err:
         # The placeholder or an older record is what is on disk, not this verdict.

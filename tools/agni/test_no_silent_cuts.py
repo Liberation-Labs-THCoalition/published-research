@@ -69,6 +69,29 @@ sys.modules["llm"] = sut("llm.py", "llm")
 PHASES = load_by_path(SUT_PHASES, "agni_phases_under_test")
 
 
+def cli_stream(result, before=(), denials=(), subtype="success", is_error=False):
+    """What `claude -p --output-format stream-json --verbose` prints (1.2.0): one JSON object a line, an init
+    event, then `before` (the reviewer's own assistant and user events: tool calls and their results), then the
+    result event carrying the reply and the CLI's permission_denials. ensure_ascii=False, as the CLI writes it: a
+    U+2028 in the reply stays a raw character on its line."""
+    events = ([{"type": "system", "subtype": "init"}] + list(before) +
+              [{"type": "result", "subtype": subtype, "is_error": is_error, "result": result,
+                "permission_denials": list(denials)}])
+    return "\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n"
+
+
+def tool_call(call_id, name, **tool_input):
+    """The reviewer asking for a tool, as its assistant event shows it."""
+    return {"type": "assistant", "message": {"content": [
+        {"type": "tool_use", "id": call_id, "name": name, "input": tool_input}]}}
+
+
+def tool_answer(call_id, content, is_error=True):
+    """A tool's answer to the reviewer, as the user event after the call shows it."""
+    return {"type": "user", "message": {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": call_id, "content": content, "is_error": is_error}]}}
+
+
 def fill(n, canary):
     """Exactly n chars of text ending in the canary."""
     body = "a line of filler for the no silent cuts test\n"
@@ -130,7 +153,8 @@ class Base(unittest.TestCase):
             res.prompts.append(kw.get("input"))
             res.cli_cmds.append(list(cmd))
             res.cli_envs.append(kw.get("env"))
-            return cli_result or SimpleNamespace(returncode=0, stdout=reply, stderr="")
+            # 1.2.0: the CLI is asked for stream-json, so a success prints the reply as the result event's text.
+            return cli_result or SimpleNamespace(returncode=0, stdout=cli_stream(reply), stderr="")
 
         clean = {k: v for k, v in os.environ.items() if not k.startswith(("AGNI_", "LLM_"))}
         clean.update(env or {})
@@ -672,7 +696,7 @@ class Coverage(Base):
                 self.assertIn(key, it)
             self.assertIs(it["complete"], True)
         self.assertIs(self.coverage(res)["input_complete"], True)
-        self.assertEqual(res.record.get("version"), "1.1.3")
+        self.assertEqual(res.record.get("version"), "1.2.0")
 
     def test_prompt_has_a_coverage_block_and_the_header_a_summary(self):
         a = self.put("a.md", fill(1234, "CANARY_A"))
@@ -1938,6 +1962,133 @@ class PinnedMutants(Base):
             mod.main()
         row = [l for l in stream.getvalue().splitlines() if l.startswith("p1")][0]
         self.assertIn("INPUT NOT COMPLETE, NOT A PASS", row)
+
+
+class ReadsRefused(Base):
+    """1.2.0 (CC, 2026-11-23): what the reviewer could not open is in the record, read from its own stream.
+
+    Every review CC ran that day reported "permission denied" on the trees under review, in prose, while the record
+    said input_complete true. These drive main() down to subprocess.run with a fake stream: no live call."""
+
+    REFUSED_READ = "Claude requested permissions to read from /outside/secret.py, but you haven't granted it yet."
+
+    def stream(self, review, before=(), denials=(), **kw):
+        return SimpleNamespace(returncode=0, stderr="", stdout=cli_stream(review, before, denials, **kw))
+
+    def review_with(self, before=(), denials=(), review=APPROVED, **kw):
+        return self.run_main(["style", self.put("paper.md", "the paper")], real_cli=True,
+                             cli_result=self.stream(review, before, denials, **kw))
+
+    def test_refused_reads_reach_the_record_and_others_do_not(self):
+        res = self.review_with(before=[
+            tool_call("t1", "Read", file_path="/outside/secret.py"),
+            tool_answer("t1", self.REFUSED_READ),
+            tool_call("t2", "Grep", pattern="seed", path="/other/tree"),
+            tool_answer("t2", [{"type": "text", "text": "Permission to use Grep has been denied."}]),
+            # Not refusals: a file that says "permission denied" read whole, and a file that is not there.
+            tool_call("t3", "Read", file_path="/granted/notes.md"),
+            tool_answer("t3", "line 1: the log says permission denied", is_error=False),
+            tool_call("t4", "Read", file_path="/granted/gone.md"),
+            tool_answer("t4", "File does not exist."),
+        ])
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        refused = res.record["reads_refused"]
+        self.assertEqual([(r["tool"], r["path"]) for r in refused],
+                         [("Read", "/outside/secret.py"), ("Grep", "/other/tree")])
+        self.assertEqual(refused[0]["reason"], self.REFUSED_READ)
+        self.assertEqual(refused[1]["reason"], "Permission to use Grep has been denied.")
+        self.assertEqual(refused[0]["seen_in"], ["tool_result"])
+        self.assertIn("stream", res.record["reads_refused_from"])
+        # input_complete stays about what was given; the list sits beside input_coverage.
+        self.assertIs(self.coverage(res)["input_complete"], True)
+        keys = list(res.record)
+        self.assertEqual(keys.index("reads_refused"), keys.index("input_coverage") + 1)
+        self.assertIn("refused 2 read(s)", res.stderr)
+        self.assertIn("/outside/secret.py", res.stdout)
+
+    def test_permission_denials_count_alone_and_join_a_tool_result(self):
+        res = self.review_with(
+            before=[tool_call("t1", "Read", file_path="/outside/a.py"), tool_answer("t1", self.REFUSED_READ)],
+            denials=[{"tool_name": "Read", "tool_use_id": "t1", "tool_input": {"file_path": "/outside/a.py"}},
+                     {"tool_name": "Glob", "tool_use_id": "t9", "tool_input": {"pattern": "/home/x/**/*.py"}}])
+        refused = res.record["reads_refused"]
+        self.assertEqual([(r["tool"], r["path"], r["seen_in"]) for r in refused],
+                         [("Read", "/outside/a.py", ["tool_result", "permission_denials"]),
+                          ("Glob", "/home/x/**/*.py", ["permission_denials"])])
+        self.assertIn("permission_denials", refused[1]["reason"])
+
+    def test_the_reviewers_prose_neither_adds_nor_hides_one(self):
+        said = signed("VERDICT: CONDITIONAL\n\nI could not read /outside/x.py (permission denied).", "CONDITIONAL")
+        res = self.review_with(review=said)
+        self.assertEqual((res.code, res.record["reads_refused"]), (0, []))
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/outside/secret.py"),
+                                       tool_answer("t1", self.REFUSED_READ)])
+        self.assertEqual(len(res.record["reads_refused"]), 1, "the review's prose never mentions it")
+
+    def test_operating_system_refusals_count(self):
+        for text in ("EACCES: permission denied, open '/home/closed/x.py'", "Access is denied.",
+                     "/srv/x names a path outside the working directories, which the read block does not allow"):
+            with self.subTest(text=text):
+                res = self.review_with(before=[tool_call("t1", "Read", file_path="/srv/x"), tool_answer("t1", text)])
+                self.assertEqual([r["path"] for r in res.record["reads_refused"]], ["/srv/x"])
+
+    def test_a_long_reason_says_it_was_cut(self):
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/x"),
+                                       tool_answer("t1", self.REFUSED_READ + " " + "x" * 900)])
+        reason = res.record["reads_refused"][0]["reason"]
+        self.assertIn("more chars not shown]", reason)
+        self.assertTrue(reason.startswith(self.REFUSED_READ))
+
+    def test_refused_reads_change_neither_verdict_nor_exit(self):
+        refusal = [tool_call("t1", "Read", file_path="/outside/secret.py"), tool_answer("t1", self.REFUSED_READ)]
+        for word in WORDS:
+            with self.subTest(word=word):
+                res = self.review_with(before=refusal, review=signed("VERDICT: %s" % word, word))
+                self.assertEqual((res.code, res.record["verdict"]), (EXIT_FOR[word], word))
+                self.assertEqual(len(res.record["reads_refused"]), 1)
+
+    def test_an_unparsed_record_carries_them_too(self):
+        res = self.review_with(before=[tool_call("t1", "Read", file_path="/o"), tool_answer("t1", self.REFUSED_READ)],
+                               review="no verdict here")
+        self.assertEqual((res.code, res.record["verdict"]), (2, "UNPARSED"))
+        self.assertEqual(len(res.record["reads_refused"]), 1)
+
+    def test_a_raw_line_separator_in_the_reply_does_not_split_its_line(self):
+        res = self.review_with(review=signed("VERDICT: APPROVED\n\nA finding CANARY_LSEP", "APPROVED"))
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+        self.assertIn(" CANARY_LSEP", res.record["review"])
+
+    def test_a_stream_with_no_result_event_is_not_a_review(self):
+        no_result = SimpleNamespace(returncode=0, stderr="", stdout=json.dumps({"type": "system"}) + "\n" + APPROVED)
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=no_result)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"))
+        self.assertIn("result events", res.stdout)
+
+    def test_a_result_that_says_it_failed_is_not_a_review(self):
+        res = self.review_with(subtype="error_during_execution", is_error=True)
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"))
+        self.assertIn("does not say the call succeeded", res.stdout)
+
+    def test_a_failed_call_reports_the_result_events_cause(self):
+        fail = SimpleNamespace(returncode=1, stderr="", stdout=cli_stream("API Error: CANARY_STREAM_CAUSE",
+                                                                         subtype="error_during_execution",
+                                                                         is_error=True))
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=fail)
+        self.assertEqual(res.code, 2)
+        self.assertIn("CANARY_STREAM_CAUSE", res.stdout)
+
+    def test_not_known_is_null_and_says_why(self):
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p])        # a reply with no stream (infer_cli patched)
+        self.assertIsNone(res.record["reads_refused"])
+        self.assertIn("not known", res.record["reads_refused_from"])
+        res = self.run_main(["style", p, "--backend", "http"], local=APPROVED)
+        self.assertEqual(res.code, 0, res.stderr[-400:])
+        self.assertIsNone(res.record["reads_refused"])
+        self.assertIn("http backend", res.record["reads_refused_from"])
+        res = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "10"})    # refused: no review ran
+        self.assertEqual((res.record["verdict"], res.record["reads_refused"]), ("INVALID", None))
+        self.assertEqual(res.record["reads_refused_from"], "no review ran")
 
 
 if __name__ == "__main__":
