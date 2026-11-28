@@ -1089,6 +1089,13 @@ def self_test(force=None):
           "Between arms, $g{=}-1.29$ and $d{=}-1.61$.\n", [], ["echo-valence-between-arms"])
     check("echo valence restated with plural 'valences'", "x/paper.md",
           "Their valences do not differ (d = -1.61).\n", [], ["echo-valence-between-arms"])
+    check("echo valence restated with the paper's underscore data keys (re-verifier plant N1, 2026-11-28)",
+          "x/paper.md",
+          "At the return probe, `cheerful_valence` minus `pure_cheerful_valence` gives Hedges g = -1.29 (d = -1.61).\n",
+          [], ["echo-valence-between-arms"])
+    check("echo valence restated with 'echoed' (re-verifier plant N2, 2026-11-28)", "x/paper.md",
+          "When the cheer was echoed after the neutral turns, the two conditions did not differ (Hedges g = -1.29).\n",
+          [], ["echo-valence-between-arms"])
     check("user emotion 2.5--2.8x", "x/main.tex",
           "User emotion is classified at 2.5--2.8$\\times$ chance from spectral features at L3/L4.\n",
           [], ["user-emotion-2p5-2p8x"])
