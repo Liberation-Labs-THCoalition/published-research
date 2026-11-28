@@ -60,6 +60,11 @@ reviewer's own tool calls that was refused (permission denied, or a path outside
 folders), with its path and reason, read from the reviewer's stream-json (its tool results, and the
 result event's permission_denials), never from its prose. It does not change the verdict or the exit.
 
+AN --out INSIDE A GRANTED FOLDER IS REFUSED (v1.2.0): the CLI reviewer can read every folder it is
+granted, so a record written there is part of what it reviews, the INVALID placeholder included. An
+--out inside the primary's, secondary's or tertiary's folder, an --add-dir, or the repository root
+granted automatically is INVALID, exit 2, before any reviewer call.
+
 Usage
   python3 agni_phases.py design    <script.py> <prereg.json>
   python3 agni_phases.py preflight <script.py> <prereg.json>
@@ -68,7 +73,8 @@ Usage
   python3 agni_phases.py style     <paper.md|tex> [twin.md|tex]
 
   --model MODEL   override (default: session default in llm.py)
-  --out PATH      where to write the JSON record
+  --out PATH      where to write the JSON record; with the CLI backend it must lie outside every
+                  folder the reviewer is granted, or the run is INVALID, exit 2 (v1.2.0)
   --accept-incomplete-input
                   exit 0 on APPROVED/CONDITIONAL although input_complete is false (binaries in a
                   data folder, undecodable bytes); the record is stamped
@@ -940,10 +946,16 @@ def _say_record_unwritten(out, err):
           file=sys.stderr)
 
 
-def _refuse(args, out, inputs, sizes, reasons, advice):
+def _refuse(args, out, inputs, sizes, reasons, advice, create=True):
     """No reviewer call happens after this. Writes INVALID over whatever is at the output path, so a
-    stale APPROVED cannot survive, and exits 2 even if that write fails."""
-    err = _write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
+    stale APPROVED cannot survive, and exits 2 even if that write fails.
+
+    create=False (1.2.0, an --out inside a granted folder): INVALID goes over a record already at the path, so
+    an old APPROVED there still cannot stand, but no new file is made inside a folder under review, where the
+    next run's reviewer would read it."""
+    written = create or os.path.isfile(out)
+    err = (_write_record(out, _record(args, args.model, "INVALID", "", inputs, invalid_reasons=reasons))
+           if written else None)
     print("ERROR: REFUSED -- verdict INVALID, exit 2. No reviewer saw this input.", file=sys.stderr)
     print("       This is NOT a pass. The phase is UNGATED.", file=sys.stderr)
     for reason in reasons:
@@ -958,9 +970,47 @@ def _refuse(args, out, inputs, sizes, reasons, advice):
     print("       What to do: %s" % " ".join(advice), file=sys.stderr)
     if err:
         _say_record_unwritten(out, err)
-    else:
+    elif written:
         print("       Record: %s" % out, file=sys.stderr)
+    else:
+        print("       Record: none written. Nothing was at %s, and no file is made inside a folder the "
+              "reviewer is granted." % out, file=sys.stderr)
     return 2
+
+
+def _granted_dirs(args):
+    """The folders the CLI reviewer is granted with --add-dir, sorted, each once: every --add-dir as given, the
+    repository root that holds the primary (its own folder outside a repository), and the folder of a named
+    secondary or tertiary that exists (the input itself when it is a folder). Unchanged from 1.1.3; 1.2.0 works
+    it out before any record is written, so main() can refuse an --out inside one (_out_in_granted)."""
+    grant_dirs = list(args.add_dir or [])
+    anchor = Path(args.primary).resolve()
+    d = anchor if anchor.is_dir() else anchor.parent
+    for parent in [d] + list(d.parents):
+        if (parent / ".git").exists():
+            grant_dirs.append(str(parent))
+            break
+    else:
+        grant_dirs.append(str(d))
+    for extra in (args.secondary, args.tertiary):
+        if extra and Path(extra).exists():
+            p = Path(extra).resolve()
+            grant_dirs.append(str(p if p.is_dir() else p.parent))
+    return sorted(set(grant_dirs))
+
+
+def _out_in_granted(out, grant_dirs):
+    """The granted folders that hold the record path (1.2.0). Both are compared as given and with links
+    resolved, case folded where the file system folds it, so neither a link nor a spelling hides the record from
+    the check. A folder holds itself: an --out that names a granted folder is inside it."""
+    forms = {os.path.normcase(os.path.abspath(out)), os.path.normcase(os.path.realpath(out))}
+    hits = []
+    for g in grant_dirs:
+        roots = {os.path.normcase(os.path.abspath(g)), os.path.normcase(os.path.realpath(g))}
+        if any(_inside(root, f) for root in roots for f in forms):
+            hits.append(g)
+    return hits
+
 
 def _env_budget(name, default):
     raw = os.environ.get(name)
@@ -1415,6 +1465,27 @@ def main():
             prompt_chars, local_budget))
         advice.append("Pass narrower files, use a frontier backend, or raise AGNI_LOCAL_CHAR_BUDGET "
                       "and LLM_NUM_CTX together, deliberately.")
+    # 1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer is granted puts the record in what it
+    # reviews. A reviewer found its own INVALID placeholder in the folder under review (it rightly ignored it).
+    # Refused like an over-budget prompt. Only the CLI reviewer is granted folders: the http backend and the local
+    # fallback read nothing, so for them an --out anywhere is as before. The default path, beside the primary, is
+    # not checked: refusing it would refuse every run that names no --out (see the README, "Not covered").
+    out_inside = []
+    try:
+        grant_dirs = _granted_dirs(args)
+    except OSError as e:     # a folder above the primary that cannot be looked into (a closed home folder)
+        grant_dirs = []
+        problems.append("the folders the reviewer would be granted could not be worked out: %s: %s"
+                        % (e.__class__.__name__, e))
+        advice.append("Run from a place where every folder above the primary can be read.")
+    if args.out and args.backend == "cli":
+        out_inside = _out_in_granted(out, grant_dirs)
+        if out_inside:
+            problems.append("--out %s is inside %s, which the reviewer is granted: it would read the record, and "
+                            "the INVALID placeholder written there while it runs, as part of what it reviews"
+                            % (out, ", ".join(out_inside)))
+            advice.append("Write the record outside every folder the reviewer can read: point --out outside %s."
+                          % ", ".join(out_inside))
     if problems:
         for item in inputs:
             item["complete"] = False
@@ -1433,7 +1504,7 @@ def main():
     print()
 
     if problems:
-        return _refuse(args, out, inputs, sizes, problems, advice)
+        return _refuse(args, out, inputs, sizes, problems, advice, create=not out_inside)
     if ollama_bound:
         _warn_if_foreign_llm()
 
@@ -1457,20 +1528,7 @@ def main():
     # Without this the CLI agent is sandboxed to its cwd; on 2026-08-14 that made it
     # unable to read the implementation under review, so it reasoned from a stale
     # secondary review and filed a fixed bug as CRITICAL. Give it the primary, always.
-    grant_dirs = list(args.add_dir or [])
-    anchor = Path(args.primary).resolve()
-    d = anchor if anchor.is_dir() else anchor.parent
-    for parent in [d] + list(d.parents):
-        if (parent / ".git").exists():
-            grant_dirs.append(str(parent))
-            break
-    else:
-        grant_dirs.append(str(d))
-    for extra in (args.secondary, args.tertiary):
-        if extra and Path(extra).exists():
-            p = Path(extra).resolve()
-            grant_dirs.append(str(p if p.is_dir() else p.parent))
-    grant_dirs = sorted(set(grant_dirs))
+    # 1.2.0: grant_dirs was worked out above (_granted_dirs), before any record was written.
     if args.backend == "cli":
         print("  Read access : %s" % ", ".join(grant_dirs))
 

@@ -103,7 +103,11 @@ class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="agni_nsc_"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
-        self.out = self.tmp / "record.json"
+        # 1.2.0: the record goes in a folder of its own. The inputs live in self.tmp, which the reviewer is granted,
+        # and an --out inside a granted folder is refused (OutInsideAGrantedFolder).
+        self.records = Path(tempfile.mkdtemp(prefix="agni_nsc_records_"))
+        self.addCleanup(shutil.rmtree, self.records, ignore_errors=True)
+        self.out = self.records / "record.json"
 
     def put(self, rel, content):
         """Write bytes exactly, so nothing on the way adds a CR the test did not plant."""
@@ -2089,6 +2093,130 @@ class ReadsRefused(Base):
         res = self.run_main(["style", p], env={"AGNI_PROMPT_CHAR_BUDGET": "10"})    # refused: no review ran
         self.assertEqual((res.record["verdict"], res.record["reads_refused"]), ("INVALID", None))
         self.assertEqual(res.record["reads_refused_from"], "no review ran")
+
+
+class OutInsideAGrantedFolder(Base):
+    """1.2.0 (CC, 2026-11-23): an --out inside a folder the CLI reviewer is granted is refused before any call.
+
+    CC wrote --out inside the folder under review, and the reviewer found its own INVALID placeholder there."""
+
+    def assertRefusedForOut(self, res, folder):
+        """assertRefused, but with no record made: nothing was at the path, and none is made inside a granted
+        folder (an old record there is overwritten instead: test_a_stale_record_there_...)."""
+        total = len(res.prompts) + len(res.local_prompts)
+        self.assertEqual(total, 0, "a refused run must make no reviewer call; it made %d" % total)
+        self.assertEqual(res.code, 2, "exit code; crash=%r" % res.crash)
+        self.assertIsNone(res.record, "no record may be made inside a granted folder")
+        self.assertIn("NOT a pass", res.stderr)
+        self.assertIn("UNGATED", res.stderr)
+        self.assertIn("is inside", res.stderr)
+        self.assertIn(str(folder), res.stderr)
+        self.assertIn("point --out outside", res.stderr)
+
+    def run_with_out(self, argv, out, **kw):
+        self.out = Path(out)
+        return self.run_main(argv, **kw)
+
+    def test_inside_the_primarys_folder(self):
+        p = self.put("paper.md", "x")
+        res = self.run_with_out(["style", p], self.tmp / "rec.json")
+        self.assertRefusedForOut(res, self.tmp)
+
+    def test_inside_the_repository_root_granted_automatically(self):
+        (self.tmp / "repo" / ".git").mkdir(parents=True)
+        p = self.put("repo/papers/p/main.md", "x")
+        res = self.run_with_out(["style", p], self.tmp / "repo" / "tools" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "repo")
+
+    def test_inside_the_secondarys_and_the_tertiarys_folder(self):
+        art = self.put("a/art.md", "the artifact")
+        self.put("data/d.txt", "data")
+        self.put("code/c.py", "code")
+        res = self.run_with_out(["results", art, self.tmp / "data"], self.tmp / "data" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "data")
+        res = self.run_with_out(["paper", art, self.tmp / "data", self.tmp / "code"], self.tmp / "code" / "rec.json")
+        self.assertRefusedForOut(res, self.tmp / "code")
+
+    def test_inside_an_add_dir(self):
+        p = self.put("a/paper.md", "x")
+        extra = Path(tempfile.mkdtemp(prefix="agni_nsc_extra_"))
+        self.addCleanup(shutil.rmtree, extra, ignore_errors=True)
+        res = self.run_with_out(["style", p, "--add-dir", extra], extra / "sub" / "rec.json")
+        self.assertRefusedForOut(res, extra)
+
+    def test_an_out_that_is_the_granted_folder_itself(self):
+        p = self.put("paper.md", "x")
+        self.assertRefusedForOut(self.run_with_out(["style", p], self.tmp), self.tmp)
+
+    def test_a_stale_record_there_becomes_invalid_and_no_new_file_is_made(self):
+        p = self.put("paper.md", "x")
+        inside = self.tmp / "rec.json"
+        self.stale(inside)
+        res = self.run_with_out(["style", p], inside)
+        self.assertEqual(res.record["verdict"], "INVALID", "an old APPROVED must not stand")
+        inside.unlink()
+        res = self.run_with_out(["style", p], inside)
+        self.assertEqual((res.code, len(res.prompts)), (2, 0))
+        self.assertFalse(inside.exists(), "no file is made inside a folder under review")
+        self.assertIn("none written", res.stderr)
+
+    def test_through_a_link_into_a_granted_folder(self):
+        p = self.put("paper.md", "x")
+        link = self.records / "into_tree"
+        try:
+            os.symlink(self.tmp, link, target_is_directory=True)
+        except (OSError, NotImplementedError) as e:
+            try:    # Windows without the symlink privilege: a junction needs none
+                import _winapi
+                _winapi.CreateJunction(str(self.tmp), str(link))
+            except (ImportError, AttributeError, OSError):
+                self.skipTest("cannot make a folder link here: %s" % e)
+        self.assertRefusedForOut(self.run_with_out(["style", p], link / "rec.json"), self.tmp)
+
+    def test_outside_every_granted_folder_runs(self):
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p, "--add-dir", self.tmp / "a"])
+        self.assertEqual((res.code, res.record["verdict"], len(res.prompts)), (0, "APPROVED", 1))
+
+    def test_a_sibling_whose_name_starts_the_same_is_not_inside(self):
+        p = self.put("tree/paper.md", "x")
+        (self.tmp / "tree_records").mkdir()
+        res = self.run_with_out(["style", p], self.tmp / "tree_records" / "rec.json")
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
+    def test_the_http_backend_grants_no_folder_so_its_out_is_not_checked(self):
+        p = self.put("paper.md", "x")
+        res = self.run_with_out(["style", p, "--backend", "http"], self.tmp / "rec.json", local=APPROVED)
+        self.assertEqual((res.code, res.record["verdict"]), (0, "APPROVED"), res.stderr[-400:])
+
+    def test_the_default_path_beside_the_primary_is_not_refused(self):
+        # Not checked on purpose (README, "Not covered"): refusing it would refuse every run without --out.
+        p = self.put("paper.md", "x")
+        res = self.run_main(["style", p], use_out=False)
+        self.assertEqual(res.code, 0, res.stderr[-400:])
+
+    def test_the_style_survey_stages_its_record_outside_the_repository(self):
+        mod = sut("run_style_survey.py", "survey_under_test")
+        self.put("papers/p1/main.tex", "flight")
+        self.put("papers/p1/academic/main.tex", "twin")
+        outdir = self.tmp / "papers" / "tools" / "style"     # OUT sits inside the repository, as it does for real
+        outdir.mkdir(parents=True)
+        seen = {}
+
+        def fake_run(cmd, **kw):
+            seen["out"] = Path(cmd[cmd.index("--out") + 1])
+            seen["out"].write_text(json.dumps({"verdict": "APPROVED", "review": "text", "input_coverage": {
+                "inputs": [], "input_complete": True}}), encoding="utf-8")
+            return SimpleNamespace(returncode=0, stderr="", stdout="")
+
+        with mock.patch.object(mod, "PR", self.tmp / "papers"), mock.patch.object(mod, "OUT", outdir), \
+                mock.patch.object(mod.subprocess, "run", fake_run):
+            rec = mod.run_one("p1")
+        self.assertFalse(PHASES._out_in_granted(seen["out"], [str(self.tmp / "papers")]),
+                         "the survey's --out %s is inside the repository" % seen["out"])
+        self.assertEqual(rec["status"], "OK", rec)
+        self.assertTrue((outdir / "p1.agni_style.json").is_file(), "the record is moved to OUT after the run")
+        self.assertFalse(seen["out"].parent.exists(), "the staging folder is removed")
 
 
 if __name__ == "__main__":
