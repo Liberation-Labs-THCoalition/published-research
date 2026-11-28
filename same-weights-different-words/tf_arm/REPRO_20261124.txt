@@ -1,0 +1,31 @@
+Reproduction check, 2026-11-24 (Agni round 4, AGNI_paper_v6.md F8: the note's "byte for byte" and "two consecutive
+reruns" claims had no artifact).
+
+Where: MTH (Z420), python 3.12.3, numpy 2.4.4. Started 2026-11-24T23:32:24Z (from `date -u` in the run).
+How: each of the four analysis scripts was copied into two separate empty folders under
+~/lab/sameweights_20261121/repro_20261124/ (r4a/r4b, r3a/r3b, a3a/a3b, rda/rdb) and run there with
+`python3 -I <script>`. Each script writes its output beside itself. Inputs are the MTH run mirrors, the tf_arm mirror
+and the stored JSON, as each script names them.
+
+md5sum output (verbatim):
+5b88681ca532c9ff67df346280be81fa  a3a/analyze3.py
+5b88681ca532c9ff67df346280be81fa  a3b/analyze3.py
+b2e41af54779488746d1374dccaecfc0  r3a/analyze_agni_r3.py
+b2e41af54779488746d1374dccaecfc0  r3b/analyze_agni_r3.py
+e4d54e05dc024fc07f0f641bfc81aa34  r4a/analyze_agni_r4.py
+e4d54e05dc024fc07f0f641bfc81aa34  r4b/analyze_agni_r4.py
+3bcbb9074d7aaeca4f40d472ba622d66  rda/read_tf_arm.py
+3bcbb9074d7aaeca4f40d472ba622d66  rdb/read_tf_arm.py
+dbaaedb1d983f3c4f00b3b5aa82c02fe  a3a/results3.json
+dbaaedb1d983f3c4f00b3b5aa82c02fe  a3b/results3.json
+0633c6c4f62e94ded6e44086d6c027a6  r3a/agni_r3_numbers.json
+0633c6c4f62e94ded6e44086d6c027a6  r3b/agni_r3_numbers.json
+dd10b1e9a95ed27fa54f8256570195b5  r4a/agni_r4_numbers.json
+dd10b1e9a95ed27fa54f8256570195b5  r4b/agni_r4_numbers.json
+e70c074d62113ea857a2b3d1803630b4  rda/tf_arm_reading.json
+e70c074d62113ea857a2b3d1803630b4  rdb/tf_arm_reading.json
+
+Reading: each output is identical across its two runs, and each equals the md5 the note gives for the shipped copy
+(results3.json dbaaedb1, agni_r3_numbers.json 0633c6c4, tf_arm_reading.json e70c074d). The scripts here have the same
+md5s as the copies in this folder. tf_arm/agni_r4_numbers.json in this folder was copied from r4a.
+All local copies are LF-only; md5s are of those bytes.
