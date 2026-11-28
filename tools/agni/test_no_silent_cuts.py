@@ -2093,6 +2093,14 @@ class ReadsRefused(Base):
         self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"), res.stderr[-400:])
         self.assertEqual(res.record["review"], "", "the error text was recorded as the review")
         self.assertIn("is_error=True", res.stdout)
+        # And a result event that does not say is_error at all (a plant of round 2: a truthiness check let it
+        # through). Only is_error false says the call succeeded; a well-formed APPROVED in it is still not a review.
+        silent = {"type": "result", "subtype": "success", "result": APPROVED, "permission_denials": []}
+        res = self.run_main(["style", self.put("paper.md", "x")], real_cli=True, cli_result=SimpleNamespace(
+            returncode=0, stderr="", stdout=json.dumps({"type": "system", "subtype": "init"}) + "\n" +
+            json.dumps(silent) + "\n"))
+        self.assertEqual((res.code, res.record["verdict"]), (2, "INVALID"), res.stderr[-400:])
+        self.assertIn("is_error=None", res.stdout)
 
     def test_a_failed_call_reports_the_result_events_cause(self):
         fail = SimpleNamespace(returncode=1, stderr="", stdout=cli_stream("API Error: CANARY_STREAM_CAUSE",
