@@ -126,6 +126,31 @@ records:
     why: gate records
   - glob: '*VERIFY*.md'
     why: verification records
+  # Added 2026-11-28 (PR #67): the five Agni audit reports (Rounds 1, 2, 4, 6). adversarial-audit-methodology/
+  # paper.tex:151: "Audit reports are kept verbatim as part of the research record"; the paper quotes them as what
+  # each audit said at the time, and agni_behavioral_proof_audit.md:8, :19, :76 give the Oracle Loop's "AUROC 1.0"
+  # as the claim under audit. Only this folder's audit reports: its README.md, the paper's two editions and the
+  # byte-identical stage copies in consequentiality-decomposition/supplementary/ are still scanned.
+  # Revised 2026-11-28 (PR #67 verifier plants B1 and B2): the five reports are listed by exact path, not by the glob
+  # 'adversarial-audit-methodology/supplementary/agni_*_audit.md' (the first value, kept for the record). A glob
+  # shaped like a filename exempted any new file whose name fits it, a live claim in agni_round7_summary_audit.md
+  # (B1), and fnmatch's "*" crosses "/", so agni_drafts/live_audit.md (B2) was exempt too. A new report becomes a
+  # record only when it is added here by name.
+  # Design limit, not fixed: a record is skipped whole, so a live claim appended inside one of these five passes
+  # (verifier plant B3). A follow-up, not implemented: check each record against the pins in
+  # adversarial-audit-methodology/supplementary/README.md, the git blob ids of the three stage reports (:23-25) and the
+  # published sha256 of agni_lat_audit.md and agni_behavioral_proof_audit.md (:48-49), so that an edited record fails
+  # instead of passing unread. All five match their pins on 0cc80d4.
+  - glob: 'adversarial-audit-methodology/supplementary/agni_lat_audit.md'
+    why: Round 1 audit report (first run), quoted by the paper as a historical record (supplementary/README.md)
+  - glob: 'adversarial-audit-methodology/supplementary/agni_stage1_audit.md'
+    why: Round 1 audit report (re-estimate), quoted by the paper as a historical record (supplementary/README.md)
+  - glob: 'adversarial-audit-methodology/supplementary/agni_stage2_audit.md'
+    why: Round 2 audit report, quoted by the paper as a historical record (supplementary/README.md)
+  - glob: 'adversarial-audit-methodology/supplementary/agni_stage4_audit.md'
+    why: Round 4 audit report, quoted by the paper as a historical record (supplementary/README.md)
+  - glob: 'adversarial-audit-methodology/supplementary/agni_behavioral_proof_audit.md'
+    why: Round 6 audit report, quoted by the paper as a historical record (supplementary/README.md)
   - glob: 'RETRACTED_FIGURES.yml'
     why: this file
 

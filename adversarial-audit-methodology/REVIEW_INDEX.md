@@ -19,7 +19,7 @@
 - [ ] Check Casper et al. 2024 venue (FAccT confirmed?)
 
 ### Structure
-- [ ] Supplementary material A (6 audit reports) — 3 of 5 present, stages 3 and 5 missing
+- [ ] Supplementary material A (6 audit reports) — all 5 surviving reports in `supplementary/` (2026-11-16); Round 3 and Round 5 reports not retained
 - [ ] Supplementary material B (killed-claims registry) — does it exist as a standalone file?
 - [ ] Supplementary material C (audit protocol code) — does it exist?
 

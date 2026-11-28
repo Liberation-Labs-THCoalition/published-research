@@ -76,17 +76,21 @@ in the Author Contributions section below. T.~Edrington accepts accountability a
 human author.
 
 \begin{abstract}
-We describe a methodology for AI safety research in which every experiment is preceded and followed
-by a structured adversarial audit whose explicit goal is to identify confounds that explain the
-result without invoking the claimed mechanism. When a confound is found, it becomes the next
-experiment. We present this as a case study from a deception research program where six rounds of
-audit transformed an initial ``deception direction'' claim---which would have been published and was
-wrong---into a decomposition of the direction into consequentiality and pressure-specific
-components, and ultimately into a targeted behavioral correction with placebo controls on a different
-model variant. We document
-every claim that was killed, why it was killed, what experiment replaced it, and what survived. The
-progression illustrates a general principle: adversarial review does not merely validate findings---it
-generates the experimental sequence that discovers them.
+Six rounds of adversarial audit, run before and after each experiment, turned a single ``deception
+direction'' in a 27B-parameter language model into two components at different depths: a
+consequentiality substrate at Layers 23--31, which a high-stakes audit with no deceptive pressure also
+activates, and a pressure-specific component that survives orthogonalization against it at
+L31--L47 (leave-one-out $d=24$--$37$ \cite{cc2026composites}). In the methodology we describe, every experiment is preceded
+and followed by a structured adversarial audit whose explicit goal is to identify confounds that
+explain the result without invoking the claimed mechanism; when a confound is found, it becomes the
+next experiment. The direction's first effect sizes ($d=2.0$--$3.3$) were computed circularly, and
+once re-measured and controlled its separation tracked primarily output-consequentiality rather than
+deception. The decomposition then supplied the depth range for a targeted behavioral correction with
+placebo controls on a different model variant; in a pre-registered confirmatory replication the
+correction did not meet its primary endpoint (one-sided $p=0.34$). We document every claim the audits withdrew, why it
+was withdrawn, what experiment replaced it, and what survived. The progression illustrates a general
+principle: adversarial review does not merely validate findings---it generates the experimental
+sequence that discovers them.
 \end{abstract}
 
 \newpage
@@ -108,13 +112,15 @@ is not a single finding defended against criticism, but a sequence of progressiv
 that could not have been designed without the criticism.
 
 This paper documents six rounds of this process applied to a deception research program on a
-27B-parameter language model. The initial finding---a ``deception direction'' with apparently
-enormous effect sizes---would have been published as a clean positive result. It was wrong. The
-direction primarily encoded output-consequentiality, not deception. We would not have discovered this
-without the audit that demanded the consequentiality control. And we would not have discovered the
-targeted correction without the decomposition that the consequentiality finding produced.
+27B-parameter language model. The initial finding was a ``deception direction'' with apparently
+enormous effect sizes. Re-measured and controlled, the direction primarily encodes
+output-consequentiality, with a separate pressure-specific component in the late layers
+(\cref{sec:rounds}). The audit that demanded the consequentiality control produced that
+decomposition, and the decomposition produced the targeted correction.
 
-Every killed claim is documented. Every audit report is provided in full as supplementary material.
+Every withdrawn claim is documented (\cref{tab:registry}). The audit reports that survive are listed
+in \cref{app:audits}: both Round~1 reports and the Round~2, Round~4 and Round~6 reports are
+reproduced in \texttt{supplementary/}; the Round~3 and Round~5 reports were not retained.
 The goal is not to advocate for a specific finding but to demonstrate that the audit process itself
 is a research methodology worth adopting.
 
@@ -129,19 +135,21 @@ Each stage follows the same structure:
   \item \textbf{Execution}: experiment runs per the audited design
   \item \textbf{Results audit}: adversarial review of the results, explicitly instructed to break
     them
-  \item \textbf{Kill or advance}: if the audit identifies a fatal flaw, the finding is killed and
-    the flaw becomes the next experiment; if not, the finding advances
+  \item \textbf{Kill or advance}: if the audit identifies a fatal flaw, the finding is killed (withdrawn
+    because the test could not support it, which is not the same as found false) and the flaw becomes
+    the next experiment; if not, the finding advances
 \end{enumerate}
 
 The auditor is a separate agent instance operating under an explicit adversarial mandate: ``try to
 break these results; default to skepticism.'' The auditor has access to all raw data, all code, and
-all prior audits. Audit reports are preserved verbatim as part of the research record.
+all prior audits. Audit reports are kept verbatim as part of the research record; \cref{app:audits}
+lists the reports that survive and where each is held.
 
 %% ============================================================
 \section{The Six Rounds}\label{sec:rounds}
 %% ============================================================
 
-\subsection{Round 1: ``We Found a Deception Direction'' $\to$ KILLED (Content Confound)}
+\subsection{Round 1: ``We Found a Deception Direction'' $\to$ WITHDRAWN, RE-ESTIMATED (Measurement Flaws; Content Confound Raised)}
 
 \textbf{Claim}: A direction in the residual stream separates deceptive from honest conditions with
 Cohen's $d = 2.0$--$3.3$ across 10 layers.
@@ -155,10 +163,13 @@ from same data used to measure $d$; (2)~effective $n=3$---15 ``pairs'' were 3 ev
 \textbf{What died}: All reported effect sizes. The entire experiment.
 
 \textbf{What grew}: LAT v2---leave-one-out cross-validation, 30 unique eval sets, fixed-position
-capture. The remediation directly addressed each fatal issue.
+capture. The remediation directly addressed each fatal issue. The audit of LAT v2's results
+(the second Round~1 report, \cref{tab:audits}) found its method sound and, in its \S6, raised the
+content confound that Round~2 tests.
 
 \textbf{Lesson}: The most dangerous experiments are the ones that produce clean-looking results from
-broken methodology. Without the audit, we would have published $d=2.0$--$3.3$ as real.
+broken methodology. The direction was fit to the same pairs it was scored on, so the number said
+nothing until it was cross-validated.
 
 \subsection{Round 2: ``The Direction Transfers Across Scenarios'' $\to$ PARTIAL (Structural Confound)}
 
@@ -200,7 +211,7 @@ deceptive pressure.
 progression was only possible because each audit looked for the NEXT confound, not just the current
 one.
 
-\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats; later relabelled)}
+\subsection{Round 4: ``Consequentiality Is the Base Signal, Deception Is the Amplifier'' $\to$ PASSED (with residualization caveats; amplifier is pressure-specific)}
 
 \textbf{Claim}: The direction separates high-stakes-no-pressure from low-stakes ($d=19.8$),
 confirming consequentiality as a base signal. Deception adds an amplifier (additional $d=12$--$15$
@@ -208,31 +219,29 @@ for threat scenarios).
 
 \textbf{Audit verdict}: CONSEQUENTIALITY CONFIRMED AS BASE SIGNAL. DECEPTION IS AN AMPLIFIER. The
 pre-registered prediction was met. The audit identified a new finding: ``Late-layer signal (L35+) is
-deception-specific---consequentiality decays there.'' The program's write-up quantified this as
-10--12$\times$ (on recomputation 8--21$\times$ across L35--L47), which the later manuscript audit
-corrected.
+deception-specific---consequentiality decays there.'' On recomputation the late-layer residual is
+8--21$\times$ the consequentiality gap across L35--L47 (correction note of 2026-10-12,
+\hyperref[sec:corrections]{Corrections and version history}).
 
 \textbf{What survived}: The two-component decomposition.
 
 \textbf{What the audit added}: The depth-stratified insight that became the architectural basis for
 the correction method.
 
-\textbf{Later revision}: The decomposition paper's behavioral tests showed essentially no deception: on
-the trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already
-in hand at Round~2, whose ``30 trials, 21 valid'' the August 2026 manuscript audit already recorded) and
-one of seven non-threat trials. The non-threat denominators came late: an Agni review on 2026-09-04
-counted the scored outputs (3, 3 and 1 of 10, for sycophancy, reward and conformity), but the finding was
-not carried into the paper; the 2026-10-10 gate and the next day's evidence pass found them again. A
-finding recorded is not a finding applied. Every claim was therefore
-restricted to how the model represents deceptive-pressure framing, and the decomposition paper now
-calls the late-layer residual a pressure-specific component rather than a deception amplifier
+\textbf{Behavioral check}: The decomposition paper's behavioral tests show essentially no deception: on
+the trials that produced a score, the model inflated none of 21 threat-pressure trials and one of
+seven non-threat trials (3, 3 and 1 of 10 scored, for sycophancy, reward and conformity). Every claim
+is therefore restricted to how the model represents deceptive-pressure framing, and the decomposition
+paper calls the late-layer residual a pressure-specific component rather than a deception amplifier
 \cite{cc2026composites}. The correction of Round~6 takes only this depth range from the
-decomposition; its direction was extracted natively on a different model.
+decomposition; its direction was extracted natively on a different model. (How this check reached
+the paper: correction note of 2026-10-12, \hyperref[sec:corrections]{Corrections and version
+history}.)
 
-\subsection{Round 5: ``The Deception Component Survives Orthogonalization'' $\to$ KILLED then PASSED (Circularity Regression)}
+\subsection{Round 5: ``The Deception Component Survives Orthogonalization'' $\to$ INVALID TEST, then PASSED on LOO Reanalysis (Circularity Regression)}
 
 \textbf{Claim}: Gram-Schmidt removal of the consequentiality component leaves a deception-specific
-direction (later relabelled pressure-specific; see Round~4) with $d=31$--$38$.
+direction with $d=31$--$38$. (This paper calls the component pressure-specific; see Round~4.)
 
 \begin{redteam}
 FATAL. The permutation test regressed from LAT v2's methodology---it held the direction fixed and
@@ -272,47 +281,61 @@ baseline (30\%, not 80\%) and reduced deception only to 13\%. The primary endpoi
 replication does not support the ``80\% to 10\%'' headline without qualification.
 
 \textbf{What grew}: Three blocking controls (held-out detection, placebo steering, frame
-erasure). The placebo and frame-erasure controls subsequently passed, establishing the correction as targeted and specific; the held-out test measures detection only and does not bear on the correction.
+erasure). The placebo and frame-erasure controls subsequently passed, consistent with a direction-specific correction rather than frame erasure (placebo vs corrected, one-sided $p=0.020$ at the trial level, $0.064$ at the cell level); the held-out test measures detection only and does not bear on the correction.
 
-\textbf{Lesson}: The most publishable-looking number (AUROC 1.0) was the least defensible. Leading
-with it would have handed reviewers the paper. The audit forced us to lead with the correction
-instead---which turned out to be the stronger, more novel finding.
+\textbf{Lesson}: The most publishable-looking number (AUROC 1.0) was the least defensible: it was a
+training-set score. The audit moved the lead to the correction, whose confirmatory replication shows
+that its magnitude is frame-dependent (above).
 
 %% ============================================================
-\section{What the Audits Killed: A Complete Registry}\label{sec:registry}
+\section{What the Audits Withdrew: A Registry}\label{sec:registry}
 %% ============================================================
+
+A withdrawn claim is not a claim found false. The \emph{Outcome} column of \cref{tab:registry} says
+which kind of withdrawal each row is: the quantity was mis-measured and has been re-estimated; the
+claim is not supported as labelled because a named confound explains it; the test was uninformative
+by construction; the claim's scope was restricted; or the test could not decide it.
 
 \begin{table}[H]
   \centering
-  \caption{Complete registry of killed claims across six audit rounds.}
+  \small
+  \caption{Registry of withdrawn claims across six audit rounds.}
   \label{tab:registry}
-  \begin{tabular}{@{}p{0.5em}p{5.5cm}p{4cm}p{4.5cm}@{}}
+  \begin{tabular}{@{}p{0.5em}*{4}{>{\raggedright\arraybackslash}p{\dimexpr(\linewidth-0.5em-8\tabcolsep)/4\relax}}@{}}
     \toprule
-    \textbf{R} & \textbf{Claim killed} & \textbf{Why} & \textbf{What replaced it} \\
+    \textbf{R} & \textbf{Claim withdrawn} & \textbf{Why} & \textbf{What replaced it} & \textbf{Outcome} \\
     \midrule
     1 & $d=2.0$--$3.3$ deception separation & Circular, $n=3$, wrong position &
-        LOO $d=35$, $n=30$, fixed position \\
-    1 & 15 independent pairs & 3 eval sets recycled 5$\times$ & 30 unique eval sets \\
+        LOO $d=35$, $n=30$, fixed position & Mis-measured; re-estimated \\
+    1 & 15 independent pairs & 3 eval sets recycled 5$\times$ & 30 unique eval sets &
+        Mis-measured; re-estimated \\
     2 & ``Deception direction'' (unqualified) & Structural confound &
-        ``Transfers across text, template confound remains'' \\
+        ``Transfers across text, template confound remains'' &
+        Not supported as labelled: template confound \\
     3 & Direction encodes deception specifically & Consequentiality confound &
-        ``Direction encodes consequentiality $+$ deception'' (later: $+$ pressure framing) \\
-    5 & $d=31$--$38$ (circular) & Permutation test regression & LOO $d=24$--$37$ (corrected) \\
+        ``Direction encodes consequentiality $+$ deception'' (later: $+$ pressure framing) &
+        Not supported as labelled: consequentiality confound \\
+    5 & $d=31$--$38$ (circular) & Permutation test regression & LOO $d=24$--$37$ (corrected) &
+        Mis-measured; re-estimated \\
     5 & $p=0.0000$ (circular) & Fixed direction, shuffled projections &
-        $p=0.0000$ (full LOO recomputation) \\
+        $p=0.0000$ (full LOO recomputation) & Mis-measured; re-estimated \\
     5 & Conseq $d=0.000$ ``sanity check'' & Tautological (guaranteed by construction) &
-        AUC 0.49--0.51 (individual trial separability; later found close to guaranteed in-sample) \\
+        AUC 0.49--0.51 (individual trial separability; later found close to guaranteed in-sample) &
+        Uninformative by construction \\
     6 & AUROC 1.0 detection & Train-on-test &
-        Held-out AUROC 0.915 (frame; confounded by system message), 0.238 (behavior) \\
-    6 & 100\% sensitivity & Detects pressure, not behavior & 24\% RED rate on novel prompts \\
+        Held-out AUROC 0.915 (frame; confounded by system message), 0.238 (behavior) &
+        Mis-measured (in-sample); re-estimated held out \\
+    6 & 100\% sensitivity & Detects pressure, not behavior & 24\% RED rate on novel prompts &
+        Not supported as labelled: pressure framing \\
     6 & ``Zero compliance loss'' & Tested on terse task only &
-        ``Within the terse score-reporting task'' \\
+        ``Within the terse score-reporting task'' & Scope restricted \\
     6 & Variance explosion (3--4$\times$) & Ecological fallacy from pooling &
-        Per-scenario std 0.4--0.6 (ratio $\sim$1.2$\times$) \\
+        Per-scenario std 0.4--0.6 (ratio $\sim$1.2$\times$) & Not supported: pooling artifact \\
     6 & Cross-scenario correlation collapse & Non-significant at $n=15$ &
-        Noise $\to$ noise (Fisher $z$ not significant) \\
+        Undecided at $n=15$ (Fisher $z$ not significant) & Test could not decide \\
     6 & Sycophancy sign flip trajectory & Universal across all conditions &
-        Property of direction rotation with depth \\
+        Property of direction rotation with depth &
+        Not supported as labelled: depth rotation in every condition \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -330,11 +353,11 @@ this'' is how solved problems become unsolved.
 
 \subsection{The Most Publishable Number Is Often the Least Defensible}
 
-Round~6's AUROC 1.0 would have been the paper's headline. It was train-on-test. The exploratory
-correction result (80\%$\to$10\%) was buried in the middle of the README. The
-audit inverted the emphasis: lead with the correction, kill the detection headline. This produced a
-stronger paper---though the subsequent confirmatory replication (baseline 30\%, corrected 13\%,
-primary $p=0.34$) showed the exploratory headline was frame-dependent.
+Round~6's AUROC 1.0 was the program's most quotable number, and it was train-on-test. The exploratory
+correction result (80\%$\to$10\%) sat in the middle of the README. The audit inverted the emphasis:
+lead with the correction, withdraw the detection headline. The subsequent confirmatory replication
+(baseline 30\%, corrected 13\%, primary one-sided $p=0.34$) shows the exploratory headline is
+frame-dependent.
 
 \subsection{Confounds Are Generative}
 
@@ -346,17 +369,24 @@ discovered by following the confounds.
 
 \subsection{Exploratory Analysis Without Significance Testing Is Dangerous}
 
-Round~6 also killed three exploratory findings (variance explosion, correlation collapse, sycophancy
-trajectory) that were presented as discoveries. All three failed when the audit applied formal tests.
-The lesson: if you see a pattern in $n=15$ data, run the significance test BEFORE writing it up.
-Interesting-looking numbers at small $n$ are usually noise.
+Round~6 also withdrew three exploratory findings (variance explosion, correlation collapse, sycophancy
+trajectory) that were presented as discoveries. Under formal tests, one is a pooling artifact, one is a
+depth rotation present in every condition, and one (the correlation collapse) is not significant at
+$n=15$, so the test could not decide it. The lesson: if you see a pattern in $n=15$ data, run the
+significance test BEFORE writing it up. At small $n$, an interesting-looking number is not yet a finding.
 
 \subsection{The Audit Protocol Must Be Preserved Verbatim}
 
 The audit reports are not summaries---they are the raw adversarial analysis, preserved exactly as
-written. This serves three purposes: (a)~readers can assess the auditor's reasoning independently;
-(b)~the specific objections are on record, so future work can verify they were addressed; (c)~the
-progression from audit to experiment is documented, not just claimed.
+written. This serves three purposes: (a)~readers can assess the auditor's reasoning independently,
+for every report that is released (\cref{app:audits}); (b)~the specific objections are on record, so
+future work can verify they were addressed; (c)~the progression from audit to experiment is
+documented, not just claimed. The Round~3 and Round~5 reports were not retained. Besides the
+summaries given here, the released record keeps only traces of those two rounds: the Round~4 report
+tabulates the Round~3 result (\texttt{supplementary/agni\_stage4\_audit.md}), and the decomposition
+paper's manuscript audit records that its orthogonalization was rerun because an earlier version held
+the direction fixed during permutation (PASS-3.1 in \texttt{agni\_manuscript\_audit.md}, in the
+supplement of the decomposition paper \cite{cc2026composites}).
 
 %% ============================================================
 \section{Recommendations for Adoption}\label{sec:recommendations}
@@ -375,7 +405,8 @@ progression from audit to experiment is documented, not just claimed.
     THROUGH the kills, not despite them.
 
   \item \textbf{Preserve audit reports verbatim as supplementary material.} Summaries lose the
-    adversarial reasoning. The raw report is the evidence that the process was real.
+    adversarial reasoning. The raw report is the evidence that the process was real. Commit each
+    report to the record when it is written: two of ours (Rounds~3 and~5) were not retained.
 
   \item \textbf{Separate the auditor from the experimenter.} In our case, separate agent instances
     with different system prompts. In a human lab, separate researchers or external reviewers. The
@@ -386,18 +417,20 @@ progression from audit to experiment is documented, not just claimed.
 \section{Conclusion}\label{sec:conclusion}
 %% ============================================================
 
-Six rounds of adversarial audit transformed a wrong answer ($d=2.0$--$3.3$ ``deception direction'')
-into a better-supported one (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
+Six rounds of adversarial audit turned a circularly measured ``deception direction'' ($d=2.0$--$3.3$)
+into a better-supported decomposition (consequentiality substrate $+$ pressure-specific component, with a targeted behavioral
 correction on a different model variant). The correction showed 80\%$\to$10\% in the exploratory proof, but a pre-registered
 confirmatory replication with novel frames found a lower baseline (30\%) and modest correction (to
-13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim that was killed produced the experiment that
+13\%), with the primary endpoint not met (one-sided $p=0.34$) and the placebo comparison significant only at the trial level (one-sided $p=0.020$; one-sided $p=0.064$ at the cell level). Every intermediate claim the audits withdrew produced the experiment that
 discovered the next finding. The methodology was not separate from the science---it was the science.
 
 We advocate for iterative adversarial audit as a standard practice in mechanistic interpretability
 research, where the combination of high-dimensional data, post-hoc analysis flexibility, and strong
-publication incentives makes confirmatory research unusually vulnerable to confounds. The audit trail
-we provide---six rounds, thirteen killed claims, five surviving findings, and a working correction
-system---is offered as evidence that the approach produces better science than the alternative.
+publication incentives makes confirmatory research unusually vulnerable to confounds. The audit
+trail---six rounds (the surviving reports are listed in \cref{app:audits}), thirteen withdrawn claims,
+five surviving findings, and a correction that points the right way against placebo although its
+confirmatory primary endpoint was not met---is offered so that others can judge the approach against
+their own practice.
 
 %% ============================================================
 \section*{Author Contributions (CRediT)}
@@ -422,10 +455,99 @@ The Oracle Harness is maintained at Liberation Labs / Transparent Humboldt Coali
 \section*{Data Availability}
 %% ============================================================
 
-All six verbatim audit reports, the killed-claims registry with full evidence chains, and code for
-the audit protocol automation are available at
-\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} (staged release).
+The five surviving audit reports (both Round~1 reports and the Round~2, Round~4 and Round~6 reports)
+are in \texttt{supplementary/} beside this paper, with an index (\texttt{supplementary/README.md}).
+The second Round~1, Round~2 and Round~4 reports are also in the supplement of the companion
+decomposition paper \cite{cc2026composites}, together with its August 2026 manuscript audit. The
+first Round~1 report and the Round~6 report were copied from the program's repository on 2026-11-16
+with one change: the name of an internal compute host now reads ``[internal compute host]''. The
+program's findings registry and the code for the audit protocol automation are in
+\url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}, which is private pending its
+staged release. The Round~3 and Round~5 reports were not retained.
 See also Appendices A--C.
+
+%% ============================================================
+\phantomsection\label{sec:corrections}
+\section*{Corrections and version history}
+\addcontentsline{toc}{section}{Corrections and version history}
+%% ============================================================
+
+This paper was first published in July 2026. The body states each current result in its place; the
+notes below record what changed, in date order. Dates are those of the commits to the artifact
+repository (\url{https://github.com/Liberation-Labs-THCoalition/published-research}) that made each
+change. Changes from 2026-07-18 to 2026-09-12 were to the format, editions, credits and references
+(the LaTeX source, the academic edition, credits in the since-retired Markdown editions, a corrected
+reference and added DOIs) and are not listed.
+
+\paragraph{2026-09-30 to 2026-10-31.}
+\begin{itemize}[nosep]
+  \item 2026-09-30: the held-out frame AUROC (0.915) in \cref{tab:registry} is labelled as confounded by
+    the system message.
+  \item 2026-09-30: the Casper et al.\ reference gives its correct author list.
+  \item 2026-10-08: the exploratory correction is stated as 80\%$\to$10\%.
+  \item 2026-10-09: Round~6's ``What grew'' no longer counts the detection-only held-out test as a
+    passed correction control; the confirmatory placebo comparison is reported as one-sided $p=0.020$;
+    the integrity edition acknowledges Kavi's verification review.
+  \item 2026-10-11: the placebo comparison is labelled trial-level, with the cell-level one-sided
+    $p=0.064$ at the pre-registered unit beside it.
+  \item 2026-10-12: the decomposition's late-layer component is called pressure-specific, and only its
+    layer choice reaches the correction; the late-layer ratio is stated as 8--21$\times$; Round~4
+    quotes the auditor's words; the non-threat denominators are credited to the review that found them.
+  \item 2026-10-31: contact address updated.
+\end{itemize}
+
+\paragraph{2026-11-16: two notes moved from the body.} The two passages below were written into
+Round~4 on 2026-10-12. They are reproduced here as they were written; Round~4 now states the current
+result in their place.
+
+\emph{The late-layer ratio.} As written in Round~4:
+\begin{quote}
+The program's write-up quantified this as 10--12$\times$ (on recomputation 8--21$\times$ across
+L35--L47), which the later manuscript audit corrected.
+\end{quote}
+The manuscript audit's ratios are 7.8, 20.9, 12.1 and 11.3$\times$ at L35, L39, L43 and L47 (FIX-1.3 in
+\texttt{agni\_manuscript\_audit.md}, in the supplement of the decomposition paper
+\cite{cc2026composites}).
+
+\emph{How the non-threat denominators reached the paper.} As written in Round~4:
+\begin{quote}
+Later revision: The decomposition paper's behavioral tests showed essentially no deception: on the
+trials that produced a score, the model inflated none of 21 threat-pressure trials (a test already in
+hand at Round~2, whose ``30 trials, 21 valid'' the August 2026 manuscript audit already recorded) and
+one of seven non-threat trials. The non-threat denominators came late: an Agni review on 2026-09-04
+counted the scored outputs (3, 3 and 1 of 10, for sycophancy, reward and conformity), but the finding
+was not carried into the paper; the 2026-10-10 gate and the next day's evidence pass found them again.
+A finding recorded is not a finding applied. Every claim was therefore restricted to how the model
+represents deceptive-pressure framing, and the decomposition paper now calls the late-layer residual a
+pressure-specific component rather than a deception amplifier \cite{cc2026composites}. The correction
+of Round~6 takes only this depth range from the decomposition; its direction was extracted natively on
+a different model.
+\end{quote}
+
+\paragraph{2026-11-16: where the audit reports are.} Earlier versions said ``Every audit report is
+provided in full as supplementary material'' and that ``All six verbatim audit reports'' were available
+in the program repository. The paper had no supplementary directory, that repository is private, and
+two of the six rounds' reports were not retained. \Cref{app:audits} now lists the reports that survive
+and where each is held; all five are reproduced in \texttt{supplementary/}, two of them with the name
+of an internal compute host replaced.
+
+\paragraph{2026-11-16: what kind of withdrawal.} The registry and the round headings now say which
+kind of withdrawal each claim was (\cref{tab:registry}). Earlier versions labelled every row ``killed'',
+headed Round~1 ``KILLED (Content Confound)'' although its fatal flaws were measurement flaws and the
+content confound was raised by the audit of the re-estimate, and headed Round~5 ``KILLED then PASSED''
+although the claim was never found false: the test was invalid, and the LOO reanalysis passed. The
+correlation collapse row read ``Noise $\to$ noise'' for a test that could not decide at $n=15$.
+
+\paragraph{2026-11-16: the placebo result.} Earlier versions said the placebo and frame-erasure
+controls passed, ``establishing the correction as targeted and specific''. The placebo comparison is
+significant at the trial level only (one-sided $p=0.020$; $0.064$ at the cell level), so Round~6 now
+says the controls are consistent with a direction-specific correction rather than frame erasure.
+
+\paragraph{2026-11-16: the conclusion's last claim.} Earlier versions offered the audit trail, with ``a
+working correction system'', ``as evidence that the approach produces better science than the
+alternative''. No alternative arm was run, and the correction's confirmatory primary endpoint was not
+met (one-sided $p=0.34$), so the conclusion now states that result and offers the trail for others to
+judge.
 
 %% ============================================================
 % Bibliography
@@ -491,19 +613,54 @@ Shevlane, T., Farquhar, S., Garfinkel, B., et al.\ (2023).
 
 %% ============================================================
 \appendix
-\section{Complete Audit Reports (Six Rounds, Verbatim)}\label{app:audits}
+\section{Audit Reports: What Survives and Where It Is Held}\label{app:audits}
 %% ============================================================
 
-Full adversarial audit reports for all six rounds are preserved as supplementary material. See
-\texttt{supplementary/} directory in the project repository.
+\begin{table}[H]
+  \centering
+  \small
+  \caption{The audit reports by round. Every surviving report is in \texttt{supplementary/}.}
+  \label{tab:audits}
+  \begin{tabular}{@{}p{2.2cm}>{\raggedright\arraybackslash}p{6.4cm}p{1.9cm}>{\raggedright\arraybackslash}p{3.6cm}@{}}
+    \toprule
+    \textbf{Round} & \textbf{Report} & \textbf{Dated} & \textbf{Where} \\
+    \midrule
+    1 (first run) & LAT deception vector extraction (\texttt{agni\_lat\_audit.md}) & 2026-06-26 &
+      \texttt{supplementary/} \\
+    1 (re-estimate) & LAT deception direction v2 results (\texttt{agni\_stage1\_audit.md}) &
+      2026-06-27 & \texttt{supplementary/} \\
+    2 & LAT transfer test (\texttt{agni\_stage2\_audit.md}) & 2026-06-28 & \texttt{supplementary/} \\
+    3 & Non-threat transfer & --- & Not retained \\
+    4 & Consequentiality control (\texttt{agni\_stage4\_audit.md}) & 2026-06-29 &
+      \texttt{supplementary/} \\
+    5 & Orthogonalization and LOO reanalysis & --- & Not retained \\
+    6 & Behavioral proof of the Oracle Loop (\texttt{agni\_behavioral\_proof\_audit.md}) & 2026-07-07 &
+      \texttt{supplementary/} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-\section{Killed-Claims Registry with Full Evidence Chains}\label{app:registry}
+The three stage-named files in \texttt{supplementary/} are byte-identical to the copies in the
+decomposition paper's supplement \cite{cc2026composites}; the Round~2 report there differs from the
+copy filed during the round only in its pointer to the prior audit. The first Round~1 report and the
+Round~6 report were copied on 2026-11-16 from \texttt{experiments/results/} in the program repository
+(Project-Oracle, commit \texttt{4cda688}). Each named an internal compute host twice; those four
+mentions now read ``[internal compute host]'', and nothing else was changed. The three
+exploratory Round~6 rows of \cref{tab:registry} (variance explosion, correlation collapse, sycophancy
+trajectory) do not come from the Round~6 report listed here; the report that withdrew them was not
+located in the program repository or in this one. The August 2026 manuscript audit cited in Round~4
+is in the decomposition paper's supplement.
 
-All 13 killed claims with the complete evidence that killed each, source data references, and
-the experimental design that replaced each claim.
+\section{Withdrawn-Claims Registry: Where the Evidence Is}\label{app:registry}
+
+\Cref{tab:registry} lists all 13 withdrawn claims, why each was withdrawn, what replaced it, and the
+kind of withdrawal. The evidence for each is in the audit report of its round (\cref{tab:audits}),
+where that report survives. The program's findings registry, which carries the source-data
+references, is in the program repository (private pending its staged release).
 
 \section{Code for the Audit Protocol Automation}\label{app:code}
 
-Staged release at \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle}.
+Staged release at \url{https://github.com/Liberation-Labs-THCoalition/Project-Oracle} (private
+pending that release).
 
 \end{document}
